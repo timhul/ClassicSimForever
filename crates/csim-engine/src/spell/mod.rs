@@ -4,14 +4,17 @@
 //! describes every rank, effect, buff, restriction and talent modification, and the runtime
 //! (later substeps of Phase 3) interprets it.
 
+pub mod rank_group;
 pub mod runtime;
 pub mod spec;
 pub mod status;
 
+pub use rank_group::SpellRankGroup;
 pub use runtime::{AttackOutcome, CastReport, Spell, SpellHost};
 pub use spec::{
     Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ResourceCostType,
     RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec, SpellFileSpec, SpellFlag,
     SpellGroupSpec, SpellRankSpec, StatisticsSpec, TalentModification, TalentModificationSpec,
+    MAX_RANK,
 };
 pub use status::{SpellResult, SpellStatus};
