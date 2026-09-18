@@ -7,6 +7,7 @@ pub mod attack_mode;
 pub mod buff;
 pub mod combat_roll;
 pub mod cooldown;
+pub mod effect;
 pub mod enchant;
 pub mod engine;
 pub mod equipment;
