@@ -1,0 +1,5 @@
+ID,SkillID,ClassMask,Flags,Availability,MinLevel,SkillTierID,RaceMasks_0,RaceMasks_1
+70,125,1503,146,1,0,0,2,0
+107,26,1,1040,1,0,0,-1,-1
+109,256,1,1040,0,0,0,-1,-1
+110,257,1,1040,0,0,0,-1,-1

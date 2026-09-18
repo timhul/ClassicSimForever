@@ -1,0 +1,19 @@
+[package]
+name = "csim-tables"
+description = "Reader and exporters for the World of Warcraft Forever client table dumps (DB2 CSV)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "csim-tables"
+path = "src/main.rs"
+
+[dependencies]
+csv.workspace = true
+thiserror.workspace = true
+clap.workspace = true

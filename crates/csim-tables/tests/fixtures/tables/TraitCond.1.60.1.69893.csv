@@ -1,0 +1,4 @@
+ID,CondType,TraitTreeID,GrantedRanks,QuestID,AchievementID,SpecSetID,TraitNodeGroupID,TraitNodeID,TraitNodeEntryID,TraitCurrencyID,SpentAmountRequired,Flags,RequiredLevel,FreeSharedStringID,SpendMoreSharedStringID,TraitCondAccountElementID
+43515,0,1117,0,0,0,0,11650,0,0,3820,30,0,0,0,911,0
+43517,0,1117,0,0,0,0,12821,0,0,3820,20,0,0,0,911,0
+46499,0,1117,0,0,0,0,12824,0,0,3820,10,0,0,0,911,0

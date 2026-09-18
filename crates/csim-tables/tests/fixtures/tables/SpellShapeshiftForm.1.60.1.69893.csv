@@ -1,0 +1,4 @@
+ID,Name_lang,CreatureDisplayID,CreatureType,Flags,AttackIconFileID,BonusActionBar,CombatRoundTime,DamageVariance,MountTypeID,PresetSpellID_0,PresetSpellID_1,PresetSpellID_2,PresetSpellID_3,PresetSpellID_4,PresetSpellID_5,PresetSpellID_6,PresetSpellID_7
+17,Battle Stance,0,0,7,0,1,0,0,0,0,0,0,0,0,0,0,0
+18,Defensive Stance,0,0,7,0,2,0,0,0,0,0,0,0,0,0,0,0
+19,Berserker Stance,0,0,7,0,3,0,0,0,0,0,0,0,0,0,0,0

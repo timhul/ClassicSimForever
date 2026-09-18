@@ -1,0 +1,4 @@
+ID,DisplayName_lang,DisplayNameShort_lang,Flags,RangeMin_0,RangeMin_1,RangeMax_0,RangeMax_1
+1,Self Only,Self,0,0,0,0,0
+2,Combat Range,Combat,1,0,0,5,5
+13,Anywhere,Anywhere,0,0,0,50000,50000

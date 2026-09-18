@@ -1,0 +1,5 @@
+DisplayName_lang,AlternateVerb_lang,Description_lang,HordeDisplayName_lang,NeutralDisplayName,ID,CategoryID,SpellIconFileID,CanLink,ParentSkillLineID,ParentTierIndex,Flags,SpellBookSpellID,ExpansionNameSharedStringID,HordeExpansionNameSharedStringID
+Arms,,,,,26,7,132292,0,0,0,1040,0,0,0
+Orc Racial,,,,,125,9,136235,0,0,0,146,0,0,0
+Fury,,,,,256,7,132347,0,0,0,1040,0,0,0
+Protection,,,,,257,7,132341,0,0,0,1040,0,0,0
