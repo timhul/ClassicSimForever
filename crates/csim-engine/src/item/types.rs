@@ -1,0 +1,307 @@
+//! Item-related enums. Port of `Equipment/Item/ItemNamespace.h` and `ItemStatsEnum.*`.
+//!
+//! The serde names match the strings used in the item database files (`SWORD`, `STRENGTH`, ...).
+
+use serde::{Deserialize, Serialize};
+
+use crate::magic_school::MagicSchool;
+use crate::target::CreatureType;
+
+/// Weapon (and off-hand / relic) types.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WeaponType {
+    Axe,
+    Dagger,
+    Fist,
+    Mace,
+    Polearm,
+    Staff,
+    Sword,
+    Bow,
+    Crossbow,
+    Gun,
+    Thrown,
+    Wand,
+    Idol,
+    Libram,
+    Totem,
+    Shield,
+    CasterOffhand,
+    TwohandAxe,
+    TwohandMace,
+    TwohandSword,
+}
+
+impl WeaponType {
+    pub const ALL: [WeaponType; 20] = [
+        WeaponType::Axe,
+        WeaponType::Dagger,
+        WeaponType::Fist,
+        WeaponType::Mace,
+        WeaponType::Polearm,
+        WeaponType::Staff,
+        WeaponType::Sword,
+        WeaponType::Bow,
+        WeaponType::Crossbow,
+        WeaponType::Gun,
+        WeaponType::Thrown,
+        WeaponType::Wand,
+        WeaponType::Idol,
+        WeaponType::Libram,
+        WeaponType::Totem,
+        WeaponType::Shield,
+        WeaponType::CasterOffhand,
+        WeaponType::TwohandAxe,
+        WeaponType::TwohandMace,
+        WeaponType::TwohandSword,
+    ];
+
+    pub const COUNT: usize = Self::ALL.len();
+
+    pub fn index(self) -> usize {
+        self as usize
+    }
+
+    /// Whether the weapon occupies both hands.
+    pub fn is_two_hand(self) -> bool {
+        matches!(
+            self,
+            WeaponType::Polearm
+                | WeaponType::Staff
+                | WeaponType::TwohandAxe
+                | WeaponType::TwohandMace
+                | WeaponType::TwohandSword
+        )
+    }
+
+    /// Whether the weapon has a weapon skill that gear/race can raise.
+    pub fn has_weapon_skill(self) -> bool {
+        matches!(
+            self,
+            WeaponType::Axe
+                | WeaponType::Dagger
+                | WeaponType::Fist
+                | WeaponType::Mace
+                | WeaponType::Sword
+                | WeaponType::TwohandAxe
+                | WeaponType::TwohandMace
+                | WeaponType::TwohandSword
+                | WeaponType::Bow
+                | WeaponType::Crossbow
+                | WeaponType::Gun
+        )
+    }
+}
+
+/// Stat keys used by items, set bonuses, enchants and generic stat buffs.
+///
+/// The value semantics differ per key: chances (`CRIT_CHANCE`, `HIT_CHANCE`, `DODGE_CHANCE`, ...)
+/// are fractions in data files (`0.01` = 1%), speed keys are percentages, everything else is a
+/// flat amount. See [`crate::stats::Stats::apply_item_stat`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ItemStat {
+    Agility,
+    Intellect,
+    Spirit,
+    Stamina,
+    Strength,
+    Armor,
+    Defense,
+    BlockValue,
+    BlockChance,
+    DodgeChance,
+    ParryChance,
+    ArcaneResistance,
+    FireResistance,
+    FrostResistance,
+    HolyResistance,
+    NatureResistance,
+    ShadowResistance,
+    AllResistance,
+    AxeSkill,
+    DaggerSkill,
+    FistSkill,
+    MaceSkill,
+    SwordSkill,
+    TwohandAxeSkill,
+    TwohandMaceSkill,
+    TwohandSwordSkill,
+    BowSkill,
+    CrossbowSkill,
+    GunSkill,
+    HitChance,
+    CritChance,
+    AttackSpeed,
+    MeleeAttackSpeed,
+    RangedAttackSpeed,
+    CastingSpeed,
+    AttackPower,
+    MeleeAttackPower,
+    RangedAttackPower,
+    FeralAttackPower,
+    AttackPowerBeast,
+    AttackPowerDemon,
+    AttackPowerDragonkin,
+    AttackPowerElemental,
+    AttackPowerGiant,
+    AttackPowerHumanoid,
+    AttackPowerMechanical,
+    AttackPowerUndead,
+    WeaponDamage,
+    #[serde(rename = "MANA_PER_5")]
+    ManaPer5,
+    #[serde(rename = "HEALTH_PER_5")]
+    HealthPer5,
+    ManaSkillReduction,
+    SpellDamage,
+    SpellDamageArcane,
+    SpellDamageFire,
+    SpellDamageFrost,
+    SpellDamageHoly,
+    SpellDamageNature,
+    SpellDamageShadow,
+    SpellDamageBeast,
+    SpellDamageDemon,
+    SpellDamageDragonkin,
+    SpellDamageElemental,
+    SpellDamageGiant,
+    SpellDamageHumanoid,
+    SpellDamageMechanical,
+    SpellDamageUndead,
+    SpellCritChance,
+    SpellHitChance,
+    SpellPenetration,
+}
+
+impl ItemStat {
+    /// The creature type an `ATTACK_POWER_*` / `SPELL_DAMAGE_*` creature stat applies to.
+    pub fn creature_type(self) -> Option<CreatureType> {
+        Some(match self {
+            ItemStat::AttackPowerBeast | ItemStat::SpellDamageBeast => CreatureType::Beast,
+            ItemStat::AttackPowerDemon | ItemStat::SpellDamageDemon => CreatureType::Demon,
+            ItemStat::AttackPowerDragonkin | ItemStat::SpellDamageDragonkin => {
+                CreatureType::Dragonkin
+            }
+            ItemStat::AttackPowerElemental | ItemStat::SpellDamageElemental => {
+                CreatureType::Elemental
+            }
+            ItemStat::AttackPowerGiant | ItemStat::SpellDamageGiant => CreatureType::Giant,
+            ItemStat::AttackPowerHumanoid | ItemStat::SpellDamageHumanoid => CreatureType::Humanoid,
+            ItemStat::AttackPowerMechanical | ItemStat::SpellDamageMechanical => {
+                CreatureType::Mechanical
+            }
+            ItemStat::AttackPowerUndead | ItemStat::SpellDamageUndead => CreatureType::Undead,
+            _ => return None,
+        })
+    }
+
+    /// The magic school a `SPELL_DAMAGE_<school>` / `<SCHOOL>_RESISTANCE` stat applies to.
+    pub fn magic_school(self) -> Option<MagicSchool> {
+        Some(match self {
+            ItemStat::SpellDamageArcane | ItemStat::ArcaneResistance => MagicSchool::Arcane,
+            ItemStat::SpellDamageFire | ItemStat::FireResistance => MagicSchool::Fire,
+            ItemStat::SpellDamageFrost | ItemStat::FrostResistance => MagicSchool::Frost,
+            ItemStat::SpellDamageHoly | ItemStat::HolyResistance => MagicSchool::Holy,
+            ItemStat::SpellDamageNature | ItemStat::NatureResistance => MagicSchool::Nature,
+            ItemStat::SpellDamageShadow | ItemStat::ShadowResistance => MagicSchool::Shadow,
+            _ => return None,
+        })
+    }
+
+    /// The weapon type a `<TYPE>_SKILL` stat applies to.
+    pub fn weapon_type(self) -> Option<WeaponType> {
+        Some(match self {
+            ItemStat::AxeSkill => WeaponType::Axe,
+            ItemStat::DaggerSkill => WeaponType::Dagger,
+            ItemStat::FistSkill => WeaponType::Fist,
+            ItemStat::MaceSkill => WeaponType::Mace,
+            ItemStat::SwordSkill => WeaponType::Sword,
+            ItemStat::TwohandAxeSkill => WeaponType::TwohandAxe,
+            ItemStat::TwohandMaceSkill => WeaponType::TwohandMace,
+            ItemStat::TwohandSwordSkill => WeaponType::TwohandSword,
+            ItemStat::BowSkill => WeaponType::Bow,
+            ItemStat::CrossbowSkill => WeaponType::Crossbow,
+            ItemStat::GunSkill => WeaponType::Gun,
+            _ => return None,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serde_names_match_data_files() {
+        assert_eq!(
+            serde_yaml::from_str::<WeaponType>("TWOHAND_SWORD").unwrap(),
+            WeaponType::TwohandSword
+        );
+        assert_eq!(
+            serde_yaml::from_str::<WeaponType>("CASTER_OFFHAND").unwrap(),
+            WeaponType::CasterOffhand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemStat>("MANA_PER_5").unwrap(),
+            ItemStat::ManaPer5
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemStat>("HEALTH_PER_5").unwrap(),
+            ItemStat::HealthPer5
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemStat>("ATTACK_POWER_UNDEAD").unwrap(),
+            ItemStat::AttackPowerUndead
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemStat>("SPELL_CRIT_CHANCE").unwrap(),
+            ItemStat::SpellCritChance
+        );
+        assert_eq!(
+            serde_yaml::to_string(&ItemStat::TwohandAxeSkill)
+                .unwrap()
+                .trim(),
+            "TWOHAND_AXE_SKILL"
+        );
+    }
+
+    #[test]
+    fn weapon_type_classification() {
+        assert!(WeaponType::TwohandAxe.is_two_hand());
+        assert!(WeaponType::Staff.is_two_hand());
+        assert!(!WeaponType::Sword.is_two_hand());
+        assert!(WeaponType::Gun.has_weapon_skill());
+        assert!(!WeaponType::Shield.has_weapon_skill());
+        assert!(!WeaponType::Polearm.has_weapon_skill());
+        assert_eq!(WeaponType::ALL.len(), WeaponType::COUNT);
+    }
+
+    #[test]
+    fn stat_lookups() {
+        assert_eq!(
+            ItemStat::AttackPowerDemon.creature_type(),
+            Some(CreatureType::Demon)
+        );
+        assert_eq!(
+            ItemStat::SpellDamageGiant.creature_type(),
+            Some(CreatureType::Giant)
+        );
+        assert_eq!(ItemStat::Strength.creature_type(), None);
+        assert_eq!(
+            ItemStat::FrostResistance.magic_school(),
+            Some(MagicSchool::Frost)
+        );
+        assert_eq!(
+            ItemStat::SpellDamageShadow.magic_school(),
+            Some(MagicSchool::Shadow)
+        );
+        assert_eq!(ItemStat::SpellDamage.magic_school(), None);
+        assert_eq!(
+            ItemStat::CrossbowSkill.weapon_type(),
+            Some(WeaponType::Crossbow)
+        );
+        assert_eq!(ItemStat::Armor.weapon_type(), None);
+    }
+}
