@@ -5,9 +5,11 @@
 //! (later substeps of Phase 3) interprets it.
 
 pub mod spec;
+pub mod status;
 
 pub use spec::{
     Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ResourceCostType,
     RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec, SpellFileSpec, SpellFlag,
     SpellGroupSpec, SpellRankSpec, StatisticsSpec, TalentModification, TalentModificationSpec,
 };
+pub use status::{SpellResult, SpellStatus};
