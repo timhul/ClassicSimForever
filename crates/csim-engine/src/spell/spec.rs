@@ -498,6 +498,10 @@ pub struct SpellGroupSpec {
     /// Proc settings; only for passive spells (`PASSIVE_SPELL` flag), which are procs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub proc: Option<ProcSpec>,
+    /// A cast-time spell whose cast completes instantly while the character's casting time is
+    /// suppressed (Nature's Swiftness and the like). Port of `SuppressibleCast`.
+    #[serde(default)]
+    pub suppressible_cast: bool,
     /// Names of the spells sharing a cooldown with this one (including this one). Filled by the
     /// loader from the file's `shared_cooldowns`, not read from the group itself.
     #[serde(skip)]

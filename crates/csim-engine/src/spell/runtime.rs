@@ -6,6 +6,10 @@
 //! the [`SpellHost`] trait (an extension of [`EffectHost`]) implemented by the spell context in
 //! Phase 4; what the character has to do afterwards (statistics, proc checks) comes back in a
 //! [`CastReport`].
+//!
+//! Spells with a cast time (port of `Spells/CastingTimeRequirer.*`) split [`Spell::perform`]
+//! in two: it starts the cast (cooldown, GCD, `CastComplete` event tagged with a cast id) and
+//! [`Spell::complete_cast`] runs the effects when the event arrives.
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -14,7 +18,7 @@ use crate::buff::{Buff, BuffApplication};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::cooldown::{add_gcd_event, CooldownControl};
 use crate::effect::{ChainState, Effect, EffectHost};
-use crate::engine::Engine;
+use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
 use crate::item::WeaponType;
 use crate::mechanics::Mechanics;
@@ -51,6 +55,21 @@ pub trait SpellHost: EffectHost {
     fn start_stance_cooldown(&mut self);
     fn on_trinket_cooldown(&self) -> bool;
     fn cast_in_progress(&self) -> bool;
+    /// Marks a cast as in progress and returns its id. Port of `CharacterSpells::start_cast`.
+    fn start_cast(&mut self) -> u32;
+    /// Ends the cast with `cast_id` (the character schedules its reaction). Port of
+    /// `CharacterSpells::complete_cast`.
+    fn complete_cast(&mut self, cast_id: u32);
+    fn casting_speed_mod(&self) -> f64;
+    /// Flat cast time reduction in milliseconds.
+    fn casting_speed_flat_reduction(&self) -> u32;
+    /// Whether an active buff makes suppressible casts instant.
+    fn casting_time_suppressed(&self) -> bool;
+    /// Pauses auto attacks (`STOPS_ATTACK_DURING_CAST`), cancelling any queued next-swing spell.
+    fn stop_attack(&mut self);
+    fn start_attack(&mut self);
+    /// Restarts both swing timers (`RESETS_SWING_TIMERS`).
+    fn reset_swing_timers(&mut self);
     fn stance(&self) -> Stance;
     fn offhand_weapon_type(&self) -> Option<WeaponType>;
 
@@ -113,6 +132,9 @@ pub struct CastReport {
     pub buff: Option<BuffApplication>,
     /// Proc sources to run after the cast. Port of `proc_sources_to_attempt`.
     pub proc_sources: Vec<ProcSource>,
+    /// The spell has a cast time and only started casting; the rest of the report is empty
+    /// until [`Spell::complete_cast`].
+    pub cast_started: bool,
 }
 
 /// One rank of a spell. Port of `Spell`.
@@ -142,6 +164,8 @@ pub struct Spell {
     id: Option<SpellId>,
     /// Tick state of the marker buff's periodic aura, if it has one.
     periodic: Option<Periodic>,
+    /// Id of the cast in progress. Port of `CastingTimeRequirer::cast_id`.
+    cast_id: Option<u32>,
 }
 
 impl Spell {
@@ -220,6 +244,7 @@ impl Spell {
             last_result: SpellResult::Undetermined,
             id: None,
             periodic,
+            cast_id: None,
             effects,
             talent_modifications,
             instance_id: None,
@@ -299,6 +324,24 @@ impl Spell {
 
     pub fn cast_time_ms(&self) -> u32 {
         self.cast_time_ms
+    }
+
+    /// Whether the spell has a cast time (as opposed to being instant).
+    pub fn has_cast_time(&self) -> bool {
+        self.cast_time_ms > 0
+    }
+
+    /// Whether this spell's cast is in progress.
+    pub fn is_casting(&self) -> bool {
+        self.cast_id.is_some()
+    }
+
+    /// The cast time in seconds after haste and flat reductions. Port of
+    /// `CastingTimeRequirer::get_cast_time`.
+    pub fn cast_time(&self, host: &impl SpellHost) -> f64 {
+        let flat_reduction = f64::from(host.casting_speed_flat_reduction()) / 1000.0;
+        let after_mod = f64::from(self.cast_time_ms) / 1000.0 / host.casting_speed_mod();
+        (after_mod - flat_reduction).max(0.0)
     }
 
     pub fn crit_chance_bonus(&self) -> u32 {
@@ -522,7 +565,7 @@ impl Spell {
             host.cooldown_mut(id).start(now);
         }
         self.last_result = SpellResult::Undetermined;
-        let mut report = CastReport {
+        let report = CastReport {
             resource_cost: cost,
             ..CastReport::default()
         };
@@ -550,6 +593,70 @@ impl Spell {
                 host.start_stance_cooldown();
             }
         }
+
+        if self.has_cast_time() {
+            return self.start_cast(host, report);
+        }
+        self.execute(host, report)
+    }
+
+    /// Starts casting: `CastComplete` is scheduled after the cast time unless the cast is
+    /// suppressed, in which case it completes at once. Port of `CastingTimeRequirer::start_cast`
+    /// plus the `Slam::spell_effect` attack handling.
+    fn start_cast(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
+        let cast_id = host.start_cast();
+        self.cast_id = Some(cast_id);
+        if self.has_flag(SpellFlag::StopsAttackDuringCast) {
+            host.stop_attack();
+        }
+        if self.group.suppressible_cast && host.casting_time_suppressed() {
+            return self
+                .complete_cast(cast_id, host)
+                .expect("a cast just started completes");
+        }
+        let id = self
+            .id
+            .unwrap_or_else(|| panic!("cast-time spell {} has no id", self.group.name));
+        let (character, cast_time) = (host.character_id(), self.cast_time(host));
+        host.engine_mut().add_event_in(
+            cast_time,
+            EventKind::CastComplete {
+                character,
+                spell: id,
+                cast_id,
+            },
+        );
+        report.cast_started = true;
+        report
+    }
+
+    /// Handles a `CastComplete` event: runs the effects of the cast started with `cast_id`.
+    /// Returns `None` for a stale cast id. Port of `CastingTimeRequirer::complete_cast` plus
+    /// `Slam::complete_cast_effect`'s swing timer handling.
+    pub fn complete_cast(&mut self, cast_id: u32, host: &mut impl SpellHost) -> Option<CastReport> {
+        if self.cast_id != Some(cast_id) {
+            return None;
+        }
+        self.cast_id = None;
+        host.complete_cast(cast_id);
+        if self.has_flag(SpellFlag::ResetsSwingTimers) {
+            host.reset_swing_timers();
+        }
+        if self.has_flag(SpellFlag::StopsAttackDuringCast) {
+            host.start_attack();
+        }
+        let report = CastReport {
+            resource_cost: self.resource_cost(host),
+            ..CastReport::default()
+        };
+        Some(self.execute(host, report))
+    }
+
+    /// Runs the effect chain, applies the buff, pays the cost and collects the damage. The
+    /// second half of `Spell::spell_effect`.
+    fn execute(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
+        let resource = self.resource_type();
+        let cost = report.resource_cost;
 
         // The effect chain.
         let mut first_roll = None;
@@ -702,6 +809,9 @@ impl Spell {
     }
 
     fn execution_time(&self, host: &impl SpellHost) -> f64 {
+        if self.has_cast_time() {
+            return f64::from(self.cast_time_ms) / 1000.0;
+        }
         match self.group.causes_gcd {
             GcdBehavior::Normal => host.global_cooldown(),
             _ => 0.0,
@@ -721,6 +831,7 @@ impl Spell {
             host.cooldown_mut(id).reset();
         }
         self.last_result = SpellResult::Undetermined;
+        self.cast_id = None;
         if let Some(periodic) = &mut self.periodic {
             periodic.reset_state();
         }
@@ -954,6 +1065,23 @@ impl Spell {
     }
 }
 
+/// Spell power coefficient of a direct-damage spell from its cast time. Port of
+/// `CastingTimeRequirer::spell_coefficient_from_casting_time` (with the `1500 / 3500` integer
+/// division of the C++ evaluated as a real division).
+pub fn spell_coefficient_from_casting_time(casting_time_ms: u32, level_req: u32) -> f64 {
+    if casting_time_ms < 1500 {
+        return 1500.0 / 3500.0;
+    }
+    if casting_time_ms > 3500 {
+        return 1.0;
+    }
+    let base = f64::from(casting_time_ms) / 3500.0;
+    if level_req >= 20 {
+        return base;
+    }
+    (base - f64::from(20 - level_req) * 0.0375).max(0.0)
+}
+
 fn compare(lhs: f64, cmp: Comparison, rhs: f64) -> bool {
     match cmp {
         Comparison::Eq => lhs == rhs,
@@ -998,6 +1126,12 @@ mod tests {
         aura_log: Vec<String>,
         next_spell_id: u32,
         ticks: Vec<TickReport>,
+        cast_in_progress: bool,
+        cast_id: u32,
+        casting_speed_mod: f64,
+        casting_time_suppressed: bool,
+        attack_log: Vec<&'static str>,
+        completed_casts: Vec<CastReport>,
     }
 
     impl World {
@@ -1024,6 +1158,12 @@ mod tests {
                 aura_log: Vec::new(),
                 next_spell_id: 0,
                 ticks: Vec::new(),
+                cast_in_progress: false,
+                cast_id: 0,
+                casting_speed_mod: 1.0,
+                casting_time_suppressed: false,
+                attack_log: Vec::new(),
+                completed_casts: Vec::new(),
             }
         }
 
@@ -1103,6 +1243,14 @@ mod tests {
                         assert_eq!(Some(id), spell.id());
                         if let Some(tick) = spell.perform_periodic(application_id, self) {
                             self.ticks.push(tick);
+                        }
+                    }
+                    EventKind::CastComplete {
+                        spell: id, cast_id, ..
+                    } => {
+                        assert_eq!(Some(id), spell.id());
+                        if let Some(report) = spell.complete_cast(cast_id, self) {
+                            self.completed_casts.push(report);
                         }
                     }
                     _ => {}
@@ -1245,7 +1393,36 @@ mod tests {
             false
         }
         fn cast_in_progress(&self) -> bool {
-            self.casting
+            self.casting || self.cast_in_progress
+        }
+        fn start_cast(&mut self) -> u32 {
+            assert!(!self.cast_in_progress, "cast in progress");
+            self.cast_in_progress = true;
+            self.cast_id += 1;
+            self.cast_id
+        }
+        fn complete_cast(&mut self, cast_id: u32) {
+            assert!(self.cast_in_progress, "no cast in progress");
+            assert_eq!(cast_id, self.cast_id, "mismatched cast id");
+            self.cast_in_progress = false;
+        }
+        fn casting_speed_mod(&self) -> f64 {
+            self.casting_speed_mod
+        }
+        fn casting_speed_flat_reduction(&self) -> u32 {
+            0
+        }
+        fn casting_time_suppressed(&self) -> bool {
+            self.casting_time_suppressed
+        }
+        fn stop_attack(&mut self) {
+            self.attack_log.push("stop");
+        }
+        fn start_attack(&mut self) {
+            self.attack_log.push("start");
+        }
+        fn reset_swing_timers(&mut self) {
+            self.attack_log.push("reset");
         }
         fn stance(&self) -> Stance {
             self.stance
@@ -1491,6 +1668,7 @@ spell_groups:
   - name: Slam
     causes_gcd: normal
     restricted_by_gcd: true
+    flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST]
     ranks:
       - rank: 4
         resource: rage
@@ -1499,6 +1677,16 @@ spell_groups:
         effects: [{ name: NORMALIZED_WEAPON_DAMAGE, value: 87 }]
     modified_by_talent:
       - { talent: Improved Slam, rank: 1, type: cast_time_reduction_ms, value: 100 }
+  - name: Quick Cast
+    causes_gcd: normal
+    restricted_by_gcd: true
+    suppressible_cast: true
+    ranks:
+      - rank: 1
+        resource: rage
+        cost: 5
+        cast_time_ms: 2000
+        effects: [{ name: SCHOOL_DAMAGE_PHYSICAL, value: 100 }]
 "#,
         )
         .unwrap();
@@ -2036,6 +2224,98 @@ spell_groups:
         assert!(deep_wounds.periodic().unwrap().stacks().is_empty());
         assert!(!world.buffs[0].is_active());
         world.target.check_clean();
+    }
+
+    #[test]
+    fn cast_time_spells_complete_after_the_cast_time() {
+        let db = db();
+        let mut world = World::new();
+        let mut slam = world.spell(db.get("Slam").unwrap(), 4);
+        assert!(slam.has_cast_time());
+        assert_eq!(slam.cast_time(&world), 1.5);
+        world.casting_speed_mod = 1.25;
+        assert_eq!(slam.cast_time(&world), 1.2);
+
+        let report = slam.perform(&mut world);
+        assert!(report.cast_started);
+        assert_eq!(report.result, SpellResult::Undetermined);
+        assert!(report.attack.is_none());
+        assert!(slam.is_casting());
+        assert!(world.cast_in_progress);
+        assert_eq!(world.rage, 100, "the cost is paid on completion");
+        assert!(world.on_global_cooldown());
+        assert_eq!(world.attack_log, vec!["stop"]);
+        assert_eq!(slam.status(&world), SpellStatus::OnGcd);
+        world.casting = false;
+        let times: Vec<f64> = world.pending().into_iter().map(|(t, _)| t).collect();
+        assert_eq!(times, vec![1.2, 1.5]);
+
+        // A stale cast id is ignored.
+        assert!(slam.complete_cast(99, &mut world).is_none());
+
+        world.rolls.push_back(PhysicalAttackResult::Critical);
+        world.run(&mut slam, 1.3);
+        assert_eq!(world.completed_casts.len(), 1);
+        let report = &world.completed_casts[0];
+        assert!(!report.cast_started);
+        assert_eq!(report.result, SpellResult::Success);
+        assert_eq!(report.resource_lost, 15);
+        assert_eq!(world.rage, 85);
+        let attack = report.attack.unwrap();
+        assert_eq!(attack.damage, (300 + 87) * 2);
+        assert_eq!(attack.execution_time, 1.5);
+        assert!(!slam.is_casting());
+        assert!(!world.cast_in_progress);
+        assert_eq!(world.attack_log, vec!["stop", "reset", "start"]);
+        assert_eq!(world.engine.current_time(), 1.3);
+    }
+
+    #[test]
+    fn suppressed_casts_complete_immediately() {
+        let db = db();
+        let mut world = World::new();
+        let mut quick = world.spell(db.get("Quick Cast").unwrap(), 1);
+        world.casting_time_suppressed = true;
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        let report = quick.perform(&mut world);
+        assert!(!report.cast_started);
+        assert_eq!(report.result, SpellResult::Success);
+        assert_eq!(report.attack.unwrap().damage, 100);
+        assert_eq!(report.attack.unwrap().execution_time, 2.0);
+        assert!(!quick.is_casting());
+        assert!(world.attack_log.is_empty());
+        assert!(!world
+            .pending()
+            .iter()
+            .any(|(_, kind)| matches!(kind, EventKind::CastComplete { .. })));
+
+        // Slam is not suppressible.
+        let mut slam = world.spell(db.get("Slam").unwrap(), 4);
+        assert!(slam.perform(&mut world).cast_started);
+    }
+
+    #[test]
+    fn reset_forgets_a_cast_in_progress() {
+        let db = db();
+        let mut world = World::new();
+        let mut slam = world.spell(db.get("Slam").unwrap(), 4);
+        slam.perform(&mut world);
+        slam.reset(&mut world);
+        assert!(!slam.is_casting());
+        world.cast_in_progress = false;
+        world.run(&mut slam, 5.0);
+        assert!(world.completed_casts.is_empty());
+    }
+
+    #[test]
+    fn casting_time_spell_coefficient() {
+        assert!((spell_coefficient_from_casting_time(1000, 60) - 1500.0 / 3500.0).abs() < 1e-12);
+        assert!((spell_coefficient_from_casting_time(2500, 60) - 2500.0 / 3500.0).abs() < 1e-12);
+        assert_eq!(spell_coefficient_from_casting_time(4000, 60), 1.0);
+        assert!(
+            (spell_coefficient_from_casting_time(3500, 12) - (1.0 - 8.0 * 0.0375)).abs() < 1e-12
+        );
+        assert_eq!(spell_coefficient_from_casting_time(1500, 1), 0.0);
     }
 
     #[test]

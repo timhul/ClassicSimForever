@@ -588,6 +588,22 @@ mod tests {
         fn cast_in_progress(&self) -> bool {
             false
         }
+        fn start_cast(&mut self) -> u32 {
+            1
+        }
+        fn complete_cast(&mut self, _: u32) {}
+        fn casting_speed_mod(&self) -> f64 {
+            1.0
+        }
+        fn casting_speed_flat_reduction(&self) -> u32 {
+            0
+        }
+        fn casting_time_suppressed(&self) -> bool {
+            false
+        }
+        fn stop_attack(&mut self) {}
+        fn start_attack(&mut self) {}
+        fn reset_swing_timers(&mut self) {}
         fn stance(&self) -> Stance {
             Stance::Battle
         }

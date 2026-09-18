@@ -12,7 +12,9 @@ pub mod status;
 
 pub use periodic::{Periodic, PeriodicKind, TickReport};
 pub use rank_group::SpellRankGroup;
-pub use runtime::{AttackOutcome, CastReport, Spell, SpellHost};
+pub use runtime::{
+    spell_coefficient_from_casting_time, AttackOutcome, CastReport, Spell, SpellHost,
+};
 pub use spec::{
     Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ProcSpec,
     ResourceCostType, RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec,
