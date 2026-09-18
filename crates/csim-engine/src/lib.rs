@@ -5,6 +5,7 @@
 
 pub mod engine;
 pub mod ids;
+pub mod mechanics;
 pub mod rng;
 
 /// Engine crate version.
