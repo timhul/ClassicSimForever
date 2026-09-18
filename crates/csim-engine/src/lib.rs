@@ -6,10 +6,12 @@
 pub mod attack_mode;
 pub mod combat_roll;
 pub mod engine;
+pub mod faction;
 pub mod ids;
 pub mod item;
 pub mod magic_school;
 pub mod mechanics;
+pub mod phase;
 pub mod rng;
 pub mod stats;
 pub mod target;

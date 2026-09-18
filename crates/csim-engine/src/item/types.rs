@@ -94,6 +94,264 @@ impl WeaponType {
     }
 }
 
+/// Where a weapon can be wielded. Port of `WeaponSlots`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum WeaponSlot {
+    /// Can be wielded in either hand.
+    #[serde(rename = "1H")]
+    OneHand,
+    #[serde(rename = "MH")]
+    Mainhand,
+    #[serde(rename = "OH")]
+    Offhand,
+    #[serde(rename = "2H")]
+    TwoHand,
+    #[serde(rename = "RANGED")]
+    Ranged,
+}
+
+impl WeaponSlot {
+    pub fn fits_mainhand(self) -> bool {
+        matches!(
+            self,
+            WeaponSlot::OneHand | WeaponSlot::Mainhand | WeaponSlot::TwoHand
+        )
+    }
+
+    pub fn fits_offhand(self) -> bool {
+        matches!(self, WeaponSlot::OneHand | WeaponSlot::Offhand)
+    }
+}
+
+/// The slot an item is designed for, as written in the item database.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ItemSlot {
+    #[serde(rename = "1H")]
+    OneHand,
+    #[serde(rename = "MH")]
+    Mainhand,
+    #[serde(rename = "OH")]
+    Offhand,
+    #[serde(rename = "2H")]
+    TwoHand,
+    Ranged,
+    Head,
+    Neck,
+    Shoulders,
+    Back,
+    Chest,
+    Wrist,
+    Gloves,
+    Belt,
+    Legs,
+    Boots,
+    Ring,
+    Trinket,
+    Relic,
+    Projectile,
+    Quiver,
+}
+
+impl ItemSlot {
+    /// The weapon slot for weapon item slots.
+    pub fn weapon_slot(self) -> Option<WeaponSlot> {
+        Some(match self {
+            ItemSlot::OneHand => WeaponSlot::OneHand,
+            ItemSlot::Mainhand => WeaponSlot::Mainhand,
+            ItemSlot::Offhand => WeaponSlot::Offhand,
+            ItemSlot::TwoHand => WeaponSlot::TwoHand,
+            ItemSlot::Ranged => WeaponSlot::Ranged,
+            _ => return None,
+        })
+    }
+
+    /// Whether an item of this slot can be equipped in `equipment_slot`.
+    pub fn fits(self, equipment_slot: EquipmentSlot) -> bool {
+        match equipment_slot {
+            EquipmentSlot::Mainhand => self.weapon_slot().is_some_and(WeaponSlot::fits_mainhand),
+            EquipmentSlot::Offhand => self.weapon_slot().is_some_and(WeaponSlot::fits_offhand),
+            EquipmentSlot::Ranged => self == ItemSlot::Ranged,
+            EquipmentSlot::Head => self == ItemSlot::Head,
+            EquipmentSlot::Neck => self == ItemSlot::Neck,
+            EquipmentSlot::Shoulders => self == ItemSlot::Shoulders,
+            EquipmentSlot::Back => self == ItemSlot::Back,
+            EquipmentSlot::Chest => self == ItemSlot::Chest,
+            EquipmentSlot::Wrist => self == ItemSlot::Wrist,
+            EquipmentSlot::Gloves => self == ItemSlot::Gloves,
+            EquipmentSlot::Belt => self == ItemSlot::Belt,
+            EquipmentSlot::Legs => self == ItemSlot::Legs,
+            EquipmentSlot::Boots => self == ItemSlot::Boots,
+            EquipmentSlot::Ring1 | EquipmentSlot::Ring2 => self == ItemSlot::Ring,
+            EquipmentSlot::Trinket1 | EquipmentSlot::Trinket2 => self == ItemSlot::Trinket,
+            EquipmentSlot::Relic => self == ItemSlot::Relic,
+            EquipmentSlot::Projectile => self == ItemSlot::Projectile,
+            EquipmentSlot::Quiver => self == ItemSlot::Quiver,
+        }
+    }
+}
+
+/// A slot on the character. Port of `EquipmentSlot`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum EquipmentSlot {
+    Mainhand,
+    Offhand,
+    Ranged,
+    Head,
+    Neck,
+    Shoulders,
+    Back,
+    Chest,
+    Wrist,
+    Gloves,
+    Belt,
+    Legs,
+    Boots,
+    Ring1,
+    Ring2,
+    Trinket1,
+    Trinket2,
+    Relic,
+    Projectile,
+    Quiver,
+}
+
+impl EquipmentSlot {
+    pub const ALL: [EquipmentSlot; 20] = [
+        EquipmentSlot::Mainhand,
+        EquipmentSlot::Offhand,
+        EquipmentSlot::Ranged,
+        EquipmentSlot::Head,
+        EquipmentSlot::Neck,
+        EquipmentSlot::Shoulders,
+        EquipmentSlot::Back,
+        EquipmentSlot::Chest,
+        EquipmentSlot::Wrist,
+        EquipmentSlot::Gloves,
+        EquipmentSlot::Belt,
+        EquipmentSlot::Legs,
+        EquipmentSlot::Boots,
+        EquipmentSlot::Ring1,
+        EquipmentSlot::Ring2,
+        EquipmentSlot::Trinket1,
+        EquipmentSlot::Trinket2,
+        EquipmentSlot::Relic,
+        EquipmentSlot::Projectile,
+        EquipmentSlot::Quiver,
+    ];
+
+    pub const COUNT: usize = Self::ALL.len();
+
+    pub fn index(self) -> usize {
+        self as usize
+    }
+
+    pub fn is_weapon_slot(self) -> bool {
+        matches!(
+            self,
+            EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+        )
+    }
+}
+
+/// Armor classes. Port of `ArmorTypes`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ArmorType {
+    Cloth,
+    Leather,
+    Mail,
+    Plate,
+}
+
+/// The type of an item: a weapon type, an armor class or one of the jewelry/relic kinds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ItemType {
+    Axe,
+    Dagger,
+    Fist,
+    Mace,
+    Polearm,
+    Staff,
+    Sword,
+    Bow,
+    Crossbow,
+    Gun,
+    Thrown,
+    Wand,
+    Idol,
+    Libram,
+    Totem,
+    Shield,
+    CasterOffhand,
+    TwohandAxe,
+    TwohandMace,
+    TwohandSword,
+    Cloth,
+    Leather,
+    Mail,
+    Plate,
+    Ring,
+    Amulet,
+    Trinket,
+    Relic,
+    Arrow,
+    Bullet,
+    Quiver,
+    AmmoPouch,
+}
+
+impl ItemType {
+    pub fn weapon_type(self) -> Option<WeaponType> {
+        Some(match self {
+            ItemType::Axe => WeaponType::Axe,
+            ItemType::Dagger => WeaponType::Dagger,
+            ItemType::Fist => WeaponType::Fist,
+            ItemType::Mace => WeaponType::Mace,
+            ItemType::Polearm => WeaponType::Polearm,
+            ItemType::Staff => WeaponType::Staff,
+            ItemType::Sword => WeaponType::Sword,
+            ItemType::Bow => WeaponType::Bow,
+            ItemType::Crossbow => WeaponType::Crossbow,
+            ItemType::Gun => WeaponType::Gun,
+            ItemType::Thrown => WeaponType::Thrown,
+            ItemType::Wand => WeaponType::Wand,
+            ItemType::Idol => WeaponType::Idol,
+            ItemType::Libram => WeaponType::Libram,
+            ItemType::Totem => WeaponType::Totem,
+            ItemType::Shield => WeaponType::Shield,
+            ItemType::CasterOffhand => WeaponType::CasterOffhand,
+            ItemType::TwohandAxe => WeaponType::TwohandAxe,
+            ItemType::TwohandMace => WeaponType::TwohandMace,
+            ItemType::TwohandSword => WeaponType::TwohandSword,
+            _ => return None,
+        })
+    }
+
+    pub fn armor_type(self) -> Option<ArmorType> {
+        Some(match self {
+            ItemType::Cloth => ArmorType::Cloth,
+            ItemType::Leather => ArmorType::Leather,
+            ItemType::Mail => ArmorType::Mail,
+            ItemType::Plate => ArmorType::Plate,
+            _ => return None,
+        })
+    }
+}
+
+/// Item quality.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum Quality {
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary,
+}
+
 /// Stat keys used by items, set bonuses, enchants and generic stat buffs.
 ///
 /// The value semantics differ per key: chances (`CRIT_CHANCE`, `HIT_CHANCE`, `DODGE_CHANCE`, ...)
@@ -276,6 +534,90 @@ mod tests {
         assert!(!WeaponType::Shield.has_weapon_skill());
         assert!(!WeaponType::Polearm.has_weapon_skill());
         assert_eq!(WeaponType::ALL.len(), WeaponType::COUNT);
+    }
+
+    #[test]
+    fn slot_and_type_serde() {
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("1H").unwrap(),
+            ItemSlot::OneHand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("MH").unwrap(),
+            ItemSlot::Mainhand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("OH").unwrap(),
+            ItemSlot::Offhand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("2H").unwrap(),
+            ItemSlot::TwoHand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("RANGED").unwrap(),
+            ItemSlot::Ranged
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemSlot>("SHOULDERS").unwrap(),
+            ItemSlot::Shoulders
+        );
+        assert_eq!(
+            serde_yaml::to_string(&ItemSlot::TwoHand).unwrap().trim(),
+            "2H"
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemType>("PLATE").unwrap(),
+            ItemType::Plate
+        );
+        assert_eq!(
+            serde_yaml::from_str::<ItemType>("CASTER_OFFHAND").unwrap(),
+            ItemType::CasterOffhand
+        );
+        assert_eq!(
+            serde_yaml::from_str::<Quality>("EPIC").unwrap(),
+            Quality::Epic
+        );
+        assert_eq!(
+            serde_yaml::from_str::<EquipmentSlot>("TRINKET2").unwrap(),
+            EquipmentSlot::Trinket2
+        );
+    }
+
+    #[test]
+    fn item_slots_fit_equipment_slots() {
+        assert!(ItemSlot::OneHand.fits(EquipmentSlot::Mainhand));
+        assert!(ItemSlot::OneHand.fits(EquipmentSlot::Offhand));
+        assert!(ItemSlot::Mainhand.fits(EquipmentSlot::Mainhand));
+        assert!(!ItemSlot::Mainhand.fits(EquipmentSlot::Offhand));
+        assert!(ItemSlot::Offhand.fits(EquipmentSlot::Offhand));
+        assert!(!ItemSlot::Offhand.fits(EquipmentSlot::Mainhand));
+        assert!(ItemSlot::TwoHand.fits(EquipmentSlot::Mainhand));
+        assert!(!ItemSlot::TwoHand.fits(EquipmentSlot::Offhand));
+        assert!(ItemSlot::Ranged.fits(EquipmentSlot::Ranged));
+        assert!(!ItemSlot::Ranged.fits(EquipmentSlot::Mainhand));
+        assert!(ItemSlot::Ring.fits(EquipmentSlot::Ring1));
+        assert!(ItemSlot::Ring.fits(EquipmentSlot::Ring2));
+        assert!(!ItemSlot::Ring.fits(EquipmentSlot::Trinket1));
+        assert!(ItemSlot::Trinket.fits(EquipmentSlot::Trinket2));
+        assert!(ItemSlot::Head.fits(EquipmentSlot::Head));
+        assert!(!ItemSlot::Head.fits(EquipmentSlot::Chest));
+        assert_eq!(EquipmentSlot::ALL.len(), EquipmentSlot::COUNT);
+        assert!(EquipmentSlot::Ranged.is_weapon_slot());
+        assert!(!EquipmentSlot::Relic.is_weapon_slot());
+    }
+
+    #[test]
+    fn item_type_lookups() {
+        assert_eq!(
+            ItemType::TwohandMace.weapon_type(),
+            Some(WeaponType::TwohandMace)
+        );
+        assert_eq!(ItemType::Shield.weapon_type(), Some(WeaponType::Shield));
+        assert_eq!(ItemType::Plate.weapon_type(), None);
+        assert_eq!(ItemType::Mail.armor_type(), Some(ArmorType::Mail));
+        assert_eq!(ItemType::Ring.armor_type(), None);
+        assert!(Quality::Rare < Quality::Epic);
     }
 
     #[test]
