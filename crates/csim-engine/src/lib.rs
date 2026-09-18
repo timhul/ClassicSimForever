@@ -3,6 +3,8 @@
 //! This crate is a Rust port of the ClassicSim C++ engine. It contains no GUI code; see `TASKS.md`
 //! in the repository root for the porting plan and the module ↔ C++ file mapping.
 
+pub mod engine;
+pub mod ids;
 pub mod rng;
 
 /// Engine crate version.
