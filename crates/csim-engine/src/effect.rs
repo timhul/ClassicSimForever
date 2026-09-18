@@ -36,11 +36,13 @@ pub trait EffectHost {
     /// Random mainhand damage including the attack power contribution of the weapon speed.
     fn random_non_normalized_mh_dmg(&mut self) -> f64;
     /// Rolls a mainhand melee ability on the special attack table, with `extra_crit` (hundredths
-    /// of a percent) added to the character's crit chance for this roll.
+    /// of a percent) added to the character's crit chance for this roll, or no crit chance at
+    /// all when `can_crit` is false (`CANNOT_CRIT`).
     fn roll_melee_ability(
         &mut self,
         included: IncludedOutcomes,
         extra_crit: u32,
+        can_crit: bool,
     ) -> PhysicalAttackResult;
 
     fn stats_mut(&mut self) -> &mut CharacterStats;
@@ -117,6 +119,7 @@ pub struct Effect {
     pub talent_as_source: Option<String>,
     dependency: Dependency,
     included: IncludedOutcomes,
+    can_crit: bool,
     /// Result of the last hit check (own roll or inherited).
     pub last_result: Option<PhysicalAttackResult>,
     /// Damage produced by the last perform; the spell collects and zeroes it.
@@ -144,6 +147,7 @@ impl Effect {
                 block: !flags.contains(&SpellFlag::CannotBeBlocked),
                 miss: !flags.contains(&SpellFlag::CannotMiss),
             },
+            can_crit: !flags.contains(&SpellFlag::CannotCrit),
             last_result: None,
             damage_dealt: 0.0,
             reroll_result: true,
@@ -177,6 +181,10 @@ impl Effect {
 
     pub fn included_outcomes(&self) -> IncludedOutcomes {
         self.included
+    }
+
+    pub fn can_crit(&self) -> bool {
+        self.can_crit
     }
 
     pub fn was_successful(&self) -> bool {
@@ -368,7 +376,7 @@ impl Effect {
                 .is_some_and(PhysicalAttackResult::is_success);
             return (hit, None);
         }
-        let result = host.roll_melee_ability(self.included, extra_crit);
+        let result = host.roll_melee_ability(self.included, extra_crit, self.can_crit);
         self.last_result = Some(result);
         (result.is_success(), Some(result))
     }
@@ -475,6 +483,7 @@ mod tests {
         rolls: VecDeque<PhysicalAttackResult>,
         rolled_with: Vec<IncludedOutcomes>,
         extra_crits: Vec<u32>,
+        can_crits: Vec<bool>,
         stats: CharacterStats,
         target: Target,
         stance: Option<Stance>,
@@ -491,6 +500,7 @@ mod tests {
                 rolls: VecDeque::new(),
                 rolled_with: Vec::new(),
                 extra_crits: Vec::new(),
+                can_crits: Vec::new(),
                 stats: CharacterStats::new(),
                 target: Target::new(63),
                 stance: None,
@@ -541,9 +551,11 @@ mod tests {
             &mut self,
             included: IncludedOutcomes,
             extra_crit: u32,
+            can_crit: bool,
         ) -> PhysicalAttackResult {
             self.rolled_with.push(included);
             self.extra_crits.push(extra_crit);
+            self.can_crits.push(can_crit);
             self.rolls.pop_front().expect("no roll queued")
         }
         fn stats_mut(&mut self) -> &mut CharacterStats {
@@ -612,6 +624,9 @@ mod tests {
                 miss: true
             }
         );
+
+        assert!(overpower.can_crit());
+        assert!(!Effect::new(spec(E::NoEffect, 0.0), 0, &[SpellFlag::CannotCrit]).can_crit());
 
         let talent = Effect::from_talent(spec(E::GainResourceRage, 5.0), 1, &[], "Improved");
         assert_eq!(talent.talent_as_source.as_deref(), Some("Improved"));

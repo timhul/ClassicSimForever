@@ -305,6 +305,13 @@ impl SpellEffectSpec {
             {
                 Err(format!("{:?} requires `hand`", self.name))
             }
+            SpellEffect::ApplyAuraPeriodicResourceGainRage
+            | SpellEffect::ApplyAuraPeriodicDamageFromWeapon
+            | SpellEffect::ApplyAuraPeriodicWeaponDamage
+                if self.period.or(self.tick_rate).is_none_or(|p| p <= 0.0) =>
+            {
+                Err(format!("{:?} requires a positive `period`", self.name))
+            }
             _ => match (self.min, self.max) {
                 (Some(min), Some(max)) if min > max => {
                     Err(format!("min {min} is greater than max {max}"))
@@ -429,6 +436,11 @@ pub enum TalentModification {
     },
     /// Fraction (0.08 = 8%).
     SetProcRate {
+        value: f64,
+    },
+    /// Percent added to all damage the spell deals, including its periodic damage
+    /// (Improved Rend).
+    IncreaseDamagePercent {
         value: f64,
     },
 }
@@ -628,6 +640,19 @@ impl SpellGroupSpec {
                         .validate()
                         .map_err(|m| err(format!("rank {} buff effect {index}: {m}", rank.rank)))?;
                 }
+                for effect in &buff.effects {
+                    let periodic_damage = matches!(
+                        effect.name,
+                        SpellEffect::ApplyAuraPeriodicDamageFromWeapon
+                            | SpellEffect::ApplyAuraPeriodicWeaponDamage
+                    );
+                    if periodic_damage && effect.ticks.is_none() && buff.duration.is_none() {
+                        return Err(err(format!(
+                            "rank {}: {:?} needs `ticks` or a buff duration",
+                            rank.rank, effect.name
+                        )));
+                    }
+                }
                 if buff.shared && buff.unit != Affected::Target {
                     return Err(err(format!(
                         "rank {}: only target buffs can be shared",
@@ -707,7 +732,8 @@ impl SpellGroupSpec {
                     }
                 }
                 TalentModification::IncreaseCritChance { .. }
-                | TalentModification::SetProcRate { .. } => {}
+                | TalentModification::SetProcRate { .. }
+                | TalentModification::IncreaseDamagePercent { .. } => {}
             }
         }
 
@@ -1189,6 +1215,36 @@ spell_groups:
           shared: true
 "#,
             "only target buffs",
+        );
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: normal
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          duration: 10
+          effects: [{ name: APPLY_AURA_PERIODIC_RESOURCE_GAIN_RAGE, value: 1 }]
+"#,
+            "positive `period`",
+        );
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: normal
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: target
+          priority: low
+          effects: [{ name: APPLY_AURA_PERIODIC_WEAPON_DAMAGE, value: 20, period: 3 }]
+"#,
+            "needs `ticks`",
         );
     }
 

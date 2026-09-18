@@ -517,7 +517,12 @@ mod tests {
         fn random_non_normalized_mh_dmg(&mut self) -> f64 {
             100.0
         }
-        fn roll_melee_ability(&mut self, _: IncludedOutcomes, _: u32) -> PhysicalAttackResult {
+        fn roll_melee_ability(
+            &mut self,
+            _: IncludedOutcomes,
+            _: u32,
+            _: bool,
+        ) -> PhysicalAttackResult {
             PhysicalAttackResult::Hit
         }
         fn stats_mut(&mut self) -> &mut CharacterStats {
@@ -653,6 +658,9 @@ mod tests {
         }
         fn total_threat_mod(&self) -> f64 {
             1.0
+        }
+        fn avg_mh_damage(&self) -> f64 {
+            100.0
         }
     }
 

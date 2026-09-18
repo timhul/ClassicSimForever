@@ -4,11 +4,13 @@
 //! describes every rank, effect, buff, restriction and talent modification, and the runtime
 //! (later substeps of Phase 3) interprets it.
 
+pub mod periodic;
 pub mod rank_group;
 pub mod runtime;
 pub mod spec;
 pub mod status;
 
+pub use periodic::{Periodic, PeriodicKind, TickReport};
 pub use rank_group::SpellRankGroup;
 pub use runtime::{AttackOutcome, CastReport, Spell, SpellHost};
 pub use spec::{

@@ -15,12 +15,13 @@ use crate::combat_roll::PhysicalAttackResult;
 use crate::cooldown::{add_gcd_event, CooldownControl};
 use crate::effect::{ChainState, Effect, EffectHost};
 use crate::engine::Engine;
-use crate::ids::{BuffId, CharId, CooldownId, InstanceId};
+use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
 use crate::item::WeaponType;
 use crate::mechanics::Mechanics;
 use crate::phase::Phase;
 use crate::proc::ProcSource;
 use crate::resource::ResourceType;
+use crate::spell::periodic::{Periodic, PeriodicKind, TickReport};
 use crate::spell::{
     Comparison, EffectTarget, GcdBehavior, RestrictionSpec, SpellEffect, SpellFlag, SpellGroupSpec,
     SpellRankSpec, SpellResult, SpellStatus, TalentModification, TalentModificationSpec,
@@ -79,6 +80,8 @@ pub trait SpellHost: EffectHost {
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
     fn total_threat_mod(&self) -> f64;
+    /// Average mainhand damage including attack power (bleeds are based on it).
+    fn avg_mh_damage(&self) -> f64;
 }
 
 /// The attack outcome of one cast, for the spell statistics.
@@ -132,7 +135,13 @@ pub struct Spell {
     /// Proc rate set by a talent (`set_proc_rate`), read by the proc runtime.
     proc_rate: Option<f64>,
     overcap_resource_check: u32,
+    /// Percent added to all damage by talents (`increase_damage_percent`).
+    damage_percent: f64,
     last_result: SpellResult,
+    /// The spell's handle in its character's spell list; needed for `DotTick` events.
+    id: Option<SpellId>,
+    /// Tick state of the marker buff's periodic aura, if it has one.
+    periodic: Option<Periodic>,
 }
 
 impl Spell {
@@ -176,6 +185,20 @@ impl Spell {
             .enumerate()
             .map(|(index, spec)| Effect::new(spec, index, &group.flags))
             .collect();
+        let mut periodic = None;
+        if let Some(buff) = &rank_spec.buff {
+            for (index, spec) in buff.effects.iter().enumerate() {
+                let effect = Effect::new(spec.clone(), index, &group.flags);
+                if let Some((_, tick_rate)) = PeriodicKind::from_effect(&effect, buff.duration) {
+                    assert!(
+                        periodic.is_none(),
+                        "{} rank {rank} has more than one periodic aura effect",
+                        group.name
+                    );
+                    periodic = Some(Periodic::new(index, tick_rate));
+                }
+            }
+        }
         let mut talent_modifications: BTreeMap<String, Vec<TalentModificationSpec>> =
             BTreeMap::new();
         for spec in &group.modified_by_talent {
@@ -193,7 +216,10 @@ impl Spell {
             crit_chance_bonus: 0,
             proc_rate: None,
             overcap_resource_check: 0,
+            damage_percent: 0.0,
             last_result: SpellResult::Undetermined,
+            id: None,
+            periodic,
             effects,
             talent_modifications,
             instance_id: None,
@@ -285,6 +311,29 @@ impl Spell {
 
     pub fn last_result(&self) -> SpellResult {
         self.last_result
+    }
+
+    pub fn id(&self) -> Option<SpellId> {
+        self.id
+    }
+
+    /// Sets the spell's handle in its character's spell list (required for periodic spells).
+    pub fn set_id(&mut self, id: SpellId) {
+        self.id = Some(id);
+    }
+
+    /// The periodic aura state, for spells whose marker buff ticks.
+    pub fn periodic(&self) -> Option<&Periodic> {
+        self.periodic.as_ref()
+    }
+
+    pub fn is_periodic(&self) -> bool {
+        self.periodic.is_some()
+    }
+
+    /// Multiplier on all damage from `increase_damage_percent` talents.
+    pub fn damage_mod(&self) -> f64 {
+        1.0 + self.damage_percent / 100.0
     }
 
     pub fn instance_id(&self) -> Option<InstanceId> {
@@ -547,7 +596,9 @@ impl Spell {
 
         if let Some(id) = self.marker_buff {
             if self.last_result.applies_buff() {
-                report.buff = Some(host.apply_buff(id));
+                let application = host.apply_buff(id);
+                report.buff = Some(application);
+                self.on_buff_applied(application, host);
             }
         }
 
@@ -605,6 +656,7 @@ impl Spell {
                 innate_threat += effect.spec.innate_threat;
             }
         }
+        raw_damage *= self.damage_mod();
         let result = first_roll?;
 
         let damage = match result {
@@ -669,6 +721,67 @@ impl Spell {
             host.cooldown_mut(id).reset();
         }
         self.last_result = SpellResult::Undetermined;
+        if let Some(periodic) = &mut self.periodic {
+            periodic.reset_state();
+        }
+    }
+
+    // --- Periodic ---
+
+    /// Starts or re-arms the tick chain after the marker buff was applied. Port of the
+    /// `start_ticking` / `new_application_effect` / `refresh_effect` calls in
+    /// `SpellPeriodic::spell_effect`.
+    fn on_buff_applied(&mut self, application: BuffApplication, host: &mut impl SpellHost) {
+        let damage_mod = self.damage_mod();
+        let Some(kind) = self.periodic_kind(host) else {
+            return;
+        };
+        let periodic = self.periodic.as_mut().expect("kind implies periodic");
+        match application {
+            BuffApplication::Applied { .. } => {
+                let id = self
+                    .id
+                    .unwrap_or_else(|| panic!("periodic spell {} has no id", self.group.name));
+                periodic.start(id, host, &kind, damage_mod);
+            }
+            BuffApplication::Refreshed { .. } => periodic.refresh(host, &kind, damage_mod),
+            BuffApplication::NotApplied => {}
+        }
+    }
+
+    /// The periodic behaviour as currently defined by the marker buff's effect (re-read so
+    /// talent modifications of the effect apply).
+    pub fn periodic_kind(&self, host: &impl SpellHost) -> Option<PeriodicKind> {
+        let periodic = self.periodic.as_ref()?;
+        let buff = host.buff(self.marker_buff?);
+        let effect = buff.effects.get(periodic.effect_index())?;
+        PeriodicKind::from_effect(effect, buff.duration()).map(|(kind, _)| kind)
+    }
+
+    /// Handles a `DotTick` event for this spell. Port of `SpellPeriodic::perform_periodic`.
+    pub fn perform_periodic(
+        &mut self,
+        application_id: u32,
+        host: &mut impl SpellHost,
+    ) -> Option<TickReport> {
+        if !self.enabled {
+            return None;
+        }
+        let (id, marker) = (self.id?, self.marker_buff?);
+        let kind = self.periodic_kind(host)?;
+        let buff = host.buff(marker);
+        let (active, expired_at) = (buff.is_active(), buff.expired_at());
+        let (damage_mod, cost) = (self.damage_mod(), self.resource_cost);
+        self.periodic.as_mut()?.tick(
+            application_id,
+            id,
+            host,
+            &kind,
+            active,
+            expired_at,
+            damage_mod,
+            cost,
+        )
     }
 
     // --- Talents ---
@@ -764,6 +877,7 @@ impl Spell {
             TalentModification::CastTimeReductionMs { value } => self.cast_time_ms -= value,
             TalentModification::IncreaseCritChance { value } => self.crit_chance_bonus += value,
             TalentModification::SetProcRate { value } => self.proc_rate = Some(*value),
+            TalentModification::IncreaseDamagePercent { value } => self.damage_percent += value,
         }
     }
 
@@ -806,6 +920,7 @@ impl Spell {
             TalentModification::CastTimeReductionMs { value } => self.cast_time_ms += value,
             TalentModification::IncreaseCritChance { value } => self.crit_chance_bonus -= value,
             TalentModification::SetProcRate { .. } => self.proc_rate = None,
+            TalentModification::IncreaseDamagePercent { value } => self.damage_percent -= value,
         }
     }
 
@@ -877,9 +992,12 @@ mod tests {
         casting: bool,
         rolls: VecDeque<PhysicalAttackResult>,
         extra_crits: Vec<u32>,
+        can_crits: Vec<bool>,
         combat_length: f64,
         armor: i32,
         aura_log: Vec<String>,
+        next_spell_id: u32,
+        ticks: Vec<TickReport>,
     }
 
     impl World {
@@ -900,9 +1018,12 @@ mod tests {
                 casting: false,
                 rolls: VecDeque::new(),
                 extra_crits: Vec::new(),
+                can_crits: Vec::new(),
                 combat_length: 300.0,
                 armor: 0,
                 aura_log: Vec::new(),
+                next_spell_id: 0,
+                ticks: Vec::new(),
             }
         }
 
@@ -950,10 +1071,43 @@ mod tests {
                 self.add_buff(Buff::from_spec(group, rank_spec, kind))
             });
             let mut spell = Spell::new(Arc::clone(group), rank, cooldown, marker);
+            spell.set_id(SpellId(self.next_spell_id));
+            self.next_spell_id += 1;
             if spell.requires_talent().is_none() {
                 spell.enable(self);
             }
             spell
+        }
+
+        /// Dispatches events up to and including `until` for one spell: buff removals of its
+        /// marker buff and its dot ticks.
+        fn run(&mut self, spell: &mut Spell, until: f64) {
+            self.engine
+                .add_event(crate::engine::Event::new(until, EventKind::EncounterEnd));
+            while let Some(event) = self.engine.next_event() {
+                match event.kind {
+                    EventKind::EncounterEnd => break,
+                    EventKind::BuffRemoval {
+                        buff, iteration, ..
+                    } => {
+                        let (b, mut ctx) = self.buff_ctx(buff);
+                        if b.remove(iteration, &mut ctx) {
+                            self.remove_auras(buff);
+                        }
+                    }
+                    EventKind::DotTick {
+                        spell: id,
+                        application_id,
+                        ..
+                    } => {
+                        assert_eq!(Some(id), spell.id());
+                        if let Some(tick) = spell.perform_periodic(application_id, self) {
+                            self.ticks.push(tick);
+                        }
+                    }
+                    _ => {}
+                }
+            }
         }
 
         fn pending(&self) -> Vec<(f64, EventKind)> {
@@ -1000,8 +1154,10 @@ mod tests {
             &mut self,
             _: IncludedOutcomes,
             extra_crit: u32,
+            can_crit: bool,
         ) -> PhysicalAttackResult {
             self.extra_crits.push(extra_crit);
+            self.can_crits.push(can_crit);
             self.rolls.pop_front().expect("no roll queued")
         }
         fn stats_mut(&mut self) -> &mut CharacterStats {
@@ -1162,6 +1318,9 @@ mod tests {
         fn total_threat_mod(&self) -> f64 {
             self.stats.get_total_threat_mod()
         }
+        fn avg_mh_damage(&self) -> f64 {
+            200.0
+        }
     }
 
     fn db() -> SpellDb {
@@ -1285,6 +1444,50 @@ spell_groups:
         resource: rage
         cost: 5
         effects: [{ name: SCHOOL_DAMAGE_PHYSICAL, min: 64, max: 78, innate_threat: 315 }]
+  - name: Bloodrage
+    causes_gcd: none
+    cooldown: 60
+    ranks:
+      - rank: 1
+        resource: rage
+        effects: [{ name: GAIN_RESOURCE_RAGE, value: 10 }]
+        buff:
+          unit: self
+          duration: 10
+          effects: [{ name: APPLY_AURA_PERIODIC_RESOURCE_GAIN_RAGE, value: 1, tick_rate: 1.0 }]
+  - name: Rend
+    causes_gcd: normal
+    restricted_by_gcd: true
+    flags: [CANNOT_CRIT]
+    ranks:
+      - rank: 7
+        resource: rage
+        cost: 10
+        effects: [{ name: SCHOOL_DAMAGE_PHYSICAL, value: 0 }]
+        buff:
+          unit: target
+          priority: trash
+          duration: 21
+          effects:
+            - { name: APPLY_AURA_PERIODIC_DAMAGE_FROM_WEAPON, value: 147, period: 3, ticks: 7, weapon_coeff: 0.0024766667 }
+    modified_by_talent:
+      - { talent: Improved Rend, rank: 1, type: increase_damage_percent, value: 15 }
+  - name: Deep Wounds
+    causes_gcd: none
+    requires_talent: Deep Wounds
+    flags: [PASSIVE_SPELL, ON_MELEE_CRIT, CANNOT_MISS, CANNOT_BE_DODGED, CANNOT_BE_PARRIED, CANNOT_BE_BLOCKED]
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: target
+          priority: trash
+          duration: 12
+          effects: [{ name: APPLY_AURA_PERIODIC_WEAPON_DAMAGE, value: 0, period: 3 }]
+    modified_by_talent:
+      - { talent: Deep Wounds, rank: 1, type: increase_value, target: buff, effect: APPLY_AURA_PERIODIC_WEAPON_DAMAGE, value: 20 }
+      - { talent: Deep Wounds, rank: 2, type: increase_value, target: buff, effect: APPLY_AURA_PERIODIC_WEAPON_DAMAGE, value: 40 }
+      - { talent: Deep Wounds, rank: 3, type: increase_value, target: buff, effect: APPLY_AURA_PERIODIC_WEAPON_DAMAGE, value: 60 }
   - name: Slam
     causes_gcd: normal
     restricted_by_gcd: true
@@ -1684,6 +1887,155 @@ spell_groups:
         consume.perform(&mut world);
         assert!(!world.buffs[0].is_active());
         assert_eq!(world.stats.get_melee_attack_speed_mod(), 1.0);
+    }
+
+    #[test]
+    fn periodic_resource_gain_ticks_until_the_buff_expires() {
+        let db = db();
+        let mut world = World::new();
+        let mut bloodrage = world.spell(db.get("Bloodrage").unwrap(), 1);
+        assert!(bloodrage.is_periodic());
+        assert_eq!(
+            bloodrage.periodic_kind(&world),
+            Some(PeriodicKind::ResourceGain {
+                resource: ResourceType::Rage,
+                amount: 1
+            })
+        );
+        world.rage = 0;
+
+        let report = bloodrage.perform(&mut world);
+        assert_eq!(report.resource_gained, vec![(ResourceType::Rage, 10)]);
+        assert_eq!(world.rage, 10);
+        assert_eq!(bloodrage.periodic().unwrap().application_id(), 1);
+
+        world.run(&mut bloodrage, 30.0);
+        // Ticks at 1..=10 (the tick at 10 coincides with the expiry and still counts).
+        assert_eq!(world.ticks.len(), 10);
+        assert_eq!(world.rage, 20);
+        assert!(world
+            .ticks
+            .iter()
+            .all(|tick| tick.resource_gained == Some((ResourceType::Rage, 1)) && tick.damage == 0));
+        assert!(!world.buffs[0].is_active());
+        assert!(!world
+            .pending()
+            .iter()
+            .any(|(_, kind)| matches!(kind, EventKind::DotTick { .. })));
+    }
+
+    #[test]
+    fn periodic_damage_from_weapon_distributes_damage_over_the_ticks() {
+        let db = db();
+        let mut world = World::new();
+        let mut rend = world.spell(db.get("Rend").unwrap(), 7);
+        rend.increase_talent_rank(&mut world, "Improved Rend", 1);
+        assert_eq!(rend.damage_mod(), 1.15);
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+
+        let report = rend.perform(&mut world);
+        assert_eq!(report.result, SpellResult::Success);
+        assert_eq!(world.can_crits, vec![false]);
+        assert_eq!(report.attack.unwrap().damage, 0);
+        let total = (147.0 + 200.0 * 21.0 * 0.0024766667) * 1.15;
+        let periodic = rend.periodic().unwrap();
+        assert_eq!(periodic.ticks_left(), 7);
+        assert!((periodic.damage_remaining() - total).abs() < 1e-9);
+
+        world.run(&mut rend, 22.0);
+        assert_eq!(world.ticks.len(), 7);
+        let dealt: u32 = world.ticks.iter().map(|tick| tick.damage).sum();
+        assert_eq!(dealt, total.round() as u32);
+        assert!((world.ticks[0].resource_cost - 10.0 / 7.0).abs() < 1e-9);
+        assert!((world.ticks[0].execution_time - 1.5 / 7.0).abs() < 1e-9);
+        assert_eq!(rend.periodic().unwrap().ticks_left(), 0);
+        assert!(!world.buffs[0].is_active());
+        world.target.check_clean();
+    }
+
+    #[test]
+    fn periodic_refresh_rearms_the_damage_without_a_new_tick_chain() {
+        let db = db();
+        let mut world = World::new();
+        let mut rend = world.spell(db.get("Rend").unwrap(), 7);
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        rend.perform(&mut world);
+        world.run(&mut rend, 6.5);
+        assert_eq!(world.ticks.len(), 2);
+        assert_eq!(rend.periodic().unwrap().ticks_left(), 5);
+
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        let report = rend.perform(&mut world);
+        assert_eq!(report.buff, Some(BuffApplication::Refreshed { stacks: 1 }));
+        assert_eq!(rend.periodic().unwrap().ticks_left(), 7);
+        assert_eq!(rend.periodic().unwrap().application_id(), 1);
+        assert_eq!(world.buffs[0].time_left(6.5), 21.0);
+
+        world.run(&mut rend, 40.0);
+        assert_eq!(world.ticks.len(), 9);
+        assert!(!world.buffs[0].is_active());
+    }
+
+    #[test]
+    fn stale_ticks_and_ticks_after_cancel_are_ignored() {
+        let db = db();
+        let mut world = World::new();
+        let mut rend = world.spell(db.get("Rend").unwrap(), 7);
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        rend.perform(&mut world);
+        assert!(rend.perform_periodic(99, &mut world).is_none());
+
+        world.run(&mut rend, 3.5);
+        assert_eq!(world.ticks.len(), 1);
+        rend.cancel(&mut world);
+        world.run(&mut rend, 30.0);
+        assert_eq!(world.ticks.len(), 1);
+        assert_eq!(rend.periodic().unwrap().ticks_left(), 0);
+
+        // A disabled spell does not tick either.
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        rend.perform(&mut world);
+        rend.disable(&mut world);
+        world.run(&mut rend, 60.0);
+        assert_eq!(world.ticks.len(), 1);
+    }
+
+    #[test]
+    fn periodic_weapon_damage_stacks_independent_applications() {
+        let db = db();
+        let mut world = World::new();
+        let mut deep_wounds = world.spell(db.get("Deep Wounds").unwrap(), 1);
+        deep_wounds.enable(&mut world);
+        deep_wounds.increase_talent_rank(&mut world, "Deep Wounds", 1);
+        deep_wounds.increase_talent_rank(&mut world, "Deep Wounds", 2);
+        deep_wounds.increase_talent_rank(&mut world, "Deep Wounds", 3);
+        // The kind is re-read from the buff effect, so the talent's value change applies.
+        assert_eq!(
+            deep_wounds.periodic_kind(&world),
+            Some(PeriodicKind::WeaponDamage {
+                percent: 60.0,
+                ticks_per_application: 4
+            })
+        );
+
+        deep_wounds.perform(&mut world);
+        assert_eq!(deep_wounds.periodic().unwrap().stacks(), &[4]);
+        world.run(&mut deep_wounds, 3.5);
+        assert_eq!(world.ticks.len(), 1);
+        assert_eq!(world.ticks[0].damage, 30);
+        assert_eq!(deep_wounds.periodic().unwrap().stacks(), &[3]);
+
+        // A second application adds an independent stack and extends the buff.
+        let report = deep_wounds.perform(&mut world);
+        assert_eq!(report.buff, Some(BuffApplication::Refreshed { stacks: 1 }));
+        assert_eq!(deep_wounds.periodic().unwrap().stacks(), &[3, 4]);
+        world.run(&mut deep_wounds, 30.0);
+        // Ticks at 6, 9, 12 and 15: the chain lasts as long as the longest stack.
+        assert_eq!(world.ticks.len(), 5);
+        assert!(world.ticks.iter().all(|tick| tick.damage == 30));
+        assert!(deep_wounds.periodic().unwrap().stacks().is_empty());
+        assert!(!world.buffs[0].is_active());
+        world.target.check_clean();
     }
 
     #[test]
