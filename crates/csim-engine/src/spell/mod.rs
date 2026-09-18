@@ -12,9 +12,9 @@ pub mod status;
 pub use rank_group::SpellRankGroup;
 pub use runtime::{AttackOutcome, CastReport, Spell, SpellHost};
 pub use spec::{
-    Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ResourceCostType,
-    RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec, SpellFileSpec, SpellFlag,
-    SpellGroupSpec, SpellRankSpec, StatisticsSpec, TalentModification, TalentModificationSpec,
-    MAX_RANK,
+    Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ProcSpec,
+    ResourceCostType, RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec,
+    SpellFileSpec, SpellFlag, SpellGroupSpec, SpellRankSpec, StatisticsSpec, TalentModification,
+    TalentModificationSpec, MAX_RANK,
 };
 pub use status::{SpellResult, SpellStatus};

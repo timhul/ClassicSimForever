@@ -1,9 +1,12 @@
-//! Procs. Port of `Spells/Proc.*`, `Spells/ProcPPM.*` and `Spells/ProcInfo.h`.
+//! Procs. Port of `Spells/Proc.*`, `Spells/ProcPPM.*`, `Spells/ProcInfo.h` and
+//! `Character/EnabledProcs.*`.
 //!
-//! Only the proc sources are defined for now; the proc runtime follows in 3.8.
+
+use serde::{Deserialize, Serialize};
 
 /// The events a proc can trigger on. Port of `ProcInfo::Source`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ProcSource {
     MainhandSwing,
     OffhandSwing,
@@ -43,3 +46,7 @@ impl ProcSource {
         ProcSource::Manual,
     ];
 }
+
+pub mod runtime;
+
+pub use runtime::{EnabledProcs, Proc, ProcHost, ProcRate, PROC_ROLL_RANGE};

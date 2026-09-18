@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use crate::faction::PlayerClass;
 use crate::item::{ItemStat, WeaponType};
 use crate::phase::Phase;
+use crate::proc::ProcSource;
 use crate::resource::ResourceType;
 use crate::stance::Stance;
 use crate::target::Priority;
@@ -482,10 +483,59 @@ pub struct SpellGroupSpec {
     pub modified_by_talent: Vec<TalentModificationSpec>,
     #[serde(default)]
     pub statistics: Vec<StatisticsSpec>,
+    /// Proc settings; only for passive spells (`PASSIVE_SPELL` flag), which are procs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proc: Option<ProcSpec>,
     /// Names of the spells sharing a cooldown with this one (including this one). Filled by the
-    /// loader from the file's `shared_spell_cooldowns`, not read from the group itself.
+    /// loader from the file's `shared_cooldowns`, not read from the group itself.
     #[serde(skip)]
     pub shared_cooldowns: BTreeSet<String>,
+}
+
+/// How a passive spell procs. The `ON_MELEE_*` flags add their sources too; the spell group's
+/// `cooldown` is the proc's internal cooldown.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProcSpec {
+    /// Chance as a fraction (0.01 = 1%), or procs per minute when `ppm` is set. Talents may
+    /// override it (`set_proc_rate`).
+    #[serde(default = "always")]
+    pub rate: f64,
+    #[serde(default)]
+    pub ppm: bool,
+    /// The weapon whose speed a PPM rate is based on.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hand: Option<Hand>,
+    #[serde(default)]
+    pub sources: Vec<ProcSource>,
+    /// The weapon on the triggering side must be one of these types (Sword Specialization).
+    #[serde(default)]
+    pub requires_weapon_type: Vec<WeaponType>,
+    /// The named buff must be active on the character for the proc to fire.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requires_buff: Option<String>,
+    /// Procs performed (without their own roll) whenever this one procs.
+    #[serde(default)]
+    pub linked: Vec<String>,
+}
+
+fn always() -> f64 {
+    1.0
+}
+
+impl ProcSpec {
+    fn validate(&self) -> Result<(), String> {
+        if self.ppm && self.hand.is_none() {
+            return Err("a PPM proc needs `hand`".to_string());
+        }
+        if self.rate < 0.0 || (!self.ppm && self.rate > 1.0) {
+            return Err(format!("proc rate {} is out of range", self.rate));
+        }
+        if self.sources.contains(&ProcSource::Manual) {
+            return Err("MANUAL is not a proc source".to_string());
+        }
+        Ok(())
+    }
 }
 
 fn default_resource_miss_cost_mod() -> f64 {
@@ -495,6 +545,29 @@ fn default_resource_miss_cost_mod() -> f64 {
 impl SpellGroupSpec {
     pub fn has_flag(&self, flag: SpellFlag) -> bool {
         self.flags.contains(&flag)
+    }
+
+    /// The sources a passive spell procs from: the `ON_MELEE_*` flags plus `proc.sources`,
+    /// without duplicates. Port of the flag mapping in the `Proc` constructor.
+    pub fn proc_sources(&self) -> Vec<ProcSource> {
+        let mut sources: Vec<ProcSource> = self
+            .flags
+            .iter()
+            .filter_map(|flag| match flag {
+                SpellFlag::OnMeleeCrit => Some(ProcSource::MeleeCritical),
+                SpellFlag::OnMeleeDodge => Some(ProcSource::MeleeDodge),
+                SpellFlag::OnMeleeHit => Some(ProcSource::MeleeHit),
+                SpellFlag::OnMeleeMiss => Some(ProcSource::MeleeMiss),
+                SpellFlag::OnMeleeParry => Some(ProcSource::MeleeParry),
+                _ => None,
+            })
+            .collect();
+        if let Some(proc) = &self.proc {
+            sources.extend(proc.sources.iter().copied());
+        }
+        sources.sort();
+        sources.dedup();
+        sources
     }
 
     pub fn rank(&self, rank: u32) -> Option<&SpellRankSpec> {
@@ -526,6 +599,15 @@ impl SpellGroupSpec {
 
         if self.ranks.is_empty() {
             return Err(err("no ranks".to_string()));
+        }
+        if let Some(proc) = &self.proc {
+            if !self.has_flag(SpellFlag::Passive) {
+                return Err(err("only passive spells can have `proc`".to_string()));
+            }
+            proc.validate().map_err(err)?;
+        }
+        if self.has_flag(SpellFlag::Passive) && self.proc_sources().is_empty() {
+            return Err(err("passive spell has no proc sources".to_string()));
         }
         let mut ranks = BTreeSet::new();
         for rank in &self.ranks {
@@ -905,7 +987,7 @@ spell_groups:
       - type: UNIT_STANCE
         stance: BERSERKER_STANCE
         cmp: eq
-    flags: [CANNOT_MISS, PASSIVE_SPELL]
+    flags: [CANNOT_MISS, CANNOT_CRIT]
     ranks:
       - rank: 1
         resource: rage
@@ -956,9 +1038,9 @@ spell_groups:
                 cmp: Comparison::Eq
             }]
         );
-        assert!(rage.has_flag(SpellFlag::Passive));
+        assert!(rage.has_flag(SpellFlag::CannotCrit));
         assert!(rage.has_flag(SpellFlag::CannotMiss));
-        assert!(!rage.has_flag(SpellFlag::CannotCrit));
+        assert!(!rage.has_flag(SpellFlag::Passive));
         let mut added = SpellEffectSpec::new(SpellEffect::GainResourceRage);
         added.value = 5.0;
         assert_eq!(
@@ -1166,6 +1248,85 @@ spell_groups:
       - { talent: T, rank: 1, type: increase_crit_chance, value: 2 }
 "#,
             "defined twice",
+        );
+    }
+
+    #[test]
+    fn proc_specs_are_validated() {
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: none
+    proc: { rate: 0.05, sources: [MAINHAND_SWING] }
+    ranks: [{ rank: 1, resource: rage }]
+"#,
+            "only passive",
+        );
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: none
+    flags: [PASSIVE_SPELL]
+    ranks: [{ rank: 1, resource: rage }]
+"#,
+            "no proc sources",
+        );
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: none
+    flags: [PASSIVE_SPELL]
+    proc: { rate: 1.5, ppm: true, sources: [MAINHAND_SWING] }
+    ranks: [{ rank: 1, resource: rage }]
+"#,
+            "needs `hand`",
+        );
+        assert_invalid(
+            r#"
+spell_groups:
+  - name: X
+    causes_gcd: none
+    flags: [PASSIVE_SPELL]
+    proc: { rate: 1.5, sources: [MAINHAND_SWING] }
+    ranks: [{ rank: 1, resource: rage }]
+"#,
+            "out of range",
+        );
+
+        let db = parse(
+            r#"
+spell_groups:
+  - name: Sword Specialization
+    causes_gcd: none
+    flags: [PASSIVE_SPELL, ON_MELEE_HIT]
+    proc:
+      sources: [MAINHAND_SWING, OFFHAND_SWING, MAINHAND_SWING]
+      requires_weapon_type: [SWORD, TWOHAND_SWORD]
+    ranks:
+      - rank: 1
+        resource: rage
+        effects: [{ name: EXTRA_ATTACK_INSTANT, hand: mainhand }]
+"#,
+        )
+        .unwrap();
+        let group = db.get("Sword Specialization").unwrap();
+        assert_eq!(
+            group.proc_sources(),
+            vec![
+                ProcSource::MainhandSwing,
+                ProcSource::OffhandSwing,
+                ProcSource::MeleeHit
+            ]
+        );
+        let proc = group.proc.as_ref().unwrap();
+        assert_eq!(proc.rate, 1.0);
+        assert!(!proc.ppm);
+        assert_eq!(
+            proc.requires_weapon_type,
+            vec![WeaponType::Sword, WeaponType::TwohandSword]
         );
     }
 
