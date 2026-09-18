@@ -1,0 +1,341 @@
+# Warrior spells. Port of ClassicSim Class/Warrior/Spells/spells_classic.xml.
+#
+# Units: cooldown / duration / tick_rate in seconds, cast_time_ms in milliseconds. Effect `value`
+# semantics depend on the effect: percent for damage/threat/attack-speed modifiers, hundredths
+# of a percent for crit chance (300 = 3%), attack power / damage / resource amounts as-is.
+
+class: WARRIOR
+
+spell_groups:
+  - name: Battle Shout
+    icon: Assets/ability/Ability_warrior_battleshout.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    ranks:
+      - rank: 6
+        resource: rage
+        cost: 10
+        buff:
+          unit: party
+          duration: 120
+          effects:
+            - name: APPLY_AURA_MELEE_ATTACK_POWER
+              value: 193
+      - rank: 7
+        resource: rage
+        cost: 10
+        requires_phase: 5
+        buff:
+          unit: party
+          duration: 120
+          effects:
+            - name: APPLY_AURA_MELEE_ATTACK_POWER
+              value: 232
+
+  - name: Berserker Rage
+    icon: Assets/spell/Spell_nature_ancestralguardian.png
+    causes_gcd: none
+    cooldown: 30
+    restrictions:
+      - type: UNIT_STANCE
+        stance: BERSERKER_STANCE
+        cmp: eq
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          duration: 10
+          effects:
+            - name: NO_EFFECT
+    modified_by_talent:
+      - talent: Improved Berserker Rage
+        rank: 1
+        type: add_effect
+        target: buff
+        effect: { name: GAIN_RESOURCE_RAGE, value: 5 }
+      - talent: Improved Berserker Rage
+        rank: 2
+        type: add_effect
+        target: buff
+        effect: { name: GAIN_RESOURCE_RAGE, value: 10 }
+
+  - name: Bloodrage
+    icon: Assets/ability/Ability_racial_bloodrage.png
+    causes_gcd: none
+    cooldown: 60
+    restrictions:
+      - type: UNIT_STANCE
+        stance: DEFENSIVE_STANCE
+        cmp: neq
+    ranks:
+      - rank: 1
+        resource: rage
+        effects:
+          - name: GAIN_RESOURCE_RAGE
+            value: 10
+        buff:
+          unit: self
+          duration: 10
+          effects:
+            - name: APPLY_AURA_PERIODIC_RESOURCE_GAIN_RAGE
+              value: 1
+              tick_rate: 1.0
+
+  - name: Bloodthirst
+    icon: Assets/spell/Spell_nature_bloodlust.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 6
+    requires_talent: Bloodthirst
+    ranks:
+      - rank: 1
+        resource: rage
+        cost: 30
+        effects:
+          - name: SCHOOL_DAMAGE_PHYSICAL
+            value: 0
+            ap_dmg_mod: 0.45
+            unit: target
+
+  - name: Berserker Stance
+    icon: Assets/ability/Ability_racial_avatar.png
+    causes_gcd: stance
+    restricted_by_gcd: true
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          effects:
+            - name: APPLY_AURA_SHAPESHIFT_BERSERKER_STANCE
+            - name: APPLY_AURA_MELEE_AURA_CRIT_CHANCE
+              value: 300
+            - name: APPLY_AURA_MOD_DAMAGE_TAKEN
+              value: 10
+            - name: APPLY_AURA_MOD_THREAT
+              value: -20
+
+  - name: Battle Stance
+    icon: Assets/ability/Ability_warrior_offensivestance.png
+    causes_gcd: stance
+    restricted_by_gcd: true
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          effects:
+            - name: APPLY_AURA_SHAPESHIFT_BATTLE_STANCE
+            - name: APPLY_AURA_MOD_THREAT
+              value: -20
+
+  - name: Defensive Stance
+    icon: Assets/ability/Ability_warrior_defensivestance.png
+    causes_gcd: stance
+    restricted_by_gcd: true
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          effects:
+            - name: APPLY_AURA_SHAPESHIFT_DEFENSIVE_STANCE
+            - name: APPLY_AURA_MOD_DAMAGE_TAKEN
+              value: -10
+            - name: APPLY_AURA_MOD_DAMAGE_DONE_PHYSICAL
+              value: -10
+            - name: APPLY_AURA_MOD_THREAT
+              value: 30
+    modified_by_talent:
+      - { talent: Defiance, rank: 1, type: add_effect, target: buff, effect: { name: APPLY_AURA_MOD_THREAT, value: 3 } }
+      - { talent: Defiance, rank: 2, type: add_effect, target: buff, effect: { name: APPLY_AURA_MOD_THREAT, value: 6 } }
+      - { talent: Defiance, rank: 3, type: add_effect, target: buff, effect: { name: APPLY_AURA_MOD_THREAT, value: 9 } }
+      - { talent: Defiance, rank: 4, type: add_effect, target: buff, effect: { name: APPLY_AURA_MOD_THREAT, value: 12 } }
+      - { talent: Defiance, rank: 5, type: add_effect, target: buff, effect: { name: APPLY_AURA_MOD_THREAT, value: 15 } }
+
+  - name: Death Wish
+    icon: Assets/spell/Spell_shadow_deathpact.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 180
+    requires_talent: Death Wish
+    ranks:
+      - rank: 1
+        resource: rage
+        cost: 10
+        buff:
+          unit: self
+          duration: 30
+          effects:
+            - name: APPLY_AURA_MOD_DAMAGE_DONE_PHYSICAL
+              value: 20
+            - name: APPLY_AURA_MOD_RESISTANCE
+              value: -20
+
+  - name: Execute
+    icon: Assets/items/Inv_sword_48.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    resource_miss_cost_mod: 0.16
+    restrictions:
+      - type: TARGET_HEALTH_PERCENTAGE
+        value: 0.2
+        cmp: leq
+      - type: UNIT_STANCE
+        stance: DEFENSIVE_STANCE
+        cmp: neq
+    ranks:
+      - rank: 5
+        resource: rage
+        cost: 15
+        effects:
+          - name: SCHOOL_DAMAGE_PHYSICAL
+            value: 600
+          - name: SCHOOL_DAMAGE_CONVERT_RAGE
+            value: 15
+          - name: NEXT_BATCH_RESOURCE_LOSS_RAGE
+    modified_by_talent:
+      - { talent: Improved Execute, rank: 1, type: absolute_resource_cost_reduction, value: 2 }
+      - { talent: Improved Execute, rank: 2, type: absolute_resource_cost_reduction, value: 5 }
+
+  - name: Flurry
+    icon: Assets/ability/Ability_ghoulfrenzy.png
+    causes_gcd: none
+    requires_talent: Flurry
+    flags: [PASSIVE_SPELL, ON_MELEE_CRIT]
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          duration: 15
+          base_charges: 3
+          effects:
+            - name: APPLY_AURA_MOD_MELEE_ATTACK_SPEED
+              value: 0
+    modified_by_talent:
+      - { talent: Flurry, rank: 1, type: increase_value, target: buff, effect: APPLY_AURA_MOD_MELEE_ATTACK_SPEED, value: 10 }
+      - { talent: Flurry, rank: 2, type: increase_value, target: buff, effect: APPLY_AURA_MOD_MELEE_ATTACK_SPEED, value: 15 }
+      - { talent: Flurry, rank: 3, type: increase_value, target: buff, effect: APPLY_AURA_MOD_MELEE_ATTACK_SPEED, value: 20 }
+      - { talent: Flurry, rank: 4, type: increase_value, target: buff, effect: APPLY_AURA_MOD_MELEE_ATTACK_SPEED, value: 25 }
+      - { talent: Flurry, rank: 5, type: increase_value, target: buff, effect: APPLY_AURA_MOD_MELEE_ATTACK_SPEED, value: 30 }
+
+  - name: Flurry Consume
+    icon: Assets/ability/Ability_ghoulfrenzy.png
+    causes_gcd: none
+    requires_talent: Flurry
+    flags: [PASSIVE_SPELL, ON_MELEE_HIT, ON_MELEE_DODGE, ON_MELEE_PARRY, ON_MELEE_MISS]
+    ranks:
+      - rank: 1
+        resource: rage
+        effects:
+          - name: AURA_CONSUME_CHARGE
+            buff: Flurry
+
+  - name: Hamstring
+    icon: Assets/ability/Ability_shockwave.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    ranks:
+      - rank: 3
+        resource: rage
+        cost: 10
+        effects:
+          - name: SCHOOL_DAMAGE_PHYSICAL
+            value: 45
+            unit: target
+
+  - name: Mortal Strike
+    icon: Assets/ability/Ability_warrior_savageblow.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 6
+    requires_talent: Mortal Strike
+    ranks:
+      - rank: 4
+        resource: rage
+        cost: 30
+        effects:
+          - name: NORMALIZED_WEAPON_DAMAGE
+            value: 160
+
+  - name: Overpower
+    icon: Assets/items/Inv_sword_05.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 5
+    restrictions:
+      - type: COMBO_POINTS
+        value: 0
+        cmp: greater
+      - type: UNIT_STANCE
+        stance: BATTLE_STANCE
+        cmp: eq
+    flags: [CANNOT_BE_DODGED, CANNOT_BE_PARRIED, CANNOT_BE_BLOCKED]
+    ranks:
+      - rank: 4
+        resource: rage
+        cost: 5
+        effects:
+          - name: NORMALIZED_WEAPON_DAMAGE
+            value: 35
+          - name: CONSUME_COMBO_POINTS
+            independent: true
+
+  - name: Overpower Buff
+    icon: Assets/items/Inv_sword_05.png
+    causes_gcd: none
+    flags: [PASSIVE_SPELL, ON_MELEE_DODGE]
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: target
+          hidden: true
+          priority: high
+          duration: 5
+          effects:
+            - name: ADD_COMBO_POINTS
+              value: 1
+
+  - name: Recklessness
+    icon: Assets/ability/Ability_criticalstrike.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 1800
+    restrictions:
+      - type: UNIT_STANCE
+        stance: BERSERKER_STANCE
+        cmp: eq
+    ranks:
+      - rank: 1
+        resource: rage
+        buff:
+          unit: self
+          duration: 15
+          effects:
+            - name: APPLY_AURA_MELEE_AURA_CRIT_CHANCE
+              value: 999999
+            - name: APPLY_AURA_MOD_DAMAGE_TAKEN
+              value: 20
+
+  - name: Whirlwind
+    icon: Assets/ability/Ability_whirlwind.png
+    causes_gcd: normal
+    restricted_by_gcd: true
+    cooldown: 10
+    restrictions:
+      - type: UNIT_STANCE
+        stance: BERSERKER_STANCE
+        cmp: eq
+    ranks:
+      - rank: 1
+        resource: rage
+        cost: 25
+        effects:
+          - name: NORMALIZED_WEAPON_DAMAGE
+            value: 0
+
+shared_spell_cooldowns:
+  - [Battle Stance, Defensive Stance, Berserker Stance]

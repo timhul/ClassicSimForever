@@ -14,7 +14,10 @@ pub mod item;
 pub mod magic_school;
 pub mod mechanics;
 pub mod phase;
+pub mod resource;
 pub mod rng;
+pub mod spell;
+pub mod stance;
 pub mod stats;
 pub mod target;
 
