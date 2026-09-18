@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use super::types::ItemStat;
+use crate::stats::{Stats, UnsupportedItemStat};
 
 /// One item set.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -45,13 +46,22 @@ impl SetBonusSpec {
     }
 }
 
-/// An item id is listed in two sets.
+/// Errors in the set bonus data.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-#[error("item {item_id} is part of two sets: '{first}' and '{second}'")]
-pub struct ItemInTwoSets {
-    pub item_id: u32,
-    pub first: String,
-    pub second: String,
+pub enum SetBonusError {
+    #[error("item {item_id} is part of two sets: '{first}' and '{second}'")]
+    ItemInTwoSets {
+        item_id: u32,
+        first: String,
+        second: String,
+    },
+    #[error("set '{set}' ({pieces} pieces): {source}")]
+    UnsupportedStat {
+        set: String,
+        pieces: u32,
+        #[source]
+        source: UnsupportedItemStat,
+    },
 }
 
 /// All item sets with an item → set index.
@@ -62,19 +72,32 @@ pub struct SetBonusDb {
 }
 
 impl SetBonusDb {
-    pub fn new(sets: Vec<SetSpec>) -> Result<Self, ItemInTwoSets> {
+    /// Validates the sets: no item in two sets, and only static stat bonuses.
+    pub fn new(sets: Vec<SetSpec>) -> Result<Self, SetBonusError> {
         let mut item_to_set = HashMap::new();
         for (index, set) in sets.iter().enumerate() {
             for &item_id in &set.items {
                 if let Some(&first) = item_to_set.get(&item_id) {
                     let first: &SetSpec = &sets[first];
-                    return Err(ItemInTwoSets {
+                    return Err(SetBonusError::ItemInTwoSets {
                         item_id,
                         first: first.name.clone(),
                         second: set.name.clone(),
                     });
                 }
                 item_to_set.insert(item_id, index);
+            }
+
+            for bonus in &set.bonuses {
+                if let Some((stat, value)) = bonus.stat_bonus() {
+                    Stats::new()
+                        .apply_item_stat(stat, value)
+                        .map_err(|source| SetBonusError::UnsupportedStat {
+                            set: set.name.clone(),
+                            pieces: bonus.pieces,
+                            source,
+                        })?;
+                }
             }
         }
         Ok(Self { sets, item_to_set })
@@ -168,11 +191,29 @@ mod tests {
         ];
         assert_eq!(
             SetBonusDb::new(sets).unwrap_err(),
-            ItemInTwoSets {
+            SetBonusError::ItemInTwoSets {
                 item_id: 2,
                 first: "A".into(),
                 second: "B".into()
             }
         );
+    }
+
+    #[test]
+    fn dynamic_stat_bonus_is_an_error() {
+        let sets = vec![SetSpec {
+            name: "A".into(),
+            items: vec![1],
+            bonuses: vec![SetBonusSpec {
+                pieces: 2,
+                description: String::new(),
+                stat: Some(ItemStat::AttackSpeed),
+                value: Some(10.0),
+            }],
+        }];
+        assert!(matches!(
+            SetBonusDb::new(sets).unwrap_err(),
+            SetBonusError::UnsupportedStat { pieces: 2, .. }
+        ));
     }
 }

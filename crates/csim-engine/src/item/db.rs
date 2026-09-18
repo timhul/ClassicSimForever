@@ -9,7 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use super::set_bonus::{ItemInTwoSets, SetBonusDb, SetSpec};
+use super::set_bonus::{SetBonusDb, SetBonusError, SetSpec};
 use super::{EquipmentSlot, Item, ItemError, ItemSpec};
 use crate::phase::Phase;
 
@@ -33,7 +33,7 @@ pub enum EquipmentDbError {
     #[error("item {id} ({name}) is defined twice for phase {phase:?}")]
     DuplicateItem { id: u32, name: String, phase: Phase },
     #[error(transparent)]
-    ItemInTwoSets(#[from] ItemInTwoSets),
+    SetBonus(#[from] SetBonusError),
 }
 
 /// All known items and item sets.

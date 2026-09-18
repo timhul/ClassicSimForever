@@ -13,7 +13,7 @@ pub mod types;
 use std::sync::Arc;
 
 pub use db::{EquipmentDb, EquipmentDbError};
-pub use set_bonus::{SetBonusDb, SetBonusSpec, SetSpec};
+pub use set_bonus::{SetBonusDb, SetBonusError, SetBonusSpec, SetSpec};
 pub use spec::{ItemProcSpec, ItemSpec, ItemUseSpec, ProcSourceFlags, WeaponDamageSpec};
 pub use types::{
     ArmorType, EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality, WeaponSlot, WeaponType,

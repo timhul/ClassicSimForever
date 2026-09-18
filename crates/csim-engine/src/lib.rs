@@ -5,7 +5,9 @@
 
 pub mod attack_mode;
 pub mod combat_roll;
+pub mod enchant;
 pub mod engine;
+pub mod equipment;
 pub mod faction;
 pub mod ids;
 pub mod item;
