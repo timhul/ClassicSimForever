@@ -5,11 +5,15 @@
 //! instance (enchants, the weapon damage roll generator, the procs and uses that get instantiated)
 //! lives in the equipment, not in the item.
 
+pub mod db;
+pub mod set_bonus;
 pub mod spec;
 pub mod types;
 
 use std::sync::Arc;
 
+pub use db::{EquipmentDb, EquipmentDbError};
+pub use set_bonus::{SetBonusDb, SetBonusSpec, SetSpec};
 pub use spec::{ItemProcSpec, ItemSpec, ItemUseSpec, ProcSourceFlags, WeaponDamageSpec};
 pub use types::{
     ArmorType, EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality, WeaponSlot, WeaponType,
