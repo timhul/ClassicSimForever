@@ -4,6 +4,7 @@
 //! in the repository root for the porting plan and the module ↔ C++ file mapping.
 
 pub mod attack_mode;
+pub mod buff;
 pub mod combat_roll;
 pub mod cooldown;
 pub mod enchant;

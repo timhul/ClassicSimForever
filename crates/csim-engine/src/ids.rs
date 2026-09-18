@@ -46,6 +46,13 @@ id_type! {
 }
 
 id_type! {
+    /// Raid-wide unique identity of an enabled buff (port of the C++ `InstanceID`), handed out by
+    /// the raid control when a buff is enabled. The target keys its debuff slots by it because
+    /// buffs of every character (and the shared raid debuffs) compete for the same slots.
+    InstanceId(u32)
+}
+
+id_type! {
     /// Index of a cooldown control within its character's cooldown registry.
     CooldownId(u32)
 }

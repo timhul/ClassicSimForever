@@ -1,13 +1,13 @@
 //! The simulated target. Port of `Target/Target.*`.
 //!
 //! The target holds its level, armor, resistances, creature type, the stat bag that target debuffs
-//! write into, and the 16-slot debuff limit with priorities. Buffs are referred to by [`BuffId`];
+//! write into, and the 16-slot debuff limit with priorities. Buffs are referred to by [`InstanceId`];
 //! whenever the C++ target called back into a buff (`cancel_buff`, `use_charge`), the Rust method
 //! instead returns the ids for the caller to act on.
 
 use serde::{Deserialize, Serialize};
 
-use crate::ids::BuffId;
+use crate::ids::InstanceId;
 use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::stats::{MultiplicativeStack, Stats, TargetStatView};
@@ -100,9 +100,9 @@ pub struct Target {
     stats: Stats,
     resistances: [i32; MagicSchool::ALL.len()],
     magic_school_damage: [MultiplicativeStack; MagicSchool::ALL.len()],
-    magic_school_modifier_charge_debuffs: [Vec<BuffId>; MagicSchool::ALL.len()],
-    spell_damage_charge_debuffs: Vec<BuffId>,
-    debuffs: [Vec<BuffId>; Priority::COUNT],
+    magic_school_modifier_charge_debuffs: [Vec<InstanceId>; MagicSchool::ALL.len()],
+    spell_damage_charge_debuffs: Vec<InstanceId>,
+    debuffs: [Vec<InstanceId>; Priority::COUNT],
     size_debuffs: usize,
 }
 
@@ -231,12 +231,12 @@ impl Target {
     }
 
     /// Buffs that lose a charge when the flat spell damage bonus is consumed.
-    pub fn charge_debuffs_for_spell_damage(&self) -> &[BuffId] {
+    pub fn charge_debuffs_for_spell_damage(&self) -> &[InstanceId] {
         &self.spell_damage_charge_debuffs
     }
 
     /// Buffs that lose a charge when the damage modifier for `school` is consumed.
-    pub fn charge_debuffs_for_school_mod(&self, school: MagicSchool) -> &[BuffId] {
+    pub fn charge_debuffs_for_school_mod(&self, school: MagicSchool) -> &[InstanceId] {
         &self.magic_school_modifier_charge_debuffs[school as usize]
     }
 
@@ -244,7 +244,7 @@ impl Target {
     ///
     /// # Panics
     /// Panics for [`ConsumedWhen::OnSpellDamageMod`], which needs a school.
-    pub fn add_charge_debuff(&mut self, buff: BuffId, consumed_when: ConsumedWhen) {
+    pub fn add_charge_debuff(&mut self, buff: InstanceId, consumed_when: ConsumedWhen) {
         match consumed_when {
             ConsumedWhen::OnSpellDamageFlat => self.spell_damage_charge_debuffs.push(buff),
             ConsumedWhen::OnSpellDamageMod => {
@@ -259,7 +259,7 @@ impl Target {
     /// Panics for [`ConsumedWhen::OnSpellDamageFlat`], which is not school specific.
     pub fn add_charge_debuff_for_school(
         &mut self,
-        buff: BuffId,
+        buff: InstanceId,
         consumed_when: ConsumedWhen,
         school: MagicSchool,
     ) {
@@ -273,7 +273,7 @@ impl Target {
         }
     }
 
-    pub fn remove_charge_debuff(&mut self, buff: BuffId, consumed_when: ConsumedWhen) {
+    pub fn remove_charge_debuff(&mut self, buff: InstanceId, consumed_when: ConsumedWhen) {
         match consumed_when {
             ConsumedWhen::OnSpellDamageFlat => {
                 remove_buff_if_exists(&mut self.spell_damage_charge_debuffs, buff);
@@ -286,7 +286,7 @@ impl Target {
 
     pub fn remove_charge_debuff_for_school(
         &mut self,
-        buff: BuffId,
+        buff: InstanceId,
         consumed_when: ConsumedWhen,
         school: MagicSchool,
     ) {
@@ -312,9 +312,9 @@ impl Target {
     /// Panics for [`Priority::Invalid`].
     pub fn add_debuff(
         &mut self,
-        buff: BuffId,
+        buff: InstanceId,
         priority: Priority,
-    ) -> Result<Option<BuffId>, DebuffLimitReached> {
+    ) -> Result<Option<InstanceId>, DebuffLimitReached> {
         assert!(
             priority != Priority::Invalid,
             "Debuff {buff:?} has invalid priority"
@@ -334,7 +334,7 @@ impl Target {
         Ok(evicted)
     }
 
-    fn remove_oldest_lowest_priority_debuff(&mut self, up_to: Priority) -> Option<BuffId> {
+    fn remove_oldest_lowest_priority_debuff(&mut self, up_to: Priority) -> Option<InstanceId> {
         for slot in &mut self.debuffs[..up_to.index()] {
             if slot.is_empty() {
                 continue;
@@ -349,7 +349,7 @@ impl Target {
     }
 
     /// Releases the debuff slot held by `buff`, if any.
-    pub fn remove_debuff(&mut self, buff: BuffId) {
+    pub fn remove_debuff(&mut self, buff: InstanceId) {
         for slot in &mut self.debuffs {
             if remove_buff_if_exists(slot, buff) {
                 self.size_debuffs -= 1;
@@ -363,7 +363,7 @@ impl Target {
         self.size_debuffs
     }
 
-    pub fn has_debuff(&self, buff: BuffId) -> bool {
+    pub fn has_debuff(&self, buff: InstanceId) -> bool {
         self.debuffs.iter().any(|slot| slot.contains(&buff))
     }
 
@@ -410,7 +410,7 @@ impl Target {
     }
 }
 
-fn remove_buff_if_exists(buffs: &mut Vec<BuffId>, buff: BuffId) -> bool {
+fn remove_buff_if_exists(buffs: &mut Vec<InstanceId>, buff: InstanceId) -> bool {
     match buffs.iter().position(|&stored| stored == buff) {
         Some(index) => {
             buffs.remove(index);
@@ -541,50 +541,50 @@ mod tests {
     fn debuff_slots_evict_lower_priority() {
         let mut target = Target::new(60);
         for i in 0..8 {
-            assert_eq!(target.add_debuff(BuffId(i), Priority::Trash), Ok(None));
+            assert_eq!(target.add_debuff(InstanceId(i), Priority::Trash), Ok(None));
         }
         for i in 8..16 {
-            assert_eq!(target.add_debuff(BuffId(i), Priority::Mid), Ok(None));
+            assert_eq!(target.add_debuff(InstanceId(i), Priority::Mid), Ok(None));
         }
         assert_eq!(target.debuff_count(), 16);
 
         // No room for another trash debuff.
         assert_eq!(
-            target.add_debuff(BuffId(100), Priority::Trash),
+            target.add_debuff(InstanceId(100), Priority::Trash),
             Err(DebuffLimitReached)
         );
         assert_eq!(target.debuff_count(), 16);
 
         // A high priority debuff evicts the oldest trash debuff.
         assert_eq!(
-            target.add_debuff(BuffId(101), Priority::High),
-            Ok(Some(BuffId(0)))
+            target.add_debuff(InstanceId(101), Priority::High),
+            Ok(Some(InstanceId(0)))
         );
-        assert!(!target.has_debuff(BuffId(0)));
-        assert!(target.has_debuff(BuffId(101)));
+        assert!(!target.has_debuff(InstanceId(0)));
+        assert!(target.has_debuff(InstanceId(101)));
         assert_eq!(target.debuff_count(), 16);
 
         // Mid evicts trash before other mids.
         assert_eq!(
-            target.add_debuff(BuffId(102), Priority::Mid),
-            Ok(Some(BuffId(1)))
+            target.add_debuff(InstanceId(102), Priority::Mid),
+            Ok(Some(InstanceId(1)))
         );
 
         // Once trash is gone, high evicts the oldest mid.
         for i in 2..8 {
             assert_eq!(
-                target.add_debuff(BuffId(200 + i), Priority::High),
-                Ok(Some(BuffId(i)))
+                target.add_debuff(InstanceId(200 + i), Priority::High),
+                Ok(Some(InstanceId(i)))
             );
         }
         assert_eq!(
-            target.add_debuff(BuffId(300), Priority::High),
-            Ok(Some(BuffId(8)))
+            target.add_debuff(InstanceId(300), Priority::High),
+            Ok(Some(InstanceId(8)))
         );
 
-        target.remove_debuff(BuffId(300));
+        target.remove_debuff(InstanceId(300));
         assert_eq!(target.debuff_count(), 15);
-        target.remove_debuff(BuffId(300));
+        target.remove_debuff(InstanceId(300));
         assert_eq!(target.debuff_count(), 15);
     }
 
@@ -592,41 +592,41 @@ mod tests {
     #[should_panic(expected = "has invalid priority")]
     fn invalid_priority_panics() {
         let mut target = Target::new(60);
-        let _ = target.add_debuff(BuffId(1), Priority::Invalid);
+        let _ = target.add_debuff(InstanceId(1), Priority::Invalid);
     }
 
     #[test]
     fn check_clean_passes_when_empty_and_panics_otherwise() {
         let mut target = Target::new(60);
         target.check_clean();
-        target.add_debuff(BuffId(1), Priority::Low).unwrap();
+        target.add_debuff(InstanceId(1), Priority::Low).unwrap();
         let result = std::panic::catch_unwind(|| target.check_clean());
         assert!(result.is_err());
-        target.remove_debuff(BuffId(1));
+        target.remove_debuff(InstanceId(1));
         target.check_clean();
     }
 
     #[test]
     fn charge_debuffs_are_tracked_per_kind() {
         let mut target = Target::new(60);
-        target.add_charge_debuff(BuffId(1), ConsumedWhen::OnSpellDamageFlat);
+        target.add_charge_debuff(InstanceId(1), ConsumedWhen::OnSpellDamageFlat);
         target.add_charge_debuff_for_school(
-            BuffId(2),
+            InstanceId(2),
             ConsumedWhen::OnSpellDamageMod,
             MagicSchool::Fire,
         );
-        assert_eq!(target.charge_debuffs_for_spell_damage(), &[BuffId(1)]);
+        assert_eq!(target.charge_debuffs_for_spell_damage(), &[InstanceId(1)]);
         assert_eq!(
             target.charge_debuffs_for_school_mod(MagicSchool::Fire),
-            &[BuffId(2)]
+            &[InstanceId(2)]
         );
         assert!(target
             .charge_debuffs_for_school_mod(MagicSchool::Frost)
             .is_empty());
 
-        target.remove_charge_debuff(BuffId(1), ConsumedWhen::OnSpellDamageFlat);
+        target.remove_charge_debuff(InstanceId(1), ConsumedWhen::OnSpellDamageFlat);
         target.remove_charge_debuff_for_school(
-            BuffId(2),
+            InstanceId(2),
             ConsumedWhen::OnSpellDamageMod,
             MagicSchool::Fire,
         );

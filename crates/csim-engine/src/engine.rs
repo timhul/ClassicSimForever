@@ -173,7 +173,7 @@ impl Ord for QueuedEvent {
 }
 
 /// Priority queue of events ordered by time, then by insertion order.
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct EventQueue {
     heap: BinaryHeap<QueuedEvent>,
     next_seq: u64,
