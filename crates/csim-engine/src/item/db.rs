@@ -426,6 +426,48 @@ mod tests {
     }
 
     #[test]
+    fn shipped_item_database_loads() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let db = EquipmentDb::load(
+            &root.join("items"),
+            Some(&root.join("set_bonuses.yaml")),
+            Some(&root.join("enchants.yaml")),
+        )
+        .unwrap();
+
+        assert!(db.len() > 1200, "only {} items loaded", db.len());
+        let thrash_blade = db.get_item(17705, Phase::MoltenCore).unwrap();
+        assert_eq!(thrash_blade.name(), "Thrash Blade");
+        assert_eq!(thrash_blade.procs()[0].name, "EXTRA_ATTACK");
+        assert_eq!(thrash_blade.mutex_item_ids(), &[17743, 17753]);
+        assert!(thrash_blade.is_weapon());
+
+        // Sets and enchants are attached.
+        assert!(db.sets().sets().len() > 50);
+        assert!(!db.enchants().is_empty());
+
+        // Every weapon slot item carries weapon data, every set item exists.
+        for slot in [
+            EquipmentSlot::Mainhand,
+            EquipmentSlot::Offhand,
+            EquipmentSlot::Ranged,
+        ] {
+            for item in db.items_for_slot(slot, Phase::Naxxramas) {
+                assert!(item.is_weapon(), "{} has no weapon data", item.name());
+            }
+        }
+        for set in db.sets().sets() {
+            for &item_id in &set.items {
+                assert!(
+                    db.get_item_any_phase(item_id).is_some(),
+                    "set {} refers to unknown item {item_id}",
+                    set.name
+                );
+            }
+        }
+    }
+
+    #[test]
     fn loads_from_yaml_files() {
         let dir = std::env::temp_dir().join(format!("csim-db-test-{}", std::process::id()));
         let items_dir = dir.join("items");

@@ -1,0 +1,1132 @@
+# Generated from ClassicSim Items/Misc/rings.xml by tools/convert_items.py.
+
+- id: 9533
+  name: "Masons Fraternity Ring"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 40
+  item_lvl: 47
+  icon: "Inv_jewelry_ring_03.png"
+  stats:
+    AGILITY: 13
+    STAMINA: 5
+  mutex: [9534]
+  source: "Quest reward. Requires finishing the pyramid event in Zul'Farrak."
+- id: 13001
+  name: "Maiden's Circle"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 61
+  boe: true
+  icon: "Inv_jewelry_ring_12.png"
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 18
+    SPIRIT: 6
+  source: "Drops from multiple high level bosses."
+- id: 12543
+  name: "Songstone of Ironforge"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_jewelry_ring_05.png"
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 18
+    SPIRIT: 4
+  mutex: [12548]
+  source: "Quest reward. Requires Emperor in Blackrock Depths."
+- id: 17713
+  name: "Blackstone Ring"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 49
+  item_lvl: 54
+  icon: "Inv_jewelry_ring_17.png"
+  stats:
+    ATTACK_POWER: 20
+    HIT_CHANCE: 0.01
+    STAMINA: 6
+  source: "Drops from Princess Theradras in Maraudon."
+- id: 11862
+  name: "White Bone Band"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  unique: true
+  req_lvl: 48
+  item_lvl: 52
+  icon: "Inv_misc_bone_05.png"
+  faction: "HORDE"
+  stats:
+    ATTACK_POWER: 24
+  mutex: [11863, 11864]
+  source: "Quest reward. Trivial quest in Un'Goro Crater."
+- id: 10780
+  name: "Mark of Hakkar"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  unique: true
+  req_lvl: 46
+  item_lvl: 55
+  icon: "Inv_jewelry_ring_05.png"
+  stats:
+    STAMINA: 10
+    STRENGTH: 7
+  source: "Quest reward. Requires finishing the statue event in Sunken Temple."
+- id: 18400
+  name: "Ring of Living Stone"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  unique: true
+  req_lvl: 55
+  item_lvl: 57
+  icon: "Inv_jewelry_ring_19.png"
+  stats:
+    STAMINA: 9
+    STRENGTH: 10
+  mutex: [18402]
+  source: "Quest reward. Final reward in quest chain mostly in Silithus."
+- id: 2246
+  name: "Myrmidon's Signet"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_jewelry_ring_05.png"
+  stats:
+    AGILITY: 7
+    STAMINA: 17
+    STRENGTH: 10
+  source: "World drop."
+- id: 13392
+  name: "The Postmaster's Seal"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_jewelry_ring_23.png"
+  stats:
+    INTELLECT: 3
+    SPIRIT: 17
+    STAMINA: 6
+  source: "Drops from Postmaster Malown in Stratholme Undead."
+- id: 18302
+  name: "Band of Vigor"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_jewelry_ring_20.png"
+  stats:
+    AGILITY: 7
+    STAMINA: 7
+    STRENGTH: 8
+  source: "Drops from Lethtendris in Dire Maul."
+- id: 12548
+  name: "Magni's Will"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_jewelry_ring_05.png"
+  faction: "ALLIANCE"
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+    STRENGTH: 6
+  mutex: [12543]
+  source: "Quest reward. Requires Emperor in Blackrock Depths."
+- id: 12544
+  name: "Thrall's Resolve"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_jewelry_ring_05.png"
+  faction: "HORDE"
+  stats:
+    ARMOR: 150
+    STAMINA: 7
+    STRENGTH: 4
+  mutex: [12545]
+  source: "Quest reward. Requires Emperor in Blackrock Depths."
+- id: 13098
+  name: "Painweaver Band"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_18.png"
+  stats:
+    ATTACK_POWER: 16
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
+- id: 13217
+  name: "Band of the Penitent"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  unique: true
+  req_lvl: 60
+  item_lvl: 61
+  icon: "Inv_jewelry_ring_30.png"
+  stats:
+    CRIT_CHANCE: 0.01
+  mutex: [13216]
+  source: "Quest reward. Requires Stratholme Undead."
+- id: 13373
+  name: "Band of Flesh"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_misc_bone_04.png"
+  stats:
+    AGILITY: 3
+    STAMINA: 16
+    STRENGTH: 6
+  source: "Drops from Ramstein the Gorger in Stratholme Undead."
+- id: 18399
+  name: "Ocean's Breeze"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_28.png"
+  stats:
+    AGILITY: 7
+    FIRE_RESISTANCE: 15
+    STAMINA: 4
+    STRENGTH: 4
+  mutex: [18398]
+  source: "Quest reward. Requires killing multiple bosses in Molten Core."
+- id: 18403
+  name: "Dragonslayer's Signet"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_jewelry_ring_27.png"
+  stats:
+    FIRE_RESISTANCE: 10
+    INTELLECT: 12
+    SPELL_CRIT_CHANCE: 0.01
+    SPIRIT: 6
+    STAMINA: 12
+  mutex: [18404, 18406]
+  source: "Quest reward from turning in Head of Onyxia."
+- id: 19147
+  name: "Ring of Spell Power"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_jewelry_ring_38.png"
+  stats:
+    SPELL_DAMAGE: 33
+  source: "Drops from multiple bosses in Molten Core."
+- id: 18879
+  name: "Heavy Dark Iron Ring"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_jewelry_ring_14.png"
+  stats:
+    ARMOR: 110
+    DEFENSE: 5
+    STAMINA: 20
+  source: "Drops from multiple bosses in Molten Core."
+- id: 18821
+  name: "Quick Strike Ring"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_jewelry_ring_07.png"
+  stats:
+    ATTACK_POWER: 30
+    CRIT_CHANCE: 0.01
+    STAMINA: 8
+    STRENGTH: 5
+  source: "Drops from multiple bosses in Molten Core."
+- id: 17063
+  name: "Band of Accuria"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_jewelry_ring_15.png"
+  stats:
+    AGILITY: 16
+    HIT_CHANCE: 0.02
+    STAMINA: 10
+  source: "Drops from Ragnaros in Molten Core."
+- id: 12545
+  name: "Eye of Orgrimmar"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_jewelry_ring_05.png"
+  faction: "HORDE"
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 18
+    SPIRIT: 4
+  mutex: [12544]
+  source: "Quest reward from saving princess in BRD."
+- id: 18103
+  name: "Band of Rumination"
+  phase: 1
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_16.png"
+  stats:
+    MANA_PER_5: 5
+    SPELL_CRIT_CHANCE: 0.01
+  source: "Drops from Warchief Rend Blackhand in UBRS."
+- id: 18701
+  name: "Innervating Band"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  icon: "Inv_jewelry_ring_24.png"
+  stats:
+    AGILITY: 15
+    STAMINA: 9
+  source: "Random drop from trash mobs in Scholomance."
+- id: 18464
+  name: "Gordok Nose Ring"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_jewelry_ring_06.png"
+  stats:
+    STAMINA: 9
+    STRENGTH: 5
+  source: "Drops from Guard bosses in Dire Maul."
+- id: 18500
+  name: "Tarnished Elven Ring"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_jewelry_ring_13.png"
+  stats:
+    AGILITY: 15
+    HIT_CHANCE: 0.01
+  source: "Drops from Tribute chest in Dire Maul."
+- id: 18522
+  name: "Band of the Ogre King"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_32.png"
+  stats:
+    STAMINA: 13
+    STRENGTH: 14
+  source: "Drops from King Gordok in Dire Maul."
+- id: 18543
+  name: "Ring of Entropy"
+  phase: 2
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_jewelry_ring_20.png"
+  stats:
+    INTELLECT: 13
+    SPELL_CRIT_CHANCE: 0.01
+    SPIRIT: 8
+    STAMINA: 11
+  source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
+- id: 19384
+  name: "Master Dragonslayer's Ring"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_jewelry_ring_41.png"
+  stats:
+    ATTACK_POWER: 48
+    HIT_CHANCE: 0.01
+    STAMINA: 14
+  mutex: [19366, 19383]
+  source: "Quest reward. Requires Head of Nefarian from Blackwing Lair."
+- id: 19514
+  name: "Protector's Band"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_10.png"
+  faction: "ALLIANCE"
+  stats:
+    AGILITY: 11
+    STAMINA: 8
+    STRENGTH: 12
+  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Honored with Silverwing Sentinels."
+- id: 19510
+  name: "Legionnaire's Band"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_21.png"
+  faction: "HORDE"
+  stats:
+    AGILITY: 11
+    STAMINA: 8
+    STRENGTH: 12
+  source: "Sold by Warsong Gulch vendor Kelm Hargunth. Requires Honored with Warsong Outriders."
+- id: 19325
+  name: "Don Julio's Band"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_35.png"
+  stats:
+    ATTACK_POWER: 16
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 11
+  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
+- id: 19397
+  name: "Ring of Blackrock"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_jewelry_ring_43.png"
+  stats:
+    MANA_PER_5: 9
+    SPELL_DAMAGE: 19
+  source: "Drops from Firemaw, Flamegor, and Ebonroc in Blackwing Lair."
+- id: 19403
+  name: "Band of Forced Concentration"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_jewelry_ring_34.png"
+  stats:
+    INTELLECT: 12
+    SPELL_DAMAGE: 21
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Ebonroc in Blackwing Lair."
+- id: 19432
+  name: "Circle of Applied Force"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_jewelry_ring_37.png"
+  stats:
+    AGILITY: 22
+    STAMINA: 9
+    STRENGTH: 12
+  source: "Drops from Flamegor in Blackwing Lair."
+- id: 19376
+  name: "Archimtiros' Ring of Reckoning"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_ring_40.png"
+  stats:
+    AGILITY: 14
+    STAMINA: 28
+  source: "Drops from Nefarian in Blackwing Lair."
+- id: 19434
+  name: "Band of Dark Dominion"
+  phase: 3
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 70
+  icon: "inv_jewelry_ring_24.png"
+  stats:
+    INTELLECT: 6
+    SPELL_DAMAGE_SHADOW: 33
+    STAMINA: 12
+  source: "Drops from trash mobs in Blackwing Lair."
+- id: 20632
+  name: "Mindtear Band"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_jewelry_ring_04.png"
+  stats:
+    INTELLECT: 6
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 22
+    STAMINA: 6
+  source: "Drops from Taerar (dragon world boss in Duskwood)."
+- id: 19898
+  name: "Seal of Jin"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_ring_44.png"
+  stats:
+    ATTACK_POWER: 20
+    CRIT_CHANCE: 0.01
+    STAMINA: 8
+  source: "Drops from High Priest Thekal in Zul'Gurub."
+- id: 19925
+  name: "Band of Jin"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_ring_44.png"
+  stats:
+    AGILITY: 14
+    HIT_CHANCE: 0.01
+    STAMINA: 8
+  source: "Drops from High Priestess Mar'li in Zul'Gurub."
+- id: 19893
+  name: "Zanzil's Seal"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_jewelry_ring_46.png"
+  stats:
+    INTELLECT: 10
+    SPELL_DAMAGE: 11
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Drops from Bloodlord Mandokir in Zul'Gurub."
+- id: 19905
+  name: "Zanzil's Band"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_ring_46.png"
+  stats:
+    INTELLECT: 13
+    MANA_PER_5: 4
+    SPELL_HIT_CHANCE: 0.01
+  source: "Drops from High Priest Venoxis in Zul'Gurub."
+- id: 22722
+  name: "Seal of the Gurubashi Berserker"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_20.png"
+  stats:
+    ATTACK_POWER: 40
+    STAMINA: 13
+  source: "Drops from High Priest(ess) bosses in Zul'Gurub."
+- id: 20624
+  name: "Ring of the Unliving"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_jewelry_ring_38.png"
+  stats:
+    AGILITY: 21
+    STAMINA: 16
+  source: "Drops from Emeriss (world boss)."
+- id: 20682
+  name: "Elemental Focus Band"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_23.png"
+  stats:
+    INTELLECT: 11
+    SPELL_DAMAGE: 22
+    STAMINA: 8
+  source: "Dropped by Prince Skaldrenox in Silithus."
+- id: 22721
+  name: "Band of Servitude"
+  phase: 4
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_16.png"
+  stats:
+    INTELLECT: 9
+    SPELL_DAMAGE: 23
+    STAMINA: 8
+  source: "Drops from High Priest bosses in Zul'Gurub."
+- id: 22255
+  name: "Magma Forged Band"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_jewelry_ring_04.png"
+  stats:
+    AGILITY: 12
+    STAMINA: 7
+    STRENGTH: 7
+  source: "Drops from Secret Safe in Blackrock Depths. Requires opening all coffers, which requires 12 Relic Coffer Keys."
+- id: 21182
+  name: "Band of Earthen Might"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_jewelry_ring_19.png"
+  stats:
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STRENGTH: 6
+  mutex: [21181, 21183]
+  source: "Quest reward. Requires quest grinding in Silithus and Honored with Cenarion Circle."
+- id: 21189
+  name: "Might of Cenarius"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 62
+  icon: "Inv_jewelry_ring_41.png"
+  stats:
+    HIT_CHANCE: 0.01
+    STAMINA: 8
+    WEAPON_DAMAGE: 4
+  mutex: [21184, 21185, 21186]
+  source: "Quest reward. Requires quest grinding in Silithus and Revered with Cenarion Circle."
+- id: 20721
+  name: "Band of the Cultist"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_jewelry_ring_27.png"
+  stats:
+    AGILITY: 12
+    STAMINA: 12
+    STRENGTH: 7
+  source: "Drops from Chest of Spoils, a quest reward for killing Silithus raid bosses."
+- id: 21393
+  name: "Signet of Unyielding Strength"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_ahnqiraj_03.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 14
+    STRENGTH: 11
+  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold."
+- id: 21402
+  name: "Signet of the Unseen Path"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_ahnqiraj_03.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 19
+    INTELLECT: 8
+    STAMINA: 11
+  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold."
+- id: 21405
+  name: "Band of Veiled Shadows"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_ahnqiraj_03.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 18
+    STAMINA: 8
+    STRENGTH: 11
+  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold."
+- id: 21483
+  name: "Ring of the Desert Winds"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_jewelry_ring_ahnqiraj_05.png"
+  stats:
+    INTELLECT: 9
+    MANA_PER_5: 3
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 9
+  source: "Drops from Ayamiss the Hunter in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21477
+  name: "Ring of Fury"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_jewelry_ring_ahnqiraj_04.png"
+  stats:
+    ATTACK_POWER: 30
+    HIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Moam in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21210
+  name: "Signet Ring of the Bronze Dragonflight"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 80
+  icon: "Inv_jewelry_ring_40.png"
+  stats:
+    INTELLECT: 9
+    MANA_PER_5: 5
+    SPELL_DAMAGE: 28
+    STAMINA: 8
+  mutex: [21196, 21201, 21206, 21197, 21198, 21199, 21200, 21202, 21203, 21204, 21205, 21207, 21208, 21209]
+  source: "Quest reward. Requires Exalted with Brood of Nozdormu (requires AQ40)."
+  flavour_text: "\"The Path of the Invoker\""
+- id: 21205
+  name: "Signet Ring of the Bronze Dragonflight"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 80
+  icon: "Inv_jewelry_ring_40.png"
+  stats:
+    AGILITY: 24
+    HIT_CHANCE: 0.01
+    STAMINA: 13
+  mutex: [21196, 21201, 21206, 21197, 21198, 21199, 21200, 21202, 21203, 21204, 21207, 21208, 21209, 21210]
+  source: "Quest reward. Requires Exalted with Brood of Nozdormu (requires AQ40)."
+  flavour_text: "\"The Path of the Conqueror\""
+- id: 21836
+  name: "Ritssyn's Ring of Chaos"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_jewelry_ring_34.png"
+  stats:
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 25
+    STAMINA: 6
+  source: "Drops from trash mobs in Temple of Ahn'Qiraj (AQ40)."
+- id: 21709
+  name: "Ring of the Fallen God"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_jewelry_ring_ahnqiraj_02.png"
+  stats:
+    INTELLECT: 6
+    SPELL_DAMAGE: 37
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 5
+  mutex: [21712, 21710]
+  source: "Quest reward. Requires Eye of C'Thun from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 21417
+  name: "Ring of Unspoken Names"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_ahnqiraj_03.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 14
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 12
+  source: "Quest reward. Requires Qiraji Ceremonial Ring from Bosses in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21707
+  name: "Ring of Swarming Thought"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_jewelry_ring_ahnqiraj_04.png"
+  stats:
+    SPELL_DAMAGE: 26
+    SPELL_PENETRATION: 20
+  source: "Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
+- id: 21677
+  name: "Ring of the Qiraji Fury"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_jewelry_ring_ahnqiraj_01.png"
+  stats:
+    ATTACK_POWER: 40
+    CRIT_CHANCE: 0.01
+    STAMINA: 12
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 21596
+  name: "Ring of the Godslayer"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_jewelry_ring_ahnqiraj_06.png"
+  stats:
+    AGILITY: 27
+    STAMINA: 17
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 22339
+  name: "Rune Band of Wizardry"
+  phase: 5
+  slot: "RING"
+  type: "RING"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_ring_35.png"
+  stats:
+    SPELL_DAMAGE: 16
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Drops from Lord Valthalak in Blackrock Spire."
+- id: 23237
+  name: "Ring of the Eternal Flame"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_ring_48naxxramas.png"
+  stats:
+    INTELLECT: 10
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE_FIRE: 34
+  source: "Drops from trash mobs in Naxxramas."
+- id: 23038
+  name: "Band of Unnatural Forces"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 85
+  icon: "Inv_jewelry_ring_48naxxramas.png"
+  stats:
+    ATTACK_POWER: 52
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+  source: "Drops from Loatheb in Naxxramas."
+- id: 23037
+  name: "Ring of Spiritual Fervor"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 85
+  icon: "Inv_jewelry_ring_52naxxramas.png"
+  stats:
+    INTELLECT: 14
+    MANA_PER_5: 10
+    STAMINA: 11
+  source: "Drops from Loatheb in Naxxramas."
+- id: 22961
+  name: "Band of Reanimation"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_ring_49naxxramas.png"
+  stats:
+    AGILITY: 34
+  source: "Drops from Patchwerk in Naxxramas."
+- id: 23025
+  name: "Seal of the Damned"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 85
+  icon: "Inv_jewelry_ring_48naxxramas.png"
+  stats:
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 21
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 17
+  source: "Drops from The Four Horsemen in Naxxramas."
+- id: 23060
+  name: "Bonescythe Ring"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_ring_51naxxramas.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 20
+    HIT_CHANCE: 0.01
+    STAMINA: 10
+    STRENGTH: 20
+  source: "Drops from Kel'Thuzad in Naxxramas."
+- id: 23067
+  name: "Ring of the Crypstalker"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_ring_51naxxramas.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 30
+    MANA_PER_5: 6
+  source: "Drops from Kel'Thuzad in Naxxramas."
+- id: 23062
+  name: "Frostfire Ring"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_ring_51naxxramas.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    INTELLECT: 10
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 30
+    STAMINA: 10
+  source: "Drops from Kel'Thuzad in Naxxramas."
+- id: 23063
+  name: "Plagueheart Ring"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_ring_51naxxramas.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    SPELL_DAMAGE: 29
+    STAMINA: 24
+  source: "Drops from Kel'Thuzad in Naxxramas."
+- id: 23031
+  name: "Band of the Inevitable"
+  phase: 6
+  slot: "RING"
+  type: "RING"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_ring_53naxxramas.png"
+  stats:
+    SPELL_DAMAGE: 36
+    SPELL_HIT_CHANCE: 0.01
+  source: "Dropped from Noth the Plaguebringer in Naxxramas."

@@ -1,0 +1,647 @@
+# Generated from ClassicSim Items/Misc/neck.xml by tools/convert_items.py.
+
+- id: 11933
+  name: "Imperial Jewel"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_misc_gem_sapphire_01.png"
+  stats:
+    ATTACK_POWER: 32
+    STAMINA: 7
+  source: "Drops from Empereror Dagran Thaurissian in Blackrock Depths."
+- id: 12929
+  name: "Emberfury Talisman"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_jewelry_necklace_05.png"
+  stats:
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 7
+    SPIRIT: 5
+    STAMINA: 8
+  source: "Drops from Pyroguard Emberseer in Upper Blackrock Spire (UBRS)."
+- id: 17044
+  name: "Will of the Martyr"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_jewelry_talisman_07.png"
+  stats:
+    ATTACK_POWER: 30
+    STAMINA: 10
+  mutex: [17045]
+  source: "Quest reward. Requires Stratholme Living and Stratholme Undead."
+- id: 15411
+  name: "Mark of Fordring"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 63
+  icon: "Inv_jewelry_talisman_07.png"
+  stats:
+    ATTACK_POWER: 26
+    CRIT_CHANCE: 0.01
+  source: "Quest chain reward. Started by Tirion Fordring in Eastern Plaguelands."
+- id: 12103
+  name: "Star of Mystaria"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_talisman_08.png"
+  stats:
+    INTELLECT: 9
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 8
+    STAMINA: 9
+  source: "Drops from Balnazzar in Stratholme Living."
+- id: 13141
+  name: "Tooth of Gnarr"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_necklace_09.png"
+  stats:
+    INTELLECT: 14
+    MANA_PER_5: 3
+    STAMINA: 8
+  source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
+- id: 17065
+  name: "Medallion of Steadfast Might"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_amulet_03.png"
+  stats:
+    DEFENSE: 8
+    DODGE_CHANCE: 0.01
+    STAMINA: 13
+    STRENGTH: 9
+  source: "Drops from Magmadar in Molten Core."
+- id: 17109
+  name: "Choker of Enlightenment"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_10.png"
+  stats:
+    INTELLECT: 10
+    SPELL_DAMAGE: 18
+    SPIRIT: 10
+    STAMINA: 9
+  source: "Drops from Lucifron in Molten Core."
+- id: 18814
+  name: "Choker of the Fire Lord"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_jewelry_amulet_05.png"
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 34
+    STAMINA: 7
+  source: "Drops from Ragnaros in Molten Core."
+- id: 18205
+  name: "Eskhandar's Collar"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_belt_12.png"
+  stats:
+    CRIT_CHANCE: 0.01
+    DODGE_CHANCE: 0.01
+    STAMINA: 17
+  source: "Drops from Onyxia."
+- id: 18404
+  name: "Onyxia Tooth Pendant"
+  phase: 1
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 77
+  icon: "Inv_jewelry_necklace_09.png"
+  stats:
+    AGILITY: 12
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 10
+    HIT_CHANCE: 0.01
+    STAMINA: 9
+  mutex: [18403, 18406]
+  source: "Quest reward from turning in Head of Onyxia."
+- id: 22150
+  name: "Beads of Ogre Might"
+  phase: 2
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_jewelry_amulet_05.png"
+  stats:
+    ATTACK_POWER: 24
+    HIT_CHANCE: 0.01
+    STAMINA: 7
+  mutex: [22149]
+  source: "Quest reward. Requires Dire Maul."
+- id: 22149
+  name: "Beads of Ogre Mojo"
+  phase: 2
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_jewelry_amulet_05.png"
+  stats:
+    INTELLECT: 12
+    SPELL_DAMAGE: 13
+    STAMINA: 7
+  mutex: [22150]
+  source: "Quest reward. Requires Dire Maul."
+- id: 17111
+  name: "Blazefury Medallion"
+  phase: 2
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_talisman_01.png"
+  stats:
+    AGILITY: 13
+    FIRE_RESISTANCE: 12
+    STAMINA: 14
+  procs:
+    - name: "FIRE_ATTACK"
+      rate: 1.0
+      min: 2
+      max: 2
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Equip: Adds 2 fire damage to your melee attacks."]
+  source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
+- id: 19538
+  name: "Sentinel's Medallion"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_necklace_13.png"
+  faction: "ALLIANCE"
+  stats:
+    AGILITY: 15
+    STAMINA: 10
+  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Alliance only."
+- id: 19534
+  name: "Scout's Medallion"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_necklace_14.png"
+  faction: "HORDE"
+  stats:
+    AGILITY: 15
+    STAMINA: 10
+  source: "Sold by Warsong Gulch vendor Kelm Hargunth. Horde only."
+- id: 19491
+  name: "Amulet of the Darkmoon"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_14.png"
+  stats:
+    AGILITY: 19
+    STAMINA: 10
+    STRENGTH: 10
+  source: "Quest reward. Requires Darkmoon Faire and Darkmoon Faire Prize Tickets."
+- id: 19426
+  name: "Orb of the Darkmoon"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_16.png"
+  stats:
+    SPELL_DAMAGE: 22
+    SPIRIT: 8
+    STAMINA: 11
+  source: "Quest reward. Requires Darkmoon Faire and Darkmoon Faire Prize Tickets."
+- id: 19371
+  name: "Pendant of the Fallen Dragon"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_jewelry_necklace_12.png"
+  stats:
+    INTELLECT: 12
+    MANA_PER_5: 9
+    STAMINA: 9
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 19377
+  name: "Prestor's Talisman of Connivery"
+  phase: 3
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_necklace_17.png"
+  stats:
+    AGILITY: 30
+    HIT_CHANCE: 0.01
+  source: "Drops from Nefarian in Blackwing Lair."
+- id: 19621
+  name: "Maelstrom's Wrath"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_26.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 15
+    INTELLECT: 6
+    STAMINA: 9
+  special_equip_effects: ["Equip: Decreases the cooldown of Feign Death by 2 sec."]
+  source: "Reputation reward. Requires Exalted with Zandalar Tribe."
+- id: 19600
+  name: "Pebble of Kajaro"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_necklace_25.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    INTELLECT: 13
+    SPELL_DAMAGE: 9
+    SPIRIT: 8
+    STAMINA: 8
+  source: "Reputation reward. Requires Revered with Zandalar Tribe."
+- id: 19617
+  name: "Zandalarian Shadow Mastery Talisman"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_26.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 15
+    STAMINA: 9
+    STRENGTH: 6
+  special_equip_effects: ["Equip: Decreases the cooldown of Kick by 0.5 sec."]
+  source: "Reputation reward. Requires Exalted with Zandalar Tribe."
+- id: 19601
+  name: "Jewel of Kajaro"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_jewelry_necklace_26.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    INTELLECT: 13
+    SPELL_DAMAGE: 9
+    SPIRIT: 8
+    STAMINA: 8
+  special_equip_effects: ["Equip: Reduces the cooldown of Counterspell by 2 sec."]
+  source: "Reputation reward. Requires Revered with Zandalar Tribe."
+- id: 19923
+  name: "Jeklik's Opaline Talisman"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_necklace_03.png"
+  stats:
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 22
+  source: "Drops from High Priestess Jeklik in Zul'Gurub."
+- id: 19856
+  name: "The Eye of Hakkar"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_necklace_22.png"
+  stats:
+    ATTACK_POWER: 40
+    CRIT_CHANCE: 0.01
+  source: "Drops from Hakkar in Zul'Gurub."
+- id: 19876
+  name: "Soul Corrupter's Necklace"
+  phase: 4
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_jewelry_necklace_19.png"
+  stats:
+    INTELLECT: 16
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 8
+    STAMINA: 10
+  source: "Drops from Hakkar in Zul'Gurub."
+- id: 22403
+  name: "Diana's Pearl Necklace"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_jewelry_necklace_10.png"
+  stats:
+    INTELLECT: 8
+    SPELL_DAMAGE: 9
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 8
+  source: "Drops from Cannon Master Willey in Stratholme Living."
+- id: 22340
+  name: "Pendant of Celerity"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_jewelry_necklace_04.png"
+  stats:
+    AGILITY: 15
+    HIT_CHANCE: 0.01
+  source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
+- id: 21809
+  name: "Fury of the Forgotten Swarm"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_jewelry_necklace_14.png"
+  stats:
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STRENGTH: 8
+  source: "Drops from captains spawned during General Rajaxx encounter in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21505
+  name: "Choker of the Shifting Sands"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_jewelry_necklace_ahnqiraj_03.png"
+  stats:
+    ATTACK_POWER: 42
+    STAMINA: 16
+  source: "Quest reward. Requires Head of Ossirian from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21504
+  name: "Charm of the Shifting Sands"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_jewelry_necklace_ahnqiraj_03.png"
+  stats:
+    INTELLECT: 12
+    SPELL_DAMAGE: 25
+    STAMINA: 9
+  source: "Quest reward. Requires Head of Ossirian from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21678
+  name: "Necklace of Purity"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_jewelry_necklace_ahnqiraj_04.png"
+  stats:
+    INTELLECT: 13
+    NATURE_RESISTANCE: 20
+    SPELL_DAMAGE: 8
+    STAMINA: 9
+  source: "Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40)."
+- id: 21664
+  name: "Barbed Choker"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 77
+  icon: "Inv_jewelry_necklace_ahnqiraj_02.png"
+  stats:
+    ATTACK_POWER: 44
+    CRIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40)."
+- id: 21608
+  name: "Amulet of Vek'nilash"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_jewelry_necklace_ahnqiraj_01.png"
+  stats:
+    INTELLECT: 5
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 27
+    STAMINA: 9
+  source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
+- id: 21700
+  name: "Pendant of the Qiraji Guardian"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_jewelry_necklace_ahnqiraj_01.png"
+  stats:
+    AGILITY: 11
+    DEFENSE: 6
+    STAMINA: 17
+    STRENGTH: 12
+  source: "Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
+- id: 22732
+  name: "Mark of C'Thun"
+  phase: 5
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_jewelry_necklace_ahnqiraj_04.png"
+  stats:
+    DEFENSE: 10
+    DODGE_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 24
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 23125
+  name: "Chains of the Lich"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_18.png"
+  stats:
+    SPELL_DAMAGE: 22
+  source: "Drops from Balzaphon during Scourge Invasion event."
+- id: 22659
+  name: "Medallion of the Dawn"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_jewelry_amulet_04.png"
+  stats:
+    ATTACK_POWER: 24
+    CRIT_CHANCE: 0.01
+    STAMINA: 12
+  mutex: [22667, 22668, 22678, 22656]
+  source: "Quest reward. Requires Exalted with Argent Dawn."
+- id: 22657
+  name: "Amulet of the Dawn"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_jewelry_amulet_04.png"
+  stats:
+    INTELLECT: 13
+    SPELL_DAMAGE: 15
+    STAMINA: 13
+  mutex: [22667, 22668, 22678, 22656]
+  source: "Quest reward. Requires Exalted with Argent Dawn."
+- id: 23023
+  name: "Sadist's Collar"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_necklace_29naxxramas.png"
+  stats:
+    ATTACK_POWER: 20
+    CRIT_CHANCE: 0.01
+    STAMINA: 24
+  source: "Drops from Gothik the Harvester in Naxxramas."
+- id: 22943
+  name: "Malice Stone Pendant"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_jewelry_necklace_29naxxramas.png"
+  stats:
+    INTELLECT: 8
+    SPELL_DAMAGE: 28
+    SPELL_PENETRATION: 13
+    STAMINA: 9
+  source: "Drops from Grand Widow Faerlina in Naxxramas."
+- id: 23057
+  name: "Gem of Trapped Innocents"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_necklace_29naxxramas.png"
+  stats:
+    INTELLECT: 7
+    SPELL_CRIT_CHANCE: 0.02
+    SPELL_DAMAGE: 15
+    STAMINA: 9
+  source: "Drops from Kel'Thuzad in Naxxramas."
+- id: 23053
+  name: "Stormrage's Talisman of Seething"
+  phase: 6
+  slot: "NECK"
+  type: "AMULET"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_jewelry_necklace_28naxxramas.png"
+  stats:
+    ATTACK_POWER: 26
+    CRIT_CHANCE: 0.02
+    STAMINA: 12
+  source: "Drops from Kel'Thuzad in Naxxramas."

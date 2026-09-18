@@ -1,0 +1,378 @@
+# Generated from ClassicSim Items/Chests/mail.xml by tools/convert_items.py.
+
+- id: 21320
+  name: "Vest of the Den Watcher"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "UNCOMMON"
+  req_lvl: 51
+  item_lvl: 58
+  icon: "Inv_chest_chain_16.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 313
+    STAMINA: 12
+  mutex: [21318, 21319, 21322]
+  source: "Quest reward. Trivial quest (e.g. no dungeons required)."
+- id: 15787
+  name: "Willow Band Hauberk"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "UNCOMMON"
+  req_lvl: 52
+  item_lvl: 59
+  icon: "Inv_chest_chain_16.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 317
+    INTELLECT: 6
+    STAMINA: 10
+  mutex: [15784, 15786]
+  source: "Quest reward. Elite quest in Winterspring."
+- id: 11926
+  name: "Deathdealer Breastplate"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_chest_chain_07.png"
+  stats:
+    ARMOR: 338
+    CRIT_CHANCE: 0.02
+    STAMINA: 8
+    STRENGTH: 8
+  source: "Drops from the Seven Dwarves in Blackrock Depths (BRD)."
+- id: 14536
+  name: "Bonebrace Hauberk"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  icon: "Inv_chest_chain_14.png"
+  stats:
+    ARMOR: 360
+    ATTACK_POWER: 56
+    INTELLECT: 13
+    SPIRIT: 4
+  source: "Drops from trash mobs in Scholomance."
+- id: 16674
+  name: "Beaststalker's Tunic"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_chest_chain_03.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 370
+    INTELLECT: 13
+    SPIRIT: 6
+    STAMINA: 16
+    STRENGTH: 5
+  source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
+- id: 15050
+  name: "Black Dragonscale Breastplate"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_chest_plate06.png"
+  stats:
+    ARMOR: 344
+    ATTACK_POWER: 50
+    FIRE_RESISTANCE: 12
+    STAMINA: 8
+  source: "Crafted by Leatherworkers. Pattern sold by Plugger Spazzring in Blackrock Depths."
+- id: 11726
+  name: "Savage Gladiator Chain"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_chest_chain_15.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 369
+    CRIT_CHANCE: 0.02
+    STAMINA: 13
+    STRENGTH: 13
+  source: "Drops from Gorosh the Dervish in the Arena in Blackrock Depths (BRD)."
+- id: 16845
+  name: "Giantstalker's Breastplate"
+  phase: 1
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_chest_chain_03.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 422
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 10
+    INTELLECT: 11
+    STAMINA: 23
+  source: "Drops from Golemagg the Incinerator in Molten Core."
+- id: 18530
+  name: "Ogre Forged Hauberk"
+  phase: 2
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_chest_chain_12.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 365
+    CRIT_CHANCE: 0.01
+    INTELLECT: 8
+    STAMINA: 13
+    STRENGTH: 8
+  source: "Drops from Tribute chest in Dire Maul."
+- id: 23292
+  name: "Knight-Captain's Chain Hauberk"
+  phase: 2
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_chest_chain_04.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 16
+    ARMOR: 398
+    CRIT_CHANCE: 0.02
+    INTELLECT: 6
+    STAMINA: 13
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8)."
+- id: 22874
+  name: "Legionnaire's Chain Hauberk"
+  phase: 2
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_chest_chain_04.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 16
+    ARMOR: 398
+    CRIT_CHANCE: 0.02
+    INTELLECT: 6
+    STAMINA: 13
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Legionnaire (rank 8)."
+- id: 16466
+  name: "Field Marshal's Chain Breastplate"
+  phase: 2
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_chest_chain_03.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 34
+    ARMOR: 520
+    CRIT_CHANCE: 0.01
+    INTELLECT: 12
+    STAMINA: 28
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13)."
+- id: 16565
+  name: "Warlord's Chain Chestpiece"
+  phase: 2
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_chest_chain_11.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 34
+    ARMOR: 520
+    CRIT_CHANCE: 0.01
+    INTELLECT: 12
+    STAMINA: 28
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13)."
+- id: 16942
+  name: "Dragonstalker's Breastplate"
+  phase: 3
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_chest_chain_03.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 34
+    ARMOR: 482
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 10
+    INTELLECT: 14
+    NATURE_RESISTANCE: 10
+    SPIRIT: 6
+    STAMINA: 17
+  source: "Drops from Nefarian in Blackwing Lair."
+- id: 19690
+  name: "Bloodsoul Breastplate"
+  phase: 4
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_chest_chain_14.png"
+  stats:
+    AGILITY: 9
+    ARMOR: 381
+    CRIT_CHANCE: 0.02
+    STAMINA: 13
+  source: "Crafted by Blacksmiths (300 skill). Pattern requires Revered with Zandalar Tribe."
+- id: 19904
+  name: "Runed Bloodstained Hauberk"
+  phase: 4
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_chest_plate08.png"
+  stats:
+    ARMOR: 416
+    ATTACK_POWER: 58
+    CRIT_CHANCE: 0.01
+    INTELLECT: 15
+    STAMINA: 19
+  source: "Drops from High Priest Venoxis in Zul'Gurub."
+- id: 22191
+  name: "Obsidian Mail Tunic"
+  phase: 5
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  boe: true
+  icon: "Inv_chest_chain_17.png"
+  stats:
+    ARMOR: 458
+    ATTACK_POWER: 76
+    CRIT_CHANCE: 0.01
+  special_equip_effects: ["Equip: Spell Damage received is reduced by 10."]
+  source: "Crafted by Blacksmiths (300 skill). Requires drops/ores from Ruins of Ahn'Qiraj (AQ20)."
+- id: 21370
+  name: "Striker's Hauberk"
+  phase: 5
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_chest_chain_04.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 39
+    ARMOR: 553
+    CRIT_CHANCE: 0.01
+    INTELLECT: 15
+    SPELL_DAMAGE: 9
+    SPIRIT: 7
+    STAMINA: 26
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 11820
+  name: "Royal Decorated Armor"
+  phase: 5
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_chest_plate04.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 344
+    STAMINA: 26
+    STRENGTH: 8
+  source: "Drops from General Angerforge in Blackrock Depths (BRD)."
+- id: 14611
+  name: "Bloodmail Hauberk"
+  phase: 5
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_chest_leather_05.png"
+  stats:
+    ARMOR: 360
+    DODGE_CHANCE: 0.01
+    INTELLECT: 15
+    SPIRIT: 10
+    STAMINA: 15
+    STRENGTH: 10
+  source: "Drops from multiple bosses in Scholomance."
+- id: 22060
+  name: "Beastmaster's Tunic"
+  phase: 5
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_chest_chain_03.png"
+  stats:
+    AGILITY: 25
+    ARMOR: 387
+    CRIT_CHANCE: 0.01
+    INTELLECT: 13
+    STAMINA: 16
+  special_equip_effects: ["Equip: Increases your pet's armor by 10%."]
+  source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
+- id: 22436
+  name: "Crypstalker Tunic"
+  phase: 6
+  slot: "CHEST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_chest_chain_15.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 45
+    ARMOR: 576
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    INTELLECT: 15
+    MANA_PER_5: 4
+    STAMINA: 27
+  source: "Quest reward. Requires boss drops from Naxxramas."

@@ -1,0 +1,501 @@
+# Generated from ClassicSim Items/Weapons/1hMaces.xml by tools/convert_items.py.
+
+- id: 11805
+  name: "Rubidium Hammer"
+  phase: 1
+  slot: "MH"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 56
+  icon: "Inv_hammer_09.png"
+  damage:
+    min: 51
+    max: 96
+    speed: 2.0
+  stats:
+    ARMOR: 120
+    STRENGTH: 5
+  source: "Drops from Bael'Gar in Blackrock Depths."
+- id: 14487
+  name: "Bonechill Hammer"
+  phase: 1
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_hammer_13.png"
+  damage:
+    min: 68
+    max: 127
+    speed: 2.4
+  procs:
+    - name: "FROST_ATTACK"
+      rate: 0.05
+      min: 90
+      max: 90
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Blasts a target for 90 Frost damage."]
+  source: "Drops from Ras Frostwhisper in Scholomance."
+- id: 18044
+  name: "Hurley's Tankard"
+  phase: 1
+  slot: "MH"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_drink_04.png"
+  damage:
+    min: 71
+    max: 132
+    speed: 2.7
+  stats:
+    AGILITY: 5
+    STAMINA: 12
+  source: "Drops from Hurley Blackbreath in Blackrock Depths."
+- id: 18683
+  name: "Hammer of the Vesper"
+  phase: 1
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_hammer_13.png"
+  damage:
+    min: 70
+    max: 131
+    speed: 2.5
+  stats:
+    STAMINA: 12
+    STRENGTH: 7
+  source: "Drops from the six bosses in Scholomance."
+- id: 18671
+  name: "Baron Charr's Sceptre"
+  phase: 1
+  slot: "MH"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  icon: "Inv_mace_08.png"
+  damage:
+    min: 70
+    max: 132
+    speed: 2.6
+  procs:
+    - name: "FIRE_ATTACK"
+      rate: 0.04
+      min: 35
+      max: 35
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Blasts a target for 35 Fire damage."]
+  source: "Drops from Baron Charr in Un'Goro Crater."
+- id: 13204
+  name: "Bashguuder"
+  phase: 1
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_mace_15.png"
+  damage:
+    min: 49
+    max: 93
+    speed: 1.8
+  stats:
+    STRENGTH: 9
+  procs:
+    - name: "ARMOR_PENETRATION"
+      rate: 0.04
+      duration: 30
+      max_stacks: 3
+      value: 200.0
+  special_equip_effects: ["Chance on hit: Puncture's target's armor lowering it by 200. Can be applied up to 3 times."]
+  source: "Drops from Ghok Bashguud in Lower Blackrock Spire (LBRS)."
+- id: 13183
+  name: "Venomspitter"
+  phase: 1
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_wand_10.png"
+  damage:
+    min: 52
+    max: 98
+    speed: 1.9
+  special_equip_effects: ["Chance on hit: Poisons target for 7 Nature damage every 2 sec for 30 sec."]
+  source: "Drops from Mother Smolderweb in Lower Blackrock Spire (LBRS)."
+- id: 11684
+  name: "Ironfoe"
+  phase: 1
+  slot: "MH"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Spell_frost_frostbrand.png"
+  damage:
+    min: 73
+    max: 136
+    speed: 2.4
+  procs:
+    - name: "EXTRA_ATTACK"
+      rate: 0.032
+      amount: 2
+      instant: false
+  special_equip_effects: ["Chance on hit: Grants 2 extra attacks on your next swing."]
+  source: "Drops from Emperor Dagran Thaurissan in Blackrock Depths."
+- id: 17105
+  name: "Aurastone Hammer"
+  phase: 1
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 69
+  icon: "Inv_hammer_05.png"
+  damage:
+    min: 79
+    max: 162
+    speed: 2.7
+  stats:
+    INTELLECT: 10
+    MANA_PER_5: 5
+    SPELL_DAMAGE: 25
+    STAMINA: 10
+  source: "Drops from Garr in Molten Core."
+- id: 19104
+  name: "Stormstrike Hammer"
+  phase: 3
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_hammer_21.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 80
+    max: 150
+    speed: 2.7
+  stats:
+    STRENGTH: 15
+  source: "Purchased for 2400 honor points. Alliance only."
+- id: 13006
+  name: "Mass of McGowan"
+  phase: 1
+  slot: "MH"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_hammer_17.png"
+  damage:
+    min: 80
+    max: 149
+    speed: 2.8
+  stats:
+    STAMINA: 10
+    STRENGTH: 10
+  source: "Random world drop."
+- id: 17112
+  name: "Empyrean Demolisher"
+  phase: 2
+  slot: "MH"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_hammer_05.png"
+  damage:
+    min: 94
+    max: 175
+    speed: 2.8
+  procs:
+    - name: "GENERIC_STAT_BUFF"
+      rate: 0.04666667
+      duration: 10
+      amount: 20
+      instant: true
+      stat: "ATTACK_SPEED"
+      sources:
+        melee_weapon_side: true
+  special_equip_effects: ["Chance on hit: Increases your attack speed by 20% for 10 sec."]
+  source: "Drops from Lord Kazzak (world boss)."
+- id: 18866
+  name: "High Warlord's Bludgeon"
+  phase: 2
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_hammer_20.png"
+  faction: "HORDE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18865
+  name: "Grand Marshal's Punisher"
+  phase: 2
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_mace_13.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 19335
+  name: "Spineshatter"
+  phase: 3
+  slot: "MH"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_mace_06.png"
+  damage:
+    min: 99
+    max: 184
+    speed: 2.6
+  stats:
+    DEFENSE: 5
+    STAMINA: 16
+    STRENGTH: 9
+  source: "Drops from Razorgore the Untamed in Blackwing Lair."
+- id: 19170
+  name: "Ebon Hand"
+  phase: 3
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  boe: true
+  icon: "Inv_hammer_19.png"
+  damage:
+    min: 90
+    max: 168
+    speed: 2.5
+  stats:
+    FIRE_RESISTANCE: 7
+    STAMINA: 9
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.038333333
+      min: 125
+      max: 275
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 125 to 275 Shadow damage."]
+  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
+- id: 19908
+  name: "Sceptre of Smiting"
+  phase: 4
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_mace_08.png"
+  damage:
+    min: 77
+    max: 145
+    speed: 2.6
+  stats:
+    MACE_SKILL: 2
+  procs:
+    - name: "NATURE_ATTACK"
+      rate: 0.043333333
+      min: 63
+      max: 94
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Blasts the enemy with poison for 63 to 94 Nature damage."]
+  source: "Random drop from trash in Zul'Gurub."
+- id: 19961
+  name: "Gri'lek's Grinder"
+  phase: 4
+  slot: "1H"
+  type: "MACE"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_mace_04.png"
+  damage:
+    min: 75
+    max: 140
+    speed: 2.4
+  stats:
+    ATTACK_POWER_DRAGONKIN: 48
+  source: "Drops from Gri'lek (Edge of Madness) in Zul'Gurub."
+- id: 19360
+  name: "Lok'amir il Romathis"
+  phase: 3
+  slot: "MH"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_mace_06.png"
+  damage:
+    min: 48
+    max: 128
+    speed: 2.1
+  stats:
+    INTELLECT: 18
+    SPELL_DAMAGE: 84
+    SPIRIT: 8
+    STAMINA: 10
+  source: "Drops from Nefarian in Blackwing Lair."
+  flavour_text: "\"The Hand of Nefarius\""
+- id: 22384
+  name: "Persuader"
+  phase: 5
+  slot: "MH"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  icon: "Inv_hammer_08.png"
+  damage:
+    min: 86
+    max: 161
+    speed: 2.7
+  stats:
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+  source: "Created by Blacksmiths (plans are world drop/raid bosses)."
+- id: 21837
+  name: "Anubisath Warhammer"
+  phase: 5
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_hammer_11.png"
+  damage:
+    min: 66
+    max: 123
+    speed: 1.8
+  stats:
+    ATTACK_POWER: 32
+    MACE_SKILL: 4
+    STAMINA: 7
+  source: "Random drop from trash in Temple of Ahn'Qiraj (AQ40)."
+- id: 21715
+  name: "Sand Polished Hammer"
+  phase: 5
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_mace_24.png"
+  damage:
+    min: 97
+    max: 181
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 20
+    CRIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 22808
+  name: "The Castigator"
+  phase: 6
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_mace_1h_stratholme_d_01.png"
+  damage:
+    min: 119
+    max: 221
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 16
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Thaddius in Naxxramas."
+- id: 23221
+  name: "Misplaced Servo Arm"
+  phase: 6
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_mace_28.png"
+  damage:
+    min: 128
+    max: 238
+    speed: 2.8
+  procs:
+    - name: "NATURE_ATTACK"
+      rate: 0.14
+      min: 100
+      max: 151
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance to discharge electricity causing 100 to 151 Nature damage to your target."]
+  source: "Drops from trash mobs in Naxxramas."
+- id: 21268
+  name: "Blessed Qiraji War Hammer"
+  phase: 5
+  slot: "1H"
+  type: "MACE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 79
+  icon: "Inv_mace_24.png"
+  damage:
+    min: 89
+    max: 166
+    speed: 2.1
+  stats:
+    ARMOR: 70
+    DEFENSE: 8
+    FERAL_ATTACK_POWER: 280
+    STAMINA: 12
+    STRENGTH: 10
+  source: "Quest reward from turning in an Imperial Qiraji Regalia in AQ40."

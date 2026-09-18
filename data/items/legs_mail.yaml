@@ -1,0 +1,281 @@
+# Generated from ClassicSim Items/Legs/mail.xml by tools/convert_items.py.
+
+- id: 16678
+  name: "Beaststalker's Pants"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_pants_03.png"
+  stats:
+    AGILITY: 26
+    ARMOR: 315
+    SPIRIT: 12
+    STAMINA: 6
+    STRENGTH: 6
+  source: "Drops from Baron Rivendare in Stratholme Undead."
+- id: 11728
+  name: "Savage Gladiator Leggings"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_pants_03.png"
+  stats:
+    AGILITY: 18
+    ARMOR: 296
+    STAMINA: 19
+    STRENGTH: 12
+  source: "Drops from Ok'thor the Breaker in the Arena in Blackrock Depths (BRD)."
+- id: 14612
+  name: "Bloodmail Leguards"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_pants_06.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 315
+    INTELLECT: 15
+    STAMINA: 16
+    STRENGTH: 15
+  source: "Drops from multiple bosses in Scholomance."
+- id: 15052
+  name: "Black Dragonscale Leggings"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_pants_03.png"
+  stats:
+    ARMOR: 320
+    ATTACK_POWER: 54
+    FIRE_RESISTANCE: 13
+    STAMINA: 8
+  source: "Crafted by Leatherworkers. Pattern drops from Anvilrage Captains in Blackrock Depths."
+- id: 16847
+  name: "Giantstalker's Leggings"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_pants_mail_03.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 32
+    ARMOR: 369
+    CRIT_CHANCE: 0.01
+    INTELLECT: 6
+    SHADOW_RESISTANCE: 10
+    SPIRIT: 8
+    STAMINA: 15
+  source: "Drops from Magmadar in Molten Core."
+- id: 16938
+  name: "Dragonstalker's Legguards"
+  phase: 1
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_pants_03.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 31
+    ARCANE_RESISTANCE: 10
+    ARMOR: 422
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 10
+    HIT_CHANCE: 0.01
+    INTELLECT: 15
+    SPIRIT: 8
+    STAMINA: 16
+  source: "Drops from Ragnaros in Molten Core."
+- id: 18524
+  name: "Leggings of Destruction"
+  phase: 2
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_pants_03.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 324
+    CRIT_CHANCE: 0.01
+    INTELLECT: 13
+    STAMINA: 20
+  source: "Drops from King Gordok in Dire Maul."
+- id: 23293
+  name: "Knight-Captain's Chain Legguards"
+  phase: 2
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_pants_03.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 16
+    ARMOR: 348
+    CRIT_CHANCE: 0.02
+    INTELLECT: 6
+    STAMINA: 13
+  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8)."
+- id: 22875
+  name: "Legionnaire's Chain Legguards"
+  phase: 2
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_pants_03.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 16
+    ARMOR: 348
+    CRIT_CHANCE: 0.02
+    INTELLECT: 6
+    STAMINA: 13
+  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Legionnaire (rank 8)."
+- id: 16467
+  name: "Marshal's Chain Legguards"
+  phase: 2
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_pants_mail_17.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 34
+    ARMOR: 446
+    CRIT_CHANCE: 0.01
+    INTELLECT: 12
+    STAMINA: 27
+  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12)."
+- id: 16567
+  name: "General's Chain Legguards"
+  phase: 2
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_pants_mail_16.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 34
+    ARMOR: 446
+    CRIT_CHANCE: 0.01
+    INTELLECT: 12
+    STAMINA: 27
+  source: "Purchased with Honor Points and Warsong Gulch marks. Requires General (rank 12)."
+- id: 19887
+  name: "Bloodstained Legplates"
+  phase: 4
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_pants_mail_09.png"
+  stats:
+    AGILITY: 24
+    ARMOR: 363
+    CRIT_CHANCE: 0.01
+    INTELLECT: 11
+    STAMINA: 15
+  source: "Drops from Jin'do the Hexxer in Zul'Gurub."
+- id: 21651
+  name: "Scaled Sand Reaver Leggings"
+  phase: 5
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 77
+  icon: "Inv_pants_mail_10.png"
+  stats:
+    ARMOR: 427
+    ATTACK_POWER: 62
+    CRIT_CHANCE: 0.02
+    INTELLECT: 10
+    STAMINA: 23
+  source: "Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40)."
+- id: 21368
+  name: "Striker's Leggings"
+  phase: 5
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_pants_mail_11.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 36
+    ARMOR: 448
+    CRIT_CHANCE: 0.01
+    INTELLECT: 14
+    SPELL_DAMAGE: 9
+    SPIRIT: 10
+    STAMINA: 22
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 22017
+  name: "Beastmaster's Pants"
+  phase: 5
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_pants_03.png"
+  stats:
+    AGILITY: 28
+    ARMOR: 339
+    INTELLECT: 9
+    STAMINA: 14
+  source: "Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle."
+- id: 22437
+  name: "Crypstalker Legguards"
+  phase: 6
+  slot: "LEGS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_pants_mail_15.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 42
+    ARMOR: 484
+    CRIT_CHANCE: 0.01
+    INTELLECT: 10
+    MANA_PER_5: 6
+    STAMINA: 26
+  source: "Quest reward. Requires boss drops from Naxxramas."

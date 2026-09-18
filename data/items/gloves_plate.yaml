@@ -1,0 +1,339 @@
+# Generated from ClassicSim Items/Gloves/plate.xml by tools/convert_items.py.
+
+- id: 11745
+  name: "Fists of Phalanx"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 56
+  icon: "Inv_gauntlets_22.png"
+  stats:
+    ARMOR: 367
+    STAMINA: 9
+    STRENGTH: 20
+  source: "Drops from Phalanx in Blackrock Depths (BRD)."
+- id: 15795
+  name: "Emerald Mist Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "UNCOMMON"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_gauntlets_30.png"
+  stats:
+    ARMOR: 345
+    STAMINA: 13
+    STRENGTH: 12
+  source: "Quest reward. Trivial quest mostly involving travelling."
+- id: 12639
+  name: "Stronghold Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_gauntlets_30.png"
+  stats:
+    ARMOR: 441
+    CRIT_CHANCE: 0.01
+    PARRY_CHANCE: 0.01
+    STAMINA: 12
+  special_equip_effects: ["Equip: Immune to Disarm."]
+  source: "Blacksmith crafted."
+- id: 18722
+  name: "Death Grips"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_gauntlets_13.png"
+  stats:
+    ARMOR: 404
+    STRENGTH: 22
+  special_equip_effects: ["Equip: Immune to Disarm."]
+  source: "Drops from Magistrate Barthilas in Stratholme."
+- id: 12111
+  name: "Lavaplate Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "UNCOMMON"
+  req_lvl: 52
+  item_lvl: 58
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    ARMOR: 345
+    STAMINA: 5
+    STRENGTH: 17
+  source: "Quest reward. Requires Golem Lord Argelmach in Blackrock Depths."
+- id: 14863
+  name: "Warleader's Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_gauntlets_28.png"
+  stats:
+    ARMOR: 356
+    STAMINA: 6
+    STRENGTH: 17
+  source: "World drop."
+- id: 16737
+  name: "Gauntlets of Valor"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    AGILITY: 3
+    ARMOR: 386
+    SPIRIT: 8
+    STAMINA: 10
+    STRENGTH: 17
+  source: "Drops from Ramstein the Gorger in Stratholme Undead."
+- id: 16863
+  name: "Gauntlets of Might"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_10.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 468
+    DEFENSE: 5
+    FIRE_RESISTANCE: 7
+    HIT_CHANCE: 0.01
+    STAMINA: 17
+    STRENGTH: 22
+  source: "Drops from Lucifron in Molten Core."
+- id: 19143
+  name: "Flameguard Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 69
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    ARMOR: 488
+    ATTACK_POWER: 54
+    CRIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Drops from several bosses in Molten Core."
+- id: 23286
+  name: "Knight-Lieutenant's Plate Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_26.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 429
+    STAMINA: 17
+    STRENGTH: 17
+  modifies: ["Hamstring"]
+  special_equip_effects: ["Equip: Hamstring Rage cost reduced by 3."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7)."
+- id: 22868
+  name: "Blood Guard's Plate Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_26.png"
+  faction: "HORDE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 429
+    STAMINA: 17
+    STRENGTH: 17
+  modifies: ["Hamstring"]
+  special_equip_effects: ["Equip: Hamstring Rage cost reduced by 3."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Blood Guard (rank 7)."
+- id: 23274
+  name: "Knight-Lieutenant's Lamellar Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_29.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["PALADIN"]
+  stats:
+    ARMOR: 429
+    CRIT_CHANCE: 0.01
+    STAMINA: 13
+    STRENGTH: 12
+  modifies: ["Judgement of the Crusader"]
+  special_equip_effects: ["Equip: Increases the Holy damage bonus of your Judgement of the Crusader by 20."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7)."
+- id: 16471
+  name: "Marshal's Lamellar Gloves"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_29.png"
+  class_restrictions: ["PALADIN"]
+  stats:
+    ARMOR: 502
+    CRIT_CHANCE: 0.01
+    INTELLECT: 16
+    STAMINA: 17
+    STRENGTH: 18
+  modifies: ["Judgement of the Crusader"]
+  special_equip_effects: ["Equip: Increases the Holy damage bonus of your Judgement of the Crusader by 20."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12)."
+- id: 16484
+  name: "Marshal's Plate Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_29.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 532
+    CRIT_CHANCE: 0.01
+    STAMINA: 23
+    STRENGTH: 20
+  modifies: ["Hamstring"]
+  special_equip_effects: ["Equip: Hamstring Rage cost reduced by 3."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12)."
+- id: 16548
+  name: "General's Plate Gauntlets"
+  phase: 2
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_10.png"
+  faction: "HORDE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 532
+    CRIT_CHANCE: 0.01
+    STAMINA: 23
+    STRENGTH: 20
+  modifies: ["Hamstring"]
+  special_equip_effects: ["Equip: Hamstring Rage cost reduced by 3."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires General (rank 12)."
+- id: 16964
+  name: "Gauntlets of Wrath"
+  phase: 3
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_gauntlets_10.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 535
+    DEFENSE: 7
+    PARRY_CHANCE: 0.01
+    SHADOW_RESISTANCE: 10
+    STAMINA: 20
+    STRENGTH: 15
+  source: "Drops from Firemaw, Ebenroc and Flamegor in Blackwing Lair."
+- id: 22714
+  name: "Sacrificial Gauntlets"
+  phase: 4
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_gauntlets_31.png"
+  stats:
+    ARMOR: 441
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STRENGTH: 19
+  source: "Drops from several bosses in Zul'Gurub."
+- id: 21623
+  name: "Gauntlets of the Righteous Champion"
+  phase: 5
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    ARMOR: 549
+    CRIT_CHANCE: 0.01
+    INTELLECT: 13
+    SPELL_DAMAGE: 16
+    STAMINA: 17
+    STRENGTH: 15
+  source: "Drops from Viscidus in Temple of Ahn'Qiraj (AQ40)."
+- id: 21581
+  name: "Gauntlets of Annihilation"
+  phase: 5
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_gauntlets_31.png"
+  stats:
+    ARMOR: 615
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 15
+    STRENGTH: 35
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 21674
+  name: "Gauntlets of Steadfast Determination"
+  phase: 5
+  slot: "GLOVES"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_gauntlets_31.png"
+  stats:
+    AGILITY: 18
+    ARMOR: 535
+    DEFENSE: 9
+    STAMINA: 20
+    STRENGTH: 19
+  source: "Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40)."

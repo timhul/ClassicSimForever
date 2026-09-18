@@ -1,0 +1,61 @@
+# Generated from ClassicSim Items/Misc/relics.xml by tools/convert_items.py.
+
+- id: 22401
+  name: "Libram of Hope"
+  phase: 5
+  slot: "RELIC"
+  type: "RELIC"
+  quality: "RARE"
+  unique: true
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_relics_libramofhope.png"
+  class_restrictions: ["PALADIN"]
+  modifies: ["Seal of Command", "Seal of the Crusader", "Seal of Righteousness"]
+  special_equip_effects: ["Equip: Reduces the mana cost of your Seal spells by 20."]
+  source: "Drops from Isalien in Dire Maul."
+- id: 23203
+  name: "Libram of Fervor"
+  phase: 6
+  slot: "RELIC"
+  type: "RELIC"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_relics_libramoftruth.png"
+  class_restrictions: ["PALADIN"]
+  modifies: ["Seal of the Crusader", "Judgement of the Crusader"]
+  special_equip_effects: ["Equip: Increases the melee attack power bonus of your Seal of the Crusader by 48 and the Holy damage increase of your Judgement of the Crusader by 33."]
+  source: "World drop."
+- id: 23197
+  name: "Idol of the Moon"
+  phase: 6
+  slot: "RELIC"
+  type: "RELIC"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_relics_idolofrejuvenation.png"
+  class_restrictions: ["DRUID"]
+  modifies: ["Moonfire"]
+  special_equip_effects: ["Equip: Increases the damage of your Moonfire spell by up to 17% (HAS NO EFFECT CURRENTLY)."]
+  source: "World drop."
+- id: 23199
+  name: "Totem of the Storm"
+  phase: 6
+  slot: "RELIC"
+  type: "RELIC"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_relics_totemofrage.png"
+  class_restrictions: ["SHAMAN"]
+  modifies: ["Lightning Bolt", "Chain Lightning"]
+  special_equip_effects: ["Equip: Increases damage done by Chain Lightning and Lightning Bolt by up to 33."]
+  source: "World drop."

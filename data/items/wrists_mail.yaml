@@ -1,0 +1,196 @@
+# Generated from ClassicSim Items/Wrists/mail.xml by tools/convert_items.py.
+
+- id: 16681
+  name: "Beaststalker's Bindings"
+  phase: 1
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  icon: "Inv_bracer_17.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 148
+    STAMINA: 7
+  source: "Drops from trash mobs in Stratholme Undead."
+- id: 17714
+  name: "Bracers of the Stone Princess"
+  phase: 1
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 49
+  item_lvl: 54
+  icon: "Inv_bracer_14.png"
+  stats:
+    ARMOR: 141
+    ATTACK_POWER: 30
+    INTELLECT: 5
+    STAMINA: 6
+  source: "Drops from Princess Theradras in Maraudon."
+- id: 13211
+  name: "Slashclaw Bracers"
+  phase: 1
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_bracer_07.png"
+  stats:
+    AGILITY: 7
+    ARMOR: 155
+    HIT_CHANCE: 0.01
+    SPIRIT: 6
+    STAMINA: 7
+  source: "Drops from Halycon in Lower Blackrock Spire (LBRS)."
+- id: 16850
+  name: "Giantstalker's Bracers"
+  phase: 1
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_bracer_17.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 185
+    INTELLECT: 6
+    SPIRIT: 5
+    STAMINA: 11
+  source: "Drops from trash mobs in Molten Core."
+- id: 18812
+  name: "Wristguards of True Flight"
+  phase: 1
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_bracer_02.png"
+  stats:
+    AGILITY: 19
+    ARMOR: 198
+    HIT_CHANCE: 0.01
+    INTELLECT: 6
+    STAMINA: 11
+  source: "Drops from Majordomo Executus in Molten Core."
+- id: 18296
+  name: "Marksman Bands"
+  phase: 2
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  icon: "Inv_bracer_06.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 146
+    BOW_SKILL: 2
+    CROSSBOW_SKILL: 2
+    GUN_SKILL: 2
+    STAMINA: 6
+  source: "Rare drop from Satyr trash mobs in Dire Maul."
+- id: 16935
+  name: "Dragonstalker's Bracers"
+  phase: 3
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_bracer_17.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 23
+    ARMOR: 211
+    INTELLECT: 6
+    SPIRIT: 6
+    STAMINA: 13
+  source: "Drops from Razorgore the Untamed."
+- id: 19582
+  name: "Windtalker's Wristguards"
+  phase: 3
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_bracer_03.png"
+  stats:
+    ARMOR: 182
+    ATTACK_POWER: 38
+    INTELLECT: 8
+    SPIRIT: 7
+    STAMINA: 8
+  source: "Sold by Warsong Gulch quartermasters. Requires Exalted with Warsong Gulch faction."
+- id: 19833
+  name: "Zandalar Predator's Bracers"
+  phase: 4
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 61
+  icon: "Inv_bracer_18.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    ARMOR: 172
+    INTELLECT: 10
+    MANA_PER_5: 4
+    RANGED_ATTACK_POWER: 34
+    STAMINA: 10
+  source: "Quest reward. Requires boss drop from Zul'Gurub and Friendly with Zandalar Tribe."
+- id: 22011
+  name: "Beastmaster's Bindings"
+  phase: 5
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 65
+  icon: "Inv_bracer_17.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 167
+    INTELLECT: 5
+    STAMINA: 7
+  source: "Quest reward. Requires Beaststalker's Bindings, gold, drops from Winterspring beasts."
+- id: 21502
+  name: "Sand Reaver Wristguards"
+  phase: 5
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_bracer_19.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 181
+    INTELLECT: 7
+    STAMINA: 11
+  source: "Drops from Kurinaxx in Ruins of Ahn'Qiraj (AQ20)."
+- id: 22443
+  name: "Crypstalker Wristguards"
+  phase: 6
+  slot: "WRIST"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_bracer_02.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 242
+    HIT_CHANCE: 0.01
+    STAMINA: 16
+  source: "Quest reward. Requires boss drops from Naxxramas."

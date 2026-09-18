@@ -1,0 +1,699 @@
+# Generated from ClassicSim Items/Weapons/Ranged.xml by tools/convert_items.py.
+
+- id: 13039
+  name: "Skull Splitting Crossbow"
+  phase: 1
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  icon: "Inv_weapon_crossbow_04.png"
+  damage:
+    min: 52
+    max: 79
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 14
+    STRENGTH: 3
+  source: "Random world drop."
+- id: 18323
+  name: "Satyr's Bow"
+  phase: 2
+  slot: "RANGED"
+  type: "BOW"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_weapon_bow_03.png"
+  damage:
+    min: 50
+    max: 93
+    speed: 2.4
+  stats:
+    AGILITY: 3
+    HIT_CHANCE: 0.01
+  source: "Drops from Zevrim Thornhoof in Dire Maul East."
+- id: 16996
+  name: "Gorewood Bow"
+  phase: 1
+  slot: "RANGED"
+  type: "BOW"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 62
+  icon: "Inv_weapon_bow_04.png"
+  damage:
+    min: 55
+    max: 104
+    speed: 2.5
+  stats:
+    AGILITY: 3
+    STAMINA: 9
+    STRENGTH: 2
+  mutex: [16998]
+  source: "Quest reward from Order Must Be Restored (Alliance) or The Scarlet Oracle, Demetria (Horde)."
+- id: 12651
+  name: "Blackcrow"
+  phase: 1
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  icon: "Inv_weapon_crossbow_04.png"
+  damage:
+    min: 77
+    max: 117
+    speed: 3.2
+  stats:
+    AGILITY: 3
+    HIT_CHANCE: 0.01
+  source: "Drops from Shadow Hunter Vosh'gajin in Lower Blackrock Spire (LBRS)."
+- id: 13040
+  name: "Heartseeking Crossbow"
+  phase: 1
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  icon: "Inv_weapon_crossbow_04.png"
+  damage:
+    min: 71
+    max: 108
+    speed: 3.1
+  stats:
+    AGILITY: 9
+    STAMINA: 4
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.06
+      min: 13
+      max: 20
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Equip: Chance to strike your ranged target with a Shadowbolt for 13 to 20 Shadow damage."]
+  source: "World drop."
+- id: 2099
+  name: "Dwarven Hand Cannon"
+  phase: 1
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_weapon_rifle_09.png"
+  damage:
+    min: 66
+    max: 124
+    speed: 2.9
+  procs:
+    - name: "FIRE_ATTACK"
+      rate: 0.06
+      min: 33
+      max: 50
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Equip: Chance to strike your ranged target with a Flaming Cannonbal for 33 to 50 Fire damage."]
+  source: "World drop."
+- id: 2100
+  name: "Precisely Calibrated Boomstick"
+  phase: 1
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  icon: "Inv_weapon_rifle_06.png"
+  damage:
+    min: 38
+    max: 45
+    speed: 1.5
+  stats:
+    AGILITY: 14
+  source: "World drop."
+- id: 17072
+  name: "Blastershot Launcher"
+  phase: 1
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  boe: true
+  icon: "Inv_weapon_rifle_09.png"
+  damage:
+    min: 73
+    max: 136
+    speed: 2.6
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 6
+  source: "Drops from Golemagg the Incinerator in Molten Core."
+- id: 16007
+  name: "Flawless Arcanite Rifle"
+  phase: 1
+  slot: "RANGED"
+  type: "GUN"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  icon: "Inv_weapon_rifle_03.png"
+  damage:
+    min: 65
+    max: 122
+    speed: 3.0
+  stats:
+    GUN_SKILL: 4
+    RANGED_ATTACK_POWER: 10
+  source: "Crafted by Engineers. Schematic drops from specific non-elite trolls in Eastern Plaguelands."
+- id: 17069
+  name: "Striker's Mark"
+  phase: 1
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 69
+  icon: "Inv_weapon_bow_08.png"
+  damage:
+    min: 69
+    max: 129
+    speed: 2.5
+  stats:
+    ATTACK_POWER: 22
+    HIT_CHANCE: 0.01
+  source: "Drops from Magmadar in Molten Core."
+- id: 18680
+  name: "Ancient Bone Bow"
+  phase: 1
+  slot: "RANGED"
+  type: "BOW"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_weapon_bow_08.png"
+  damage:
+    min: 61
+    max: 114
+    speed: 2.8
+  stats:
+    AGILITY: 11
+  source: "Drops from various bosses in Scholomance."
+- id: 18738
+  name: "Carapace Spine Crossbow"
+  phase: 1
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_weapon_crossbow_04.png"
+  damage:
+    min: 82
+    max: 124
+    speed: 3.3
+  stats:
+    AGILITY: 4
+    STAMINA: 9
+  source: "Drops from Nerub'enkan in Stratholme Undead."
+- id: 18713
+  name: "Rhok'delar, Longbow of the Ancient Keepers"
+  phase: 1
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_weapon_bow_01.png"
+  class_restrictions: ["HUNTER"]
+  damage:
+    min: 89
+    max: 166
+    speed: 2.9
+  stats:
+    CRIT_CHANCE: 0.01
+    RANGED_ATTACK_POWER: 17
+  source: "Quest reward. Quest chain starts with drop from Majordomo Executus in Molten Core."
+- id: 18388
+  name: "Stoneshatter"
+  phase: 2
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_weapon_crossbow_08.png"
+  damage:
+    min: 73
+    max: 111
+    speed: 2.9
+  stats:
+    CROSSBOW_SKILL: 4
+  source: "Drops from Prince Thortheldrin in Dire Maul."
+- id: 18282
+  name: "Core Marksman Rifle"
+  phase: 2
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_weapon_rifle_05.png"
+  damage:
+    min: 64
+    max: 120
+    speed: 2.5
+  stats:
+    HIT_CHANCE: 0.01
+    RANGED_ATTACK_POWER: 22
+  source: "Crafted by Engineers. Schematic drops in Molten Core. Requires Molten Core materials."
+- id: 19107
+  name: "Bloodseeker"
+  phase: 3
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 63
+  icon: "Inv_weapon_crossbow_07.png"
+  damage:
+    min: 85
+    max: 128
+    speed: 3.3
+  stats:
+    AGILITY: 7
+    STRENGTH: 8
+  mutex: [19106, 19108, 20648]
+  source: "Quest reward. Requires winning Alterac Valley."
+- id: 18836
+  name: "Grand Marshal's Repeater"
+  phase: 2
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_crossbow_04.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 107
+    max: 162
+    speed: 2.9
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18833
+  name: "Grand Marshal's Bullseye"
+  phase: 2
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_bow_12.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 66
+    max: 100
+    speed: 1.8
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18855
+  name: "Grand Marshal's Hand Cannon"
+  phase: 2
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_rifle_08.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 107
+    max: 162
+    speed: 2.9
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18837
+  name: "High Warlord's Crossbow"
+  phase: 2
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_crossbow_10.png"
+  faction: "HORDE"
+  damage:
+    min: 107
+    max: 162
+    speed: 2.9
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18835
+  name: "High Warlord's Recurve"
+  phase: 2
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_bow_08.png"
+  faction: "HORDE"
+  damage:
+    min: 66
+    max: 100
+    speed: 1.8
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18860
+  name: "High Warlord's Street Sweeper"
+  phase: 2
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_rifle_06.png"
+  faction: "HORDE"
+  damage:
+    min: 107
+    max: 162
+    speed: 2.9
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 19361
+  name: "Ashjre'thul, Crossbow of Smiting"
+  phase: 3
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 77
+  icon: "Inv_weapon_crossbow_09.png"
+  damage:
+    min: 124
+    max: 186
+    speed: 3.4
+  stats:
+    RANGED_ATTACK_POWER: 36
+    STAMINA: 7
+  source: "Drops from Chromaggus in Blackwing Lair."
+- id: 19350
+  name: "Heartstriker"
+  phase: 3
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_weapon_bow_09.png"
+  damage:
+    min: 80
+    max: 149
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 24
+    STAMINA: 9
+  source: "Drops from Broodlord Lashlayer in Blackwing Lair."
+- id: 19368
+  name: "Dragonbreath Hand Cannon"
+  phase: 3
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_weapon_rifle_02.png"
+  damage:
+    min: 86
+    max: 160
+    speed: 2.8
+  stats:
+    AGILITY: 14
+    STAMINA: 7
+  source: "Drops from Ebonroc in Blackwing Lair."
+- id: 19853
+  name: "Gurubashi Dwarf Destroyer"
+  phase: 4
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_weapon_rifle_10.png"
+  damage:
+    min: 76
+    max: 142
+    speed: 2.8
+  stats:
+    ATTACK_POWER: 30
+  source: "Drops from Hakkar in Zul'Gurub."
+- id: 20038
+  name: "Mandokir's Sting"
+  phase: 4
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_waepon_bow_zulgrub_d_01.png"
+  damage:
+    min: 68
+    max: 127
+    speed: 2.6
+  stats:
+    AGILITY: 11
+    STAMINA: 8
+  source: "Drops from Bloodlord Mandokir in Zul'Gurub."
+- id: 19993
+  name: "Hoodoo Hunting Bow"
+  phase: 4
+  slot: "RANGED"
+  type: "BOW"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_waepon_bow_zulgrub_d_02.png"
+  damage:
+    min: 68
+    max: 128
+    speed: 2.8
+  stats:
+    AGILITY: 10
+    STAMINA: 4
+  source: "Drops from Wushoolay (Edge of Madness) in Zul'Gurub."
+- id: 20722
+  name: "Crystal Slugthrower"
+  phase: 5
+  slot: "RANGED"
+  type: "GUN"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_weapon_rifle_03.png"
+  damage:
+    min: 65
+    max: 122
+    speed: 2.8
+  stats:
+    ATTACK_POWER: 20
+    STAMINA: 4
+  source: "Drops from Sack of Spoils reward from Silithus group quests."
+- id: 20599
+  name: "Polished Ironwood Crossbow"
+  phase: 5
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_weapon_crossbow_11.png"
+  damage:
+    min: 101
+    max: 153
+    speed: 3.1
+  stats:
+    ATTACK_POWER: 24
+    NATURE_RESISTANCE: 7
+    STAMINA: 5
+  source: "Drops from Emeriss (world boss)."
+- id: 21800
+  name: "Silithid Husked Launcher"
+  phase: 5
+  slot: "RANGED"
+  type: "GUN"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  boe: true
+  icon: "Inv_weapon_rifle_10.png"
+  damage:
+    min: 68
+    max: 128
+    speed: 2.8
+  stats:
+    AGILITY: 4
+    STAMINA: 10
+  source: "Drops from trash mobs in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21478
+  name: "Bow of Taut Sinew"
+  phase: 5
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_weapon_bow_13.png"
+  damage:
+    min: 59
+    max: 111
+    speed: 2.2
+  stats:
+    ATTACK_POWER: 22
+    NATURE_RESISTANCE: 8
+  source: "Drops from Ayamiss the Hunter in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21459
+  name: "Crossbow of Imminent Doom"
+  phase: 5
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_weapon_crossbow_06.png"
+  damage:
+    min: 103
+    max: 155
+    speed: 3.1
+  stats:
+    AGILITY: 7
+    HIT_CHANCE: 0.01
+    STAMINA: 5
+    STRENGTH: 5
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21616
+  name: "Huhuran's Stinger"
+  phase: 5
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_bow_14.png"
+  damage:
+    min: 87
+    max: 163
+    speed: 2.7
+  stats:
+    AGILITY: 18
+  source: "Drops from Princess Huhuran in Temple of Ahn'Qiraj (AQ40)."
+- id: 23557
+  name: "Larvae of the Great Worm"
+  phase: 5
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_weapon_rifle_10.png"
+  damage:
+    min: 103
+    max: 192
+    speed: 3.0
+  stats:
+    ATTACK_POWER: 18
+    CRIT_CHANCE: 0.01
+  source: "Drops from Ouro in Temple of Ahn'Qiraj (AQ40)."
+- id: 21272
+  name: "Blessed Qiraji Musket"
+  phase: 5
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 79
+  icon: "Inv_weapon_rifle_11.png"
+  damage:
+    min: 86
+    max: 160
+    speed: 2.6
+  stats:
+    RANGED_ATTACK_POWER: 31
+    STAMINA: 10
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+  flavour_text: "The weapon is infused and reinforced with Elementium."
+- id: 22810
+  name: "Toxin Injector"
+  phase: 6
+  slot: "RANGED"
+  type: "GUN"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_weapon_rifle_11.png"
+  damage:
+    min: 68
+    max: 128
+    speed: 2.0
+  stats:
+    ATTACK_POWER: 28
+    STAMINA: 10
+  source: "Drops from Grobbulus in Naxxramas."
+- id: 22811
+  name: "Soulstring"
+  phase: 6
+  slot: "RANGED"
+  type: "BOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_weapon_bow_13.png"
+  damage:
+    min: 103
+    max: 192
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 16
+    CRIT_CHANCE: 0.01
+    STAMINA: 6
+  source: "Drops from Four Horsemen in Naxxramas."
+- id: 22812
+  name: "Nerubian Slavemaker"
+  phase: 6
+  slot: "RANGED"
+  type: "CROSSBOW"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 89
+  icon: "Inv_weapon_crossbow_12.png"
+  damage:
+    min: 128
+    max: 238
+    speed: 3.2
+  stats:
+    ATTACK_POWER: 24
+    CRIT_CHANCE: 0.01
+  source: "Drops from Kel'Thuzad in Naxxramas."

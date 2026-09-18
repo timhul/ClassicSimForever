@@ -112,6 +112,9 @@ pub struct ItemProcSpec {
     pub stat: Option<ItemStat>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub spell_dmg_coefficient: Option<f64>,
+    /// Damage over time dealt by the proc in addition to its direct damage (Instant Fireball).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dmg_over_duration: Option<u32>,
     /// Which attacks can trigger the proc. Empty means the defaults for the equipment slot.
     #[serde(default, skip_serializing_if = "ProcSourceFlags::is_empty")]
     pub sources: ProcSourceFlags,
