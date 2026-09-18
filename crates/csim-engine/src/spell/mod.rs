@@ -4,9 +4,11 @@
 //! describes every rank, effect, buff, restriction and talent modification, and the runtime
 //! (later substeps of Phase 3) interprets it.
 
+pub mod runtime;
 pub mod spec;
 pub mod status;
 
+pub use runtime::{AttackOutcome, CastReport, Spell, SpellHost};
 pub use spec::{
     Affected, BuffRankSpec, Comparison, EffectTarget, GcdBehavior, Hand, ResourceCostType,
     RestrictionSpec, SpellDb, SpellDbError, SpellEffect, SpellEffectSpec, SpellFileSpec, SpellFlag,

@@ -9,9 +9,10 @@
 //! units and cancel an evicted debuff. Target debuff slots are claimed through the [`Target`] in
 //! the [`BuffContext`], keyed by the buff's raid-wide [`InstanceId`].
 
+use crate::effect::Effect;
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, InstanceId};
-use crate::spell::{Affected, BuffRankSpec, SpellEffectSpec, SpellGroupSpec, SpellRankSpec};
+use crate::spell::{Affected, BuffRankSpec, SpellGroupSpec, SpellRankSpec};
 use crate::target::{Priority, Target};
 
 /// Which units a buff affects and how it is registered. Port of the `Buff` subclasses.
@@ -113,13 +114,15 @@ pub struct Buff {
     kind: BuffKind,
     hidden: bool,
     /// `None` = permanent.
-    duration: Option<f64>,
+    base_duration: Option<f64>,
+    /// Talent modification of the duration (`increase_buff_duration_percent`).
+    duration_percent: i32,
     base_charges: u32,
     max_stacks: u32,
     priority: Priority,
     refresh_policy: RefreshPolicy,
     /// The aura effects, owned so talents can modify them (`increase_value`, `add_effect`).
-    pub effects: Vec<SpellEffectSpec>,
+    pub effects: Vec<Effect>,
 
     instance_id: Option<InstanceId>,
     enabled: bool,
@@ -154,7 +157,8 @@ impl Buff {
             icon: icon.map(str::to_string),
             kind,
             hidden: false,
-            duration,
+            base_duration: duration,
+            duration_percent: 0,
             base_charges,
             max_stacks: 1,
             priority: Priority::Invalid,
@@ -194,7 +198,13 @@ impl Buff {
         buff.hidden = spec.hidden;
         buff.max_stacks = spec.max_stacks.max(1);
         buff.set_priority(spec.priority);
-        buff.effects = spec.effects.clone();
+        buff.effects = spec
+            .effects
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(index, effect)| Effect::new(effect, index, &group.flags))
+            .collect();
         buff
     }
 
@@ -253,12 +263,23 @@ impl Buff {
         self.hidden
     }
 
+    /// Duration in seconds including talent modifications; `None` = permanent.
     pub fn duration(&self) -> Option<f64> {
-        self.duration
+        self.base_duration
+            .map(|base| base * (1.0 + f64::from(self.duration_percent) / 100.0))
     }
 
     pub fn is_permanent(&self) -> bool {
-        self.duration.is_none()
+        self.base_duration.is_none()
+    }
+
+    /// Lengthens the duration by `percent` of the base duration (Booming Voice).
+    pub fn increase_duration_percent(&mut self, percent: i32) {
+        self.duration_percent += percent;
+    }
+
+    pub fn decrease_duration_percent(&mut self, percent: i32) {
+        self.duration_percent -= percent;
     }
 
     pub fn base_charges(&self) -> u32 {
@@ -363,7 +384,7 @@ impl Buff {
         if !self.active {
             return 0.0;
         }
-        match self.duration {
+        match self.duration() {
             None => f64::MAX,
             Some(duration) => self.refreshed + duration - now,
         }
@@ -503,7 +524,7 @@ impl Buff {
     }
 
     fn schedule_removal(&mut self, ctx: &mut BuffContext) {
-        if let Some(duration) = self.duration {
+        if let Some(duration) = self.duration() {
             self.iteration += 1;
             ctx.engine.add_event_in(
                 duration,
@@ -952,7 +973,11 @@ spell_groups:
         assert_eq!(buff.duration(), Some(120.0));
         assert_eq!(buff.max_stacks(), 1);
         assert_eq!(buff.effects.len(), 1);
-        assert_eq!(buff.effects[0].name, SpellEffect::ApplyAuraMeleeAttackPower);
+        assert_eq!(
+            buff.effects[0].kind(),
+            SpellEffect::ApplyAuraMeleeAttackPower
+        );
+        assert_eq!(buff.effects[0].value(), 193.0);
         assert!(!buff.is_hidden());
         assert!(!buff.is_enabled());
 
@@ -980,6 +1005,22 @@ spell_groups:
             BuffKind::from_spec(raid.rank(1).unwrap().buff.as_ref().unwrap(), 0),
             None
         );
+    }
+
+    #[test]
+    fn duration_talents_scale_the_base_duration() {
+        let mut world = World::new(0.0);
+        let mut buff = self_buff(Some(120.0), 0);
+        buff.increase_duration_percent(10);
+        assert_eq!(buff.duration(), Some(132.0));
+        buff.apply(&mut world.ctx());
+        assert_eq!(buff.time_left(0.0), 132.0);
+        assert_eq!(world.pending_removals(), vec![(132.0, 1)]);
+        buff.decrease_duration_percent(10);
+        assert_eq!(buff.duration(), Some(120.0));
+        assert!(Buff::new("x", None, BuffKind::SelfBuff, None, 0)
+            .duration()
+            .is_none());
     }
 
     #[test]

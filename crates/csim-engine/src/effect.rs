@@ -35,8 +35,13 @@ pub trait EffectHost {
     fn random_normalized_mh_dmg(&mut self) -> f64;
     /// Random mainhand damage including the attack power contribution of the weapon speed.
     fn random_non_normalized_mh_dmg(&mut self) -> f64;
-    /// Rolls a mainhand melee ability on the special attack table.
-    fn roll_melee_ability(&mut self, included: IncludedOutcomes) -> PhysicalAttackResult;
+    /// Rolls a mainhand melee ability on the special attack table, with `extra_crit` (hundredths
+    /// of a percent) added to the character's crit chance for this roll.
+    fn roll_melee_ability(
+        &mut self,
+        included: IncludedOutcomes,
+        extra_crit: u32,
+    ) -> PhysicalAttackResult;
 
     fn stats_mut(&mut self) -> &mut CharacterStats;
     fn target_mut(&mut self) -> &mut Target;
@@ -57,6 +62,19 @@ pub enum Dependency {
     PartialSuccess,
     /// Performed only if every previous effect succeeded; reuses the first roll.
     FullSuccess,
+}
+
+/// The state of the effect chain a dependent effect is performed in.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ChainState {
+    /// The spell's aggregate result so far.
+    pub result: SpellResult,
+    /// The first effect's roll, reused by dependent effects.
+    pub previous: Option<PhysicalAttackResult>,
+    /// The spell's resource cost (`SCHOOL_DAMAGE_CONVERT_RAGE`).
+    pub resource_cost: u32,
+    /// Crit chance added by the spell's talents, hundredths of a percent.
+    pub extra_crit: u32,
 }
 
 /// What the spell needs to know after an effect was performed.
@@ -165,16 +183,11 @@ impl Effect {
         self.effect_success
     }
 
-    /// Performs the effect as part of a chain. `chain_result` is the spell's result so far and
-    /// `previous` the first effect's roll, which dependent effects reuse.
+    /// Performs the effect as part of a chain. `chain.result` is the spell's result so far and
+    /// `chain.previous` the first effect's roll, which dependent effects reuse.
     /// Port of `Effect::perform_effect(int)`.
-    pub fn perform(
-        &mut self,
-        host: &mut impl EffectHost,
-        chain_result: SpellResult,
-        previous: Option<PhysicalAttackResult>,
-        resource_cost: u32,
-    ) -> EffectOutcome {
+    pub fn perform(&mut self, host: &mut impl EffectHost, chain: &ChainState) -> EffectOutcome {
+        let (chain_result, previous) = (chain.result, chain.previous);
         match self.dependency {
             Dependency::Independent => self.reroll_result = true,
             Dependency::FullSuccess => {
@@ -192,7 +205,7 @@ impl Effect {
                 self.last_result = previous;
             }
         }
-        let outcome = self.perform_internal(host, resource_cost);
+        let outcome = self.perform_internal(host, chain.resource_cost, chain.extra_crit);
         self.effect_success = outcome.success;
         outcome
     }
@@ -202,9 +215,10 @@ impl Effect {
         &mut self,
         host: &mut impl EffectHost,
         resource_cost: u32,
+        extra_crit: u32,
     ) -> EffectOutcome {
         self.reroll_result = true;
-        let outcome = self.perform_internal(host, resource_cost);
+        let outcome = self.perform_internal(host, resource_cost, extra_crit);
         self.effect_success = outcome.success;
         outcome
     }
@@ -213,6 +227,7 @@ impl Effect {
         &mut self,
         host: &mut impl EffectHost,
         resource_cost: u32,
+        extra_crit: u32,
     ) -> EffectOutcome {
         let value = self.spec.value;
         match self.kind() {
@@ -255,7 +270,7 @@ impl Effect {
                 }
             }
             SpellEffect::NormalizedWeaponDamage => {
-                let (hit, rolled) = self.roll_mh_melee_ability(host);
+                let (hit, rolled) = self.roll_mh_melee_ability(host, extra_crit);
                 if hit {
                     self.damage_dealt = host.random_normalized_mh_dmg() + value;
                 }
@@ -266,7 +281,7 @@ impl Effect {
                 }
             }
             SpellEffect::WeaponDamage => {
-                let (hit, rolled) = self.roll_mh_melee_ability(host);
+                let (hit, rolled) = self.roll_mh_melee_ability(host, extra_crit);
                 if hit {
                     self.damage_dealt = host.random_non_normalized_mh_dmg() + value;
                 }
@@ -277,7 +292,7 @@ impl Effect {
                 }
             }
             SpellEffect::SchoolDamagePhysical => {
-                let (hit, rolled) = self.roll_mh_melee_ability(host);
+                let (hit, rolled) = self.roll_mh_melee_ability(host, extra_crit);
                 if hit {
                     let flat = match (self.spec.min, self.spec.max) {
                         (Some(min), Some(max)) => host.random_in_range(min, max),
@@ -292,7 +307,7 @@ impl Effect {
                 }
             }
             SpellEffect::SchoolDamageConvertRage => {
-                let (hit, rolled) = self.roll_mh_melee_ability(host);
+                let (hit, rolled) = self.roll_mh_melee_ability(host, extra_crit);
                 if hit {
                     let rage = host.resource_level(ResourceType::Rage);
                     self.damage_dealt = f64::from(rage.saturating_sub(resource_cost)) * value;
@@ -345,6 +360,7 @@ impl Effect {
     fn roll_mh_melee_ability(
         &mut self,
         host: &mut impl EffectHost,
+        extra_crit: u32,
     ) -> (bool, Option<PhysicalAttackResult>) {
         if !self.reroll_result {
             let hit = self
@@ -352,7 +368,7 @@ impl Effect {
                 .is_some_and(PhysicalAttackResult::is_success);
             return (hit, None);
         }
-        let result = host.roll_melee_ability(self.included);
+        let result = host.roll_melee_ability(self.included, extra_crit);
         self.last_result = Some(result);
         (result.is_success(), Some(result))
     }
@@ -458,6 +474,7 @@ mod tests {
         melee_ap: u32,
         rolls: VecDeque<PhysicalAttackResult>,
         rolled_with: Vec<IncludedOutcomes>,
+        extra_crits: Vec<u32>,
         stats: CharacterStats,
         target: Target,
         stance: Option<Stance>,
@@ -473,6 +490,7 @@ mod tests {
                 melee_ap: 1000,
                 rolls: VecDeque::new(),
                 rolled_with: Vec::new(),
+                extra_crits: Vec::new(),
                 stats: CharacterStats::new(),
                 target: Target::new(63),
                 stance: None,
@@ -519,8 +537,13 @@ mod tests {
         fn random_non_normalized_mh_dmg(&mut self) -> f64 {
             400.0
         }
-        fn roll_melee_ability(&mut self, included: IncludedOutcomes) -> PhysicalAttackResult {
+        fn roll_melee_ability(
+            &mut self,
+            included: IncludedOutcomes,
+            extra_crit: u32,
+        ) -> PhysicalAttackResult {
             self.rolled_with.push(included);
+            self.extra_crits.push(extra_crit);
             self.rolls.pop_front().expect("no roll queued")
         }
         fn stats_mut(&mut self) -> &mut CharacterStats {
@@ -605,7 +628,7 @@ mod tests {
         ]);
 
         let mut normalized = effect(E::NormalizedWeaponDamage, 160.0);
-        let outcome = normalized.perform_independent(&mut host, 30);
+        let outcome = normalized.perform_independent(&mut host, 30, 0);
         assert_eq!(
             outcome,
             EffectOutcome {
@@ -619,21 +642,21 @@ mod tests {
         assert!(normalized.was_successful());
 
         let mut weapon = effect(E::WeaponDamage, 138.0);
-        assert!(weapon.perform_independent(&mut host, 15).success);
+        assert!(weapon.perform_independent(&mut host, 15, 0).success);
         assert_eq!(weapon.damage_dealt, 538.0);
         assert_eq!(weapon.last_result, Some(PhysicalAttackResult::Critical));
 
         let mut bloodthirst = spec(E::SchoolDamagePhysical, 0.0);
         bloodthirst.ap_dmg_mod = 0.45;
         let mut bloodthirst = Effect::new(bloodthirst, 0, &[]);
-        assert!(bloodthirst.perform_independent(&mut host, 30).success);
+        assert!(bloodthirst.perform_independent(&mut host, 30, 0).success);
         assert_eq!(bloodthirst.damage_dealt, 450.0);
 
         let mut revenge = spec(E::SchoolDamagePhysical, 0.0);
         revenge.min = Some(64.0);
         revenge.max = Some(78.0);
         let mut revenge = Effect::new(revenge, 0, &[]);
-        assert!(revenge.perform_independent(&mut host, 5).success);
+        assert!(revenge.perform_independent(&mut host, 5, 0).success);
         assert_eq!(revenge.damage_dealt, 71.0);
         assert_eq!(host.rolled_with.len(), 4);
     }
@@ -651,7 +674,7 @@ mod tests {
             PhysicalAttackResult::Parry,
         ] {
             let mut effect = effect(E::SchoolDamagePhysical, 600.0);
-            let outcome = effect.perform_independent(&mut host, 15);
+            let outcome = effect.perform_independent(&mut host, 15, 0);
             assert!(!outcome.success);
             assert_eq!(outcome.rolled, Some(expected));
             assert_eq!(effect.damage_dealt, 0.0);
@@ -664,7 +687,7 @@ mod tests {
         let mut host = MockHost::new().with_rolls(&[PhysicalAttackResult::Hit]);
         host.rage = 80;
         let mut execute = effect(E::SchoolDamageConvertRage, 15.0);
-        assert!(execute.perform_independent(&mut host, 15).success);
+        assert!(execute.perform_independent(&mut host, 15, 0).success);
         assert_eq!(execute.damage_dealt, 975.0);
     }
 
@@ -674,10 +697,18 @@ mod tests {
         let mut first = Effect::new(spec(E::SchoolDamagePhysical, 600.0), 0, &[]);
         let mut second = Effect::new(spec(E::SchoolDamageConvertRage, 15.0), 1, &[]);
 
-        let first_outcome = first.perform(&mut host, SpellResult::Undetermined, None, 15);
+        let mut chain = ChainState {
+            result: SpellResult::Undetermined,
+            previous: None,
+            resource_cost: 15,
+            extra_crit: 2500,
+        };
+        let first_outcome = first.perform(&mut host, &chain);
         assert_eq!(first_outcome.rolled, Some(PhysicalAttackResult::Critical));
-        let chain = SpellResult::from_first(first_outcome.success);
-        let second_outcome = second.perform(&mut host, chain, first.last_result, 15);
+        assert_eq!(host.extra_crits, vec![2500]);
+        chain.result = SpellResult::from_first(first_outcome.success);
+        chain.previous = first.last_result;
+        let second_outcome = second.perform(&mut host, &chain);
         assert!(second_outcome.success);
         assert_eq!(second_outcome.rolled, None);
         assert_eq!(second.last_result, Some(PhysicalAttackResult::Critical));
@@ -686,25 +717,15 @@ mod tests {
 
         // A failed chain skips dependent effects entirely.
         let mut third = Effect::new(spec(E::SchoolDamagePhysical, 1.0), 1, &[]);
-        assert_eq!(
-            third.perform(
-                &mut host,
-                SpellResult::Failure,
-                Some(PhysicalAttackResult::Miss),
-                0
-            ),
-            EffectOutcome::SKIPPED
-        );
+        chain.result = SpellResult::Failure;
+        chain.previous = Some(PhysicalAttackResult::Miss);
+        assert_eq!(third.perform(&mut host, &chain), EffectOutcome::SKIPPED);
         assert!(!third.was_successful());
 
         // A dependent effect inheriting a miss fails without rolling.
         let mut fourth = Effect::new(spec(E::SchoolDamagePhysical, 1.0), 1, &[]);
-        let outcome = fourth.perform(
-            &mut host,
-            SpellResult::PartialSuccess,
-            Some(PhysicalAttackResult::Miss),
-            0,
-        );
+        chain.result = SpellResult::PartialSuccess;
+        let outcome = fourth.perform(&mut host, &chain);
         assert!(!outcome.success);
         assert_eq!(outcome.rolled, None);
         assert_eq!(host.rolled_with.len(), 1);
@@ -716,30 +737,33 @@ mod tests {
         host.rage = 95;
         let mut gain = effect(E::GainResourceRage, 10.0);
         assert_eq!(
-            gain.perform_independent(&mut host, 0),
+            gain.perform_independent(&mut host, 0, 0),
             EffectOutcome {
                 success: true,
                 rolled: None,
                 resource_gained: Some((ResourceType::Rage, 5))
             }
         );
-        assert_eq!(gain.perform_independent(&mut host, 0).resource_gained, None);
+        assert_eq!(
+            gain.perform_independent(&mut host, 0, 0).resource_gained,
+            None
+        );
 
         let mut add = effect(E::AddComboPoints, 1.0);
-        add.perform_independent(&mut host, 0);
+        add.perform_independent(&mut host, 0, 0);
         assert_eq!(host.combo_points, 1);
         let mut consume = effect(E::ConsumeComboPoints, 0.0);
-        assert!(consume.perform_independent(&mut host, 0).success);
+        assert!(consume.perform_independent(&mut host, 0, 0).success);
         assert_eq!(host.combo_points, 0);
 
         let mut flurry = spec(E::AuraConsumeCharge, 0.0);
         flurry.buff = Some("Flurry".to_string());
-        Effect::new(flurry, 0, &[]).perform_independent(&mut host, 0);
+        Effect::new(flurry, 0, &[]).perform_independent(&mut host, 0, 0);
         assert_eq!(host.charges_used, vec!["Flurry"]);
 
         assert!(
             effect(E::NoEffect, 0.0)
-                .perform_independent(&mut host, 0)
+                .perform_independent(&mut host, 0, 0)
                 .success
         );
     }
@@ -748,7 +772,7 @@ mod tests {
     #[should_panic(expected = "zero combo points")]
     fn consuming_without_combo_points_panics() {
         let mut host = MockHost::new();
-        effect(E::ConsumeComboPoints, 0.0).perform_independent(&mut host, 0);
+        effect(E::ConsumeComboPoints, 0.0).perform_independent(&mut host, 0, 0);
     }
 
     #[test]
