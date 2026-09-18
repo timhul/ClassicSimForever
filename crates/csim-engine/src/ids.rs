@@ -45,6 +45,11 @@ id_type! {
     ProcId(u32)
 }
 
+id_type! {
+    /// Index of a cooldown control within its character's cooldown registry.
+    CooldownId(u32)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

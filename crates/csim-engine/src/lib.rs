@@ -5,6 +5,7 @@
 
 pub mod attack_mode;
 pub mod combat_roll;
+pub mod cooldown;
 pub mod enchant;
 pub mod engine;
 pub mod equipment;
