@@ -399,7 +399,7 @@ mod tests {
     use crate::cooldown::{CooldownControl, CooldownRegistry};
     use crate::effect::EffectHost;
     use crate::engine::{Engine, Event, EventKind};
-    use crate::ids::{BuffId, CharId, CooldownId, InstanceId};
+    use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
     use crate::phase::Phase;
     use crate::resource::ResourceType;
     use crate::spell::{SpellDb, SpellFileSpec, SpellGroupSpec};
@@ -604,6 +604,8 @@ mod tests {
         fn stop_attack(&mut self) {}
         fn start_attack(&mut self) {}
         fn reset_swing_timers(&mut self) {}
+        fn queue_next_swing(&mut self, _: SpellId) {}
+        fn cancel_next_swing(&mut self) {}
         fn stance(&self) -> Stance {
             Stance::Battle
         }

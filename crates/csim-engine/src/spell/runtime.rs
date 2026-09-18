@@ -70,6 +70,11 @@ pub trait SpellHost: EffectHost {
     fn start_attack(&mut self);
     /// Restarts both swing timers (`RESETS_SWING_TIMERS`).
     fn reset_swing_timers(&mut self);
+    /// Queues `spell` to replace the next mainhand swing (`ON_NEXT_SWING`); the character updates
+    /// its white miss chance since a queued swing does not suffer the dual-wield penalty.
+    fn queue_next_swing(&mut self, spell: SpellId);
+    /// Clears the queued next-swing spell.
+    fn cancel_next_swing(&mut self);
     fn stance(&self) -> Stance;
     fn offhand_weapon_type(&self) -> Option<WeaponType>;
 
@@ -135,6 +140,9 @@ pub struct CastReport {
     /// The spell has a cast time and only started casting; the rest of the report is empty
     /// until [`Spell::complete_cast`].
     pub cast_started: bool,
+    /// The spell replaces the next mainhand swing and was queued; the rest of the report is
+    /// empty until [`Spell::perform_on_swing`].
+    pub queued: bool,
 }
 
 /// One rank of a spell. Port of `Spell`.
@@ -334,6 +342,16 @@ impl Spell {
     /// Whether this spell's cast is in progress.
     pub fn is_casting(&self) -> bool {
         self.cast_id.is_some()
+    }
+
+    /// Whether the spell replaces the next mainhand swing (`ON_NEXT_SWING`, Heroic Strike).
+    pub fn is_on_next_swing(&self) -> bool {
+        self.has_flag(SpellFlag::OnNextSwing)
+    }
+
+    /// Whether an on-next-swing spell is queued: its marker buff is active.
+    pub fn is_queued(&self, host: &impl SpellHost) -> bool {
+        self.is_on_next_swing() && self.marker_buff.is_some_and(|id| host.buff(id).is_active())
     }
 
     /// The cast time in seconds after haste and flat reductions. Port of
@@ -597,6 +615,37 @@ impl Spell {
         if self.has_cast_time() {
             return self.start_cast(host, report);
         }
+        if self.is_on_next_swing() {
+            return self.queue(host, report);
+        }
+        self.execute(host, report)
+    }
+
+    /// Queues the spell for the next mainhand swing: its marker buff marks it as queued. Port
+    /// of `HeroicStrike::spell_effect`.
+    fn queue(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
+        let id = self
+            .id
+            .unwrap_or_else(|| panic!("on-next-swing spell {} has no id", self.group.name));
+        if let Some(marker) = self.marker_buff {
+            report.buff = Some(host.apply_buff(marker));
+        }
+        host.queue_next_swing(id);
+        report.queued = true;
+        report
+    }
+
+    /// The mainhand swing the spell was queued for lands: un-queues it and runs its effects.
+    /// The caller has checked [`Spell::status`] and completed the swing timer. Port of
+    /// `HeroicStrike::calculate_damage`.
+    pub fn perform_on_swing(&mut self, host: &mut impl SpellHost) -> CastReport {
+        self.cancel(host);
+        host.cancel_next_swing();
+        self.last_result = SpellResult::Undetermined;
+        let report = CastReport {
+            resource_cost: self.resource_cost(host),
+            ..CastReport::default()
+        };
         self.execute(host, report)
     }
 
@@ -701,7 +750,9 @@ impl Spell {
             self.last_result = chain.result;
         }
 
-        if let Some(id) = self.marker_buff {
+        // The marker buff of an on-next-swing spell only marks it as queued.
+        let marker = self.marker_buff.filter(|_| !self.is_on_next_swing());
+        if let Some(id) = marker {
             if self.last_result.applies_buff() {
                 let application = host.apply_buff(id);
                 report.buff = Some(application);
@@ -818,10 +869,14 @@ impl Spell {
         }
     }
 
-    /// Cancels the marker buff. Port of `Spell::cancel`.
+    /// Cancels the marker buff (and, for on-next-swing spells, the queue). Port of
+    /// `Spell::cancel` / `HeroicStrike::cancel`.
     pub fn cancel(&mut self, host: &mut impl SpellHost) {
         if let Some(id) = self.marker_buff {
             host.cancel_buff(id);
+        }
+        if self.is_on_next_swing() {
+            host.cancel_next_swing();
         }
     }
 
@@ -1132,6 +1187,7 @@ mod tests {
         casting_time_suppressed: bool,
         attack_log: Vec<&'static str>,
         completed_casts: Vec<CastReport>,
+        queued: Option<SpellId>,
     }
 
     impl World {
@@ -1164,6 +1220,7 @@ mod tests {
                 casting_time_suppressed: false,
                 attack_log: Vec::new(),
                 completed_casts: Vec::new(),
+                queued: None,
             }
         }
 
@@ -1424,6 +1481,15 @@ mod tests {
         fn reset_swing_timers(&mut self) {
             self.attack_log.push("reset");
         }
+        fn queue_next_swing(&mut self, spell: SpellId) {
+            self.attack_log.push("queue");
+            self.queued = Some(spell);
+        }
+        fn cancel_next_swing(&mut self) {
+            if self.queued.take().is_some() {
+                self.attack_log.push("unqueue");
+            }
+        }
         fn stance(&self) -> Stance {
             self.stance
         }
@@ -1677,6 +1743,15 @@ spell_groups:
         effects: [{ name: NORMALIZED_WEAPON_DAMAGE, value: 87 }]
     modified_by_talent:
       - { talent: Improved Slam, rank: 1, type: cast_time_reduction_ms, value: 100 }
+  - name: Heroic Strike
+    causes_gcd: none
+    flags: [ON_NEXT_SWING]
+    ranks:
+      - rank: 9
+        resource: rage
+        cost: 15
+        effects: [{ name: WEAPON_DAMAGE, value: 157, innate_threat: 145 }]
+        buff: { name: Heroic Strike Queued, unit: self, hidden: true }
   - name: Quick Cast
     causes_gcd: normal
     restricted_by_gcd: true
@@ -2305,6 +2380,54 @@ spell_groups:
         world.cast_in_progress = false;
         world.run(&mut slam, 5.0);
         assert!(world.completed_casts.is_empty());
+    }
+
+    #[test]
+    fn on_next_swing_spells_queue_and_fire_on_the_swing() {
+        let db = db();
+        let mut world = World::new();
+        let mut heroic = world.spell(db.get("Heroic Strike").unwrap(), 9);
+        assert!(heroic.is_on_next_swing());
+        assert!(!heroic.is_queued(&world));
+
+        let report = heroic.perform(&mut world);
+        assert!(report.queued);
+        assert_eq!(
+            report.buff,
+            Some(BuffApplication::Applied { evicted: None })
+        );
+        assert_eq!(report.result, SpellResult::Undetermined);
+        assert!(heroic.is_queued(&world));
+        assert_eq!(world.queued, heroic.id());
+        assert_eq!(world.rage, 100, "the cost is paid when the swing lands");
+        assert!(!world.on_global_cooldown());
+        assert_eq!(world.attack_log, vec!["queue"]);
+
+        // Re-queueing refreshes the marker buff.
+        assert_eq!(
+            heroic.perform(&mut world).buff,
+            Some(BuffApplication::Refreshed { stacks: 1 })
+        );
+
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        let report = heroic.perform_on_swing(&mut world);
+        assert!(!report.queued);
+        assert_eq!(report.result, SpellResult::Success);
+        assert_eq!(report.resource_lost, 15);
+        assert_eq!(world.rage, 85);
+        let attack = report.attack.unwrap();
+        assert_eq!(attack.damage, 400 + 157);
+        assert_eq!(attack.threat, 557.0 + 145.0);
+        assert_eq!(attack.execution_time, 0.0);
+        assert!(!heroic.is_queued(&world));
+        assert_eq!(world.queued, None);
+        assert_eq!(world.attack_log, vec!["queue", "queue", "unqueue"]);
+
+        // Cancelling clears the queue too.
+        heroic.perform(&mut world);
+        heroic.cancel(&mut world);
+        assert!(!heroic.is_queued(&world));
+        assert_eq!(world.queued, None);
     }
 
     #[test]

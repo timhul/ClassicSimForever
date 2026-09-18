@@ -21,7 +21,7 @@ use crate::buff::{Buff, BuffKind};
 use crate::cooldown::CooldownRegistry;
 use crate::ids::{BuffId, CharId, InstanceId, ProcId, SharedBuffId, SpellId};
 use crate::proc::{EnabledProcs, Proc};
-use crate::spell::{Spell, SpellFlag, SpellGroupSpec, SpellRankGroup, MAX_RANK};
+use crate::spell::{AutoAttack, Hand, Spell, SpellFlag, SpellGroupSpec, SpellRankGroup, MAX_RANK};
 
 /// Where a buff in a character's buff list lives.
 #[derive(Debug, Clone)]
@@ -73,6 +73,9 @@ pub struct CharacterSpells {
     next_proc_seed: u64,
     attack_mode: AttackMode,
     attack_mode_active: bool,
+    mh_attack: AutoAttack,
+    oh_attack: AutoAttack,
+    queued_next_swing: Option<SpellId>,
     cast_in_progress: bool,
     cast_id: u32,
 }
@@ -97,6 +100,9 @@ impl CharacterSpells {
             next_proc_seed: proc_seed,
             attack_mode: AttackMode::MeleeAttack,
             attack_mode_active: false,
+            mh_attack: AutoAttack::new(Hand::Mainhand),
+            oh_attack: AutoAttack::new(Hand::Offhand),
+            queued_next_swing: None,
             cast_in_progress: false,
             cast_id: 0,
         }
@@ -567,6 +573,62 @@ impl CharacterSpells {
         self.attack_mode_active = false;
     }
 
+    // --- Auto attacks ---
+
+    pub fn mh_attack(&self) -> &AutoAttack {
+        &self.mh_attack
+    }
+
+    pub fn mh_attack_mut(&mut self) -> &mut AutoAttack {
+        &mut self.mh_attack
+    }
+
+    pub fn oh_attack(&self) -> &AutoAttack {
+        &self.oh_attack
+    }
+
+    pub fn oh_attack_mut(&mut self) -> &mut AutoAttack {
+        &mut self.oh_attack
+    }
+
+    pub fn auto_attack(&self, hand: Hand) -> &AutoAttack {
+        match hand {
+            Hand::Mainhand => &self.mh_attack,
+            Hand::Offhand => &self.oh_attack,
+        }
+    }
+
+    pub fn auto_attack_mut(&mut self, hand: Hand) -> &mut AutoAttack {
+        match hand {
+            Hand::Mainhand => &mut self.mh_attack,
+            Hand::Offhand => &mut self.oh_attack,
+        }
+    }
+
+    /// Takes an auto attack out to swing it against a context borrowing this registry.
+    pub fn take_auto_attack(&mut self, hand: Hand) -> AutoAttack {
+        std::mem::replace(self.auto_attack_mut(hand), AutoAttack::new(hand))
+    }
+
+    pub fn put_auto_attack(&mut self, attack: AutoAttack) {
+        let hand = attack.hand();
+        *self.auto_attack_mut(hand) = attack;
+    }
+
+    /// The spell queued to replace the next mainhand swing (Heroic Strike). Port of
+    /// `WarriorSpells::is_heroic_strike_queued` generalised.
+    pub fn queued_next_swing(&self) -> Option<SpellId> {
+        self.queued_next_swing
+    }
+
+    pub fn queue_next_swing(&mut self, spell: SpellId) {
+        self.queued_next_swing = Some(spell);
+    }
+
+    pub fn cancel_next_swing(&mut self) -> Option<SpellId> {
+        self.queued_next_swing.take()
+    }
+
     // --- Iteration lifecycle ---
 
     /// Clears the per-iteration state that does not need the world: cast bookkeeping, attack
@@ -576,13 +638,18 @@ impl CharacterSpells {
         self.cast_in_progress = false;
         self.cast_id = 0;
         self.attack_mode_active = false;
+        self.queued_next_swing = None;
         self.cooldowns.reset_all();
+        self.mh_attack.reset();
+        self.oh_attack.reset();
     }
 
     /// Port of the state part of `CharacterSpells::prepare_set_of_combat_iterations`.
     pub fn prepare_set_of_combat_iterations(&mut self) {
         self.reset_state();
         self.procs.prepare_set_of_combat_iterations();
+        self.mh_attack.prepare_set_of_combat_iterations();
+        self.oh_attack.prepare_set_of_combat_iterations();
     }
 }
 
@@ -941,6 +1008,31 @@ shared_spell_cooldowns:
         let (_, mut spells, _) = setup();
         spells.start_attack();
         spells.set_attack_mode(AttackMode::RangedAttack);
+    }
+
+    #[test]
+    fn auto_attacks_and_the_next_swing_queue() {
+        let (_, mut spells, _) = setup();
+        assert_eq!(spells.mh_attack().hand(), Hand::Mainhand);
+        assert_eq!(spells.oh_attack().hand(), Hand::Offhand);
+        spells.oh_attack_mut().set_offhand_penalty(0.6);
+        let mut oh = spells.take_auto_attack(Hand::Offhand);
+        assert_eq!(oh.offhand_penalty(), 0.6);
+        assert_eq!(spells.oh_attack().offhand_penalty(), 0.5);
+        oh.complete_swing(1.0, 1.8);
+        spells.put_auto_attack(oh);
+        assert_eq!(spells.auto_attack(Hand::Offhand).last_used(), 1.0);
+
+        assert_eq!(spells.queued_next_swing(), None);
+        spells.queue_next_swing(SpellId(3));
+        assert_eq!(spells.queued_next_swing(), Some(SpellId(3)));
+        assert_eq!(spells.cancel_next_swing(), Some(SpellId(3)));
+        assert_eq!(spells.cancel_next_swing(), None);
+
+        spells.queue_next_swing(SpellId(3));
+        spells.reset_state();
+        assert_eq!(spells.queued_next_swing(), None);
+        assert_eq!(spells.auto_attack(Hand::Offhand).last_used(), 0.0);
     }
 
     #[test]
