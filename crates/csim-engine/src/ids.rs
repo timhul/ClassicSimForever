@@ -46,6 +46,11 @@ id_type! {
 }
 
 id_type! {
+    /// Index of a buff within the raid control's shared buff list (party buffs, shared debuffs).
+    SharedBuffId(u32)
+}
+
+id_type! {
     /// Raid-wide unique identity of an enabled buff (port of the C++ `InstanceID`), handed out by
     /// the raid control when a buff is enabled. The target keys its debuff slots by it because
     /// buffs of every character (and the shared raid debuffs) compete for the same slots.
