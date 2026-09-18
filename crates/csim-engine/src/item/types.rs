@@ -391,6 +391,7 @@ pub enum ItemStat {
     GunSkill,
     HitChance,
     CritChance,
+    RangedHitChance,
     AttackSpeed,
     MeleeAttackSpeed,
     RangedAttackSpeed,

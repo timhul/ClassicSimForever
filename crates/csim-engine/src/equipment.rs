@@ -9,8 +9,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::enchant::EnchantName;
-use crate::faction::Faction;
+use crate::enchant::{EnchantContext, EnchantName, EnchantSpec};
+use crate::faction::{Faction, PlayerClass};
 use crate::item::{EquipmentDb, EquipmentSlot, Item, ItemStat, Weapon, WeaponType};
 use crate::phase::Phase;
 use crate::stats::{Stats, WeaponProfile};
@@ -31,6 +31,25 @@ pub enum EquipError {
     },
     #[error("setup index {0} is out of range")]
     InvalidSetup(usize),
+}
+
+/// Why an enchant could not be applied.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum EnchantError {
+    #[error("enchant {0:?} is not in the enchant database")]
+    UnknownEnchant(EnchantName),
+    #[error("enchant {enchant:?} cannot be applied to the item in slot {slot:?}")]
+    NotApplicable {
+        enchant: EnchantName,
+        slot: EquipmentSlot,
+    },
+    #[error("enchant {enchant:?} is a {} enchant", if *temporary { "temporary" } else { "permanent" })]
+    WrongKind {
+        enchant: EnchantName,
+        temporary: bool,
+    },
+    #[error("slot {0:?} is empty")]
+    EmptySlot(EquipmentSlot),
 }
 
 /// What an equipment operation changed, so the owner can update item procs/uses/modifications.
@@ -96,6 +115,8 @@ struct SetBonusState {
 pub struct Equipment {
     db: Arc<EquipmentDb>,
     phase: Phase,
+    faction: Faction,
+    class: PlayerClass,
     setup_index: usize,
     setups: [Setup; SETUP_COUNT],
     slots: [Option<EquippedItem>; EquipmentSlot::COUNT],
@@ -104,10 +125,12 @@ pub struct Equipment {
 }
 
 impl Equipment {
-    pub fn new(db: Arc<EquipmentDb>, phase: Phase) -> Self {
+    pub fn new(db: Arc<EquipmentDb>, phase: Phase, faction: Faction, class: PlayerClass) -> Self {
         Self {
             db,
             phase,
+            faction,
+            class,
             setup_index: 0,
             setups: Default::default(),
             slots: Default::default(),
@@ -122,6 +145,21 @@ impl Equipment {
 
     pub fn phase(&self) -> Phase {
         self.phase
+    }
+
+    pub fn faction(&self) -> Faction {
+        self.faction
+    }
+
+    /// Changes the faction; enchants that are no longer valid are dropped. Items of the other
+    /// faction are removed separately with [`Equipment::clear_items_not_available_for_faction`].
+    pub fn set_faction(&mut self, faction: Faction) {
+        self.faction = faction;
+        self.revalidate_enchants();
+    }
+
+    pub fn class(&self) -> PlayerClass {
+        self.class
     }
 
     /// Changes the content phase and re-equips the current setup with the items of that phase.
@@ -321,19 +359,20 @@ impl Equipment {
 
         self.stats.add(item.stats());
         self.equip_set_piece(item.id());
-        let setup = &mut self.setups[self.setup_index];
-        setup.items[slot.index()] = Some(item.id());
-        setup.enchants[slot.index()] = enchant;
-        setup.temp_enchants[slot.index()] = temp_enchant;
+        self.setups[self.setup_index].items[slot.index()] = Some(item.id());
 
         let weapon = Weapon::new(item.clone());
         self.slots[slot.index()] = Some(EquippedItem {
             item: item.clone(),
             weapon,
-            enchant,
-            temp_enchant,
+            enchant: None,
+            temp_enchant: None,
         });
         change.equipped.push((slot, item));
+
+        // Enchants stay with the slot when the item is swapped, as long as they still apply.
+        let _ = self.set_enchant(slot, enchant);
+        let _ = self.set_temp_enchant(slot, temp_enchant);
 
         Ok(change)
     }
@@ -360,6 +399,12 @@ impl Equipment {
     }
 
     fn remove_from_slot(&mut self, slot: EquipmentSlot, equipped: EquippedItem) -> EquipChange {
+        for enchant in [equipped.enchant, equipped.temp_enchant]
+            .into_iter()
+            .flatten()
+        {
+            self.remove_enchant_stats(slot, enchant);
+        }
         self.stats.remove(equipped.item.stats());
         self.unequip_set_piece(equipped.item.id());
         let setup = &mut self.setups[self.setup_index];
@@ -418,8 +463,8 @@ impl Equipment {
             };
             if let Ok(equipped) = self.equip(slot, item_id) {
                 change.merge(equipped);
-                self.set_enchant(slot, stored.enchants[slot.index()]);
-                self.set_temp_enchant(slot, stored.temp_enchants[slot.index()]);
+                let _ = self.set_enchant(slot, stored.enchants[slot.index()]);
+                let _ = self.set_temp_enchant(slot, stored.temp_enchants[slot.index()]);
             }
         }
 
@@ -442,20 +487,147 @@ impl Equipment {
 
     // ---------------------------------------------------------------- enchants
 
-    /// Selects the permanent enchant of the item in `slot`. Whether the enchant is valid for the
-    /// item is decided by the enchant data (Phase 2.6); an empty slot ignores the selection.
-    pub fn set_enchant(&mut self, slot: EquipmentSlot, enchant: Option<EnchantName>) {
-        if let Some(equipped) = self.slots[slot.index()].as_mut() {
+    /// Selects the permanent enchant of the item in `slot` (`None` removes it). The enchant must
+    /// exist and apply to the item, weapon, faction and class; its static stats are added to the
+    /// equipment stats. Procs and dynamic stats are left to the character (see
+    /// [`Equipment::active_enchants`]).
+    pub fn set_enchant(
+        &mut self,
+        slot: EquipmentSlot,
+        enchant: Option<EnchantName>,
+    ) -> Result<(), EnchantError> {
+        self.change_enchant(slot, enchant, false)
+    }
+
+    /// Selects the temporary enchant (sharpening stone, oil, Windfury, ...) of the item in `slot`.
+    pub fn set_temp_enchant(
+        &mut self,
+        slot: EquipmentSlot,
+        enchant: Option<EnchantName>,
+    ) -> Result<(), EnchantError> {
+        self.change_enchant(slot, enchant, true)
+    }
+
+    fn change_enchant(
+        &mut self,
+        slot: EquipmentSlot,
+        enchant: Option<EnchantName>,
+        temporary: bool,
+    ) -> Result<(), EnchantError> {
+        if self.slots[slot.index()].is_none() {
+            return Err(EnchantError::EmptySlot(slot));
+        }
+
+        if let Some(name) = enchant {
+            let spec = self
+                .db
+                .enchants()
+                .get(name)
+                .ok_or(EnchantError::UnknownEnchant(name))?;
+            if spec.temporary != temporary {
+                return Err(EnchantError::WrongKind {
+                    enchant: name,
+                    temporary: spec.temporary,
+                });
+            }
+            if !spec.valid_for(&self.enchant_context(slot)) {
+                return Err(EnchantError::NotApplicable {
+                    enchant: name,
+                    slot,
+                });
+            }
+        }
+
+        let current = if temporary {
+            self.temp_enchant(slot)
+        } else {
+            self.enchant(slot)
+        };
+        if let Some(current) = current {
+            self.remove_enchant_stats(slot, current);
+        }
+        if let Some(name) = enchant {
+            self.add_enchant_stats(slot, name);
+        }
+
+        let equipped = self.slots[slot.index()]
+            .as_mut()
+            .expect("slot checked above");
+        let setup = &mut self.setups[self.setup_index];
+        if temporary {
+            equipped.temp_enchant = enchant;
+            setup.temp_enchants[slot.index()] = enchant;
+        } else {
             equipped.enchant = enchant;
-            self.setups[self.setup_index].enchants[slot.index()] = enchant;
+            setup.enchants[slot.index()] = enchant;
+        }
+        Ok(())
+    }
+
+    fn enchant_context(&self, slot: EquipmentSlot) -> EnchantContext<'_> {
+        EnchantContext {
+            slot,
+            weapon: self.weapon(slot).map(Weapon::data),
+            faction: self.faction,
+            class: self.class,
         }
     }
 
-    pub fn set_temp_enchant(&mut self, slot: EquipmentSlot, enchant: Option<EnchantName>) {
-        if let Some(equipped) = self.slots[slot.index()].as_mut() {
-            equipped.temp_enchant = enchant;
-            self.setups[self.setup_index].temp_enchants[slot.index()] = enchant;
+    fn enchant_stats(&self, slot: EquipmentSlot, enchant: EnchantName) -> Stats {
+        self.db
+            .enchants()
+            .get(enchant)
+            .expect("enchant validated when applied")
+            .static_stats(slot)
+            .expect("enchant stats are validated at load")
+    }
+
+    fn add_enchant_stats(&mut self, slot: EquipmentSlot, enchant: EnchantName) {
+        let stats = self.enchant_stats(slot, enchant);
+        self.stats.add(&stats);
+    }
+
+    fn remove_enchant_stats(&mut self, slot: EquipmentSlot, enchant: EnchantName) {
+        let stats = self.enchant_stats(slot, enchant);
+        self.stats.remove(&stats);
+    }
+
+    /// Drops enchants that no longer apply (after a faction change).
+    fn revalidate_enchants(&mut self) {
+        for slot in EquipmentSlot::ALL {
+            for temporary in [false, true] {
+                let current = if temporary {
+                    self.temp_enchant(slot)
+                } else {
+                    self.enchant(slot)
+                };
+                let Some(name) = current else { continue };
+                let valid = self
+                    .db
+                    .enchants()
+                    .get(name)
+                    .is_some_and(|spec| spec.valid_for(&self.enchant_context(slot)));
+                if !valid {
+                    let _ = self.change_enchant(slot, None, temporary);
+                }
+            }
         }
+    }
+
+    /// Every active enchant with its slot and spec, in slot order (permanent before temporary).
+    pub fn active_enchants(&self) -> Vec<(EquipmentSlot, &EnchantSpec)> {
+        let mut active = Vec::new();
+        for slot in EquipmentSlot::ALL {
+            for name in [self.enchant(slot), self.temp_enchant(slot)]
+                .into_iter()
+                .flatten()
+            {
+                if let Some(spec) = self.db.enchants().get(name) {
+                    active.push((slot, spec));
+                }
+            }
+        }
+        active
     }
 
     pub fn enchant(&self, slot: EquipmentSlot) -> Option<EnchantName> {
@@ -684,8 +856,60 @@ mod tests {
         )
     }
 
+    fn enchants() -> crate::enchant::EnchantDb {
+        let yaml = r#"
+- name: Crusader
+  display_name: Crusader
+  unique_name: Enchant Weapon - Crusader
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  procs:
+    - { name: GENERIC_STAT_BUFF, stat: STRENGTH, amount: 100, duration: 15, rate: 1.0, ppm: true }
+- name: SuperiorStriking
+  display_name: Superior Striking
+  unique_name: Enchant Weapon - Superior Striking
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  weapon_damage: 5
+- name: IronCounterweight
+  display_name: Iron Counterweight
+  unique_name: Iron Counterweight
+  slots: [MAINHAND]
+  weapon_slots: [2H]
+  stats: { MELEE_ATTACK_SPEED: 3 }
+- name: DenseSharpeningStone
+  display_name: Dense Sharpening Stone
+  unique_name: Dense Sharpening Stone
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  weapon_types: [AXE, TWOHAND_AXE, DAGGER, POLEARM, SWORD, TWOHAND_SWORD]
+  weapon_damage: 8
+- name: WindfuryTotem
+  display_name: Windfury Totem
+  unique_name: Windfury Totem
+  temporary: true
+  slots: [MAINHAND]
+  faction: HORDE
+  procs:
+    - { name: WINDFURY_ATTACK, rate: 0.2, value: 315 }
+- name: EnchantChestStats
+  display_name: Stats
+  unique_name: Enchant Chest - Stats
+  slots: [CHEST]
+  stats: { STRENGTH: 3, AGILITY: 3, STAMINA: 3, INTELLECT: 3, SPIRIT: 3 }
+"#;
+        crate::enchant::EnchantDb::new(serde_yaml::from_str(yaml).unwrap()).unwrap()
+    }
+
     fn equipment() -> Equipment {
-        Equipment::new(db(), Phase::Naxxramas)
+        let mut db = Arc::try_unwrap(db()).unwrap();
+        db.set_enchants(enchants());
+        Equipment::new(
+            Arc::new(db),
+            Phase::Naxxramas,
+            Faction::Horde,
+            PlayerClass::Warrior,
+        )
     }
 
     fn ids(change: &[(EquipmentSlot, Arc<Item>)]) -> Vec<(EquipmentSlot, u32)> {
@@ -885,11 +1109,13 @@ mod tests {
         let mut eq = equipment();
         eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
         eq.equip(EquipmentSlot::Head, 22).unwrap();
-        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader));
+        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader))
+            .unwrap();
         eq.set_temp_enchant(
             EquipmentSlot::Mainhand,
             Some(EnchantName::DenseSharpeningStone),
-        );
+        )
+        .unwrap();
 
         let change = eq.change_setup(1).unwrap();
         assert_eq!(eq.setup_index(), 1);
@@ -930,7 +1156,8 @@ mod tests {
     fn enchant_selection_survives_item_swaps_in_the_same_slot() {
         let mut eq = equipment();
         eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
-        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader));
+        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader))
+            .unwrap();
         eq.equip(EquipmentSlot::Mainhand, 2).unwrap();
         assert_eq!(
             eq.enchant(EquipmentSlot::Mainhand),
@@ -938,13 +1165,138 @@ mod tests {
         );
         eq.unequip(EquipmentSlot::Mainhand);
         assert_eq!(eq.enchant(EquipmentSlot::Mainhand), None);
-        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader));
+        assert_eq!(
+            eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader)),
+            Err(EnchantError::EmptySlot(EquipmentSlot::Mainhand))
+        );
         assert_eq!(eq.enchant(EquipmentSlot::Mainhand), None);
     }
 
     #[test]
+    fn enchants_are_validated_and_add_stats() {
+        let mut eq = equipment();
+        eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
+        eq.equip(EquipmentSlot::Chest, 30).unwrap();
+
+        eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::SuperiorStriking))
+            .unwrap();
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 5);
+        assert_eq!(eq.stats().get_oh_weapon_damage(), 0);
+        eq.set_temp_enchant(
+            EquipmentSlot::Mainhand,
+            Some(EnchantName::DenseSharpeningStone),
+        )
+        .unwrap();
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 13);
+        eq.set_enchant(EquipmentSlot::Chest, Some(EnchantName::EnchantChestStats))
+            .unwrap();
+        assert_eq!(eq.stats().get_strength(), 13);
+
+        // A 2H-only enchant is rejected on a one-hander; wrong kind is rejected.
+        assert_eq!(
+            eq.set_enchant(
+                EquipmentSlot::Mainhand,
+                Some(EnchantName::IronCounterweight)
+            ),
+            Err(EnchantError::NotApplicable {
+                enchant: EnchantName::IronCounterweight,
+                slot: EquipmentSlot::Mainhand
+            })
+        );
+        assert_eq!(
+            eq.set_enchant(
+                EquipmentSlot::Mainhand,
+                Some(EnchantName::DenseSharpeningStone)
+            ),
+            Err(EnchantError::WrongKind {
+                enchant: EnchantName::DenseSharpeningStone,
+                temporary: true
+            })
+        );
+        assert_eq!(
+            eq.set_enchant(EquipmentSlot::Chest, Some(EnchantName::FieryWeapon)),
+            Err(EnchantError::UnknownEnchant(EnchantName::FieryWeapon))
+        );
+        // Failed changes keep the previous enchant and stats.
+        assert_eq!(
+            eq.enchant(EquipmentSlot::Mainhand),
+            Some(EnchantName::SuperiorStriking)
+        );
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 13);
+
+        let active: Vec<(EquipmentSlot, EnchantName)> = eq
+            .active_enchants()
+            .iter()
+            .map(|(slot, spec)| (*slot, spec.name))
+            .collect();
+        assert_eq!(
+            active,
+            vec![
+                (EquipmentSlot::Mainhand, EnchantName::SuperiorStriking),
+                (EquipmentSlot::Mainhand, EnchantName::DenseSharpeningStone),
+                (EquipmentSlot::Chest, EnchantName::EnchantChestStats),
+            ]
+        );
+
+        // Swapping to the two-hand axe keeps both enchants (they apply to it too).
+        eq.equip(EquipmentSlot::Mainhand, 3).unwrap();
+        assert_eq!(
+            eq.enchant(EquipmentSlot::Mainhand),
+            Some(EnchantName::SuperiorStriking)
+        );
+        assert_eq!(
+            eq.temp_enchant(EquipmentSlot::Mainhand),
+            Some(EnchantName::DenseSharpeningStone)
+        );
+        eq.set_enchant(
+            EquipmentSlot::Mainhand,
+            Some(EnchantName::IronCounterweight),
+        )
+        .unwrap();
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 8);
+
+        // Swapping to a shield in the offhand would drop a sharpening stone.
+        eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
+        eq.equip(EquipmentSlot::Offhand, 2).unwrap();
+        eq.set_temp_enchant(
+            EquipmentSlot::Offhand,
+            Some(EnchantName::DenseSharpeningStone),
+        )
+        .unwrap();
+        assert_eq!(eq.stats().get_oh_weapon_damage(), 8);
+        eq.equip(EquipmentSlot::Offhand, 4).unwrap();
+        assert_eq!(eq.temp_enchant(EquipmentSlot::Offhand), None);
+        assert_eq!(eq.stats().get_oh_weapon_damage(), 0);
+
+        eq.unequip_all();
+        assert_eq!(eq.stats(), &Stats::new());
+    }
+
+    #[test]
+    fn faction_change_drops_invalid_enchants() {
+        let mut eq = equipment();
+        eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
+        eq.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem))
+            .unwrap();
+        eq.set_faction(Faction::Alliance);
+        assert_eq!(eq.temp_enchant(EquipmentSlot::Mainhand), None);
+        assert_eq!(
+            eq.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem)),
+            Err(EnchantError::NotApplicable {
+                enchant: EnchantName::WindfuryTotem,
+                slot: EquipmentSlot::Mainhand
+            })
+        );
+    }
+
+    #[test]
     fn phase_changes_swap_item_versions() {
-        let mut eq = Equipment::new(db(), Phase::MoltenCore);
+        let mut eq = Equipment::new(
+            db(),
+            Phase::MoltenCore,
+            Faction::Horde,
+            PlayerClass::Warrior,
+        );
         eq.equip(EquipmentSlot::Head, 22).unwrap();
         assert_eq!(eq.stats().get_strength(), 10);
         assert_eq!(

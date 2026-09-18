@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 use super::set_bonus::{SetBonusDb, SetBonusError, SetSpec};
 use super::{EquipmentSlot, Item, ItemError, ItemSpec};
+use crate::enchant::{EnchantDb, EnchantDbError};
 use crate::phase::Phase;
 
 /// Errors while loading the item database.
@@ -34,14 +35,17 @@ pub enum EquipmentDbError {
     DuplicateItem { id: u32, name: String, phase: Phase },
     #[error(transparent)]
     SetBonus(#[from] SetBonusError),
+    #[error(transparent)]
+    Enchant(#[from] EnchantDbError),
 }
 
-/// All known items and item sets.
+/// All known items, item sets and enchants.
 #[derive(Debug, Clone, Default)]
 pub struct EquipmentDb {
     /// Every version of an item, sorted by ascending phase.
     items: HashMap<u32, Vec<Arc<Item>>>,
     sets: SetBonusDb,
+    enchants: EnchantDb,
 }
 
 impl EquipmentDb {
@@ -60,8 +64,12 @@ impl EquipmentDb {
     }
 
     /// Loads every `*.yaml` item file in `items_dir` (sorted by file name) and, when given, the
-    /// set bonus file.
-    pub fn load(items_dir: &Path, set_bonuses: Option<&Path>) -> Result<Self, EquipmentDbError> {
+    /// set bonus and enchant files.
+    pub fn load(
+        items_dir: &Path,
+        set_bonuses: Option<&Path>,
+        enchants: Option<&Path>,
+    ) -> Result<Self, EquipmentDbError> {
         let mut db = Self::new();
 
         let mut paths: Vec<PathBuf> = fs::read_dir(items_dir)
@@ -84,6 +92,10 @@ impl EquipmentDb {
 
         if let Some(path) = set_bonuses {
             db.load_set_bonus_file(path)?;
+        }
+
+        if let Some(path) = enchants {
+            db.set_enchants(EnchantDb::load(path)?);
         }
 
         Ok(db)
@@ -145,6 +157,14 @@ impl EquipmentDb {
 
     pub fn sets(&self) -> &SetBonusDb {
         &self.sets
+    }
+
+    pub fn set_enchants(&mut self, enchants: EnchantDb) {
+        self.enchants = enchants;
+    }
+
+    pub fn enchants(&self) -> &EnchantDb {
+        &self.enchants
     }
 
     /// The newest version of an item available in `phase`.
@@ -427,7 +447,23 @@ mod tests {
         )
         .unwrap();
 
-        let db = EquipmentDb::load(&items_dir, Some(&dir.join("sets.yaml"))).unwrap();
+        fs::write(
+            dir.join("enchants.yaml"),
+            "- name: Crusader
+  display_name: Crusader
+  unique_name: Enchant Weapon - Crusader
+  slots: [MAINHAND, OFFHAND]
+",
+        )
+        .unwrap();
+
+        let db = EquipmentDb::load(
+            &items_dir,
+            Some(&dir.join("sets.yaml")),
+            Some(&dir.join("enchants.yaml")),
+        )
+        .unwrap();
+        assert_eq!(db.enchants().len(), 1);
         assert_eq!(db.len(), 2);
         assert!(db.get_item(1, Phase::MoltenCore).unwrap().is_weapon());
         assert_eq!(
@@ -440,10 +476,10 @@ mod tests {
         assert_eq!(db.sets().set_for_item(2).unwrap().name, "S");
 
         fs::write(items_dir.join("broken.yaml"), "- id: x\n").unwrap();
-        let error = EquipmentDb::load(&items_dir, None).unwrap_err();
+        let error = EquipmentDb::load(&items_dir, None, None).unwrap_err();
         assert!(matches!(error, EquipmentDbError::Yaml { .. }));
 
-        let error = EquipmentDb::load(&dir.join("missing"), None).unwrap_err();
+        let error = EquipmentDb::load(&dir.join("missing"), None, None).unwrap_err();
         assert!(matches!(error, EquipmentDbError::Io { .. }));
 
         fs::remove_dir_all(&dir).unwrap();

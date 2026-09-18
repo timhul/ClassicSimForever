@@ -909,7 +909,9 @@ impl CharacterStats {
     // ---------------------------------------------------------------- weapon damage bonuses
 
     pub fn get_mh_weapon_damage_bonus(&self, ctx: &StatContext) -> u32 {
-        self.mh_weapon_dmg_bonus + ctx.equipment.get_flat_weapon_damage()
+        self.mh_weapon_dmg_bonus
+            + ctx.equipment.get_flat_weapon_damage()
+            + ctx.equipment.get_mh_weapon_damage()
     }
 
     pub fn increase_mh_weapon_damage_bonus(&mut self, value: u32) {
@@ -922,7 +924,9 @@ impl CharacterStats {
     }
 
     pub fn get_oh_weapon_damage_bonus(&self, ctx: &StatContext) -> u32 {
-        self.oh_weapon_dmg_bonus + ctx.equipment.get_flat_weapon_damage()
+        self.oh_weapon_dmg_bonus
+            + ctx.equipment.get_flat_weapon_damage()
+            + ctx.equipment.get_oh_weapon_damage()
     }
 
     pub fn increase_oh_weapon_damage_bonus(&mut self, value: u32) {
@@ -934,8 +938,8 @@ impl CharacterStats {
             sub_checked(self.oh_weapon_dmg_bonus, value, "oh weapon damage bonus");
     }
 
-    pub fn get_ranged_weapon_damage_bonus(&self) -> u32 {
-        self.ranged_weapon_dmg_bonus
+    pub fn get_ranged_weapon_damage_bonus(&self, ctx: &StatContext) -> u32 {
+        self.ranged_weapon_dmg_bonus + ctx.equipment.get_ranged_weapon_damage()
     }
 
     pub fn increase_ranged_weapon_damage_bonus(&mut self, value: u32) {
@@ -1337,6 +1341,14 @@ impl CharacterStats {
                     inc,
                     Stats::increase_melee_hit,
                     Stats::decrease_melee_hit,
+                    value,
+                );
+            }
+            ItemStat::RangedHitChance => {
+                base.change_u32(
+                    inc,
+                    Stats::increase_ranged_hit,
+                    Stats::decrease_ranged_hit,
                     value,
                 );
             }

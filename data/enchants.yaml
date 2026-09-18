@@ -1,0 +1,481 @@
+# Enchant definitions. Ported from ClassicSim's EnchantName.cpp / EnchantStatic.cpp /
+# EnchantProc.cpp / CharacterEnchants.cpp.
+#
+# Stat values use the item data semantics: chances are fractions (0.01 = 1%), speeds are
+# percentages, everything else is a flat amount. `weapon_damage` is added to the enchanted weapon
+# only. Procs use the same schema as item procs; `ppm: true` makes `rate` procs-per-minute.
+#
+# Which enchants a class can pick per slot is class data (data/classes/*.yaml); this file only
+# describes what an enchant does and where it can physically go.
+
+# ---------------------------------------------------------------- weapon enchants (permanent)
+
+- name: Crusader
+  display_name: Crusader
+  unique_name: Enchant Weapon - Crusader
+  effect: Crusader
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  procs:
+    - name: GENERIC_STAT_BUFF
+      display_name: Holy Strength
+      stat: STRENGTH
+      amount: 100
+      duration: 15
+      rate: 1.0
+      ppm: true
+
+- name: FieryWeapon
+  display_name: Fiery Weapon
+  unique_name: Enchant Weapon - Fiery Weapon
+  effect: Fiery Weapon
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  procs:
+    - name: FIRE_ATTACK
+      display_name: Fiery Weapon
+      min: 40
+      max: 40
+      spell_dmg_coefficient: 0.0
+      rate: 6.0
+      ppm: true
+
+- name: SuperiorStriking
+  display_name: Superior Striking
+  unique_name: Enchant Weapon - Superior Striking
+  effect: "+5 Damage"
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  weapon_damage: 5
+
+- name: EnchantWeaponAgility
+  display_name: Agility
+  unique_name: Enchant Weapon - Agility
+  effect: "+15 Agility"
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH]
+  stats: { AGILITY: 15 }
+
+- name: EnchantWeaponStrength
+  display_name: Strength
+  unique_name: Enchant Weapon - Strength
+  effect: "+15 Strength"
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  stats: { STRENGTH: 15 }
+
+- name: EnchantWeaponSpellPower
+  display_name: Spell Power
+  unique_name: Enchant Weapon - Spell Power
+  effect: "+30 Spell Damage/Healing"
+  slots: [MAINHAND, OFFHAND]
+  weapon_slots: [1H, MH, OH, 2H]
+  stats: { SPELL_DAMAGE: 30 }
+
+- name: IronCounterweight
+  display_name: Iron Counterweight
+  unique_name: Iron Counterweight
+  effect: "+3% Attack Speed"
+  slots: [MAINHAND]
+  weapon_slots: [2H]
+  stats: { MELEE_ATTACK_SPEED: 3 }
+
+- name: Enchant2HWeaponAgility
+  display_name: 2H Weapon Agility
+  unique_name: Enchant 2H Weapon - Agility
+  effect: "+25 Agility"
+  slots: [MAINHAND]
+  weapon_slots: [2H]
+  stats: { AGILITY: 25 }
+
+- name: Enchant2HWeaponSuperiorImpact
+  display_name: 2H Weapon Superior Impact
+  unique_name: Enchant 2H Weapon - Superior Impact
+  effect: "+9 Damage"
+  slots: [MAINHAND]
+  weapon_slots: [2H]
+  weapon_damage: 9
+
+# ---------------------------------------------------------------- ranged enchants
+
+- name: Biznicks247x128Accurascope
+  display_name: Biznicks 247x128 Accurascope
+  unique_name: Biznicks 247x128 Accurascope
+  effect: "+3% Ranged Hit"
+  slots: [RANGED]
+  weapon_slots: [RANGED]
+  stats: { RANGED_HIT_CHANCE: 0.03 }
+
+- name: SniperScope
+  display_name: Sniper Scope
+  unique_name: Sniper Scope
+  effect: "+7 Damage"
+  slots: [RANGED]
+  weapon_slots: [RANGED]
+  weapon_damage: 7
+
+# ---------------------------------------------------------------- temporary weapon enchants
+
+- name: DenseSharpeningStone
+  display_name: Dense Sharpening Stone
+  unique_name: Dense Sharpening Stone
+  effect: "+8 Damage"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  weapon_types: [AXE, TWOHAND_AXE, DAGGER, POLEARM, SWORD, TWOHAND_SWORD]
+  weapon_damage: 8
+
+- name: ElementalSharpeningStone
+  display_name: Elemental Sharpening Stone
+  unique_name: Elemental Sharpening Stone
+  effect: "+2% Crit"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { CRIT_CHANCE: 0.02 }
+
+- name: ConsecratedSharpeningStone
+  display_name: Consecrated Sharpening Stone
+  unique_name: Consecrated Sharpening Stone
+  effect: "+100 AP\nvs Undead"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { ATTACK_POWER_UNDEAD: 100 }
+
+- name: DenseWeightstone
+  display_name: Dense Weightstone
+  unique_name: Dense Weightstone
+  effect: "+8 Damage"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  weapon_types: [FIST, MACE, TWOHAND_MACE]
+  weapon_damage: 8
+
+- name: SolidWeightstone
+  display_name: Solid Weightstone
+  unique_name: Solid Weightstone
+  effect: "+6 Damage"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  weapon_types: [FIST, MACE, TWOHAND_MACE]
+  weapon_damage: 6
+
+- name: LesserManaOil
+  display_name: Lesser Mana Oil
+  unique_name: Lesser Mana Oil
+  effect: "+8 mp5"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { MANA_PER_5: 8 }
+
+- name: BrilliantManaOil
+  display_name: Brilliant Mana Oil
+  unique_name: Brilliant Mana Oil
+  effect: "+12mp5/+25 Heal"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { MANA_PER_5: 12 }
+
+- name: BrilliantWizardOil
+  display_name: Brilliant Wizard Oil
+  unique_name: Brilliant Wizard Oil
+  effect: "+36 SP\n+1% Spell Crit"
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { SPELL_DAMAGE: 36, SPELL_CRIT_CHANCE: 0.01 }
+
+- name: ShadowOil
+  display_name: Shadow Oil
+  unique_name: Shadow Oil
+  effect: 15% R3 Shadow Bolt
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  procs:
+    - name: SHADOW_ATTACK
+      display_name: Shadow Oil
+      min: 48
+      max: 56
+      spell_dmg_coefficient: 0.56
+      rate: 0.15
+
+- name: WindfuryTotem
+  display_name: Windfury Totem
+  unique_name: Windfury Totem
+  effect: Windfury
+  temporary: true
+  slots: [MAINHAND]
+  faction: HORDE
+  procs:
+    - name: WINDFURY_ATTACK
+      display_name: Windfury Totem Attack
+      rate: 0.2
+      value: 315
+
+- name: InstantPoison
+  display_name: Instant Poison
+  unique_name: Instant Poison
+  effect: Instant Poison
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  class: ROGUE
+  procs:
+    - name: INSTANT_POISON
+      display_name: Instant Poison
+      rate: 0.2
+
+# ---------------------------------------------------------------- head / legs
+
+- name: ArcanumOfFocus
+  display_name: Arcanum Of Focus
+  unique_name: Arcanum Of Focus
+  effect: "+8 Spell Damage/Healing"
+  slots: [HEAD, LEGS]
+  stats: { SPELL_DAMAGE: 8 }
+
+- name: ArcanumOfRapidity
+  display_name: Arcanum Of Rapidity
+  unique_name: Arcanum Of Rapidity
+  effect: "+1% Haste"
+  slots: [HEAD, LEGS]
+  stats: { MELEE_ATTACK_SPEED: 1 }
+
+- name: LesserArcanumOfVoracityAgility
+  display_name: Lesser Arcanum Of Voracity - Agility
+  unique_name: Lesser Arcanum Of Voracity - Agility
+  effect: "+8 Agility"
+  slots: [HEAD, LEGS]
+  stats: { AGILITY: 8 }
+
+- name: LesserArcanumOfVoracityIntellect
+  display_name: Lesser Arcanum Of Voracity - Intellect
+  unique_name: Lesser Arcanum Of Voracity - Intellect
+  effect: "+8 Intellect"
+  slots: [HEAD, LEGS]
+  stats: { INTELLECT: 8 }
+
+- name: LesserArcanumOfVoracitySpirit
+  display_name: Lesser Arcanum Of Voracity - Spirit
+  unique_name: Lesser Arcanum Of Voracity - Spirit
+  effect: "+8 Spirit"
+  slots: [HEAD, LEGS]
+  stats: { SPIRIT: 8 }
+
+- name: LesserArcanumOfVoracityStamina
+  display_name: Lesser Arcanum Of Voracity - Stamina
+  unique_name: Lesser Arcanum Of Voracity - Stamina
+  effect: "+8 Stamina"
+  slots: [HEAD, LEGS]
+  stats: { STAMINA: 8 }
+
+- name: LesserArcanumOfVoracityStrength
+  display_name: Lesser Arcanum Of Voracity - Strength
+  unique_name: Lesser Arcanum Of Voracity - Strength
+  effect: "+8 Strength"
+  slots: [HEAD, LEGS]
+  stats: { STRENGTH: 8 }
+
+- name: DeathsEmbrace
+  display_name: Death's Embrace
+  unique_name: Deaths Embrace
+  effect: "+28 Attack and\n1% Dodge"
+  slots: [HEAD, LEGS]
+  stats: { ATTACK_POWER: 28, DODGE_CHANCE: 0.01 }
+
+- name: FalconsCall
+  display_name: Falcon's Call
+  unique_name: Falcons Call
+  effect: "+24 Ranged Attack Power\n10 Stamina, +1% Hit"
+  slots: [HEAD, LEGS]
+  stats: { RANGED_ATTACK_POWER: 24, STAMINA: 10, HIT_CHANCE: 0.01 }
+
+- name: PresenceOfSight
+  display_name: Presence Of Sight
+  unique_name: Presence Of Sight
+  effect: "+18 Spell Damage/Healing\n+1% Spell Hit"
+  slots: [HEAD, LEGS]
+  stats: { SPELL_DAMAGE: 18, SPELL_HIT_CHANCE: 0.01 }
+
+- name: HoodooHex
+  display_name: Hoodoo Hex
+  unique_name: Hoodoo Hex
+  effect: "+18 Spell Damage/Healing\n+10 Stamina"
+  slots: [HEAD, LEGS]
+  stats: { SPELL_DAMAGE: 18, STAMINA: 10 }
+
+# ---------------------------------------------------------------- shoulders
+
+- name: MightOfTheScourge
+  display_name: Might of the Scourge
+  unique_name: Might of the Scourge
+  effect: "+1% Crit and\n+26 Attack Power"
+  slots: [SHOULDERS]
+  stats: { ATTACK_POWER: 26, CRIT_CHANCE: 0.01 }
+
+- name: PowerOfTheScourge
+  display_name: Power Of The Scourge
+  unique_name: Power Of The Scourge
+  effect: "+15 Spell Damage/Healing\n+1% Spell Crit"
+  slots: [SHOULDERS]
+  stats: { SPELL_DAMAGE: 15, SPELL_CRIT_CHANCE: 0.01 }
+
+- name: ZandalarSignetOfMight
+  display_name: Zandalar Signet Of Might
+  unique_name: Zandalar Signet Of Might
+  effect: "+30 Attack Power"
+  slots: [SHOULDERS]
+  stats: { ATTACK_POWER: 30 }
+
+- name: ZandalarSignetOfMojo
+  display_name: Zandalar Signet Of Mojo
+  unique_name: Zandalar Signet Of Mojo
+  effect: "+18 Spell Damage/Healing"
+  slots: [SHOULDERS]
+  stats: { SPELL_DAMAGE: 18 }
+
+# ---------------------------------------------------------------- back
+
+- name: EnchantCloakLesserAgility
+  display_name: Lesser Agility
+  unique_name: Enchant Cloak - Lesser Agility
+  effect: "+3 Agility"
+  slots: [BACK]
+  stats: { AGILITY: 3 }
+
+# ---------------------------------------------------------------- wrist
+
+- name: EnchantBracerGreaterIntellect
+  display_name: Greater Intellect
+  unique_name: Enchant Bracer - Greater Intellect
+  effect: "+7 Intellect"
+  slots: [WRIST]
+  stats: { INTELLECT: 7 }
+
+- name: EnchantBracerGreaterStrength
+  display_name: Greater Strength
+  unique_name: Enchant Bracer - Greater - Strength
+  effect: "+7 Strength"
+  slots: [WRIST]
+  stats: { STRENGTH: 7 }
+
+- name: EnchantBracerManaRegeneration
+  display_name: Mana Regeneration
+  unique_name: Enchant Bracer - Mana Regeneration
+  effect: "+4 mp5"
+  slots: [WRIST]
+  stats: { MANA_PER_5: 4 }
+
+- name: EnchantBracerMinorAgility
+  display_name: Minor Agility
+  unique_name: Enchant Bracer - Minor Agility
+  effect: "+1 Agility"
+  slots: [WRIST]
+  stats: { AGILITY: 1 }
+
+- name: EnchantBracerSuperiorStrength
+  display_name: Superior Strength
+  unique_name: Enchant Bracer - Superior Strength
+  effect: "+9 Strength"
+  slots: [WRIST]
+  stats: { STRENGTH: 9 }
+
+# ---------------------------------------------------------------- gloves
+
+- name: EnchantGlovesFirePower
+  display_name: Fire Power
+  unique_name: Enchant Gloves - Fire Power
+  effect: "+20 Fire Damage"
+  slots: [GLOVES]
+  stats: { SPELL_DAMAGE_FIRE: 20 }
+
+- name: EnchantGlovesFrostPower
+  display_name: Frost Power
+  unique_name: Enchant Gloves - Frost Power
+  effect: "+20 Frost Damage"
+  slots: [GLOVES]
+  stats: { SPELL_DAMAGE_FROST: 20 }
+
+- name: EnchantGlovesShadowPower
+  display_name: Shadow Power
+  unique_name: Enchant Gloves - Shadow Power
+  effect: "+20 Shadow Damage"
+  slots: [GLOVES]
+  stats: { SPELL_DAMAGE_SHADOW: 20 }
+
+- name: EnchantGlovesGreaterAgility
+  display_name: Greater Agility
+  unique_name: Enchant Gloves - Greater Agility
+  effect: "+7 Agility"
+  slots: [GLOVES]
+  stats: { AGILITY: 7 }
+
+- name: EnchantGlovesGreaterStrength
+  display_name: Greater Strength
+  unique_name: Enchant Gloves - Greater Strength
+  effect: "+7 Strength"
+  slots: [GLOVES]
+  stats: { STRENGTH: 7 }
+
+- name: EnchantGlovesMinorHaste
+  display_name: Minor Haste
+  unique_name: Enchant Gloves - Minor Haste
+  effect: "+1% Attack Speed"
+  slots: [GLOVES]
+  stats: { MELEE_ATTACK_SPEED: 1 }
+
+- name: EnchantGlovesSuperiorAgility
+  display_name: Superior Agility
+  unique_name: Enchant Gloves - Superior Agility
+  effect: "+15 Agility"
+  slots: [GLOVES]
+  stats: { AGILITY: 15 }
+
+# ---------------------------------------------------------------- chest
+
+- name: EnchantChestStats
+  display_name: Stats
+  unique_name: Enchant Chest - Stats
+  effect: "+3 Attributes"
+  slots: [CHEST]
+  stats: { STRENGTH: 3, AGILITY: 3, STAMINA: 3, INTELLECT: 3, SPIRIT: 3 }
+
+- name: EnchantChestGreaterStats
+  display_name: Greater Stats
+  unique_name: Enchant Chest - Greater Stats
+  effect: "+4 Attributes"
+  slots: [CHEST]
+  stats: { STRENGTH: 4, AGILITY: 4, STAMINA: 4, INTELLECT: 4, SPIRIT: 4 }
+
+- name: EnchantChestMajorMana
+  display_name: Major Mana
+  unique_name: Enchant Chest - Major Mana
+  effect: "+100 Mana"
+  slots: [CHEST]
+  mana: 100
+
+# ---------------------------------------------------------------- boots
+
+- name: EnchantBootsMinorSpeed
+  display_name: Minor Speed
+  unique_name: Enchant Boots - Minor Speed
+  effect: Speed Increase
+  slots: [BOOTS]
+
+- name: EnchantBootsAgility
+  display_name: Agility
+  unique_name: Enchant Boots - Agility
+  effect: "+5 Agility"
+  slots: [BOOTS]
+  stats: { AGILITY: 5 }
+
+- name: EnchantBootsGreaterAgility
+  display_name: Greater Agility
+  unique_name: Enchant Boots - Greater Agility
+  effect: "+7 Agility"
+  slots: [BOOTS]
+  stats: { AGILITY: 7 }
+
+- name: EnchantBootsSpirit
+  display_name: Spirit
+  unique_name: Enchant Boots - Spirit
+  effect: "+5 Spirit"
+  slots: [BOOTS]
+  stats: { SPIRIT: 5 }

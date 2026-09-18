@@ -82,6 +82,10 @@ pub struct Stats {
     spell_hit: u32,
     spell_crit: u32,
     flat_weapon_damage: u32,
+    /// Flat damage on the mainhand weapon only (weapon enchants).
+    mh_weapon_damage: u32,
+    oh_weapon_damage: u32,
+    ranged_weapon_damage: u32,
 
     mp5: u32,
     hp5: u32,
@@ -137,6 +141,7 @@ impl Stats {
                 self.increase_melee_hit(chance());
                 self.increase_ranged_hit(chance());
             }
+            ItemStat::RangedHitChance => self.increase_ranged_hit(chance()),
             ItemStat::AttackPower => {
                 self.increase_base_melee_ap(flat());
                 self.increase_base_ranged_ap(flat());
@@ -282,6 +287,9 @@ impl Stats {
             spell_hit,
             spell_crit,
             flat_weapon_damage,
+            mh_weapon_damage,
+            oh_weapon_damage,
+            ranged_weapon_damage,
             mp5,
             hp5,
             spell_damage,
@@ -367,6 +375,24 @@ impl Stats {
             get_flat_weapon_damage,
             increase_flat_weapon_damage,
             decrease_flat_weapon_damage
+        ),
+        (
+            mh_weapon_damage,
+            get_mh_weapon_damage,
+            increase_mh_weapon_damage,
+            decrease_mh_weapon_damage
+        ),
+        (
+            oh_weapon_damage,
+            get_oh_weapon_damage,
+            increase_oh_weapon_damage,
+            decrease_oh_weapon_damage
+        ),
+        (
+            ranged_weapon_damage,
+            get_ranged_weapon_damage,
+            increase_ranged_weapon_damage,
+            decrease_ranged_weapon_damage
         ),
         (mp5, get_mp5, increase_mp5, decrease_mp5),
         (hp5, get_hp5, increase_hp5, decrease_hp5),

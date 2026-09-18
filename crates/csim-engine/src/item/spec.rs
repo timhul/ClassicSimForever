@@ -81,8 +81,10 @@ pub struct WeaponDamageSpec {
 #[serde(deny_unknown_fields)]
 pub struct ItemProcSpec {
     pub name: String,
-    /// Proc chance as a fraction, or procs per minute for PPM procs.
+    /// Proc chance as a fraction, or procs per minute when `ppm` is set.
     pub rate: f64,
+    #[serde(default)]
+    pub ppm: bool,
     #[serde(default)]
     pub internal_cd: f64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
