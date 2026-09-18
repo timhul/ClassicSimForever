@@ -11,7 +11,8 @@
 pub mod character_stats;
 
 pub use character_stats::{
-    CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView, WeaponProfile,
+    CharacterStats, ClassStatRules, MultiplicativeStack, RaceStats, StatContext, TargetStatView,
+    WeaponProfile,
 };
 
 use crate::item::{ItemStat, WeaponType};
