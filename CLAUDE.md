@@ -10,8 +10,8 @@ ClassicSimForever does not use C++ Qt, and instead uses Rust.
 The focus is initially on porting the engine itself, and focus on GUI later (if ever).
 
 The data (spells, etc) handled by the simulator is different due to different game
-versions being supported. The data should not be hardcoded, other than for prototyping.
-There are too many spells and items for production-ready code to hardcode.
+versions being supported. The data used to be partially (and sometimes) completely manually authored
+but is now dumped from the game tables from a .csv format.
 
 # Development flow
 
