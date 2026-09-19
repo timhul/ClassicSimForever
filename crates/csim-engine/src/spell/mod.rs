@@ -5,6 +5,7 @@
 //! (later substeps of Phase 3) interprets it.
 
 pub mod auto_attack;
+pub mod dbc;
 pub mod periodic;
 pub mod rank_group;
 pub mod runtime;
@@ -12,6 +13,10 @@ pub mod spec;
 pub mod status;
 
 pub use auto_attack::{rage_gained_from_damage, AutoAttack, AutoAttackHost, SwingReport};
+pub use dbc::{
+    AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
+    ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
+};
 pub use periodic::{Periodic, PeriodicKind, TickReport};
 pub use rank_group::SpellRankGroup;
 pub use runtime::{
