@@ -5,6 +5,7 @@
 
 pub mod attack_mode;
 pub mod buff;
+pub mod character;
 pub mod character_spells;
 pub mod combat_roll;
 pub mod cooldown;

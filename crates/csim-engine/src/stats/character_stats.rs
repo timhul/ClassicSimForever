@@ -1104,24 +1104,27 @@ impl CharacterStats {
             * self.magic_damage_per_creature[ctx.target.creature_type.index()].modifier()
     }
 
-    pub fn increase_magic_school_damage_mod_all(&mut self, percent: u32) {
+    /// Adds a percentage effect (`10` = +10 %, `-10` = −10 %) to the damage of every magic
+    /// school.
+    pub fn increase_magic_school_damage_mod_all(&mut self, percent: i32) {
         for school in MagicSchool::MAGIC {
             self.increase_magic_school_damage_mod(percent, school);
         }
     }
 
-    pub fn decrease_magic_school_damage_mod_all(&mut self, percent: u32) {
+    /// Removes a percentage effect added with [`Self::increase_magic_school_damage_mod_all`].
+    pub fn decrease_magic_school_damage_mod_all(&mut self, percent: i32) {
         for school in MagicSchool::MAGIC {
             self.decrease_magic_school_damage_mod(percent, school);
         }
     }
 
-    pub fn increase_magic_school_damage_mod(&mut self, percent: u32, school: MagicSchool) {
-        self.magic_school_damage[school as usize].add(percent as i32);
+    pub fn increase_magic_school_damage_mod(&mut self, percent: i32, school: MagicSchool) {
+        self.magic_school_damage[school as usize].add(percent);
     }
 
-    pub fn decrease_magic_school_damage_mod(&mut self, percent: u32, school: MagicSchool) {
-        self.magic_school_damage[school as usize].remove(percent as i32);
+    pub fn decrease_magic_school_damage_mod(&mut self, percent: i32, school: MagicSchool) {
+        self.magic_school_damage[school as usize].remove(percent);
     }
 
     pub fn increase_magic_damage_mod_vs_type(&mut self, creature: CreatureType, percent: i32) {

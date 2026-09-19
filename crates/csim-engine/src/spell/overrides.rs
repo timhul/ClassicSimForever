@@ -307,6 +307,9 @@ pub enum SimFlag {
     StartOfCombat,
     /// The spell's damage never crits (Rend's bleed in Classic).
     CannotCrit,
+    /// While the buff is active the character is enraged (the `ENRAGED` caster aura state;
+    /// the client tables do not carry the enrage mechanic).
+    Enrage,
 }
 
 /// Everything hand-written about one spell.

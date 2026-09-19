@@ -20,6 +20,9 @@ overrides:
   - id: 12317
     note: Enrage (talent) reacts to any damaging attack taken; the DUMMY carries the rank value
     effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12880, effect: 0 } }]
+  - id: 12880
+    note: the Enrage buff makes the character ENRAGED (the tables do not carry the mechanic)
+    sim_flags: [ENRAGE]
 
   # ----- Scripted (DUMMY) effects ------------------------------------------------------------
   - id: 12162

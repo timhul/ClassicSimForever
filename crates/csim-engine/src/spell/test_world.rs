@@ -837,6 +837,12 @@ impl SharedBuffs for Raid {
         self.buffs.push(buff);
         id
     }
+    fn shared_buff(&self, id: SharedBuffId) -> &Buff {
+        &self.buffs[id.index()]
+    }
+    fn shared_buff_mut(&mut self, id: SharedBuffId) -> &mut Buff {
+        &mut self.buffs[id.index()]
+    }
 }
 
 /// A one-character world around a [`CharacterSpells`] registry.

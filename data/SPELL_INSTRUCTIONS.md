@@ -434,7 +434,9 @@ overrides:
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
-`START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`.
+`START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`, `ENRAGE` (the buff
+puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Regeneration require;
+the client tables do not carry the enrage mechanic).
 
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,

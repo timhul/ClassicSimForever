@@ -508,6 +508,32 @@ impl Spell {
         &self.setup.overrides.on_event
     }
 
+    /// The hidden spells this spell casts as payloads: its `trigger_spell`s and the spells
+    /// its scripts name (`TRIGGER_WITH_VALUE`, event reactions). They are enabled and disabled
+    /// together with this spell.
+    pub fn payload_spells(&self) -> Vec<u32> {
+        let mut ids = self.setup.record.trigger_spells();
+        let scripted = self
+            .setup
+            .overrides
+            .effects
+            .iter()
+            .filter_map(|script| script.params.spell)
+            .chain(
+                self.setup
+                    .overrides
+                    .on_event
+                    .iter()
+                    .filter_map(|script| script.params.spell),
+            );
+        for id in scripted {
+            if id != self.game_id() && !ids.contains(&id) {
+                ids.push(id);
+            }
+        }
+        ids
+    }
+
     pub fn threat_override(&self) -> ThreatOverride {
         self.setup.overrides.threat.unwrap_or_default()
     }

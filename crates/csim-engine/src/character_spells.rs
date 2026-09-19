@@ -46,6 +46,9 @@ pub trait SharedBuffs {
     fn register_shared_party_buff(&mut self, buff: Buff, party: u8) -> SharedBuffId;
     fn shared_raid_buff(&self, canonical_name: &str) -> Option<SharedBuffId>;
     fn register_shared_raid_buff(&mut self, buff: Buff) -> SharedBuffId;
+    /// The shared buff behind a handle.
+    fn shared_buff(&self, id: SharedBuffId) -> &Buff;
+    fn shared_buff_mut(&mut self, id: SharedBuffId) -> &mut Buff;
 }
 
 /// What [`CharacterSpells::add_spell`] created.

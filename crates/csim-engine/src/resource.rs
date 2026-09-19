@@ -111,6 +111,12 @@ impl Rage {
         self.current = 0;
     }
 
+    /// Drops rage above `amount` (a stance change keeps only the Tactical Mastery remainder).
+    /// Port of `Warrior::new_stance_effect`.
+    pub fn retain_at_most(&mut self, amount: u32) {
+        self.current = self.current.min(amount);
+    }
+
     /// Adds a maximum rage percentage modifier (`MOD_MAX_POWER_PCT`, e.g. Expansive Mind +5).
     pub fn increase_max_mod(&mut self, percent: i32) {
         self.max_mod.add(percent);

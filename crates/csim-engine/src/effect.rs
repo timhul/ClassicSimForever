@@ -610,12 +610,15 @@ impl Effect {
                     }
                 }
                 if magic {
-                    adjust(
-                        host.stats_mut(),
-                        signed,
-                        |s, v| s.increase_magic_school_damage_mod_all(v),
-                        |s, v| s.decrease_magic_school_damage_mod_all(v),
-                    );
+                    // A multiplicative stack: a negative aura (Defensive Stance's -10 %) is
+                    // added as-is and removed by the same value.
+                    if apply {
+                        host.stats_mut()
+                            .increase_magic_school_damage_mod_all(rounded);
+                    } else {
+                        host.stats_mut()
+                            .decrease_magic_school_damage_mod_all(rounded);
+                    }
                 }
             }
             A::ModDamagePercentTaken if !on_target => {
