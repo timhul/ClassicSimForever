@@ -19,6 +19,7 @@ pub mod magic_school;
 pub mod mechanics;
 pub mod phase;
 pub mod proc;
+pub mod race;
 pub mod resource;
 pub mod rng;
 pub mod spell;
