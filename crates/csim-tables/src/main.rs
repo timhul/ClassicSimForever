@@ -1,12 +1,40 @@
-//! `csim-tables`: inspect the client table dumps and (later Phase 3T tasks) export them to the
-//! YAML data files under `data/`.
+//! `csim-tables`: inspect the client table dumps and export them to the YAML data files under
+//! `data/`.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
+use csim_engine::faction::PlayerClass;
+use csim_engine::spell::overrides::Overrides;
+use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
+use csim_tables::export::{self, ExportError};
 use csim_tables::tables::ALL_TABLES;
 use csim_tables::{dir::missing_tables, TableDir, TableError, Tables};
+
+#[derive(Debug, thiserror::Error)]
+enum CliError {
+    #[error(transparent)]
+    Table(#[from] TableError),
+    #[error(transparent)]
+    Export(#[from] ExportError),
+    #[error(transparent)]
+    Overrides(#[from] csim_engine::spell::overrides::OverrideError),
+    #[error(transparent)]
+    SpellDb(#[from] csim_engine::spell::record::SpellDbError),
+    #[error("cannot write {path}: {source}")]
+    Write {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("cannot render YAML: {0}")]
+    Yaml(#[from] serde_yaml::Error),
+    #[error("{0:?} is not a class (use e.g. warrior)")]
+    UnknownClass(String),
+    #[error("{0} unsupported effects (see above)")]
+    Unsupported(usize),
+}
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -34,6 +62,99 @@ enum Command {
         /// Spell id (`SpellName.ID`).
         id: u32,
     },
+    /// Writes the spellbook of a class (or the racials) as an engine data file.
+    ExportSpells {
+        /// The class to export (`warrior`, `rogue`, ...).
+        #[arg(long, conflicts_with = "racials", required_unless_present = "racials")]
+        class: Option<String>,
+        /// Export the racial abilities instead of a class.
+        #[arg(long)]
+        racials: bool,
+        /// The spell data directory; the overrides in `<spells>/overrides/` extend the walk and
+        /// the file is written to `<spells>/<class>.yaml` unless `--out` is given.
+        #[arg(long, default_value = "data/spells")]
+        spells: PathBuf,
+        /// Output file (`-` for stdout).
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
+    /// Loads the exported spell files with the engine and reports what the sim cannot use.
+    Check {
+        /// The spell data directory.
+        #[arg(long, default_value = "data/spells")]
+        spells: PathBuf,
+        /// Fail when there are unsupported effects.
+        #[arg(long)]
+        strict: bool,
+    },
+}
+
+fn parse_class(name: &str) -> Result<PlayerClass, CliError> {
+    serde_yaml::from_str(&name.trim().to_uppercase())
+        .map_err(|_| CliError::UnknownClass(name.to_owned()))
+}
+
+fn export_spells(
+    dir: &TableDir,
+    class: Option<String>,
+    racials: bool,
+    spells_dir: &Path,
+    out: Option<PathBuf>,
+) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    let overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
+    let (file, command, default_name) = if racials {
+        (
+            export::export_racials(&tables, &overrides)?,
+            "export-spells --racials".to_owned(),
+            "racials.yaml".to_owned(),
+        )
+    } else {
+        let name = class.expect("clap requires --class or --racials");
+        let class = parse_class(&name)?;
+        (
+            export::export_class(&tables, class, &overrides)?,
+            format!("export-spells --class {}", class.name().to_lowercase()),
+            format!("{}.yaml", class.name().to_lowercase()),
+        )
+    };
+    let text = export::render(&file, &command)?;
+    let out = out.unwrap_or_else(|| spells_dir.join(default_name));
+    if out == Path::new("-") {
+        print!("{text}");
+    } else {
+        std::fs::write(&out, text).map_err(|source| CliError::Write {
+            path: out.clone(),
+            source,
+        })?;
+        eprintln!(
+            "wrote {} spells (build {}) to {}",
+            file.spells.len(),
+            file.build,
+            out.display()
+        );
+    }
+    Ok(())
+}
+
+fn check(spells_dir: &Path, strict: bool) -> Result<(), CliError> {
+    let db = SpellDb::load(spells_dir)?;
+    println!(
+        "{} spells, {} overrides, build {}",
+        db.len(),
+        db.overrides().len(),
+        db.build().unwrap_or("unknown")
+    );
+    let unsupported = db.unsupported();
+    for item in &unsupported {
+        let name = db.get(item.spell).map_or("?", |r| r.name.as_str());
+        println!("unsupported: {item} ({name})");
+    }
+    println!("{} unsupported effects", unsupported.len());
+    if strict && !unsupported.is_empty() {
+        return Err(CliError::Unsupported(unsupported.len()));
+    }
+    Ok(())
 }
 
 fn open(cli: &Cli) -> Result<TableDir, TableError> {
@@ -205,15 +326,21 @@ fn describe_spell(tables: &Tables, id: u32, depth: usize, seen: &mut Vec<u32>) {
     }
 }
 
-fn run(cli: Cli) -> Result<(), TableError> {
-    let dir = open(&cli)?;
-    match cli.command {
-        Command::Info { all } => info(&dir, all),
+fn run(cli: Cli) -> Result<(), CliError> {
+    match &cli.command {
+        Command::Info { all } => Ok(info(&open(&cli)?, *all)?),
         Command::Spell { id } => {
-            let tables = Tables::load(&dir)?;
-            describe_spell(&tables, id, 0, &mut Vec::new());
+            let tables = Tables::load(&open(&cli)?)?;
+            describe_spell(&tables, *id, 0, &mut Vec::new());
             Ok(())
         }
+        Command::ExportSpells {
+            class,
+            racials,
+            spells,
+            out,
+        } => export_spells(&open(&cli)?, class.clone(), *racials, spells, out.clone()),
+        Command::Check { spells, strict } => check(spells, *strict),
     }
 }
 

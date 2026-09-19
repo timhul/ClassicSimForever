@@ -25,6 +25,9 @@ overrides:
   - id: 12162
     note: Deep Wounds payload; the bleed lasts as long as the Deep Wound aura 412609
     effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
+  - id: 412609
+    note: Deep Wound aura; DEEP_WOUNDS_BLEED schedules the ticks itself from this spell's duration and period
+    effects: [{ index: 0, script: NO_OP }]
   - id: 23881
     note: Bloodthirst r1, second effect is 35 % of attack power
     effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
@@ -75,6 +78,9 @@ overrides:
   - id: 1310222
     note: Spearing Strike; E2 doubles the weapon damage against giants/dragonkin, not modelled
     effects: [{ index: 2, script: NO_OP }]
+  - id: 440488
+    note: Shockwave; E2 is 50 % of attack power as damage (frontal cone, one target here)
+    effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]
 
   # ----- Sim-only threat (the client has no threat table) --------------------------------------
   - id: 78

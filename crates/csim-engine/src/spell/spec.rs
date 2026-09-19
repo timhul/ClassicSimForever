@@ -1444,39 +1444,4 @@ shared_spell_cooldowns: [[X, Y], [X]]
             .collect();
         assert_eq!(names, vec!["Battle Shout", "Blood Fury"]);
     }
-
-    #[test]
-    fn shipped_spell_data_loads() {
-        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
-        let db = SpellDb::load(&dir).unwrap();
-        let warrior = db.groups_for_class(PlayerClass::Warrior);
-        assert!(warrior.len() >= 17, "{} groups", warrior.len());
-
-        let stance = db.get("Berserker Stance").unwrap();
-        assert_eq!(stance.causes_gcd, GcdBehavior::Stance);
-        assert_eq!(stance.shared_cooldowns.len(), 3);
-        assert!(stance
-            .rank(1)
-            .unwrap()
-            .buff
-            .as_ref()
-            .unwrap()
-            .is_permanent());
-
-        let flurry = db.get("Flurry").unwrap();
-        assert_eq!(flurry.requires_talent.as_deref(), Some("Flurry"));
-        assert_eq!(flurry.talent_modifications()["Flurry"].len(), 5);
-
-        let consume = db.get("Flurry Consume").unwrap();
-        assert_eq!(
-            consume.rank(1).unwrap().effects[0].buff.as_deref(),
-            Some("Flurry")
-        );
-
-        let overpower = db.get("Overpower Buff").unwrap();
-        let buff = overpower.rank(1).unwrap().buff.as_ref().unwrap();
-        assert!(buff.hidden);
-        assert_eq!(buff.priority, Priority::High);
-        assert_eq!(buff.unit, Affected::Target);
-    }
 }

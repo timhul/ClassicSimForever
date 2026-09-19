@@ -530,3 +530,152 @@ fn class_and_race_rows_are_read() {
     assert_eq!(t.spell_ids().count(), 21);
     assert!(t.spell_class_options_iter().all(|c| c.spell_class_set == 4));
 }
+
+mod export {
+    use super::{fixtures, BUILD};
+    use csim_engine::faction::PlayerClass;
+    use csim_engine::spell::dbc::{AuraType, PowerType, SpellEffectName};
+    use csim_engine::spell::overrides::{Overrides, SpellOverride};
+    use csim_engine::spell::record::SpellDb;
+    use csim_tables::export::{self, spells};
+    use csim_tables::Tables;
+
+    fn tables() -> Tables {
+        Tables::load_dir(fixtures()).unwrap()
+    }
+
+    #[test]
+    fn class_walk_finds_lines_talents_and_hidden_payloads() {
+        let t = tables();
+        assert_eq!(spells::chr_class_id(&t, PlayerClass::Warrior).unwrap(), 1);
+        assert!(matches!(
+            spells::chr_class_id(&t, PlayerClass::Rogue),
+            Err(export::ExportError::UnknownClass(_))
+        ));
+        assert_eq!(
+            spells::class_skill_lines(&t, PlayerClass::Warrior).unwrap(),
+            [26, 256, 257]
+        );
+        assert_eq!(
+            spells::talent_spells(&t, PlayerClass::Warrior).unwrap(),
+            [12286, 12292, 12294, 12834]
+        );
+
+        let file = export::export_class(&t, PlayerClass::Warrior, &Overrides::new()).unwrap();
+        assert_eq!(file.build, BUILD);
+        assert_eq!(file.class, Some(PlayerClass::Warrior));
+        let ids: Vec<u32> = file.spells.iter().map(|s| s.id).collect();
+        assert!(ids.windows(2).all(|w| w[0] < w[1]), "sorted by id");
+        assert!(ids.contains(&12294), "skill line ability");
+        assert!(ids.contains(&12162), "trigger of Deep Wounds");
+        assert!(ids.contains(&26651), "trigger of Execute");
+        assert!(ids.contains(&29131), "trigger of Bloodrage");
+        assert!(!ids.contains(&20572), "racial is not a class spell");
+        assert!(!ids.contains(&412609), "only reached through an override");
+        assert!(ids.contains(&7381), "stance passive sits in skill line 256");
+
+        let mut overrides = Overrides::new();
+        let mut stance = SpellOverride::new(2458);
+        stance.stance_passive = Some(412609);
+        overrides.add(stance).unwrap();
+        let with_overrides = export::export_class(&t, PlayerClass::Warrior, &overrides).unwrap();
+        assert_eq!(with_overrides.spells.len(), file.spells.len() + 1);
+        assert!(with_overrides.spells.iter().any(|s| s.id == 412609));
+    }
+
+    #[test]
+    fn records_carry_the_joined_columns() {
+        let t = tables();
+        let file = export::export_class(&t, PlayerClass::Warrior, &Overrides::new()).unwrap();
+        let ms = file.spells.iter().find(|s| s.id == 12294).unwrap();
+        assert_eq!(ms.name, "Mortal Strike");
+        assert_eq!(ms.rank_text, "Rank 1");
+        assert_eq!(ms.skill_line, Some(26));
+        assert_eq!(ms.class_mask, 1, "a talent ability, yet flagged trainable");
+        assert_eq!(ms.attributes[0], 0x50010);
+        assert_eq!(ms.duration_ms, Some(10_000));
+        assert_eq!(ms.range_yd, 5.0);
+        assert_eq!(ms.power[0].power_type, PowerType::Rage);
+        assert_eq!(ms.power[0].cost, 300);
+        assert_eq!(ms.cooldown.category_recovery_ms, 6000);
+        assert_eq!(ms.cooldown.start_recovery_ms, 1500);
+        assert_eq!(ms.categories.category, 971);
+        assert_eq!(ms.levels.base, 40);
+        assert_eq!(ms.class_options.unwrap().mask, [33554432, 0, 0, 0]);
+        assert_eq!(ms.equipped_items.unwrap().subclass_mask, 173555);
+        assert_eq!(ms.labels, [25]);
+        assert!(ms.description.contains("$s1"));
+        assert_eq!(ms.effects.len(), 2);
+        assert_eq!(ms.effects[0].aura, AuraType::ModHealingPct);
+        assert_eq!(ms.effects[0].misc_value, [127, 0]);
+        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[1].base_points, 85.0);
+
+        let hs2 = file.spells.iter().find(|s| s.id == 284).unwrap();
+        assert_eq!(hs2.supercedes, 78);
+        assert_eq!(hs2.class_mask, 1);
+        assert!(hs2.is_on_next_swing());
+        let payload = file.spells.iter().find(|s| s.id == 12162).unwrap();
+        assert_eq!(payload.skill_line, None);
+        assert!(payload.is_hidden());
+        let execute = file.spells.iter().find(|s| s.id == 5308).unwrap();
+        assert!((execute.effects[0].chain_amplitude - 0.3).abs() < 1e-6);
+        assert_eq!(execute.shapeshift_mask, 327680);
+        let whirlwind = file.spells.iter().find(|s| s.id == 1680).unwrap();
+        assert_eq!(whirlwind.max_targets, 4);
+        assert_eq!(
+            whirlwind.effects[0].radius_yd,
+            [0.0, 8.0],
+            "second radius slot"
+        );
+        let flurry_buff = file.spells.iter().find(|s| s.id == 12966).unwrap();
+        assert_eq!(flurry_buff.aura_options.proc_charges, 3);
+        assert_eq!(flurry_buff.aura_options.proc_type_mask.bits(), 0x4);
+    }
+
+    #[test]
+    fn racial_walk_uses_the_race_masks() {
+        let t = tables();
+        assert_eq!(spells::racial_skill_lines(&t).unwrap(), [125]);
+        let file = export::export_racials(&t, &Overrides::new()).unwrap();
+        assert_eq!(file.class, None);
+        let blood_fury = file.spells.iter().find(|s| s.id == 20572).unwrap();
+        assert_eq!(blood_fury.race_mask, 2);
+        assert_eq!(blood_fury.skill_line, Some(125));
+        assert_eq!(blood_fury.cooldown.recovery_ms, 120_000);
+    }
+
+    #[test]
+    fn rendered_files_load_back_through_the_engine() {
+        let t = tables();
+        let file = export::export_class(&t, PlayerClass::Warrior, &Overrides::new()).unwrap();
+        let yaml = export::render(&file, "export-spells --class warrior").unwrap();
+        assert!(yaml.starts_with("# Generated by `csim-tables export-spells --class warrior`"));
+        assert!(yaml.contains("attributes: [327696, 134218240, 0, 1024, "));
+        assert!(yaml.contains("implicit_target: [UNIT_TARGET_ENEMY, NONE]"));
+        assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));
+        let back: csim_engine::spell::record::SpellFile = serde_yaml::from_str(&yaml).unwrap();
+        assert_eq!(back, file);
+
+        let dir = std::path::Path::new(env!("CARGO_TARGET_TMPDIR")).join("csim-tables-export");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("warrior.yaml"), &yaml).unwrap();
+        let racials = export::export_racials(&t, &Overrides::new()).unwrap();
+        std::fs::write(
+            dir.join("racials.yaml"),
+            export::render(&racials, "export-spells --racials").unwrap(),
+        )
+        .unwrap();
+        let db = SpellDb::load(&dir).unwrap();
+        assert_eq!(db.len(), file.spells.len() + racials.spells.len());
+        assert_eq!(db.rank_chain(284), [78, 284]);
+        let unsupported: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();
+        assert_eq!(
+            unsupported,
+            [5308, 12162, 12292, 12319, 26651],
+            "DUMMY effects without scripts"
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+}

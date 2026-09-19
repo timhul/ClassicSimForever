@@ -330,7 +330,9 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
   have their own masks: Bloodthirst 23881 [33554432, 1024, 0, 0], Shield Slam 23922 [33554432, 1, 0, 0].
   Talent modifiers that name Mortal Strike in their masks therefore also hit Bloodthirst and Shield
   Slam through word 0 (Impale, Focused Rage).
-  Skill line 26, `ClassMask` 0 (talent-granted) even though the ability is a `TraitDefinition` spell.
+  Skill line 26 with `ClassMask` 1 although the ability is a `TraitDefinition` spell, so `ClassMask` 0
+  marks only some talent-granted spells (Deep Wounds, Improved Heroic Strike, …): decide what is a
+  talent from the Trait tables, not from `ClassMask`. Ranks 2–4 are 21551–21553 via `SupercedesSpell`.
 - **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total.
 - **Sunder Armor r5 11597**: E0 aura 22 MOD_RESISTANCE −450 misc 1 (armor), `CumulativeAura` 5,
   30 s; E1 effect 63 THREAT 1013.

@@ -1772,4 +1772,50 @@ spells:
         effect: NORMALIZED_WEAPON_DMG
         base_points: 85
         implicit_target: [UNIT_TARGET_ENEMY, NONE]"#;
+
+    #[test]
+    fn shipped_spell_data_loads() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
+        let db = SpellDb::load(&dir).unwrap();
+        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert!(db.len() > 250, "{}", db.len());
+        assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
+        assert!(db.ids_of_class(None).len() > 40, "racials");
+
+        let ms = db.get(12294).unwrap();
+        assert_eq!(ms.name, "Mortal Strike");
+        assert_eq!(ms.power[0].displayed_cost(), 30.0);
+        assert_eq!(ms.cooldown.category_recovery_ms, 6000);
+        assert_eq!(ms.categories.category, 971);
+        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[1].base_points, 85.0);
+        assert_eq!(db.rank_chain(25286).len(), 9, "Heroic Strike ranks");
+        assert_eq!(db.rank_chain(11605).len(), 5, "Slam ranks");
+        assert_eq!(
+            db.rank_chains("Slam").len(),
+            6,
+            "the trainable chain plus Improved Slam's five unchained replacements"
+        );
+        assert_eq!(
+            db.modified_spells(4, &db.get(12282).unwrap().effects[0])
+                .len(),
+            9
+        );
+        assert!(db.get(412609).is_some(), "reached through the overrides");
+        assert!(db.get(7381).is_some(), "stance passive");
+        assert_eq!(db.overrides().stance_passive(2458), Some(7381));
+
+        let blood_fury = db.get(20572).unwrap();
+        assert_eq!(blood_fury.race_mask, 2);
+        assert_eq!(db.class_of(20572), Some(None));
+
+        // The effects the sim cannot interpret yet; extend the overrides rather than this list.
+        let mut pending: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();
+        pending.dedup();
+        assert_eq!(
+            pending,
+            [12299, 402911, 403196, 1289682, 1290261, 1310315],
+            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill, Weaponmaster, Raging Blows"
+        );
+    }
 }
