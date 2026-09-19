@@ -1248,12 +1248,12 @@ mod tests {
         assert_eq!(host.extra_attacks, 1);
 
         assert!(
-            effect(SpellEffectName::Dispel, 1.0)
+            effect(SpellEffectName::Unknown(38), 1.0)
                 .perform_independent(&mut host, 0, 0)
                 .success
         );
         assert!(
-            aura(AuraType::ModHealingPct, -50.0, 127)
+            aura(AuraType::Unknown(118), -50.0, 127)
                 .perform_independent(&mut host, 0, 0)
                 .success
         );
@@ -1273,7 +1273,7 @@ mod tests {
             aura(AuraType::ModStat, 15.0, 0),
             aura(AuraType::ModHitChance, 2.0, 0),
             aura(AuraType::ModOffhandDamagePct, 25.0, 0),
-            aura(AuraType::ModHealingPct, -50.0, 127),
+            aura(AuraType::Unknown(118), -50.0, 127),
         ];
         let sunder = aura(AuraType::ModResistance, -450.0, 1);
 

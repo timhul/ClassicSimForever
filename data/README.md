@@ -99,9 +99,11 @@ sources (`ProcTypeMask`). If a number looks wrong, check the dump before overrid
 ## Pruning
 
 `data/spells/overrides/discard.txt` lists the aura types and effect kinds a damage simulator
-has no use for (crowd control, movement, immunities, healing, …). The list is hardcoded in
-`crates/csim-engine/src/spell/dbc/discard.rs` and applied by the exporter
-(`crates/csim-tables/src/export/prune.rs`): those effects are dropped, spells with nothing left
-are dropped, triggers of dropped spells are dropped, to a fixed point. Spells the overrides
-mention are always kept. Details and the exceptions in `SPELL_INSTRUCTIONS.md` §1.10. Editing
-the list means editing `discard.rs` to match and re-exporting.
+has no use for (crowd control, movement, immunities, healing, …). They are **not part of the
+engine's vocabulary**: `crates/csim-engine/src/spell/dbc/aura.rs` and `effect.rs` do not name
+them (they load as `UNKNOWN_<id>`), and `dbc/discard.rs` lists their ids so the exporter
+(`crates/csim-tables/src/export/prune.rs`) can drop them: those effects go, spells with
+nothing left go, triggers of dropped spells go, to a fixed point. Spells the overrides mention
+are always kept. Details and the exceptions in `SPELL_INSTRUCTIONS.md` §1.10. Changing the
+list means removing (or re-adding) the variant in `aura.rs` / `effect.rs`, updating the ids
+in `discard.rs` and re-exporting.

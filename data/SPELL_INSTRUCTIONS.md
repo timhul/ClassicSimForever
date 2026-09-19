@@ -364,8 +364,10 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
 1. **Effects** whose kind or aura is on the discard list are removed from their spell; the
    remaining effects keep their table `EffectIndex` (so `$s2`, `POINTS_INDEX_1` and override
    `index` values still mean what the tables say). The list is
-   `data/spells/overrides/discard.txt`, hardcoded as `DISCARDED_AURAS` / `DISCARDED_EFFECTS` in
-   `crates/csim-engine/src/spell/dbc/discard.rs`. Kept although the list names them as
+   `data/spells/overrides/discard.txt`; the engine's vocabulary (`crates/csim-engine/src/spell/dbc/
+   aura.rs`, `effect.rs`) does not name these values — they load as `UNKNOWN_<id>` — and
+   `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
+   exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
    simulated) and `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every

@@ -26,13 +26,7 @@
 //!     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
 //!     equipped_items: { class: 2, subclass_mask: 173555 }
 //!     effects:
-//!       - index: 0
-//!         effect: APPLY_AURA
-//!         aura: MOD_HEALING_PCT
-//!         base_points: -50
-//!         misc_value: [127, 0]
-//!         implicit_target: [UNIT_TARGET_ENEMY, NONE]
-//!       - index: 1
+//!       - index: 1                     # effect 0, the healing debuff, is pruned (§1.10)
 //!         effect: NORMALIZED_WEAPON_DMG
 //!         base_points: 85
 //!         implicit_target: [UNIT_TARGET_ENEMY, NONE]
@@ -313,8 +307,8 @@ impl EffectRecord {
         }
     }
 
-    /// Whether the simulator has no use for the effect (`crate::spell::dbc::DISCARDED_AURAS` /
-    /// `DISCARDED_EFFECTS`): the exporter drops such effects from the data files.
+    /// Whether the simulator has no use for the effect (`crate::spell::dbc::DISCARDED_AURA_IDS` /
+    /// `DISCARDED_EFFECT_IDS`): the exporter drops such effects from the data files.
     pub fn is_discarded(&self) -> bool {
         if self.is_apply_aura() {
             self.aura.is_discarded()
@@ -344,7 +338,6 @@ impl EffectRecord {
             && matches!(
                 self.aura,
                 AuraType::PeriodicDamage
-                    | AuraType::PeriodicHeal
                     | AuraType::PeriodicEnergize
                     | AuraType::PeriodicTriggerSpell
                     | AuraType::PeriodicDummy
@@ -382,10 +375,7 @@ impl EffectRecord {
     pub fn is_scripted(&self) -> bool {
         matches!(self.effect, SpellEffectName::Dummy)
             || (self.is_apply_aura()
-                && matches!(
-                    self.aura,
-                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::OverrideClassScripts
-                ))
+                && matches!(self.aura, AuraType::Dummy | AuraType::PeriodicDummy))
     }
 
     /// Whether the first implicit target is the caster.
@@ -1231,7 +1221,7 @@ spells:
     levels: { base: 40, spell: 40 }
     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
     effects:
-      - { index: 0, effect: APPLY_AURA, aura: MOD_HEALING_PCT, base_points: -50, misc_value: [127, 0], implicit_target: [UNIT_TARGET_ENEMY, NONE] }
+      - { index: 0, effect: APPLY_AURA, aura: 118, base_points: -50, misc_value: [127, 0], implicit_target: [UNIT_TARGET_ENEMY, NONE] }
       - { index: 1, effect: NORMALIZED_WEAPON_DMG, base_points: 85, implicit_target: [UNIT_TARGET_ENEMY, NONE] }
   - id: 12282
     name: Improved Heroic Strike
@@ -1703,7 +1693,7 @@ overrides:
         };
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));
-        assert!(yaml.contains("aura: MOD_HEALING_PCT"));
+        assert!(yaml.contains("aura: 118"), "discarded auras stay numbers");
         assert!(yaml.contains("type: RAGE"));
         assert!(yaml.contains("defense_type: MELEE"));
         assert!(yaml.contains("- UNIT_TARGET_ENEMY\n"), "{yaml}");
@@ -1772,7 +1762,8 @@ overrides:
         let ms = &file.spells[0];
         assert_eq!(ms.id, 12294);
         assert_eq!(ms.school_mask, SpellSchoolMask::PHYSICAL);
-        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[0].index, 1);
+        assert_eq!(ms.effects[0].effect, SpellEffectName::NormalizedWeaponDmg);
         assert_eq!(ms.categories.defense_type, DefenseType::Melee);
         assert_eq!(ms.equipped_items.unwrap().subclass_mask, 173555);
     }
@@ -1796,12 +1787,6 @@ spells:
     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
     equipped_items: { class: 2, subclass_mask: 173555 }
     effects:
-      - index: 0
-        effect: APPLY_AURA
-        aura: MOD_HEALING_PCT
-        base_points: -50
-        misc_value: [127, 0]
-        implicit_target: [UNIT_TARGET_ENEMY, NONE]
       - index: 1
         effect: NORMALIZED_WEAPON_DMG
         base_points: 85

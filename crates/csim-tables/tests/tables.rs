@@ -596,7 +596,7 @@ mod export {
         assert!(report
             .effects
             .iter()
-            .any(|e| e.spell == 694 && e.what == "aura MOD_TAUNT"));
+            .any(|e| e.spell == 694 && e.what == "aura UNKNOWN_11"));
 
         let mut overrides = Overrides::new();
         let mut stance = SpellOverride::new(2458);
@@ -636,7 +636,11 @@ mod export {
         assert_eq!(ms.effects[0].base_points, 85.0);
         let unpruned = spells::record(&t, 12294, None);
         assert_eq!(unpruned.effects.len(), 2);
-        assert_eq!(unpruned.effects[0].aura, AuraType::ModHealingPct);
+        assert_eq!(
+            unpruned.effects[0].aura,
+            AuraType::Unknown(118),
+            "MOD_HEALING_PCT"
+        );
         assert_eq!(unpruned.effects[0].misc_value, [127, 0]);
 
         let hs2 = file.spells.iter().find(|s| s.id == 284).unwrap();
