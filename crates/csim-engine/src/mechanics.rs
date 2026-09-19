@@ -51,14 +51,31 @@ impl Mechanics {
         self.two_hand_white_miss_chance(wpn_skill) * 0.8 + 0.2
     }
 
-    /// Miss chance for white attacks with a single weapon.
+    /// Miss chance for white attacks with a single weapon: 5 % plus 0.1 % per point of defense
+    /// over the weapon skill, or 0.2 % per point once the difference exceeds 10 (8 % with 300
+    /// skill against a level 63 mob). See
+    /// <https://github.com/magey/classic-warrior/wiki/Attack-table#miss>.
     pub fn two_hand_white_miss_chance(&self, wpn_skill: u32) -> f64 {
         let diff = self.defense_minus_wpn_skill(wpn_skill);
 
         if diff > 10 {
-            0.05 + 0.01 + f64::from(diff) * 0.002
+            0.05 + f64::from(diff) * 0.002
         } else {
             0.05 + f64::from(diff) * 0.001
+        }
+    }
+
+    /// Hit chance from talents and gear that is ignored against a mob whose defense exceeds
+    /// the weapon skill by more than 10: 0.2 % per point beyond that (the first 1 % with 300
+    /// skill against a level 63 mob, which puts the hit cap at 9 % rather than 8 %). The
+    /// counterpart of [`Self::melee_crit_suppression`] for hit.
+    pub fn hit_suppression(&self, wpn_skill: u32) -> f64 {
+        let diff = self.defense_minus_wpn_skill(wpn_skill);
+
+        if diff > 10 {
+            f64::from(diff - 10) * 0.002
+        } else {
+            0.0
         }
     }
 
@@ -312,11 +329,11 @@ mod tests {
     fn two_hand_white_miss() {
         let mechanics = Mechanics::new(63);
 
-        assert_close(0.090, mechanics.two_hand_white_miss_chance(300));
-        assert_close(0.088, mechanics.two_hand_white_miss_chance(301));
-        assert_close(0.086, mechanics.two_hand_white_miss_chance(302));
-        assert_close(0.084, mechanics.two_hand_white_miss_chance(303));
-        assert_close(0.082, mechanics.two_hand_white_miss_chance(304));
+        assert_close(0.080, mechanics.two_hand_white_miss_chance(300));
+        assert_close(0.078, mechanics.two_hand_white_miss_chance(301));
+        assert_close(0.076, mechanics.two_hand_white_miss_chance(302));
+        assert_close(0.074, mechanics.two_hand_white_miss_chance(303));
+        assert_close(0.072, mechanics.two_hand_white_miss_chance(304));
         assert_close(0.060, mechanics.two_hand_white_miss_chance(305));
         assert_close(0.059, mechanics.two_hand_white_miss_chance(306));
         assert_close(0.058, mechanics.two_hand_white_miss_chance(307));
@@ -337,14 +354,31 @@ mod tests {
     }
 
     #[test]
+    fn hit_suppression_above_a_defense_difference_of_10() {
+        let mechanics = Mechanics::new(63);
+
+        assert_close(0.010, mechanics.hit_suppression(300));
+        assert_close(0.008, mechanics.hit_suppression(301));
+        assert_close(0.006, mechanics.hit_suppression(302));
+        assert_close(0.004, mechanics.hit_suppression(303));
+        assert_close(0.002, mechanics.hit_suppression(304));
+        assert_close(0.0, mechanics.hit_suppression(305));
+        assert_close(0.0, mechanics.hit_suppression(315));
+        assert_close(0.0, mechanics.hit_suppression(320));
+
+        assert_close(0.0, Mechanics::new(60).hit_suppression(300));
+        assert_close(0.002, Mechanics::new(62).hit_suppression(299));
+    }
+
+    #[test]
     fn dual_wield_white_miss() {
         let mechanics = Mechanics::new(63);
 
-        assert_close(0.272, mechanics.dual_wield_white_miss_chance(300));
-        assert_close(0.2704, mechanics.dual_wield_white_miss_chance(301));
-        assert_close(0.2688, mechanics.dual_wield_white_miss_chance(302));
-        assert_close(0.2672, mechanics.dual_wield_white_miss_chance(303));
-        assert_close(0.2656, mechanics.dual_wield_white_miss_chance(304));
+        assert_close(0.264, mechanics.dual_wield_white_miss_chance(300));
+        assert_close(0.2624, mechanics.dual_wield_white_miss_chance(301));
+        assert_close(0.2608, mechanics.dual_wield_white_miss_chance(302));
+        assert_close(0.2592, mechanics.dual_wield_white_miss_chance(303));
+        assert_close(0.2576, mechanics.dual_wield_white_miss_chance(304));
         assert_close(0.248, mechanics.dual_wield_white_miss_chance(305));
         assert_close(0.2472, mechanics.dual_wield_white_miss_chance(306));
         assert_close(0.2464, mechanics.dual_wield_white_miss_chance(307));

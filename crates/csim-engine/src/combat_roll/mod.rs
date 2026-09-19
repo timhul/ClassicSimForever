@@ -328,11 +328,12 @@ impl CombatRoll {
 
     fn white_miss_range(&self, ctx: &RollContext, wpn_skill: u32) -> u32 {
         chance_to_range(self.get_white_miss_chance(ctx, wpn_skill))
-            .saturating_sub(ctx.melee_hit_chance)
+            .saturating_sub(self.get_suppressed_hit(wpn_skill, ctx.melee_hit_chance))
     }
 
     fn yellow_miss_range(&self, ctx: &RollContext, wpn_skill: u32) -> u32 {
-        chance_to_range(self.get_yellow_miss_chance(wpn_skill)).saturating_sub(ctx.melee_hit_chance)
+        chance_to_range(self.get_yellow_miss_chance(wpn_skill))
+            .saturating_sub(self.get_suppressed_hit(wpn_skill, ctx.melee_hit_chance))
     }
 
     /// Rolls the glancing blow damage multiplier for `wpn_skill`.
@@ -354,8 +355,9 @@ impl CombatRoll {
     pub fn update_melee_yellow_miss_chance(&mut self, ctx: &RollContext) {
         let mechanics = self.mechanics;
         for table in self.melee_special_tables.values_mut() {
-            let miss = chance_to_range(mechanics.yellow_miss_chance(table.wpn_skill))
-                .saturating_sub(ctx.melee_hit_chance);
+            let hit = suppressed_hit(&mechanics, table.wpn_skill, ctx.melee_hit_chance);
+            let miss =
+                chance_to_range(mechanics.yellow_miss_chance(table.wpn_skill)).saturating_sub(hit);
             table.update_miss_chance(miss);
         }
     }
@@ -370,7 +372,8 @@ impl CombatRoll {
             } else {
                 mechanics.two_hand_white_miss_chance(table.wpn_skill)
             };
-            table.update_miss_chance(chance_to_range(chance).saturating_sub(ctx.melee_hit_chance));
+            let hit = suppressed_hit(&mechanics, table.wpn_skill, ctx.melee_hit_chance);
+            table.update_miss_chance(chance_to_range(chance).saturating_sub(hit));
         }
     }
 
@@ -400,6 +403,17 @@ impl CombatRoll {
         let suppression = chance_to_range(self.mechanics.melee_crit_suppression(clvl));
         crit_chance.saturating_sub(suppression)
     }
+
+    /// The part of `hit_chance` (hundredths of a percent) that counts against a mob whose
+    /// defense exceeds `wpn_skill` by more than 10: the first `(difference − 10) × 0.2 %` is
+    /// ignored. The counterpart of [`Self::get_suppressed_crit`] for hit.
+    pub fn get_suppressed_hit(&self, wpn_skill: u32, hit_chance: u32) -> u32 {
+        suppressed_hit(&self.mechanics, wpn_skill, hit_chance)
+    }
+}
+
+fn suppressed_hit(mechanics: &Mechanics, wpn_skill: u32, hit_chance: u32) -> u32 {
+    hit_chance.saturating_sub(chance_to_range(mechanics.hit_suppression(wpn_skill)))
 }
 
 #[cfg(test)]
@@ -431,7 +445,8 @@ mod tests {
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
 
-        let base_miss_dw = 2719;
+        // 8 % single-weapon miss, dual wielding: 8 % x 0.8 + 20 % = 26.4 %.
+        let base_miss_dw = 2639;
         let base_dodge = 650;
         let glancing_rate = 4000;
 
@@ -482,17 +497,21 @@ mod tests {
         let mut roll = CombatRoll::from_seed(63, 1);
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
 
+        // With 300 skill vs 315 defense the first 1% of hit is ignored: 26.4% - (3% - 1%).
+        assert_eq!(roll.get_suppressed_hit(300, 300), 200);
+        assert_eq!(roll.get_suppressed_hit(305, 300), 300);
+        assert_eq!(roll.get_suppressed_hit(300, 50), 0);
         let white = roll.get_melee_white_table(&ctx, 300).clone();
         assert_eq!(
-            white.get_outcome(&mut random, 2419, 0, IncludedOutcomes::ALL),
+            white.get_outcome(&mut random, 2439, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
         );
         assert_eq!(
-            white.get_outcome(&mut random, 2420, 0, IncludedOutcomes::ALL),
+            white.get_outcome(&mut random, 2440, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Dodge
         );
 
-        // Yellow: 9% - 3% = 6%.
+        // Yellow: 8% - (3% - 1% suppressed) = 6%.
         let special = roll.get_melee_special_table(&ctx, 300).clone();
         assert_eq!(
             special.get_outcome(&mut random, 599, 0, IncludedOutcomes::ALL),
@@ -528,33 +547,33 @@ mod tests {
         let all = IncludedOutcomes::ALL;
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
-        // 9% miss, 6.5% dodge, 15.5% parry, 40% glancing.
+        // 8% miss, 6.5% dodge, 15.5% parry, 40% glancing.
         assert_eq!(
-            table.get_outcome(&mut random, 899, 0, all),
+            table.get_outcome(&mut random, 799, 0, all),
             PhysicalAttackResult::Miss
         );
         assert_eq!(
-            table.get_outcome(&mut random, 900, 0, all),
+            table.get_outcome(&mut random, 800, 0, all),
             PhysicalAttackResult::Dodge
         );
         assert_eq!(
-            table.get_outcome(&mut random, 1549, 0, all),
+            table.get_outcome(&mut random, 1449, 0, all),
             PhysicalAttackResult::Dodge
         );
         assert_eq!(
-            table.get_outcome(&mut random, 1550, 0, all),
+            table.get_outcome(&mut random, 1450, 0, all),
             PhysicalAttackResult::Parry
         );
         assert_eq!(
-            table.get_outcome(&mut random, 3099, 0, all),
+            table.get_outcome(&mut random, 2999, 0, all),
             PhysicalAttackResult::Parry
         );
         assert_eq!(
-            table.get_outcome(&mut random, 3100, 0, all),
+            table.get_outcome(&mut random, 3000, 0, all),
             PhysicalAttackResult::Glancing
         );
         assert_eq!(
-            table.get_outcome(&mut random, 7100, 0, all),
+            table.get_outcome(&mut random, 7000, 0, all),
             PhysicalAttackResult::Hit
         );
     }
@@ -570,7 +589,7 @@ mod tests {
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
         assert_eq!(
-            table.get_outcome(&mut random, 2720 + 650, 0, IncludedOutcomes::ALL),
+            table.get_outcome(&mut random, 2640 + 650, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Hit
         );
     }
@@ -589,11 +608,11 @@ mod tests {
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
         let updated = roll.get_melee_white_table(&ctx, 300);
         assert_eq!(
-            updated.get_outcome(&mut random, 899, 0, IncludedOutcomes::ALL),
+            updated.get_outcome(&mut random, 799, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
         );
         assert_eq!(
-            updated.get_outcome(&mut random, 900, 0, IncludedOutcomes::ALL),
+            updated.get_outcome(&mut random, 800, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Dodge
         );
 
