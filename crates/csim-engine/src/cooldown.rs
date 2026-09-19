@@ -3,14 +3,15 @@
 //!
 //! A [`CooldownControl`] is pure bookkeeping (`base`, `last_used`); scheduling the "cooldown is
 //! ready" player action goes through the engine explicitly instead of the C++ `Character*` /
-//! `Engine*` back-pointers. Spells that share a cooldown (the Warrior stances) share one control,
-//! looked up by [`CooldownRegistry::new_cooldown`] under the canonical name.
+//! `Engine*` back-pointers. A spell has its own control (`SpellCooldowns.RecoveryTime`) and,
+//! when it belongs to a `SpellCategories.Category` with a `CategoryRecoveryTime`, shares the
+//! category's control with every spell of that category (Mortal Strike / Bloodthirst / Shield
+//! Slam, the stances); both are looked up by name in the [`CooldownRegistry`].
 
 use std::collections::HashMap;
 
 use crate::engine::{Engine, EventKind};
 use crate::ids::{CharId, CooldownId};
-use crate::spell::SpellGroupSpec;
 
 /// One (possibly shared) spell cooldown.
 #[derive(Debug, Clone, PartialEq)]
@@ -48,6 +49,12 @@ impl CooldownControl {
         self.last_used = now;
     }
 
+    /// Marks the cooldown as started at `now` with a length of `duration` instead of `base`
+    /// (cooldown modifiers: Improved Intercept). The control's `base` is left alone.
+    pub fn start_for(&mut self, now: f64, duration: f64) {
+        self.last_used = now + duration - self.base;
+    }
+
     /// Makes the cooldown ready as if it had never been used.
     pub fn reset(&mut self) {
         self.last_used = -self.base;
@@ -74,20 +81,14 @@ pub fn add_gcd_event(engine: &mut Engine, character: CharId, gcd: f64) -> bool {
     true
 }
 
-/// The name under which a spell group's cooldown is registered: spells that share a cooldown
-/// register it under the joined names of the whole group. Port of the naming in
-/// `CharacterSpells::add_spell_group`.
-pub fn canonical_cooldown_name(group: &SpellGroupSpec) -> String {
-    if group.cooldown > 0.0 && !group.shared_cooldowns.is_empty() {
-        group
-            .shared_cooldowns
-            .iter()
-            .map(String::as_str)
-            .collect::<Vec<_>>()
-            .join("_")
-    } else {
-        group.name.clone()
-    }
+/// The registry name of a spell's own cooldown.
+pub fn spell_cooldown_name(spell: u32) -> String {
+    format!("spell:{spell}")
+}
+
+/// The registry name of a shared category cooldown (`SpellCategory.ID`).
+pub fn category_cooldown_name(category: u32) -> String {
+    format!("category:{category}")
 }
 
 /// All cooldown controls of one character, addressed by [`CooldownId`]. Port of
@@ -115,9 +116,14 @@ impl CooldownRegistry {
         id
     }
 
-    /// Registers the cooldown for a spell group under its canonical name.
-    pub fn new_cooldown_for_group(&mut self, group: &SpellGroupSpec) -> CooldownId {
-        self.new_cooldown(&canonical_cooldown_name(group), group.cooldown)
+    /// Registers the own cooldown of `spell` with `base` seconds.
+    pub fn new_spell_cooldown(&mut self, spell: u32, base: f64) -> CooldownId {
+        self.new_cooldown(&spell_cooldown_name(spell), base)
+    }
+
+    /// Registers (or finds) the shared cooldown of `category` with `base` seconds.
+    pub fn new_category_cooldown(&mut self, category: u32, base: f64) -> CooldownId {
+        self.new_cooldown(&category_cooldown_name(category), base)
     }
 
     pub fn get(&self, id: CooldownId) -> &CooldownControl {
@@ -156,7 +162,6 @@ impl CooldownRegistry {
 mod tests {
     use super::*;
     use crate::engine::EventType;
-    use crate::spell::SpellFileSpec;
 
     #[test]
     fn cooldown_is_ready_at_start_and_tracks_use() {
@@ -210,57 +215,36 @@ mod tests {
         assert_eq!(next.kind.event_type(), EventType::PlayerAction);
     }
 
-    fn groups() -> Vec<std::sync::Arc<SpellGroupSpec>> {
-        let file: SpellFileSpec = serde_yaml::from_str(
-            r#"
-spell_groups:
-  - { name: Battle Stance, causes_gcd: stance, cooldown: 1, ranks: [{ rank: 1, resource: rage }] }
-  - { name: Defensive Stance, causes_gcd: stance, cooldown: 1, ranks: [{ rank: 1, resource: rage }] }
-  - { name: Whirlwind, causes_gcd: normal, cooldown: 10, ranks: [{ rank: 1, resource: rage }] }
-  - { name: Heroic Strike, causes_gcd: normal, ranks: [{ rank: 1, resource: rage }] }
-shared_spell_cooldowns:
-  - [Battle Stance, Defensive Stance]
-"#,
-        )
-        .unwrap();
-        let mut db = crate::spell::SpellDb::new();
-        db.add_file(file).unwrap();
-        db.groups().to_vec()
-    }
-
     #[test]
-    fn shared_cooldowns_map_to_one_control() {
-        let groups = groups();
-        assert_eq!(
-            canonical_cooldown_name(&groups[0]),
-            "Battle Stance_Defensive Stance"
-        );
-        assert_eq!(canonical_cooldown_name(&groups[2]), "Whirlwind");
-
+    fn spells_and_categories_map_to_controls() {
         let mut registry = CooldownRegistry::new();
-        let battle = registry.new_cooldown_for_group(&groups[0]);
-        let defensive = registry.new_cooldown_for_group(&groups[1]);
-        let whirlwind = registry.new_cooldown_for_group(&groups[2]);
-        let heroic = registry.new_cooldown_for_group(&groups[3]);
-        assert_eq!(battle, defensive);
-        assert_ne!(battle, whirlwind);
-        assert_eq!(registry.len(), 3);
-        assert_eq!(registry.get(whirlwind).base, 10.0);
+        let stances = registry.new_category_cooldown(47, 1.0);
+        let stances_again = registry.new_category_cooldown(47, 1.0);
+        let whirlwind = registry.new_spell_cooldown(1680, 0.0);
+        let whirlwind_category = registry.new_category_cooldown(891, 10.0);
+        let heroic = registry.new_spell_cooldown(78, 0.0);
+        assert_eq!(stances, stances_again);
+        assert_ne!(stances, whirlwind);
+        assert_eq!(registry.len(), 4);
+        assert_eq!(registry.get(whirlwind_category).base, 10.0);
         assert_eq!(registry.get(heroic).base, 0.0);
-        assert_eq!(
-            registry.id_by_name("Battle Stance_Defensive Stance"),
-            Some(battle)
-        );
+        assert_eq!(registry.id_by_name("category:47"), Some(stances));
+        assert_eq!(registry.id_by_name("spell:78"), Some(heroic));
         assert!(registry.get_by_name("Battle Stance").is_none());
 
-        registry.get_mut(battle).start(3.0);
-        assert_eq!(registry.get(defensive).remaining(3.5), 0.5);
+        registry.get_mut(stances).start(3.0);
+        assert_eq!(registry.get(stances_again).remaining(3.5), 0.5);
+
+        registry.get_mut(whirlwind_category).start_for(3.0, 8.0);
+        assert_eq!(registry.get(whirlwind_category).next_use(), 11.0);
+        assert_eq!(registry.get(whirlwind_category).base, 10.0);
 
         // Re-registering keeps the first base, as in C++.
-        assert_eq!(registry.new_cooldown("Whirlwind", 99.0), whirlwind);
-        assert_eq!(registry.get(whirlwind).base, 10.0);
+        assert_eq!(registry.new_cooldown("spell:1680", 99.0), whirlwind);
+        assert_eq!(registry.get(whirlwind).base, 0.0);
 
         registry.reset_all();
-        assert!(registry.get(battle).is_ready(0.0));
+        assert!(registry.get(stances).is_ready(0.0));
+        assert!(registry.get(whirlwind_category).is_ready(0.0));
     }
 }

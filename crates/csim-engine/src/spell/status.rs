@@ -1,10 +1,6 @@
 //! Spell availability and outcome enums. Port of `SpellStatus` / `SpellResult` in
 //! `Spells/Spell.h` and the status descriptions in `Statistics/StatisticsRotationExecutor.cpp`.
-//!
-//! `RestrictedByGcd` is a plain `bool` on [`super::SpellGroupSpec`]; [`GcdBehavior`] and
-//! [`ResourceCostType`] live in the spec module and are re-exported here.
 
-pub use super::spec::{GcdBehavior, ResourceCostType};
 use crate::stance::Stance;
 
 /// Why a spell can or cannot be cast right now. Port of `SpellStatus`.
@@ -25,6 +21,8 @@ pub enum SpellStatus {
     InsufficientResources,
     NotEnabled,
     NotInExecuteRange,
+    /// The sim does not model the spell (`IGNORED` override, unsupported effects).
+    NotSupported,
     OnCooldown,
     OnGcd,
     OnStanceCooldown,
@@ -34,7 +32,7 @@ pub enum SpellStatus {
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 20] = [
+    pub const ALL: [SpellStatus; 21] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -50,6 +48,7 @@ impl SpellStatus {
         SpellStatus::InsufficientResources,
         SpellStatus::NotEnabled,
         SpellStatus::NotInExecuteRange,
+        SpellStatus::NotSupported,
         SpellStatus::OnCooldown,
         SpellStatus::OnGcd,
         SpellStatus::OnStanceCooldown,
@@ -106,6 +105,7 @@ impl SpellStatus {
             SpellStatus::InsufficientResources => "FAIL: Insufficient resources",
             SpellStatus::NotEnabled => "FAIL: Not enabled",
             SpellStatus::NotInExecuteRange => "FAIL: Not in execute range",
+            SpellStatus::NotSupported => "FAIL: Not modelled by the simulator",
             SpellStatus::OnCooldown => "FAIL: On spell cooldown",
             SpellStatus::OnGcd => "FAIL: On global cooldown",
             SpellStatus::OnStanceCooldown => "FAIL: On stance cooldown",

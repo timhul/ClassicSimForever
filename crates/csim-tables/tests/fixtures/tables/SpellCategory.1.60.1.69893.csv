@@ -1,0 +1,8 @@
+ID,Name_lang,Flags,UsesPerWeek,MaxCharges,ChargeRecoveryTime,TypeMask
+40,Melee (Generic),0,0,0,0,0
+47,Combat States,0,0,0,0,0
+65,Melee (Special),0,0,0,0,0
+82,Taunt/Detaunt,0,0,0,0,0
+133,Global,0,0,0,0,0
+891,Whirlwind,0,0,0,0,0
+971,Mortal Strike,0,0,0,0,0

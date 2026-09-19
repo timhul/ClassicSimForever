@@ -1,0 +1,189 @@
+# Hand-written Warrior spell overrides: what the client tables (data/spells/warrior.yaml, exported
+# from build 1.60.1.69893) do not contain. See crates/csim-engine/src/spell/overrides.rs for the
+# schema and data/SPELL_INSTRUCTIONS.md §1.7-1.9 for the table side.
+#
+# Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
+
+defaults:
+  resource_miss_cost_mod: 0.25
+  proc_hit_mask: [NORMAL, CRITICAL]
+
+overrides:
+  # ----- Procs whose hit condition retail keeps in the server-side spell_proc table -----------
+  - id: 12834
+    note: Deep Wounds (talent) procs on critical strikes only
+    proc: { hit_mask: [CRITICAL] }
+  - id: 12319
+    note: Flurry (talent) procs on critical strikes only; the DUMMY carries the rank value
+    proc: { hit_mask: [CRITICAL] }
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12966, effect: 0 } }]
+  - id: 12317
+    note: Enrage (talent) reacts to any damaging attack taken; the DUMMY carries the rank value
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12880, effect: 0 } }]
+
+  # ----- Scripted (DUMMY) effects ------------------------------------------------------------
+  - id: 12162
+    note: Deep Wounds payload; the bleed lasts as long as the Deep Wound aura 412609
+    effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
+  - id: 412609
+    note: Deep Wound aura; DEEP_WOUNDS_BLEED schedules the ticks itself from this spell's duration and period
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 23881
+    note: Bloodthirst r1, second effect is 35 % of attack power
+    effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 23892
+    effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 23893
+    effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 23894
+    effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 5308
+    note: Execute r1; the DUMMY holds the base damage, chain_amplitude x10 the damage per extra rage
+    effects: [{ index: 0, script: EXECUTE }]
+  - id: 20658
+    effects: [{ index: 0, script: EXECUTE }]
+  - id: 20660
+    effects: [{ index: 0, script: EXECUTE }]
+  - id: 20661
+    effects: [{ index: 0, script: EXECUTE }]
+  - id: 20662
+    effects: [{ index: 0, script: EXECUTE }]
+  - id: 26651
+    note: hidden "just used Execute" marker, nothing to simulate
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 12296
+    note: Anger Management; E1 = rage per tick, E2 = the period in seconds, E3 = out-of-combat decay
+    sim_flags: [START_OF_COMBAT]
+    effects:
+      - { index: 1, script: PERIODIC_RESOURCE_GAIN, params: { period_ms: 3000, resource: RAGE } }
+      - { index: 2, script: NO_OP }
+      - { index: 3, script: NO_OP }
+  - id: 1310185
+    note: Tactical Mastery (baseline) keeps 10 rage on stance change
+    effects: [{ index: 0, script: STANCE_RAGE_RETAINED }]
+  - id: 12295
+    note: Improved Tactical Mastery adds 3-15 rage kept on stance change
+    effects: [{ index: 0, script: STANCE_RAGE_RETAINED }]
+  - id: 23584
+    note: Dual Wield Specialization; E0 and E2 are plain auras, E1 is off-hand rage generation
+    effects: [{ index: 1, script: OFFHAND_RAGE_PERCENT }]
+  - id: 20500
+    note: Improved Berserker Rage; E0 = rage (x10) gained when Berserker Rage is used, E1 = snare removal
+    effects:
+      - { index: 0, script: GAIN_RESOURCE_ON_USE, params: { spell: 18499, resource: RAGE } }
+      - { index: 1, script: NO_OP }
+  - id: 402927
+    note: Victory Rush; E2 is 15 % of attack power as damage, E1 (the heal) is a plain effect
+    effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 1310222
+    note: Spearing Strike; E2 doubles the weapon damage against giants/dragonkin, not modelled
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 440488
+    note: Shockwave; E2 is 50 % of attack power as damage (frontal cone, one target here)
+    effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]
+
+  # ----- Sim-only threat (the client has no threat table) --------------------------------------
+  - id: 78
+    note: Heroic Strike innate threat, ClassicSim value for every rank
+    threat: { flat: 145 }
+  - id: 284
+    threat: { flat: 145 }
+  - id: 285
+    threat: { flat: 145 }
+  - id: 1608
+    threat: { flat: 145 }
+  - id: 11564
+    threat: { flat: 145 }
+  - id: 11565
+    threat: { flat: 145 }
+  - id: 11566
+    threat: { flat: 145 }
+  - id: 11567
+    threat: { flat: 145 }
+  - id: 25286
+    threat: { flat: 145 }
+  - id: 6572
+    note: Revenge innate threat by rank (ClassicSim 155/195/235/275/315/355)
+    threat: { flat: 155 }
+  - id: 6574
+    threat: { flat: 195 }
+  - id: 7379
+    threat: { flat: 235 }
+  - id: 11600
+    threat: { flat: 275 }
+  - id: 11601
+    threat: { flat: 315 }
+  - id: 25288
+    threat: { flat: 355 }
+  - id: 23922
+    note: Shield Slam innate threat (ClassicSim 250)
+    threat: { flat: 250 }
+  - id: 23923
+    threat: { flat: 250 }
+  - id: 23924
+    threat: { flat: 250 }
+  - id: 23925
+    threat: { flat: 250 }
+
+  # ----- Sim behaviour flags ---------------------------------------------------------------
+  - id: 1240193
+    note: Slam r1 restarts the swing timers and pauses auto attacks while casting
+    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1464
+    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 8820
+    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 11604
+    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 11605
+    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1310196
+    note: Improved Slam replacement r1 no longer interrupts the swing timer
+    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1310197
+    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1310198
+    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1310199
+    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 1310200
+    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+  - id: 12292
+    note: Sweeping Strikes hits a second target, nothing to simulate against one
+    sim_flags: [IGNORED]
+  - id: 20230
+    note: Retaliation counterattacks melee attackers, not modelled
+    sim_flags: [IGNORED]
+  - id: 16487
+    note: Blood Craze is a heal
+    sim_flags: [IGNORED]
+  - id: 12975
+    note: Last Stand is a health cooldown
+    sim_flags: [IGNORED]
+  - id: 403228
+    note: Meathook is a pull
+    sim_flags: [IGNORED]
+
+  # ----- Stances -> the hidden passives that carry their numbers ------------------------------
+  - id: 2457
+    stance_passive: 21156
+  - id: 71
+    stance_passive: 7376
+  - id: 2458
+    stance_passive: 7381
+
+  # ----- Server-side reactions -------------------------------------------------------------
+  - id: 7384
+    note: Overpower r1 costs 1 combo point, granted when the target dodges (server script)
+    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
+  - id: 7887
+    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
+  - id: 11584
+    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
+  - id: 11585
+    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
+
+  # ----- Debuff slot priorities (the target has a limited number of debuff slots) ---------------
+  - id: 11597
+    note: Sunder Armor r5 is the debuff a raid always keeps up
+    debuff_priority: high

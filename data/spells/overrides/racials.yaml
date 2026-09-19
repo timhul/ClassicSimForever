@@ -1,0 +1,38 @@
+# Hand-written overrides for the racial abilities (data/spells/racials.yaml, exported from build
+# 1.60.1.69893). See crates/csim-engine/src/spell/overrides.rs for the schema.
+
+overrides:
+  - id: 20552
+    note: Cultivation is a profession racial
+    sim_flags: [IGNORED]
+  - id: 20577
+    note: Cannibalize heals out of combat
+    sim_flags: [IGNORED]
+  - id: 20585
+    note: Wisp Spirit is a death effect
+    sim_flags: [IGNORED]
+  - id: 20593
+    note: Engineering Specialization is a profession racial
+    sim_flags: [IGNORED]
+  - id: 1259416
+    note: Walk on Air is movement
+    sim_flags: [IGNORED]
+  - id: 1259812
+    note: Eureka! (Skyborne) is an energy-cost and damage proc for energy users, not modelled yet
+    sim_flags: [IGNORED]
+  - id: 1259813
+    sim_flags: [IGNORED]
+  - id: 1259817
+    sim_flags: [IGNORED]
+  - id: 1259821
+    sim_flags: [IGNORED]
+  - id: 1259823
+    sim_flags: [IGNORED]
+  - id: 1259918
+    note: Plainsrunning is movement
+    sim_flags: [IGNORED]
+  - id: 1260189
+    note: Touch of the Grave (Undead) drains health, no damage contribution modelled yet
+    sim_flags: [IGNORED]
+  - id: 1260201
+    sim_flags: [IGNORED]

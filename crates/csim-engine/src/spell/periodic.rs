@@ -3,18 +3,40 @@
 //! `Class/Warrior/Spells/DeepWounds.*`.
 //!
 //! In C++ every periodic spell was a `SpellPeriodic` subclass with hand-written
-//! `new_application_effect` / `refresh_effect` / `tick_effect`. Here the periodic behaviour is
-//! read from the marker buff's periodic aura effect ([`PeriodicKind`], re-read on every use so
-//! talent changes to the effect apply) and driven by one [`Periodic`] state machine owned by the
-//! spell: applying the buff starts a `DotTick` chain tagged with an application id, refreshing
-//! it re-arms the effect, and ticks stop when the buff is gone (stale ticks are ignored by their
-//! application id).
+//! `new_application_effect` / `refresh_effect` / `tick_effect`. Here the behaviour is read from
+//! the table data: a `PERIODIC_DAMAGE` / `PERIODIC_ENERGIZE` / `PERIODIC_TRIGGER_SPELL` aura on
+//! the spell's buff with its `EffectAuraPeriod` ([`PeriodicKind::from_effect`]), or the
+//! `DEEP_WOUNDS_BLEED` script of a payload spell ([`PeriodicKind::weapon_damage`]). One
+//! [`Periodic`] state machine owned by the spell drives it: applying the buff starts a `DotTick`
+//! chain tagged with an application id, refreshing it re-arms the effect, and ticks stop when the
+//! buff is gone (stale ticks are ignored by their application id).
 
-use crate::effect::Effect;
+use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
 use crate::resource::ResourceType;
-use crate::spell::{SpellEffect, SpellHost};
+use crate::spell::dbc::AuraType;
+use crate::spell::overrides::{EffectScript, ScriptKind};
+use crate::spell::record::EffectRecord;
+use crate::spell::SpellHost;
+
+/// The tick period of an aura effect in milliseconds, if it ticks: a periodic aura's
+/// `EffectAuraPeriod`, or the `period_ms` of a `PERIODIC_RESOURCE_GAIN` script on a `DUMMY`
+/// aura (Anger Management).
+pub fn period_ms(record: &EffectRecord, script: Option<&EffectScript>) -> Option<u32> {
+    if !record.is_apply_aura() {
+        return None;
+    }
+    if record.is_periodic() && record.aura_period_ms > 0 {
+        return Some(record.aura_period_ms);
+    }
+    match script {
+        Some(script) if script.script == ScriptKind::PeriodicResourceGain => {
+            script.params.period_ms.filter(|ms| *ms > 0)
+        }
+        _ => None,
+    }
+}
 
 /// Tolerance for "the buff expired at this very moment". Port of `almost_equal`.
 const TIME_EPSILON: f64 = 0.0001;
@@ -22,72 +44,75 @@ const TIME_EPSILON: f64 = 0.0001;
 /// What a periodic aura does on every tick.
 #[derive(Debug, Clone, PartialEq)]
 pub enum PeriodicKind {
-    /// `APPLY_AURA_PERIODIC_RESOURCE_GAIN_*`: gains `amount` of `resource` per tick for as long
-    /// as the buff lasts. Port of `PeriodicResourceGainSpell`.
+    /// `PERIODIC_ENERGIZE`: gains `amount` of `resource` per tick for as long as the buff
+    /// lasts (Bloodrage's 1 rage per second). Port of `PeriodicResourceGainSpell`.
     ResourceGain { resource: ResourceType, amount: u32 },
-    /// `APPLY_AURA_PERIODIC_DAMAGE_FROM_WEAPON`: `base + avg_mh_damage × duration ×
-    /// weapon_coeff` (times the spell's damage modifier) spread evenly over `ticks` ticks; a
-    /// refresh re-arms the full amount. Port of `Rend`.
-    DamageFromWeapon {
-        base: f64,
-        weapon_coeff: f64,
-        ticks: u32,
-    },
-    /// `APPLY_AURA_PERIODIC_WEAPON_DAMAGE`: `percent`% of average mainhand damage per
-    /// application, dealt in `ticks_per_application` equal ticks; every application adds an
-    /// independent stack of ticks and the rounding remainder is carried between ticks. Port of
-    /// `DeepWounds`.
+    /// `PERIODIC_DAMAGE`: `per_tick` damage (times the spell's periodic damage modifier) on
+    /// each of `ticks` ticks; a refresh re-arms the full count (Rend).
+    Damage { per_tick: f64, ticks: u32 },
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average main-hand damage per application, dealt
+    /// in `ticks_per_application` equal ticks; every application adds an independent stack of
+    /// ticks and the rounding remainder is carried between ticks. Port of `DeepWounds`.
     WeaponDamage {
         percent: f64,
         ticks_per_application: u32,
     },
+    /// `PERIODIC_TRIGGER_SPELL`: casts `spell` on every tick.
+    TriggerSpell { spell: u32 },
 }
 
 impl PeriodicKind {
-    /// The periodic behaviour described by a buff effect, if it is a periodic aura.
-    /// `buff_duration` supplies the tick count where the effect gives only a period.
-    pub fn from_effect(effect: &Effect, buff_duration: Option<f64>) -> Option<(PeriodicKind, f64)> {
-        let spec = &effect.spec;
-        let period = spec.period.or(spec.tick_rate);
-        match effect.kind() {
-            SpellEffect::ApplyAuraPeriodicResourceGainRage => Some((
+    /// The periodic behaviour described by an aura effect, with its tick rate in seconds, if it
+    /// is a periodic aura. `duration` is the buff's duration (the tick count of a damage aura).
+    pub fn from_effect(
+        effect: &Effect,
+        duration: Option<f64>,
+        host: &impl EffectHost,
+    ) -> Option<(PeriodicKind, f64)> {
+        let record = effect.record();
+        let period = f64::from(period_ms(record, effect.script())?) / 1000.0;
+        let ticks = duration.map_or(1, |d| (d / period).round().max(1.0) as u32);
+        let kind = match effect.aura() {
+            AuraType::Dummy => {
+                let params = &effect.script()?.params;
+                let resource = ResourceType::from_power_type(params.resource?)?;
                 PeriodicKind::ResourceGain {
-                    resource: ResourceType::Rage,
-                    amount: spec.value.round().max(0.0) as u32,
-                },
-                period.expect("periodic resource gain needs tick_rate (validated at load)"),
-            )),
-            SpellEffect::ApplyAuraPeriodicDamageFromWeapon => {
-                let period = period.expect("periodic damage needs period (validated at load)");
-                let ticks = spec
-                    .ticks
-                    .or_else(|| buff_duration.map(|d| (d / period).round() as u32))
-                    .expect("periodic damage needs ticks or a buff duration (validated at load)");
-                Some((
-                    PeriodicKind::DamageFromWeapon {
-                        base: spec.value,
-                        weapon_coeff: spec.weapon_coeff.unwrap_or(0.0),
-                        ticks,
-                    },
-                    period,
-                ))
+                    resource,
+                    amount: effect.effective_value(host).round().max(0.0) as u32,
+                }
             }
-            SpellEffect::ApplyAuraPeriodicWeaponDamage => {
-                let period = period.expect("periodic damage needs period (validated at load)");
-                let ticks = spec
-                    .ticks
-                    .or_else(|| buff_duration.map(|d| (d / period).round() as u32))
-                    .expect("periodic damage needs ticks or a buff duration (validated at load)");
-                Some((
-                    PeriodicKind::WeaponDamage {
-                        percent: spec.value,
-                        ticks_per_application: ticks,
-                    },
-                    period,
-                ))
+            AuraType::PeriodicEnergize => {
+                let resource = ResourceType::from_power_type(record.power_type())?;
+                PeriodicKind::ResourceGain {
+                    resource,
+                    amount: effect.resource_amount(host, resource),
+                }
             }
-            _ => None,
-        }
+            AuraType::PeriodicDamage => PeriodicKind::Damage {
+                per_tick: effect.effective_value(host),
+                ticks,
+            },
+            AuraType::PeriodicTriggerSpell if record.trigger_spell != 0 => {
+                PeriodicKind::TriggerSpell {
+                    spell: record.trigger_spell,
+                }
+            }
+            _ => return None,
+        };
+        Some((kind, period))
+    }
+
+    /// The Deep Wounds bleed: `percent` of the average main-hand damage over `duration` seconds
+    /// in ticks every `period` seconds.
+    pub fn weapon_damage(percent: f64, duration: f64, period: f64) -> (PeriodicKind, f64) {
+        let ticks = (duration / period).round().max(1.0) as u32;
+        (
+            PeriodicKind::WeaponDamage {
+                percent,
+                ticks_per_application: ticks,
+            },
+            period,
+        )
     }
 }
 
@@ -102,18 +127,20 @@ pub struct TickReport {
     /// Share of the spell's execution time attributed to this tick.
     pub execution_time: f64,
     pub resource_gained: Option<(ResourceType, u32)>,
+    /// A spell to cast on this tick (`PERIODIC_TRIGGER_SPELL`).
+    pub trigger: Option<u32>,
 }
 
 /// The tick state of one spell's periodic aura. Port of `SpellPeriodic`'s bookkeeping plus the
 /// per-subclass state.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Periodic {
-    /// Index of the periodic aura effect in the marker buff's effect list.
-    effect_index: usize,
+    /// Index of the periodic aura effect in the buff's effect list (`None` for a scripted
+    /// bleed, whose kind is fixed at construction).
+    effect_index: Option<usize>,
     tick_rate: f64,
     application_id: u32,
     // Rend-style state.
-    damage_remaining: f64,
     ticks_left: u32,
     // Deep-Wounds-style state.
     stacks: Vec<u32>,
@@ -121,20 +148,19 @@ pub struct Periodic {
 }
 
 impl Periodic {
-    pub fn new(effect_index: usize, tick_rate: f64) -> Self {
+    pub fn new(effect_index: Option<usize>, tick_rate: f64) -> Self {
         assert!(tick_rate > 0.0, "periodic tick rate must be positive");
         Periodic {
             effect_index,
             tick_rate,
             application_id: 0,
-            damage_remaining: 0.0,
             ticks_left: 0,
             stacks: Vec::new(),
             previous_tick_rest: 0.0,
         }
     }
 
-    pub fn effect_index(&self) -> usize {
+    pub fn effect_index(&self) -> Option<usize> {
         self.effect_index
     }
 
@@ -147,10 +173,6 @@ impl Periodic {
         self.application_id
     }
 
-    pub fn damage_remaining(&self) -> f64 {
-        self.damage_remaining
-    }
-
     pub fn ticks_left(&self) -> u32 {
         self.ticks_left
     }
@@ -161,38 +183,23 @@ impl Periodic {
 
     /// The buff was applied: starts a new tick chain. Port of `SpellPeriodic::start_ticking` +
     /// `new_application_effect`.
-    pub fn start(
-        &mut self,
-        spell: SpellId,
-        host: &mut impl SpellHost,
-        kind: &PeriodicKind,
-        damage_mod: f64,
-    ) {
+    pub fn start(&mut self, spell: SpellId, host: &mut impl SpellHost, kind: &PeriodicKind) {
         self.application_id += 1;
         self.reset_state();
-        self.arm(host, kind, damage_mod);
+        self.arm(kind);
         self.schedule_tick(spell, host);
     }
 
     /// The buff was refreshed while active: re-arms the effect without restarting the tick chain.
     /// Port of `refresh_effect`.
-    pub fn refresh(&mut self, host: &mut impl SpellHost, kind: &PeriodicKind, damage_mod: f64) {
-        self.arm(host, kind, damage_mod);
+    pub fn refresh(&mut self, kind: &PeriodicKind) {
+        self.arm(kind);
     }
 
-    fn arm(&mut self, host: &mut impl SpellHost, kind: &PeriodicKind, damage_mod: f64) {
+    fn arm(&mut self, kind: &PeriodicKind) {
         match *kind {
-            PeriodicKind::ResourceGain { .. } => {}
-            PeriodicKind::DamageFromWeapon {
-                base,
-                weapon_coeff,
-                ticks,
-            } => {
-                let duration = self.tick_rate * f64::from(ticks);
-                self.damage_remaining =
-                    (base + host.avg_mh_damage() * duration * weapon_coeff) * damage_mod;
-                self.ticks_left = ticks;
-            }
+            PeriodicKind::ResourceGain { .. } | PeriodicKind::TriggerSpell { .. } => {}
+            PeriodicKind::Damage { ticks, .. } => self.ticks_left = ticks,
             PeriodicKind::WeaponDamage {
                 ticks_per_application,
                 ..
@@ -200,8 +207,9 @@ impl Periodic {
         }
     }
 
-    /// Handles a `DotTick` event. Returns `None` for stale ticks, ticks of a disabled spell or
-    /// after the buff is gone (which also clears the state). Port of
+    /// Handles a `DotTick` event. Returns `None` for stale ticks or after the buff is gone
+    /// (which also clears the state). `damage_mod` is the spell's periodic damage multiplier
+    /// (Improved Rend), `resource_cost` its cost in displayed units. Port of
     /// `SpellPeriodic::perform_periodic` + the `tick_effect` overrides.
     #[allow(clippy::too_many_arguments)]
     pub fn tick(
@@ -223,36 +231,46 @@ impl Periodic {
         if application_id != self.application_id {
             return None;
         }
+        let quiet = TickReport {
+            damage: 0,
+            threat: 0.0,
+            resource_cost: 0.0,
+            execution_time: 0.0,
+            resource_gained: None,
+            trigger: None,
+        };
 
         match *kind {
             PeriodicKind::ResourceGain { resource, amount } => {
                 let gained = host.gain_resource(resource, amount);
                 self.schedule_tick(spell, host);
                 Some(TickReport {
-                    damage: 0,
-                    threat: 0.0,
-                    resource_cost: 0.0,
-                    execution_time: 0.0,
                     resource_gained: (gained > 0).then_some((resource, gained)),
+                    ..quiet
                 })
             }
-            PeriodicKind::DamageFromWeapon { ticks, .. } => {
+            PeriodicKind::TriggerSpell { spell: trigger } => {
+                self.schedule_tick(spell, host);
+                Some(TickReport {
+                    trigger: Some(trigger),
+                    ..quiet
+                })
+            }
+            PeriodicKind::Damage { per_tick, ticks } => {
                 if self.ticks_left == 0 {
                     return None;
                 }
-                let damage = (self.damage_remaining / f64::from(self.ticks_left)).round();
-                self.damage_remaining -= damage;
                 self.ticks_left -= 1;
                 if self.ticks_left > 0 {
                     self.schedule_tick(spell, host);
                 }
-                let damage = damage.max(0.0) as u32;
+                let damage = (per_tick * damage_mod).round().max(0.0) as u32;
                 Some(TickReport {
                     damage,
                     threat: f64::from(damage) * host.total_threat_mod(),
                     resource_cost: f64::from(resource_cost) / f64::from(ticks),
                     execution_time: host.global_cooldown() / f64::from(ticks),
-                    resource_gained: None,
+                    ..quiet
                 })
             }
             PeriodicKind::WeaponDamage {
@@ -279,17 +297,24 @@ impl Periodic {
                 Some(TickReport {
                     damage,
                     threat: f64::from(damage) * host.total_threat_mod(),
-                    resource_cost: 0.0,
-                    execution_time: 0.0,
-                    resource_gained: None,
+                    ..quiet
                 })
             }
         }
     }
 
+    /// Whether the periodic still has ticks to deliver (a bleed that ran out of stacks lets its
+    /// buff be cancelled).
+    pub fn is_exhausted(&self, kind: &PeriodicKind) -> bool {
+        match kind {
+            PeriodicKind::Damage { .. } => self.ticks_left == 0,
+            PeriodicKind::WeaponDamage { .. } => self.stacks.is_empty(),
+            _ => false,
+        }
+    }
+
     /// Clears the tick state (buff gone, iteration reset). Port of `reset_effect`.
     pub fn reset_state(&mut self) {
-        self.damage_remaining = 0.0;
         self.ticks_left = 0;
         self.stacks.clear();
         self.previous_tick_rest = 0.0;
@@ -347,8 +372,29 @@ mod tests {
     }
 
     #[test]
+    fn weapon_damage_kind_counts_ticks_from_the_duration() {
+        let (kind, rate) = PeriodicKind::weapon_damage(60.0, 12.0, 3.0);
+        assert_eq!(rate, 3.0);
+        assert_eq!(
+            kind,
+            PeriodicKind::WeaponDamage {
+                percent: 60.0,
+                ticks_per_application: 4
+            }
+        );
+        let mut periodic = Periodic::new(None, rate);
+        assert!(periodic.is_exhausted(&kind));
+        periodic.refresh(&kind);
+        periodic.refresh(&kind);
+        assert_eq!(periodic.stacks(), [4, 4]);
+        assert!(!periodic.is_exhausted(&kind));
+        periodic.reset_state();
+        assert!(periodic.stacks().is_empty());
+    }
+
+    #[test]
     #[should_panic(expected = "positive")]
     fn zero_tick_rate_panics() {
-        let _ = Periodic::new(0, 0.0);
+        let _ = Periodic::new(None, 0.0);
     }
 }
