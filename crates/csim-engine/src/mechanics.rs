@@ -46,9 +46,12 @@ impl Mechanics {
         self.two_hand_white_miss_chance(wpn_skill)
     }
 
-    /// Miss chance for white attacks while dual wielding.
+    /// Miss chance for white attacks while dual wielding: a flat 19 % on top of the single
+    /// weapon miss chance (27 % with 300 skill against a level 63 mob). The pre-TBC
+    /// `80 % x miss + 20 %` the C++ used was shown to be wrong on the Classic PTR; see
+    /// <https://github.com/magey/classic-warrior/wiki/Attack-table#miss>.
     pub fn dual_wield_white_miss_chance(&self, wpn_skill: u32) -> f64 {
-        self.two_hand_white_miss_chance(wpn_skill) * 0.8 + 0.2
+        self.two_hand_white_miss_chance(wpn_skill) + 0.19
     }
 
     /// Miss chance for white attacks with a single weapon: 5 % plus 0.1 % per point of defense
@@ -374,23 +377,23 @@ mod tests {
     fn dual_wield_white_miss() {
         let mechanics = Mechanics::new(63);
 
-        assert_close(0.264, mechanics.dual_wield_white_miss_chance(300));
-        assert_close(0.2624, mechanics.dual_wield_white_miss_chance(301));
-        assert_close(0.2608, mechanics.dual_wield_white_miss_chance(302));
-        assert_close(0.2592, mechanics.dual_wield_white_miss_chance(303));
-        assert_close(0.2576, mechanics.dual_wield_white_miss_chance(304));
-        assert_close(0.248, mechanics.dual_wield_white_miss_chance(305));
-        assert_close(0.2472, mechanics.dual_wield_white_miss_chance(306));
-        assert_close(0.2464, mechanics.dual_wield_white_miss_chance(307));
-        assert_close(0.2456, mechanics.dual_wield_white_miss_chance(308));
-        assert_close(0.2448, mechanics.dual_wield_white_miss_chance(309));
-        assert_close(0.244, mechanics.dual_wield_white_miss_chance(310));
-        assert_close(0.2432, mechanics.dual_wield_white_miss_chance(311));
-        assert_close(0.2424, mechanics.dual_wield_white_miss_chance(312));
-        assert_close(0.2416, mechanics.dual_wield_white_miss_chance(313));
-        assert_close(0.2408, mechanics.dual_wield_white_miss_chance(314));
-        assert_close(0.24, mechanics.dual_wield_white_miss_chance(315));
-        assert_close(0.236, mechanics.dual_wield_white_miss_chance(320));
+        assert_close(0.270, mechanics.dual_wield_white_miss_chance(300));
+        assert_close(0.268, mechanics.dual_wield_white_miss_chance(301));
+        assert_close(0.266, mechanics.dual_wield_white_miss_chance(302));
+        assert_close(0.264, mechanics.dual_wield_white_miss_chance(303));
+        assert_close(0.262, mechanics.dual_wield_white_miss_chance(304));
+        assert_close(0.250, mechanics.dual_wield_white_miss_chance(305));
+        assert_close(0.249, mechanics.dual_wield_white_miss_chance(306));
+        assert_close(0.248, mechanics.dual_wield_white_miss_chance(307));
+        assert_close(0.247, mechanics.dual_wield_white_miss_chance(308));
+        assert_close(0.246, mechanics.dual_wield_white_miss_chance(309));
+        assert_close(0.245, mechanics.dual_wield_white_miss_chance(310));
+        assert_close(0.244, mechanics.dual_wield_white_miss_chance(311));
+        assert_close(0.243, mechanics.dual_wield_white_miss_chance(312));
+        assert_close(0.242, mechanics.dual_wield_white_miss_chance(313));
+        assert_close(0.241, mechanics.dual_wield_white_miss_chance(314));
+        assert_close(0.240, mechanics.dual_wield_white_miss_chance(315));
+        assert_close(0.235, mechanics.dual_wield_white_miss_chance(320));
     }
 
     #[test]

@@ -445,8 +445,8 @@ mod tests {
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
 
-        // 8 % single-weapon miss, dual wielding: 8 % x 0.8 + 20 % = 26.4 %.
-        let base_miss_dw = 2639;
+        // 8 % single-weapon miss plus the flat 19 % dual-wield penalty = 27 %.
+        let base_miss_dw = 2699;
         let base_dodge = 650;
         let glancing_rate = 4000;
 
@@ -497,17 +497,17 @@ mod tests {
         let mut roll = CombatRoll::from_seed(63, 1);
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
 
-        // With 300 skill vs 315 defense the first 1% of hit is ignored: 26.4% - (3% - 1%).
+        // With 300 skill vs 315 defense the first 1% of hit is ignored: 27% - (3% - 1%).
         assert_eq!(roll.get_suppressed_hit(300, 300), 200);
         assert_eq!(roll.get_suppressed_hit(305, 300), 300);
         assert_eq!(roll.get_suppressed_hit(300, 50), 0);
         let white = roll.get_melee_white_table(&ctx, 300).clone();
         assert_eq!(
-            white.get_outcome(&mut random, 2439, 0, IncludedOutcomes::ALL),
+            white.get_outcome(&mut random, 2499, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
         );
         assert_eq!(
-            white.get_outcome(&mut random, 2440, 0, IncludedOutcomes::ALL),
+            white.get_outcome(&mut random, 2500, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Dodge
         );
 
@@ -589,7 +589,7 @@ mod tests {
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
         assert_eq!(
-            table.get_outcome(&mut random, 2640 + 650, 0, IncludedOutcomes::ALL),
+            table.get_outcome(&mut random, 2700 + 650, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Hit
         );
     }
