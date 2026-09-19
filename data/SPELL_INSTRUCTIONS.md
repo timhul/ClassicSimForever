@@ -382,3 +382,62 @@ The exporter prints what it pruned. Build 1.60.1.69893: 63 effects and 16 spells
 Warrior walk, 32 effects and 12 spells from the racials. A talent whose spell was pruned
 (Iron Will, Improved Hamstring) has nothing to do in the simulator; the talent data will list
 it without a spell.
+
+## 1.11 Hand-written overrides (`data/spells/overrides/*.yaml`)
+
+The tables carry the numbers; the overrides carry what retail keeps server-side or what only a
+simulator cares about. Schema: `crates/csim-engine/src/spell/overrides.rs` (`OverrideFile`,
+`SpellOverride`); the engine refuses unknown fields, references to spells that are not in the
+data, and scripts missing their parameters.
+
+```yaml
+defaults:
+  resource_miss_cost_mod: 0.25       # dodged / parried casts cost this fraction (misses the full cost)
+  proc_hit_mask: [NORMAL, CRITICAL]  # hit results a proc fires on unless its entry says otherwise
+overrides:
+  - id: 12834                        # SpellName.ID
+    note: why the entry exists
+    proc: { hit_mask: [CRITICAL] }   # ProcHitMask: NORMAL CRITICAL MISS FULL_RESIST PARTIAL_RESIST
+                                     #   DODGE PARRY BLOCK EVADE IMMUNE DEFLECT ABSORB REFLECT
+                                     #   INTERRUPT FULL_BLOCK
+    effects:                         # scripts for DUMMY effects / auras, by EffectIndex
+      - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
+    threat: { flat: 145, modifier: 1.0 }
+    sim_flags: [RESETS_SWING_TIMERS]
+    stance_passive: 7381             # the hidden passive that carries a stance's numbers
+    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
+    resource_miss_cost_mod: 0.16     # per-spell default override
+    debuff_priority: high            # slot priority of the spell's debuff (low / mid / high)
+    debuff_shared: true              # one raid-wide instance (default: true when it stacks)
+```
+
+**Scripts** (`ScriptKind`; the interpreter implements each once, the data says where it applies):
+
+| script | reads | params | used by |
+|---|---|---|---|
+| `ATTACK_POWER_PERCENT_DAMAGE` | `base_points` % of attack power as damage | — | Bloodthirst E1, Victory Rush, Shockwave |
+| `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
+| `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of average weapon damage over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
+| `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
+| `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
+| `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
+| `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
+| `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
+| `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
+| `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker) | `value` | Overpower `on_event` |
+| `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
+| `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
+| `OFFHAND_COPY` | the ability also hits with the off hand | — | Raging Blows |
+| `NO_OP` | nothing; keeps the dummy out of `csim-tables check` | — | markers, unmodelled halves |
+
+**Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
+`RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
+`START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`.
+
+**Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
+`MAINHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
+`MELEE_FULL_BLOCK`, `SPELL_HIT`, `SPELL_CRITICAL`, `SPELL_FULL_RESIST`, `RANGED_AUTO_SHOT`,
+`RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`.
+
+Not overridable on purpose: costs, cooldowns, damage, durations, class masks, ranks and proc
+sources — they come from the tables. Spells the overrides mention are never pruned (§1.10).
