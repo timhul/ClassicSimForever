@@ -105,9 +105,21 @@ impl Mechanics {
     }
 
     /// Chance for the target to parry (only when attacking from the front).
-    pub fn parry_chance(&self, wpn_skill: u32) -> f64 {
-        let diff = self.defense_minus_wpn_skill(wpn_skill);
-        (0.14 + f64::from(diff) * 0.001).max(0.0)
+    ///
+    /// Blizzard confirmed 14 % for creatures 3 levels above the player; the classic-warrior
+    /// logs measured ~5 %, 5.75 % and 6.55 % at +0, +1 and +2 and 13.49 % (±0.40) at +3 with
+    /// +5 weapon skill. Below +3 the chance follows the dodge formula (5 % plus 0.1 % per point
+    /// of defense over the weapon skill); from +3 on it is 14 % adjusted by 0.1 % per point of
+    /// weapon skill above or below the character's own level cap. See
+    /// <https://github.com/magey/classic-warrior/wiki/Attack-table>.
+    pub fn parry_chance(&self, clvl: u32, wpn_skill: u32) -> f64 {
+        if self.level_diff(clvl) >= 3 {
+            let skill_over_cap = wpn_skill as i32 - clvl as i32 * 5;
+            (0.14 - f64::from(skill_over_cap) * 0.001).max(0.0)
+        } else {
+            let diff = self.defense_minus_wpn_skill(wpn_skill);
+            (0.05 + f64::from(diff) * 0.001).max(0.0)
+        }
     }
 
     /// Chance for the target to block.
@@ -321,11 +333,19 @@ mod tests {
     }
 
     #[test]
-    fn parry_from_wpn_skill_diff() {
+    fn parry_from_level_and_wpn_skill_diff() {
         let mechanics = Mechanics::new(63);
-        assert_close(0.155, mechanics.parry_chance(300));
-        assert_close(0.14, mechanics.parry_chance(315));
+        assert_close(0.14, mechanics.parry_chance(60, 300));
+        assert_close(0.135, mechanics.parry_chance(60, 305));
+        assert_close(0.125, mechanics.parry_chance(60, 315));
+        assert_close(0.145, mechanics.parry_chance(60, 295));
         assert_close(0.0, mechanics.block_chance());
+
+        assert_close(0.06, Mechanics::new(62).parry_chance(60, 300));
+        assert_close(0.055, Mechanics::new(61).parry_chance(60, 300));
+        assert_close(0.05, Mechanics::new(60).parry_chance(60, 300));
+        assert_close(0.045, Mechanics::new(60).parry_chance(60, 305));
+        assert_close(0.045, Mechanics::new(59).parry_chance(60, 300));
     }
 
     #[test]

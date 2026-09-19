@@ -121,7 +121,7 @@ fn dodge_is_5_percent_at_level_plus_half_a_percent_per_level() {
 /// "Creatures that are 3 levels above the player have a 14% Parry chance."
 #[test]
 fn parry_is_14_percent_three_levels_above() {
-    assert_close(0.14, Mechanics::new(63).parry_chance(300), "parry");
+    assert_close(0.14, Mechanics::new(63).parry_chance(60, 300), "parry");
     let d = white_distribution(63, &ctx(60, 0.0, false, false), 300, 0.0);
     assert_share(14.0, d.parry, "parry vs +3 in the white table");
 }

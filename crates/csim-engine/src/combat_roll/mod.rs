@@ -308,7 +308,7 @@ impl CombatRoll {
         if ctx.attacking_from_behind {
             0.0
         } else {
-            self.mechanics.parry_chance(wpn_skill)
+            self.mechanics.parry_chance(ctx.clvl, wpn_skill)
         }
     }
 
@@ -547,7 +547,7 @@ mod tests {
         let all = IncludedOutcomes::ALL;
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
-        // 8% miss, 6.5% dodge, 15.5% parry, 40% glancing.
+        // 8% miss, 6.5% dodge, 14% parry, 40% glancing.
         assert_eq!(
             table.get_outcome(&mut random, 799, 0, all),
             PhysicalAttackResult::Miss
@@ -565,11 +565,11 @@ mod tests {
             PhysicalAttackResult::Parry
         );
         assert_eq!(
-            table.get_outcome(&mut random, 2999, 0, all),
+            table.get_outcome(&mut random, 2849, 0, all),
             PhysicalAttackResult::Parry
         );
         assert_eq!(
-            table.get_outcome(&mut random, 3000, 0, all),
+            table.get_outcome(&mut random, 2850, 0, all),
             PhysicalAttackResult::Glancing
         );
         assert_eq!(
