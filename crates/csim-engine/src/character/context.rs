@@ -8,7 +8,8 @@
 //! A context is short-lived: the simulation owner builds one per event from `&mut` borrows and
 //! drops it afterwards, so no back-pointers survive between events.
 
-use crate::buff::{Buff, BuffApplication, BuffContext, ChargeUse};
+use crate::buff::external::{ExternalBuffDb, ExternalBuffSpec};
+use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{AddedSpell, BuffSlot, SharedBuffs};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
@@ -39,6 +40,15 @@ pub enum SwingOutcome {
     Swing(SwingReport),
     /// A queued on-next-swing spell (Heroic Strike) landed instead of the swing.
     NextSwingSpell(CastReport),
+}
+
+/// Why an external buff could not be toggled.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum ExternalBuffToggleError {
+    #[error("the character is not offered the external buff {0:?}")]
+    NotOffered(String),
+    #[error("the external buff {0:?} is not available to the {1}")]
+    WrongFaction(String, &'static str),
 }
 
 /// The character together with everything it acts on.
@@ -201,12 +211,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Learns every spell of `db` that the character's class or race can have: class spells
     /// (any `class_mask`, including the talent-granted ones which stay disabled) and the
-    /// racials whose `race_mask` names the race.
+    /// racials whose `race_mask` names the race. The external buff auras
+    /// (`SpellDb::is_learnable`) are not spells of the character.
     pub fn learn_all(&mut self, db: &SpellDb) -> Vec<AddedSpell> {
         let race = self.character.race();
         let mut ids: Vec<u32> = db
             .records()
             .into_iter()
+            .filter(|record| db.is_learnable(record.id))
             .filter(|record| record.race_mask == 0 || race.in_mask(record.race_mask))
             .map(|record| record.id)
             .collect();
@@ -326,6 +338,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 None => {}
             }
         }
+        let faction = self.character.faction();
         self.character.set_race_stats(race);
         for record in race.race.racials(db) {
             match self.character.spells.handle(record.id) {
@@ -334,6 +347,153 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 None => {
                     self.learn(db, record.id);
                 }
+            }
+        }
+        if self.character.faction() != faction {
+            self.switch_faction();
+        }
+    }
+
+    // ---------------------------------------------------------------- external buffs
+
+    /// Offers the character the external buffs of `registry` its class can have: each becomes
+    /// a permanent, hidden [`BuffKind::External`] buff built from its aura spell in `db`.
+    /// Port of the `GeneralBuffs` constructor. Entries already offered are skipped.
+    ///
+    /// # Panics
+    /// Panics if an entry's spell is not in `db` or applies no auras
+    /// (`ExternalBuffDb::validate` catches this at load time).
+    pub fn add_external_buffs(&mut self, registry: &ExternalBuffDb, db: &SpellDb) {
+        let class = self.character.class_kind();
+        for (spec, debuff) in registry.offered_to(class) {
+            if self.character.general_buffs.get(&spec.name).is_some() {
+                continue;
+            }
+            let record = db.get(spec.spell).unwrap_or_else(|| {
+                panic!(
+                    "external buff {:?}: spell {} is not in the db",
+                    spec.name, spec.spell
+                )
+            });
+            assert!(
+                record.applies_aura(),
+                "external buff {:?}: spell {} applies no auras",
+                spec.name,
+                spec.spell
+            );
+            let buff = Buff::from_record(record, BuffKind::External, db.overrides())
+                .with_name(&spec.name)
+                .with_duration(None)
+                .with_hidden(true);
+            let stacks = spec.applied_stacks(buff.max_stacks());
+            let id = self.character.spells.add_external_buff(buff);
+            self.character
+                .general_buffs
+                .add(spec.clone(), debuff, id, stacks);
+        }
+    }
+
+    /// Selects or deselects an external buff: selecting applies its auras (once per stack,
+    /// armor reductions on the target) and cancels the other buffs of its mutex group,
+    /// deselecting removes them. Returns whether the buff is now selected. Port of
+    /// `GeneralBuffs::toggle_external_buff` / `toggle_external_debuff`.
+    pub fn toggle_external_buff(&mut self, name: &str) -> Result<bool, ExternalBuffToggleError> {
+        let selected = self.character.general_buffs.is_selected(name);
+        self.set_external_buff_selected(name, !selected)
+    }
+
+    /// Selects (`true`) or deselects an external buff; see
+    /// [`CharacterContext::toggle_external_buff`]. Selecting an already selected buff or
+    /// deselecting an unselected one changes nothing. Returns the new selection state.
+    pub fn set_external_buff_selected(
+        &mut self,
+        name: &str,
+        selected: bool,
+    ) -> Result<bool, ExternalBuffToggleError> {
+        let faction = self.character.faction();
+        let entry = self
+            .character
+            .general_buffs
+            .get(name)
+            .ok_or_else(|| ExternalBuffToggleError::NotOffered(name.to_string()))?;
+        if !entry.spec.valid_for_faction(faction) {
+            return Err(ExternalBuffToggleError::WrongFaction(
+                name.to_string(),
+                faction.name(),
+            ));
+        }
+        let (buff, stacks) = (entry.buff, entry.stacks);
+        if selected {
+            let peers: Vec<String> = self
+                .character
+                .general_buffs
+                .mutex_peers(name)
+                .iter()
+                .filter(|e| e.selected)
+                .map(|e| e.spec.name.clone())
+                .collect();
+            for peer in peers {
+                self.set_external_buff_selected(&peer, false)?;
+            }
+            self.apply_external(buff, stacks);
+        } else {
+            self.cancel_buff(buff);
+        }
+        self.character
+            .general_buffs
+            .get_mut(name)
+            .expect("looked up above")
+            .selected = selected;
+        Ok(selected)
+    }
+
+    /// Applies an external buff at `stacks` stacks (each stack applies the auras once).
+    fn apply_external(&mut self, buff: BuffId, stacks: u32) {
+        if self.buff_ref(buff).is_active() {
+            return;
+        }
+        for _ in 0..stacks.max(1) {
+            self.apply_buff(buff);
+        }
+    }
+
+    /// Deselects every external buff. Port of `GeneralBuffs::clear_all`.
+    pub fn clear_external_buffs(&mut self) {
+        let selected: Vec<(String, BuffId)> = self
+            .character
+            .general_buffs
+            .entries()
+            .iter()
+            .filter(|e| e.selected)
+            .map(|e| (e.spec.name.clone(), e.buff))
+            .collect();
+        for (name, buff) in selected {
+            self.cancel_buff(buff);
+            self.character
+                .general_buffs
+                .get_mut(&name)
+                .expect("listed above")
+                .selected = false;
+        }
+    }
+
+    /// After the faction changed: selected buffs the new faction cannot have are removed
+    /// (they stay selected, as in C++), selected ones it can have again are re-applied. Port of
+    /// `GeneralBuffs::switch_faction`.
+    pub fn switch_faction(&mut self) {
+        let faction = self.character.faction();
+        let entries: Vec<(ExternalBuffSpec, BuffId, u32, bool)> = self
+            .character
+            .general_buffs
+            .entries()
+            .iter()
+            .map(|e| (e.spec.clone(), e.buff, e.stacks, e.selected))
+            .collect();
+        for (spec, buff, stacks, selected) in entries {
+            if !spec.valid_for_faction(faction) {
+                self.cancel_buff(buff);
+            } else if selected {
+                self.apply_external(buff, stacks);
             }
         }
     }

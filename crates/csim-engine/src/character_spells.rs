@@ -515,6 +515,24 @@ impl CharacterSpells {
         self.add_buff_slot(BuffSlot::Shared(shared))
     }
 
+    /// Adds an external buff ([`BuffKind::External`]): enabled with an instance id, but kept
+    /// out of the enabled buffs as the C++ `ExternalBuff` was, so it is never found by name
+    /// (an external Sunder Armor must not shadow the shared debuff) and never consumes charges.
+    ///
+    /// # Panics
+    /// Panics if the buff is not an external buff.
+    pub fn add_external_buff(&mut self, mut buff: Buff) -> BuffId {
+        assert!(
+            buff.kind() == BuffKind::External,
+            "{} is not an external buff",
+            buff.name()
+        );
+        let instance_id = self.next_instance_id();
+        buff.set_instance_id(instance_id);
+        buff.enable();
+        self.add_buff_slot(BuffSlot::Owned(Box::new(buff)))
+    }
+
     fn add_buff_slot(&mut self, slot: BuffSlot) -> BuffId {
         let id = BuffId(u32::try_from(self.buffs.len()).expect("too many buffs"));
         self.buffs.push(slot);

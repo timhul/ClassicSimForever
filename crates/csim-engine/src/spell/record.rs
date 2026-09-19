@@ -37,7 +37,7 @@
 //! [`SpellDb`] loads from `data/spells/overrides/` and keeps next to the records: a record is
 //! always the table row, and [`SpellDb::overrides`] answers what the sim adds to it.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -62,21 +62,45 @@ fn one() -> f32 {
     1.0
 }
 
+fn yes() -> bool {
+    true
+}
+
+fn is_true(value: &bool) -> bool {
+    *value
+}
+
 fn is_one(value: &f32) -> bool {
     *value == 1.0
 }
 
 /// One `data/spells/*.yaml` file: the spells of one class (or the racials when `class` is absent).
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellFile {
     /// The client build the records were exported from (`1.60.1.69893`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
-    /// The class whose spellbook this is; `None` for class-independent spells (racials).
+    /// The class whose spellbook this is; `None` for class-independent spells (racials, the
+    /// external buff auras).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub class: Option<PlayerClass>,
+    /// Whether characters learn these spells (`CharacterContext::learn_all`): `false` for the
+    /// external buff auras of `externals.yaml`, which are only turned into buffs.
+    #[serde(default = "yes", skip_serializing_if = "is_true")]
+    pub learnable: bool,
     #[serde(default)]
     pub spells: Vec<SpellRecord>,
+}
+
+impl Default for SpellFile {
+    fn default() -> Self {
+        Self {
+            build: String::new(),
+            class: None,
+            learnable: true,
+            spells: Vec::new(),
+        }
+    }
 }
 
 /// A `SpellPower` row: what casting the spell costs.
@@ -797,6 +821,8 @@ pub struct SpellDb {
     spells: HashMap<u32, Arc<SpellRecord>>,
     by_name: HashMap<String, Vec<u32>>,
     by_class: BTreeMap<Option<PlayerClass>, Vec<u32>>,
+    /// Ids from files with `learnable: false` (the external buff auras).
+    unlearnable: HashSet<u32>,
     next_rank: HashMap<u32, u32>,
     overrides: Overrides,
 }
@@ -869,6 +895,9 @@ impl SpellDb {
             }
         }
         for record in file.spells {
+            if !file.learnable {
+                self.unlearnable.insert(record.id);
+            }
             self.add_record(file.class, record);
         }
         Ok(())
@@ -1089,6 +1118,12 @@ impl SpellDb {
     /// The ids loaded for `class` (`None` = the class-independent files), in file order.
     pub fn ids_of_class(&self, class: Option<PlayerClass>) -> &[u32] {
         self.by_class.get(&class).map_or(&[], Vec::as_slice)
+    }
+
+    /// Whether characters learn spell `id` (`false` for the auras of a `learnable: false` file:
+    /// the external buffs, which only ever become buffs).
+    pub fn is_learnable(&self, id: u32) -> bool {
+        !self.unlearnable.contains(&id)
     }
 
     /// The spells `class` can have: its own records plus the class-independent ones, restricted
@@ -1686,6 +1721,7 @@ overrides:
         let file = SpellFile {
             build: "1.60.1.69893".into(),
             class: Some(PlayerClass::Warrior),
+            learnable: true,
             spells: vec![
                 (**db.get(12294).unwrap()).clone(),
                 (**db.get(284).unwrap()).clone(),

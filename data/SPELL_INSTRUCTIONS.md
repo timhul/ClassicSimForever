@@ -355,6 +355,11 @@ scaling; this build scales through `EffectRealPointsPerLevel` instead), `SpellXS
 "after the target dodges" condition must be implemented elsewhere (proc/override), check in
 game.
 
+Not in any class walk: the buffs *other* players and consumables provide (Blessings, Gift of
+the Wild, totems, elixirs, food, the target debuffs of other classes). Their aura spells are in
+the dump like any other; `data/external_buffs.yaml` lists the ones the simulator offers and
+`export-spells --externals` writes them to `data/spells/externals.yaml` (see `README.md`).
+
 ## 1.10 What the exporter leaves out (pruning)
 
 A damage simulator has no use for most of what the tables describe: crowd control, movement,

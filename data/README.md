@@ -11,10 +11,14 @@ data/
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
+│   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
 │   └── overrides/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
 │       ├── racials.yaml
+│       ├── externals.yaml
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
+├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
+│                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/ enchants.yaml set_bonuses.yaml   Phase 2 item data (see ITEM_INSTRUCTIONS.md)
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
@@ -32,6 +36,7 @@ data/tables/<Table>.<build>.csv
         ▼
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
+csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml)
         │  + data/spells/overrides/*.yaml
         ▼
 csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
@@ -42,7 +47,10 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
    talent tree (`Trait*`), the payload spells those reach through `EffectTriggerSpell`,
    `OVERRIDE_ACTIONBAR_SPELLS`, `SpellAuraRestrictions` and the overrides' references
    (`SPELL_INSTRUCTIONS.md` §1.3–1.6). Each spell becomes one `SpellRecord`: the joined
-   `Spell*` rows in snake_case (§1.7), effects included.
+   `Spell*` rows in snake_case (§1.7), effects included. The external buffs are walked the
+   same way from the aura spell ids `data/external_buffs.yaml` names (Greater Blessing of
+   Kings 25898, Faerie Fire 9907, …); ids another spell file already carries (the Warrior's
+   Sunder Armor and Battle Shout) are not repeated, since the engine loads every file.
 2. The walk is **pruned** (§1.10): effects the simulator has no use for are dropped, spells left
    with nothing to do are left out.
 3. The generated files are committed so the engine and its tests never need the dump.
@@ -58,6 +66,7 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
    ```
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --racials
+   cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- check
    ```
    The exporter prints what it pruned and warns when an override mentions a spell that no
@@ -73,6 +82,20 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
 
 A different build changes the `build:` header; every file in `data/spells/` must carry the
 same build.
+
+## External buffs (`data/external_buffs.yaml`)
+
+The buffs other players and consumables provide are not hand-written numbers either: each
+entry of `external_buffs.yaml` names the *aura* spell that ends up on the player or the target
+(the buff, not the totem / item / cast that puts it there — Strength of Earth 25362, not the
+totem spell 25361; Well Fed 24799, not the Smoked Desert Dumplings food cast), and the engine
+builds the buff from that record like any other. The registry only adds what the tables do not
+have: `faction` (ALLIANCE / HORDE, absent = both), `classes` the buff is offered to (absent =
+all), a `mutex` key for the groups that exclude each other (one food, one strength elixir, …)
+and `stacks` for a stacking debuff kept up by others (absent = the spell's `max_stacks`:
+Sunder Armor ×5, Armor Shatter ×3). Selected buffs are applied once and stay applied across
+iterations; the numbers change by re-exporting `externals.yaml`, not by editing the registry.
+World buffs are deliberately absent (not available in Forever the same way).
 
 ## What goes in the overrides
 

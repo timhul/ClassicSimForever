@@ -22,6 +22,7 @@ pub mod context;
 use std::sync::Arc;
 
 use crate::attack_mode::AttackMode;
+use crate::buff::external::GeneralBuffs;
 use crate::character_spells::CharacterSpells;
 use crate::combat_roll::{CombatRoll, RollContext};
 use crate::equipment::Equipment;
@@ -87,6 +88,8 @@ pub struct Character {
     stats: CharacterStats,
     equipment: Equipment,
     spells: CharacterSpells,
+    /// The external buffs the character is offered (`CharacterContext::add_external_buffs`).
+    general_buffs: GeneralBuffs,
     modifiers: SpellModifiers,
     roll: CombatRoll,
     /// Rolls weapon damage between the weapon's min and max (the C++ `Weapon::random`).
@@ -165,6 +168,7 @@ impl Character {
             id,
             equipment: Equipment::new(equipment_db, phase, faction, class.class),
             spells: CharacterSpells::new(id, seed),
+            general_buffs: GeneralBuffs::new(),
             modifiers: SpellModifiers::new(),
             roll: CombatRoll::new(target_level),
             dmg_roll: Random::new(0, 1),
@@ -356,6 +360,11 @@ impl Character {
 
     pub fn spells_mut(&mut self) -> &mut CharacterSpells {
         &mut self.spells
+    }
+
+    /// The external buffs the character is offered and which of them are selected.
+    pub fn external_buffs(&self) -> &GeneralBuffs {
+        &self.general_buffs
     }
 
     pub fn spell_modifiers(&self) -> &SpellModifiers {

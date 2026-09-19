@@ -895,3 +895,382 @@ fn shipped_warrior_data_learns_and_runs() {
     assert_eq!(report.result, SpellResult::Success);
     assert!(f.ctx().aura_active(BLOODRAGE_BUFF));
 }
+
+// ---------------------------------------------------------------- external buffs
+
+mod external_buffs {
+    use super::*;
+    use crate::buff::external::{ExternalBuffDb, ExternalBuffFile};
+    use crate::buff::BuffKind;
+    use crate::character::context::ExternalBuffToggleError;
+    use crate::faction::{Faction, PlayerClass};
+    use crate::spell::dbc::{AuraType, ImplicitTarget, SpellEffectName};
+    use crate::spell::record::{EffectRecord, SpellRecord};
+
+    const KINGS: u32 = 25898;
+    const JUJU_POWER: u32 = 16323;
+    const GIANTS: u32 = 11405;
+    const STRENGTH_OF_EARTH: u32 = 25362;
+    const SUNDER: u32 = 11597;
+    const BATTLE_SHOUT: u32 = 25289;
+
+    const REGISTRY: &str = r#"
+buffs:
+  - name: Greater Blessing of Kings
+    spell: 25898
+    faction: ALLIANCE
+  - name: Strength of Earth Totem
+    spell: 25362
+    faction: HORDE
+  - name: Juju Power
+    spell: 16323
+    mutex: strength
+  - name: Elixir of Giants
+    spell: 11405
+    mutex: strength
+  - name: Battle Shout
+    spell: 25289
+    classes: [ROGUE]
+debuffs:
+  - name: Sunder Armor
+    spell: 11597
+"#;
+
+    fn aura(
+        id: u32,
+        name: &str,
+        aura: AuraType,
+        points: f32,
+        misc: i32,
+        target: ImplicitTarget,
+    ) -> SpellRecord {
+        let mut record = SpellRecord::new(id, name);
+        record.duration_ms = Some(3_600_000);
+        let mut effect = EffectRecord::new(0, SpellEffectName::ApplyAura);
+        effect.aura = aura;
+        effect.base_points = points;
+        effect.misc_value = [misc, 0];
+        effect.implicit_target = [target, ImplicitTarget::None];
+        record.effects.push(effect);
+        record
+    }
+
+    /// The Warrior fixture with the external buff records and the registry above.
+    fn fixture() -> (Fixture, ExternalBuffDb) {
+        let mut f = Fixture::orc_warrior();
+        for record in [
+            aura(
+                KINGS,
+                "Greater Blessing of Kings",
+                AuraType::ModTotalStatPercentage,
+                10.0,
+                -1,
+                ImplicitTarget::UnitTargetRaid,
+            ),
+            aura(
+                STRENGTH_OF_EARTH,
+                "Strength of Earth",
+                AuraType::ModStat,
+                53.0,
+                0,
+                ImplicitTarget::UnitCaster,
+            ),
+            aura(
+                JUJU_POWER,
+                "Juju Power",
+                AuraType::ModStat,
+                30.0,
+                0,
+                ImplicitTarget::UnitCaster,
+            ),
+            aura(
+                GIANTS,
+                "Greater Strength",
+                AuraType::ModStat,
+                25.0,
+                0,
+                ImplicitTarget::UnitCaster,
+            ),
+        ] {
+            f.db.add(None, record).unwrap();
+        }
+        // Sunder Armor r5 (-450 armor, 5 stacks) and Battle Shout r7 are Warrior spells of the
+        // test world already.
+        assert_eq!(f.db.get(SUNDER).unwrap().aura_options.max_stacks, 5);
+        assert!(f.db.get(BATTLE_SHOUT).unwrap().applies_aura());
+        f.target.set_base_armor(3731);
+        let file: ExternalBuffFile = serde_yaml::from_str(REGISTRY).unwrap();
+        let registry = ExternalBuffDb::from_file(file).unwrap();
+        registry.validate(&f.db).unwrap();
+        let db = std::mem::take(&mut f.db);
+        f.ctx().add_external_buffs(&registry, &db);
+        f.db = db;
+        (f, registry)
+    }
+
+    fn strength(f: &Fixture) -> u32 {
+        let view = f.target.stat_view();
+        let ctx = f.character.stat_context(&view);
+        f.character.stats().get_strength(&ctx)
+    }
+
+    #[test]
+    fn the_class_is_offered_its_entries_as_hidden_permanent_buffs() {
+        let (f, _) = fixture();
+        let general = f.character.external_buffs();
+        let names: Vec<&str> = general
+            .entries()
+            .iter()
+            .map(|e| e.spec.name.as_str())
+            .collect();
+        assert_eq!(
+            names,
+            [
+                "Greater Blessing of Kings",
+                "Strength of Earth Totem",
+                "Juju Power",
+                "Elixir of Giants",
+                "Sunder Armor"
+            ],
+            "Battle Shout is for other classes"
+        );
+        let sunder = general.get("Sunder Armor").unwrap();
+        assert!(sunder.debuff);
+        assert_eq!(sunder.stacks, 5, "a stacking debuff is kept fully stacked");
+        assert!(!sunder.selected);
+        let buff = f.character.spells().owned_buff(sunder.buff).unwrap();
+        assert_eq!(buff.kind(), BuffKind::External);
+        assert!(buff.is_permanent());
+        assert!(buff.is_hidden());
+        assert!(buff.is_enabled());
+        assert!(buff.instance_id().is_some());
+        assert_eq!(buff.name(), "Sunder Armor");
+        assert_eq!(buff.spell(), SUNDER);
+        assert!(
+            !f.character.spells().is_buff_enabled(sunder.buff),
+            "not among the enabled buffs (never found by name, never consumes charges)"
+        );
+        assert!(f
+            .character
+            .spells()
+            .owned_buff_by_name("Sunder Armor")
+            .is_none());
+        let giants = general.get("Elixir of Giants").unwrap();
+        assert_eq!(giants.stacks, 1);
+        let buff = f.character.spells().owned_buff(giants.buff).unwrap();
+        assert_eq!(
+            buff.name(),
+            "Elixir of Giants",
+            "the registry name, not the aura's"
+        );
+        assert_eq!(buff.canonical_name(), "Elixir of Giants (11405)");
+    }
+
+    #[test]
+    fn toggling_applies_and_removes_the_auras() {
+        let (mut f, _) = fixture();
+        assert_eq!(strength(&f), 123);
+        assert_eq!(f.ctx().toggle_external_buff("Juju Power"), Ok(true));
+        assert_eq!(strength(&f), 153);
+        assert!(f.character.external_buffs().is_selected("Juju Power"));
+        assert_eq!(
+            f.character.external_buffs().selected_buffs(),
+            ["Juju Power"]
+        );
+        assert!(f.ctx().aura_active(JUJU_POWER));
+
+        // Selecting again changes nothing; deselecting removes the auras once.
+        assert_eq!(
+            f.ctx().set_external_buff_selected("Juju Power", true),
+            Ok(true)
+        );
+        assert_eq!(strength(&f), 153);
+        assert_eq!(f.ctx().toggle_external_buff("Juju Power"), Ok(false));
+        assert_eq!(strength(&f), 123);
+        assert!(!f.ctx().aura_active(JUJU_POWER));
+        assert!(f.character.external_buffs().selected_buffs().is_empty());
+        assert_eq!(
+            f.ctx().set_external_buff_selected("Juju Power", false),
+            Ok(false)
+        );
+        assert_eq!(strength(&f), 123);
+    }
+
+    #[test]
+    fn a_stacking_debuff_is_applied_once_per_stack_on_the_target() {
+        let (mut f, _) = fixture();
+        let base_armor = f.target.armor();
+        assert_eq!(f.ctx().toggle_external_buff("Sunder Armor"), Ok(true));
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+        let sunder = f.character.external_buffs().get("Sunder Armor").unwrap();
+        let buff = f.character.spells().owned_buff(sunder.buff).unwrap();
+        assert_eq!(buff.stacks(), 5);
+        assert_eq!(
+            f.character.external_buffs().selected_debuffs(),
+            ["Sunder Armor"]
+        );
+        assert!(
+            f.target.debuff_count() == 0,
+            "an external debuff takes no debuff slot"
+        );
+        assert_eq!(f.ctx().toggle_external_buff("Sunder Armor"), Ok(false));
+        assert_eq!(f.target.armor(), base_armor);
+    }
+
+    #[test]
+    fn mutex_peers_are_deselected() {
+        let (mut f, _) = fixture();
+        f.ctx().toggle_external_buff("Juju Power").unwrap();
+        assert_eq!(strength(&f), 153);
+        f.ctx().toggle_external_buff("Elixir of Giants").unwrap();
+        assert_eq!(strength(&f), 148, "Juju Power went, Elixir of Giants came");
+        assert!(!f.character.external_buffs().is_selected("Juju Power"));
+        assert!(f.character.external_buffs().is_selected("Elixir of Giants"));
+        f.ctx().toggle_external_buff("Juju Power").unwrap();
+        assert_eq!(strength(&f), 153);
+        assert!(!f.character.external_buffs().is_selected("Elixir of Giants"));
+    }
+
+    #[test]
+    fn faction_bound_buffs() {
+        let (mut f, _) = fixture();
+        assert_eq!(
+            f.ctx().toggle_external_buff("Greater Blessing of Kings"),
+            Err(ExternalBuffToggleError::WrongFaction(
+                "Greater Blessing of Kings".into(),
+                "Horde"
+            ))
+        );
+        assert_eq!(
+            f.ctx().toggle_external_buff("Flask of the Titans"),
+            Err(ExternalBuffToggleError::NotOffered(
+                "Flask of the Titans".into()
+            ))
+        );
+        assert_eq!(
+            f.ctx().toggle_external_buff("Strength of Earth Totem"),
+            Ok(true)
+        );
+        assert_eq!(strength(&f), 123 + 53);
+        let offered: Vec<&str> = f
+            .character
+            .external_buffs()
+            .offered(Faction::Horde)
+            .map(|e| e.spec.name.as_str())
+            .collect();
+        assert!(!offered.contains(&"Greater Blessing of Kings"));
+        assert!(offered.contains(&"Sunder Armor"));
+    }
+
+    #[test]
+    fn a_race_change_across_factions_swaps_the_faction_buffs() {
+        let (mut f, _) = fixture();
+        f.ctx()
+            .toggle_external_buff("Strength of Earth Totem")
+            .unwrap();
+        f.ctx().toggle_external_buff("Juju Power").unwrap();
+        assert_eq!(strength(&f), 123 + 53 + 30);
+
+        let db = std::mem::take(&mut f.db);
+        f.ctx().set_race(&db, &race(Race::Human));
+        f.db = db;
+        assert_eq!(
+            strength(&f),
+            120 + 30,
+            "the totem is gone, Juju Power stays"
+        );
+        assert!(
+            f.character
+                .external_buffs()
+                .is_selected("Strength of Earth Totem"),
+            "still selected, as in C++"
+        );
+        assert_eq!(
+            f.ctx().toggle_external_buff("Greater Blessing of Kings"),
+            Ok(true)
+        );
+        assert_eq!(strength(&f), (120 + 30) * 110 / 100);
+
+        let db = std::mem::take(&mut f.db);
+        f.ctx().set_race(&db, &race(Race::Orc));
+        f.db = db;
+        assert_eq!(strength(&f), 123 + 53 + 30, "the totem is back, Kings gone");
+        f.ctx().clear_external_buffs();
+        assert_eq!(strength(&f), 123);
+        assert!(f.character.external_buffs().selected_buffs().is_empty());
+    }
+
+    #[test]
+    fn selected_externals_survive_the_iteration_reset() {
+        let (mut f, _) = fixture();
+        f.ctx().toggle_external_buff("Juju Power").unwrap();
+        f.ctx().toggle_external_buff("Sunder Armor").unwrap();
+        let base_armor = f.target.armor() + 5 * 450;
+        f.ctx().prepare_set_of_combat_iterations();
+        f.engine.prepare_iteration(-2.0);
+        f.ctx().reset();
+        assert_eq!(strength(&f), 153);
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+        assert!(f.ctx().aura_active(JUJU_POWER));
+        f.engine.prepare_iteration(0.0);
+        f.ctx().encounter_start();
+        f.run(5.0);
+        assert_eq!(strength(&f), 153);
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+        f.ctx().reset();
+        assert_eq!(strength(&f), 153);
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+    }
+
+    #[test]
+    fn shipped_registry_matches_the_shipped_spells() {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let db = SpellDb::load(&data.join("spells")).unwrap();
+        let registry = ExternalBuffDb::load(&data.join("external_buffs.yaml")).unwrap();
+        registry.validate(&db).unwrap();
+        assert_eq!(registry.buffs().len(), 20);
+        assert_eq!(registry.debuffs().len(), 4);
+        for spec in registry.entries() {
+            assert!(
+                !db.is_learnable(spec.spell)
+                    || db.class_of(spec.spell) == Some(Some(PlayerClass::Warrior)),
+                "{}: the aura is an externals.yaml record or a Warrior spell",
+                spec.name
+            );
+        }
+
+        let mut f = Fixture::orc_warrior();
+        f.target.set_base_armor(5000);
+        f.ctx().add_external_buffs(&registry, &db);
+        assert_eq!(
+            f.character.external_buffs().entries().len(),
+            23,
+            "everything but Battle Shout"
+        );
+        let base_strength = strength(&f);
+        let base_armor = f.target.armor();
+        let names: Vec<String> = f
+            .character
+            .external_buffs()
+            .offered(Faction::Horde)
+            .map(|e| e.spec.name.clone())
+            .collect();
+        for name in &names {
+            f.ctx().toggle_external_buff(name).unwrap();
+        }
+        // Mutex groups leave one of each; the numbers come from the records.
+        let selected = f.character.external_buffs().selected_buffs();
+        assert!(selected.contains(&"Strength of Earth Totem"));
+        assert!(selected.contains(&"Blessed Sunfruit"), "the last food wins");
+        assert!(!selected.contains(&"Grilled Squid"));
+        assert!(strength(&f) > base_strength + 53 + 30 + 17 + 10);
+        assert_eq!(
+            f.target.armor(),
+            base_armor - 5 * 450 - 505 - 505 - 3 * 165,
+            "Sunder x5, Faerie Fire, Curse of Recklessness, Armor Shatter x3"
+        );
+        f.ctx().clear_external_buffs();
+        assert_eq!(strength(&f), base_strength);
+        assert_eq!(f.target.armor(), base_armor);
+    }
+}

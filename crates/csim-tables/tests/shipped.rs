@@ -3,6 +3,7 @@
 
 use std::path::Path;
 
+use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::character::ClassDb;
 use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::{Faction, PlayerClass};
@@ -45,6 +46,17 @@ fn shipped_spell_files_match_a_fresh_export() {
     assert!(
         rendered == shipped.replace("\r\n", "\n"),
         "data/spells/racials.yaml is stale: re-run `csim-tables export-spells --racials`"
+    );
+
+    let registry = ExternalBuffDb::load(&root.join("data/external_buffs.yaml")).unwrap();
+    let exclude = export::spell_ids_in_dir(&spells_dir, "externals.yaml").unwrap();
+    let externals =
+        export::export_externals(&tables, &registry.spell_ids(), &exclude, &overrides).unwrap();
+    let rendered = export::render(&externals, "export-spells --externals").unwrap();
+    let shipped = std::fs::read_to_string(spells_dir.join("externals.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
     );
 }
 

@@ -184,6 +184,7 @@ mod tests {
         SpellFile {
             build: "1.60.1.69893".into(),
             class: None,
+            learnable: true,
             spells,
         }
     }

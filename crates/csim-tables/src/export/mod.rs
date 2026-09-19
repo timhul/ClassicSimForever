@@ -5,6 +5,6 @@ pub mod spells;
 
 pub use prune::{prune, PruneReport};
 pub use spells::{
-    export_class, export_class_with_report, export_racials, export_racials_with_report, render,
-    ExportError,
+    export_class, export_class_with_report, export_externals, export_externals_with_report,
+    export_racials, export_racials_with_report, render, spell_ids_in_dir, ExportError,
 };
