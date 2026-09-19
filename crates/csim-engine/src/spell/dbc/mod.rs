@@ -384,7 +384,7 @@ pub struct ParseError {
 }
 
 /// Parses one `|`-separated part of a flag string: a flag name, a decimal or a `0x` hex number.
-fn parse_flag_part(part: &str, from_name: impl Fn(&str) -> Option<u32>) -> Option<u32> {
+pub(crate) fn parse_flag_part(part: &str, from_name: impl Fn(&str) -> Option<u32>) -> Option<u32> {
     if let Some(bits) = from_name(part) {
         return Some(bits);
     }

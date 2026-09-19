@@ -6,6 +6,7 @@
 
 pub mod auto_attack;
 pub mod dbc;
+pub mod overrides;
 pub mod periodic;
 pub mod rank_group;
 pub mod record;

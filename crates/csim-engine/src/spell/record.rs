@@ -39,8 +39,9 @@
 //! ```
 //!
 //! Everything the client tables do *not* contain (scripted `DUMMY` effects, server-side proc
-//! conditions, sim-only threat) is layered on top by the overrides of Phase 3T.4; this module
-//! only knows the table data.
+//! conditions, sim-only threat) lives in the hand-written [`crate::spell::overrides`], which
+//! [`SpellDb`] loads from `data/spells/overrides/` and keeps next to the records: a record is
+//! always the table row, and [`SpellDb::overrides`] answers what the sim adds to it.
 
 use std::collections::{BTreeMap, HashMap};
 use std::fs;
@@ -54,6 +55,10 @@ use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
     ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
 };
+use crate::spell::overrides::{OverrideError, Overrides, SimFlag};
+
+/// The subdirectory of the spell directory that holds the hand-written overrides.
+pub const OVERRIDES_DIR: &str = "overrides";
 
 fn is_default<T: Default + PartialEq>(value: &T) -> bool {
     *value == T::default()
@@ -749,6 +754,27 @@ pub enum SpellDbError {
     },
     #[error("files were exported from different builds: {0} and {1}")]
     BuildMismatch(String, String),
+    #[error(transparent)]
+    Override(#[from] OverrideError),
+}
+
+/// An effect the sim cannot interpret: reported, never fatal (the spell loads, casting it
+/// fails).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Unsupported {
+    pub spell: u32,
+    pub effect: u32,
+    pub reason: String,
+}
+
+impl std::fmt::Display for Unsupported {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "spell {} effect {}: {}",
+            self.spell, self.effect, self.reason
+        )
+    }
 }
 
 /// Every loaded spell record, indexed by id, name, rank chain and class.
@@ -761,6 +787,7 @@ pub struct SpellDb {
     by_name: HashMap<String, Vec<u32>>,
     by_class: BTreeMap<Option<PlayerClass>, Vec<u32>>,
     next_rank: HashMap<u32, u32>,
+    overrides: Overrides,
 }
 
 impl SpellDb {
@@ -768,10 +795,11 @@ impl SpellDb {
         Self::default()
     }
 
-    /// Loads every `*.yaml` / `*.yml` file directly in `spells_dir` (sorted by name;
-    /// subdirectories such as `overrides/` are not entered) and checks cross references.
+    /// Loads every `*.yaml` / `*.yml` file directly in `spells_dir` (sorted by name), then the
+    /// overrides in `spells_dir/overrides/`, and checks cross references.
     pub fn load(spells_dir: &Path) -> Result<Self, SpellDbError> {
         let mut db = Self::new();
+        db.overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
         let mut paths: Vec<PathBuf> = fs::read_dir(spells_dir)
             .map_err(|source| SpellDbError::Io {
                 path: spells_dir.to_path_buf(),
@@ -861,8 +889,59 @@ impl SpellDb {
         self.spells.insert(id, Arc::new(record));
     }
 
-    /// Checks that every `supercedes` and `trigger_spell` reference points at a loaded spell.
+    /// The hand-written overrides.
+    pub fn overrides(&self) -> &Overrides {
+        &self.overrides
+    }
+
+    /// Replaces the overrides (checked against the records by `check_references`).
+    pub fn set_overrides(&mut self, overrides: Overrides) {
+        self.overrides = overrides;
+    }
+
+    /// Checks that every `supercedes` and `trigger_spell` reference points at a loaded spell,
+    /// and that every override names a loaded spell, an existing effect and existing spells.
     pub fn check_references(&self) -> Result<(), SpellDbError> {
+        self.check_record_references()?;
+        self.check_override_references()
+    }
+
+    fn check_override_references(&self) -> Result<(), SpellDbError> {
+        for spell_override in self.overrides.all() {
+            let id = spell_override.id;
+            let Some(record) = self.spells.get(&id) else {
+                return Err(SpellDbError::UnknownReference {
+                    spell: id,
+                    field: "override",
+                    target: id,
+                });
+            };
+            for script in &spell_override.effects {
+                if record.effect(script.index).is_none() {
+                    return Err(SpellDbError::Invalid {
+                        spell: id,
+                        message: format!(
+                            "the override scripts effect {}, but the spell has {} effects",
+                            script.index,
+                            record.effects.len()
+                        ),
+                    });
+                }
+            }
+            for target in spell_override.referenced_spells() {
+                if !self.spells.contains_key(&target) {
+                    return Err(SpellDbError::UnknownReference {
+                        spell: id,
+                        field: "override",
+                        target,
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn check_record_references(&self) -> Result<(), SpellDbError> {
         let mut ids: Vec<u32> = self.spells.keys().copied().collect();
         ids.sort_unstable();
         for id in ids {
@@ -896,6 +975,50 @@ impl SpellDb {
             }
         }
         Ok(())
+    }
+
+    /// Every effect the sim cannot interpret, sorted by spell and effect: unknown effect or aura
+    /// ids from a newer dump, and scripted effects (`DUMMY`, `PERIODIC_DUMMY`,
+    /// `OVERRIDE_CLASS_SCRIPTS`) without a script in the overrides. Spells the overrides mark
+    /// `IGNORED` are skipped.
+    pub fn unsupported(&self) -> Vec<Unsupported> {
+        let mut report = Vec::new();
+        for record in self.records() {
+            if self.overrides.has_sim_flag(record.id, SimFlag::Ignored) {
+                continue;
+            }
+            for effect in &record.effects {
+                let reason = if !effect.effect.is_known() {
+                    Some(format!("unknown effect id {}", effect.effect.id()))
+                } else if effect.is_apply_aura() && !effect.aura.is_known() {
+                    Some(format!("unknown aura id {}", effect.aura.id()))
+                } else if effect.is_scripted()
+                    && self
+                        .overrides
+                        .effect_script(record.id, effect.index)
+                        .is_none()
+                {
+                    Some(format!(
+                        "{} needs a script in the overrides",
+                        if effect.is_apply_aura() {
+                            format!("aura {}", effect.aura)
+                        } else {
+                            format!("effect {}", effect.effect)
+                        }
+                    ))
+                } else {
+                    None
+                };
+                if let Some(reason) = reason {
+                    report.push(Unsupported {
+                        spell: record.id,
+                        effect: effect.index,
+                        reason,
+                    });
+                }
+            }
+        }
+        report
     }
 
     /// The build the files were exported from.
@@ -1151,14 +1274,133 @@ spells:
       - { index: 0, effect: APPLY_AURA, aura: MOD_ATTACK_POWER_PCT, base_points: 10, implicit_target: [UNIT_CASTER, NONE] }
 "#;
 
+    const OVERRIDES_YAML: &str = r#"
+overrides:
+  - id: 12834
+    proc: { hit_mask: [CRITICAL] }
+  - id: 12162
+    effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 2458 } }]
+  - id: 78
+    threat: { flat: 20 }
+"#;
+
     fn db() -> SpellDb {
         let mut db = SpellDb::new();
         db.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
             .unwrap();
         db.add_file(serde_yaml::from_str(RACIAL_YAML).unwrap())
             .unwrap();
+        let mut overrides = Overrides::new();
+        overrides
+            .add_file(serde_yaml::from_str(OVERRIDES_YAML).unwrap())
+            .unwrap();
+        db.set_overrides(overrides);
         db.check_references().unwrap();
         db
+    }
+
+    #[test]
+    fn overrides_sit_next_to_the_records() {
+        use crate::spell::overrides::{ProcHitMask, ScriptKind, SpellOverride};
+
+        let db = db();
+        assert_eq!(db.overrides().proc_hit_mask(12834), ProcHitMask::CRITICAL);
+        assert_eq!(db.overrides().proc_hit_mask(12319), ProcHitMask::LANDED);
+        assert_eq!(
+            db.overrides().effect_script(12162, 0).unwrap().script,
+            ScriptKind::DeepWoundsBleed
+        );
+        assert_eq!(db.overrides().threat(78).flat, 20.0);
+        assert_eq!(
+            db.get(78).unwrap().effects.len(),
+            1,
+            "records are untouched"
+        );
+        assert!(db.unsupported().is_empty(), "{:?}", db.unsupported());
+
+        // A scripted effect without a script is reported, not rejected.
+        let mut bare = SpellDb::new();
+        bare.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
+            .unwrap();
+        bare.check_references().unwrap();
+        let report = bare.unsupported();
+        assert_eq!(report.len(), 1);
+        assert_eq!(report[0].spell, 12162);
+        assert_eq!(
+            report[0].to_string(),
+            "spell 12162 effect 0: effect DUMMY needs a script in the overrides"
+        );
+        let mut ignored = Overrides::new();
+        let mut spell_override = SpellOverride::new(12162);
+        spell_override.sim_flags.push(SimFlag::Ignored);
+        ignored.add(spell_override).unwrap();
+        bare.set_overrides(ignored);
+        assert!(bare.unsupported().is_empty());
+
+        // Unknown ids from a newer dump are reported too.
+        let mut future = SpellRecord::new(1, "Future");
+        let mut effect = EffectRecord::new(0, SpellEffectName::Unknown(999));
+        future.effects.push(effect.clone());
+        effect.index = 1;
+        effect.effect = SpellEffectName::ApplyAura;
+        effect.aura = AuraType::Unknown(466);
+        future.effects.push(effect);
+        bare.add(None, future).unwrap();
+        let reasons: Vec<String> = bare
+            .unsupported()
+            .iter()
+            .map(|u| u.reason.clone())
+            .collect();
+        assert_eq!(reasons, ["unknown effect id 999", "unknown aura id 466"]);
+    }
+
+    #[test]
+    fn overrides_must_name_loaded_spells_and_effects() {
+        use crate::spell::overrides::{EffectScript, ScriptKind, ScriptParams, SpellOverride};
+
+        let mut db = SpellDb::new();
+        db.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
+            .unwrap();
+
+        let mut overrides = Overrides::new();
+        overrides.add(SpellOverride::new(4242)).unwrap();
+        db.set_overrides(overrides);
+        assert!(matches!(
+            db.check_references(),
+            Err(SpellDbError::UnknownReference {
+                spell: 4242,
+                field: "override",
+                target: 4242
+            })
+        ));
+
+        let mut overrides = Overrides::new();
+        let mut spell_override = SpellOverride::new(12294);
+        spell_override.effects.push(EffectScript {
+            index: 2,
+            script: ScriptKind::NoOp,
+            params: ScriptParams::default(),
+        });
+        overrides.add(spell_override).unwrap();
+        db.set_overrides(overrides);
+        assert!(matches!(
+            db.check_references(),
+            Err(SpellDbError::Invalid { spell: 12294, .. })
+        ));
+
+        let mut overrides = Overrides::new();
+        let mut spell_override = SpellOverride::new(2458);
+        spell_override.stance_passive = Some(7381);
+        overrides.add(spell_override).unwrap();
+        db.set_overrides(overrides);
+        assert!(matches!(
+            db.check_references(),
+            Err(SpellDbError::UnknownReference {
+                spell: 2458,
+                field: "override",
+                target: 7381
+            })
+        ));
     }
 
     #[test]
@@ -1456,11 +1698,20 @@ spells:
         fs::write(dir.join("warrior.yaml"), WARRIOR_YAML).unwrap();
         fs::write(dir.join("racials.yml"), RACIAL_YAML).unwrap();
         fs::write(dir.join("notes.txt"), "not yaml").unwrap();
-        fs::write(overrides.join("warrior.yaml"), "overrides: []").unwrap();
+        fs::write(overrides.join("warrior.yaml"), OVERRIDES_YAML).unwrap();
 
         let db = SpellDb::load(&dir).unwrap();
         assert_eq!(db.len(), 10);
         assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.overrides().len(), 3);
+        assert!(db.unsupported().is_empty());
+
+        fs::write(overrides.join("bad.yaml"), "overrides: [{ id: 12834 }]").unwrap();
+        assert!(matches!(
+            SpellDb::load(&dir),
+            Err(SpellDbError::Override(OverrideError::Duplicate(12834)))
+        ));
+        fs::remove_file(overrides.join("bad.yaml")).unwrap();
 
         fs::write(dir.join("broken.yaml"), "spells: [{ id: 1 }]").unwrap();
         assert!(matches!(
