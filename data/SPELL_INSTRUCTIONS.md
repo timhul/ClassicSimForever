@@ -324,8 +324,13 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
 
 ## 1.8 Worked examples (Warrior)
 
-- **Mortal Strike 12294**: rage 30 (`ManaCost` 300), category cd 6000, GCD 1500, duration 10 s.
-  E0: aura 118 MOD_HEALING_PCT −50 on enemy target. E1: effect 121 NORMALIZED_WEAPON_DMG +85.
+- **Mortal Strike 12294** (`NameSubtext` "Rank 1"): rage 30 (`ManaCost` 300), category 971 cd 6000,
+  GCD 1500, duration 10 s. E0: aura 118 MOD_HEALING_PCT −50 on enemy target. E1: effect 121
+  NORMALIZED_WEAPON_DMG +85. `SpellClassMask` [33554432, 0, 0, 0]; the spells sharing category 971
+  have their own masks: Bloodthirst 23881 [33554432, 1024, 0, 0], Shield Slam 23922 [33554432, 1, 0, 0].
+  Talent modifiers that name Mortal Strike in their masks therefore also hit Bloodthirst and Shield
+  Slam through word 0 (Impale, Focused Rage).
+  Skill line 26, `ClassMask` 0 (talent-granted) even though the ability is a `TraitDefinition` spell.
 - **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total.
 - **Sunder Armor r5 11597**: E0 aura 22 MOD_RESISTANCE −450 misc 1 (armor), `CumulativeAura` 5,
   30 s; E1 effect 63 THREAT 1013.
