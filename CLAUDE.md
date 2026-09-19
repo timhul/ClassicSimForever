@@ -25,4 +25,4 @@ Do not implement anything during the planning phase.
 (2) Development phase
 
 Implement the given task in `TASKS.md`. Add tests if relevant. Make sure building works.
-Run `cargo clippy` and other relevant code linters.
+Run `cargo clippy` and other relevant code linters. Commit each substep (e.g. 4.1 is one commit).
