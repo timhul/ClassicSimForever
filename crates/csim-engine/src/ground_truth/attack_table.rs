@@ -506,7 +506,7 @@ fn dodge_follows_the_defense_minus_skill_difference() {
 /// ~5 % block, not 6.5 %.
 #[test]
 fn block_is_5_percent_capped_against_mobs() {
-    assert_close(0.05, Mechanics::new(63).block_chance(), "block vs +3");
+    assert_close(0.05, Mechanics::new(63).block_chance(300), "block vs +3");
     let d = white_distribution(63, &ctx(60, 0.0, false, false), 300, 0.0);
     assert_share(5.0, d.block, "block vs +3 with 300 skill");
     let d = white_distribution(60, &ctx(60, 0.0, false, false), 300, 0.0);

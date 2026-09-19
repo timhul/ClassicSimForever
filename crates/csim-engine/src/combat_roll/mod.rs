@@ -266,7 +266,7 @@ impl CombatRoll {
             self.mechanics.dodge_chance(wpn_skill),
             parry,
             glancing,
-            self.mechanics.block_chance(),
+            self.block_chance(ctx, wpn_skill),
         );
         self.melee_white_tables.insert(key, table);
     }
@@ -285,7 +285,7 @@ impl CombatRoll {
             miss,
             self.mechanics.dodge_chance(wpn_skill),
             parry,
-            self.mechanics.block_chance(),
+            self.block_chance(ctx, wpn_skill),
         );
         self.melee_special_tables.insert(key, table);
     }
@@ -309,6 +309,14 @@ impl CombatRoll {
             0.0
         } else {
             self.mechanics.parry_chance(ctx.clvl, wpn_skill)
+        }
+    }
+
+    fn block_chance(&self, ctx: &RollContext, wpn_skill: u32) -> f64 {
+        if ctx.attacking_from_behind {
+            0.0
+        } else {
+            self.mechanics.block_chance(wpn_skill)
         }
     }
 
@@ -547,7 +555,7 @@ mod tests {
         let all = IncludedOutcomes::ALL;
 
         let table = roll.get_melee_white_table(&ctx, 300).clone();
-        // 8% miss, 6.5% dodge, 14% parry, 40% glancing.
+        // 8% miss, 6.5% dodge, 14% parry, 40% glancing, 5% block.
         assert_eq!(
             table.get_outcome(&mut random, 799, 0, all),
             PhysicalAttackResult::Miss
@@ -573,7 +581,19 @@ mod tests {
             PhysicalAttackResult::Glancing
         );
         assert_eq!(
-            table.get_outcome(&mut random, 7000, 0, all),
+            table.get_outcome(&mut random, 6849, 0, all),
+            PhysicalAttackResult::Glancing
+        );
+        assert_eq!(
+            table.get_outcome(&mut random, 6850, 0, all),
+            PhysicalAttackResult::Block
+        );
+        assert_eq!(
+            table.get_outcome(&mut random, 7349, 0, all),
+            PhysicalAttackResult::Block
+        );
+        assert_eq!(
+            table.get_outcome(&mut random, 7350, 0, all),
             PhysicalAttackResult::Hit
         );
     }

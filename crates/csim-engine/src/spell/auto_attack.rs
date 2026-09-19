@@ -241,23 +241,12 @@ impl AutoAttack {
                 report.proc_sources.push(ProcSource::MeleeMiss);
                 return report;
             }
-            PhysicalAttackResult::Dodge
-            | PhysicalAttackResult::Parry
-            | PhysicalAttackResult::Block
-            | PhysicalAttackResult::BlockCritical => {
+            PhysicalAttackResult::Dodge | PhysicalAttackResult::Parry => {
                 report.proc_sources.push(match result {
                     PhysicalAttackResult::Dodge => ProcSource::MeleeDodge,
-                    PhysicalAttackResult::Parry => ProcSource::MeleeParry,
-                    _ => ProcSource::MeleeFullBlock,
+                    _ => ProcSource::MeleeParry,
                 });
-                // Avoided swings still generate rage from the damage they would have dealt.
-                let avg = match hand {
-                    Hand::Mainhand => host.avg_mh_damage(),
-                    Hand::Offhand => host.avg_oh_damage() * self.offhand_penalty,
-                };
-                let would_have_dealt = damage_after_modifiers(host, avg);
-                report.rage_gained = gain_rage(host, hand, would_have_dealt);
-                return report;
+                return self.avoided(host, report);
             }
             _ => {}
         }
@@ -268,22 +257,49 @@ impl AutoAttack {
         };
         let mut damage = damage_after_modifiers(host, raw);
         match result {
-            PhysicalAttackResult::Critical => {
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical => {
                 damage = (damage * host.melee_crit_dmg_mod()).round();
-                report.proc_sources.push(ProcSource::MeleeCritical);
             }
             PhysicalAttackResult::Glancing => {
                 damage = (damage * host.glancing_blow_dmg_penalty(weapon_skill)).round();
-                report.proc_sources.push(ProcSource::MeleeHit);
             }
             _ => {
                 damage = damage.round();
-                report.proc_sources.push(ProcSource::MeleeHit);
             }
         }
+        // A blocked swing lands for its damage less the target's block value; one the block
+        // value absorbs entirely is a full block and counts as avoided.
+        if matches!(
+            result,
+            PhysicalAttackResult::Block | PhysicalAttackResult::BlockCritical
+        ) {
+            damage -= f64::from(host.target_block_value());
+            if damage <= 0.0 {
+                report.proc_sources.push(ProcSource::MeleeFullBlock);
+                return self.avoided(host, report);
+            }
+        }
+        report.proc_sources.push(match result {
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical => {
+                ProcSource::MeleeCritical
+            }
+            _ => ProcSource::MeleeHit,
+        });
         report.attack.damage = damage.max(0.0) as u32;
         report.attack.threat = f64::from(report.attack.damage) * host.total_threat_mod();
         report.rage_gained = gain_rage(host, hand, damage);
+        report
+    }
+
+    /// Finishes the report of an avoided swing (dodge, parry, full block): no damage, but the
+    /// rage the swing would have generated on average.
+    fn avoided(&self, host: &mut impl AutoAttackHost, mut report: SwingReport) -> SwingReport {
+        let avg = match self.hand {
+            Hand::Mainhand => host.avg_mh_damage(),
+            Hand::Offhand => host.avg_oh_damage() * self.offhand_penalty,
+        };
+        let would_have_dealt = damage_after_modifiers(host, avg);
+        report.rage_gained = gain_rage(host, self.hand, would_have_dealt);
         report
     }
 
@@ -357,6 +373,7 @@ mod tests {
         attacking: bool,
         reactions: u32,
         armor: i32,
+        block_value: u32,
         rage_user: bool,
         modifiers: SpellModifiers,
     }
@@ -378,6 +395,7 @@ mod tests {
                 attacking: true,
                 reactions: 0,
                 armor: 0,
+                block_value: 0,
                 rage_user: true,
                 modifiers: SpellModifiers::new(),
             }
@@ -562,6 +580,9 @@ mod tests {
         fn target_armor(&self) -> i32 {
             self.armor
         }
+        fn target_block_value(&self) -> u32 {
+            self.block_value
+        }
         fn total_physical_damage_mod(&self) -> f64 {
             1.0
         }
@@ -678,6 +699,45 @@ mod tests {
         );
     }
 
+    /// A blocked swing lands less the target's block value; a block value covering the whole
+    /// swing makes it a full block, which counts as avoided.
+    #[test]
+    fn blocked_swings_lose_the_block_value() {
+        let mut world = World::new();
+        let mut mh = AutoAttack::new(Hand::Mainhand);
+
+        // No block value: a block is a hit (286), a block crit a crit (571).
+        world.rolls.push_back(PhysicalAttackResult::Block);
+        let report = mh.perform(&mut world);
+        assert_eq!(report.attack.result, PhysicalAttackResult::Block);
+        assert_eq!(report.attack.damage, 286);
+        assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
+        world.rolls.push_back(PhysicalAttackResult::BlockCritical);
+        let report = mh.perform(&mut world);
+        assert_eq!(report.attack.damage, 571);
+        assert_eq!(report.proc_sources, vec![ProcSource::MeleeCritical]);
+
+        world.block_value = 50;
+        world.rage = 0;
+        world.rolls.push_back(PhysicalAttackResult::Block);
+        let report = mh.perform(&mut world);
+        assert_eq!(report.attack.damage, 236);
+        assert_eq!(report.rage_gained, Some(8), "rage from the damage dealt");
+        world.rolls.push_back(PhysicalAttackResult::BlockCritical);
+        let report = mh.perform(&mut world);
+        assert_eq!(report.attack.damage, 521);
+
+        // Fully absorbed: no damage, the avoided-swing rage, a full block for the procs.
+        world.block_value = 300;
+        world.rage = 0;
+        world.rolls.push_back(PhysicalAttackResult::Block);
+        let report = mh.perform(&mut world);
+        assert_eq!(report.attack.result, PhysicalAttackResult::Block);
+        assert_eq!(report.attack.damage, 0);
+        assert_eq!(report.rage_gained, Some(9));
+        assert_eq!(report.proc_sources, vec![ProcSource::MeleeFullBlock]);
+    }
+
     #[test]
     fn avoided_swings_generate_rage_but_no_damage() {
         let mut world = World::new();
@@ -685,11 +745,6 @@ mod tests {
         for (result, source) in [
             (PhysicalAttackResult::Dodge, ProcSource::MeleeDodge),
             (PhysicalAttackResult::Parry, ProcSource::MeleeParry),
-            (PhysicalAttackResult::Block, ProcSource::MeleeFullBlock),
-            (
-                PhysicalAttackResult::BlockCritical,
-                ProcSource::MeleeFullBlock,
-            ),
         ] {
             world.rage = 0;
             world.rolls.push_back(result);

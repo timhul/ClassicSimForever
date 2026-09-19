@@ -96,6 +96,9 @@ pub struct DebuffLimitReached;
 pub struct Target {
     level: u32,
     base_armor: i32,
+    /// Damage a blocked attack loses. Mobs have no known block value in the data, so it
+    /// defaults to 0 and a blocked hit lands for its full damage.
+    block_value: u32,
     creature_type: CreatureType,
     stats: Stats,
     resistances: [i32; MagicSchool::ALL.len()],
@@ -128,6 +131,7 @@ impl Target {
         Self {
             level,
             base_armor: Mechanics::BOSS_BASE_ARMOR,
+            block_value: 0,
             creature_type: CreatureType::Dragonkin,
             stats,
             resistances,
@@ -168,6 +172,15 @@ impl Target {
 
     pub fn base_armor(&self) -> i32 {
         self.base_armor
+    }
+
+    /// Damage a blocked attack loses.
+    pub fn block_value(&self) -> u32 {
+        self.block_value
+    }
+
+    pub fn set_block_value(&mut self, block_value: u32) {
+        self.block_value = block_value;
     }
 
     /// Replaces the base armor while keeping every debuff delta applied on top of it.

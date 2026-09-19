@@ -822,6 +822,7 @@ pub(crate) struct World {
     pub can_crits: Vec<bool>,
     pub combat_length: f64,
     pub armor: i32,
+    pub block_value: u32,
     pub aura_log: Vec<String>,
     pub ticks: Vec<TickReport>,
     pub casting_speed_mod: f64,
@@ -870,6 +871,7 @@ impl World {
             can_crits: Vec::new(),
             combat_length: 300.0,
             armor: 0,
+            block_value: 0,
             aura_log: Vec::new(),
             ticks: Vec::new(),
             casting_speed_mod: 1.0,
@@ -1290,6 +1292,9 @@ impl SpellHost for World {
     }
     fn target_armor(&self) -> i32 {
         self.armor
+    }
+    fn target_block_value(&self) -> u32 {
+        self.block_value
     }
     fn total_physical_damage_mod(&self) -> f64 {
         1.0

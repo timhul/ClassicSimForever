@@ -122,9 +122,13 @@ impl Mechanics {
         }
     }
 
-    /// Chance for the target to block.
-    pub fn block_chance(&self) -> f64 {
-        0.0
+    /// Chance for the target to block (only when attacking from the front): 5 % adjusted by
+    /// 0.1 % per point of defense over the weapon skill, but never more than 5 % for a mob
+    /// ("mobs cannot block more than 5% of attacks regardless of rating difference"). See
+    /// <https://github.com/magey/classic-warrior/wiki/Attack-table#block>.
+    pub fn block_chance(&self, wpn_skill: u32) -> f64 {
+        let diff = self.defense_minus_wpn_skill(wpn_skill);
+        (0.05 + f64::from(diff) * 0.001).clamp(0.0, 0.05)
     }
 
     /// Lower bound of the glancing blow damage multiplier.
@@ -339,7 +343,6 @@ mod tests {
         assert_close(0.135, mechanics.parry_chance(60, 305));
         assert_close(0.125, mechanics.parry_chance(60, 315));
         assert_close(0.145, mechanics.parry_chance(60, 295));
-        assert_close(0.0, mechanics.block_chance());
 
         assert_close(0.06, Mechanics::new(62).parry_chance(60, 300));
         assert_close(0.055, Mechanics::new(61).parry_chance(60, 300));
@@ -374,6 +377,20 @@ mod tests {
             mechanics.two_hand_white_miss_chance(300),
             mechanics.yellow_miss_chance(300),
         );
+    }
+
+    #[test]
+    fn block_is_capped_at_5_percent_against_mobs() {
+        let mechanics = Mechanics::new(63);
+        assert_close(0.05, mechanics.block_chance(300));
+        assert_close(0.05, mechanics.block_chance(315));
+        assert_close(0.049, mechanics.block_chance(316));
+        assert_close(0.045, mechanics.block_chance(320));
+
+        let mechanics = Mechanics::new(60);
+        assert_close(0.05, mechanics.block_chance(300));
+        assert_close(0.04, mechanics.block_chance(310));
+        assert_close(0.0, mechanics.block_chance(400));
     }
 
     #[test]
