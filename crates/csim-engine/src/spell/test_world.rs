@@ -192,7 +192,7 @@ spells:
   - index: 0
     effect: APPLY_AURA
     aura: MOD_ATTACK_POWER
-    base_points: 232.0
+    base_points: 139.0
     radius_yd: [20.0, 0.0]
     implicit_target: [UNIT_CASTER_AREA_PARTY, NONE]
 - id: 2457

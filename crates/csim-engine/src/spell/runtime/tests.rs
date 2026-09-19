@@ -459,7 +459,7 @@ fn effect_values_can_be_replaced_and_reapply_an_active_buff() {
     world.learn(BATTLE_SHOUT_7);
     let id = world.spell_id(BATTLE_SHOUT_7);
     world.perform(BATTLE_SHOUT_7);
-    assert_eq!(world.stats.base_stats().get_base_melee_ap(), 232);
+    assert_eq!(world.stats.base_stats().get_base_melee_ap(), 139);
 
     world.set_spell_effect_value(BATTLE_SHOUT_7, 0, 250.0);
     assert_eq!(world.stats.base_stats().get_base_melee_ap(), 250);
@@ -469,7 +469,7 @@ fn effect_values_can_be_replaced_and_reapply_an_active_buff() {
     );
 
     world.with_spell(id, |spell, world| spell.reset_effect_values(world));
-    assert_eq!(world.stats.base_stats().get_base_melee_ap(), 232);
+    assert_eq!(world.stats.base_stats().get_base_melee_ap(), 139);
 
     world.learn(BLOODTHIRST);
     world.set_spell_effect_value(BLOODTHIRST, 1, 50.0);

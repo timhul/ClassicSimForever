@@ -24,7 +24,7 @@ use std::sync::Arc;
 use crate::buff::{Buff, BuffApplication};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::cooldown::{add_gcd_event, CooldownControl};
-use crate::effect::{ChainState, Effect, EffectHost};
+use crate::effect::{ChainState, Dependency, Effect, EffectHost};
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
 use crate::mechanics::Mechanics;
@@ -332,7 +332,7 @@ impl Spell {
             record.id
         );
         let cannot_crit = setup.has_sim_flag(SimFlag::CannotCrit);
-        let effects = record
+        let mut effects: Vec<Effect> = record
             .effects
             .iter()
             .filter(|e| !e.is_apply_aura())
@@ -345,6 +345,15 @@ impl Spell {
                 )
             })
             .collect();
+        // The first direct effect rolls the attack, whatever its table index (pruning may have
+        // removed the effects before it); the rest reuse that roll.
+        for (position, effect) in effects.iter_mut().enumerate() {
+            effect.set_dependency(if position == 0 {
+                Dependency::Independent
+            } else {
+                Dependency::PartialSuccess
+            });
+        }
 
         // Periodic auras: a periodic aura effect on the buff, or a bleed script.
         let periodic = if let Some(aura) = &setup.bleed_aura {
@@ -1397,3 +1406,6 @@ pub fn spell_coefficient_from_casting_time(casting_time_ms: u32, level_req: u32)
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod parity;

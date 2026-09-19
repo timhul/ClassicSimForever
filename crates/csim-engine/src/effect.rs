@@ -178,6 +178,7 @@ impl Effect {
         script: Option<EffectScript>,
         cannot_crit: bool,
     ) -> Self {
+        // The spell sets the chain position: the first direct effect rolls, the rest follow it.
         let dependency = if record.index == 0 {
             Dependency::Independent
         } else {
@@ -292,6 +293,11 @@ impl Effect {
 
     pub fn dependency(&self) -> Dependency {
         self.dependency
+    }
+
+    /// Sets how the effect relates to the effects before it in its spell's chain.
+    pub fn set_dependency(&mut self, dependency: Dependency) {
+        self.dependency = dependency;
     }
 
     pub fn included_outcomes(&self) -> IncludedOutcomes {
