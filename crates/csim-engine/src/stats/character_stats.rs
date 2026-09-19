@@ -18,7 +18,8 @@ use crate::target::CreatureType;
 
 use super::Stats;
 
-/// Race contribution to stats: base attributes and weapon skill bonuses.
+/// Race contribution to stats: the base attributes. Everything else a race grants (Forever's
+/// weapon specializations, The Human Spirit, ...) is a racial spell applied as an aura.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct RaceStats {
     pub strength: u32,
@@ -26,27 +27,6 @@ pub struct RaceStats {
     pub stamina: u32,
     pub intellect: u32,
     pub spirit: u32,
-    pub axe_skill_bonus: u32,
-    pub sword_skill_bonus: u32,
-    pub mace_skill_bonus: u32,
-    pub bow_skill_bonus: u32,
-    pub gun_skill_bonus: u32,
-    pub thrown_skill_bonus: u32,
-}
-
-impl RaceStats {
-    /// Racial weapon skill bonus for a weapon type.
-    pub fn weapon_skill_bonus(&self, weapon_type: WeaponType) -> u32 {
-        match weapon_type {
-            WeaponType::Axe | WeaponType::TwohandAxe => self.axe_skill_bonus,
-            WeaponType::Sword | WeaponType::TwohandSword => self.sword_skill_bonus,
-            WeaponType::Mace | WeaponType::TwohandMace => self.mace_skill_bonus,
-            WeaponType::Bow => self.bow_skill_bonus,
-            WeaponType::Gun => self.gun_skill_bonus,
-            WeaponType::Thrown => self.thrown_skill_bonus,
-            _ => 0,
-        }
-    }
 }
 
 /// Class-specific stat conversion rules.
@@ -381,8 +361,7 @@ impl CharacterStats {
             return level_based_skill;
         }
 
-        let bonus = ctx.race.weapon_skill_bonus(weapon.weapon_type)
-            + ctx.equipment.get_weapon_skill(weapon.weapon_type)
+        let bonus = ctx.equipment.get_weapon_skill(weapon.weapon_type)
             + self.base_stats.get_weapon_skill(weapon.weapon_type);
 
         level_based_skill + bonus
@@ -1554,8 +1533,6 @@ mod tests {
                     stamina: 22,
                     intellect: 17,
                     spirit: 23,
-                    axe_skill_bonus: 5,
-                    ..RaceStats::default()
                 },
                 class: ClassStatRules {
                     agility_per_percent_crit: 20.0,
@@ -2015,24 +1992,29 @@ mod tests {
     }
 
     #[test]
-    fn weapon_skill_from_level_race_equipment_and_talents() {
+    fn weapon_skill_from_level_equipment_and_auras() {
         let mut f = Fixture::orc_warrior();
         assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 300);
 
         f.mainhand = weapon(WeaponType::Axe, 2.6);
+        assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 300);
+
+        // A racial skill aura, where a game version has one, lands in the base stats like a talent.
+        f.stats.increase_wpn_skill(WeaponType::Axe, 5);
         assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 305);
+        f.stats.decrease_wpn_skill(WeaponType::Axe, 5);
 
         f.mainhand = weapon(WeaponType::TwohandAxe, 3.6);
         f.equipment.increase_weapon_skill(WeaponType::TwohandAxe, 3);
         f.stats.increase_wpn_skill(WeaponType::TwohandAxe, 2);
-        assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 310);
+        assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 305);
         f.stats.decrease_wpn_skill(WeaponType::TwohandAxe, 2);
-        assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 308);
+        assert_eq!(f.stats.get_mh_wpn_skill(&f.ctx()), 303);
 
         f.offhand = weapon(WeaponType::Sword, 1.8);
         assert_eq!(f.stats.get_oh_wpn_skill(&f.ctx()), 300);
         f.ranged = weapon(WeaponType::Gun, 2.8);
-        f.race.gun_skill_bonus = 5;
+        f.equipment.increase_weapon_skill(WeaponType::Gun, 5);
         assert_eq!(f.stats.get_ranged_wpn_skill(&f.ctx()), 305);
     }
 

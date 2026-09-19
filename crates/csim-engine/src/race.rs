@@ -135,7 +135,6 @@ impl RaceSpec {
             stamina: self.base_stats.stamina,
             intellect: self.base_stats.intellect,
             spirit: self.base_stats.spirit,
-            ..RaceStats::default()
         }
     }
 }
@@ -312,7 +311,6 @@ base_stats: { strength: 20, agility: 21, stamina: 22, intellect: 23, spirit: 24 
                 stamina: 22,
                 intellect: 23,
                 spirit: 24,
-                ..RaceStats::default()
             }
         );
     }
