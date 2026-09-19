@@ -309,6 +309,17 @@ dbc_enum! {
     }
 }
 
+impl PowerType {
+    /// `PowerType.DisplayModifier`: stored amounts are this many times the displayed amount
+    /// (rage costs and gains are in tenths).
+    pub const fn display_modifier(self) -> i32 {
+        match self {
+            Self::Rage => 10,
+            _ => 1,
+        }
+    }
+}
+
 impl ShapeshiftForm {
     /// The bit of this form in `SpellShapeshift.ShapeshiftMask_0` (`None` for `NONE` / unknown
     /// forms beyond 32).

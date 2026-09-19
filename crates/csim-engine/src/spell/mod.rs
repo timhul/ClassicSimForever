@@ -8,6 +8,7 @@ pub mod auto_attack;
 pub mod dbc;
 pub mod periodic;
 pub mod rank_group;
+pub mod record;
 pub mod runtime;
 pub mod spec;
 pub mod status;
