@@ -17,6 +17,8 @@ data/
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
 ├── items/ enchants.yaml set_bonuses.yaml   Phase 2 item data (see ITEM_INSTRUCTIONS.md)
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
+├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
+│                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
 ├── TALENT_INSTRUCTIONS.md
 └── ITEM_INSTRUCTIONS.md

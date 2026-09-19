@@ -38,7 +38,7 @@ use crate::spell::{AutoAttack, Hand};
 use crate::stance::Stance;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
 
-pub use class::{ClassBaseStats, ClassSpec, ClassSpecError, StatOffsets, StatRules};
+pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets, StatRules};
 
 /// Simulation settings the character reads. Port of the `SimSettings` / ruleset queries made
 /// from `Character` and `CombatRoll`.

@@ -3,8 +3,10 @@
 
 use std::path::Path;
 
+use csim_engine::character::ClassDb;
+use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::{Faction, PlayerClass};
-use csim_engine::race::RaceDb;
+use csim_engine::race::{Race, RaceDb};
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::OVERRIDES_DIR;
 use csim_tables::export;
@@ -83,4 +85,72 @@ fn shipped_races_match_chr_races() {
             spec.race
         );
     }
+}
+
+/// `data/classes/warrior.yaml` agrees with `ChrClasses` (attack power per stat),
+/// `PlayerExpectedStat` (crit per agility at 60) and `CharBaseInfo` (the playable races).
+#[test]
+fn shipped_warrior_class_matches_the_tables() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let tables_dir = root.join("data/tables");
+    let build = std::fs::read_to_string(root.join("data/spells/warrior.yaml"))
+        .unwrap()
+        .lines()
+        .find_map(|l| l.strip_prefix("build: "))
+        .expect("the shipped file names its build")
+        .trim()
+        .to_owned();
+    let Ok(dir) = TableDir::open_build(&tables_dir, &build) else {
+        eprintln!("data/tables/*.{build}.csv not present, skipping the class parity check");
+        return;
+    };
+    let tables = Tables::load(&dir).unwrap();
+    let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
+    let classes = ClassDb::load(&root.join("data/classes"), Some(&enchants)).unwrap();
+    let warrior = classes.get(PlayerClass::Warrior).unwrap();
+
+    let class_row = tables
+        .chr_classes()
+        .find(|row| row.filename == "WARRIOR")
+        .expect("ChrClasses has the Warrior");
+    let rules = warrior.stat_rules.rules();
+    assert_eq!(
+        rules.melee_ap_per_strength as f32,
+        class_row.attack_power_per_strength
+    );
+    assert_eq!(
+        rules.melee_ap_per_agility as f32,
+        class_row.attack_power_per_agility
+    );
+    assert_eq!(
+        rules.ranged_ap_per_agility as f32,
+        class_row.ranged_attack_power_per_agility
+    );
+    assert_eq!(
+        u32::try_from(warrior.resource.power_type().id()).unwrap(),
+        class_row.display_power,
+        "DisplayPower is the class resource"
+    );
+
+    let expected = tables
+        .player_expected_stat(class_row.id, 60)
+        .expect("PlayerExpectedStat has level 60");
+    let agility_per_percent_crit = 1.0 / (f64::from(expected.crit_per_agility) * 100.0);
+    assert!(
+        (agility_per_percent_crit - rules.agility_per_percent_crit).abs() < 1e-3,
+        "{agility_per_percent_crit} vs {}",
+        rules.agility_per_percent_crit
+    );
+    assert_eq!(expected.spell_crit_per_intellect, 0.0);
+    assert_eq!(rules.intellect_per_percent_spell_crit, f64::MAX);
+    assert_eq!(expected.base_mana, warrior.base_stats.mana);
+
+    let races: Vec<u32> = tables
+        .races_of_class(class_row.id)
+        .into_iter()
+        .filter(|id| Race::from_id(*id).is_some())
+        .collect();
+    let mut listed: Vec<u32> = warrior.available_races.iter().map(|r| r.id()).collect();
+    listed.sort_unstable();
+    assert_eq!(listed, races, "CharBaseInfo races of class 1");
 }

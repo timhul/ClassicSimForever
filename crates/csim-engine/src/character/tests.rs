@@ -830,9 +830,21 @@ fn prepare_set_of_combat_iterations_drops_tables() {
 /// passives, the racials are enabled, and an iteration of swings and casts runs.
 #[test]
 fn shipped_warrior_data_learns_and_runs() {
-    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
+    let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let mut f = Fixture::orc_warrior();
-    f.db = SpellDb::load(&dir).expect("shipped spell data loads");
+    f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
+    let classes = super::ClassDb::load(&data.join("classes"), None).unwrap();
+    f.character = Character::new(
+        CharId(0),
+        Arc::clone(classes.get(crate::faction::PlayerClass::Warrior).unwrap()),
+        &race(Race::Orc),
+        equipment_db(),
+        Phase::MoltenCore,
+        SimParams::default(),
+        63,
+        0,
+        0,
+    );
     f.equip(EquipmentSlot::Mainhand, SWORD);
     f.equip(EquipmentSlot::Offhand, DAGGER);
     let db = std::mem::take(&mut f.db);

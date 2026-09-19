@@ -61,6 +61,8 @@ pub const ALL_TABLES: &[&str] = &[
     CurvePointRow::TABLE,
     ChrClassesRow::TABLE,
     ChrRacesRow::TABLE,
+    PlayerExpectedStatRow::TABLE,
+    CharBaseInfoRow::TABLE,
     PowerTypeRow::TABLE,
 ];
 

@@ -2,7 +2,8 @@
 //! (base stats, stat conversions, proficiencies, armor type, resource, default stance).
 //!
 //! Everything class-specific is data: a [`ClassSpec`] is loaded from `data/classes/<class>.yaml`
-//! (Phase 4.4). The stat conversions are the `ChrClasses` / `PlayerExpectedStat` numbers.
+//! ([`ClassDb`] holds one per class). The stat conversions are the `ChrClasses` /
+//! `PlayerExpectedStat` numbers; the enchant lists per slot are the C++ `<Class>Enchants.cpp`.
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -10,6 +11,7 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+use crate::enchant::{EnchantContext, EnchantDb, EnchantName, EnchantSpec};
 use crate::faction::PlayerClass;
 use crate::item::{ArmorType, EquipmentSlot, WeaponType};
 use crate::race::{BaseStats, Race};
@@ -105,6 +107,13 @@ pub struct ClassSpec {
     pub available_races: Vec<Race>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub race_stat_offsets: BTreeMap<Race, StatOffsets>,
+    /// The permanent enchants the class considers per slot (whether one fits the equipped
+    /// item is the enchant data's business).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub enchants: BTreeMap<EquipmentSlot, Vec<EnchantName>>,
+    /// The temporary enchants (stones, oils, totems) per slot.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub temp_enchants: BTreeMap<EquipmentSlot, Vec<EnchantName>>,
 }
 
 fn default_stance() -> Stance {
@@ -132,6 +141,39 @@ pub enum ClassSpecError {
         class: PlayerClass,
         slot: EquipmentSlot,
     },
+    #[error("class {class:?}: enchant {enchant:?} is listed for {slot:?} twice")]
+    DuplicateEnchant {
+        class: PlayerClass,
+        slot: EquipmentSlot,
+        enchant: EnchantName,
+    },
+    #[error("class {class:?}: enchant {enchant:?} listed for {slot:?} is not in the enchant db")]
+    UnknownEnchant {
+        class: PlayerClass,
+        slot: EquipmentSlot,
+        enchant: EnchantName,
+    },
+    #[error("class {class:?}: enchant {enchant:?} does not go on {slot:?}")]
+    EnchantSlot {
+        class: PlayerClass,
+        slot: EquipmentSlot,
+        enchant: EnchantName,
+    },
+    #[error("class {class:?}: enchant {enchant:?} is {} but listed under {list}", if *temporary { "temporary" } else { "permanent" })]
+    EnchantTemporariness {
+        class: PlayerClass,
+        enchant: EnchantName,
+        temporary: bool,
+        list: &'static str,
+    },
+    #[error("class file {path} defines {found:?}, expected {expected:?}")]
+    ClassMismatch {
+        path: PathBuf,
+        found: PlayerClass,
+        expected: PlayerClass,
+    },
+    #[error("class {0:?} is not defined in the class directory")]
+    Missing(PlayerClass),
 }
 
 impl ClassSpec {
@@ -171,7 +213,82 @@ impl ClassSpec {
                 slot: *slot,
             });
         }
+        for lists in [&self.enchants, &self.temp_enchants] {
+            for (slot, names) in lists {
+                for (index, name) in names.iter().enumerate() {
+                    if names[..index].contains(name) {
+                        return Err(ClassSpecError::DuplicateEnchant {
+                            class: self.class,
+                            slot: *slot,
+                            enchant: *name,
+                        });
+                    }
+                }
+            }
+        }
         Ok(())
+    }
+
+    /// Checks the enchant lists against the enchant db: every enchant exists, goes on the slot
+    /// it is listed for, and is permanent / temporary as its list says.
+    pub fn validate_enchants(&self, enchants: &EnchantDb) -> Result<(), ClassSpecError> {
+        for (lists, temporary, list) in [
+            (&self.enchants, false, "enchants"),
+            (&self.temp_enchants, true, "temp_enchants"),
+        ] {
+            for (slot, names) in lists {
+                for &name in names {
+                    let spec = enchants.get(name).ok_or(ClassSpecError::UnknownEnchant {
+                        class: self.class,
+                        slot: *slot,
+                        enchant: name,
+                    })?;
+                    if !spec.slots.contains(slot) {
+                        return Err(ClassSpecError::EnchantSlot {
+                            class: self.class,
+                            slot: *slot,
+                            enchant: name,
+                        });
+                    }
+                    if spec.temporary != temporary {
+                        return Err(ClassSpecError::EnchantTemporariness {
+                            class: self.class,
+                            enchant: name,
+                            temporary: spec.temporary,
+                            list,
+                        });
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// The enchants the class lists for `slot`. Port of
+    /// `CharacterEnchants::get_available_enchants` / `get_available_temp_enchants` without the
+    /// item conditions.
+    pub fn enchants_for_slot(&self, slot: EquipmentSlot, temporary: bool) -> &[EnchantName] {
+        let lists = if temporary {
+            &self.temp_enchants
+        } else {
+            &self.enchants
+        };
+        lists.get(&slot).map_or(&[], Vec::as_slice)
+    }
+
+    /// The class's enchants for the slot that fit the equipped item and faction of `ctx`, in
+    /// the class file's order.
+    pub fn available_enchants<'a>(
+        &self,
+        enchants: &'a EnchantDb,
+        ctx: &EnchantContext,
+        temporary: bool,
+    ) -> Vec<&'a EnchantSpec> {
+        self.enchants_for_slot(ctx.slot, temporary)
+            .iter()
+            .filter_map(|&name| enchants.get(name))
+            .filter(|spec| spec.temporary == temporary && spec.valid_for(ctx))
+            .collect()
     }
 
     pub fn race_available(&self, race: Race) -> bool {
@@ -205,6 +322,69 @@ impl ClassSpec {
             intellect: self.base_stats.intellect,
             spirit: self.base_stats.spirit,
         }
+    }
+}
+
+/// The class definitions of `data/classes/`, one file per class.
+#[derive(Debug, Clone, Default)]
+pub struct ClassDb {
+    specs: BTreeMap<PlayerClass, std::sync::Arc<ClassSpec>>,
+}
+
+impl ClassDb {
+    /// Loads every `<class>.yaml` of `dir` and validates it (against `enchants` when given).
+    pub fn load(dir: &Path, enchants: Option<&EnchantDb>) -> Result<Self, ClassSpecError> {
+        let mut paths: Vec<PathBuf> = fs::read_dir(dir)
+            .map_err(|source| ClassSpecError::Io {
+                path: dir.to_path_buf(),
+                source,
+            })?
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .filter(|path| {
+                path.is_file()
+                    && path
+                        .extension()
+                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
+            })
+            .collect();
+        paths.sort();
+        let mut db = Self::default();
+        for path in paths {
+            let spec = ClassSpec::load(&path)?;
+            if let Some(enchants) = enchants {
+                spec.validate_enchants(enchants)?;
+            }
+            let expected = path
+                .file_stem()
+                .and_then(|stem| stem.to_str())
+                .and_then(|stem| serde_yaml::from_str::<PlayerClass>(&stem.to_uppercase()).ok());
+            if expected.is_some_and(|expected| expected != spec.class) {
+                return Err(ClassSpecError::ClassMismatch {
+                    path,
+                    found: spec.class,
+                    expected: expected.expect("checked"),
+                });
+            }
+            db.specs.insert(spec.class, std::sync::Arc::new(spec));
+        }
+        Ok(db)
+    }
+
+    pub fn get(&self, class: PlayerClass) -> Result<&std::sync::Arc<ClassSpec>, ClassSpecError> {
+        self.specs.get(&class).ok_or(ClassSpecError::Missing(class))
+    }
+
+    pub fn classes(&self) -> impl Iterator<Item = PlayerClass> + '_ {
+        self.specs.keys().copied()
+    }
+
+    pub fn len(&self) -> usize {
+        self.specs.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.specs.is_empty()
     }
 }
 
@@ -275,6 +455,159 @@ mod tests {
             spec.validate(),
             Err(ClassSpecError::NotAWeaponSlot {
                 slot: EquipmentSlot::Head,
+                ..
+            })
+        ));
+    }
+
+    fn data_dir() -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
+    }
+
+    #[test]
+    fn shipped_warrior_file_loads_and_matches_the_enchant_db() {
+        let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
+        let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
+        assert_eq!(db.len(), 1);
+        let warrior = db.get(PlayerClass::Warrior).unwrap();
+        assert!(matches!(
+            db.get(PlayerClass::Rogue),
+            Err(ClassSpecError::Missing(PlayerClass::Rogue))
+        ));
+        assert_eq!(warrior.resource, ResourceType::Rage);
+        assert_eq!(warrior.default_stance, Stance::Battle);
+        assert_eq!(warrior.highest_armor_type, ArmorType::Plate);
+        assert_eq!(warrior.base_stats.strength, 100);
+        assert_eq!(warrior.base_stats.melee_ap, 160);
+        assert_eq!(warrior.base_stats.melee_crit, 200);
+        assert_eq!(warrior.stat_rules.rules().melee_ap_per_strength, 2);
+        assert_eq!(warrior.stat_rules.rules().ranged_ap_per_agility, 2);
+        assert_eq!(warrior.stat_rules.rules().agility_per_percent_crit, 20.0);
+        assert_eq!(warrior.available_races.len(), Race::ALL.len());
+        assert!(warrior.can_wield(EquipmentSlot::Mainhand, WeaponType::Polearm));
+        assert!(!warrior.can_wield(EquipmentSlot::Mainhand, WeaponType::Wand));
+        assert_eq!(
+            warrior.enchants_for_slot(EquipmentSlot::Shoulders, false),
+            [
+                EnchantName::MightOfTheScourge,
+                EnchantName::ZandalarSignetOfMight
+            ]
+        );
+        assert!(warrior
+            .enchants_for_slot(EquipmentSlot::Ranged, false)
+            .is_empty());
+        assert!(warrior
+            .enchants_for_slot(EquipmentSlot::Head, true)
+            .is_empty());
+    }
+
+    #[test]
+    fn available_enchants_follow_the_equipped_weapon_and_faction() {
+        use crate::item::{WeaponData, WeaponSlot};
+        let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
+        let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
+        let warrior = db.get(PlayerClass::Warrior).unwrap();
+        let names = |specs: Vec<&EnchantSpec>| specs.iter().map(|s| s.name).collect::<Vec<_>>();
+
+        let sword = WeaponData {
+            weapon_type: WeaponType::Sword,
+            weapon_slot: WeaponSlot::OneHand,
+            min_dmg: 1,
+            max_dmg: 2,
+            speed: 2.0,
+        };
+        let ctx = EnchantContext {
+            slot: EquipmentSlot::Mainhand,
+            weapon: Some(&sword),
+            faction: crate::faction::Faction::Alliance,
+            class: PlayerClass::Warrior,
+        };
+        assert_eq!(
+            names(warrior.available_enchants(&enchants, &ctx, false)),
+            [
+                EnchantName::Crusader,
+                EnchantName::FieryWeapon,
+                EnchantName::EnchantWeaponStrength,
+                EnchantName::SuperiorStriking,
+                EnchantName::EnchantWeaponAgility,
+            ],
+            "the two-hand enchants need a two-hander"
+        );
+        assert_eq!(
+            names(warrior.available_enchants(&enchants, &ctx, true)),
+            [
+                EnchantName::DenseSharpeningStone,
+                EnchantName::ElementalSharpeningStone,
+                EnchantName::ConsecratedSharpeningStone,
+                EnchantName::ShadowOil,
+            ],
+            "sharp weapon, Alliance: no weightstones, no Windfury"
+        );
+
+        let mace = WeaponData {
+            weapon_type: WeaponType::TwohandMace,
+            weapon_slot: WeaponSlot::TwoHand,
+            ..sword
+        };
+        let ctx = EnchantContext {
+            weapon: Some(&mace),
+            faction: crate::faction::Faction::Horde,
+            ..ctx
+        };
+        let permanent = names(warrior.available_enchants(&enchants, &ctx, false));
+        assert!(permanent.contains(&EnchantName::Enchant2HWeaponAgility));
+        assert!(permanent.contains(&EnchantName::IronCounterweight));
+        let temporary = names(warrior.available_enchants(&enchants, &ctx, true));
+        assert_eq!(temporary[0], EnchantName::WindfuryTotem);
+        assert!(temporary.contains(&EnchantName::SolidWeightstone));
+        assert!(!temporary.contains(&EnchantName::DenseSharpeningStone));
+
+        let ctx = EnchantContext {
+            slot: EquipmentSlot::Mainhand,
+            weapon: None,
+            faction: crate::faction::Faction::Horde,
+            class: PlayerClass::Warrior,
+        };
+        assert!(warrior
+            .available_enchants(&enchants, &ctx, false)
+            .is_empty());
+    }
+
+    #[test]
+    fn enchant_lists_are_validated_against_the_db() {
+        let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
+        let mut spec: ClassSpec = serde_yaml::from_str(WARRIOR_YAML).unwrap();
+        spec.enchants
+            .insert(EquipmentSlot::Head, vec![EnchantName::Crusader]);
+        assert!(matches!(
+            spec.validate_enchants(&enchants),
+            Err(ClassSpecError::EnchantSlot {
+                slot: EquipmentSlot::Head,
+                enchant: EnchantName::Crusader,
+                ..
+            })
+        ));
+        spec.enchants
+            .insert(EquipmentSlot::Head, vec![EnchantName::ArcanumOfRapidity]);
+        spec.temp_enchants
+            .insert(EquipmentSlot::Mainhand, vec![EnchantName::Crusader]);
+        assert!(matches!(
+            spec.validate_enchants(&enchants),
+            Err(ClassSpecError::EnchantTemporariness {
+                enchant: EnchantName::Crusader,
+                temporary: false,
+                list: "temp_enchants",
+                ..
+            })
+        ));
+        spec.temp_enchants.insert(
+            EquipmentSlot::Mainhand,
+            vec![EnchantName::ShadowOil, EnchantName::ShadowOil],
+        );
+        assert!(matches!(
+            spec.validate(),
+            Err(ClassSpecError::DuplicateEnchant {
+                enchant: EnchantName::ShadowOil,
                 ..
             })
         ));
