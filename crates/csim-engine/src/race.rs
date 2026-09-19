@@ -5,10 +5,11 @@
 //! data: `data/races.yaml` ([`RaceSpec`]) holds the base attributes, and the racial abilities are
 //! ordinary spells in `data/spells/racials.yaml`, selected by their `race_mask` ([`Race::mask`]).
 //!
-//! ClassicSim's `get_int_multiplier` / `get_spirit_multiplier` are not ported: the C++ never read
-//! them, and in Forever the equivalent (The Human Spirit) is a racial aura.
+//! ClassicSim's per-race weapon skill bonuses and `get_int_multiplier` / `get_spirit_multiplier`
+//! are not ported: whatever a game version grants a race comes from its racial spells (Forever's
+//! Sword Specialization is a crit aura, The Human Spirit a spirit aura), never from this module.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -16,7 +17,6 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::faction::Faction;
-use crate::item::WeaponType;
 use crate::spell::record::{SpellDb, SpellRecord};
 use crate::stats::RaceStats;
 
@@ -124,33 +124,18 @@ pub struct RaceSpec {
     /// Must equal `race.faction()`.
     pub faction: Faction,
     pub base_stats: BaseStats,
-    /// Racial weapon skill bonuses keyed on the one-hand weapon type (`SWORD: 5` also covers
-    /// two-hand swords). Empty in Forever, where the specialization racials grant crit instead.
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    pub weapon_skill_bonuses: BTreeMap<WeaponType, u32>,
 }
 
 impl RaceSpec {
     /// The race's contribution to [`crate::stats::CharacterStats`].
     pub fn race_stats(&self) -> RaceStats {
-        let bonus = |weapon_type: WeaponType| {
-            self.weapon_skill_bonuses
-                .get(&weapon_type)
-                .copied()
-                .unwrap_or(0)
-        };
         RaceStats {
             strength: self.base_stats.strength,
             agility: self.base_stats.agility,
             stamina: self.base_stats.stamina,
             intellect: self.base_stats.intellect,
             spirit: self.base_stats.spirit,
-            axe_skill_bonus: bonus(WeaponType::Axe),
-            sword_skill_bonus: bonus(WeaponType::Sword),
-            mace_skill_bonus: bonus(WeaponType::Mace),
-            bow_skill_bonus: bonus(WeaponType::Bow),
-            gun_skill_bonus: bonus(WeaponType::Gun),
-            thrown_skill_bonus: bonus(WeaponType::Thrown),
+            ..RaceStats::default()
         }
     }
 }
@@ -181,8 +166,6 @@ pub enum RaceDbError {
         faction: Faction,
         expected: Faction,
     },
-    #[error("race {race:?}: weapon skill bonus for {weapon_type:?} must use the one-hand type")]
-    WeaponSkillType { race: Race, weapon_type: WeaponType },
 }
 
 /// The race definitions of `data/races.yaml`. Every [`Race`] is defined exactly once.
@@ -250,27 +233,6 @@ impl RaceSpec {
                 expected: self.race.faction(),
             });
         }
-        if let Some(weapon_type) = self
-            .weapon_skill_bonuses
-            .keys()
-            .copied()
-            .find(|weapon_type| {
-                !matches!(
-                    weapon_type,
-                    WeaponType::Axe
-                        | WeaponType::Sword
-                        | WeaponType::Mace
-                        | WeaponType::Bow
-                        | WeaponType::Gun
-                        | WeaponType::Thrown
-                )
-            })
-        {
-            return Err(RaceDbError::WeaponSkillType {
-                race: self.race,
-                weapon_type,
-            });
-        }
         Ok(())
     }
 }
@@ -285,7 +247,6 @@ mod tests {
             id: race.id(),
             faction: race.faction(),
             base_stats: BaseStats::default(),
-            weapon_skill_bonuses: BTreeMap::new(),
         }
     }
 
@@ -340,7 +301,6 @@ race: HUMAN
 id: 1
 faction: ALLIANCE
 base_stats: { strength: 20, agility: 21, stamina: 22, intellect: 23, spirit: 24 }
-weapon_skill_bonuses: { SWORD: 5, MACE: 3 }
 ";
         let spec: RaceSpec = serde_yaml::from_str(yaml).unwrap();
         let stats = spec.race_stats();
@@ -352,13 +312,9 @@ weapon_skill_bonuses: { SWORD: 5, MACE: 3 }
                 stamina: 22,
                 intellect: 23,
                 spirit: 24,
-                sword_skill_bonus: 5,
-                mace_skill_bonus: 3,
                 ..RaceStats::default()
             }
         );
-        assert_eq!(stats.weapon_skill_bonus(WeaponType::TwohandSword), 5);
-        assert_eq!(stats.weapon_skill_bonus(WeaponType::Axe), 0);
     }
 
     #[test]
@@ -399,18 +355,6 @@ weapon_skill_bonuses: { SWORD: 5, MACE: 3 }
                 ..
             })
         ));
-
-        let mut specs = all_specs();
-        specs[2]
-            .weapon_skill_bonuses
-            .insert(WeaponType::TwohandAxe, 5);
-        assert!(matches!(
-            RaceDb::new(specs),
-            Err(RaceDbError::WeaponSkillType {
-                race: Race::Dwarf,
-                weapon_type: WeaponType::TwohandAxe
-            })
-        ));
     }
 
     #[test]
@@ -429,13 +373,6 @@ weapon_skill_bonuses: { SWORD: 5, MACE: 3 }
         for race in Race::ALL {
             let stats = db.race_stats(race);
             assert!(stats.strength > 0 && stats.spirit > 0, "{race:?}");
-            for weapon_type in WeaponType::ALL {
-                assert_eq!(
-                    stats.weapon_skill_bonus(weapon_type),
-                    0,
-                    "Forever grants crit, not skill, through the specialization racials"
-                );
-            }
         }
     }
 

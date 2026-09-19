@@ -4,12 +4,11 @@
 # values (Character/Race/Races/*.cpp): the client tables do not carry them (they are server-side
 # data), so they are seeded from Classic and are expected to be corrected for Forever.
 #
-# Racial *abilities* are spells: data/spells/racials.yaml, selected by `race_mask` = 1 << (id - 1).
-# ClassicSim's per-race weapon skill bonuses (Human sword/mace +5, Orc axe +5, Dwarf gun +5,
-# Troll bow/thrown +5) and its int/spirit multipliers do not exist in Forever: the Sword / Mace /
-# Axe Specialization racials are crit passives and The Human Spirit (20598) is a +5% spirit aura,
-# all in racials.yaml. `weapon_skill_bonuses: { SWORD: 5, ... }` is therefore left out here; the
-# key is supported for game versions that still grant skill.
+# Everything else a race grants is a spell: data/spells/racials.yaml, selected by `race_mask` =
+# 1 << (id - 1). ClassicSim's hardcoded weapon skill bonuses and int/spirit multipliers have no
+# place here: in Forever the Sword / Mace / Axe Specialization racials are crit passives and The
+# Human Spirit (20598) is a +5% spirit aura, and a game version that grants weapon skill exports
+# that as a racial spell too.
 
 - race: HUMAN
   id: 1
