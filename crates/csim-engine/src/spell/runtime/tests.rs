@@ -50,12 +50,8 @@ fn construction_reads_the_record_and_validates_handles() {
     );
     assert!(bt.category_cooldown_id().is_some());
     assert_eq!(bt.category_cooldown_seconds(), 6.0);
-    assert_eq!(
-        bt.effects().len(),
-        2,
-        "the speed aura is the buff, not a direct effect"
-    );
-    assert!(bt.marker_buff().is_some());
+    assert_eq!(bt.effects().len(), 2);
+    assert!(bt.marker_buff().is_none(), "the run-speed aura is pruned");
     assert!(!bt.is_periodic());
     assert_eq!(bt.threat_override().flat, 0.0);
     assert!(!bt.is_enabled());
@@ -183,9 +179,9 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     assert_eq!(attack.threat, 380.0);
     assert_eq!(attack.execution_time, 1.5);
     assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
-    assert!(matches!(report.buff, Some(BuffApplication::Applied { .. })));
+    assert!(report.buff.is_none());
     assert!(world.on_global_cooldown());
-    assert_eq!(world.aura_log, vec!["+ModIncreaseSpeed"]);
+    assert!(world.aura_log.is_empty());
     assert_eq!(
         world.can_crits,
         vec![true],
@@ -198,15 +194,6 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     let report = world.perform(BLOODTHIRST);
     assert_eq!(report.attack.unwrap().damage, 760);
     assert_eq!(report.proc_sources, vec![ProcSource::MeleeCritical]);
-    assert_eq!(
-        world.aura_log,
-        vec![
-            "+ModIncreaseSpeed",
-            "-ModIncreaseSpeed",
-            "+ModIncreaseSpeed"
-        ],
-        "the buff expired and was re-applied"
-    );
 
     world.armor = 3731;
     world.run(20.5);

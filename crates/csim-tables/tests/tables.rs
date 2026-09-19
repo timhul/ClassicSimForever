@@ -527,7 +527,7 @@ fn class_and_race_rows_are_read() {
         "COMBO_POINTS"
     );
     assert!(t.power_type(99).is_none());
-    assert_eq!(t.spell_ids().count(), 21);
+    assert_eq!(t.spell_ids().count(), 25);
     assert!(t.spell_class_options_iter().all(|c| c.spell_class_set == 4));
 }
 
@@ -573,6 +573,30 @@ mod export {
         assert!(!ids.contains(&20572), "racial is not a class spell");
         assert!(!ids.contains(&412609), "only reached through an override");
         assert!(ids.contains(&7381), "stance passive sits in skill line 256");
+        assert!(ids.contains(&694), "Mocking Blow keeps its damage");
+        assert!(
+            !ids.contains(&355),
+            "Taunt is pruned: ATTACK_ME + MOD_TAUNT"
+        );
+        assert!(
+            !ids.contains(&5246),
+            "Intimidating Shout: fear, speed and a stun trigger"
+        );
+        assert!(!ids.contains(&20511), "the stun itself");
+        let (_, report) =
+            export::export_class_with_report(&t, PlayerClass::Warrior, &Overrides::new()).unwrap();
+        assert_eq!(
+            report.spell_names(),
+            [
+                "Taunt (355)",
+                "Intimidating Shout (5246)",
+                "Intimidating Shout (20511)"
+            ]
+        );
+        assert!(report
+            .effects
+            .iter()
+            .any(|e| e.spell == 694 && e.what == "aura MOD_TAUNT"));
 
         let mut overrides = Overrides::new();
         let mut stance = SpellOverride::new(2458);
@@ -605,11 +629,15 @@ mod export {
         assert_eq!(ms.equipped_items.unwrap().subclass_mask, 173555);
         assert_eq!(ms.labels, [25]);
         assert!(ms.description.contains("$s1"));
-        assert_eq!(ms.effects.len(), 2);
-        assert_eq!(ms.effects[0].aura, AuraType::ModHealingPct);
-        assert_eq!(ms.effects[0].misc_value, [127, 0]);
-        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
-        assert_eq!(ms.effects[1].base_points, 85.0);
+        // The MOD_HEALING_PCT aura (effect 0) is pruned; the damage keeps its table index.
+        assert_eq!(ms.effects.len(), 1);
+        assert_eq!(ms.effects[0].index, 1);
+        assert_eq!(ms.effects[0].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[0].base_points, 85.0);
+        let unpruned = spells::record(&t, 12294, None);
+        assert_eq!(unpruned.effects.len(), 2);
+        assert_eq!(unpruned.effects[0].aura, AuraType::ModHealingPct);
+        assert_eq!(unpruned.effects[0].misc_value, [127, 0]);
 
         let hs2 = file.spells.iter().find(|s| s.id == 284).unwrap();
         assert_eq!(hs2.supercedes, 78);

@@ -11,6 +11,7 @@ const BATTLE_SHOUT_7: u32 = 25289;
 const BATTLE_STANCE: u32 = 2457;
 const BERSERKER_STANCE: u32 = 2458;
 const SUNDER_ARMOR: u32 = 11597;
+const REND: u32 = 11574;
 const ANGER_MANAGEMENT: u32 = 12296;
 const FLURRY: u32 = 12319;
 const FLURRY_BUFF: u32 = 12966;
@@ -71,13 +72,15 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
     assert_eq!(raid.buffs.len(), 2, "each rank has its own party buff");
 
     // An owned marker buff, a category cooldown and an own cooldown.
-    let bt = spells.add_spell(&db, BLOODTHIRST, 0, &mut raid);
-    let bt_spell = spells.spell(bt.spell.unwrap());
+    let rend = spells.add_spell(&db, REND, 0, &mut raid);
     assert!(matches!(
-        spells.buff_slot(bt.buff.unwrap()),
+        spells.buff_slot(rend.buff.unwrap()),
         BuffSlot::Owned(_)
     ));
-    assert!(!spells.owned_buff(bt.buff.unwrap()).unwrap().is_enabled());
+    assert!(!spells.owned_buff(rend.buff.unwrap()).unwrap().is_enabled());
+    let bt = spells.add_spell(&db, BLOODTHIRST, 0, &mut raid);
+    let bt_spell = spells.spell(bt.spell.unwrap());
+    assert_eq!(bt.buff, None);
     assert!(bt_spell.cooldown_id().is_none());
     assert!(bt_spell.category_cooldown_id().is_some());
     let bloodrage = spells.add_spell(&db, BLOODRAGE, 0, &mut raid);
@@ -87,7 +90,7 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
         .is_some());
     assert_eq!(bloodrage.buff, None);
     assert_eq!(spells.cooldowns().len(), 2);
-    assert_eq!(spells.spell_ids().count(), 4);
+    assert_eq!(spells.spell_ids().count(), 5);
 }
 
 #[test]

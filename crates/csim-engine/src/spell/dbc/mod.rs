@@ -18,11 +18,13 @@
 //! hand-written overrides can say `proc_type_mask: [DEAL_MELEE_SWING, DEAL_MELEE_ABILITY]`.
 
 mod aura;
+mod discard;
 mod effect;
 mod flags;
 mod misc;
 
 pub use aura::AuraType;
+pub use discard::{DISCARDED_AURAS, DISCARDED_EFFECTS};
 pub use effect::SpellEffectName;
 pub use flags::{ProcFlags, SpellAttr0, SpellSchoolMask};
 pub use misc::{

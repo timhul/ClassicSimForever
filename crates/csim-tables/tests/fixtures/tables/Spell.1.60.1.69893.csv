@@ -1,9 +1,12 @@
 ID,NameSubtext_lang,Description_lang,AuraDescription_lang
 78,Rank 1,A strong attack that increases melee damage by $s1 and causes a high amount of threat.,
 284,Rank 2,A strong attack that increases melee damage by $s1 and causes a high amount of threat.,
+355,,"Taunts the target to attack you, but has no effect if the target is already attacking you.",
+694,Rank 1,"A mocking attack that causes $s1 damage, a moderate amount of threat and forces the target to focus attacks on you for $d.",Taunted.
 1680,,"In a whirlwind of steel you attack up to $i enemies within $a1 yards, causing weapon damage to each enemy.",
 2458,,An aggressive stance. Critical strike chance increased by $7381s1% and all damage taken is increased by $7381s2%.,
 2687,,"Generates $/10;s1 rage at the cost of health, and then generates an additional $/10;29131o1 rage over $29131d.  The warrior is considered in combat for the duration.",
+5246,,"The warrior shouts, causing the targeted enemy to cower in fear.  Up to $i total nearby enemies will flee in fear.  Lasts $d.",Intimidated.
 5308,Rank 1,"Attempt to finish off a wounded foe, causing $s1 damage and converting each extra point of rage into $*10;F1 additional damage.  Only usable on enemies that have 20% or less health.",
 7381,,Increases crit chance by $s1%. Increases all damage taken by $s2%.,
 11574,Rank 7,Wounds the target causing them to bleed for $o1 damage over $d.,Bleeding for $w1 damage every $t1 sec.
@@ -14,6 +17,7 @@ ID,NameSubtext_lang,Description_lang,AuraDescription_lang
 12319,,Increases your melee attack speed by $m1% for your next $12966n swings after dealing a melee critical strike.,
 12834,,"Your critical strikes cause your opponent to Bleed, dealing $m1% of your melee weapon's average damage over $412609d.",
 12966,,,Melee attack speed increased by $w1%.
+20511,,,Cowering in fear.
 20572,Racial,Increases Attack Power and Spell Power by $s1% for $d.,Attack Power and Spell Power increased by $s1%.
 25288,Rank 6,"Instantly counterattack an enemy for $s1 damage and a high amount of threat.   Revenge must follow a block, dodge or parry.",
 26651,,"Designer Note:

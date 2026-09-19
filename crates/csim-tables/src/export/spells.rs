@@ -5,6 +5,8 @@
 //! talents are not in any skill line), and the closure over `EffectTriggerSpell`,
 //! `OVERRIDE_ACTIONBAR_SPELLS`, required auras and the overrides' references pulls in the hidden
 //! payloads. NPC spells are never reached because the walk only starts from a class or race.
+//! The result is pruned ([`crate::export::prune`]): effects the simulator has no use for and
+//! spells left with nothing to do are dropped.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -20,6 +22,7 @@ use csim_engine::spell::record::{
 };
 
 use crate::db::Tables;
+use crate::export::prune::{prune, PruneReport};
 use crate::tables::SkillLineAbilityRow;
 
 /// `SkillLine.CategoryID` of class skill lines.
@@ -115,23 +118,44 @@ pub fn talent_spells(tables: &Tables, class: PlayerClass) -> Result<Vec<u32>, Ex
     Ok(ids.into_iter().collect())
 }
 
-/// Builds the spell walk for `class` and returns its file.
+/// Builds the spell walk for `class` and returns its pruned file.
 pub fn export_class(
     tables: &Tables,
     class: PlayerClass,
     overrides: &Overrides,
 ) -> Result<SpellFile, ExportError> {
+    export_class_with_report(tables, class, overrides).map(|(file, _)| file)
+}
+
+/// [`export_class`] plus what the pruning removed.
+pub fn export_class_with_report(
+    tables: &Tables,
+    class: PlayerClass,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport), ExportError> {
     let lines = class_skill_lines(tables, class)?;
     let mut ids: BTreeSet<u32> = abilities_in(tables, &lines).keys().copied().collect();
     ids.extend(talent_spells(tables, class)?);
-    Ok(build_file(tables, Some(class), &lines, ids, overrides))
+    let mut file = build_file(tables, Some(class), &lines, ids, overrides);
+    let report = prune(&mut file, overrides);
+    Ok((file, report))
 }
 
-/// Builds the racial walk and returns its file (`class` absent).
+/// Builds the racial walk and returns its pruned file (`class` absent).
 pub fn export_racials(tables: &Tables, overrides: &Overrides) -> Result<SpellFile, ExportError> {
+    export_racials_with_report(tables, overrides).map(|(file, _)| file)
+}
+
+/// [`export_racials`] plus what the pruning removed.
+pub fn export_racials_with_report(
+    tables: &Tables,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport), ExportError> {
     let lines = racial_skill_lines(tables)?;
     let ids: BTreeSet<u32> = abilities_in(tables, &lines).keys().copied().collect();
-    Ok(build_file(tables, None, &lines, ids, overrides))
+    let mut file = build_file(tables, None, &lines, ids, overrides);
+    let report = prune(&mut file, overrides);
+    Ok((file, report))
 }
 
 /// The `SkillLineAbility` row to describe each spell of `lines` with: a row of the lines whose

@@ -1,8 +1,11 @@
 ID,Name_lang
 78,Heroic Strike
+355,Taunt
+694,Mocking Blow
 1680,Whirlwind
 2458,Berserker Stance
 2687,Bloodrage
+5246,Intimidating Shout
 5308,Execute
 7381,Berserker Stance Passive
 12162,Deep Wounds
@@ -15,6 +18,7 @@ ID,Name_lang
 284,Heroic Strike
 11574,Rend
 29131,Bloodrage
+20511,Intimidating Shout
 26651,Execute
 25288,Revenge
 12294,Mortal Strike

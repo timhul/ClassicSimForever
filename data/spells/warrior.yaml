@@ -65,10 +65,6 @@ spells:
   labels: [25]
   description: Bashes the target with your shield for $s2 damage.  It also interrupts spellcasting and prevents any spell in that school from being cast for $d.
   effects:
-  - index: 0
-    effect: INTERRUPT_CAST
-    mechanic: INTERRUPT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 6.0
@@ -137,11 +133,6 @@ spells:
     base_points: 90.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 284
   name: Heroic Strike
   rank_text: Rank 2
@@ -204,76 +195,6 @@ spells:
     base_points: 32.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 355
-  name: Taunt
-  skill_line: 257
-  class_mask: 1
-  attributes: [327696, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 3000
-  range_yd: 5.0
-  power:
-  - type: RAGE
-  cooldown:
-    category_recovery_ms: 8000
-  categories:
-    category: 82
-    defense_type: MAGIC
-  shapeshift_mask: 131072
-  levels:
-    base: 10
-    spell: 10
-  aura_options:
-    proc_chance: 101
-  class_options:
-    set: 4
-    mask: [32768, 0, 0, 0]
-  labels: [25]
-  description: Taunts the target to attack you, but has no effect if the target is already attacking you.
-  effects:
-  - index: 0
-    effect: ATTACK_ME
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 676
-  name: Disarm
-  skill_line: 257
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 10000
-  range_yd: 5.0
-  power:
-  - type: RAGE
-    cost: 200
-  cooldown:
-    category_recovery_ms: 60000
-    start_recovery_ms: 1500
-  categories:
-    category: 109
-    start_recovery_category: 133
-    defense_type: MELEE
-    mechanic: DISARM
-  shapeshift_mask: 131072
-  levels:
-    base: 18
-    spell: 18
-  aura_options:
-    proc_chance: 101
-  class_options:
-    set: 4
-    mask: [512, 0, 0, 0]
-  labels: [25]
-  description: Disarm the enemy's weapon for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_DISARM
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 694
   name: Mocking Blow
   rank_text: Rank 1
@@ -312,10 +233,6 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 22.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 772
   name: Rend
@@ -456,38 +373,6 @@ spells:
     real_points_per_level: -1.4
     radius_yd: [0.0, 10.0]
     implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
-- id: 1161
-  name: Challenging Shout
-  skill_line: 256
-  class_mask: 1
-  attributes: [327696, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 6000
-  power:
-  - type: RAGE
-    cost: 50
-  cooldown:
-    recovery_ms: 600000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-  levels:
-    base: 26
-    spell: 26
-  aura_options:
-    proc_chance: 101
-  class_options:
-    set: 4
-    mask: [524288, 0, 0, 0]
-  labels: [25]
-  description: Forces all nearby enemies within $a yards to focus attacks on you for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
-    radius_yd: [0.0, 10.0]
-    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
 - id: 1464
   name: Slam
   rank_text: Rank 2
@@ -589,10 +474,6 @@ spells:
   labels: [25]
   description: Bashes the target with your shield for $s2 damage.  It also interrupts spellcasting and prevents any spell in that school from being cast for $d.
   effects:
-  - index: 0
-    effect: INTERRUPT_CAST
-    mechanic: INTERRUPT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 18.0
@@ -631,10 +512,6 @@ spells:
   labels: [25]
   description: Bashes the target with your shield for $s2 damage.  It also interrupts spellcasting and prevents any spell in that school from being cast for $d.
   effects:
-  - index: 0
-    effect: INTERRUPT_CAST
-    mechanic: INTERRUPT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 45.0
@@ -709,12 +586,6 @@ spells:
     base_points: 5.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_DECREASE_SPEED
-    base_points: -40.0
-    mechanic: SNARE
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1719
   name: Recklessness
   skill_line: 256
@@ -752,12 +623,6 @@ spells:
     aura: MOD_DAMAGE_PERCENT_TAKEN
     base_points: 20.0
     misc_value: [127, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    bonus_coefficient: 1.0
-    misc_value: [5, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 2457
   name: Battle Stance
@@ -917,54 +782,6 @@ spells:
     real_points_per_level: 0.3
     radius_yd: [20.0, 0.0]
     implicit_target: [UNIT_CASTER_AREA_PARTY, NONE]
-- id: 5246
-  name: Intimidating Shout
-  skill_line: 256
-  class_mask: 1
-  attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 8000
-  range_yd: 10.0
-  power:
-  - type: RAGE
-    cost: 250
-  cooldown:
-    recovery_ms: 180000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-    mechanic: FEAR
-  levels:
-    base: 22
-    spell: 22
-  aura_options:
-    proc_chance: 100
-    proc_type_mask: 2148147880
-  class_options:
-    set: 4
-    mask: [262144, 0, 0, 0]
-  max_targets: 5
-  labels: [25]
-  description: The warrior shouts, causing the targeted enemy to cower in fear.  Up to $i total nearby enemies will flee in fear.  Lasts $d.
-  effects:
-  - index: 0
-    effect: TRIGGER_SPELL
-    trigger_spell: 20511
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_FEAR
-    radius_yd: [8.0, 0.0]
-    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 25.0
-    bonus_coefficient: 1.0
-    radius_yd: [8.0, 0.0]
-    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
 - id: 5308
   name: Execute
   rank_text: Rank 1
@@ -1039,11 +856,6 @@ spells:
     base_points: 120.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 6190
   name: Demoralizing Shout
   rank_text: Rank 2
@@ -1302,10 +1114,6 @@ spells:
     base_points: 20.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: INTERRUPT_CAST
-    mechanic: INTERRUPT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 6554
   name: Pummel
   rank_text: Rank 2
@@ -1340,10 +1148,6 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 50.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: INTERRUPT_CAST
-    mechanic: INTERRUPT
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 6572
   name: Revenge
@@ -1525,12 +1329,6 @@ spells:
     base_points: 18.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_DECREASE_SPEED
-    base_points: -45.0
-    mechanic: SNARE
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 7373
   name: Hamstring
   rank_text: Rank 3
@@ -1566,12 +1364,6 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 45.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_DECREASE_SPEED
-    base_points: -50.0
-    mechanic: SNARE
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 7376
   name: Defensive Stance Passive
@@ -1805,10 +1597,6 @@ spells:
     base_points: 31.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 7402
   name: Mocking Blow
   rank_text: Rank 3
@@ -1848,10 +1636,6 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 46.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 7405
   name: Sunder Armor
@@ -1934,32 +1718,6 @@ spells:
     effect: NORMALIZED_WEAPON_DMG
     base_points: 15.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 7922
-  name: Charge Stun
-  attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 1000
-  range_yd: 25.0
-  power:
-  - type: RAGE
-  categories:
-    defense_type: MAGIC
-    mechanic: STUN
-  shapeshift_mask: 65536
-  levels:
-    base: 1
-    spell: 1
-  aura_options:
-    proc_chance: 101
-  class_options:
-    set: 4
-    mask: [16777216, 0, 0, 0]
-  labels: [25]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 8198
   name: Thunder Clap
@@ -2645,11 +2403,6 @@ spells:
     base_points: 150.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 11580
   name: Thunder Clap
   rank_text: Rank 5
@@ -3287,13 +3040,6 @@ spells:
   labels: [25]
   description: Increases the duration of your Pummel ability by $/1000;s2 sec and gives it a $s1% chance to daze the target.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_TARGET_TRIGGER
-    base_points: 25.0
-    trigger_spell: 12705
-    spell_class_mask: [8, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
   - index: 1
     effect: APPLY_AURA
     aura: ADD_FLAT_MODIFIER
@@ -3301,27 +3047,6 @@ spells:
     misc_value: [1, 0]
     spell_class_mask: [8, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12289
-  name: Improved Hamstring
-  skill_line: 26
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels:
-    base: 1
-    spell: 1
-  aura_options:
-    proc_chance: 100
-    proc_type_mask: 87376
-  class_options:
-    set: 4
-  labels: [25]
-  description: Gives your Hamstring ability a $m1% chance to immobilize the target for $23694d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PROC_TRIGGER_SPELL
-    trigger_spell: 23694
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 12290
   name: Improved Overpower
   rank_text: Rank 1
@@ -3403,12 +3128,6 @@ spells:
   labels: [25]
   description: A vicious strike that deals weapon damage plus $s2 and wounds the target, reducing the effectiveness of any healing by $s1% for $d.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_HEALING_PCT
-    base_points: -50.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: NORMALIZED_WEAPON_DMG
     base_points: 85.0
@@ -3617,28 +3336,6 @@ spells:
     misc_value: [14, 0]
     spell_class_mask: [16384, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12311
-  name: Improved Shield Bash
-  skill_line: 257
-  attributes: [464, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels:
-    base: 1
-    spell: 1
-  aura_options:
-    proc_chance: 100
-    proc_type_mask: 87376
-  class_options:
-    set: 4
-  labels: [25]
-  description: Gives your Shield Bash ability a $m1% chance to Silence the target for $18498d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PROC_TRIGGER_SPELL
-    base_points: 100.0
-    trigger_spell: 18498
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 12312
   name: Improved Shield Wall
   skill_line: 257
@@ -3797,36 +3494,6 @@ spells:
     aura: PROC_TRIGGER_SPELL
     trigger_spell: 12964
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12323
-  name: Piercing Howl
-  skill_line: 256
-  attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 6000
-  power:
-  - type: RAGE
-    cost: 100
-  cooldown:
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-    mechanic: SNARE
-  levels:
-    base: 20
-    spell: 20
-  class_options:
-    set: 4
-    mask: [0, 32, 0, 0]
-  labels: [25]
-  description: Causes all nearby enemies to be Dazed, reducing movement speed by $s1% for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_DECREASE_SPEED
-    base_points: -50.0
-    radius_yd: [0.0, 10.0]
-    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
 - id: 12324
   name: Improved Demoralizing Shout
   rank_text: Rank 1
@@ -3897,12 +3564,6 @@ spells:
     aura: MOD_DAMAGE_PERCENT_DONE
     base_points: 20.0
     misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    base_points: 100.0
-    misc_value: [5, 0]
     implicit_target: [UNIT_CASTER, NONE]
   - index: 2
     effect: APPLY_AURA
@@ -3984,24 +3645,6 @@ spells:
     aura: MOD_CRIT_PCT
     base_points: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12705
-  name: Long Daze
-  rank_text: Rank 1
-  skill_line: 26
-  attributes: [0, 262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 6000
-  range_yd: 100.0
-  categories:
-    mechanic: SNARE
-  aura_options:
-    proc_chance: 101
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_DECREASE_SPEED
-    base_points: -50.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 12707
   name: Improved Pummel
   rank_text: Rank 2
@@ -4016,39 +3659,11 @@ spells:
   labels: [25]
   description: Increases the duration of your Pummel ability by $/1000;s2 sec and gives it a $s1% chance to daze the target.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_TARGET_TRIGGER
-    base_points: 50.0
-    trigger_spell: 12705
-    spell_class_mask: [8, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
   - index: 1
     effect: APPLY_AURA
     aura: ADD_FLAT_MODIFIER
     base_points: 2000.0
     misc_value: [1, 0]
-    spell_class_mask: [8, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12708
-  name: Improved Pummel
-  rank_text: Rank 3
-  skill_line: 26
-  attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels:
-    base: 1
-    spell: 1
-  class_options:
-    set: 4
-  labels: [25]
-  description: Gives your Pummel ability a $s1% chance to daze the target.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_TARGET_TRIGGER
-    base_points: 40.0
-    trigger_spell: 12705
     spell_class_mask: [8, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 12723
@@ -4131,40 +3746,6 @@ spells:
     base_points: 60.0
     spell_class_mask: [1024, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12809
-  name: Concussion Blow
-  skill_line: 257
-  attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 5000
-  range_yd: 5.0
-  power:
-  - type: RAGE
-    cost: 100
-  cooldown:
-    recovery_ms: 45000
-  categories:
-    start_recovery_category: 133
-    defense_type: MELEE
-    mechanic: STUN
-  levels:
-    base: 30
-    spell: 30
-  aura_options:
-    proc_chance: 101
-  class_options:
-    set: 4
-    mask: [67108864, 0, 0, 0]
-  equipped_items:
-    class: 2
-    subclass_mask: 173555
-  labels: [25]
-  description: Stuns the target for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 12834
   name: Deep Wounds
   skill_line: 26
@@ -4509,27 +4090,6 @@ spells:
     misc_value: [1, 0]
     spell_class_mask: [4096, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 12962
-  name: Iron Will
-  skill_line: 257
-  attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels:
-    spell: 1
-  description: Reduces the duration of Stun and Fear effects inflicted on you by $s1%.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_MECHANIC_DURATION
-    base_points: -15.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_MECHANIC_DURATION
-    base_points: -15.0
-    misc_value: [12, 0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 12963
   name: Improved Overpower
   rank_text: Rank 2
@@ -4653,25 +4213,6 @@ spells:
     base_points: 3.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 20.0
-    trigger_spell: 16488
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 16488
-  name: Blood Craze
-  attributes: [16, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 6000
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PERIODIC_HEAL
-    base_points: 1.0
-    aura_period_ms: 2000
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 16493
   name: Impale
   skill_line: 26
@@ -4710,25 +4251,6 @@ spells:
     base_points: 10.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 18498
-  name: Silenced
-  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 3000
-  range_yd: 50000.0
-  categories:
-    mechanic: SILENCE
-    dispel_type: 1
-  class_options:
-    set: 8
-  labels: [25]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_SILENCE
-    base_points: 1.0
-    misc_value: [126, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 18499
   name: Berserker Rage
   skill_line: 256
@@ -4755,17 +4277,6 @@ spells:
     mask: [268435456, 0, 0, 0]
   labels: [25]
   description: The warrior enters a berserker rage, becoming immune to Fear and Incapacitate effects and generating extra rage when taking damage.  Lasts $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    misc_value: [5, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    misc_value: [14, 0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 19870
   name: Improved Intimidating Shout
   rank_text: Rank 1
@@ -4890,10 +4401,6 @@ spells:
   aura_options:
     proc_chance: 101
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 25.0
@@ -4958,28 +4465,6 @@ spells:
     misc_value: [11, 0]
     spell_class_mask: [1073741824, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 20511
-  name: Intimidating Shout
-  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 8000
-  range_yd: 10.0
-  power:
-  - type: RAGE
-  categories:
-    mechanic: FEAR
-  levels:
-    base: 20
-    spell: 20
-  class_options:
-    set: 4
-    mask: [262144, 0, 0, 0]
-  labels: [25]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 20559
   name: Mocking Blow
   rank_text: Rank 4
@@ -5020,10 +4505,6 @@ spells:
     base_points: 71.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 20560
   name: Mocking Blow
   rank_text: Rank 5
@@ -5063,10 +4544,6 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 93.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_TAUNT
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 20569
   name: Cleave
@@ -5118,10 +4595,6 @@ spells:
   aura_options:
     proc_chance: 101
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 45.0
@@ -5145,10 +4618,6 @@ spells:
   aura_options:
     proc_chance: 101
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 65.0
@@ -5471,12 +4940,6 @@ spells:
   labels: [25]
   description: A vicious strike that deals weapon damage plus $s2 and wounds the target, reducing the effectiveness of any healing by $s1% for $d.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_HEALING_PCT
-    base_points: -50.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: NORMALIZED_WEAPON_DMG
     base_points: 110.0
@@ -5514,12 +4977,6 @@ spells:
   labels: [25]
   description: A vicious strike that deals weapon damage plus $s2 and wounds the target, reducing the effectiveness of any healing by $s1% for $d.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_HEALING_PCT
-    base_points: -50.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: NORMALIZED_WEAPON_DMG
     base_points: 135.0
@@ -5557,12 +5014,6 @@ spells:
   labels: [25]
   description: A vicious strike that deals weapon damage plus $s2 and wounds the target, reducing the effectiveness of any healing by $s1% for $d.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_HEALING_PCT
-    base_points: -50.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: NORMALIZED_WEAPON_DMG
     base_points: 160.0
@@ -5618,21 +5069,6 @@ spells:
     base_points: 50.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 23694
-  name: Improved Hamstring
-  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 5000
-  range_yd: 50000.0
-  categories:
-    mechanic: ROOT
-  labels: [25]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ROOT
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 23881
   name: Bloodthirst
   rank_text: Rank 1
@@ -5671,12 +5107,6 @@ spells:
     base_points: 35.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 23892
   name: Bloodthirst
   rank_text: Rank 2
@@ -5716,12 +5146,6 @@ spells:
     base_points: 35.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 23893
   name: Bloodthirst
   rank_text: Rank 3
@@ -5761,12 +5185,6 @@ spells:
     base_points: 35.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 23894
   name: Bloodthirst
   rank_text: Rank 4
@@ -5806,12 +5224,6 @@ spells:
     base_points: 35.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 23922
   name: Shield Slam
   rank_text: Rank 1
@@ -5842,11 +5254,6 @@ spells:
   labels: [25]
   description: Slam the target with your shield, causing $s2 damage, increased by your Block Value, and has a 50% chance of dispelling $s1 magic effect on the target. Causes a very high amount of threat.
   effects:
-  - index: 0
-    effect: DISPEL
-    base_points: 1.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 430.0
@@ -5884,11 +5291,6 @@ spells:
   labels: [25]
   description: Slam the target with your shield, causing $s2 damage, increased by your Block Value, and has a 50% chance of dispelling $s1 magic effect on the target. Causes a very high amount of threat.
   effects:
-  - index: 0
-    effect: DISPEL
-    base_points: 1.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 505.0
@@ -5926,11 +5328,6 @@ spells:
   labels: [25]
   description: Slam the target with your shield, causing $s2 damage, increased by your Block Value, and has a 50% chance of dispelling $s1 magic effect on the target. Causes a very high amount of threat.
   effects:
-  - index: 0
-    effect: DISPEL
-    base_points: 1.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 580.0
@@ -5968,11 +5365,6 @@ spells:
   labels: [25]
   description: Slam the target with your shield, causing $s2 damage, increased by your Block Value, and has a 50% chance of dispelling $s1 magic effect on the target. Causes a very high amount of threat.
   effects:
-  - index: 0
-    effect: DISPEL
-    base_points: 1.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 655.0
@@ -6122,10 +5514,6 @@ spells:
     base_points: 10.0
     aura_period_ms: 1000
     misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: INTERRUPT_REGEN
     implicit_target: [UNIT_CASTER, NONE]
 - id: 29787
   name: Focused Rage
@@ -6452,13 +5840,6 @@ spells:
     subclass_mask: 64
   description: Sends a wave of force in front of the warrior, causing ${$m3/100*$AP} damage and stunning all enemy targets within $a1 yards in a frontal cone for $d.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    mechanic: STUN
-    radius_yd: [10.0, 0.0]
-    implicit_target: [UNIT_CONE_CASTER_TO_DEST_ENEMY, NONE]
-    attributes: 131072
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 1.0
@@ -6603,11 +5984,6 @@ spells:
     base_points: 90.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1240288
   name: Charge
   rank_text: Rank 2
@@ -6638,11 +6014,6 @@ spells:
     base_points: 120.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1240289
   name: Charge
   rank_text: Rank 3
@@ -6673,11 +6044,6 @@ spells:
     base_points: 150.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: TRIGGER_SPELL
-    trigger_spell: 7922
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1257049
   name: Sword Specialization
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]

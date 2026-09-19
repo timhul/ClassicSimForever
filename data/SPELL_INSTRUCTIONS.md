@@ -354,3 +354,31 @@ scaling; this build scales through `EffectRealPointsPerLevel` instead), `SpellXS
 `SpellKeyboundOverride`. Overpower has no `SpellAuraRestrictions` row in this build — its
 "after the target dodges" condition must be implemented elsewhere (proc/override), check in
 game.
+
+## 1.10 What the exporter leaves out (pruning)
+
+A damage simulator has no use for most of what the tables describe: crowd control, movement,
+immunities, healing, phasing, mounts. `csim-tables export-spells` therefore prunes the walk
+before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
+
+1. **Effects** whose kind or aura is on the discard list are removed from their spell; the
+   remaining effects keep their table `EffectIndex` (so `$s2`, `POINTS_INDEX_1` and override
+   `index` values still mean what the tables say). The list is
+   `data/spells/overrides/discard.txt`, hardcoded as `DISCARDED_AURAS` / `DISCARDED_EFFECTS` in
+   `crates/csim-engine/src/spell/dbc/discard.rs`. Kept although the list names them as
+   candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
+   simulated) and `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes).
+2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
+   `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
+   which can empty further spells (Intimidating Shout: fear, run speed and the stun it
+   triggers; Improved Hamstring: a proc whose only payload is a root) — repeated until nothing
+   changes. `SupercedesSpell` links to dropped ranks are cleared. Mocking Blow keeps its
+   `SCHOOL_DAMAGE` and stays; Bloodthirst loses its run-speed aura and stays.
+3. Spells the overrides mention (their own entry, or another entry's `params.spell` /
+   `stance_passive`) are never dropped, even when empty: Berserker Rage keeps existing as the
+   spell Improved Berserker Rage's `GAIN_RESOURCE_ON_USE` reacts to.
+
+The exporter prints what it pruned. Build 1.60.1.69893: 63 effects and 16 spells from the
+Warrior walk, 32 effects and 12 spells from the racials. A talent whose spell was pruned
+(Iron Will, Improved Hamstring) has nothing to do in the simulator; the talent data will list
+it without a spell.

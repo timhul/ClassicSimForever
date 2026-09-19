@@ -313,6 +313,16 @@ impl EffectRecord {
         }
     }
 
+    /// Whether the simulator has no use for the effect (`crate::spell::dbc::DISCARDED_AURAS` /
+    /// `DISCARDED_EFFECTS`): the exporter drops such effects from the data files.
+    pub fn is_discarded(&self) -> bool {
+        if self.is_apply_aura() {
+            self.aura.is_discarded()
+        } else {
+            self.effect.is_discarded()
+        }
+    }
+
     /// Whether the effect applies `aura` (any of the apply-aura effect kinds).
     pub fn is_apply_aura(&self) -> bool {
         matches!(
@@ -714,7 +724,9 @@ impl SpellRecord {
             .is_some_and(|c| modifier.class_mask_matches(set, c))
     }
 
-    /// Structural checks that do not need other spells: effect indices are `0..n` in order.
+    /// Structural checks that do not need other spells: effect indices are ascending and unique
+    /// (gaps are fine: the exporter drops the effects the simulator has no use for, keeping the
+    /// table indices of the rest).
     pub fn validate(&self) -> Result<(), SpellDbError> {
         if self.name.is_empty() {
             return Err(SpellDbError::Invalid {
@@ -722,15 +734,13 @@ impl SpellRecord {
                 message: "the name is empty".into(),
             });
         }
-        for (position, effect) in self.effects.iter().enumerate() {
-            if effect.index as usize != position {
+        for pair in self.effects.windows(2) {
+            if pair[1].index <= pair[0].index {
                 return Err(SpellDbError::Invalid {
                     spell: self.id,
                     message: format!(
-                        "effect indices must be 0..{} in order, found {} at position {}",
-                        self.effects.len(),
-                        effect.index,
-                        position
+                        "effect indices must be ascending, found {} after {}",
+                        pair[1].index, pair[0].index
                     ),
                 });
             }
@@ -999,6 +1009,9 @@ impl SpellDb {
                 continue;
             }
             for effect in &record.effects {
+                if effect.is_discarded() {
+                    continue;
+                }
                 let reason = if !effect.effect.is_known() {
                     Some(format!("unknown effect id {}", effect.effect.id()))
                 } else if effect.is_apply_aura() && !effect.aura.is_known() {
@@ -1599,6 +1612,13 @@ overrides:
         ));
         file.spells[0].effects[0].index = 1;
         let mut fresh = SpellDb::new();
+        fresh
+            .add_file(file.clone())
+            .expect("gaps in the effect indices are fine (pruned effects)");
+        file.spells[0]
+            .effects
+            .push(EffectRecord::new(1, SpellEffectName::Dummy));
+        let mut fresh = SpellDb::new();
         let err = fresh.add_file(file).unwrap_err();
         assert!(
             matches!(err, SpellDbError::Invalid { spell: 78, .. }),
@@ -1792,17 +1812,21 @@ spells:
         let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
         let db = SpellDb::load(&dir).unwrap();
         assert_eq!(db.build(), Some("1.60.1.69893"));
-        assert!(db.len() > 250, "{}", db.len());
+        assert!(db.len() > 240, "{}", db.len());
         assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
-        assert!(db.ids_of_class(None).len() > 40, "racials");
+        assert!(db.ids_of_class(None).len() > 30, "racials");
+        assert!(db.get(355).is_none(), "Taunt is pruned from the export");
+        assert!(db.get(694).is_some(), "Mocking Blow keeps its damage");
 
         let ms = db.get(12294).unwrap();
         assert_eq!(ms.name, "Mortal Strike");
         assert_eq!(ms.power[0].displayed_cost(), 30.0);
         assert_eq!(ms.cooldown.category_recovery_ms, 6000);
         assert_eq!(ms.categories.category, 971);
-        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
-        assert_eq!(ms.effects[1].base_points, 85.0);
+        assert_eq!(ms.effects.len(), 1, "the healing debuff is pruned");
+        assert_eq!(ms.effects[0].index, 1);
+        assert_eq!(ms.effects[0].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[0].base_points, 85.0);
         assert_eq!(db.rank_chain(25286).len(), 9, "Heroic Strike ranks");
         assert_eq!(db.rank_chain(11605).len(), 5, "Slam ranks");
         assert_eq!(

@@ -103,9 +103,9 @@ fn export_spells(
 ) -> Result<(), CliError> {
     let tables = Tables::load(dir)?;
     let overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
-    let (file, command, default_name) = if racials {
+    let ((file, pruned), command, default_name) = if racials {
         (
-            export::export_racials(&tables, &overrides)?,
+            export::export_racials_with_report(&tables, &overrides)?,
             "export-spells --racials".to_owned(),
             "racials.yaml".to_owned(),
         )
@@ -113,12 +113,26 @@ fn export_spells(
         let name = class.expect("clap requires --class or --racials");
         let class = parse_class(&name)?;
         (
-            export::export_class(&tables, class, &overrides)?,
+            export::export_class_with_report(&tables, class, &overrides)?,
             format!("export-spells --class {}", class.name().to_lowercase()),
             format!("{}.yaml", class.name().to_lowercase()),
         )
     };
     let text = export::render(&file, &command)?;
+    eprintln!(
+        "pruned {} effects and {} spells: {}",
+        pruned.effects.len(),
+        pruned.spells.len(),
+        pruned.spell_names().join(", ")
+    );
+    for spell in &pruned.spells {
+        if let Some(spell_override) = overrides.get(spell.id) {
+            eprintln!(
+                "warning: the overrides mention dropped spell {} ({}): {}",
+                spell.name, spell.id, spell_override.note
+            );
+        }
+    }
     let out = out.unwrap_or_else(|| spells_dir.join(default_name));
     if out == Path::new("-") {
         print!("{text}");

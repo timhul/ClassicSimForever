@@ -3,103 +3,6 @@
 # data/spells/overrides/ (see crates/csim-engine/src/spell/overrides.rs).
 build: 1.60.1.69893
 spells:
-- id: 2481
-  name: Find Treasure
-  rank_text: Racial
-  skill_line: 101
-  race_mask: 4
-  acquire_method: 2
-  attributes: [151257360, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: -1
-  cooldown:
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-  levels:
-    spell: 1
-  labels: [5710]
-  description: Allows the dwarf to sense nearby treasure, making it appear on the minimap.  Lasts $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: TRACK_RESOURCES
-    misc_value: [6, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 5227
-  name: Underwater Breathing
-  rank_text: Racial Passive
-  skill_line: 220
-  race_mask: 16
-  acquire_method: 2
-  attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  labels: [5710]
-  description: Underwater breath lasts $s1% longer than normal.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_WATER_BREATHING
-    base_points: 300.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 7744
-  name: Will of the Forsaken
-  rank_text: Racial
-  skill_line: 220
-  race_mask: 16
-  acquire_method: 2
-  attributes: [16, 163840, 0, 0, 0, 393216, 0, 0, 32, 0, 0, 0, 0, 2, 0, 8192, 0]
-  school_mask: 1
-  cooldown:
-    recovery_ms: 120000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-  labels: [5710]
-  description: Instantly removes all Charm, Fear and Sleep effects.
-  effects:
-  - index: 0
-    effect: DISPEL_MECHANIC
-    base_points: 99.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: DISPEL_MECHANIC
-    base_points: 99.0
-    misc_value: [5, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: DISPEL_MECHANIC
-    base_points: 99.0
-    misc_value: [10, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 20549
-  name: War Stomp
-  rank_text: Racial
-  skill_line: 124
-  race_mask: 32
-  acquire_method: 2
-  attributes: [262160, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  cast_time_ms: 500
-  duration_ms: 2000
-  cooldown:
-    recovery_ms: 120000
-  categories:
-    defense_type: MAGIC
-    mechanic: STUN
-  aura_options:
-    proc_chance: 101
-  max_targets: 5
-  labels: [5710]
-  description: Stuns up to $i enemies within $a1 yds for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STUN
-    amplitude: 1.0
-    radius_yd: [0.0, 8.0]
-    implicit_target: [DEST_CASTER, UNIT_DEST_AREA_ENEMY]
 - id: 20550
   name: Endurance
   rank_text: Racial Passive
@@ -186,29 +89,6 @@ spells:
     base_points: 10.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-- id: 20555
-  name: Regeneration
-  rank_text: Racial Passive
-  skill_line: 733
-  race_mask: 128
-  acquire_method: 2
-  attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  labels: [5710]
-  description: Health regeneration rate increased by $s1%. In addition, $s2% of total Health regeneration will continue during combat.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_HEALTH_REGEN_PERCENT
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_REGEN_DURING_COMBAT
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 20557
   name: Beast Slaying
   rank_text: Racial Passive
@@ -258,23 +138,6 @@ spells:
     aura: MOD_SPELL_POWER_PCT
     base_points: 10.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 20573
-  name: Hardiness
-  rank_text: Racial Passive
-  skill_line: 125
-  race_mask: 2
-  acquire_method: 2
-  attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  description: Duration of Stun effects on you reduced by $s1%.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_MECHANIC_DURATION
-    base_points: -20.0
-    bonus_coefficient: 1.0
-    misc_value: [12, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 20574
   name: Axe Specialization
@@ -370,12 +233,6 @@ spells:
     base_points: 1.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 2.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 20585
   name: Wisp Spirit
   rank_text: Racial Passive
@@ -390,37 +247,6 @@ spells:
   - index: 0
     effect: DUMMY
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 20589
-  name: Escape Artist
-  rank_text: Racial
-  skill_line: 753
-  race_mask: 64
-  acquire_method: 2
-  attributes: [65552, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 3000
-  cooldown:
-    recovery_ms: 120000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-  labels: [5710]
-  description: Instantly escape the effects of any movement impairing effect and gain immunity to those effects for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    misc_value: [7, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    misc_value: [11, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 20591
   name: Expansive Mind
@@ -486,36 +312,6 @@ spells:
     bonus_coefficient: 1.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: DISPEL
-    base_points: 99.0
-    misc_value: [4, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: DISPEL
-    base_points: 99.0
-    misc_value: [3, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 3
-    effect: DISPEL_MECHANIC
-    base_points: 99.0
-    misc_value: [15, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 4
-    effect: APPLY_AURA
-    aura: DISPEL_IMMUNITY
-    misc_value: [3, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 5
-    effect: APPLY_AURA
-    aura: DISPEL_IMMUNITY
-    misc_value: [4, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 6
-    effect: APPLY_AURA
-    aura: MECHANIC_IMMUNITY
-    misc_value: [15, 0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 20597
   name: Sword Specialization
   rank_text: Racial Passive
@@ -554,46 +350,6 @@ spells:
     bonus_coefficient: 1.0
     misc_value: [4, 0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 20600
-  name: Perception
-  rank_text: Racial
-  skill_line: 754
-  race_mask: 1
-  acquire_method: 2
-  attributes: [262160, 32, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 20000
-  cooldown:
-    recovery_ms: 180000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-  shapeshift_mask: 134217728
-  labels: [5710]
-  description: Dramatically increases stealth detection for $d.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STEALTH_DETECT
-    base_points: 50.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 21009
-  name: Quickness Passive
-  rank_text: Racial Passive
-  skill_line: 126
-  race_mask: 8
-  acquire_method: 2
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  labels: [5710]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_STEALTH_LEVEL
-    base_points: 5.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 1259416
   name: Walk on Air
   rank_text: Racial
@@ -617,10 +373,6 @@ spells:
   labels: [5710]
   description: Glide downward through the air for $d while controlling your direction of travel.
   effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: FEATHER_FALL
-    implicit_target: [UNIT_CASTER, NONE]
   - index: 1
     effect: TRIGGER_SPELL
     trigger_spell: 1259417
@@ -628,21 +380,6 @@ spells:
   - index: 2
     effect: APPLY_AURA
     aura: 409
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 3
-    effect: APPLY_AURA
-    aura: FORCE_REACTION
-    misc_value: [2402, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 4
-    effect: APPLY_AURA
-    aura: FORCE_REACTION
-    misc_value: [2403, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 5
-    effect: APPLY_AURA
-    aura: FORCE_REACTION
-    misc_value: [2754, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1259417
   name: Walking on Air
@@ -653,53 +390,6 @@ spells:
   - index: 0
     effect: KNOCK_BACK
     misc_value: [-150, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 1259686
-  name: Skysight
-  rank_text: Racial
-  skill_line: 2980
-  acquire_method: 2
-  attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  cast_time_ms: 500
-  cooldown:
-    recovery_ms: 120000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-  levels:
-    spell: 1
-  class_options:
-    set: 0
-    mask: [2147483648, 0, 0, 0]
-  labels: [5710]
-  description: "Attempt to draw power from a convergence of elements and receive its blessing, increasing your movement and mounted movement speeds by $1259688s1%. Lasts $1259688d if no elemental convergence is nearby, and $1270893d if one is found.\r\n"
-  effects:
-  - index: 0
-    effect: TRIGGER_SPELL
-    trigger_spell: 1259688
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 1259688
-  name: Elemental Blessing
-  attributes: [0, 0, 4, 0, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  duration_ms: 30000
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_MOUNTED_SPEED_NOT_STACK
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: UPDATE_PLAYER_PHASE
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1259705
   name: Read Ley Line
@@ -763,27 +453,6 @@ spells:
     aura: MOD_CASTING_SPEED_NOT_STACK
     base_points: 1.0
     bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 1259718
-  name: Will to Survive
-  rank_text: Racial
-  skill_line: 754
-  race_mask: 1
-  acquire_method: 2
-  attributes: [16, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67108864, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  cooldown:
-    recovery_ms: 180000
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-  labels: [5710]
-  description: Instantly removes all Stun effects.
-  effects:
-  - index: 0
-    effect: DISPEL_MECHANIC
-    base_points: 99.0
-    misc_value: [12, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1259719
   name: Mace Specialization
@@ -1244,12 +913,6 @@ spells:
     base_points: 100.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_HEALTH_REGEN_PERCENT
-    base_points: 100.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 1299026
   name: Shatter Curse
   rank_text: Racial
@@ -1278,14 +941,4 @@ spells:
     base_points: -15.0
     bonus_coefficient: 1.0
     misc_value: [126, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: DISPEL
-    base_points: 99.0
-    misc_value: [2, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: DISPEL_IMMUNITY
-    misc_value: [2, 0]
     implicit_target: [UNIT_CASTER, NONE]

@@ -24,7 +24,7 @@ use crate::stance::Stance;
 use crate::stats::CharacterStats;
 use crate::target::Target;
 
-/// Records copied from the export (descriptions and labels dropped).
+/// Records copied from the pruned export (descriptions and labels dropped).
 pub(crate) const SPELLS_YAML: &str = r#"
 build: 1.60.1.69893
 class: WARRIOR
@@ -103,12 +103,6 @@ spells:
     base_points: 35.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_INCREASE_SPEED
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 20662
   name: Execute
   rank_text: Rank 5
@@ -388,10 +382,6 @@ spells:
     base_points: 10.0
     aura_period_ms: 1000
     misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: INTERRUPT_REGEN
     implicit_target: [UNIT_CASTER, NONE]
 - id: 11574
   name: Rend
