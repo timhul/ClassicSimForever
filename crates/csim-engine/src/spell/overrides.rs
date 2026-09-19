@@ -337,6 +337,10 @@ pub struct SpellOverride {
     /// Priority of the spell's debuff when the target's debuff slots are full.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub debuff_priority: Option<Priority>,
+    /// Whether the spell's debuff is one instance shared by the raid (Sunder Armor) rather than
+    /// one per caster; by default a stacking debuff is shared.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub debuff_shared: Option<bool>,
 }
 
 impl SpellOverride {
@@ -614,6 +618,11 @@ impl Overrides {
     /// The debuff priority of spell `id`, if overridden.
     pub fn debuff_priority(&self, id: u32) -> Option<Priority> {
         self.get(id).and_then(|o| o.debuff_priority)
+    }
+
+    /// Whether spell `id`'s debuff is raid-shared, if overridden.
+    pub fn debuff_shared(&self, id: u32) -> Option<bool> {
+        self.get(id).and_then(|o| o.debuff_shared)
     }
 }
 

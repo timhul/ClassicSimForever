@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::spell::dbc::ShapeshiftForm;
+
 /// The stance (Warrior) or form (Druid) a character is in. Serialized with the names used by the
 /// spell data (`BATTLE_STANCE`, `BEAR_FORM`, ...).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -33,6 +35,40 @@ impl Stance {
         Stance::Moonkin,
     ];
 
+    /// The stance a `MOD_SHAPESHIFT` aura's form id selects; `None` for forms no supported
+    /// class uses.
+    pub fn from_form(form: ShapeshiftForm) -> Option<Stance> {
+        match form {
+            ShapeshiftForm::None => Some(Stance::Caster),
+            ShapeshiftForm::BattleStance => Some(Stance::Battle),
+            ShapeshiftForm::DefensiveStance => Some(Stance::Defensive),
+            ShapeshiftForm::BerserkerStance => Some(Stance::Berserker),
+            ShapeshiftForm::BearForm | ShapeshiftForm::DireBearForm => Some(Stance::Bear),
+            ShapeshiftForm::CatForm => Some(Stance::Cat),
+            ShapeshiftForm::MoonkinForm => Some(Stance::Moonkin),
+            _ => None,
+        }
+    }
+
+    /// The form id of this stance (`SpellShapeshiftForm.ID`).
+    pub fn form(self) -> ShapeshiftForm {
+        match self {
+            Stance::Caster => ShapeshiftForm::None,
+            Stance::Battle => ShapeshiftForm::BattleStance,
+            Stance::Defensive => ShapeshiftForm::DefensiveStance,
+            Stance::Berserker => ShapeshiftForm::BerserkerStance,
+            Stance::Bear => ShapeshiftForm::BearForm,
+            Stance::Cat => ShapeshiftForm::CatForm,
+            Stance::Moonkin => ShapeshiftForm::MoonkinForm,
+        }
+    }
+
+    /// Whether a spell with `SpellShapeshift.ShapeshiftMask_0 == mask` is usable in this stance
+    /// (a mask of 0 allows every stance).
+    pub fn allowed_by_mask(self, mask: u32) -> bool {
+        mask == 0 || self.form().mask_bit().is_some_and(|bit| mask & bit != 0)
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Stance::Caster => "Caster Form",
@@ -60,5 +96,25 @@ mod tests {
             serde_yaml::to_string(&Stance::Bear).unwrap().trim(),
             "BEAR_FORM"
         );
+    }
+
+    #[test]
+    fn forms_and_masks() {
+        assert_eq!(
+            Stance::from_form(ShapeshiftForm::BerserkerStance),
+            Some(Stance::Berserker)
+        );
+        assert_eq!(Stance::from_form(ShapeshiftForm::GhostWolf), None);
+        for stance in Stance::ALL {
+            assert_eq!(Stance::from_form(stance.form()), Some(stance));
+        }
+        assert!(Stance::Battle.allowed_by_mask(0));
+        assert!(
+            Stance::Battle.allowed_by_mask(327680),
+            "Execute: Battle | Berserker"
+        );
+        assert!(Stance::Berserker.allowed_by_mask(327680));
+        assert!(!Stance::Defensive.allowed_by_mask(327680));
+        assert!(!Stance::Caster.allowed_by_mask(65536), "form 0 has no bit");
     }
 }

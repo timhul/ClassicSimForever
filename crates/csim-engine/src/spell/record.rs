@@ -611,6 +611,17 @@ impl SpellRecord {
         self.skill_line.is_some()
     }
 
+    /// Whether the spell is an ability the player casts from the spellbook (what rotations
+    /// name): in a skill line, displayed, not passive and not a triggered payload
+    /// (`AcquireMethod` 3 without a class mask: the Flurry buff, Sweeping Strikes' extra hit).
+    /// Hidden payloads (`DO_NOT_DISPLAY`) and passives are reached by id.
+    pub fn is_ability(&self) -> bool {
+        self.is_in_spellbook()
+            && !self.is_hidden()
+            && !self.is_passive()
+            && !(self.acquire_method == 3 && self.class_mask == 0)
+    }
+
     /// The learn level (`SpellLevels.BaseLevel`).
     pub fn learn_level(&self) -> u32 {
         self.levels.base
@@ -1440,6 +1451,7 @@ overrides:
         assert_eq!(hs.power_cost(PowerType::Rage), 150);
         assert_eq!(hs.power_cost(PowerType::Mana), 0);
         assert!(hs.is_in_spellbook());
+        assert!(hs.is_ability());
 
         let ms = db.get(12294).unwrap();
         assert!(ms.triggers_gcd());
@@ -1476,12 +1488,14 @@ overrides:
         let payload = db.get(12162).unwrap();
         assert!(payload.is_hidden());
         assert!(!payload.is_in_spellbook());
+        assert!(!payload.is_ability());
         assert!(payload.has_scripted_effects());
         assert_eq!(payload.categories.mechanic, Mechanic::Bleed);
         assert_eq!(payload.rank_number(), None);
 
         let deep_wounds = db.get(12834).unwrap();
         assert!(deep_wounds.is_passive() && deep_wounds.is_proc_aura());
+        assert!(!deep_wounds.is_ability(), "passives are not cast");
         assert_eq!(deep_wounds.trigger_spells(), [12162]);
         assert!(deep_wounds.effects[0].is_proc_trigger());
         assert!(!deep_wounds.effects[0].is_scripted());

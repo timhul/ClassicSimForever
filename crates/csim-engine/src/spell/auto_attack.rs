@@ -303,8 +303,11 @@ impl AutoAttack {
 
 /// Port of `Spell::damage_after_modifiers` for swings.
 fn damage_after_modifiers(host: &impl AutoAttackHost, damage: f64) -> f64 {
-    let armor_reduction =
-        1.0 - crate::mechanics::Mechanics::reduction_from_armor(host.target_armor(), host.clvl());
+    let armor_reduction = 1.0
+        - crate::mechanics::Mechanics::reduction_from_armor(
+            host.target_armor(),
+            host.caster_level(),
+        );
     (damage * host.total_physical_damage_mod() + f64::from(host.flat_physical_damage_bonus()))
         * armor_reduction
 }
@@ -331,8 +334,10 @@ mod tests {
     use crate::effect::EffectHost;
     use crate::engine::Engine;
     use crate::ids::{BuffId, CharId, CooldownId, SpellId};
-    use crate::item::WeaponType;
-    use crate::phase::Phase;
+    use crate::spell::dbc::AuraState;
+    use crate::spell::modifiers::SpellModifiers;
+    use crate::spell::record::EquippedItems;
+    use crate::spell::CastReport;
     use crate::stance::Stance;
     use crate::stats::CharacterStats;
     use crate::target::Target;
@@ -352,6 +357,7 @@ mod tests {
         reactions: u32,
         armor: i32,
         rage_user: bool,
+        modifiers: SpellModifiers,
     }
 
     impl World {
@@ -372,6 +378,7 @@ mod tests {
                 reactions: 0,
                 armor: 0,
                 rage_user: true,
+                modifiers: SpellModifiers::new(),
             }
         }
 
@@ -401,6 +408,9 @@ mod tests {
     }
 
     impl EffectHost for World {
+        fn caster_level(&self) -> u32 {
+            60
+        }
         fn combo_points(&self) -> u32 {
             0
         }
@@ -444,7 +454,17 @@ mod tests {
         fn increase_melee_attack_speed(&mut self, _: u32) {}
         fn decrease_melee_attack_speed(&mut self, _: u32) {}
         fn swap_stance(&mut self, _: Stance) {}
-        fn use_buff_charge(&mut self, _: &str) {}
+        fn spell_modifiers(&self) -> &SpellModifiers {
+            &self.modifiers
+        }
+        fn spell_modifiers_mut(&mut self) -> &mut SpellModifiers {
+            &mut self.modifiers
+        }
+        fn add_extra_attacks(&mut self, _: u32) {}
+        fn adjust_stance_rage_retained(&mut self, _: i32) {}
+        fn adjust_offhand_damage_percent(&mut self, _: i32) {}
+        fn adjust_offhand_rage_percent(&mut self, _: i32) {}
+        fn override_actionbar_spell(&mut self, _: u32, _: u32, _: bool) {}
     }
 
     impl SpellHost for World {
@@ -456,12 +476,6 @@ mod tests {
         }
         fn engine_mut(&mut self) -> &mut Engine {
             &mut self.engine
-        }
-        fn clvl(&self) -> u32 {
-            60
-        }
-        fn phase(&self) -> Phase {
-            Phase::Naxxramas
         }
         fn combat_length(&self) -> f64 {
             300.0
@@ -477,9 +491,6 @@ mod tests {
             false
         }
         fn start_stance_cooldown(&mut self) {}
-        fn on_trinket_cooldown(&self) -> bool {
-            false
-        }
         fn cast_in_progress(&self) -> bool {
             false
         }
@@ -493,9 +504,6 @@ mod tests {
         fn casting_speed_flat_reduction(&self) -> u32 {
             0
         }
-        fn casting_time_suppressed(&self) -> bool {
-            false
-        }
         fn stop_attack(&mut self) {
             self.attacking = false;
         }
@@ -505,20 +513,26 @@ mod tests {
         fn reset_swing_timers(&mut self) {}
         fn queue_next_swing(&mut self, _: SpellId) {}
         fn cancel_next_swing(&mut self) {}
+        fn queued_next_swing(&self) -> Option<SpellId> {
+            None
+        }
         fn stance(&self) -> Stance {
             Stance::Battle
         }
-        fn offhand_weapon_type(&self) -> Option<WeaponType> {
-            self.oh_speed.map(|_| WeaponType::Axe)
+        fn equipped_item_matches(&self, _: &EquippedItems) -> bool {
+            true
         }
-        fn max_resource_level(&self, _: ResourceType) -> u32 {
-            100
+        fn caster_aura_state(&self, _: AuraState) -> bool {
+            false
+        }
+        fn target_aura_state(&self, _: AuraState) -> bool {
+            false
+        }
+        fn aura_active(&self, _: u32) -> bool {
+            false
         }
         fn lose_resource(&mut self, _: ResourceType, amount: u32) {
             self.rage -= amount;
-        }
-        fn resource_cost_reduction(&self, _: ResourceType) -> u32 {
-            0
         }
         fn cooldown(&self, _: CooldownId) -> &CooldownControl {
             unreachable!()
@@ -532,9 +546,6 @@ mod tests {
         fn buff_mut(&mut self, _: BuffId) -> &mut Buff {
             unreachable!()
         }
-        fn buff_is_active_by_name(&self, _: &str) -> bool {
-            false
-        }
         fn apply_buff(&mut self, _: BuffId) -> BuffApplication {
             BuffApplication::NotApplied
         }
@@ -543,6 +554,10 @@ mod tests {
         }
         fn enable_buff(&mut self, _: BuffId) {}
         fn disable_buff(&mut self, _: BuffId) {}
+        fn trigger_spell(&mut self, _: u32, _: Option<f64>) -> Option<CastReport> {
+            None
+        }
+        fn set_spell_effect_value(&mut self, _: u32, _: u32, _: f64) {}
         fn target_armor(&self) -> i32 {
             self.armor
         }

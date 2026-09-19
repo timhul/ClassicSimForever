@@ -2,17 +2,24 @@
 //! `SharedDebuff` and `ExternalBuff` (the state machine part; the external buff *data* is Phase 4).
 //!
 //! The C++ class hierarchy is one struct with a [`BuffKind`]. A buff owns its timing state
-//! (applied / refreshed / expired, charges, stacks, removal iteration) and its effect specs, but
+//! (applied / refreshed / expired, charges, stacks, removal iteration) and its aura effects, but
 //! it does not reach into the character, the raid or the statistics: every state transition
 //! returns what the owner has to do next ([`BuffApplication`], [`ChargeUse`], the `bool` of
 //! [`Buff::remove`] / [`Buff::cancel`]), namely apply or remove the aura effects on the affected
 //! units and cancel an evicted debuff. Target debuff slots are claimed through the [`Target`] in
 //! the [`BuffContext`], keyed by the buff's raid-wide [`InstanceId`].
+//!
+//! On the table model a spell *is* its buff: [`Buff::from_record`] takes the spell's apply-aura
+//! effects, its `SpellDuration`, `SpellAuraOptions` (charges, stacks, the events that consume a
+//! charge) and `Attributes_0` (hidden), and derives the [`BuffKind`] from the effects' implicit
+//! targets.
 
 use crate::effect::Effect;
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, InstanceId};
-use crate::spell::{Affected, BuffRankSpec, SpellGroupSpec, SpellRankSpec};
+use crate::proc::ProcSource;
+use crate::spell::overrides::{Overrides, ProcHitMask, SimFlag};
+use crate::spell::record::SpellRecord;
 use crate::target::{Priority, Target};
 
 /// Which units a buff affects and how it is registered. Port of the `Buff` subclasses.
@@ -31,16 +38,36 @@ pub enum BuffKind {
 }
 
 impl BuffKind {
-    /// The kind a spell's buff spec produces, or `None` for raid-wide buffs, which the C++ code
-    /// did not support (`Affected::Raid` → no marker buff).
-    pub fn from_spec(spec: &BuffRankSpec, party: u8) -> Option<BuffKind> {
-        match spec.unit {
-            Affected::Caster => Some(BuffKind::SelfBuff),
-            Affected::Party => Some(BuffKind::PartyBuff { party }),
-            Affected::Target if spec.shared => Some(BuffKind::SharedDebuff),
-            Affected::Target => Some(BuffKind::UniqueDebuff),
-            Affected::Raid => None,
+    /// The kind of the buff a spell record applies, from its aura effects' implicit targets:
+    /// party / raid area auras are party buffs (raid buffs, which the C++ code did not support
+    /// either, are treated as party buffs), auras on the enemy are debuffs (shared by the raid
+    /// when `debuff_shared` says so, or by default when the debuff stacks, like Sunder Armor),
+    /// everything else is a self buff. `None` for spells without aura effects.
+    pub fn from_record(
+        record: &SpellRecord,
+        party: u8,
+        debuff_shared: Option<bool>,
+    ) -> Option<BuffKind> {
+        let auras: Vec<_> = record
+            .effects
+            .iter()
+            .filter(|e| e.is_apply_aura())
+            .collect();
+        if auras.is_empty() {
+            return None;
         }
+        if auras.iter().any(|e| e.targets_group()) {
+            return Some(BuffKind::PartyBuff { party });
+        }
+        if auras.iter().any(|e| e.targets_enemy()) {
+            let shared = debuff_shared.unwrap_or(record.aura_options.max_stacks > 1);
+            return Some(if shared {
+                BuffKind::SharedDebuff
+            } else {
+                BuffKind::UniqueDebuff
+            });
+        }
+        Some(BuffKind::SelfBuff)
     }
 
     pub fn is_debuff(self) -> bool {
@@ -121,7 +148,12 @@ pub struct Buff {
     max_stacks: u32,
     priority: Priority,
     refresh_policy: RefreshPolicy,
-    /// The aura effects, owned so talents can modify them (`increase_value`, `add_effect`).
+    /// The spell the buff belongs to (`SpellName.ID`), 0 for buffs made in code.
+    spell: u32,
+    /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
+    /// Flurry loses a charge per landed swing).
+    charge_sources: Vec<ProcSource>,
+    /// The aura effects, owned so talent rank values can be substituted.
     pub effects: Vec<Effect>,
 
     instance_id: Option<InstanceId>,
@@ -137,9 +169,9 @@ pub struct Buff {
 }
 
 impl Buff {
-    /// The name shared buffs are registered under: `"Name (rank N)"`.
-    pub fn canonical_name_for(name: &str, rank: u32) -> String {
-        format!("{name} (rank {rank})")
+    /// The name shared buffs are registered under: `"Name (spell id)"`.
+    pub fn canonical_name_for(name: &str, spell: u32) -> String {
+        format!("{name} ({spell})")
     }
 
     /// A buff not defined by a spell spec (hidden marker buffs, item/enchant buffs). The name
@@ -163,6 +195,8 @@ impl Buff {
             max_stacks: 1,
             priority: Priority::Invalid,
             refresh_policy: RefreshPolicy::default(),
+            spell: 0,
+            charge_sources: Vec::new(),
             effects: Vec::new(),
             instance_id: None,
             enabled: false,
@@ -177,33 +211,50 @@ impl Buff {
         }
     }
 
-    /// The buff of one spell rank. `kind` comes from [`BuffKind::from_spec`].
-    ///
-    /// # Panics
-    /// Panics if a debuff kind has `Priority::Invalid` in its spec, or the rank has no buff.
-    pub fn from_spec(group: &SpellGroupSpec, rank: &SpellRankSpec, kind: BuffKind) -> Self {
-        let spec = rank
-            .buff
-            .as_ref()
-            .unwrap_or_else(|| panic!("{} rank {} has no buff", group.name, rank.rank));
-        let name = spec.name.clone().unwrap_or_else(|| group.name.clone());
+    /// The buff a spell record applies: its aura effects with the spell's duration, charges,
+    /// stacks and hidden flag. `kind` comes from [`BuffKind::from_record`]; the debuff priority
+    /// comes from the overrides (`Mid` by default).
+    pub fn from_record(record: &SpellRecord, kind: BuffKind, overrides: &Overrides) -> Self {
+        let duration = if record.is_permanent() || record.duration_ms.is_none() {
+            None
+        } else {
+            record.finite_duration_ms().map(|ms| f64::from(ms) / 1000.0)
+        };
         let mut buff = Buff::new(
-            &name,
-            group.icon.as_deref(),
+            &record.name,
+            None,
             kind,
-            spec.duration,
-            spec.base_charges,
+            duration,
+            record.aura_options.proc_charges,
         );
-        buff.canonical_name = Buff::canonical_name_for(&name, rank.rank);
-        buff.hidden = spec.hidden;
-        buff.max_stacks = spec.max_stacks.max(1);
-        buff.set_priority(spec.priority);
-        buff.effects = spec
+        buff.canonical_name = Buff::canonical_name_for(&record.name, record.id);
+        buff.spell = record.id;
+        buff.hidden = record.is_hidden();
+        buff.max_stacks = record.aura_options.max_stacks.max(1);
+        if kind.is_debuff() {
+            buff.set_priority(
+                overrides
+                    .debuff_priority(record.id)
+                    .unwrap_or(Priority::Mid),
+            );
+        }
+        if record.aura_options.proc_charges > 0 {
+            buff.charge_sources =
+                ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
+        }
+        let cannot_crit = overrides.has_sim_flag(record.id, SimFlag::CannotCrit);
+        buff.effects = record
             .effects
             .iter()
-            .cloned()
-            .enumerate()
-            .map(|(index, effect)| Effect::new(effect, index, &group.flags))
+            .filter(|e| e.is_apply_aura())
+            .map(|e| {
+                Effect::new(
+                    e,
+                    record,
+                    overrides.effect_script(record.id, e.index).copied(),
+                    cannot_crit,
+                )
+            })
             .collect();
         buff
     }
@@ -296,6 +347,21 @@ impl Buff {
 
     pub fn refresh_policy(&self) -> RefreshPolicy {
         self.refresh_policy
+    }
+
+    /// The spell the buff belongs to (0 for buffs made in code).
+    pub fn spell(&self) -> u32 {
+        self.spell
+    }
+
+    /// The events that use up one charge.
+    pub fn charge_sources(&self) -> &[ProcSource] {
+        &self.charge_sources
+    }
+
+    /// Whether a `source` event uses up one charge of this buff.
+    pub fn consumes_charge_on(&self, source: ProcSource) -> bool {
+        self.charge_sources.contains(&source)
     }
 
     /// The name under which statistics are collected (party buffs are per party).
@@ -563,7 +629,9 @@ pub struct BuffReset {
 mod tests {
     use super::*;
     use crate::engine::{Event, EventType};
-    use crate::spell::{SpellDb, SpellEffect, SpellFileSpec};
+    use crate::spell::dbc::{AuraType, ImplicitTarget, SpellEffectName};
+    use crate::spell::overrides::SpellOverride;
+    use crate::spell::record::{AuraOptions, EffectRecord};
 
     struct World {
         engine: Engine,
@@ -916,95 +984,131 @@ mod tests {
         );
     }
 
-    #[test]
-    fn buffs_are_built_from_spell_specs() {
-        let file: SpellFileSpec = serde_yaml::from_str(
-            r#"
-spell_groups:
-  - name: Battle Shout
-    icon: shout.png
-    causes_gcd: normal
-    ranks:
-      - rank: 6
-        resource: rage
-        buff:
-          unit: party
-          duration: 120
-          effects: [{ name: APPLY_AURA_MELEE_ATTACK_POWER, value: 193 }]
-  - name: Sunder Armor
-    causes_gcd: normal
-    ranks:
-      - rank: 5
-        resource: rage
-        buff:
-          name: Sunder Armor Debuff
-          unit: target
-          shared: true
-          priority: high
-          duration: 30
-          max_stacks: 5
-          effects: [{ name: APPLY_AURA_MOD_ARMOR, value: -450 }]
-  - name: Overpower Buff
-    causes_gcd: none
-    ranks:
-      - rank: 1
-        resource: rage
-        buff: { unit: target, hidden: true, priority: high, duration: 5 }
-  - name: Raid Wide
-    causes_gcd: none
-    ranks:
-      - rank: 1
-        resource: rage
-        buff: { unit: raid }
-"#,
-        )
-        .unwrap();
-        let mut db = SpellDb::new();
-        db.add_file(file).unwrap();
+    fn aura(index: u32, aura: AuraType, points: f32, target: ImplicitTarget) -> EffectRecord {
+        let mut effect = EffectRecord::new(index, SpellEffectName::ApplyAura);
+        effect.aura = aura;
+        effect.base_points = points;
+        effect.implicit_target = [target, ImplicitTarget::None];
+        effect
+    }
 
-        let shout = db.get("Battle Shout").unwrap();
-        let rank = shout.rank(6).unwrap();
-        let kind = BuffKind::from_spec(rank.buff.as_ref().unwrap(), 3).unwrap();
+    #[test]
+    fn buffs_are_built_from_spell_records() {
+        let mut shout = SpellRecord::new(5242, "Battle Shout");
+        shout.duration_ms = Some(180_000);
+        shout.effects.push(aura(
+            0,
+            AuraType::ModAttackPower,
+            21.0,
+            ImplicitTarget::UnitCasterAreaParty,
+        ));
+        let overrides = Overrides::new();
+        let kind = BuffKind::from_record(&shout, 3, None).unwrap();
         assert_eq!(kind, BuffKind::PartyBuff { party: 3 });
-        let buff = Buff::from_spec(shout, rank, kind);
+        let buff = Buff::from_record(&shout, kind, &overrides);
         assert_eq!(buff.name(), "Battle Shout");
-        assert_eq!(buff.canonical_name(), "Battle Shout (rank 6)");
-        assert_eq!(buff.icon(), Some("shout.png"));
-        assert_eq!(buff.duration(), Some(120.0));
+        assert_eq!(buff.canonical_name(), "Battle Shout (5242)");
+        assert_eq!(buff.spell(), 5242);
+        assert_eq!(buff.duration(), Some(180.0));
         assert_eq!(buff.max_stacks(), 1);
         assert_eq!(buff.effects.len(), 1);
-        assert_eq!(
-            buff.effects[0].kind(),
-            SpellEffect::ApplyAuraMeleeAttackPower
-        );
-        assert_eq!(buff.effects[0].value(), 193.0);
+        assert_eq!(buff.effects[0].aura(), AuraType::ModAttackPower);
+        assert_eq!(buff.effects[0].value(), 21.0);
         assert!(!buff.is_hidden());
         assert!(!buff.is_enabled());
+        assert!(buff.charge_sources().is_empty());
 
-        let sunder = db.get("Sunder Armor").unwrap();
-        let rank = sunder.rank(5).unwrap();
-        let kind = BuffKind::from_spec(rank.buff.as_ref().unwrap(), 0).unwrap();
-        assert_eq!(kind, BuffKind::SharedDebuff);
-        let buff = Buff::from_spec(sunder, rank, kind);
-        assert_eq!(buff.name(), "Sunder Armor Debuff");
-        assert_eq!(buff.canonical_name(), "Sunder Armor Debuff (rank 5)");
+        let mut sunder = SpellRecord::new(11597, "Sunder Armor");
+        sunder.duration_ms = Some(30_000);
+        sunder.aura_options = AuraOptions {
+            max_stacks: 5,
+            ..AuraOptions::default()
+        };
+        sunder.effects.push(aura(
+            0,
+            AuraType::ModResistance,
+            -450.0,
+            ImplicitTarget::UnitTargetEnemy,
+        ));
+        sunder
+            .effects
+            .push(EffectRecord::new(1, SpellEffectName::Threat));
+        let kind = BuffKind::from_record(&sunder, 0, None).unwrap();
+        assert_eq!(
+            kind,
+            BuffKind::SharedDebuff,
+            "stacking debuffs are raid-wide"
+        );
+        assert_eq!(
+            BuffKind::from_record(&sunder, 0, Some(false)),
+            Some(BuffKind::UniqueDebuff)
+        );
+        let mut overrides = Overrides::new();
+        let mut spell_override = SpellOverride::new(11597);
+        spell_override.debuff_priority = Some(Priority::High);
+        overrides.add(spell_override).unwrap();
+        let buff = Buff::from_record(&sunder, kind, &overrides);
         assert_eq!(buff.priority(), Priority::High);
         assert_eq!(buff.max_stacks(), 5);
         assert!(buff.is_debuff());
+        assert_eq!(buff.effects.len(), 1, "direct effects stay with the spell");
 
-        let overpower = db.get("Overpower Buff").unwrap();
-        let rank = overpower.rank(1).unwrap();
-        let kind = BuffKind::from_spec(rank.buff.as_ref().unwrap(), 0).unwrap();
+        let mut rend = SpellRecord::new(11574, "Rend");
+        rend.duration_ms = Some(21_000);
+        rend.effects.push(aura(
+            0,
+            AuraType::PeriodicDamage,
+            21.0,
+            ImplicitTarget::UnitTargetEnemy,
+        ));
+        let kind = BuffKind::from_record(&rend, 0, None).unwrap();
         assert_eq!(kind, BuffKind::UniqueDebuff);
-        let buff = Buff::from_spec(overpower, rank, kind);
-        assert!(buff.is_hidden());
-        assert!(buff.effects.is_empty());
-
-        let raid = db.get("Raid Wide").unwrap();
         assert_eq!(
-            BuffKind::from_spec(raid.rank(1).unwrap().buff.as_ref().unwrap(), 0),
-            None
+            Buff::from_record(&rend, kind, &Overrides::new()).priority(),
+            Priority::Mid
         );
+
+        let mut flurry = SpellRecord::new(12966, "Flurry");
+        flurry.attributes[0] = 0x40000;
+        flurry.duration_ms = Some(15_000);
+        flurry.aura_options = AuraOptions {
+            proc_charges: 3,
+            proc_chance: 100,
+            proc_type_mask: crate::spell::dbc::ProcFlags::DEAL_MELEE_SWING,
+            ..AuraOptions::default()
+        };
+        flurry.effects.push(aura(
+            0,
+            AuraType::ModMeleeHaste3,
+            30.0,
+            ImplicitTarget::UnitCaster,
+        ));
+        let kind = BuffKind::from_record(&flurry, 0, None).unwrap();
+        assert_eq!(kind, BuffKind::SelfBuff);
+        let buff = Buff::from_record(&flurry, kind, &Overrides::new());
+        assert_eq!(buff.base_charges(), 3);
+        assert_eq!(
+            buff.charge_sources(),
+            [ProcSource::MainhandSwing, ProcSource::OffhandSwing]
+        );
+        assert!(buff.consumes_charge_on(ProcSource::OffhandSwing));
+        assert!(!buff.consumes_charge_on(ProcSource::MeleeCritical));
+
+        let mut stance = SpellRecord::new(2458, "Berserker Stance");
+        stance.duration_ms = Some(-1);
+        stance.attributes[0] = 0x80;
+        stance.effects.push(aura(
+            0,
+            AuraType::ModShapeshift,
+            0.0,
+            ImplicitTarget::UnitCaster,
+        ));
+        let buff = Buff::from_record(&stance, BuffKind::SelfBuff, &Overrides::new());
+        assert!(buff.is_permanent());
+        assert!(buff.is_hidden());
+
+        let plain = SpellRecord::new(78, "Heroic Strike");
+        assert_eq!(BuffKind::from_record(&plain, 0, None), None);
     }
 
     #[test]
