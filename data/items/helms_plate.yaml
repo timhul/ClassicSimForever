@@ -1,0 +1,394 @@
+# Generated from ClassicSim Items/Helms/plate.xml by tools/convert_items.py.
+
+- id: 14866
+  name: "Warleader's Crown"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "UNCOMMON"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_helmet_19.png"
+  stats:
+    ARMOR: 478
+    SPIRIT: 5
+    STAMINA: 16
+    STRENGTH: 18
+  source: "World drop."
+- id: 16727
+  name: "Lightforge Helm"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_helmet_08.png"
+  stats:
+    AGILITY: 6
+    ARMOR: 478
+    INTELLECT: 14
+    SPIRIT: 10
+    STAMINA: 20
+    STRENGTH: 13
+  source: "Drops from Darkmaster Gandling in Scholomance."
+- id: 16731
+  name: "Helm of Valor"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_helmet_02.png"
+  stats:
+    AGILITY: 9
+    ARMOR: 478
+    SPIRIT: 8
+    STAMINA: 23
+    STRENGTH: 15
+  source: "Drops from Darkmaster Gandling in Scholomance."
+- id: 16866
+  name: "Helm of Might"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_helmet_09.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 608
+    DEFENSE: 7
+    DODGE_CHANCE: 0.01
+    FIRE_RESISTANCE: 10
+    STAMINA: 35
+    STRENGTH: 15
+  source: "Drops from Garr in Molten Core."
+- id: 16963
+  name: "Helm of Wrath"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_helmet_71.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 696
+    DEFENSE: 11
+    FROST_RESISTANCE: 10
+    SHADOW_RESISTANCE: 10
+    STAMINA: 40
+    STRENGTH: 17
+  source: "Drops from Onyxia in Onyxia's Lair."
+- id: 12640
+  name: "Lionheart Helm"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  icon: "Inv_helmet_36.png"
+  stats:
+    ARMOR: 565
+    CRIT_CHANCE: 0.02
+    HIT_CHANCE: 0.02
+    STRENGTH: 18
+  source: "Crafted by blacksmiths. Plans drop from world bosses and Ragnaros, Nefarian, Onyxia."
+- id: 18718
+  name: "Grand Crusader's Helm"
+  phase: 1
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_helmet_10.png"
+  stats:
+    ARMOR: 584
+    SHADOW_RESISTANCE: 15
+    SPIRIT: 12
+    STAMINA: 16
+    STRENGTH: 16
+  source: "Drops from Balnazzar in Stratholme Living."
+- id: 19148
+  name: "Dark Iron Helm"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_helmet_22.png"
+  stats:
+    ARMOR: 758
+    FIRE_RESISTANCE: 35
+    STAMINA: 20
+  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
+- id: 23314
+  name: "Lieutenant Commander's Plate Helm"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_helmet_09.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 598
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 24
+    STRENGTH: 21
+  source: "Purchased with Honor Points and marks of honor. Requires Lieutenant Commander (rank 10)."
+- id: 23244
+  name: "Champion's Plate Helm"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_helmet_09.png"
+  faction: "HORDE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 598
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 24
+    STRENGTH: 21
+  source: "Purchased with Honor Points and marks of honor. Requires Champion (rank 10)."
+- id: 16542
+  name: "Warlord's Plate Headpiece"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_helmet_09.png"
+  faction: "HORDE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 719
+    CRIT_CHANCE: 0.01
+    STAMINA: 34
+    STRENGTH: 28
+  source: "May be purchased upon reaching Warlord (rank 13). Horde only."
+- id: 16478
+  name: "Field Marshal's Plate Helm"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_helmet_05.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 598
+    CRIT_CHANCE: 0.01
+    STAMINA: 24
+    STRENGTH: 21
+  source: "May be purchased upon reaching Field Marshal (rank 13). Alliance only."
+- id: 23276
+  name: "Lieutenant Commander's Lamellar Headguard"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_helmet_05.png"
+  class_restrictions: ["PALADIN"]
+  stats:
+    ARMOR: 598
+    INTELLECT: 12
+    SPELL_DAMAGE: 26
+    STAMINA: 19
+    STRENGTH: 18
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Lieutenant Commander (rank 10)."
+- id: 16474
+  name: "Field Marshal's Lamellar Headguard"
+  phase: 2
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_helmet_05.png"
+  class_restrictions: ["PALADIN"]
+  stats:
+    ARMOR: 679
+    CRIT_CHANCE: 0.01
+    INTELLECT: 20
+    MANA_PER_5: 5
+    SPELL_DAMAGE: 25
+    STAMINA: 21
+    STRENGTH: 21
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Field Marshal (rank 13)."
+- id: 19372
+  name: "Helm of Endless Rage"
+  phase: 3
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_helmet_10.png"
+  stats:
+    AGILITY: 26
+    ARMOR: 679
+    STAMINA: 29
+    STRENGTH: 26
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 20263
+  name: "Gurubashi Helm"
+  phase: 4
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_helmet_25.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 549
+    STAMINA: 13
+    STRENGTH: 22
+  source: "Drops from trash mobs in Zul'Gurub."
+- id: 20551
+  name: "Darkrune Helm"
+  phase: 5
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_helmet_10.png"
+  stats:
+    ARMOR: 584
+    CRIT_CHANCE: 0.01
+    SHADOW_RESISTANCE: 25
+    STAMINA: 13
+  source: "Crafted by blacksmiths. Drops from bag awarded via repeatable quest in Silithus."
+- id: 21460
+  name: "Helm of Domination"
+  phase: 5
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_helmet_09.png"
+  stats:
+    AGILITY: 11
+    ARMOR: 661
+    DEFENSE: 7
+    PARRY_CHANCE: 0.01
+    STAMINA: 28
+    STRENGTH: 21
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21329
+  name: "Conqueror's Crown"
+  phase: 5
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_helmet_72.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    AGILITY: 18
+    ARMOR: 739
+    DEFENSE: 6
+    STAMINA: 34
+    STRENGTH: 29
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 22411
+  name: "Helm of the Executioner"
+  phase: 5
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_helmet_01.png"
+  stats:
+    ARMOR: 534
+    HIT_CHANCE: 0.02
+    STAMINA: 31
+    STRENGTH: 14
+  source: "Drops from Baron Rivendare in Stratholme Undead."
+- id: 21387
+  name: "Avenger's Crown"
+  phase: 5
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_helmet_72.png"
+  class_restrictions: ["PALADIN"]
+  stats:
+    AGILITY: 12
+    ARMOR: 739
+    CRIT_CHANCE: 0.01
+    INTELLECT: 22
+    SPELL_DAMAGE: 23
+    SPIRIT: 12
+    STAMINA: 22
+    STRENGTH: 20
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 23019
+  name: "Icebane Helmet"
+  phase: 6
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_helmet_06.png"
+  stats:
+    ARMOR: 757
+    DEFENSE: 8
+    FROST_RESISTANCE: 44
+    STAMINA: 24
+    STRENGTH: 12
+  source: "Drops from Heigan the Unclean in Naxxramas."
+- id: 22418
+  name: "Dreadnaught Helmet"
+  phase: 6
+  slot: "HEAD"
+  type: "PLATE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_helmet_58.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    ARMOR: 800
+    DEFENSE: 14
+    DODGE_CHANCE: 0.01
+    STAMINA: 45
+    STRENGTH: 21
+  source: "Quest reward. Requires boss drop from Thaddius in Naxxramas."

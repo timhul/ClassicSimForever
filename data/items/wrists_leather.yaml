@@ -1,0 +1,240 @@
+# Generated from ClassicSim Items/Wrists/leather.xml by tools/convert_items.py.
+
+- id: 12966
+  name: "Blackmist Armguards"
+  phase: 1
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 77
+    HIT_CHANCE: 0.01
+    SHADOW_RESISTANCE: 5
+    STAMINA: 13
+    STRENGTH: 5
+  source: "Drops from The Beast in Upper Blackrock Spire."
+- id: 13120
+  name: "Deepfury Bracers"
+  phase: 1
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 55
+  boe: true
+  icon: "Inv_bracer_07.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 69
+    STAMINA: 4
+    STRENGTH: 4
+  source: "World drop."
+- id: 16710
+  name: "Shadowcraft Bracers"
+  phase: 1
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  icon: "Inv_bracer_07.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 71
+    STAMINA: 7
+  source: "Scholomance trash drop."
+- id: 16825
+  name: "Nightslayer Bracelets"
+  phase: 1
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_bracer_02.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 20
+    ARMOR: 88
+    STAMINA: 15
+  source: "Drops from trash mobs in Molten Core."
+- id: 19146
+  name: "Wristguards of Stability"
+  phase: 1
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_bracer_04.png"
+  stats:
+    ARMOR: 86
+    STAMINA: 8
+    STRENGTH: 24
+  source: "Drops from several bosses in Molten Core."
+- id: 18375
+  name: "Bracers of the Eclipse"
+  phase: 2
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_bracer_07.png"
+  stats:
+    AGILITY: 10
+    ARMOR: 76
+    ATTACK_POWER: 24
+    STAMINA: 9
+  source: "Drops from Prince Tortheldrin in Dire Maul."
+- id: 19587
+  name: "Forest Stalker's Bracers"
+  phase: 3
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_bracer_12.png"
+  stats:
+    AGILITY: 19
+    ARMOR: 86
+    STAMINA: 8
+    STRENGTH: 11
+  source: "Sold by Warsong Gulch vendors (Illiyana Moonblaze for Alliance, Kelm Hargunth for Horde)."
+- id: 16911
+  name: "Bloodfang Bracers"
+  phase: 3
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_bracer_02.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 23
+    ARMOR: 98
+    HIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Drops from Razorgore the Untamed in Blackwing Lair."
+- id: 19687
+  name: "Primal Batskin Bracers"
+  phase: 4
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_bracer_07.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 79
+    HIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Crafted by Leatherworkers (300 skill). Pattern requires Friendly with Zandalar Tribe."
+- id: 19836
+  name: "Zandalar Madcap's Bracers"
+  phase: 4
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 58
+  item_lvl: 61
+  boe: true
+  icon: "Inv_bracer_14.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 14
+    ARMOR: 82
+    STAMINA: 14
+    STRENGTH: 9
+  source: "Reward from Paragons of Power: The Madcap's Bracers."
+- id: 20615
+  name: "Dragonspur Wraps"
+  phase: 4
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_bracer_15.png"
+  stats:
+    ARCANE_RESISTANCE: 4
+    ARMOR: 93
+    ATTACK_POWER: 32
+    FIRE_RESISTANCE: 4
+    FROST_RESISTANCE: 4
+    NATURE_RESISTANCE: 4
+    SHADOW_RESISTANCE: 4
+    STAMINA: 17
+  source: "Drops from dragon world bosses (Emeriss, Taerar, Lethon, Ysondre)."
+- id: 21491
+  name: "Scaled Bracers of the Gorger"
+  phase: 5
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_bracer_03.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 87
+    STAMINA: 8
+    STRENGTH: 10
+  source: "Drops from Buru the Gorger in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21602
+  name: "Qiraji Execution Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_bracer_13.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 103
+    HIT_CHANCE: 0.01
+    STAMINA: 14
+    STRENGTH: 15
+  source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
+- id: 22004
+  name: "Darkmantle Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_bracer_07.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 15
+    ARMOR: 79
+    STAMINA: 7
+    STRENGTH: 7
+  source: "Darkmantle Quest line (Shadowcraft required)."
+- id: 22483
+  name: "Bonescythe Bracers"
+  phase: 6
+  slot: "WRIST"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_bracer_15.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 26
+    ARMOR: 111
+    CRIT_CHANCE: 0.01
+    STAMINA: 14
+  source: "Quest reward. Requires boss drops from Naxxramas."

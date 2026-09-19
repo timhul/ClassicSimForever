@@ -1,0 +1,413 @@
+# Generated from ClassicSim Items/Weapons/1hAxes.xml by tools/convert_items.py.
+
+- id: 18737
+  name: "Bone Slicing Hatchet"
+  phase: 1
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_axe_11.png"
+  damage:
+    min: 48
+    max: 90
+    speed: 1.7
+  stats:
+    AGILITY: 13
+    STAMINA: 5
+  source: "Drops from Maleki the Pallid in Stratholme Undead."
+- id: 871
+  name: "Flurry Axe"
+  phase: 1
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 42
+  item_lvl: 47
+  boe: true
+  icon: "Inv_axe_17.png"
+  damage:
+    min: 37
+    max: 69
+    speed: 1.5
+  procs:
+    - name: "EXTRA_ATTACK"
+      rate: 0.04625
+      amount: 1
+      instant: false
+  special_equip_effects: ["Chance on hit: Grants 1 extra attack on your next swing."]
+  source: "World drop."
+- id: 10837
+  name: "Tooth of Eranikus"
+  phase: 1
+  slot: "MH"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 56
+  icon: "Inv_axe_07.png"
+  damage:
+    min: 62
+    max: 116
+    speed: 2.4
+  stats:
+    HIT_CHANCE: 0.01
+    STRENGTH: 6
+  source: "Drops from Shade of Eranikus in Sunken Temple."
+- id: 811
+  name: "Axe of the Deep Woods"
+  phase: 1
+  slot: "MH"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  icon: "Inv_axe_07.png"
+  damage:
+    min: 78
+    max: 146
+    speed: 2.7
+  procs:
+    - name: "NATURE_ATTACK"
+      rate: 0.045
+      min: 90
+      max: 127
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Blasts a target for 90 to 127 Nature damage."]
+  source: "World drop."
+- id: 13286
+  name: "Rivenspike"
+  phase: 1
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_pick_05.png"
+  damage:
+    min: 77
+    max: 144
+    speed: 2.9
+  procs:
+    - name: "ARMOR_PENETRATION"
+      rate: 0.04
+      duration: 30
+      max_stacks: 3
+      value: 200.0
+  special_equip_effects: ["Chance on hit: Puncture's target's armor lowering it by 200. Can be applied up to 3 times."]
+  source: "Drops from Spirestone Butcher in Lower Blackrock Spire (LBRS)."
+- id: 12621
+  name: "Demonfork"
+  phase: 1
+  slot: "MH"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  icon: "Inv_weapon_halberd_11.png"
+  damage:
+    min: 76
+    max: 142
+    speed: 2.8
+  procs:
+    - name: "SHADOW_DOT"
+      rate: 0.1
+      min: 10
+      max: 10
+      duration: 25
+      tick_rate: 5.0
+      amount: 0
+      instant: false
+  special_equip_effects: ["Chance on hit: Transfers 10 health every 5 seconds from the target to the caster for 25 sec."]
+  source: "Drops from Bannok Grimaxe in Lower Blackrock Spire (LBRS)."
+- id: 17016
+  name: "Dark Iron Destroyer"
+  phase: 1
+  slot: "MH"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_axe_12.png"
+  damage:
+    min: 71
+    max: 134
+    speed: 2.4
+  stats:
+    FIRE_RESISTANCE: 6
+    STRENGTH: 10
+  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
+- id: 17068
+  name: "Deathbringer"
+  phase: 1
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_axe_09.png"
+  damage:
+    min: 114
+    max: 213
+    speed: 2.9
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.038666667
+      min: 110
+      max: 141
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 110 to 141 Shadow damage."]
+  source: "Drops from Onyxia in Onyxia's Lair."
+- id: 18498
+  name: "Hedgecutter"
+  phase: 2
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_axe_11.png"
+  damage:
+    min: 60
+    max: 90
+    speed: 1.9
+  stats:
+    STAMINA: 12
+    STRENGTH: 5
+  source: "Drops from Guard Slip'kik and Guard Mol'dar in Dire Maul North."
+- id: 18828
+  name: "High Warlord's Cleaver"
+  phase: 2
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_axe_02.png"
+  faction: "HORDE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18827
+  name: "Grand Marshal's Handaxe"
+  phase: 2
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_axe_24.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 13015
+  name: "Serathil"
+  phase: 3
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  icon: "Inv_axe_08.png"
+  damage:
+    min: 53
+    max: 99
+    speed: 1.9
+  stats:
+    ARMOR: 100
+    STRENGTH: 9
+  source: "World drop."
+- id: 19103
+  name: "Frostbite"
+  phase: 3
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_axe_22.png"
+  faction: "HORDE"
+  damage:
+    min: 80
+    max: 150
+    speed: 2.7
+  stats:
+    STRENGTH: 15
+  source: "Purchased for 2400 honor points. Horde only."
+- id: 19362
+  name: "Doom's Edge"
+  phase: 3
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_axe_15.png"
+  damage:
+    min: 83
+    max: 154
+    speed: 2.3
+  stats:
+    AGILITY: 16
+    STAMINA: 7
+    STRENGTH: 9
+  source: "Drops from trash in Blackwing Lair."
+- id: 19363
+  name: "Crul'shorukh, Edge of Chaos"
+  phase: 3
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_axe_12.png"
+  damage:
+    min: 101
+    max: 188
+    speed: 2.3
+  stats:
+    ATTACK_POWER: 36
+    STAMINA: 13
+  source: "Drops from Nefarian in Blackwing Lair."
+- id: 19921
+  name: "Zulian Hacker"
+  phase: 4
+  slot: "1H"
+  type: "AXE"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_axe_08.png"
+  damage:
+    min: 71
+    max: 134
+    speed: 2.4
+  stats:
+    AXE_SKILL: 2
+  random_affixes: [173, 193, 520, 605, 1115, 1200, 857, 858, 859, 860]
+  source: "Random drop from trash in Zul'Gurub."
+- id: 19852
+  name: "Ancient Hakkari Manslayer"
+  phase: 4
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_axe_35.png"
+  damage:
+    min: 69
+    max: 130
+    speed: 2.0
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.06
+      min: 48
+      max: 54
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Steals 48 to 55 life from target enemy."]
+  source: "Drops from Hakkar the Soulflayer in Zul'Gurub."
+- id: 21392
+  name: "Sickle of Unyielding Strength"
+  phase: 5
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_axe_15.png"
+  class_restrictions: ["WARRIOR"]
+  damage:
+    min: 75
+    max: 141
+    speed: 2.1
+  stats:
+    AGILITY: 6
+    DEFENSE: 4
+    STAMINA: 9
+    STRENGTH: 15
+  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
+- id: 21401
+  name: "Scythe of the Unseen Path"
+  phase: 5
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_axe_15.png"
+  class_restrictions: ["HUNTER"]
+  damage:
+    min: 86
+    max: 161
+    speed: 2.4
+  stats:
+    AGILITY: 16
+    MANA_PER_5: 3
+    STAMINA: 9
+  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
+- id: 21242
+  name: "Blessed Qiraji War Axe"
+  phase: 5
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 79
+  icon: "Inv_axe_26.png"
+  damage:
+    min: 110
+    max: 205
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 14
+    CRIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 9
+  source: "Reward from quest outside of Ruins of Ahn'Qiraj. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+  flavour_text: "The weapon is infused and reinforced with Elementium."
+- id: 22816
+  name: "Hatchet of Sundered Bone"
+  phase: 6
+  slot: "1H"
+  type: "AXE"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_axe_08.png"
+  damage:
+    min: 119
+    max: 221
+    speed: 2.6
+  stats:
+    ATTACK_POWER: 36
+    CRIT_CHANCE: 0.01
+  source: "Drops from Noth the Plaguebringer in Naxxramas."

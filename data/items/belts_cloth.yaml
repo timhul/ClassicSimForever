@@ -1,0 +1,479 @@
+# Generated from ClassicSim Items/Belts/cloth.xml by tools/convert_items.py.
+
+- id: 16685
+  name: "Magister's Belt"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_belt_08.png"
+  stats:
+    ARMOR: 46
+    INTELLECT: 21
+    SPIRIT: 6
+    STAMINA: 6
+  source: "Drops from caster trash mobs in Stratholme and Scholomance."
+- id: 12589
+  name: "Dustfeather Sash"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_11.png"
+  stats:
+    ARMOR: 49
+    INTELLECT: 18
+    SPELL_DAMAGE: 9
+    STAMINA: 10
+  source: "Drops from Solakar Flamewreath in Upper Blackrock Spire (UBRS)."
+- id: 11662
+  name: "Ban'thok Sash"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 49
+  item_lvl: 54
+  icon: "Inv_belt_29.png"
+  stats:
+    ARMOR: 43
+    INTELLECT: 11
+    SPELL_DAMAGE: 12
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Drops from Ok'thor the Breaker in Blackrock Depths."
+- id: 13956
+  name: "Clutch of Andros"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_12.png"
+  stats:
+    ARMOR: 49
+    INTELLECT: 19
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Kirtonos the Herald in Scholomance."
+- id: 16802
+  name: "Arcanist Belt"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_belt_30.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 57
+    FIRE_RESISTANCE: 10
+    INTELLECT: 20
+    SPELL_DAMAGE: 14
+    SPIRIT: 10
+    STAMINA: 11
+  source: "Drops from trash mobs in Molten Core."
+- id: 18740
+  name: "Thuzadin Sash"
+  phase: 2
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_13.png"
+  stats:
+    ARMOR: 49
+    INTELLECT: 12
+    SPELL_DAMAGE: 11
+    SPIRIT: 11
+    STAMINA: 11
+  source: "Drops from Nerub'enkan in Stratholme Undead."
+- id: 18405
+  name: "Belt of the Archmage"
+  phase: 2
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_belt_31.png"
+  stats:
+    ARMOR: 54
+    INTELLECT: 25
+    SPELL_CRIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Crafted by Tailorers. Requires expensive materials to craft."
+- id: 18809
+  name: "Sash of Whispered Secrets"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_belt_12.png"
+  stats:
+    ARMOR: 61
+    HEALTH_PER_5: 6
+    SPELL_DAMAGE_SHADOW: 33
+    STAMINA: 20
+  source: "Drops from Majordomo Executus in Molten Core."
+- id: 19136
+  name: "Mana Igniting Cord"
+  phase: 1
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_belt_11.png"
+  stats:
+    ARMOR: 61
+    INTELLECT: 16
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 25
+    STAMINA: 12
+  source: "Drops from multiple bosses in Molten Core."
+- id: 19090
+  name: "Frostwolf Cloth Belt"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_04.png"
+  faction: "HORDE"
+  stats:
+    ARMOR: 48
+    FROST_RESISTANCE: 5
+    INTELLECT: 10
+    SPELL_DAMAGE: 18
+    STAMINA: 11
+  source: "Sold by Frostwolf Clan vendors. Requires Honored with Frostwolf Clan."
+- id: 19094
+  name: "Stormpike Cloth Girdle"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_04.png"
+  faction: "ALLIANCE"
+  stats:
+    ARMOR: 48
+    FROST_RESISTANCE: 5
+    INTELLECT: 10
+    SPELL_DAMAGE: 18
+    STAMINA: 11
+  source: "Sold by Stormpike Guard vendors. Requires Honored with Stormpike Guard."
+- id: 19400
+  name: "Firemaw's Clutch"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_belt_10.png"
+  stats:
+    ARMOR: 64
+    INTELLECT: 12
+    MANA_PER_5: 5
+    SPELL_DAMAGE: 35
+    STAMINA: 12
+  source: "Drops from Firemaw in Blackwing Lair."
+- id: 16818
+  name: "Netherwind Belt"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_belt_22.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 65
+    INTELLECT: 20
+    SHADOW_RESISTANCE: 10
+    SPELL_DAMAGE: 23
+    SPIRIT: 13
+    STAMINA: 13
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 16933
+  name: "Nemesis Belt"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_belt_13.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 65
+    INTELLECT: 8
+    SHADOW_RESISTANCE: 10
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 25
+    SPIRIT: 6
+    STAMINA: 18
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 19388
+  name: "Angelista's Grasp"
+  phase: 3
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 77
+  icon: "Inv_belt_13.png"
+  stats:
+    ARMOR: 66
+    INTELLECT: 20
+    SPELL_HIT_CHANCE: 0.02
+    SPIRIT: 13
+    STAMINA: 17
+  source: "Drops from Chromaggus in Blackwing Lair."
+- id: 20539
+  name: "Runed Stygian Belt"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  icon: "Inv_belt_14.png"
+  stats:
+    ARMOR: 50
+    MANA_PER_5: 3
+    SHADOW_RESISTANCE: 20
+    STAMINA: 10
+  source: "Crafted by Tailorers. Requires Dark Runes and Felcloth."
+- id: 20163
+  name: "Defiler's Cloth Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_belt_17.png"
+  faction: "HORDE"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 150
+    INTELLECT: 6
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 14
+    STAMINA: 7
+  source: "Requires Honored with The Defilers (Arathi Basin)."
+- id: 20047
+  name: "Highlander's Cloth Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_belt_17.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 150
+    INTELLECT: 6
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 14
+    STAMINA: 7
+  source: "Requires Honored with The League of Arathor (Arathi Basin)."
+- id: 22716
+  name: "Belt of Untapped Power"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_belt_01.png"
+  stats:
+    ARMOR: 54
+    INTELLECT: 7
+    SPELL_DAMAGE: 29
+    STAMINA: 6
+  source: "Drops from High Priest(ess) bosses in Zul'Gurub."
+- id: 20217
+  name: "Belt of Tiny Heads"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 70
+  icon: "Inv_belt_13.png"
+  stats:
+    ARMOR: 55
+    INTELLECT: 17
+    MANA_PER_5: 7
+    STAMINA: 13
+  source: "Quest reward. Requires killing multiple bosses in Zul'Gurub."
+- id: 20625
+  name: "Belt of the Dark Bog"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_belt_15.png"
+  stats:
+    ARMOR: 61
+    INTELLECT: 8
+    NATURE_RESISTANCE: 25
+    SPELL_DAMAGE: 14
+    STAMINA: 16
+  source: "Drops from Lethon (world boss in The Hinterlands)."
+- id: 22306
+  name: "Ironweave Belt"
+  phase: 5
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_03.png"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 139
+    INTELLECT: 11
+    STAMINA: 17
+  source: "Drops from Mor Grayhoof in Lower Blackrock Spire (LBRS) during Tier 0.5 quest line."
+- id: 20664
+  name: "Abyssal Cloth Sash of Sorcery"
+  phase: 4
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "UNCOMMON"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_belt_06.png"
+  stats:
+    ARMOR: 47
+    INTELLECT: 11
+    SPELL_DAMAGE: 13
+    STAMINA: 11
+  source: "Drops from The Duke of Cynders, a summonable raid boss in Silithus."
+- id: 22062
+  name: "Sorcerer's Belt"
+  phase: 5
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_belt_08.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 52
+    INTELLECT: 14
+    SPELL_DAMAGE: 14
+    SPIRIT: 7
+    STAMINA: 12
+  source: "Quest reward. Requires Magister's Belt."
+- id: 22070
+  name: "Deathmist Belt"
+  phase: 5
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_belt_12.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 52
+    INTELLECT: 16
+    SPELL_DAMAGE: 12
+    STAMINA: 16
+  source: "Quest reward. Requires Dreadmist Belt."
+- id: 22730
+  name: "Eyestalk Waist Cord"
+  phase: 5
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_12.png"
+  stats:
+    ARMOR: 75
+    INTELLECT: 9
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 41
+    STAMINA: 10
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 23126
+  name: "Waistband of Balzaphon"
+  phase: 6
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_13.png"
+  stats:
+    ARMOR: 48
+    INTELLECT: 14
+    SPELL_DAMAGE_FROST: 20
+    STAMINA: 13
+  source: "Drops from Balzaphon during Scourge Invasion event."
+- id: 22502
+  name: "Frostfire Belt"
+  phase: 6
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_03.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 75
+    INTELLECT: 21
+    SPELL_DAMAGE: 28
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 10
+    STAMINA: 19
+  source: "Quest reward. Requires boss drops from Naxxramas."
+- id: 22510
+  name: "Plagueheart Belt"
+  phase: 6
+  slot: "BELT"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_03.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 75
+    INTELLECT: 12
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 34
+    STAMINA: 23
+  source: "Quest reward. Requires boss drops from Naxxramas."

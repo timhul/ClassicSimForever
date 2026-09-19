@@ -1,0 +1,316 @@
+# Generated from ClassicSim Items/Boots/mail.xml by tools/convert_items.py.
+
+- id: 13967
+  name: "Windreaver Greaves"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_boots_plate_04.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 247
+    HIT_CHANCE: 0.01
+  source: "Drops from Kirtonos the Herald in Scholomance."
+- id: 16675
+  name: "Beaststalker's Boots"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  icon: "Inv_boots_plate_07.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 240
+    STAMINA: 9
+  source: "Drops from Nerub'enkan in Stratholme Undead."
+- id: 11731
+  name: "Savage Gladiator Greaves"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_boots_01.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 233
+    STAMINA: 13
+    STRENGTH: 10
+  source: "Drops from Anub'shiah in the Arena in Blackrock Depths (BRD)."
+- id: 14616
+  name: "Bloodmail Boots"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_boots_01.png"
+  stats:
+    AGILITY: 9
+    ARMOR: 247
+    HIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 10
+    STRENGTH: 9
+  source: "Drops from multiple bosses in Scholomance."
+- id: 16984
+  name: "Black Dragonscale Boots"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_boots_plate_09.png"
+  stats:
+    ARMOR: 270
+    ATTACK_POWER: 28
+    FIRE_RESISTANCE: 24
+    STAMINA: 10
+  source: "Crafted by Leatherworkers. Pattern requires Honored with Thorium Brotherhood."
+- id: 16849
+  name: "Giantstalker's Boots"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_boots_chain_13.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 28
+    ARMOR: 290
+    SHADOW_RESISTANCE: 7
+    SPIRIT: 6
+    STAMINA: 14
+  source: "Drops from Gehennas in Molten Core."
+- id: 19144
+  name: "Sabatons of the Flamewalker"
+  phase: 1
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_boots_chain_05.png"
+  stats:
+    ARMOR: 298
+    ATTACK_POWER: 30
+    INTELLECT: 11
+    STAMINA: 27
+  source: "Drops from multiple bosses in Molten Core."
+- id: 23278
+  name: "Knight-Lieutenant's Chain Greaves"
+  phase: 2
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_boots_05.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 266
+    STAMINA: 19
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7)."
+- id: 22843
+  name: "Blood Guard's Chain Greaves"
+  phase: 2
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 66
+  icon: "Inv_boots_05.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 266
+    STAMINA: 19
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Blood Guard (rank 7)."
+- id: 16462
+  name: "Marshal's Chain Boots"
+  phase: 2
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_boots_plate_07.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 361
+    HIT_CHANCE: 0.01
+    INTELLECT: 9
+    STAMINA: 20
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12)."
+- id: 16569
+  name: "General's Chain Boots"
+  phase: 2
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_boots_plate_06.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 361
+    HIT_CHANCE: 0.01
+    INTELLECT: 9
+    STAMINA: 20
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires General (rank 12)."
+- id: 16941
+  name: "Dragonstalker's Greaves"
+  phase: 3
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_boots_plate_07.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 30
+    ARMOR: 332
+    FIRE_RESISTANCE: 10
+    INTELLECT: 6
+    SPIRIT: 6
+    STAMINA: 15
+  source: "Drops from Broodlord Lashlayer in Blackwing Lair."
+- id: 19919
+  name: "Bloodstained Greaves"
+  phase: 4
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_boots_chain_04.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 274
+    INTELLECT: 10
+    STAMINA: 10
+  source: "Drops from High Priestess Mar'li in Zul'Gurub."
+- id: 20050
+  name: "Highlander's Chain Greaves"
+  phase: 4
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_boots_chain_02.png"
+  faction: "ALLIANCE"
+  stats:
+    AGILITY: 15
+    ARMOR: 255
+    INTELLECT: 8
+    STAMINA: 16
+  special_equip_effects: ["Equip: Run speed increased slightly."]
+  source: "Requires Exalted with The League of Arathor (Arathi Basin)."
+- id: 20154
+  name: "Defiler's Chain Greaves"
+  phase: 4
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_boots_chain_02.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER", "SHAMAN"]
+  stats:
+    AGILITY: 15
+    ARMOR: 255
+    INTELLECT: 8
+    STAMINA: 16
+  special_equip_effects: ["Equip: Run speed increased slightly."]
+  source: "Requires Exalted with The Defilers (Arathi Basin)."
+- id: 22061
+  name: "Beastmaster's Boots"
+  phase: 5
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 60
+  icon: "Inv_boots_plate_07.png"
+  stats:
+    AGILITY: 24
+    ARMOR: 266
+    STAMINA: 9
+  modifies: ["BEASTMASTER_HUNTER_PET"]
+  special_equip_effects: ["Equip: Increases damage dealt by your pet by 3%."]
+  source: "Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle."
+- id: 21497
+  name: "Boots of the Qiraji General"
+  phase: 5
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_boots_chain_11.png"
+  stats:
+    AGILITY: 26
+    ARMOR: 285
+    STAMINA: 11
+  source: "Drops from General Rajaxx in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21365
+  name: "Striker's Footguards"
+  phase: 5
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_boots_chain_08.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 31
+    ARMOR: 340
+    INTELLECT: 8
+    SPELL_DAMAGE: 6
+    SPIRIT: 6
+    STAMINA: 16
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 22440
+  name: "Crypstalker Boots"
+  phase: 6
+  slot: "BOOTS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 86
+  icon: "Inv_boots_chain_05.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 33
+    ARMOR: 372
+    HIT_CHANCE: 0.01
+    INTELLECT: 8
+    STAMINA: 19
+  source: "Quest reward. Requires boss drops from Naxxramas."

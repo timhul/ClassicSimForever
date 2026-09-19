@@ -1,0 +1,237 @@
+# Generated from ClassicSim Items/Weapons/2hAxes.xml by tools/convert_items.py.
+
+- id: 12784
+  name: "Arcanite Reaper"
+  phase: 1
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  icon: "Inv_axe_09.png"
+  damage:
+    min: 153
+    max: 256
+    speed: 3.8
+  stats:
+    ATTACK_POWER: 62
+    STAMINA: 13
+  source: "Crafted by Blacksmiths."
+- id: 11931
+  name: "Dreadforge Retaliator"
+  phase: 1
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  icon: "Inv_axe_22.png"
+  damage:
+    min: 149
+    max: 225
+    speed: 3.7
+  stats:
+    ATTACK_POWER: 30
+    CRIT_CHANCE: 0.01
+    PARRY_CHANCE: 0.01
+  source: "Drops from Emperor Dagran Thaurissian in Blackrock Depths."
+- id: 17104
+  name: "Spinal Reaper"
+  phase: 1
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_axe_09.png"
+  damage:
+    min: 203
+    max: 305
+    speed: 3.4
+  stats:
+    ATTACK_POWER: 34
+  special_equip_effects: ["Equip: Restores 150 mana or 20 rage when you kill a target that gives experience; this effect cannot occur more than once every 10 seconds."]
+  source: "Drops from Ragnaros in Molten Core."
+- id: 18830
+  name: "Grand Marshal's Sunderer"
+  phase: 2
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_axe_10.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 235
+    max: 353
+    speed: 3.8
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 41
+    STRENGTH: 26
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18831
+  name: "High Warlord's Battle Axe"
+  phase: 2
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_axe_21.png"
+  faction: "HORDE"
+  damage:
+    min: 235
+    max: 353
+    speed: 3.8
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 41
+    STRENGTH: 26
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 19169
+  name: "Nightfall"
+  phase: 3
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  boe: true
+  icon: "Inv_axe_12.png"
+  damage:
+    min: 187
+    max: 282
+    speed: 3.5
+  procs:
+    - name: "NIGHTFALL"
+      rate: 0.2
+      min: 0
+      max: 0
+      instant: true
+  special_equip_effects: ["Chance on hit: Spell damage taken by target increased by 15% for 5 sec."]
+  source: "Crafted by Blacksmiths (300 skill). Requires materials from Molten Core."
+- id: 19353
+  name: "Drake Talon Cleaver"
+  phase: 3
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_axe_10.png"
+  damage:
+    min: 199
+    max: 300
+    speed: 3.4
+  stats:
+    STAMINA: 17
+    STRENGTH: 22
+  procs:
+    - name: "PHYSICAL_ATTACK"
+      rate: 0.0566666667
+      min: 240
+      max: 240
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Delivers a fatal wound for 240 damage."]
+  source: "Drops from Ebonroc, Flamegor, and Firemaw in Blackwing Lair."
+- id: 19354
+  name: "Draconic Avenger"
+  phase: 3
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_axe_21.png"
+  damage:
+    min: 174
+    max: 262
+    speed: 3.2
+  stats:
+    PARRY_CHANCE: 0.02
+    STAMINA: 18
+    STRENGTH: 21
+  source: "Drops from trash mobs in Blackwing Lair."
+- id: 21856
+  name: "Neretzek, The Blood Drinker"
+  phase: 5
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_axe_09.png"
+  damage:
+    min: 202
+    max: 303
+    speed: 3.7
+  stats:
+    STAMINA: 16
+    STRENGTH: 21
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.06166667
+      min: 141
+      max: 164
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Steals 141 to 164 life from target enemy."]
+  source: "Drops from trash mobs in Temple of Ahn'Qiraj (AQ40)."
+- id: 21134
+  name: "Dark Edge of Insanity"
+  phase: 5
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 84
+  icon: "Inv_axe_24.png"
+  damage:
+    min: 242
+    max: 364
+    speed: 3.5
+  stats:
+    AGILITY: 19
+    STAMINA: 25
+    STRENGTH: 35
+  special_equip_effects: ["Chance on hit: Disorients the target, causing it to wander aimlessly for up to 3 sec."]
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj."
+- id: 22815
+  name: "Severance"
+  phase: 6
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_axe_22.png"
+  damage:
+    min: 235
+    max: 354
+    speed: 3.6
+  stats:
+    CRIT_CHANCE: 0.02
+    STAMINA: 18
+    STRENGTH: 43
+  source: "Drops from Patchwerk in Naxxramas."
+- id: 12775
+  name: "Huge Thorium Battleaxe"
+  phase: 1
+  slot: "2H"
+  type: "TWOHAND_AXE"
+  quality: "UNCOMMON"
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  icon: "Inv_weapon_halberd_11.png"
+  damage:
+    min: 114
+    max: 172
+    speed: 3.3
+  stats:
+    TWOHAND_AXE_SKILL: 10
+  source: "Crafted by Blacksmiths."

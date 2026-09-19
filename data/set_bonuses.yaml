@@ -1,0 +1,688 @@
+# Generated from ClassicSim set_bonuses.xml by tools/convert_items.py.
+
+- name: "The Gladiator"
+  items: [11729, 11726, 11728, 11731, 11730]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Armor."
+    - pieces: 3
+      description: "(3) Set: Increased Defense +2."
+    - pieces: 4
+      description: "(4) Set: +10 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 10
+    - pieces: 5
+      description: "(5) Set: Increases your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "Cadaverous Garb"
+  items: [14637, 14636, 14640, 14638, 14641]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increased Defense +3."
+    - pieces: 3
+      description: "(3) Set: +10 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 10
+    - pieces: 4
+      description: "(4) Set: +15 All Resistances."
+    - pieces: 5
+      description: "(5) Set: Improves your chance to hit by 2%."
+      stat: "HIT_CHANCE"
+      value: 0.02
+- name: "Necropile Raiment"
+  items: [14631, 14629, 14632, 14633, 14626]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increased Defense +3."
+    - pieces: 3
+      description: "(3) Set: +5 Intellect."
+      stat: "INTELLECT"
+      value: 5
+    - pieces: 4
+      description: "(4) Set: +15 All Resistances."
+    - pieces: 5
+      description: "(5) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+- name: "The Postmaster"
+  items: [13390, 13388, 13391, 13392, 13389]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +50 Armor."
+    - pieces: 3
+      description: "(3) Set: +10 Fire Resistance."
+    - pieces: 3
+      description: "(3) Set: +10 Arcane Resistance."
+    - pieces: 4
+      description: "(4) Set: Increases damage and healing done by magical spells and effects by up to 12."
+      stat: "SPELL_DAMAGE"
+      value: 12
+    - pieces: 5
+      description: "(5) Set: Increases run speed by 5%."
+    - pieces: 5
+      description: "(5) Set: +10 Intellect."
+      stat: "INTELLECT"
+      value: 10
+- name: "Devilsaur Armor"
+  items: [15063, 15062]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Improves your chance to hit by 2%."
+      stat: "HIT_CHANCE"
+      value: 0.02
+- name: "Shadowcraft Armor"
+  items: [16707, 16708, 16709, 16710, 16711, 16712, 16713, 16721]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +200 Armor."
+    - pieces: 4
+      description: "(4) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 6
+      description: "(6) Set: Chance on melee attack to restore 35 energy."
+    - pieces: 8
+      description: "(8) Set: +8 All Resistances."
+- name: "Darkmantle Armor"
+  items: [22002, 22003, 22004, 22005, 22006, 22007, 22008, 22009]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +8 All Resistances."
+    - pieces: 4
+      description: "(4) Set: Chance on melee attack to restore 35 energy."
+    - pieces: 6
+      description: "(6) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 8
+      description: "(8) Set: +200 Armor."
+- name: "Dal'Rend's Arms"
+  items: [12940, 12939]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +50 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 50
+- name: "Bloodmail Regalia"
+  items: [14614, 14616, 14615, 14611, 14612]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increased Defense +3."
+    - pieces: 3
+      description: "(3) Set: +10 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 10
+    - pieces: 4
+      description: "(4) Set: +15 All Resistances."
+    - pieces: 5
+      description: "(5) Set: Increases your chance to parry an attack by 1%."
+- name: "Black Dragon Mail"
+  items: [16984, 15050, 15052, 15051]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Improves your chance to hit by 1%."
+      stat: "HIT_CHANCE"
+      value: 0.01
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 2%."
+      stat: "CRIT_CHANCE"
+      value: 0.02
+    - pieces: 4
+      description: "(4) Set: +10 Fire Resistance."
+- name: "Bloodsoul Embrace"
+  items: [19690, 19691, 19692]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Restores 12 mana per 5 sec."
+      stat: "MANA_PER_5"
+      value: 12
+- name: "Primal Batskin"
+  items: [19685, 19687, 19686]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Minor increase to running and swimming speed."
+- name: "The Twin Blades of Hakkari"
+  items: [19865, 19866]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increased Swords +6."
+      stat: "SWORD_SKILL"
+      value: 6
+- name: "Major Mojo Infusion"
+  items: [19898, 19925]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +30 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 30
+- name: "Zanzil's Concentration"
+  items: [19905, 19893]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Improves your chance to hit with spells by 1%."
+    - pieces: 2
+      description: "(2) Set: Increases damage and healing done by magical spells and effects by up to 6."
+- name: "Bloodvine Garb"
+  items: [19682, 19683, 19684]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike with spells by 2%."
+      stat: "SPELL_CRIT_CHANCE"
+      value: 0.02
+- name: "Regalia of Undead Cleansing"
+  items: [23091, 23084, 23085]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases your damage against undead by 2%."
+- name: "The Highlander's Resolution"
+  items: [20041, 20048, 20057]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +5 Stamina."
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "The Defiler's Resolution"
+  items: [20204, 20208, 20212]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +5 Stamina."
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "The Highlander's Determination"
+  items: [20043, 20050, 20055]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +5 Stamina."
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "The Highlander's Resolve"
+  items: [20042, 20049, 20058]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +5 Stamina."
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "The Defiler's Determination"
+  items: [20158, 20154, 20150]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +5 Stamina."
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "Lieutenant Commander's Redoubt"
+  items: [23272, 23273, 23274, 23275, 23276, 23277]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Hammer of Justice by 10 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Field Marshal's Aegis"
+  items: [16473, 16474, 16476, 16472, 16471, 16475]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Hammer of Justice by 10 sec."
+    - pieces: 6
+      description: "(6) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+- name: "Lieutenant Commander's Battlearmor"
+  items: [23300, 23301, 23286, 23287, 23314, 23315]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Intercept ability by 5 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Field Marshal's Battlegear"
+  items: [16477, 16478, 16480, 16483, 16484, 16479]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Intercept ability by 5 sec."
+    - pieces: 6
+      description: "(6) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+- name: "Champion's Battlearmor"
+  items: [22868, 22858, 22872, 22873, 23244, 23243]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Intercept ability by 5 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Warlord's Battlegear"
+  items: [16541, 16542, 16544, 16545, 16548, 16543]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Intercept ability by 5 sec."
+    - pieces: 6
+      description: "(6) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+- name: "Warlord's Sanctuary"
+  items: [16554, 16555, 16552, 16551, 16549, 16550]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors."
+    - pieces: 6
+      description: "(6) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+- name: "Battlegear of Unyielding Strength"
+  items: [21394, 21392, 21393]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: -2 rage cost to Intercept."
+- name: "Conqueror's Battlegear"
+  items: [21331, 21329, 21333, 21332, 21330]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Decreases the rage cost of all Warrior shouts by 35%."
+    - pieces: 5
+      description: "(5) Set: Increase the Slow effect and damage of Thunder Clap by 50%."
+- name: "Avenger's Battlegear"
+  items: [21389, 21387, 21388, 21390, 21391]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases the duration of your Judgements by 20%."
+    - pieces: 5
+      description: "(5) Set: Increases damage and healing done by magical spells and effects by up to 71."
+      stat: "SPELL_DAMAGE"
+      value: 71
+- name: "Emblems of Veiled Shadows"
+  items: [21405, 21406, 21404]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: -10 energy cost for your Slice and Dice ability."
+- name: "Nightslayer Armor"
+  items: [16827, 16824, 16825, 16820, 16821, 16826, 16822, 16823]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Reduces the cooldown of your Vanish ability by 30 sec."
+    - pieces: 5
+      description: "(5) Set: Increases your maximum Energy by 10."
+    - pieces: 8
+      description: "(8) Set: Heals the rogue for 500 when Vanish is performed."
+- name: "Bloodfang Armor"
+  items: [16910, 16906, 16911, 16905, 16907, 16908, 16909, 16832]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases the chance to apply poisons to your target by 5%."
+    - pieces: 5
+      description: "(5) Set: Improves the threat reduction of Feint by 25%."
+    - pieces: 8
+      description: "(8) Set: Gives the Rogue a chance to inflict 283 to 318 damage on the target and heal the Rogue for 50 health every 1 sec. for 6 sec. on a melee hit."
+- name: "Deathdealer's Embrace"
+  items: [21359, 21360, 21361, 21362, 21364]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Reduces the cooldown of your Evasion ability by -1 min."
+    - pieces: 5
+      description: "(5) Set: 15% increased damage to your Eviscerate ability."
+- name: "Madcap's Outfit"
+  items: [19617, 19954, 19836, 19835, 19834]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 20
+    - pieces: 3
+      description: "(3) Set: Decreases the cooldown of Blind by 20 sec."
+    - pieces: 5
+      description: "(5) Set: Decrease the energy cost of Eviscerate and Rupture by 5."
+- name: "Bonescythe Armor"
+  items: [22483, 22476, 22481, 22478, 22477, 22479, 22480, 22482, 23060]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Your normal melee swings have a chance to Invigorate you, healing you for 90 to 111."
+    - pieces: 4
+      description: "(4) Set: Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy."
+    - pieces: 6
+      description: "(6) Set: Reduces the threat from your Backstab, Sinister Strike, Hemorrhage, and Eviscerate abilities."
+    - pieces: 8
+      description: "(8) Set: Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100% critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
+- name: "Beaststalker Armor"
+  items: [16680, 16675, 16681, 16677, 16674, 16678, 16679, 16676]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +200 Armor."
+    - pieces: 4
+      description: "(4) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 6
+      description: "(6) Set: Your normal ranged attacks have a 4% chance of restoring 200 mana."
+    - pieces: 8
+      description: "(8) Set: +8 All Resistance."
+- name: "Beastmaster Armor"
+  items: [22010, 22011, 22061, 22013, 22015, 22016, 22017, 22060]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +8 All Resistance."
+    - pieces: 4
+      description: "(4) Set: Your normal ranged attacks have a 4% chance of restoring 200 mana."
+    - pieces: 6
+      description: "(6) Set: +40 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 40
+    - pieces: 8
+      description: "(8) Set: +200 Armor."
+- name: "Predator's Armor"
+  items: [19621, 19953, 19833, 19832, 19831]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 20
+    - pieces: 3
+      description: "(3) Set: Decreases the cooldown of Concussive Shot by 1 sec."
+    - pieces: 5
+      description: "(5) Set: Increases the duration of Serpent Sting by 3 sec."
+- name: "Trappings of the Unseen Path"
+  items: [21403, 21401, 21402]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases your pet's damage by 3%."
+- name: "Lieutenant Commander's Pursuance"
+  items: [23292, 23293, 23278, 23279, 23306, 23307]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Agility."
+      stat: "AGILITY"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Concussive Shot by 1 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Champion's Pursuit"
+  items: [22843, 22862, 23251, 23252, 22874, 22875]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Agility."
+      stat: "AGILITY"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Concussive Shot by 1 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Field Marshal's Pursuit"
+  items: [16466, 16465, 16468, 16462, 16463, 16467]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 3
+      description: "(3) Set: Reduces the cooldown of your Concussive Shot by 1 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Agility."
+      stat: "AGILITY"
+      value: 20
+- name: "Warlord's Pursuit"
+  items: [16569, 16571, 16567, 16565, 16566, 16568]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 3
+      description: "(3) Set: Reduces the cooldown of your Concussive Shot by 1 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Agility."
+      stat: "AGILITY"
+      value: 20
+- name: "Giantstalker Armor"
+  items: [16851, 16849, 16850, 16845, 16848, 16852, 16846, 16847]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases the range of your Mend Pet spell by 50% and the effect by 10%. Also reduces the cost by 30%."
+    - pieces: 5
+      description: "(5) Set: Increases your pet's stamina by 30 and all spell resistances by 40."
+    - pieces: 8
+      description: "(8) Set: Increases the damage of Multi-shot and Volley by 15%."
+- name: "Dragonstalker Armor"
+  items: [16936, 16935, 16942, 16940, 16941, 16939, 16938, 16937]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases the Ranged Attack Power bonus of your Aspect of the Hawk by 20%."
+    - pieces: 5
+      description: "(5) Set: Increases your pet's stamina by 40 and all spell resistances by 60."
+    - pieces: 8
+      description: "(8) Set: You have a chance whenever you deal ranged damage to apply an Expose Weakness effect to the target. Expose Weakness increases the Ranged Attack Power of all attackers against that target by 450 for 7 sec."
+- name: "Striker's Garb"
+  items: [21366, 21365, 21370, 21368, 21367]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Reduces the cost of your Arcane Shots by 10%."
+    - pieces: 5
+      description: "(5) Set: Reduces the cooldown of your Rapid Fire by 2 minutes."
+- name: "Cryptstalker Armor"
+  items: [22440, 22442, 22441, 22438, 22437, 22439, 22436, 22443, 23067]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increases the duration of your Rapid Fire by 4 secs."
+    - pieces: 4
+      description: "(4) Set: Increases Attack Power by 50 for both you and your pet."
+    - pieces: 6
+      description: "(6) Set: Your ranged critical hits cause an Adrenaline Rush, granting you 50 mana."
+    - pieces: 8
+      description: "(8) Set: Reduces the mana cost of your Multi-Shot and Aimed Shot by 20."
+- name: "Magister's Regalia"
+  items: [16685, 16683, 16686, 16684, 16687, 16689, 16688, 16682]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +200 Armor."
+    - pieces: 4
+      description: "(4) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 6
+      description: "(6) Set: When struck in combat has a chance of freezing the attacker in place for 3 sec."
+    - pieces: 8
+      description: "(8) Set: +8 All Resistances."
+- name: "Sorcerer's Regalia"
+  items: [22062, 22063, 22064, 22065, 22066, 22067, 22068, 22069]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +8 All Resistances."
+    - pieces: 4
+      description: "(4) Set: When struck in combat has a chance of freezing the attacker in place for 3 sec."
+    - pieces: 6
+      description: "(6) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 8
+      description: "(8) Set: +200 Armor."
+- name: "Champion's Arcanum"
+  items: [22870, 22860, 23263, 23264, 22883, 22886]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Blink spell by 1.5 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Lieutenant Commander's Arcanum"
+  items: [23304, 23305, 23290, 23291, 23318, 23319]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Blink spell by 1.5 sec."
+    - pieces: 6
+      description: "(6) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+- name: "Warlord's Regalia"
+  items: [16536, 16533, 16535, 16539, 16540, 16534]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Blink spell by 1.5 sec."
+    - pieces: 6
+      description: "(6) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+- name: "Field Marshal's Regalia"
+  items: [16441, 16444, 16443, 16437, 16440, 16442]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: +20 Stamina."
+      stat: "STAMINA"
+      value: 20
+    - pieces: 4
+      description: "(4) Set: Reduces the cooldown of your Blink spell by 1.5 sec."
+    - pieces: 6
+      description: "(6) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+- name: "Arcanist Regalia"
+  items: [16802, 16799, 16795, 16800, 16801, 16796, 16797, 16798]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases damage and healing done by magical spells and effects by up to 18."
+      stat: "SPELL_DAMAGE"
+      value: 18
+    - pieces: 5
+      description: "(5) Set: Decreases the magical resistances of your spell targets by 10."
+      stat: "SPELL_PENETRATION"
+      value: 10
+    - pieces: 8
+      description: "(8) Set: Decreases the threat generated by your spells by 15%."
+- name: "Netherwind Regalia"
+  items: [16818, 16918, 16912, 16914, 16917, 16913, 16915, 16916]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Reduces the threat generated by your Scorch, Arcane Missiles, and Frostbolt spells."
+    - pieces: 5
+      description: "(5) Set: Increases the radius of Arcane Explosion, Flamestrike, and Blizzard by 25%."
+    - pieces: 8
+      description: "(8) Set: 10% chance after casting Arcane Missiles, Fireball, or Frostbolt that your next spell with a casting time under 10 seconds cast instantly."
+- name: "Enigma Vestments"
+  items: [21344, 21347, 21346, 21343, 21345]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Your Blizzard spell has a 30% chance to be uninterruptible."
+    - pieces: 5
+      description: "(5) Set: Grants +5% increased spell hit chance for 20 sec when one of your spells is resisted."
+- name: "Frostfire Regalia"
+  items: [22502, 22503, 22498, 22501, 22497, 22496, 22500, 22499, 23062]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: Reduces the cooldown on your Evocation by 1 minute."
+    - pieces: 4
+      description: "(4) Set: Gives your Mage Armor a chance when struck by a harmful spell to increase resistance against that school of magic by 35 for 30 sec."
+    - pieces: 6
+      description: "(6) Set: Your damage spells have a chance to cause your target to take up to 200 increased damage from subsequent spells."
+    - pieces: 8
+      description: "(8) Set: Your damage spells have a chance to displace you, causing the next spell cast to generate no threat."
+- name: "Stormshroud Armor"
+  items: [15056, 15057, 15058, 21278]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set : 5% chance of dealing 15 to 25 Nature damage on a successful melee attack."
+    - pieces: 3
+      description: "(3) Set : 2% chance on melee attack of restoring 30 energy."
+    - pieces: 4
+      description: "(4) Set : +14 Attack Power."
+      stat: "ATTACK_POWER"
+      value: 14
+- name: "The Defiler's Purpose"
+  items: [20186, 20190, 20194]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: 5 Stamina"
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "The Highlander's Purpose"
+  items: [20052, 20045, 20059]
+  bonuses:
+    - pieces: 2
+      description: "(2) Set: 5 Stamina"
+      stat: "STAMINA"
+      value: 5
+    - pieces: 3
+      description: "(3) Set: Improves your chance to get a critical strike by 1%."
+      stat: "CRIT_CHANCE"
+      value: 0.01
+- name: "Nemesis Raiment"
+  items: [16927, 16928, 16929, 16930, 16931, 16932, 16933, 16934]
+  bonuses:
+    - pieces: 3
+      description: "(3) Set: Increases damage and healing done by magical spells and effects by up to 23."
+      stat: "SPELL_DAMAGE"
+      value: 23
+    - pieces: 5
+      description: "(5) Set: Your pet gains 20 stamina and 130 spell resistance against all schools of magic."
+    - pieces: 8
+      description: "(8) Set: Reduces the threat generated by your Destruction spells by 20%."

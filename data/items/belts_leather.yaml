@@ -1,0 +1,291 @@
+# Generated from ClassicSim Items/Belts/leather.xml by tools/convert_items.py.
+
+- id: 11686
+  name: "Girdle of Beastial Fury"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 55
+  icon: "Inv_belt_12.png"
+  stats:
+    ARMOR: 89
+    ATTACK_POWER: 30
+    STAMINA: 10
+    STRENGTH: 8
+  source: "Drops from Eviscerator in Blackrock Depths."
+- id: 16713
+  name: "Shadowcraft Belt"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_belt_03.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 93
+    SPIRIT: 9
+    STAMINA: 10
+    STRENGTH: 9
+  source: "Drops from trash mobs in Upper and Lower Blackrock Spire (UBRS/LBRS)."
+- id: 13252
+  name: "Cloudrunner Girdle"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_10.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 185
+    STRENGTH: 14
+  source: "Drops from Quartermaster Zigris in Lower Blackrock Spire (LBRS)."
+- id: 14636
+  name: "Cadaverous Belt"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_16.png"
+  stats:
+    ARMOR: 97
+    ATTACK_POWER: 40
+    STAMINA: 12
+  source: "Drops from multiple bosses in Scholomance."
+- id: 14502
+  name: "Frostbite Girdle"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_belt_10.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 98
+    FROST_RESISTANCE: 10
+    STAMINA: 15
+    STRENGTH: 5
+  source: "Drops from Ras Frostwhisper in Scholomance."
+- id: 16827
+  name: "Nightslayer Belt"
+  phase: 1
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_belt_23.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 17
+    ARMOR: 113
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 7
+    STAMINA: 18
+    STRENGTH: 9
+  source: "Drops from trash mobs in Molten Core."
+- id: 18505
+  name: "Mugger's Belt"
+  phase: 2
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_belt_02.png"
+  stats:
+    ARMOR: 98
+    CRIT_CHANCE: 0.01
+    DAGGER_SKILL: 5
+  source: "Drops from Captain Kromcrush in Dire Maul."
+- id: 19134
+  name: "Flayed Doomguard Belt"
+  phase: 2
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_belt_16.png"
+  stats:
+    ARMOR: 115
+    INTELLECT: 18
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 14
+    STAMINA: 18
+  source: "Drops from World Boss Kazzak in Blasted Lands."
+- id: 19396
+  name: "Taut Dragonhide Belt"
+  phase: 3
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_belt_16.png"
+  stats:
+    ARMOR: 125
+    ATTACK_POWER: 60
+    DODGE_CHANCE: 0.01
+    STAMINA: 17
+  source: "Drops from Ebonroc/Flamegor/Firemaw in Blackwing Lair."
+  flavour_text: "\"The flesh from different dragon flights has been sewn together to make this belt.\""
+- id: 16910
+  name: "Bloodfang Belt"
+  phase: 3
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_belt_23.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 20
+    ARMOR: 126
+    CRIT_CHANCE: 0.01
+    SHADOW_RESISTANCE: 10
+    STAMINA: 15
+    STRENGTH: 13
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 20216
+  name: "Belt of Preserved Heads"
+  phase: 4
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_belt_14.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 108
+    HIT_CHANCE: 0.01
+    STAMINA: 11
+    STRENGTH: 14
+  source: "Quest reward. Requires killing multiple bosses in Zul'Gurub."
+- id: 21586
+  name: "Belt of Never-ending Agony"
+  phase: 5
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_26.png"
+  stats:
+    ARMOR: 142
+    ATTACK_POWER: 64
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 20
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 22482
+  name: "Bonescythe Waistguard"
+  phase: 6
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_27.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 24
+    ARMOR: 142
+    CRIT_CHANCE: 0.01
+    STAMINA: 20
+    STRENGTH: 23
+  source: "Quest reward. Requires boss drops from Naxxramas."
+- id: 19163
+  name: "Molten Belt"
+  phase: 3
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_belt_13.png"
+  stats:
+    AGILITY: 28
+    ARMOR: 118
+    FIRE_RESISTANCE: 12
+    STAMINA: 16
+  source: "Crafted by Leatherworkers with Thorium Brotherhood reputation. Requires Molten Core materials."
+- id: 21675
+  name: "Thick Qirajihide Belt"
+  phase: 5
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_belt_15.png"
+  stats:
+    AGILITY: 17
+    ARMOR: 186
+    PARRY_CHANCE: 0.01
+    STAMINA: 20
+    STRENGTH: 10
+  source: "Drops from Battleguard Sartura (AQ40)."
+- id: 20190
+  name: "Defiler's Leather Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_belt_17.png"
+  faction: "HORDE"
+  class_restrictions: ["DRUID", "ROGUE"]
+  stats:
+    ARMOR: 159
+    ATTACK_POWER: 34
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Sold by Arathi Basin vendor Rutherford Twing."
+- id: 22002
+  name: "Darkmantle Belt"
+  phase: 5
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_belt_03.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 17
+    ARMOR: 102
+    STAMINA: 13
+    STRENGTH: 10
+  source: "Darkmantle Quest line (Shadowcraft required)."
+- id: 20045
+  name: "Highlander's Leather Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_belt_17.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["DRUID", "ROGUE"]
+  stats:
+    ARMOR: 159
+    ATTACK_POWER: 34
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Sold by Arathi Basin vendors."

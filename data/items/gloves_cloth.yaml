@@ -1,0 +1,487 @@
+# Generated from ClassicSim Items/Gloves/cloth.xml by tools/convert_items.py.
+
+- id: 16684
+  name: "Magister's Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  icon: "Inv_gauntlets_17.png"
+  stats:
+    ARMOR: 52
+    INTELLECT: 14
+    SPIRIT: 14
+    STAMINA: 9
+  source: "Drops from Doctor Theolen Krastinov in Scholomance."
+- id: 13253
+  name: "Hands of Power"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_gauntlets_14.png"
+  stats:
+    ARMOR: 53
+    INTELLECT: 6
+    SPELL_DAMAGE: 26
+    SPIRIT: 6
+  source: "Drops from Quartermaster Zigris in Lower Blackrock Spire (LBRS)."
+- id: 14543
+  name: "Darkshade Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_gauntlets_15.png"
+  stats:
+    ARCANE_RESISTANCE: 15
+    ARMOR: 55
+    INTELLECT: 7
+    SHADOW_RESISTANCE: 10
+    SPIRIT: 6
+    STAMINA: 6
+  source: "Drops from Jandice Barov in Scholomance."
+- id: 14146
+  name: "Gloves of Spell Mastery"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_gauntlets_06.png"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 60
+    INTELLECT: 10
+    SPELL_CRIT_CHANCE: 0.02
+    SPIRIT: 8
+  source: "Crafted by Tailorers. Requires Mooncloth, Enchanted Leather, and gems."
+- id: 16979
+  name: "Flarecore Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_gauntlets_26.png"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 60
+    FIRE_RESISTANCE: 25
+    INTELLECT: 14
+    STAMINA: 10
+  source: "Crafted by Tailorers. Requires materials from Molten Core."
+- id: 16801
+  name: "Arcanist Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_14.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 63
+    FIRE_RESISTANCE: 7
+    INTELLECT: 15
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 14
+    SPIRIT: 10
+    STAMINA: 14
+  source: "Drops from Shazzrah in Molten Core."
+- id: 18808
+  name: "Gloves of the Hypnotic Flame"
+  phase: 1
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_gauntlets_03.png"
+  stats:
+    ARMOR: 67
+    INTELLECT: 19
+    SPELL_DAMAGE: 9
+    SPELL_DAMAGE_FIRE: 23
+    SPIRIT: 8
+    STAMINA: 18
+  source: "Drops from Cache of the Firelord."
+- id: 18693
+  name: "Shivery Handwraps"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_gauntlets_16.png"
+  stats:
+    ARMOR: 55
+    INTELLECT: 12
+    SPELL_DAMAGE_FROST: 17
+    SPIRIT: 9
+    STAMINA: 12
+  source: "Drops from Ras Frostwhisper in Scholomance."
+- id: 18409
+  name: "Mooncloth Gloves"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_gauntlets_17.png"
+  stats:
+    ARMOR: 55
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 9
+  source: "Crafted by Tailorers. Requires Mooncloth and Golden Pearls."
+- id: 18407
+  name: "Felcloth Gloves"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_gauntlets_19.png"
+  stats:
+    ARMOR: 55
+    SPELL_DAMAGE_SHADOW: 33
+    STAMINA: 9
+  source: "Crafted by Tailorers. Requires Felcloth, Demonic Runes, and Essences of Undeath."
+- id: 22870
+  name: "Blood Guard's Silk Handguards"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_06.png"
+  faction: "HORDE"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 98
+    INTELLECT: 10
+    SPELL_DAMAGE: 18
+    STAMINA: 12
+  special_equip_effects: ["Equip: Increases the damage absorbed by your Mana Shield by 285."]
+  source: "May be purchased upon reaching Blood Guard (rank 7). Horde only."
+- id: 23290
+  name: "Knight-Lieutenant's Silk Handguards"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_06.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 98
+    INTELLECT: 10
+    SPELL_DAMAGE: 18
+    STAMINA: 12
+  special_equip_effects: ["Equip: Increases the damage absorbed by your Mana Shield by 285."]
+  source: "May be purchased upon reaching Knight-Lieutenant (rank 7). Alliance only."
+- id: 16540
+  name: "General's Silk Handguards"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_19.png"
+  faction: "HORDE"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 108
+    INTELLECT: 12
+    SPELL_DAMAGE: 27
+    SPIRIT: 5
+    STAMINA: 22
+  special_equip_effects: ["Equip: Increases the damage absorbed by your Mana Shield by 285."]
+  source: "May be purchased upon reaching General (rank 12). Horde only."
+- id: 16440
+  name: "Marshal's Silk Handguards"
+  phase: 2
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_14.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 108
+    INTELLECT: 12
+    SPELL_DAMAGE: 27
+    SPIRIT: 5
+    STAMINA: 22
+  special_equip_effects: ["Equip: Increases the damage absorbed by your Mana Shield by 285."]
+  source: "May be purchased upon reaching Marshal (rank 12). Alliance only."
+- id: 19369
+  name: "Gloves of Rapid Evolution"
+  phase: 3
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_gauntlets_06.png"
+  stats:
+    ARMOR: 70
+    INTELLECT: 12
+    SPIRIT: 32
+    STAMINA: 12
+  source: "Drops from Razorgore the Untamed in Blackwing Lair."
+- id: 19407
+  name: "Ebony Flame Gloves"
+  phase: 3
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_gauntlets_27.png"
+  stats:
+    ARMOR: 72
+    INTELLECT: 12
+    SPELL_DAMAGE_SHADOW: 43
+    STAMINA: 17
+  source: "Drops from Ebonroc in Blackwing Lair."
+- id: 16913
+  name: "Netherwind Gloves"
+  phase: 3
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_gauntlets_14.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 72
+    INTELLECT: 16
+    SHADOW_RESISTANCE: 10
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 20
+    SPIRIT: 6
+    STAMINA: 16
+  source: "Drops from Ebonroc, Flamegor, Firemaw in Blackwing Lair."
+- id: 16928
+  name: "Nemesis Gloves"
+  phase: 3
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_gauntlets_19.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 72
+    HEALTH_PER_5: 4
+    INTELLECT: 15
+    SHADOW_RESISTANCE: 10
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 15
+    STAMINA: 17
+  source: "Drops from Ebonroc, Flamegor, Firemaw in Blackwing Lair."
+- id: 19929
+  name: "Bloodtinged Gloves"
+  phase: 4
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_16.png"
+  stats:
+    ARMOR: 62
+    INTELLECT: 10
+    SPELL_DAMAGE: 19
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 10
+    STAMINA: 10
+  source: "Drops from Jin'do the Hexxer in Zul'Gurub."
+- id: 20618
+  name: "Gloves of Delusional Power"
+  phase: 4
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_gauntlets_17.png"
+  stats:
+    ARMOR: 69
+    INTELLECT: 16
+    MANA_PER_5: 5
+    SPELL_DAMAGE: 27
+    STAMINA: 14
+  source: "Drops from dragon world bosses (Emeriss, Taerar, Lethon, Ysondre)."
+- id: 22066
+  name: "Sorcerer's Gloves"
+  phase: 5
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 58
+  item_lvl: 55
+  icon: "Inv_gauntlets_17.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 54
+    INTELLECT: 14
+    SPELL_DAMAGE: 12
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 10
+    STAMINA: 12
+  source: "Quest reward. Requires Magister's Gloves."
+- id: 20716
+  name: "Sandworm Skin Gloves"
+  phase: 5
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_gauntlets_17.png"
+  class_restrictions: ["MAGE", "WARLOCK"]
+  stats:
+    ARMOR: 56
+    INTELLECT: 5
+    SPELL_DAMAGE: 27
+    STAMINA: 8
+  mutex: [20705]
+  source: "Quest reward. Involves a quest chain that partly requires a raid."
+- id: 21888
+  name: "Gloves of the Immortal"
+  phase: 5
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_14.png"
+  stats:
+    ARMOR: 188
+    INTELLECT: 16
+    STAMINA: 28
+  source: "Drops from trash mobs in Temple of Ahn'Qiraj (AQ40)."
+- id: 21585
+  name: "Darkstorm Gauntlets"
+  phase: 5
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_gauntlets_17.png"
+  stats:
+    ARMOR: 83
+    INTELLECT: 15
+    SPELL_DAMAGE: 37
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 19
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 23084
+  name: "Gloves of Undead Cleansing"
+  phase: 6
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 63
+  icon: "Inv_gauntlets_16.png"
+  stats:
+    ARMOR: 56
+    INTELLECT: 10
+    SPELL_DAMAGE_UNDEAD: 35
+    STAMINA: 10
+  source: "Drops from elites spawned during the Scourge Invasion event."
+- id: 23128
+  name: "The Shadow's Grasp"
+  phase: 6
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_gauntlets_16.png"
+  stats:
+    ARMOR: 55
+    INTELLECT: 14
+    SPELL_DAMAGE_SHADOW: 20
+    STAMINA: 14
+  source: "Drops from Revanchion in Dire Maul during Scourge Invasion event."
+- id: 22654
+  name: "Glacial Gloves"
+  phase: 6
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 80
+  boe: true
+  icon: "Inv_gauntlets_06.png"
+  stats:
+    ARMOR: 76
+    FROST_RESISTANCE: 30
+    SPELL_DAMAGE: 15
+    STAMINA: 22
+  source: "Crafted by Argent Dawn NPC. Requires expensive materials to craft."
+- id: 22501
+  name: "Frostfire Gloves"
+  phase: 6
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_gauntlets_17.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 83
+    INTELLECT: 19
+    SPELL_DAMAGE: 36
+    SPIRIT: 10
+    STAMINA: 17
+  source: "Quest reward. Requires boss drops from Naxxramas."
+- id: 22509
+  name: "Plagueheart Gloves"
+  phase: 6
+  slot: "GLOVES"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_gauntlets_17.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 83
+    INTELLECT: 17
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 26
+    STAMINA: 25
+  source: "Quest reward. Requires boss drops from Naxxramas."

@@ -1,1 +1,5 @@
 build/
+/target/
+TASKS.md
+TASKS_DONE.md
+MEMO.md

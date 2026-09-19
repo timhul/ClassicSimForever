@@ -1,0 +1,751 @@
+# Generated from ClassicSim Items/Weapons/Staves.xml by tools/convert_items.py.
+
+- id: 18715
+  name: "Lok'delar, Stave of the Ancient Keepers"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_staff_21.png"
+  class_restrictions: ["HUNTER"]
+  damage:
+    min: 187
+    max: 282
+    speed: 3.2
+  stats:
+    ATTACK_POWER_DEMON: 45
+    CRIT_CHANCE: 0.02
+    INTELLECT: 15
+    NATURE_RESISTANCE: 10
+    STAMINA: 26
+  source: "Quest reward. Quest chain starts with drop from Majordomo Executus in Molten Core."
+- id: 873
+  name: "Staff of Jordan"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 119
+    max: 180
+    speed: 3.7
+  stats:
+    INTELLECT: 11
+    SPELL_DAMAGE: 26
+    SPIRIT: 11
+  source: "World drop."
+- id: 9517
+  name: "Celestial Stave"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 35
+  item_lvl: 40
+  icon: "Inv_staff_14.png"
+  class_restrictions: ["MAGE"]
+  damage:
+    min: 85
+    max: 129
+    speed: 3.0
+  stats:
+    INTELLECT: 8
+    SPELL_DAMAGE: 22
+  source: "Quest reward in Thousand Needles."
+- id: 17743
+  name: "Resurgence Rod"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 45
+  item_lvl: 53
+  icon: "Inv_staff_goldfeathered_01.png"
+  damage:
+    min: 139
+    max: 209
+    speed: 3.8
+  stats:
+    HEALTH_PER_5: 5
+    MANA_PER_5: 8
+  mutex: [17705, 17753]
+  source: "Quest reward in Maraudon."
+- id: 13249
+  name: "Argent Crusader"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 62
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 127
+    max: 191
+    speed: 3.0
+  stats:
+    INTELLECT: 30
+    SPIRIT: 10
+    STAMINA: 6
+  source: "Quest reward. Requires Stratholme Living and Undead."
+- id: 1607
+  name: "Soulkeeper"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  icon: "Spell_shadow_haunting.png"
+  damage:
+    min: 141
+    max: 213
+    speed: 3.8
+  stats:
+    INTELLECT: 11
+    SPIRIT: 26
+  source: "World drop."
+- id: 13000
+  name: "Staff of Hale Magefire"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_staff_23.png"
+  damage:
+    min: 140
+    max: 210
+    speed: 3.3
+  stats:
+    INTELLECT: 25
+    SPIRIT: 22
+  source: "World drop."
+- id: 812
+  name: "Glowing Brightwood Staff"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  icon: "Inv_staff_29.png"
+  damage:
+    min: 127
+    max: 191
+    speed: 3.1
+  stats:
+    INTELLECT: 29
+    NATURE_RESISTANCE: 15
+    SPIRIT: 9
+    STAMINA: 15
+  source: "World drop."
+- id: 11750
+  name: "Kindling Stave"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 48
+  item_lvl: 53
+  icon: "Inv_staff_18.png"
+  damage:
+    min: 106
+    max: 160
+    speed: 2.9
+  stats:
+    FIRE_RESISTANCE: 10
+    INTELLECT: 12
+    SPELL_CRIT_CHANCE: 0.01
+    SPIRIT: 13
+    STAMINA: 10
+  source: "Drops from Pyromancer Loregrain in Blackrock Depths."
+- id: 13161
+  name: "Trindlehaven Staff"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_staff_29.png"
+  damage:
+    min: 87
+    max: 132
+    speed: 2.1
+  stats:
+    INTELLECT: 25
+    SPELL_DAMAGE: 14
+    STAMINA: 12
+  source: "Drops from Overlord Wyrmthalak in Lower Blackrock Spire (LBRS)."
+- id: 10844
+  name: "Spire of Hakkar"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 49
+  item_lvl: 54
+  icon: "Inv_staff_32.png"
+  damage:
+    min: 126
+    max: 190
+    speed: 3.4
+  stats:
+    SPELL_DAMAGE: 18
+    SPIRIT: 16
+    STAMINA: 16
+  source: "Drops from Avatar of Hakkar in Sunken Temple."
+- id: 18842
+  name: "Staff of Dominance"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 126
+    max: 205
+    speed: 2.9
+  stats:
+    INTELLECT: 37
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 40
+    SPIRIT: 14
+    STAMINA: 16
+  source: "Drops from Golemagg the Incinerator in Molten Core."
+- id: 944
+  name: "Elemental Mage Staff"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  icon: "Inv_staff_07.png"
+  damage:
+    min: 147
+    max: 221
+    speed: 3.2
+  stats:
+    FIRE_RESISTANCE: 20
+    FROST_RESISTANCE: 20
+    SPELL_DAMAGE_FIRE: 36
+    SPELL_DAMAGE_FROST: 36
+  source: "World drop."
+- id: 17113
+  name: "Amberseal Keeper"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_staff_goldfeathered_01.png"
+  damage:
+    min: 145
+    max: 229
+    speed: 3.3
+  stats:
+    ARCANE_RESISTANCE: 5
+    FIRE_RESISTANCE: 5
+    FROST_RESISTANCE: 5
+    INTELLECT: 20
+    MANA_PER_5: 12
+    NATURE_RESISTANCE: 5
+    SHADOW_RESISTANCE: 5
+    SPELL_DAMAGE: 44
+  source: "Drops from Golemagg the Incinerator in Molten Core."
+- id: 18082
+  name: "Zum'rah's Vexing Cane"
+  phase: 1
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 42
+  item_lvl: 47
+  icon: "Inv_staff_10.png"
+  damage:
+    min: 88
+    max: 133
+    speed: 2.7
+  stats:
+    INTELLECT: 10
+    SPELL_DAMAGE: 21
+    STAMINA: 10
+  source: "Drops from Witch Doctor Zum'rah in Zul'Farrak."
+- id: 18534
+  name: "Rod of the Ogre Magi"
+  phase: 2
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_staff_32.png"
+  damage:
+    min: 116
+    max: 175
+    speed: 2.7
+  stats:
+    INTELLECT: 14
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 23
+    SPIRIT: 7
+    STAMINA: 11
+  source: "Drops from Tribute chest in Dire Maul."
+- id: 18873
+  name: "Grand Marshal's Stave"
+  phase: 2
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_staff_14.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 131
+    max: 225
+    speed: 3.0
+  stats:
+    INTELLECT: 23
+    SPELL_DAMAGE: 71
+    SPIRIT: 17
+    STAMINA: 41
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18874
+  name: "High Warlord's War Staff"
+  phase: 2
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_misc_bone_elfskull_01.png"
+  faction: "HORDE"
+  damage:
+    min: 131
+    max: 225
+    speed: 3.0
+  stats:
+    INTELLECT: 23
+    SPELL_DAMAGE: 71
+    SPIRIT: 17
+    STAMINA: 41
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 19102
+  name: "Crackling Staff"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_staff_20.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 138
+    max: 207
+    speed: 3.1
+  stats:
+    INTELLECT: 16
+    SPELL_DAMAGE: 15
+    STAMINA: 25
+  source: "Sold by Alterac Valley vendors. Requires Revered with Stormpike Guard."
+- id: 19101
+  name: "Whiteout Staff"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_staff_30.png"
+  faction: "HORDE"
+  damage:
+    min: 138
+    max: 207
+    speed: 3.1
+  stats:
+    INTELLECT: 16
+    SPELL_DAMAGE: 15
+    STAMINA: 25
+  source: "Sold by Alterac Valley vendors. Requires Revered with Frostwolf Clan."
+- id: 19566
+  name: "Advisor's Gnarled Staff"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_staff_25.png"
+  faction: "HORDE"
+  damage:
+    min: 125
+    max: 188
+    speed: 2.9
+  stats:
+    INTELLECT: 13
+    MANA_PER_5: 8
+    STAMINA: 21
+  source: "Sold by Warsong Gulch vendors. Requires Revered with Warsong Outriders."
+- id: 19571
+  name: "Lorekeeper's Staff"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_staff_28.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 125
+    max: 188
+    speed: 2.9
+  stats:
+    INTELLECT: 13
+    MANA_PER_5: 8
+    STAMINA: 21
+  source: "Sold by Warsong Gulch vendors. Requires Revered with Silverwing Sentinels."
+- id: 19355
+  name: "Shadow Wing Focus Staff"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 142
+    max: 237
+    speed: 3.2
+  stats:
+    INTELLECT: 40
+    SPELL_DAMAGE: 56
+    SPIRIT: 17
+    STAMINA: 22
+  source: "Drops from Firemaw, Flamegor, and Ebonroc."
+- id: 19356
+  name: "Staff of the Shadow Flame"
+  phase: 3
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 142
+    max: 248
+    speed: 3.2
+  stats:
+    INTELLECT: 29
+    SPELL_CRIT_CHANCE: 0.02
+    SPELL_DAMAGE: 84
+    SPIRIT: 18
+    STAMINA: 24
+  source: "Drops from Nefarian in Blackwing Lair."
+- id: 20069
+  name: "Ironbark Staff"
+  phase: 4
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_wand_04.png"
+  damage:
+    min: 137
+    max: 243
+    speed: 3.4
+  stats:
+    ARMOR: 100
+    INTELLECT: 10
+    SPELL_CRIT_CHANCE: 0.02
+    SPELL_DAMAGE: 41
+    STAMINA: 19
+  source: "Sold by Arathi Basin vendors. Requires Exalted with Arathi Basin faction."
+- id: 20258
+  name: "Zulian Ceremonial Staff"
+  phase: 4
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_staff_34.png"
+  damage:
+    min: 112
+    max: 171
+    speed: 2.6
+  stats:
+    INTELLECT: 16
+    SPELL_DAMAGE: 32
+    STAMINA: 13
+  source: "Drops from trash mobs in Zul'Gurub."
+- id: 19884
+  name: "Jin'do's Judgement"
+  phase: 4
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_staff_33.png"
+  damage:
+    min: 144
+    max: 227
+    speed: 3.3
+  stats:
+    INTELLECT: 10
+    MANA_PER_5: 14
+    SPELL_DAMAGE: 27
+    SPELL_HIT_CHANCE: 0.02
+    STAMINA: 10
+  source: "Drops from Jin'do the Hexxer in Zul'Gurub."
+- id: 20724
+  name: "Corrupted Blackwood Staff"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "UNCOMMON"
+  req_lvl: 58
+  item_lvl: 62
+  icon: "Inv_staff_07.png"
+  damage:
+    min: 131
+    max: 197
+    speed: 3.4
+  stats:
+    SPELL_DAMAGE: 26
+    STAMINA: 11
+  source: "Quest reward in Silithus."
+- id: 22458
+  name: "Moonshadow Stave"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 52
+  icon: "Inv_staff_28.png"
+  damage:
+    min: 133
+    max: 200
+    speed: 3.7
+  stats:
+    MANA_PER_5: 7
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 18
+  source: "Quest reward. Requires Sunken Temple."
+- id: 20536
+  name: "Soul Harvester"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 52
+  icon: "Inv_sword_48.png"
+  damage:
+    min: 118
+    max: 178
+    speed: 3.3
+  stats:
+    SPELL_DAMAGE_SHADOW: 24
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 16
+  mutex: [20530]
+  source: "Quest reward. Requires Sunken Temple."
+- id: 20654
+  name: "Amethyst War Staff"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_staff_11.png"
+  damage:
+    min: 119
+    max: 179
+    speed: 2.9
+  stats:
+    INTELLECT: 9
+    SPELL_DAMAGE: 34
+    STAMINA: 6
+  source: "Drops from Azure Templar, a summonable boss in Silithus."
+- id: 22335
+  name: "Lord Valthalak's Staff of Command"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_staff_07.png"
+  damage:
+    min: 90
+    max: 136
+    speed: 2.1
+  stats:
+    INTELLECT: 10
+    SPELL_DAMAGE: 30
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 11
+  source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
+- id: 21452
+  name: "Staff of the Ruins"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_staff_12.png"
+  damage:
+    min: 152
+    max: 247
+    speed: 3.4
+  stats:
+    INTELLECT: 23
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 60
+    SPELL_HIT_CHANCE: 0.01
+    SPIRIT: 14
+    STAMINA: 24
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21128
+  name: "Staff of the Qiraji Prophets"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_staff_01.png"
+  damage:
+    min: 129
+    max: 214
+    speed: 2.9
+  stats:
+    ARCANE_RESISTANCE: 10
+    FIRE_RESISTANCE: 10
+    FROST_RESISTANCE: 10
+    INTELLECT: 26
+    NATURE_RESISTANCE: 10
+    SHADOW_RESISTANCE: 10
+    SPELL_DAMAGE: 56
+    SPIRIT: 8
+    STAMINA: 21
+  procs:
+    - name: "GENERIC_STAT_BUFF"
+      rate: 0.05
+      duration: 8
+      amount: 50
+      instant: true
+      stat: "SPELL_PENETRATION"
+      sources:
+        magic_hit: true
+  special_equip_effects: ["Equip: Gives a chance when your harmful spells land to reduce the magical resistances of your spell targets by 50 for 8 sec."]
+  source: "Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40)."
+- id: 21273
+  name: "Blessed Qiraji Acolyte Staff"
+  phase: 5
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 79
+  icon: "Inv_staff_20.png"
+  damage:
+    min: 132
+    max: 227
+    speed: 3.0
+  stats:
+    INTELLECT: 33
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 76
+    SPELL_HIT_CHANCE: 0.02
+    STAMINA: 32
+  source: "Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40)."
+  flavour_text: "\"The weapon is infused and reinforced with Elementium.\""
+- id: 23124
+  name: "Staff of Balzaphon"
+  phase: 6
+  slot: "2H"
+  type: "STAFF"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_staff_07.png"
+  damage:
+    min: 160
+    max: 241
+    speed: 3.9
+  stats:
+    INTELLECT: 17
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 29
+    STAMINA: 8
+  source: "Drops from Balzaphon during Scourge Invasion event."
+- id: 22800
+  name: "Brimstone Staff"
+  phase: 6
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 140
+    max: 250
+    speed: 3.2
+  stats:
+    INTELLECT: 30
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 113
+    SPELL_HIT_CHANCE: 0.02
+    STAMINA: 31
+  source: "Drops from Loatheb in Naxxramas."
+- id: 22799
+  name: "Soulseeker"
+  phase: 6
+  slot: "2H"
+  type: "STAFF"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 89
+  icon: "Inv_staff_15.png"
+  damage:
+    min: 142
+    max: 265
+    speed: 3.2
+  stats:
+    INTELLECT: 31
+    SPELL_CRIT_CHANCE: 0.02
+    SPELL_DAMAGE: 126
+    SPELL_PENETRATION: 25
+    STAMINA: 30
+  source: "Drops from Kel'Thuzad in Naxxramas."

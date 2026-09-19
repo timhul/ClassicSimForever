@@ -1,0 +1,545 @@
+# Generated from ClassicSim Items/Weapons/Wands.xml by tools/convert_items.py.
+
+- id: 11748
+  name: "Pyric Caduceus"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 48
+  item_lvl: 53
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 66
+    max: 123
+    speed: 1.8
+  stats:
+    SPELL_DAMAGE_FIRE: 13
+  source: "Drops from Pyromancer Loregrain in Blackrock Depths."
+- id: 13396
+  name: "Skul's Ghastly Touch"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_misc_bone_elfskull_01.png"
+  damage:
+    min: 70
+    max: 131
+    speed: 1.8
+  stats:
+    SPELL_DAMAGE_SHADOW: 14
+  source: "Drops from Skul, a rare boss in Scholomance."
+- id: 15282001
+  name: "Dragon Finger of Frozen Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 52
+    max: 97
+    speed: 1.4
+  stats:
+    SPELL_DAMAGE_FROST: 11
+  source: "World drop."
+- id: 15282002
+  name: "Dragon Finger of Shadow Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 52
+    max: 97
+    speed: 1.4
+  stats:
+    SPELL_DAMAGE_SHADOW: 11
+  source: "World drop."
+- id: 15282003
+  name: "Dragon Finger of Fiery Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 52
+    max: 97
+    speed: 1.4
+  stats:
+    SPELL_DAMAGE_FIRE: 11
+  source: "World drop."
+- id: 15282004
+  name: "Dragon Finger of Holy Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 52
+    max: 97
+    speed: 1.4
+  stats:
+    SPELL_DAMAGE_HOLY: 11
+  source: "World drop."
+- id: 15282005
+  name: "Dragon Finger of Arcane Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 52
+    max: 97
+    speed: 1.4
+  stats:
+    SPELL_DAMAGE_ARCANE: 11
+  source: "World drop."
+- id: 15283001
+  name: "Lunar Wand of Frozen Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 59
+  item_lvl: 64
+  boe: true
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 67
+    max: 126
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE_FROST: 13
+  source: "World drop."
+- id: 15283002
+  name: "Lunar Wand of Shadow Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 59
+  item_lvl: 64
+  boe: true
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 67
+    max: 126
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE_SHADOW: 13
+  source: "World drop."
+- id: 15283003
+  name: "Lunar Wand of Fiery Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 59
+  item_lvl: 64
+  boe: true
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 67
+    max: 126
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE_FIRE: 13
+  source: "World drop."
+- id: 15283004
+  name: "Lunar Wand of Holy Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 59
+  item_lvl: 64
+  boe: true
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 67
+    max: 126
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE_HOLY: 13
+  source: "World drop."
+- id: 15283005
+  name: "Lunar Wand of Arcane Wrath"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 54
+  item_lvl: 64
+  boe: true
+  icon: "Inv_staff_06.png"
+  damage:
+    min: 67
+    max: 126
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE_ARCANE: 13
+  source: "World drop."
+- id: 16997
+  name: "Stormrager"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 62
+  icon: "Inv_wand_05.png"
+  damage:
+    min: 57
+    max: 106
+    speed: 1.3
+  stats:
+    INTELLECT: 5
+    STAMINA: 8
+  source: "Quest reward. Requires killing an elite mob in Eastern Plaguelands."
+- id: 13938
+  name: "Bonecreeper Stylus"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_misc_bone_taurenskull_01.png"
+  damage:
+    min: 83
+    max: 155
+    speed: 1.9
+  stats:
+    INTELLECT: 4
+    SPELL_DAMAGE: 11
+  source: "Drops from Darkmaster Gandling in Scholomance."
+- id: 17077
+  name: "Crimson Shocker"
+  phase: 1
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_staff_13.png"
+  damage:
+    min: 102
+    max: 191
+    speed: 2.0
+  stats:
+    FIRE_RESISTANCE: 10
+    INTELLECT: 10
+  source: "Drops from multiple bosses in Molten Core."
+- id: 18301
+  name: "Lethtendris's Wand"
+  phase: 2
+  slot: "RANGED"
+  type: "WAND"
+  quality: "UNCOMMON"
+  req_lvl: 53
+  item_lvl: 58
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 60
+    max: 113
+    speed: 1.7
+  stats:
+    SPELL_DAMAGE: 9
+  source: "Drops from Lethtendris in Dire Maul."
+- id: 18338
+  name: "Wand of Arcane Potency"
+  phase: 2
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 59
+  item_lvl: 59
+  boe: true
+  icon: "Inv_wand_02.png"
+  damage:
+    min: 65
+    max: 122
+    speed: 1.6
+  stats:
+    SPELL_DAMAGE_ARCANE: 16
+  source: "Drops from elementals in Dire Maul."
+- id: 18483
+  name: "Mana Channeling Wand"
+  phase: 2
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_wand_05.png"
+  damage:
+    min: 68
+    max: 127
+    speed: 1.6
+  stats:
+    MANA_PER_5: 4
+  source: "Drops from Cho'Rush the Observer in Dire Maul."
+- id: 18761
+  name: "Oblivion's Touch"
+  phase: 2
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_wand_12.png"
+  damage:
+    min: 78
+    max: 147
+    speed: 1.8
+  stats:
+    INTELLECT: 11
+  source: "Drops from boss summoned by Paladin/Shaman class quest in Scholomance."
+- id: 19130
+  name: "Cold Snap"
+  phase: 2
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_wand_01.png"
+  damage:
+    min: 101
+    max: 189
+    speed: 1.7
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE_FROST: 20
+  source: "Drops from Azuregos (world boss)."
+- id: 19108
+  name: "Wand of Biting Cold"
+  phase: 3
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 51
+  item_lvl: 63
+  icon: "Inv_wand_01.png"
+  damage:
+    min: 67
+    max: 125
+    speed: 1.5
+  stats:
+    SPELL_DAMAGE_FROST: 16
+  mutex: [19106, 19107, 20648]
+  source: "Quest reward. Requires winning Alterac Valley."
+- id: 19435
+  name: "Essence Gatherer"
+  phase: 3
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 83
+    max: 156
+    speed: 1.4
+  stats:
+    INTELLECT: 7
+    MANA_PER_5: 5
+    STAMINA: 5
+  source: "Drops from trash mobs in Blackwing Lair."
+- id: 19367
+  name: "Dragon's Touch"
+  phase: 3
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_wand_11.png"
+  damage:
+    min: 107
+    max: 199
+    speed: 1.6
+  stats:
+    INTELLECT: 12
+    SPELL_DAMAGE: 6
+    STAMINA: 7
+  source: "Drops from Flamegor in Blackwing Lair."
+- id: 20082
+  name: "Woestave"
+  phase: 4
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 50
+  item_lvl: 52
+  icon: "Inv_wand_09.png"
+  damage:
+    min: 68
+    max: 127
+    speed: 1.9
+  stats:
+    SPELL_DAMAGE_SHADOW: 11
+    STAMINA: 3
+  source: "Quest reward. Requires Sunken Temple."
+  flavour_text: "\"Woe to those who oppose.\""
+- id: 19927
+  name: "Mar'li's Touch"
+  phase: 4
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 91
+    max: 170
+    speed: 1.7
+  stats:
+    INTELLECT: 11
+    SPIRIT: 6
+    STAMINA: 5
+  source: "Drops from High Priestess Mar'li in Zul'Gurub."
+- id: 19967
+  name: "Thoughtblighter"
+  phase: 4
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_wand_05.png"
+  damage:
+    min: 90
+    max: 168
+    speed: 1.8
+  stats:
+    MANA_PER_5: 5
+  source: "Drops from Hazza'rah (Edge of Madness) in Zul'Gurub."
+- id: 19861
+  name: "Touch of Chaos"
+  phase: 4
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_wand_09.png"
+  damage:
+    min: 86
+    max: 160
+    speed: 1.5
+  stats:
+    SPELL_DAMAGE: 18
+  source: "Drops from Hakkar in Zul'Gurub."
+- id: 20672
+  name: "Sparkling Crystal Wand"
+  phase: 5
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_wand_12.png"
+  damage:
+    min: 65
+    max: 122
+    speed: 1.5
+  stats:
+    INTELLECT: 9
+    SPELL_DAMAGE: 5
+  source: "Drops from The Duke of Shards, summonable elite mob in Silithus."
+- id: 22408
+  name: "Ritssyn's Wand of Bad Mojo"
+  phase: 5
+  slot: "RANGED"
+  type: "WAND"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 63
+  icon: "Inv_wand_07.png"
+  damage:
+    min: 58
+    max: 108
+    speed: 1.3
+  stats:
+    SPELL_DAMAGE: 11
+    STAMINA: 4
+  source: "Drops from Baron Rivendare in Stratholme Undead."
+- id: 21603
+  name: "Wand of Qiraji Nobility"
+  phase: 5
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_wand_06.png"
+  damage:
+    min: 114
+    max: 213
+    speed: 1.6
+  stats:
+    SPELL_DAMAGE: 19
+    STAMINA: 5
+  source: "Drops from Lord Kri (bug trio) in Temple of Ahn'Qiraj (AQ40)."
+- id: 22820
+  name: "Wand of Fates"
+  phase: 6
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_wand_1h_stratholme_d_01.png"
+  damage:
+    min: 119
+    max: 222
+    speed: 1.5
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 12
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "Drops from Patchwerk in Naxxramas."
+- id: 22821
+  name: "Doomfinger"
+  phase: 6
+  slot: "RANGED"
+  type: "WAND"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 92
+  icon: "Inv_wand_1h_stratholme_d_02.png"
+  damage:
+    min: 146
+    max: 271
+    speed: 1.5
+  stats:
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 16
+  source: "Drops from Kel'Thuzad in Naxxramas."

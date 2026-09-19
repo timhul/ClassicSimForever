@@ -1,0 +1,262 @@
+# Generated from ClassicSim Items/Belts/mail.xml by tools/convert_items.py.
+
+- id: 16680
+  name: "Beaststalker's Belt"
+  phase: 1
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  icon: "Inv_belt_28.png"
+  stats:
+    AGILITY: 10
+    ARMOR: 193
+    INTELLECT: 9
+    SPIRIT: 11
+    STAMINA: 6
+    STRENGTH: 9
+  source: "Drops from trash mobs in Blackrock Spire."
+- id: 16851
+  name: "Giantstalker's Belt"
+  phase: 1
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_belt_28.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 237
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 7
+    INTELLECT: 9
+    SPIRIT: 4
+    STAMINA: 16
+  source: "Drops from trash mobs in Molten Core."
+- id: 18393
+  name: "Warpwood Binding"
+  phase: 2
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_34.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 202
+    CRIT_CHANCE: 0.01
+    INTELLECT: 9
+    STAMINA: 6
+  source: "Drops from Tendris Warpwood in Dire Maul."
+- id: 16936
+  name: "Dragonstalker's Belt"
+  phase: 3
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_belt_28.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 271
+    CRIT_CHANCE: 0.01
+    INTELLECT: 13
+    SHADOW_RESISTANCE: 10
+    SPIRIT: 11
+    STAMINA: 15
+  source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
+- id: 19380
+  name: "Therazane's Link"
+  phase: 3
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_belt_18.png"
+  stats:
+    ARMOR: 295
+    ATTACK_POWER: 44
+    CRIT_CHANCE: 0.01
+    INTELLECT: 12
+    SPIRIT: 12
+    STAMINA: 22
+  source: "Drops from Nefarian in Blackwing Lair."
+  flavour_text: "\"The metal is warm to the touch. The links connecting the belt together appear to be fashioned out of Elementium.\""
+- id: 20150
+  name: "Defiler's Chain Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_belt_20.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER", "SHAMAN"]
+  stats:
+    ARMOR: 208
+    ATTACK_POWER: 34
+    CRIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Requires Honored with The Defilers (Arathi Basin)."
+- id: 20043
+  name: "Highlander's Chain Girdle"
+  phase: 4
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_belt_20.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    ARMOR: 208
+    ATTACK_POWER: 34
+    CRIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Requires Honored with The League of Arathor (Arathi Basin)."
+- id: 19832
+  name: "Zandalar Predator's Belt"
+  phase: 4
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 61
+  icon: "Inv_belt_19.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 221
+    HIT_CHANCE: 0.01
+    INTELLECT: 12
+    SPIRIT: 9
+    STAMINA: 12
+  source: "Quest reward. Requires boss drop from Zul'Gurub and Honored with Zandalar Tribe."
+- id: 21463
+  name: "Ossirian's Binding"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_belt_18.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 258
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 19
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 14614
+  name: "Bloodmail Belt"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_23.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 202
+    INTELLECT: 9
+    STAMINA: 11
+    STRENGTH: 12
+  source: "Drops from multiple bosses in Scholomance."
+- id: 22010
+  name: "Beastmaster's Belt"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_belt_28.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 214
+    INTELLECT: 10
+    STAMINA: 16
+  source: "Quest reward. Requires Beaststalker's Belt and Beaststalker's Gloves."
+- id: 22207
+  name: "Sash of the Grand Hunt"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_belt_28.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 199
+    BOW_SKILL: 2
+    CROSSBOW_SKILL: 2
+    GUN_SKILL: 2
+    INTELLECT: 6
+    STAMINA: 14
+  source: "Drops from Emperor Dagran Thaurissian in Blackrock Depths."
+- id: 22195
+  name: "Light Obsidian Belt"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  boe: true
+  icon: "Inv_belt_16.png"
+  stats:
+    ALL_RESISTANCE: 5
+    ARMOR: 224
+    ATTACK_POWER: 32
+    CRIT_CHANCE: 0.01
+  source: "Crafted by Blacksmiths (300 skill). Pattern requires Honored with Cenarion Circle."
+- id: 22232
+  name: "Marksman's Girdle"
+  phase: 5
+  slot: "BELT"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_belt_18.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 202
+    HIT_CHANCE: 0.01
+  source: "Drops from Urok Doomhowl in Lower Blackrock Spire."
+- id: 22442
+  name: "Crypstalker Girdle"
+  phase: 6
+  slot: "BELT"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_belt_22.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 23
+    ARMOR: 311
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    INTELLECT: 12
+    MANA_PER_5: 3
+    STAMINA: 22
+  source: "Quest reward. Requires boss drops from Naxxramas."

@@ -1,0 +1,285 @@
+# Generated from ClassicSim Items/Helms/leather.xml by tools/convert_items.py.
+
+- id: 9375
+  name: "Expert Goldminer's Helmet"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  icon: "Inv_helmet_18.png"
+  stats:
+    AGILITY: 5
+    ARMOR: 95
+    AXE_SKILL: 7
+    STAMINA: 6
+  source: "Drops from Digmaster Shovelphlange in Loch Modan."
+- id: 8345
+  name: "Wolfshead Helm"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 40
+  item_lvl: 45
+  boe: true
+  icon: "Inv_helmet_04.png"
+  class_restrictions: ["DRUID"]
+  stats:
+    ARMOR: 109
+    SPIRIT: 10
+  modifies: ["Cat Form"]
+  special_equip_effects: ["Equip: When shapeshifting into Cat form the Druid gains 20 energy, when shapeshifting into Bear form the Druid gains 5 rage."]
+  source: "Crafted by Leatherworkers."
+- id: 13404
+  name: "Mask of the Unforgiven"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_misc_bandana_01.png"
+  stats:
+    ARMOR: 132
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.02
+    STAMINA: 12
+  source: "Drops from The Unforgiven in Stratholme Undead."
+- id: 16707
+  name: "Shadowcraft Cap"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_helmet_41.png"
+  stats:
+    AGILITY: 20
+    ARMOR: 141
+    SPIRIT: 5
+    STAMINA: 18
+    STRENGTH: 13
+  source: "Drops from Darkmaster Gandling in Scholomance."
+- id: 12587
+  name: "Eye of Rend"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_helmet_46.png"
+  stats:
+    ARMOR: 143
+    CRIT_CHANCE: 0.02
+    STAMINA: 7
+    STRENGTH: 13
+  source: "Drops from Warchief Rend Blackhand in Upper Blackrock Spire."
+- id: 16821
+  name: "Nightslayer Cover"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_helmet_41.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 20
+    ARMOR: 163
+    CRIT_CHANCE: 0.02
+    FIRE_RESISTANCE: 10
+    STAMINA: 19
+    STRENGTH: 6
+  source: "Drops from Garr in Molten Core."
+- id: 16908
+  name: "Bloodfang Hood"
+  phase: 1
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_helmet_41.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 27
+    ARMOR: 183
+    CRIT_CHANCE: 0.01
+    FROST_RESISTANCE: 10
+    SHADOW_RESISTANCE: 10
+    STAMINA: 25
+    STRENGTH: 19
+  source: "Drops from Onyxia."
+- id: 16550
+  name: "Warlord's Dragonhide Helmet"
+  phase: 2
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_helmet_09.png"
+  faction: "HORDE"
+  class_restrictions: ["DRUID"]
+  stats:
+    AGILITY: 19
+    ARMOR: 209
+    CRIT_CHANCE: 0.01
+    INTELLECT: 15
+    SPELL_DAMAGE: 18
+    SPIRIT: 7
+    STAMINA: 19
+    STRENGTH: 20
+  source: "This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord."
+- id: 19945
+  name: "Foror's Eyepatch"
+  phase: 4
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_helmet_46.png"
+  stats:
+    ARMOR: 160
+    ATTACK_POWER: 44
+    CRIT_CHANCE: 0.02
+    STAMINA: 19
+  source: "Drops from Gahz'ranka in Zul'Gurub."
+- id: 22718
+  name: "Blooddrenched Mask"
+  phase: 4
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_helmet_41.png"
+  stats:
+    AGILITY: 22
+    ARMOR: 153
+    HIT_CHANCE: 0.02
+    STAMINA: 17
+  source: "Drops from High Priest(ess) bosses in Zul'Gurub."
+- id: 20623
+  name: "Circlet of Restless Dreams"
+  phase: 4
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_helmet_17.png"
+  stats:
+    AGILITY: 21
+    ARMOR: 175
+    DAGGER_SKILL: 6
+    STAMINA: 38
+  source: "Drops from Emeriss (world boss)."
+- id: 21455
+  name: "Southwind Helm"
+  phase: 5
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_helmet_01.png"
+  stats:
+    AGILITY: 24
+    ARMOR: 164
+    HIT_CHANCE: 0.01
+    STAMINA: 14
+    STRENGTH: 21
+  source: "Drops from Moam in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21693
+  name: "Guise of the Devourer"
+  phase: 5
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_helmet_06.png"
+  stats:
+    AGILITY: 19
+    ARMOR: 250
+    DODGE_CHANCE: 0.01
+    STAMINA: 36
+    STRENGTH: 17
+  source: "Drops from bug trio in Temple of Ahn'Qiraj (AQ40)."
+- id: 21360
+  name: "Deathdealer's Helm"
+  phase: 5
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_helmet_04.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 29
+    ARMOR: 192
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 27
+    STRENGTH: 25
+  source: "Quest reward. Requires boss drop from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
+- id: 23020
+  name: "Polar Helmet"
+  phase: 6
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_helmet_04.png"
+  stats:
+    AGILITY: 18
+    ARMOR: 196
+    FROST_RESISTANCE: 44
+    STAMINA: 24
+  source: "Drops from Gothik the Harvester in Naxxramas."
+- id: 22005
+  name: "Darkmantle Cap"
+  phase: 5
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_helmet_41.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 26
+    ARMOR: 150
+    CRIT_CHANCE: 0.01
+    STAMINA: 18
+    STRENGTH: 13
+  source: "Darkmantle Quest line (Shadowcraft required)."
+- id: 22478
+  name: "Bonescythe Helmet"
+  phase: 6
+  slot: "HEAD"
+  type: "LEATHER"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_helmet_58.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 30
+    ARMOR: 205
+    CRIT_CHANCE: 0.02
+    HIT_CHANCE: 0.01
+    STAMINA: 29
+    STRENGTH: 18
+  source: "Quest reward. Requires boss drops from Naxxramas."

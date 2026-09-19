@@ -1,0 +1,649 @@
+# Generated from ClassicSim Items/Misc/backs.xml by tools/convert_items.py.
+
+- id: 11626
+  name: "Blackveil Cape"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 48
+  item_lvl: 53
+  icon: "Inv_misc_cape_18.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 38
+    STRENGTH: 6
+  source: "Drops from High Interrogator Gerstahn in Blackrock Depths (BRD)."
+- id: 11623
+  name: "Spritecaster Cape"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 47
+  item_lvl: 52
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    ARMOR: 37
+    INTELLECT: 4
+    SPELL_DAMAGE: 14
+    SPIRIT: 5
+    STAMINA: 4
+  source: "Drops from High Interrogator Gerstahn in Blackrock Depths."
+- id: 13203
+  name: "Armswake Cloak"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_misc_cape_19.png"
+  stats:
+    ARMOR: 43
+    ATTACK_POWER: 16
+    STAMINA: 15
+  source: "Drops from Ghok Bashguud in Lower Blackrock Spire (LBRS)."
+- id: 18689
+  name: "Phantasmal Cloak"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    ARMOR: 114
+    STAMINA: 11
+    STRENGTH: 12
+  source: "Drops from Jandice Barov in Scholomance."
+- id: 13397
+  name: "Stoneskin Gargoyle Cape"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_misc_cape_19.png"
+  stats:
+    AGILITY: 8
+    ARMOR: 43
+    STAMINA: 14
+    STRENGTH: 7
+  source: "Drops from Stonespine in Stratholme Undead."
+- id: 13340
+  name: "Cape of the Black Baron"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    AGILITY: 15
+    ATTACK_POWER: 20
+  source: "Drops from Baron Rivendare in Stratholme Undead."
+- id: 15138
+  name: "Onyxia Scale Cloak"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  icon: "Inv_misc_cape_05.png"
+  stats:
+    FIRE_RESISTANCE: 16
+    STAMINA: 7
+  special_equip_effects: ["Equip: Protects the wearer from being fully engulfed by Shadow Flame."]
+  source: "Crafted by leatherworkers."
+- id: 17078
+  name: "Sapphiron Drape"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_misc_cape_16.png"
+  stats:
+    ARCANE_RESISTANCE: 6
+    ARMOR: 55
+    FROST_RESISTANCE: 6
+    INTELLECT: 17
+    SPELL_DAMAGE: 14
+    STAMINA: 10
+  source: "Drops from Onyxia in Onyxia's Lair."
+- id: 17107
+  name: "Dragon's Blood Cape"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_misc_cape_08.png"
+  stats:
+    ARCANE_RESISTANCE: 5
+    ARMOR: 116
+    FIRE_RESISTANCE: 5
+    SHADOW_RESISTANCE: 5
+    STAMINA: 22
+    STRENGTH: 9
+  source: "Drops from Ragnaros in Molten Core."
+- id: 17102
+  name: "Cloak of the Shrouded Mists"
+  phase: 1
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_misc_cape_17.png"
+  stats:
+    AGILITY: 22
+    ARMOR: 57
+    FIRE_RESISTANCE: 6
+    NATURE_RESISTANCE: 6
+    STAMINA: 12
+  source: "Drops from Ragnaros in Molten Core."
+- id: 20697
+  name: "Crystalline Threaded Cape"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  icon: "Inv_misc_cape_19.png"
+  stats:
+    ARMOR: 45
+    INTELLECT: 4
+    SPELL_DAMAGE: 20
+    STAMINA: 5
+  source: "Contained in 'Sack of Spoils' reward from Silithus quests \"Signet of the Dukes\" and \"Abyssal Signets\""
+- id: 18204
+  name: "Eskhandar's Pelt"
+  phase: 2
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_misc_cape_07.png"
+  stats:
+    ARMOR: 51
+    CRIT_CHANCE: 0.01
+    STAMINA: 20
+  source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
+- id: 18509
+  name: "Chromatic Cloak"
+  phase: 2
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_misc_cape_02.png"
+  stats:
+    FIRE_RESISTANCE: 9
+    SHADOW_RESISTANCE: 9
+    SPELL_CRIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Crafted by leatherworkers."
+- id: 18541
+  name: "Puissant Cape"
+  phase: 2
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_misc_cape_06.png"
+  stats:
+    ARMOR: 54
+    ATTACK_POWER: 40
+    HIT_CHANCE: 0.01
+    STAMINA: 12
+  source: "Drops from Azuregos (world boss)."
+- id: 19083
+  name: "Frostwolf Legionnaire's Cloak"
+  phase: 2
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_misc_cape_16.png"
+  stats:
+    ARMOR: 43
+    ATTACK_POWER: 24
+    FROST_RESISTANCE: 5
+    STAMINA: 11
+  source: "Grunnda Wolfheart. Requires Honored with Alterac Valley."
+- id: 19436
+  name: "Cloak of Draconic Might"
+  phase: 3
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  icon: "Inv_misc_cape_11.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 54
+    STAMINA: 4
+    STRENGTH: 16
+  source: "Drops from trash in Blackwing Lair."
+- id: 19398
+  name: "Cloak of Firemaw"
+  phase: 3
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_misc_cape_18.png"
+  stats:
+    ARMOR: 57
+    ATTACK_POWER: 50
+    STAMINA: 12
+  source: "Drops from Firemaw in Blackwing Lair."
+- id: 19378
+  name: "Cloak of the Brood Lord"
+  phase: 3
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    ARMOR: 63
+    INTELLECT: 14
+    SPELL_DAMAGE: 28
+    STAMINA: 10
+  source: "Drops from Nefarian in Blackwing Lair."
+  flavour_text: "\"The threading is unlike anything you have ever seen. It appears metallic in origin.\""
+- id: 20073
+  name: "Cloak of the Honor Guard"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_misc_cape_02.png"
+  faction: "ALLIANCE"
+  stats:
+    AGILITY: 5
+    ARMOR: 50
+    ATTACK_POWER: 34
+    STAMINA: 11
+  source: "Requires Exalted with The League of Arathor (Arathi Basin)."
+- id: 20068
+  name: "Deathguard's Cloak"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_misc_cape_02.png"
+  faction: "HORDE"
+  stats:
+    AGILITY: 5
+    ARMOR: 50
+    ATTACK_POWER: 34
+    STAMINA: 11
+  source: "Requires Exalted with The Defilers (Arathi Basin)."
+- id: 22712
+  name: "Might of the Tribe"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_misc_cape_16.png"
+  stats:
+    ARMOR: 48
+    ATTACK_POWER: 28
+    STAMINA: 18
+  source: "Drops from multiple bosses in Zul'Gurub."
+- id: 19907
+  name: "Zulian Tigerhide Cloak"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_misc_cape_10.png"
+  stats:
+    AGILITY: 13
+    ARMOR: 48
+    HIT_CHANCE: 0.01
+    STAMINA: 10
+  source: "Drops from High Priest Venoxis in Zul'Gurub."
+- id: 22711
+  name: "Cloak of the Hakkari Worshipers"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_misc_cape_16.png"
+  stats:
+    ARMOR: 48
+    INTELLECT: 6
+    SPELL_DAMAGE: 23
+    STAMINA: 6
+  source: "Drops from High Priest and Priestess bosses in Zul'Gurub."
+- id: 19857
+  name: "Cloak of Consumption"
+  phase: 4
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_misc_cape_22.png"
+  stats:
+    ARMOR: 52
+    INTELLECT: 10
+    SPELL_DAMAGE: 23
+    SPELL_HIT_CHANCE: 0.01
+  source: "Drops from Hakkar in Zul'Gurub."
+- id: 22269
+  name: "Shadow Prowler's Cloak"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    AGILITY: 17
+    ARMOR: 45
+    STAMINA: 7
+  source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
+- id: 22337
+  name: "Shroud of Domination"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_misc_cape_19.png"
+  stats:
+    ARMOR: 45
+    STAMINA: 7
+    STRENGTH: 17
+  source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
+- id: 21394
+  name: "Drape of Unyielding Strength"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_misc_cape_20.png"
+  class_restrictions: ["WARRIOR"]
+  stats:
+    AGILITY: 9
+    ARMOR: 52
+    HIT_CHANCE: 0.01
+    STAMINA: 9
+    STRENGTH: 15
+  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
+- id: 21397
+  name: "Cape of Eternal Justice"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_misc_cape_14.png"
+  class_restrictions: ["PALADIN"]
+  stats:
+    ARMOR: 52
+    INTELLECT: 12
+    MANA_PER_5: 5
+    STAMINA: 13
+    STRENGTH: 11
+  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
+- id: 21406
+  name: "Cloak of Veiled Shadows"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_misc_cape_19.png"
+  class_restrictions: ["ROGUE"]
+  stats:
+    AGILITY: 18
+    ARMOR: 52
+    HIT_CHANCE: 0.01
+    STAMINA: 11
+  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
+- id: 21403
+  name: "Cloak of the Unseen Path"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_misc_cape_15.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 17
+    ARMOR: 52
+    HIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
+- id: 21415
+  name: "Drape of Vaulted Secrets"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 67
+  icon: "Inv_misc_cape_19.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 52
+    INTELLECT: 9
+    SPELL_DAMAGE: 18
+    SPIRIT: 6
+    STAMINA: 14
+  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
+- id: 20691
+  name: "Windshear Cape"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_misc_cape_20.png"
+  stats:
+    AGILITY: 15
+    ARMOR: 50
+    INTELLECT: 7
+    STAMINA: 14
+    STRENGTH: 8
+  source: "Drops from High Marshal Whirlaxis (summonable raid boss in Silithus)."
+- id: 21697
+  name: "Cape of the Trinity"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_misc_cape_18.png"
+  stats:
+    ARMOR: 57
+    INTELLECT: 12
+    SPELL_DAMAGE: 21
+    STAMINA: 17
+  source: "Drops from Bug Trio in Temple of Ahn'Qiraj (AQ40)."
+- id: 21621
+  name: "Cloak of the Golden Hive"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_misc_cape_01.png"
+  stats:
+    AGILITY: 10
+    ARMOR: 59
+    DEFENSE: 6
+    STAMINA: 19
+    STRENGTH: 13
+  source: "Drops from Princess Huhuran in Temple of Ahn'Qiraj (AQ40)."
+- id: 21701
+  name: "Cloak of Concentrated Hatred"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_misc_cape_02.png"
+  stats:
+    AGILITY: 16
+    ARMOR: 56
+    HIT_CHANCE: 0.01
+    STAMINA: 15
+    STRENGTH: 11
+  source: "Drops from Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
+- id: 21710
+  name: "Cloak of the Fallen God"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_misc_cape_10.png"
+  stats:
+    AGILITY: 26
+    ARMOR: 66
+    STAMINA: 15
+    STRENGTH: 11
+  mutex: [21712, 21709]
+  source: "Quest reward. Requires Eye of C'Thun from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 22731
+  name: "Cloak of the Devoured"
+  phase: 5
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_misc_cape_18.png"
+  stats:
+    ARMOR: 66
+    INTELLECT: 10
+    SPELL_DAMAGE: 30
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 11
+  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
+- id: 23127
+  name: "Cloak of Revanchion"
+  phase: 6
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_misc_cape_02.png"
+  stats:
+    AGILITY: 10
+    ARMOR: 45
+    STAMINA: 11
+    STRENGTH: 10
+  source: "Drops from Revanchion in Dire Maul during Scourge Invasion event."
+- id: 23030
+  name: "Cloak of the Scourge"
+  phase: 6
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_misc_cape_naxxramas_01.png"
+  stats:
+    ARMOR: 63
+    ATTACK_POWER: 30
+    HIT_CHANCE: 0.01
+    STAMINA: 23
+  source: "Drops from Noth the Plaguebringer in Naxxramas."
+- id: 23017
+  name: "Veil of Eclipse"
+  phase: 6
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_misc_cape_naxxramas_01.png"
+  stats:
+    ARMOR: 63
+    INTELLECT: 10
+    SPELL_DAMAGE: 28
+    SPELL_PENETRATION: 10
+    STAMINA: 10
+  source: "Drops from Instructor Razuvious in Naxxramas."
+- id: 23405
+  name: "Shroud of Dominion"
+  phase: 6
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 90
+  icon: "Inv_misc_cape_naxxramas_03.png"
+  stats:
+    ARMOR: 68
+    ATTACK_POWER: 50
+    CRIT_CHANCE: 0.01
+    STAMINA: 11
+  source: "Drops from Sapphiron in Naxxramas."
+- id: 23050
+  name: "Cloak of the Necropolis"
+  phase: 6
+  slot: "BACK"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 90
+  icon: "Inv_misc_cape_naxxramas_03.png"
+  stats:
+    ARMOR: 68
+    INTELLECT: 11
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 26
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 12
+  source: "Drops from Sapphiron in Naxxramas."

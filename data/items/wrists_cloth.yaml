@@ -1,0 +1,470 @@
+# Generated from ClassicSim Items/Wrists/cloth.xml by tools/convert_items.py.
+
+- id: 16683
+  name: "Magister's Bindings"
+  phase: 1
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  icon: "Inv_jewelry_ring_23.png"
+  stats:
+    ARMOR: 35
+    INTELLECT: 15
+    SPIRIT: 5
+    STAMINA: 4
+  source: "Drops from caster trash mobs in Blackrock Spire."
+- id: 14629
+  name: "Necropile Cuffs"
+  phase: 1
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 38
+    INTELLECT: 11
+    SPIRIT: 7
+    STAMINA: 13
+  source: "Drops from multiple bosses in Scholomance."
+- id: 13107
+  name: "Magiskull Cuffs"
+  phase: 1
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  icon: "Inv_bracer_13.png"
+  stats:
+    ARMOR: 38
+    INTELLECT: 17
+    STAMINA: 7
+  source: "World drop."
+- id: 18263
+  name: "Flarecore Wraps"
+  phase: 1
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 64
+  boe: true
+  icon: "Inv_bracer_09.png"
+  stats:
+    ARMOR: 43
+    FIRE_RESISTANCE: 7
+    INTELLECT: 8
+    MANA_PER_5: 9
+  source: "Crafted by Tailorers. Requires materials from Molten Core."
+- id: 16799
+  name: "Arcanist Bindings"
+  phase: 1
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  boe: true
+  icon: "Inv_belt_29.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 44
+    INTELLECT: 15
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 12
+    SPIRIT: 6
+    STAMINA: 8
+  source: "Drops from trash mobs in Molten Core."
+- id: 18497
+  name: "Sublime Wristguards"
+  phase: 2
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_bracer_13.png"
+  stats:
+    ARMOR: 37
+    INTELLECT: 10
+    SPELL_DAMAGE: 12
+    SPIRIT: 6
+    STAMINA: 6
+  source: "Drops from multiple bosses in Scholomance."
+- id: 18456
+  name: "Sergeant Major's Silk Cuffs"
+  phase: 2
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_bracer_07.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 39
+    INTELLECT: 7
+    STAMINA: 17
+  source: "May be purchased upon reaching Sergeant Major (rank 5). Alliance only."
+- id: 16486
+  name: "First Sergeant's Silk Cuffs"
+  phase: 2
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_bracer_07.png"
+  faction: "HORDE"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 39
+    INTELLECT: 7
+    STAMINA: 17
+  source: "May be purchased upon reaching First Sergeant (rank 5). Horde only."
+- id: 19135
+  name: "Blacklight Bracer"
+  phase: 2
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 44
+    INTELLECT: 13
+    SPELL_CRIT_CHANCE: 0.01
+    SPIRIT: 8
+    STAMINA: 11
+  source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
+- id: 19595
+  name: "Dryad's Wrist Bindings"
+  phase: 3
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_bracer_13.png"
+  stats:
+    ARMOR: 44
+    INTELLECT: 8
+    SPELL_DAMAGE: 22
+    SPIRIT: 7
+    STAMINA: 8
+  source: "Sold by Warsong Gulch vendors. Requires Exalted with Warsong Gulch faction."
+- id: 19374
+  name: "Bracers of Arcane Accurary"
+  phase: 3
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 50
+    INTELLECT: 12
+    SPELL_DAMAGE: 21
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from Broodlord Lashlayer in Blackwing Lair."
+- id: 16918
+  name: "Netherwind Bindings"
+  phase: 3
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_bracer_09.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 51
+    INTELLECT: 15
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 19
+    SPIRIT: 8
+    STAMINA: 9
+  source: "Drops from Razorgore the Untamed in Blackwing Lair."
+- id: 16934
+  name: "Nemesis Bracers"
+  phase: 3
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_bracer_07.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 51
+    INTELLECT: 11
+    SPELL_DAMAGE: 15
+    SPIRIT: 6
+    STAMINA: 21
+  source: "Drops from Razorgore the Untamed in Blackwing Lair."
+- id: 20626
+  name: "Black Bark Wristbands"
+  phase: 4
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 48
+    INTELLECT: 4
+    SPELL_DAMAGE: 25
+    SPIRIT: 4
+    STAMINA: 15
+  source: "Drops from Lethon (world boss in The Hinterlands)."
+- id: 22313
+  name: "Ironweave Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_bracer_13.png"
+  class_restrictions: ["MAGE", "PRIEST", "WARLOCK"]
+  stats:
+    ARMOR: 108
+    INTELLECT: 8
+    STAMINA: 14
+  source: "Drops from Halycon in Lower Blackrock Spire (LBRS)."
+- id: 19846
+  name: "Zandalar Illusionist's Wraps"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 61
+  icon: "Inv_bracer_07.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 41
+    INTELLECT: 11
+    SPELL_DAMAGE: 14
+    SPIRIT: 9
+    STAMINA: 11
+  source: "Quest reward. Requires boss drop from Zul'Gurub and Friendly with Zandalar Tribe."
+- id: 21186
+  name: "Rockfury Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 62
+  icon: "Inv_bracer_12.png"
+  stats:
+    ARMOR: 42
+    SPELL_DAMAGE: 27
+    SPELL_HIT_CHANCE: 0.01
+    STAMINA: 7
+  mutex: [21184, 21185, 21189]
+  source: "Quest reward. Requires quest grinding in Silithus and Revered with Cenarion Circle."
+- id: 22071
+  name: "Deathmist Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 65
+  icon: "Inv_bracer_13.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 40
+    INTELLECT: 12
+    SPELL_DAMAGE: 8
+    STAMINA: 12
+  source: "Quest reward. Requires Dreadmist Bracers."
+- id: 22063
+  name: "Sorcerer's Bindings"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 65
+  icon: "Inv_jewelry_ring_23.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 40
+    INTELLECT: 12
+    SPELL_DAMAGE: 8
+    SPIRIT: 5
+    STAMINA: 8
+  source: "Quest reward. Requires Magister's Bindings."
+- id: 22079
+  name: "Virtuous Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 65
+  icon: "Inv_belt_31.png"
+  class_restrictions: ["PRIEST"]
+  stats:
+    ARMOR: 40
+    INTELLECT: 8
+    MANA_PER_5: 2
+    SPELL_DAMAGE: 9
+    SPIRIT: 8
+    STAMINA: 8
+  source: "Quest reward. Requires Devout Bracers."
+- id: 20690
+  name: "Abyssal Cloth Wristbands of Sorcery"
+  phase: 4
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_bracer_12.png"
+  stats:
+    ARMOR: 42
+    INTELLECT: 11
+    SPELL_DAMAGE: 14
+    STAMINA: 11
+  source: "Drops from High Marshal Whirlaxis, a summonable raid boss in Silithus."
+- id: 21496
+  name: "Bracers of Qiraji Command"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_bracer_13.png"
+  stats:
+    ARMOR: 44
+    INTELLECT: 13
+    MANA_PER_5: 4
+    STAMINA: 12
+  source: "Drops from General Rajaxx in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21464
+  name: "Shackles of the Unscarred"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 72
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 48
+    INTELLECT: 12
+    SPELL_DAMAGE: 21
+    SPELL_PENETRATION: 10
+    STAMINA: 9
+  source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21611
+  name: "Burrower Bracers"
+  phase: 5
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_bracer_13.png"
+  stats:
+    ARMOR: 54
+    INTELLECT: 13
+    SPELL_DAMAGE: 28
+    STAMINA: 10
+  source: "Drops from Ouro in Temple of Ahn'Qiraj (AQ40)."
+- id: 23091
+  name: "Bracers of Undead Cleansing"
+  phase: 6
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "RARE"
+  req_lvl: 58
+  item_lvl: 63
+  icon: "Inv_bracer_12.png"
+  stats:
+    ARMOR: 39
+    INTELLECT: 7
+    SPELL_DAMAGE_UNDEAD: 26
+    STAMINA: 6
+  source: "Drops from elites spawned during the Scourge Invasion event."
+- id: 22655
+  name: "Glacial Wrists"
+  phase: 6
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 80
+  boe: true
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 53
+    FROST_RESISTANCE: 20
+    SPELL_DAMAGE: 12
+    STAMINA: 20
+  source: "Crafted by Argent Dawn NPC. Requires expensive materials to craft."
+- id: 23021
+  name: "The Soul Harvester's Bindings"
+  phase: 6
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 83
+  icon: "Inv_bracer_07.png"
+  stats:
+    ARMOR: 55
+    INTELLECT: 11
+    SPELL_CRIT_CHANCE: 0.01
+    SPELL_DAMAGE: 21
+    STAMINA: 14
+  source: "Drops from Gothik the Harvester in Naxxramas."
+- id: 22503
+  name: "Frostfire Bindings"
+  phase: 6
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_bracer_13.png"
+  class_restrictions: ["MAGE"]
+  stats:
+    ARMOR: 58
+    INTELLECT: 15
+    SPELL_DAMAGE: 27
+    SPELL_PENETRATION: 10
+    STAMINA: 14
+  source: "Quest reward. Requires boss drops from Naxxramas."
+- id: 22511
+  name: "Plagueheart Bindings"
+  phase: 6
+  slot: "WRIST"
+  type: "CLOTH"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_bracer_13.png"
+  class_restrictions: ["WARLOCK"]
+  stats:
+    ARMOR: 58
+    INTELLECT: 14
+    SPELL_DAMAGE: 23
+    STAMINA: 23
+  source: "Quest reward. Requires boss drops from Naxxramas."

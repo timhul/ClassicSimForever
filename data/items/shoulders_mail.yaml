@@ -1,0 +1,294 @@
+# Generated from ClassicSim Items/Shoulders/mail.xml by tools/convert_items.py.
+
+- id: 16679
+  name: "Beaststalker's Mantle"
+  phase: 1
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_shoulder_10.png"
+  stats:
+    AGILITY: 11
+    ARMOR: 266
+    INTELLECT: 7
+    SPIRIT: 4
+    STAMINA: 17
+  source: "Drops from Overlord Wyrmthalak in Lower Blackrock Spire (LBRS)."
+- id: 15051
+  name: "Black Dragonscale Shoulders"
+  phase: 1
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  icon: "Inv_shoulder_01.png"
+  stats:
+    ARMOR: 266
+    ATTACK_POWER: 40
+    FIRE_RESISTANCE: 6
+    STAMINA: 9
+  source: "Crafted by Leatherworkers. Pattern drops in Blackrock Depths."
+- id: 16848
+  name: "Giantstalker's Epaulets"
+  phase: 1
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_shoulder_10.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 24
+    ARMOR: 317
+    HIT_CHANCE: 0.01
+    INTELLECT: 5
+    SHADOW_RESISTANCE: 7
+    SPIRIT: 9
+    STAMINA: 14
+  source: "Drops from Sulfuron Harbinger in Molten Core."
+- id: 23307
+  name: "Lieutenant Commander's Chain Shoulders"
+  phase: 2
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_shoulder_16.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 311
+    CRIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Lieutenant Commander (rank 10)."
+- id: 23252
+  name: "Champion's Chain Shoulders"
+  phase: 2
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_shoulder_01.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 311
+    CRIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Champion (rank 10)."
+- id: 16468
+  name: "Field Marshal's Chain Spaulders"
+  phase: 2
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_shoulder_10.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 403
+    HIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 21
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13)."
+- id: 16568
+  name: "Warlord's Chain Shoulders"
+  phase: 2
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 74
+  icon: "Inv_shoulder_29.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 403
+    HIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 21
+  source: "Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13)."
+- id: 16937
+  name: "Dragonstalker's Spaulders"
+  phase: 3
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_shoulder_10.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 23
+    ARMOR: 362
+    FIRE_RESISTANCE: 10
+    HIT_CHANCE: 0.01
+    INTELLECT: 13
+    SPIRIT: 6
+    STAMINA: 15
+  source: "Drops from Chromaggus in Blackwing Lair."
+- id: 19373
+  name: "Black Brood Pauldrons"
+  phase: 3
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_shoulder_14.png"
+  stats:
+    AGILITY: 17
+    ARMOR: 357
+    INTELLECT: 15
+    MANA_PER_5: 9
+    STAMINA: 12
+  source: "Drops from Broodlord Lashlayer in Blackwing Lair."
+- id: 19691
+  name: "Bloodsoul Shoulders"
+  phase: 4
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_shoulder_15.png"
+  stats:
+    AGILITY: 24
+    ARMOR: 286
+    STAMINA: 10
+  source: "Crafted by Blacksmiths (300 skill). Pattern requires Honored with Zandalar Tribe."
+- id: 20055
+  name: "Highlander's Chain Pauldrons"
+  phase: 4
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_shoulder_01.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 312
+    INTELLECT: 17
+    STAMINA: 18
+  source: "Requires Exalted with The League of Arathor (Arathi Basin)."
+- id: 20158
+  name: "Defiler's Chain Pauldrons"
+  phase: 4
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_shoulder_01.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER", "SHAMAN"]
+  stats:
+    AGILITY: 20
+    ARMOR: 312
+    INTELLECT: 17
+    STAMINA: 18
+  source: "Requires Exalted with The Defilers (Arathi Basin)."
+- id: 19831
+  name: "Zandalar Predator's Mantle"
+  phase: 4
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_shoulder_22.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 22
+    ARMOR: 326
+    INTELLECT: 11
+    MANA_PER_5: 4
+    STAMINA: 15
+  source: "Quest reward. Requires boss drop from Zul'Gurub and Revered with Zandalar Tribe."
+- id: 21699
+  name: "Barrage Shoulders"
+  phase: 5
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_shoulder_14.png"
+  stats:
+    AGILITY: 29
+    ARMOR: 348
+    STAMINA: 22
+  source: "Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
+- id: 21367
+  name: "Striker's Pauldrons"
+  phase: 5
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_shoulder_36.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 26
+    ARMOR: 384
+    INTELLECT: 11
+    SPELL_DAMAGE: 6
+    SPIRIT: 5
+    STAMINA: 24
+  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
+- id: 22016
+  name: "Beastmaster's Mantle"
+  phase: 5
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_shoulder_10.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 286
+    INTELLECT: 10
+    STAMINA: 18
+  source: "Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle."
+- id: 22439
+  name: "Crypstalker Spaulders"
+  phase: 6
+  slot: "SHOULDERS"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 86
+  icon: "Inv_shoulder_14.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 29
+    ARMOR: 406
+    CRIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 23
+  source: "Quest reward. Requires boss drops from Naxxramas."

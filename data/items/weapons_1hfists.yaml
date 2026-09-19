@@ -1,0 +1,241 @@
+# Generated from ClassicSim Items/Weapons/1hFists.xml by tools/convert_items.py.
+
+- id: 13198
+  name: "Hurd Smasher"
+  phase: 1
+  slot: "MH"
+  type: "FIST"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_gauntlets_11.png"
+  damage:
+    min: 49
+    max: 93
+    speed: 1.8
+  special_equip_effects: ["Chance on hit: Knocks target silly for 2 sec."]
+  source: "Drops from Ghok Bashguud in Lower Blackrock Spire (LBRS)."
+- id: 18203
+  name: "Eskhandar's Right Claw"
+  phase: 1
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_misc_monsterclaw_04.png"
+  damage:
+    min: 50
+    max: 94
+    speed: 1.5
+  stats:
+    AGILITY: 4
+  procs:
+    - name: "GENERIC_STAT_BUFF"
+      rate: 0.025
+      duration: 5
+      amount: 30
+      instant: true
+      stat: "ATTACK_SPEED"
+      sources:
+        melee_weapon_side: true
+  special_equip_effects: ["Chance on hit: Increases your attack speed by 30% for 5 sec."]
+  source: "Drops from Magmadar in Molten Core."
+- id: 18202
+  name: "Eskhandar's Left Claw"
+  phase: 1
+  slot: "OH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_misc_monsterclaw_04.png"
+  damage:
+    min: 50
+    max: 94
+    speed: 1.5
+  stats:
+    AGILITY: 4
+  procs:
+    - name: "PHYSICAL_DOT"
+      rate: 0.05
+      duration: 30
+      tick_rate: 1.0
+      amount: 5
+  special_equip_effects: ["Chance on hit: Slows enemy's movement by 60% and causes them to bleed for 150 damage over 30 sec."]
+  source: "Drops from Azuregos (world boss)."
+- id: 18844
+  name: "High Warlord's Right Claw"
+  phase: 2
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_misc_monsterclaw_03.png"
+  faction: "HORDE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18843
+  name: "Grand Marshal's Right Hand Blade"
+  phase: 2
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_weapon_shortblade_07.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 18848
+  name: "High Warlord's Razor Claw"
+  phase: 2
+  slot: "OH"
+  type: "FIST"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Inv_misc_monsterclaw_04.png"
+  faction: "HORDE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
+- id: 18847
+  name: "Grand Marshal's Razor Hand Blade"
+  phase: 2
+  slot: "OH"
+  type: "FIST"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 78
+  icon: "Ability_rogue_rupture.png"
+  faction: "ALLIANCE"
+  damage:
+    min: 138
+    max: 207
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
+- id: 19365
+  name: "Claw of the Black Drake"
+  phase: 3
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 75
+  icon: "Inv_weapon_shortblade_27.png"
+  damage:
+    min: 102
+    max: 191
+    speed: 2.6
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 7
+    STRENGTH: 13
+  source: "Drops from Firemaw in Blackwing Lair."
+- id: 19910
+  name: "Arlokk's Grasp"
+  phase: 4
+  slot: "OH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_weapon_hand_01.png"
+  damage:
+    min: 41
+    max: 85
+    speed: 1.5
+  procs:
+    - name: "SHADOW_ATTACK"
+      rate: 0.025
+      min: 55
+      max: 86
+      spell_dmg_coefficient: 0.0
+      instant: true
+  special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 55 to 86 Shadow damage."]
+  source: "Drops from High Priestess Arlokk in Zul'Gurub."
+- id: 19896
+  name: "Thekal's Grasp"
+  phase: 4
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  icon: "Inv_weapon_hand_01.png"
+  damage:
+    min: 72
+    max: 135
+    speed: 2.2
+  stats:
+    CRIT_CHANCE: 0.01
+    STAMINA: 13
+  source: "Drops from High Priest Thekal in Zul'Gurub."
+- id: 21673
+  name: "Silithid Claw"
+  phase: 5
+  slot: "MH"
+  type: "FIST"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_misc_monsterclaw_03.png"
+  damage:
+    min: 64
+    max: 120
+    speed: 1.6
+  stats:
+    ATTACK_POWER: 30
+    CRIT_CHANCE: 0.01
+  source: "Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40)."
+- id: 23242
+  name: "Claw of the Frost Wyrm"
+  phase: 6
+  slot: "OH"
+  type: "FIST"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_weapon_hand_03.png"
+  damage:
+    min: 75
+    max: 140
+    speed: 1.5
+  stats:
+    ATTACK_POWER: 22
+    CRIT_CHANCE: 0.01
+    HIT_CHANCE: 0.01
+    STAMINA: 8
+  source: "Drops from Sapphiron in Naxxramas."

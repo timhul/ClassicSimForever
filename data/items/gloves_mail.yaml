@@ -1,0 +1,401 @@
+# Generated from ClassicSim Items/Gloves/mail.xml by tools/convert_items.py.
+
+- id: 13255
+  name: "Trueaim Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  icon: "Inv_gauntlets_30.png"
+  stats:
+    ARMOR: 218
+    BOW_SKILL: 8
+    CROSSBOW_SKILL: 8
+    GUN_SKILL: 8
+    HIT_CHANCE: 0.01
+  source: "Drops from Shadow Hunter Vosh'gajin in Blackrock Spire (LBRS)."
+- id: 14551
+  name: "Edgemaster's Handguards"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 44
+  item_lvl: 49
+  boe: true
+  icon: "Inv_gauntlets_30.png"
+  stats:
+    ARMOR: 201
+    AXE_SKILL: 7
+    DAGGER_SKILL: 7
+    SWORD_SKILL: 7
+  source: "World drop."
+- id: 11867
+  name: "Maddening Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "UNCOMMON"
+  req_lvl: 48
+  item_lvl: 53
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    AGILITY: 5
+    ARMOR: 180
+    STRENGTH: 15
+  mutex: [11868]
+  source: "Quest reward. Trivial quest in Burning Steppes."
+- id: 17736
+  name: "Rockgrip Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 48
+  item_lvl: 53
+  icon: "Inv_gauntlets_28.png"
+  stats:
+    ARMOR: 198
+    ATTACK_POWER: 28
+    INTELLECT: 10
+    STAMINA: 10
+  source: "Drops from Landslide in Maraudon."
+- id: 4513
+  name: "Brazen Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "UNCOMMON"
+  req_lvl: 48
+  item_lvl: 54
+  icon: "Inv_gauntlets_04.png"
+  stats:
+    AGILITY: 12
+    ARMOR: 183
+    STAMINA: 2
+    STRENGTH: 12
+  mutex: [12050]
+  source: "Quest reward. Trivial quest mostly taking part in Un'Goro Crater."
+- id: 16676
+  name: "Beaststalker's Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  icon: "Inv_gauntlets_10.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 218
+    INTELLECT: 9
+    SPIRIT: 10
+    STAMINA: 9
+  source: "Drops from War Master Voone in Lower Blackrock Spire (LBRS)."
+- id: 11730
+  name: "Savage Gladiator Grips"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 52
+  item_lvl: 57
+  icon: "Inv_gauntlets_04.png"
+  stats:
+    AGILITY: 9
+    ARMOR: 211
+    INTELLECT: 12
+    STAMINA: 14
+    STRENGTH: 5
+  source: "Drops from Eviscerator in the Arena in Blackrock Depths (BRD)."
+- id: 13963
+  name: "Voone's Vice Grips"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 55
+  item_lvl: 60
+  icon: "Inv_gauntlets_15.png"
+  stats:
+    AGILITY: 9
+    ARMOR: 221
+    HIT_CHANCE: 0.02
+    STAMINA: 6
+  mutex: [13959, 13958, 13961, 13962]
+  source: "Quest reward. Part of Onyxia quest chain. Requires LBRS."
+- id: 14615
+  name: "Bloodmail Gauntlets"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 56
+  item_lvl: 61
+  icon: "Inv_gauntlets_26.png"
+  stats:
+    ARMOR: 225
+    CRIT_CHANCE: 0.01
+    INTELLECT: 10
+    STAMINA: 10
+    STRENGTH: 9
+  source: "Drops from multiple bosses in Scholomance."
+- id: 16852
+  name: "Giantstalker's Gloves"
+  phase: 1
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_10.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 264
+    FIRE_RESISTANCE: 7
+    HIT_CHANCE: 0.02
+    STAMINA: 12
+  source: "Drops from Shazzrah in Molten Core."
+- id: 23279
+  name: "Knight-Lieutenant's Chain Vices"
+  phase: 2
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_17.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 242
+    STAMINA: 16
+  modifies: ["Multi-Shot"]
+  special_equip_effects: ["Equip: Increases the damage done by your Multi-Shot by 4%."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7)."
+- id: 22862
+  name: "Blood Guard's Chain Vices"
+  phase: 2
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  unique: true
+  req_lvl: 60
+  item_lvl: 66
+  icon: "Inv_gauntlets_17.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 18
+    ARMOR: 242
+    STAMINA: 16
+  modifies: ["Multi-Shot"]
+  special_equip_effects: ["Equip: Increases the damage done by your Multi-Shot by 4%."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Blood Guard (rank 7)."
+- id: 16463
+  name: "Marshal's Chain Grips"
+  phase: 2
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_10.png"
+  faction: "ALLIANCE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 21
+    ARMOR: 323
+    CRIT_CHANCE: 0.01
+    INTELLECT: 4
+    STAMINA: 20
+  modifies: ["Multi-Shot"]
+  special_equip_effects: ["Equip: Increases the damage done by your Multi-Shot by 4%."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12)."
+- id: 16571
+  name: "General's Chain Gloves"
+  phase: 2
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  unique: true
+  req_lvl: 60
+  item_lvl: 71
+  icon: "Inv_gauntlets_11.png"
+  faction: "HORDE"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 21
+    ARMOR: 323
+    CRIT_CHANCE: 0.01
+    INTELLECT: 4
+    STAMINA: 20
+  modifies: ["Multi-Shot"]
+  special_equip_effects: ["Equip: Increases the damage done by your Multi-Shot by 4%."]
+  source: "Purchased with Honor Points and Alterac Valley marks. Requires General (rank 12)."
+- id: 19157
+  name: "Chromatic Gauntlets"
+  phase: 3
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  boe: true
+  icon: "Inv_gauntlets_22.png"
+  stats:
+    ARMOR: 279
+    ATTACK_POWER: 44
+    CRIT_CHANCE: 0.01
+    FIRE_RESISTANCE: 5
+    FROST_RESISTANCE: 5
+    NATURE_RESISTANCE: 5
+    SHADOW_RESISTANCE: 5
+    SPELL_CRIT_CHANCE: 0.01
+  source: "Crafted by Leatherworking (300 Dragonscale skill). Pattern requires Revered with Thorium Brotherhood."
+- id: 16940
+  name: "Dragonstalker's Gauntlets"
+  phase: 3
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 76
+  icon: "Inv_gauntlets_10.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 20
+    ARMOR: 301
+    CRIT_CHANCE: 0.01
+    INTELLECT: 13
+    SHADOW_RESISTANCE: 10
+    SPIRIT: 6
+    STAMINA: 17
+  source: "Drops from Ebonroc, Flamegor, and Firemaw in Blackwing Lair."
+- id: 19692
+  name: "Bloodsoul Gauntlets"
+  phase: 4
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  icon: "Inv_gauntlets_31.png"
+  stats:
+    AGILITY: 10
+    ARMOR: 238
+    CRIT_CHANCE: 0.01
+    STAMINA: 17
+  source: "Crafted by Blacksmiths (300 skill). Pattern requires Friendly with Zandalar Tribe."
+- id: 22715
+  name: "Gloves of the Tormented"
+  phase: 4
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 68
+  icon: "Inv_gauntlets_10.png"
+  stats:
+    AGILITY: 19
+    ARMOR: 249
+    CRIT_CHANCE: 0.01
+    STAMINA: 9
+  source: "Drops from High Priest and Priestess bosses in Zul'Gurub."
+- id: 21480
+  name: "Scaled Silithid Gauntlets"
+  phase: 5
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "RARE"
+  req_lvl: 60
+  item_lvl: 73
+  icon: "Inv_gauntlets_10.png"
+  stats:
+    AGILITY: 18
+    ARMOR: 266
+    INTELLECT: 8
+    SPIRIT: 7
+    STAMINA: 18
+  source: "Drops from Ayamiss the Hunter in Ruins of Ahn'Qiraj (AQ20)."
+- id: 21599
+  name: "Vek'lor's Gloves of Devastation"
+  phase: 5
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 81
+  icon: "Inv_gauntlets_28.png"
+  stats:
+    AGILITY: 22
+    ARMOR: 320
+    CRIT_CHANCE: 0.01
+    INTELLECT: 17
+    STAMINA: 21
+  source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
+- id: 22015
+  name: "Beastmaster's Gloves"
+  phase: 5
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 55
+  icon: "Inv_gauntlets_10.png"
+  stats:
+    AGILITY: 14
+    ARMOR: 223
+    INTELLECT: 10
+    STAMINA: 12
+  modifies: ["BEASTMASTER_HUNTER_PET"]
+  special_equip_effects: ["Equip: Increases your pet's critical strike chance by 2%."]
+  source: "Quest reward. Requires Beaststalker's Belt, Beaststalker's Gloves."
+- id: 22194
+  name: "Black Grasp of the Destroyer"
+  phase: 5
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 70
+  boe: true
+  icon: "Inv_gauntlets_31.png"
+  stats:
+    ARMOR: 279
+    ATTACK_POWER: 28
+    CRIT_CHANCE: 0.01
+  procs:
+    - name: "BLACK_GRASP_OF_THE_DESTROYER"
+      rate: 1.0
+      min: 8
+      max: 8
+      instant: true
+  special_equip_effects: ["Equip: On successful melee or ranged attack gain 8 mana and if possible drain 8 mana from the target."]
+  source: "Crafted by Blacksmiths. Recipe from Moam in AQ20 and requires material from AQ20/AQ40."
+- id: 22441
+  name: "Crypstalker Handguards"
+  phase: 6
+  slot: "GLOVES"
+  type: "MAIL"
+  quality: "EPIC"
+  req_lvl: 60
+  item_lvl: 88
+  icon: "Inv_gauntlets_25.png"
+  class_restrictions: ["HUNTER"]
+  stats:
+    AGILITY: 24
+    ARMOR: 346
+    CRIT_CHANCE: 0.01
+    INTELLECT: 15
+    MANA_PER_5: 4
+    STAMINA: 21
+  source: "Quest reward. Requires boss drops from Naxxramas."
