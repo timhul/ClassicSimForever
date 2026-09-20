@@ -1,0 +1,16 @@
+# Test fixture for rotation::spec (RotationDb::load). Not a real rotation; see data/rotations/.
+class: WARRIOR
+name: Fixture Fury
+attack_mode: melee
+description: A small fury rotation used by the loader tests.
+precombat_actions:
+  - Bloodrage
+  - Battle Shout
+cast_if:
+  - name: Bloodrage
+    condition: resource "Rage" less 70
+  - name: Bloodthirst
+    condition: |
+      variable "time_remaining_execute" greater 0
+      or variable "melee_ap" greater 2000
+  - name: Overpower
