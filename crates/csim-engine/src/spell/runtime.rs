@@ -869,6 +869,10 @@ impl Spell {
         if !host.stance().allowed_by_mask(record.shapeshift_mask) {
             return SpellStatus::in_stance(host.stance());
         }
+        // A stance spell does nothing while in its stance (the C++ stance spells' own check).
+        if self.stance().is_some_and(|stance| stance == host.stance()) {
+            return SpellStatus::in_stance(host.stance());
+        }
         let restrictions = &record.aura_restrictions;
         match restrictions.target_aura_state {
             AuraState::None => {}
