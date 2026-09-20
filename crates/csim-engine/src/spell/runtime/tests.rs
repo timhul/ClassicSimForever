@@ -178,7 +178,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     assert_eq!(attack.damage, 380);
     assert_eq!(attack.threat, 380.0);
     assert_eq!(attack.execution_time, 1.5);
-    assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
+    assert_eq!(report.proc_sources, vec![ProcSource::MainhandSpell]);
     assert!(report.buff.is_none());
     assert!(world.on_global_cooldown());
     assert!(world.aura_log.is_empty());
@@ -193,7 +193,11 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     world.rolls.push_back(PhysicalAttackResult::Critical);
     let report = world.perform(BLOODTHIRST);
     assert_eq!(report.attack.unwrap().damage, 760);
-    assert_eq!(report.proc_sources, vec![ProcSource::MeleeCritical]);
+    assert_eq!(
+        report.proc_sources,
+        vec![ProcSource::MainhandSpell, ProcSource::MeleeCritical],
+        "a crit is a landed ability and a crit"
+    );
 
     world.armor = 3731;
     world.run(20.5);
@@ -765,7 +769,7 @@ fn casting_time_spell_coefficient() {
 #[test]
 fn cast_reports_aggregate_triggered_spells() {
     let inner = CastReport {
-        proc_sources: vec![ProcSource::MeleeHit],
+        proc_sources: vec![ProcSource::MainhandSpell],
         attack: Some(AttackOutcome {
             result: PhysicalAttackResult::Hit,
             damage: 40,
@@ -787,7 +791,7 @@ fn cast_reports_aggregate_triggered_spells() {
     };
     assert_eq!(
         outer.all_proc_sources(),
-        vec![ProcSource::MeleeCritical, ProcSource::MeleeHit]
+        vec![ProcSource::MeleeCritical, ProcSource::MainhandSpell]
     );
     assert_eq!(outer.total_damage(), 140);
 }

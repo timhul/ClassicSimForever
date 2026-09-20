@@ -94,7 +94,8 @@ impl AutoAttack {
         self.offhand_penalty = penalty;
     }
 
-    /// The source a swing of this hand produces for the proc checks.
+    /// The source a landed swing of this hand produces for the proc checks (and the charge
+    /// consumption).
     pub fn proc_source(&self) -> ProcSource {
         match self.hand {
             Hand::Mainhand => ProcSource::MainhandSwing,
@@ -279,12 +280,16 @@ impl AutoAttack {
                 return self.avoided(host, report);
             }
         }
-        report.proc_sources.push(match result {
-            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical => {
-                ProcSource::MeleeCritical
-            }
-            _ => ProcSource::MeleeHit,
-        });
+        // A landed swing is reported by its hand (`melee_mh_white_hit_effect` /
+        // `melee_oh_white_hit_effect`); a crit additionally by its result, for the crit-only
+        // procs (Flurry, Deep Wounds). See `ProcSource::from_masks`.
+        report.proc_sources.push(self.proc_source());
+        if matches!(
+            result,
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
+        ) {
+            report.proc_sources.push(ProcSource::MeleeCritical);
+        }
         report.attack.damage = damage.max(0.0) as u32;
         report.attack.threat = f64::from(report.attack.damage) * host.total_threat_mod();
         report.rage_gained = gain_rage(host, hand, damage);
@@ -667,7 +672,7 @@ mod tests {
         assert_eq!(report.attack.execution_time, 0.0);
         assert_eq!(report.rage_gained, Some(9));
         assert_eq!(world.rage, 9);
-        assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
+        assert_eq!(report.proc_sources, vec![ProcSource::MainhandSwing]);
         assert_eq!(world.reactions, 1);
         assert_eq!(mh.last_used(), 0.0);
         assert_eq!(mh.next_expected_use(0.0), 2.6);
@@ -676,12 +681,16 @@ mod tests {
         world.rolls.push_back(PhysicalAttackResult::Critical);
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.damage, 571);
-        assert_eq!(report.proc_sources, vec![ProcSource::MeleeCritical]);
+        assert_eq!(
+            report.proc_sources,
+            vec![ProcSource::MainhandSwing, ProcSource::MeleeCritical],
+            "a crit is a landed swing and a crit"
+        );
 
         world.rolls.push_back(PhysicalAttackResult::Glancing);
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.damage, (285.714 * 0.7f64).round() as u32);
-        assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
+        assert_eq!(report.proc_sources, vec![ProcSource::MainhandSwing]);
         assert_eq!(world.rolled_hands, vec![Hand::Mainhand; 3]);
     }
 
@@ -711,11 +720,14 @@ mod tests {
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.result, PhysicalAttackResult::Block);
         assert_eq!(report.attack.damage, 286);
-        assert_eq!(report.proc_sources, vec![ProcSource::MeleeHit]);
+        assert_eq!(report.proc_sources, vec![ProcSource::MainhandSwing]);
         world.rolls.push_back(PhysicalAttackResult::BlockCritical);
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.damage, 571);
-        assert_eq!(report.proc_sources, vec![ProcSource::MeleeCritical]);
+        assert_eq!(
+            report.proc_sources,
+            vec![ProcSource::MainhandSwing, ProcSource::MeleeCritical]
+        );
 
         world.block_value = 50;
         world.rage = 0;
@@ -779,6 +791,7 @@ mod tests {
         let report = oh.perform(&mut world);
         assert_eq!(report.hand, Hand::Offhand);
         assert_eq!(report.attack.damage, 89);
+        assert_eq!(report.proc_sources, vec![ProcSource::OffhandSwing]);
         assert_eq!(world.reactions, 0);
         assert_eq!(oh.next_expected_use(0.0), 1.8);
 
