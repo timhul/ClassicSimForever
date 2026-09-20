@@ -17,6 +17,8 @@ data/
 │       ├── racials.yaml
 │       ├── externals.yaml
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
+├── talents/
+│   └── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/ enchants.yaml set_bonuses.yaml   Phase 2 item data (see ITEM_INSTRUCTIONS.md)
@@ -37,9 +39,11 @@ data/tables/<Table>.<build>.csv
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml)
+csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
         │  + data/spells/overrides/*.yaml
         ▼
 csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
+csim_engine::talent::TalentDb::load("data/talents")
 ```
 
 1. **`csim-tables`** reads the CSV dumps (`TableDir` finds the build from the file names,
@@ -57,6 +61,14 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
 4. The engine loads the generated files plus the **overrides** and checks the cross references
    (`SpellDb::load`). `Spell`, `Buff`, `Effect`, `Proc` and `Periodic` are built from the
    records at runtime (`crates/csim-engine/src/spell/`).
+5. **Talents** are a second, small walk (`TALENT_INSTRUCTIONS.md` §1.2–1.5): the class's Trait
+   tree gives one entry per node — its spell, tab, tier, column, rank count, prerequisite and
+   the `CurvePoint` value of each effect per rank (`data/talents/<class>.yaml`, schema
+   `crates/csim-engine/src/talent/spec.rs`). What a talent *does* is not repeated there: it is
+   the talent spell in `data/spells/<class>.yaml`, and the runtime applies rank *r* by
+   substituting `rank_values[index][r − 1]` for the effect's base points and enabling the spell
+   (stat auras, modifiers, procs, scripts and granted abilities all go through the spell
+   machinery).
 
 ## Re-exporting from a new dump
 
@@ -67,15 +79,18 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
+   cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- check
    ```
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides
-   and fails with `--strict` if there are any.
-3. Look at the diff of `data/spells/*.yaml`: new ranks, changed numbers, new payloads.
+   and fails with `--strict` if there are any. `export-talents` warns when a node's `TraitCond`
+   gate is not the `points_per_tier × tier` rule or a node has no tab or spell.
+3. Look at the diff of `data/spells/*.yaml` and `data/talents/*.yaml`: new ranks, changed
+   numbers, new payloads, moved talents.
    `cargo run -p csim-tables -- spell <id>` prints one spell straight from the tables.
-4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed files match a
-   fresh export when `data/tables/` is present, and the parity tests in
+4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed spell and talent
+   files match a fresh export when `data/tables/` is present, and the parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
 5. Regenerate the test fixtures if the spells they use changed:
    `python crates/csim-tables/tests/fixtures/make_fixtures.py`.

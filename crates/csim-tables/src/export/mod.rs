@@ -2,9 +2,13 @@
 
 pub mod prune;
 pub mod spells;
+pub mod talents;
 
 pub use prune::{prune, PruneReport};
 pub use spells::{
     export_class, export_class_with_report, export_externals, export_externals_with_report,
     export_racials, export_racials_with_report, render, spell_ids_in_dir, ExportError,
+};
+pub use talents::{
+    export_talents, export_talents_with_report, render_talents, trait_tree, TalentReport,
 };

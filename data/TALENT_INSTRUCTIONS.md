@@ -250,7 +250,36 @@ spells.
 | Protection | 5 | Focused Rage (29787) | 3 | modifier | FLAT POWER_COST -10/-20/-30 → Bloodthirst, Challenging Shout, Cleave, Concussion Blow … |
 | Protection | 6 | Shield Slam (23922) ← Concussion Blow | 1 | ability | effect 38 1; SCHOOL_DAMAGE 430 |
 
-## 1.8 Missing tables
+## 1.8 The exported file
+
+`csim-tables export-talents --class warrior` writes the walk above to `data/talents/warrior.yaml`
+(schema: `crates/csim-engine/src/talent/spec.rs`): the build, class, `TraitTree.ID`, the points
+(`TraitCurrency.SourcedMax`), the points per tier (the tier-1 gate of `TraitCond`), the tabs
+(`TraitNodeGroupDisplayInfo` in `OrderIndex` order with the skill line's name) and one entry
+per node:
+
+```yaml
+- node: 105950          # TraitNode.ID
+  spell: 12834          # TraitDefinition.SpellID; its effects are in data/spells/warrior.yaml
+  name: Deep Wounds     # SpellName, for readability
+  tab: 26               # skill line of the tab
+  tier: 2               # (PosY − top) / 600
+  column: 2             # (PosX − tab's leftmost PosX) / 600
+  max_ranks: 3          # TraitNodeEntry.MaxRanks
+  requires: 105956      # TraitEdge left node (Improved Rend), absent when none
+  rank_values:          # TraitDefinitionEffectPoints → CurvePoint, per EffectIndex, one per rank
+    0: [20.0, 40.0, 60.0]
+```
+
+The tier rule (`points_per_tier × tier` points in the tab) and the prerequisite are the whole
+gating model; the `TraitCond` rows are only checked against it at export time. The runtime
+(`crates/csim-engine/src/talent/`) applies rank *r* by replacing the base points of effect
+`index` of the talent spell with `rank_values[index][r − 1]` and enabling the spell: a passive's
+aura goes up, a modifier lands in the spell modifier table, a proc arms with the value as its
+payload's trigger value, an ability (and its trainable higher ranks) becomes castable. Effects
+without a curve keep their table value.
+
+## 1.9 Missing tables
 
 None for talents. The retail names of a few aura ids used by Forever talents are unverified:
 232 (mechanic duration modifier, Iron Will), 418 (max power, Boundless Rage), 466 (Toughness

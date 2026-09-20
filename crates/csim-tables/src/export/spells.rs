@@ -42,6 +42,12 @@ pub enum ExportError {
     NoRacialLines,
     #[error("external buff spells not in the tables: {0:?}")]
     MissingSeeds(Vec<u32>),
+    #[error("class {0:?} has no Trait tree (SkillLineXTraitTree) or no tab groups")]
+    NoTraitTree(String),
+    #[error("talent node {0} has several prerequisites {1:?}; the schema allows one")]
+    SeveralPrerequisites(u32, Vec<u32>),
+    #[error("the exported talent tree of {0} is inconsistent: {1}")]
+    InvalidTalents(String, #[source] csim_engine::talent::TalentSpecError),
     #[error("cannot read {path}: {source}")]
     Io {
         path: PathBuf,

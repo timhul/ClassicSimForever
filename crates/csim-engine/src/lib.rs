@@ -26,6 +26,7 @@ pub mod rng;
 pub mod spell;
 pub mod stance;
 pub mod stats;
+pub mod talent;
 pub mod target;
 
 /// Engine crate version.

@@ -95,6 +95,19 @@ enum Command {
         #[arg(long)]
         out: Option<PathBuf>,
     },
+    /// Writes the talent tree of a class as an engine data file.
+    ExportTalents {
+        /// The class to export (`warrior`, `rogue`, ...).
+        #[arg(long)]
+        class: String,
+        /// The talent data directory; the file is written to `<talents>/<class>.yaml` unless
+        /// `--out` is given.
+        #[arg(long, default_value = "data/talents")]
+        talents: PathBuf,
+        /// Output file (`-` for stdout).
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
     /// Loads the exported spell files with the engine and reports what the sim cannot use.
     Check {
         /// The spell data directory.
@@ -181,6 +194,55 @@ fn export_spells(
         eprintln!(
             "wrote {} spells (build {}) to {}",
             file.spells.len(),
+            file.build,
+            out.display()
+        );
+    }
+    Ok(())
+}
+
+fn export_talents(
+    dir: &TableDir,
+    class: &str,
+    talents_dir: &Path,
+    out: Option<PathBuf>,
+) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    let class = parse_class(class)?;
+    let (file, report) = export::export_talents_with_report(&tables, class)?;
+    let command = format!("export-talents --class {}", class.name().to_lowercase());
+    let text = export::render_talents(&file, &command)?;
+    for (node, required) in &report.odd_gates {
+        eprintln!(
+            "warning: node {node} is gated on {required} points, not {} per tier",
+            file.points_per_tier
+        );
+    }
+    if !report.without_tab.is_empty() {
+        eprintln!(
+            "warning: nodes without a tab, skipped: {:?}",
+            report.without_tab
+        );
+    }
+    if !report.without_spell.is_empty() {
+        eprintln!(
+            "warning: nodes without a spell, skipped: {:?}",
+            report.without_spell
+        );
+    }
+    let out =
+        out.unwrap_or_else(|| talents_dir.join(format!("{}.yaml", class.name().to_lowercase())));
+    if out == Path::new("-") {
+        print!("{text}");
+    } else {
+        std::fs::write(&out, text).map_err(|source| CliError::Write {
+            path: out.clone(),
+            source,
+        })?;
+        eprintln!(
+            "wrote {} talents in {} tabs (build {}) to {}",
+            file.talents.len(),
+            file.tabs.len(),
             file.build,
             out.display()
         );
@@ -401,6 +463,11 @@ fn run(cli: Cli) -> Result<(), CliError> {
             };
             export_spells(&open(&cli)?, target, spells, out.clone())
         }
+        Command::ExportTalents {
+            class,
+            talents,
+            out,
+        } => export_talents(&open(&cli)?, class, talents, out.clone()),
         Command::Check { spells, strict } => check(spells, *strict),
     }
 }

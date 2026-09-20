@@ -1,4 +1,5 @@
-//! The shipped `data/spells/*.yaml` files are what `export-spells` produces from the table dump.
+//! The shipped `data/spells/*.yaml` and `data/talents/*.yaml` files are what `export-spells` /
+//! `export-talents` produce from the table dump.
 //! Needs `data/tables/` (gitignored); without it the test passes trivially with a note.
 
 use std::path::Path;
@@ -46,6 +47,14 @@ fn shipped_spell_files_match_a_fresh_export() {
     assert!(
         rendered == shipped.replace("\r\n", "\n"),
         "data/spells/racials.yaml is stale: re-run `csim-tables export-spells --racials`"
+    );
+
+    let talents = export::export_talents(&tables, PlayerClass::Warrior).unwrap();
+    let rendered = export::render_talents(&talents, "export-talents --class warrior").unwrap();
+    let shipped = std::fs::read_to_string(root.join("data/talents/warrior.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/talents/warrior.yaml is stale: re-run `csim-tables export-talents --class warrior`"
     );
 
     let registry = ExternalBuffDb::load(&root.join("data/external_buffs.yaml")).unwrap();
