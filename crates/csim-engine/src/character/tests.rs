@@ -2393,6 +2393,9 @@ mod statistics {
     const IMPROVED_OVERPOWER: u32 = 105952;
     const ANGER_MANAGEMENT: u32 = 105951;
     const DEEP_WOUNDS: u32 = 105950;
+    const CRUELTY: u32 = 105939;
+    const UNBRIDLED_WRATH: u32 = 105937;
+    const UNBRIDLED_WRATH_SPELL: u32 = 12322;
 
     /// The Orc with the no-talent Fury rotation and every roll a hit, ready to pull at 0.
     fn ready_to_pull(f: &mut Fixture) {
@@ -2596,6 +2599,55 @@ mod statistics {
                 .unwrap()
                 .procs(),
             crits
+        );
+    }
+
+    /// Unbridled Wrath rolls on every landed swing of either hand (not on the abilities) and
+    /// the rage it gives is a resource source under the talent's name.
+    #[test]
+    fn unbridled_wrath_procs_off_landed_swings_and_its_rage_is_recorded() {
+        let mut f = shipped_orc_warrior();
+        let short = f
+            .ctx()
+            .spend_talent_points(&[(CRUELTY, 5), (UNBRIDLED_WRATH, 5)]);
+        assert!(short.is_empty(), "{short:?}");
+        let proc = f
+            .character
+            .spells()
+            .proc_by_game_id(UNBRIDLED_WRATH_SPELL)
+            .unwrap();
+        assert!(f.character.spells().procs().is_enabled(proc));
+        let rank = f.character.spells().procs().get(proc).spell().rank();
+        ready_to_pull(&mut f);
+        f.run(60.0);
+        f.ctx().sync_statistics();
+        let stats = f.character.statistics();
+
+        let mh = spell(stats, "Mainhand Attack");
+        let oh = spell(stats, "Offhand Attack");
+        let unbridled_wrath = stats.proc_statistics("Unbridled Wrath").unwrap();
+        assert_eq!(
+            unbridled_wrath.attempts(),
+            mh.hits() + oh.hits(),
+            "one roll per landed swing of either hand"
+        );
+        assert!(unbridled_wrath.attempts() > 20, "{unbridled_wrath:?}");
+        assert!(
+            unbridled_wrath.procs() > 0 && unbridled_wrath.procs() < unbridled_wrath.attempts(),
+            "60 %: {unbridled_wrath:?}"
+        );
+        // One rage per proc with a one-hander, less when the rage bar was full.
+        let rage = stats
+            .resource_statistics("Unbridled Wrath", rank)
+            .expect("the proc's rage is a resource source");
+        assert!(rage.gain(ResourceType::Rage) > 0, "{rage:?}");
+        assert!(
+            rage.gain(ResourceType::Rage) <= unbridled_wrath.procs(),
+            "{rage:?} for {unbridled_wrath:?}"
+        );
+        assert!(
+            stats.spell_statistics("Unbridled Wrath", rank).is_none(),
+            "no damage"
         );
     }
 
