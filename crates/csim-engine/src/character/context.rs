@@ -787,23 +787,35 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Records the statistics of a completed cast of `id` and runs its proc sources.
     fn after_cast(&mut self, id: SpellId, report: &CastReport) {
         self.record_cast(id, report);
-        let sources = report.all_proc_sources();
-        self.run_proc_checks(&sources);
+        self.run_sources(&report.all_proc_sources());
     }
 
     /// Records the statistics of a swing and runs its proc sources.
     fn after_swing(&mut self, report: &SwingReport) {
         self.record_swing(report);
-        let sources = report.proc_sources.clone();
-        self.run_proc_checks(&sources);
+        self.run_sources(&report.proc_sources);
+    }
+
+    /// Runs the proc checks for `sources`, then uses the charges of the buffs that react to
+    /// them. The charges go after the procs: a landed swing consumes a charge when its damage
+    /// lands, one batch after the procs it triggered (the `classic-warrior` wiki on Windfury
+    /// Totem), so the swing that proc'd Windfury uses a charge of the aura it just applied.
+    fn run_sources(&mut self, sources: &[ProcSource]) {
+        self.run_proc_checks(sources);
+        for &source in sources {
+            self.consume_charges(source);
+        }
     }
 
     /// Runs the proc check for each source and returns the reports of the procs that fired.
-    /// Extra attacks the procs granted stay pending (see [`Self::perform_extra_attacks`]);
-    /// the procs that fired are excluded from the next check so that none re-fires off its
-    /// own extra attack (the C++ nesting guard).
+    /// The sources of one event form one check: a proc fires at most once per event. Extra
+    /// attacks the procs granted stay pending (see [`Self::perform_extra_attacks`]); they
+    /// continue the check, so that no proc re-fires off its own extra attack or twice in one
+    /// chain of extra attacks (the C++ nesting guard, where the extra attacks were performed
+    /// inside the proc).
     pub fn run_proc_checks(&mut self, sources: &[ProcSource]) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
+        self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
         for &source in sources {
             if source == ProcSource::Manual {
@@ -818,10 +830,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             };
             self.record_report(&name, rank, report);
         }
-        if self.character.pending_extra_attacks() > before {
-            for (id, _) in &fired {
-                self.character.spells.procs_mut().ignore_in_next_check(*id);
-            }
+        let granted_extra_attacks = self.character.pending_extra_attacks() > before;
+        let procs = self.character.spells.procs_mut();
+        if granted_extra_attacks {
+            procs.hold_check();
+        } else {
+            procs.end_check();
         }
         fired
     }
@@ -829,11 +843,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Performs the main-hand extra attacks granted so far (Windfury, Sword Specialization),
     /// including the ones those attacks grant in turn. The C++ performed them inside the
     /// granting proc; here they follow the action that produced them. Port of
-    /// `MainhandAttack::extra_attack`. Returns their swing reports.
+    /// `MainhandAttack::extra_attack`. An extra attack finishes the swing timer, so a queued
+    /// on-next-swing spell that is available goes off in its place (the `classic-warrior` wiki
+    /// on Windfury Totem: the queued Heroic Strike "is executed immediately"). Returns the
+    /// reports of the white swings performed.
     pub fn perform_extra_attacks(&mut self) -> Vec<SwingReport> {
         let mut reports = Vec::new();
         while self.character.take_extra_attack() {
             if !self.character.has_mainhand() {
+                continue;
+            }
+            if let Some(queued) = self.available_next_swing() {
+                self.perform_next_swing(queued);
+                self.with_auto_attack(Hand::Mainhand, |attack, ctx| attack.schedule_next(ctx));
                 continue;
             }
             let report =
@@ -841,7 +863,34 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.after_swing(&report);
             reports.push(report);
         }
+        // The chain is over: the procs that granted it may fire again.
+        self.character.spells.procs_mut().release_held_checks();
         reports
+    }
+
+    /// The queued on-next-swing spell, if it can go off right now.
+    fn available_next_swing(&self) -> Option<SpellId> {
+        let queued = self.character.spells.queued_next_swing()?;
+        self.character
+            .spells
+            .spell(queued)
+            .status(self)
+            .is_available()
+            .then_some(queued)
+    }
+
+    /// Lets the queued on-next-swing spell `queued` replace the main-hand swing that is due:
+    /// completes the swing timer, performs the spell and runs what followed from it.
+    fn perform_next_swing(&mut self, queued: SpellId) -> CastReport {
+        let now = self.now();
+        let speed = self.weapon_speed(Hand::Mainhand).unwrap_or(0.0);
+        self.character
+            .spells
+            .mh_attack_mut()
+            .complete_swing(now, speed);
+        let report = self.with_spell(queued, |spell, ctx| spell.perform_on_swing(ctx));
+        self.after_cast(queued, &report);
+        report
     }
 
     // ---------------------------------------------------------------- auto attacks
@@ -854,28 +903,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         {
             return SwingOutcome::Skipped;
         }
-        let outcome = match self.character.spells.queued_next_swing() {
-            Some(queued)
-                if self
-                    .character
-                    .spells
-                    .spell(queued)
-                    .status(self)
-                    .is_available() =>
-            {
-                let now = self.now();
-                let speed = self.weapon_speed(Hand::Mainhand).unwrap_or(0.0);
-                self.character
-                    .spells
-                    .mh_attack_mut()
-                    .complete_swing(now, speed);
-                let report = self.with_spell(queued, |spell, ctx| spell.perform_on_swing(ctx));
-                self.after_cast(queued, &report);
+        let outcome = match self.available_next_swing() {
+            Some(queued) => {
+                let report = self.perform_next_swing(queued);
                 self.perform_extra_attacks();
                 SwingOutcome::NextSwingSpell(report)
             }
-            queued => {
-                if let Some(queued) = queued {
+            None => {
+                if let Some(queued) = self.character.spells.queued_next_swing() {
                     self.with_spell(queued, |spell, ctx| spell.cancel(ctx));
                     self.character.spells.cancel_next_swing();
                 }

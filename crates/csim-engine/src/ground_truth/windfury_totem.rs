@@ -8,7 +8,8 @@
 //! Classic numbers — 315 attack power, a 1.5 s aura and a 1.5 s internal cooldown; the tests
 //! follow the tables for those three values and the wiki for every mechanic. The passive's
 //! party `DUMMY` aura (the server-side script) is written as a `PROC_TRIGGER_SPELL` aura so the
-//! engine's proc runtime can cast the payload.
+//! engine's proc runtime can cast the payload, and the script's main-hand restriction (the
+//! `ProcTypeMask` alone names both hands) as the `proc: { hand: mainhand }` override.
 //!
 //! The wiki's batching timings (400–800 ms uptimes, charges removed a tick later) describe the
 //! Classic client's 400 ms spell batching, which the simulator does not model; the charge
@@ -30,6 +31,7 @@ use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::proc::ProcSource;
 use crate::race::Race;
 use crate::rng::Random;
+use crate::spell::overrides::OverrideFile;
 use crate::spell::record::{SpellDb, SpellFile};
 use crate::spell::{Hand, SpellHost, SpellResult};
 use crate::stance::Stance;
@@ -129,6 +131,16 @@ spells:
     implicit_target: [UNIT_CASTER, NONE]
 "#;
 
+/// What the tables do not carry: the passive procs off the main-hand weapon only.
+const WINDFURY_OVERRIDES_YAML: &str = r#"
+overrides:
+  - id: 10612
+    note: Windfury Totem passive; the script procs off the enchanted main-hand weapon only
+    proc: { hand: mainhand }
+  - id: 910612
+    proc: { hand: mainhand }
+"#;
+
 /// Fixed-damage weapons so that swing damage is deterministic.
 const ITEMS_YAML: &str = r#"
 - id: 1
@@ -169,6 +181,10 @@ fn fixture() -> Fixture {
     f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
     let file: SpellFile = serde_yaml::from_str(WINDFURY_YAML).expect("valid Windfury yaml");
     f.db.add_file(file).expect("Windfury records are valid");
+    let overrides: OverrideFile =
+        serde_yaml::from_str(WINDFURY_OVERRIDES_YAML).expect("valid override yaml");
+    f.db.add_overrides(overrides)
+        .expect("Windfury overrides are valid");
     f.db.check_references().expect("consistent references");
 
     let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
@@ -340,6 +356,11 @@ fn windfury_is_a_20_percent_proc_with_a_two_charge_attack_power_aura() {
             "20 % per melee ability"
         );
     }
+    assert_eq!(
+        f.character.spells().procs().get(proc).sources(),
+        &[ProcSource::MainhandSwing, ProcSource::MainhandSpell],
+        "main-hand swings and melee abilities"
+    );
     let buff = windfury_buff(&f);
     {
         let ctx = f.ctx();

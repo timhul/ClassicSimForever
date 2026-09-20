@@ -14,6 +14,8 @@
 //!     proc: { hit_mask: [CRITICAL] }
 //!   - id: 12322                          # Unbridled Wrath: the rank value is the proc chance
 //!     proc: { chance_effect: 0 }
+//!   - id: 10612                          # Windfury Totem passive: main-hand hits only
+//!     proc: { hand: mainhand }
 //!   - id: 12162                          # Deep Wounds payload (DUMMY)
 //!     effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
 //!   - id: 12319                          # Flurry (talent DUMMY)
@@ -46,6 +48,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::proc::ProcSource;
 use crate::spell::dbc::{dbc_flags, PowerType};
+use crate::spell::Hand;
 use crate::target::Priority;
 
 fn is_default<T: Default + PartialEq>(value: &T) -> bool {
@@ -267,6 +270,11 @@ pub struct ProcOverride {
     /// table's `ProcChance` is the max-rank number.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub chance_effect: Option<u32>,
+    /// The weapon a scripted proc is bound to: only that hand's swings and abilities trigger
+    /// it (Windfury Totem's `DUMMY` script procs off the main-hand weapon it enchants, never
+    /// off off-hand swings). Absent, the `ProcTypeMask` decides.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hand: Option<Hand>,
 }
 
 /// Threat the client tables do not carry (innate threat of Heroic Strike, Revenge, Shield Slam).
@@ -668,6 +676,8 @@ overrides:
   - id: 11597
     debuff_priority: high
     resource_miss_cost_mod: 0
+  - id: 10612
+    proc: { hand: mainhand }
 "#;
 
     fn overrides() -> Overrides {
@@ -681,8 +691,14 @@ overrides:
     #[test]
     fn overrides_are_looked_up_by_spell_id_with_file_defaults() {
         let o = overrides();
-        assert_eq!(o.len(), 10);
+        assert_eq!(o.len(), 11);
         assert_eq!(o.proc_hit_mask(12834), ProcHitMask::CRITICAL);
+        assert_eq!(
+            o.get(10612).and_then(|w| w.proc?.hand),
+            Some(Hand::Mainhand),
+            "a scripted proc bound to a weapon"
+        );
+        assert_eq!(o.get(12834).and_then(|d| d.proc?.hand), None);
         assert_eq!(o.proc_hit_mask(12319), ProcHitMask::CRITICAL, "single name");
         assert_eq!(o.proc_hit_mask(12322), ProcHitMask::LANDED, "no override");
         assert_eq!(
@@ -916,7 +932,7 @@ overrides:
             Err(OverrideError::Duplicate(12834))
         ));
         o.add(SpellOverride::new(1)).unwrap();
-        assert_eq!(o.len(), 11);
+        assert_eq!(o.len(), 12);
     }
 
     #[test]
@@ -956,7 +972,7 @@ overrides:
         .unwrap();
         fs::write(dir.join("README.md"), "not yaml").unwrap();
         let o = Overrides::load(&dir).unwrap();
-        assert_eq!(o.len(), 11);
+        assert_eq!(o.len(), 12);
         assert!(o.has_sim_flag(20572, SimFlag::Ignored));
         fs::write(dir.join("bad.yaml"), "overrides: [{ id: 12834 }]").unwrap();
         assert!(matches!(

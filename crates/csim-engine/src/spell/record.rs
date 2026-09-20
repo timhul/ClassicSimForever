@@ -49,7 +49,7 @@ use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
     ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
 };
-use crate::spell::overrides::{OverrideError, Overrides, SimFlag};
+use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
 /// The subdirectory of the spell directory that holds the hand-written overrides.
 pub const OVERRIDES_DIR: &str = "overrides";
@@ -950,6 +950,12 @@ impl SpellDb {
     /// Replaces the overrides (checked against the records by `check_references`).
     pub fn set_overrides(&mut self, overrides: Overrides) {
         self.overrides = overrides;
+    }
+
+    /// Adds the overrides of one file (checked against the records by `check_references`).
+    pub fn add_overrides(&mut self, file: OverrideFile) -> Result<(), SpellDbError> {
+        self.overrides.add_file(file)?;
+        Ok(())
     }
 
     /// Checks that every `supercedes` and `trigger_spell` reference points at a loaded spell,
