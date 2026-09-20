@@ -410,7 +410,7 @@ fn dispatch_routes_events_to_their_characters() {
         .add_event_in(10.0, EventKind::EncounterEnd);
     assert!(!f
         .raid
-        .dispatch(&Event::new(0.0, EventKind::PlayerAction { character: a })));
+        .dispatch(&Event::new(0.0, EventKind::IncomingDamage { character: a })));
     f.raid.run();
     assert!(f.raid.engine().queue().is_empty());
     assert!((f.raid.engine().current_time() - 10.0).abs() < f64::EPSILON);

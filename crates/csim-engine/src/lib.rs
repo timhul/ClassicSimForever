@@ -24,6 +24,7 @@ pub mod race;
 pub mod raid;
 pub mod resource;
 pub mod rng;
+pub mod rotation;
 pub mod spell;
 pub mod stance;
 pub mod stats;

@@ -8,6 +8,8 @@
 //! A context is short-lived: the simulation owner builds one per event from `&mut` borrows and
 //! drops it afterwards, so no back-pointers survive between events.
 
+use std::sync::Arc;
+
 use crate::buff::external::{ExternalBuffDb, ExternalBuffSpec};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{AddedSpell, BuffSlot, PartyAuraChange, SharedBuffs, SpellHandle};
@@ -20,12 +22,15 @@ use crate::item::EquipmentSlot;
 use crate::proc::{ProcHost, ProcSource};
 use crate::race::RaceSpec;
 use crate::resource::ResourceType;
+use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::SimFlag;
 use crate::spell::periodic::TickReport;
 use crate::spell::record::{EquippedItems, SpellDb};
-use crate::spell::{AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SwingReport};
+use crate::spell::{
+    AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellStatus, SwingReport,
+};
 use crate::stance::Stance;
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
@@ -1008,17 +1013,23 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Before a set of iterations. Port of `Character::prepare_set_of_combat_iterations`
-    /// (statistics arrive in Phase 5).
+    /// Before a set of iterations: the state, the buffs and the rotation, which is relinked
+    /// here so that spells enabled since it was set (talents, racials, equipment) join it.
+    /// Port of `Character::prepare_set_of_combat_iterations` + `CharacterSpells::relink_spells`
+    /// (the statistics objects arrive in Phase 5.5).
     pub fn prepare_set_of_combat_iterations(&mut self) {
         self.character.prepare_set_of_combat_iterations_state();
         for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
             self.buff_ctx(id).0.initialize();
         }
+        self.relink_rotation();
+        if let Some(rotation) = self.character.rotation.as_mut() {
+            rotation.prepare_set_of_combat_iterations();
+        }
     }
 
-    /// Combat starts: start-of-combat buffs and spells, then the auto attacks. Port of
-    /// `EncounterStart::act` (the rotation is Phase 5).
+    /// Combat starts: start-of-combat buffs and spells, the auto attacks, then the rotation.
+    /// Port of `EncounterStart::act`.
     pub fn encounter_start(&mut self) {
         for id in self.character.spells.start_of_combat_buffs().to_vec() {
             self.apply_buff(id);
@@ -1044,15 +1055,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
         }
         self.start_attack();
+        self.perform_rotation();
     }
 
     /// Handles an event addressed to this character; returns `false` for events it does not
-    /// own (`PlayerAction` belongs to the rotation, `IncomingDamage` to tank mode).
+    /// own (`IncomingDamage` is tank mode's).
     pub fn handle_event(&mut self, event: &Event) -> bool {
         let me = self.character.id();
         match event.kind {
             EventKind::EncounterStart { character } if character == me => {
                 self.encounter_start();
+            }
+            EventKind::PlayerAction { character } if character == me => {
+                self.perform_rotation();
             }
             EventKind::MainhandMeleeHit {
                 character,
@@ -1139,6 +1154,151 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 && (requirement.subclass_mask == 0
                     || requirement.subclass_mask & (1 << subclass) != 0)
         })
+    }
+
+    // ---------------------------------------------------------------- rotation
+
+    /// Gives the character a rotation: builds it, links it to the spells and takes its attack
+    /// mode. Port of `CharacterSpells::set_rotation`.
+    pub fn set_rotation(&mut self, spec: Arc<RotationSpec>) {
+        let attack_mode = spec.attack_mode;
+        let mut rotation = Rotation::new(spec);
+        rotation.link(self);
+        self.character.put_rotation(Some(rotation));
+        self.character.spells.set_attack_mode(attack_mode);
+    }
+
+    /// Removes the rotation.
+    pub fn clear_rotation(&mut self) {
+        self.character.put_rotation(None);
+    }
+
+    /// Links the rotation to the spells again, after they changed (a talent, a racial, an
+    /// item use came or went). Port of `CharacterSpells::relink_spells`.
+    pub fn relink_rotation(&mut self) {
+        if let Some(mut rotation) = self.character.take_rotation() {
+            rotation.link(self);
+            self.character.put_rotation(Some(rotation));
+        }
+    }
+
+    /// Runs the rotation: every active executor attempts its cast in priority order. Not before
+    /// the pull: the player actions that precombat casts schedule at negative time (cooldowns
+    /// ending, the stance swap lag, Bloodrage's rage) wait for the encounter. Port of
+    /// `CharacterSpells::perform_rotation`.
+    pub fn perform_rotation(&mut self) {
+        if self.now() < 0.0 {
+            return;
+        }
+        if let Some(mut rotation) = self.character.take_rotation() {
+            rotation.perform(self);
+            self.character.put_rotation(Some(rotation));
+        }
+    }
+
+    /// Casts the rotation's precombat spells and starts its precast (before the pull, at
+    /// negative time). Port of `Rotation::run_precombat_actions` plus the precast lines of
+    /// `SimControl::run_sim`.
+    pub fn run_precombat_actions(&mut self) {
+        if let Some(rotation) = self.character.take_rotation() {
+            rotation.run_precombat_actions(self);
+            self.character.put_rotation(Some(rotation));
+        }
+    }
+
+    /// Seconds before the pull the precombat actions need: the precast's cast time, else one
+    /// global cooldown (also without a rotation). Port of
+    /// `Rotation::get_time_required_to_run_precombat`.
+    pub fn time_required_to_run_precombat(&self) -> f64 {
+        match self.character.rotation() {
+            Some(rotation) => rotation.time_required_to_run_precombat(self),
+            None => self.character.global_cooldown(),
+        }
+    }
+
+    /// The highest learned rank of the spell `name`, or the rank asked for.
+    fn spell_rank_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
+        let group = self.character.spells.rank_group(name)?;
+        group.get_spell_rank(rank, |id| {
+            self.character.spells.spell(id).is_rank_learned(self)
+        })
+    }
+}
+
+/// The values rotation conditions compare. Port of the `Rotation/Conditions/*` lookups.
+impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, S> {
+    fn buff_time_left(&self, buff: &BuffId) -> f64 {
+        self.buff_ref(*buff).time_left(self.now())
+    }
+    fn buff_is_active(&self, buff: &BuffId) -> bool {
+        self.buff_ref(*buff).is_active()
+    }
+    fn buff_stacks(&self, buff: &BuffId) -> u32 {
+        self.buff_ref(*buff).stacks()
+    }
+    fn spell_cooldown_remaining(&self, spell: &SpellId) -> f64 {
+        self.character.spells.spell(*spell).cooldown_remaining(self)
+    }
+    fn resource_level(&self, resource: ResourceType) -> u32 {
+        self.character.resource_level(resource)
+    }
+    /// Port of `ConditionVariableBuiltin::condition_fulfilled`'s value computations.
+    fn variable(&self, variable: BuiltinVariable) -> f64 {
+        let now = self.now();
+        let sim = self.character.sim();
+        match variable {
+            BuiltinVariable::TargetHealth => (sim.combat_length - now) / sim.combat_length,
+            BuiltinVariable::TimeRemainingEncounter => sim.combat_length - now,
+            BuiltinVariable::TimeRemainingExecute => {
+                sim.combat_length * (1.0 - sim.execute_threshold) - now
+            }
+            BuiltinVariable::TimeSinceSwing => {
+                now - self.character.spells.mh_attack().last_used().max(0.0)
+            }
+            BuiltinVariable::TimeRemainingSwing => {
+                self.character.spells.mh_attack().time_until_next_swing(now)
+            }
+            // Ranged auto attacks are not simulated: no shot was ever fired.
+            BuiltinVariable::TimeSinceAutoShot => now.max(0.0),
+            BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),
+            BuiltinVariable::ComboPoints => f64::from(self.character.combo_points()),
+            BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
+        }
+    }
+}
+
+impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
+    fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
+        self.spell_rank_by_name(name, rank)
+    }
+    fn buff_by_name(&self, name: &str) -> Option<BuffId> {
+        let party = self.character.party();
+        self.character
+            .spells
+            .buff_by_name(name, party, self.raid, |id| {
+                self.character.spells.spell(id).is_rank_learned(self)
+            })
+    }
+    fn spell_is_enabled(&self, spell: SpellId) -> bool {
+        self.character.spells.spell(spell).is_enabled()
+    }
+    fn spell_has_cast_time(&self, spell: SpellId) -> bool {
+        self.character.spells.spell(spell).has_cast_time()
+    }
+    fn spell_cast_time(&self, spell: SpellId) -> f64 {
+        self.character.spells.spell(spell).cast_time(self)
+    }
+    fn spell_status(&self, spell: SpellId) -> SpellStatus {
+        self.character.spells.spell(spell).status(self)
+    }
+    fn cast_spell(&mut self, spell: SpellId) {
+        self.cast(spell);
+    }
+    fn is_casting(&self) -> bool {
+        self.character.spells.cast_in_progress()
+    }
+    fn gcd_length(&self) -> f64 {
+        self.character.global_cooldown()
     }
 }
 

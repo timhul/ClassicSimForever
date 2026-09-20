@@ -33,6 +33,7 @@ use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
 use crate::resource::{Resource, ResourceType};
 use crate::rng::Random;
+use crate::rotation::Rotation;
 use crate::spell::auto_attack::rage_gained_from_damage;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::{AutoAttack, Hand};
@@ -48,6 +49,9 @@ pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets,
 pub struct SimParams {
     /// Encounter length in seconds.
     pub combat_length: f64,
+    /// Fraction of the encounter that is the execute phase (target below 20 % health for the
+    /// last `execute_threshold` of the fight). `SimSettings::get_execute_threshold`.
+    pub execute_threshold: f64,
     /// Whether glancing blows occur (the Loatheb ruleset turns them off).
     pub glancing_blows: bool,
 }
@@ -56,6 +60,7 @@ impl Default for SimParams {
     fn default() -> Self {
         Self {
             combat_length: 300.0,
+            execute_threshold: 0.2,
             glancing_blows: true,
         }
     }
@@ -124,7 +129,8 @@ pub struct Character {
     /// Cached roll context, to refresh the attack tables only when it changes.
     last_roll_context: Option<RollContext>,
 
-    rotation_name: String,
+    /// The rotation, linked to the spells. Taken out by the context to run it.
+    rotation: Option<Rotation>,
     player_name: String,
 }
 
@@ -181,7 +187,7 @@ impl Character {
             stance: class.default_stance,
             stance_spells: Vec::new(),
             next_gcd: -class.global_cooldown,
-            next_stance_cd: -STANCE_COOLDOWN,
+            next_stance_cd: f64::NEG_INFINITY,
             next_trinket_cd: -1.0,
             defensive_until: -1.0,
             combo_points: 0,
@@ -193,7 +199,7 @@ impl Character {
             offhand_rage_percent: 0,
             pending_extra_attacks: 0,
             last_roll_context: None,
-            rotation_name: String::new(),
+            rotation: None,
             player_name: if party == 0 && member == 0 {
                 "You".to_string()
             } else {
@@ -314,12 +320,23 @@ impl Character {
         &self.player_name
     }
 
+    /// The rotation's name, empty without one. Port of `Character::get_rotation_name`.
     pub fn rotation_name(&self) -> &str {
-        &self.rotation_name
+        self.rotation.as_ref().map_or("", Rotation::name)
     }
 
-    pub fn set_rotation_name(&mut self, name: impl Into<String>) {
-        self.rotation_name = name.into();
+    pub fn rotation(&self) -> Option<&Rotation> {
+        self.rotation.as_ref()
+    }
+
+    /// Takes the rotation out (to run it against the context); [`Self::put_rotation`] returns
+    /// it.
+    pub fn take_rotation(&mut self) -> Option<Rotation> {
+        self.rotation.take()
+    }
+
+    pub fn put_rotation(&mut self, rotation: Option<Rotation>) {
+        self.rotation = rotation;
     }
 
     pub fn sim(&self) -> &SimParams {
@@ -871,7 +888,8 @@ impl Character {
     /// leaves the stance.
     pub(crate) fn reset_state(&mut self) {
         self.next_gcd = -self.global_cooldown();
-        self.next_stance_cd = -STANCE_COOLDOWN;
+        // Never swapped: a precombat stance swap (negative time) must not read as on cooldown.
+        self.next_stance_cd = f64::NEG_INFINITY;
         self.next_trinket_cd = -1.0;
         self.defensive_until = -1.0;
         self.combo_points = 0;

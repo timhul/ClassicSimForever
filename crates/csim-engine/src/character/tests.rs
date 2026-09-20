@@ -730,9 +730,16 @@ fn encounter_start_begins_attacking() {
     assert!(handled
         .iter()
         .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. })));
-    assert!(!f.ctx().handle_event(&Event::new(
+    // A player action is the rotation's; without one it is handled and does nothing.
+    assert!(f.ctx().handle_event(&Event::new(
         0.0,
         EventKind::PlayerAction {
+            character: CharId(0)
+        }
+    )));
+    assert!(!f.ctx().handle_event(&Event::new(
+        0.0,
+        EventKind::IncomingDamage {
             character: CharId(0)
         }
     )));
@@ -1787,5 +1794,579 @@ mod talents {
         assert!(f.ctx().min_talent(ENRAGE));
         assert_eq!(rank(&f, ENRAGE), 0);
         assert_eq!(f.character.talents().unwrap().tab_points(FURY), 16);
+    }
+}
+
+// ---------------------------------------------------------------- rotation
+
+/// Port of `Test/Rotation/TestRotationFileReader::test_warrior_dw_fury` (linking against a
+/// real Warrior) and the builtin-variable cases of `TestConditionVariableBuiltin` that need a
+/// character, plus an end-to-end run of a rotation through the event loop.
+mod rotation {
+    use super::*;
+    use crate::attack_mode::AttackMode;
+    use crate::rotation::condition::{BuiltinVariable, Comparator, Measure, Test};
+    use crate::rotation::{ConditionContext, RotationDb, RotationSpec, Sentence};
+    use crate::talent::{CharacterTalents, TalentDb};
+
+    const BATTLE_SHOUT: u32 = 25289;
+
+    /// An Orc Warrior with the shipped class, spell and talent data (no points spent), a
+    /// sword and a dagger.
+    fn shipped_orc_warrior() -> Fixture {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let mut f = Fixture::orc_warrior();
+        f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
+        let classes = super::super::ClassDb::load(&data.join("classes"), None).unwrap();
+        f.character = Character::new(
+            CharId(0),
+            Arc::clone(classes.get(crate::faction::PlayerClass::Warrior).unwrap()),
+            &race(Race::Orc),
+            equipment_db(),
+            Phase::MoltenCore,
+            SimParams::default(),
+            63,
+            0,
+            0,
+        );
+        let talents = TalentDb::load(&data.join("talents")).expect("shipped talent data loads");
+        let tree = Arc::clone(talents.get(crate::faction::PlayerClass::Warrior).unwrap());
+        f.ctx().set_talents(CharacterTalents::new(tree));
+        f.equip(EquipmentSlot::Mainhand, SWORD);
+        f.equip(EquipmentSlot::Offhand, DAGGER);
+        let db = std::mem::take(&mut f.db);
+        f.ctx().learn_all(&db);
+        f.db = db;
+        f
+    }
+
+    /// The shipped rotations (`data/rotations/`).
+    fn rotations() -> RotationDb {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/rotations");
+        RotationDb::load(&data).expect("shipped rotations load")
+    }
+
+    fn shipped(name: &str) -> Arc<RotationSpec> {
+        Arc::clone(
+            rotations()
+                .get(crate::faction::PlayerClass::Warrior, name)
+                .unwrap_or_else(|| panic!("no shipped rotation {name:?}")),
+        )
+    }
+
+    fn dw_fury() -> Arc<RotationSpec> {
+        shipped("DW Fury High Rage")
+    }
+
+    #[test]
+    fn dw_fury_links_the_executors_the_orc_warrior_has() {
+        let mut f = shipped_orc_warrior();
+        f.ctx().set_rotation(dw_fury());
+        assert_eq!(f.character.rotation_name(), "DW Fury High Rage");
+        assert_eq!(f.character.attack_mode(), AttackMode::MeleeAttack);
+        let rotation = f.character.rotation().unwrap();
+
+        let all: Vec<&str> = rotation
+            .executors()
+            .iter()
+            .map(|e| e.spell_name())
+            .collect();
+        assert_eq!(
+            all,
+            [
+                "Bloodrage",
+                "Berserker Rage",
+                "Battle Shout",
+                "Heroic Strike",
+                "Manual Crowd Pummeler",
+                "Kiss of the Spider",
+                "Jom Gabbar",
+                "Badge of the Swarmguard",
+                "Slayer's Crest",
+                "Earthstrike",
+                "Zandalarian Hero Medallion",
+                "Diamond Flask",
+                "Cloudkeeper Legplates",
+                "Death Wish",
+                "Recklessness",
+                "Blood Fury",
+                "Berserking",
+                "Execute",
+                "Bloodthirst",
+                "Whirlwind",
+                "Overpower",
+                "Hamstring",
+                "Battle Stance",
+                "Berserker Stance",
+            ]
+        );
+        // No talents: Death Wish and Bloodthirst are not enabled; an Orc has no Berserking;
+        // no trinkets are equipped.
+        let active: Vec<&str> = rotation
+            .active_executors()
+            .map(|e| e.spell_name())
+            .collect();
+        assert_eq!(
+            active,
+            [
+                "Bloodrage",
+                "Berserker Rage",
+                "Battle Shout",
+                "Heroic Strike",
+                "Recklessness",
+                "Blood Fury",
+                "Execute",
+                "Whirlwind",
+                "Overpower",
+                "Hamstring",
+                "Battle Stance",
+                "Berserker Stance",
+            ]
+        );
+        assert_eq!(
+            rotation.precombat_spells(),
+            [
+                f.spell_id(BLOODRAGE),
+                f.spell_id(BATTLE_SHOUT),
+                f.spell_id(BERSERKER_STANCE)
+            ]
+        );
+        assert_eq!(rotation.precast_spell(), None);
+
+        // Berserker Rage: one group of one resource sentence.
+        let executors = rotation.executors();
+        let groups = executors[1].linked().unwrap().condition.as_ref().unwrap();
+        assert_eq!(groups.groups().len(), 1);
+        assert_eq!(
+            groups.groups()[0],
+            [Sentence {
+                measure: Measure::Resource(ResourceType::Rage),
+                test: Test::Compare(Comparator::Less, 50.0),
+            }]
+        );
+        // Battle Shout: two groups; the buff resolved to the party buff's handle.
+        let battle_shout = f.spell_id(BATTLE_SHOUT);
+        let groups = executors[2].linked().unwrap().condition.as_ref().unwrap();
+        assert_eq!(executors[2].linked().unwrap().spell, battle_shout);
+        assert_eq!(groups.groups().len(), 2);
+        assert_eq!(groups.groups()[0].len(), 1);
+        assert_eq!(groups.groups()[1].len(), 3);
+        let shout_buff = f
+            .character
+            .spells()
+            .buff_by_name("Battle Shout", 0, &f.raid, |_| true)
+            .unwrap();
+        assert_eq!(
+            groups.groups()[0][0],
+            Sentence {
+                measure: Measure::BuffDuration(shout_buff),
+                test: Test::Compare(Comparator::Less, 3.0),
+            }
+        );
+        assert_eq!(
+            groups.groups()[1][0].measure,
+            Measure::Variable(BuiltinVariable::TimeRemainingExecute)
+        );
+        assert_eq!(
+            groups.groups()[1][2].measure,
+            Measure::BuffDuration(shout_buff)
+        );
+        // Heroic Strike: one group of two.
+        let groups = executors[3].linked().unwrap().condition.as_ref().unwrap();
+        let heroic_strike = executors[3].linked().unwrap().spell;
+        let group = f.character.spells().rank_group("Heroic Strike").unwrap();
+        assert_eq!(
+            group.rank_of(heroic_strike),
+            Some(group.max_rank()),
+            "MAX_RANK"
+        );
+        assert_eq!(groups.groups().len(), 1);
+        assert_eq!(
+            groups.groups()[0],
+            [
+                Sentence {
+                    measure: Measure::Variable(BuiltinVariable::TimeRemainingExecute),
+                    test: Test::Compare(Comparator::Greater, 3.0),
+                },
+                Sentence {
+                    measure: Measure::Resource(ResourceType::Rage),
+                    test: Test::Compare(Comparator::Greater, 50.0),
+                },
+            ]
+        );
+        // Whirlwind's `spell "Bloodthirst"` resolved to the highest rank of the (disabled)
+        // Bloodthirst.
+        let groups = executors[19].linked().unwrap().condition.as_ref().unwrap();
+        let Measure::SpellCooldown(bloodthirst) = groups.groups()[0][0].measure else {
+            panic!("{:?}", groups.groups()[0][0]);
+        };
+        let group = f.character.spells().rank_group("Bloodthirst").unwrap();
+        assert_eq!(group.rank_of(bloodthirst), Some(group.max_rank()));
+        assert!(!f.character.spells().spell(bloodthirst).is_enabled());
+        assert_eq!(
+            executors[2].conditions_string(),
+            "Battle Shout buff remaining < 3.0 seconds\n\
+             OR\n\
+             Time Remaining Until Execute < 10.0 seconds\n\
+             Time Remaining Until Execute > 0.0 seconds\n\
+             Battle Shout buff remaining < 45.0 seconds"
+        );
+    }
+
+    #[test]
+    fn relinking_picks_up_spells_enabled_later() {
+        let mut f = shipped_orc_warrior();
+        f.ctx().set_rotation(dw_fury());
+        let is_active = |f: &Fixture, name: &str| {
+            f.character
+                .rotation()
+                .unwrap()
+                .active_executors()
+                .any(|e| e.spell_name() == name)
+        };
+        assert!(!is_active(&f, "Bloodthirst"));
+        // The executor asks for the highest learned rank.
+        let bloodthirst = f
+            .character
+            .spells()
+            .rank_group("Bloodthirst")
+            .unwrap()
+            .get_max_available_spell_rank(|_| true)
+            .unwrap();
+        assert_ne!(
+            bloodthirst,
+            f.spell_id(BLOODTHIRST),
+            "rank 1 is not the highest"
+        );
+        f.ctx().enable_spell(bloodthirst);
+        assert!(!is_active(&f, "Bloodthirst"), "not linked yet");
+        f.ctx().prepare_set_of_combat_iterations();
+        assert!(
+            is_active(&f, "Bloodthirst"),
+            "relinked before the iterations"
+        );
+        f.ctx().disable_spell(bloodthirst);
+        f.ctx().relink_rotation();
+        assert!(!is_active(&f, "Bloodthirst"));
+        f.ctx().clear_rotation();
+        assert!(f.character.rotation().is_none());
+        assert_eq!(f.character.rotation_name(), "");
+    }
+
+    /// Port of `test_swing_timer_less` / `test_swing_timer_greater`: the builtin measures
+    /// the time since the last main hand swing.
+    #[test]
+    fn time_since_swing_follows_the_mainhand_attack() {
+        let mut f = shipped_orc_warrior();
+        f.rig_rolls(PhysicalAttackResult::Hit);
+        f.ctx().prepare_set_of_combat_iterations();
+        f.engine.prepare_iteration(0.0);
+        let less = |f: &mut Fixture, rhs: f64| {
+            let ctx = f.ctx();
+            Comparator::Less.holds(ctx.variable(BuiltinVariable::TimeSinceSwing), rhs)
+        };
+        assert!(less(&mut f, 0.2));
+        assert!(less(&mut f, 0.3));
+        f.ctx().start_attack();
+        let iteration = f.character.spells().mh_attack().iteration();
+        assert!(matches!(
+            f.ctx().mh_swing(iteration),
+            SwingOutcome::Swing(_)
+        ));
+        for (now, less_200, less_300) in [
+            (0.1, true, true),
+            (0.19, true, true),
+            (0.21, false, true),
+            (0.29, false, true),
+            (0.31, false, false),
+        ] {
+            f.engine.prepare_iteration(now);
+            assert_eq!(less(&mut f, 0.2), less_200, "{now}");
+            assert_eq!(less(&mut f, 0.3), less_300, "{now}");
+            // The time until the next swing is the rest of the 2.6 s sword speed.
+            let ctx = f.ctx();
+            let since = ctx.variable(BuiltinVariable::TimeSinceSwing);
+            let remaining = ctx.variable(BuiltinVariable::TimeRemainingSwing);
+            assert!((since - now).abs() < 1e-9, "{now}: since {since}");
+            assert!(
+                (since + remaining - 2.6).abs() < 1e-9,
+                "{now}: remaining {remaining}"
+            );
+        }
+    }
+
+    #[test]
+    fn builtin_variables_read_the_encounter_and_the_character() {
+        let mut f = shipped_orc_warrior();
+        f.character.set_sim(SimParams {
+            combat_length: 200.0,
+            execute_threshold: 0.2,
+            glancing_blows: true,
+        });
+        f.engine
+            .add_event(Event::new(50.0, EventKind::EncounterEnd));
+        f.engine.next_event();
+        f.character.gain_combo_points(2);
+        let ctx = f.ctx();
+        let var = |v| ctx.variable(v);
+        assert!((var(BuiltinVariable::TimeRemainingEncounter) - 150.0).abs() < 1e-9);
+        assert!((var(BuiltinVariable::TimeRemainingExecute) - 110.0).abs() < 1e-9);
+        assert!((var(BuiltinVariable::TargetHealth) - 0.75).abs() < 1e-9);
+        assert_eq!(var(BuiltinVariable::ComboPoints), 2.0);
+        assert_eq!(var(BuiltinVariable::TimeSinceAutoShot), 50.0);
+        assert!(var(BuiltinVariable::MeleeAp) > 400.0);
+        assert_eq!(var(BuiltinVariable::TimeRemainingGcd), 0.0);
+        assert_eq!(ctx.time_required_to_run_precombat(), 1.5);
+    }
+
+    #[test]
+    fn precombat_actions_run_before_the_pull() {
+        let mut f = shipped_orc_warrior();
+        f.ctx().set_rotation(dw_fury());
+        f.ctx().prepare_set_of_combat_iterations();
+        f.ctx().reset();
+        f.engine.prepare_iteration(-1.5);
+        f.ctx().run_precombat_actions();
+        assert!(f.ctx().aura_active(BLOODRAGE_BUFF), "Bloodrage");
+        assert!(f.ctx().aura_active(BATTLE_SHOUT), "Battle Shout");
+        assert_eq!(f.character.stance(), Stance::Berserker);
+        // Precombat casts do not start the global cooldown (negative time); the stance swap
+        // lag pushed it to -1.0.
+        assert!(f.character.on_global_cooldown(-1.25));
+        assert!(f.character.action_ready(-1.0));
+        // The player actions scheduled before the pull (the stance cooldown ending, the
+        // Bloodrage rage) do not run the rotation.
+        f.run(-0.001);
+        let stats = f.character.rotation().unwrap().statistics_by_spell();
+        assert!(
+            stats.values().all(|s| s.attempts() == 0),
+            "no rotation before the pull: {stats:?}"
+        );
+    }
+
+    /// A rotation whose casts do not depend on talents: Whirlwind whenever it is up, Heroic
+    /// Strike above 50 rage, Bloodrage below 70, Battle Shout when it is about to fall off.
+    const FURY_NO_TALENTS: &str = r#"
+class: WARRIOR
+name: Fury (no talents)
+precombat_actions: [Bloodrage, Battle Shout, Berserker Stance]
+cast_if:
+  - name: Bloodrage
+    condition: resource "Rage" less 70
+  - name: Battle Shout
+    condition: buff_duration "Battle Shout" less 3
+  - name: Heroic Strike
+    condition: resource "Rage" greater 50
+  - name: Blood Fury
+  - name: Execute
+  - name: Whirlwind
+  - name: Battle Stance
+    condition: variable "combo_points" greater 0
+  - name: Berserker Stance
+    condition: variable "combo_points" eq 0
+"#;
+
+    /// The six Warrior rotations of `data/rotations/warrior/` load, and linked to a
+    /// talent-less Orc without trinkets each keeps the executors that character can use.
+    #[test]
+    fn the_shipped_warrior_rotations_link() {
+        let db = rotations();
+        let warrior = crate::faction::PlayerClass::Warrior;
+        let names: Vec<&str> = db
+            .rotations_for(warrior)
+            .iter()
+            .map(|spec| spec.name.as_str())
+            .collect();
+        assert_eq!(
+            names,
+            [
+                "2h Fury",
+                "Mortal Strike",
+                "DW Fury High Rage",
+                "Fury Rage conservative stance dancing",
+                "Fury Heroic Strike Focus",
+                "Protection",
+            ],
+            "file order"
+        );
+        let expected: [(&str, &[&str]); 6] = [
+            (
+                "DW Fury High Rage",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Fury Rage conservative stance dancing",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Fury Heroic Strike Focus",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "2h Fury",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Hamstring",
+                    "Overpower",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Mortal Strike",
+                &[
+                    "Bloodrage",
+                    "Battle Shout",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Overpower",
+                    "Execute",
+                    "Whirlwind",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Protection",
+                &[
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Blood Fury",
+                    "Revenge",
+                    "Sunder Armor",
+                ],
+            ),
+        ];
+        for (name, active) in expected {
+            let spec = shipped(name);
+            let mut f = shipped_orc_warrior();
+            f.ctx().set_rotation(Arc::clone(&spec));
+            let rotation = f.character.rotation().unwrap();
+            let linked: Vec<&str> = rotation
+                .active_executors()
+                .map(|e| e.spell_name())
+                .collect();
+            assert_eq!(linked, active, "{name}");
+            assert_eq!(
+                rotation.precombat_spells().len(),
+                spec.precombat_actions.len(),
+                "{name}: every precombat spell links"
+            );
+            assert_eq!(f.character.rotation_name(), name);
+        }
+    }
+
+    #[test]
+    fn the_rotation_runs_through_the_event_loop() {
+        let mut f = shipped_orc_warrior();
+        f.rig_rolls(PhysicalAttackResult::Hit);
+        f.ctx()
+            .set_rotation(Arc::new(serde_yaml::from_str(FURY_NO_TALENTS).unwrap()));
+        f.ctx().prepare_set_of_combat_iterations();
+        f.ctx().reset();
+        f.engine.prepare_iteration(-1.5);
+        f.ctx().run_precombat_actions();
+        f.engine.add_event(Event::new(
+            0.0,
+            EventKind::EncounterStart {
+                character: CharId(0),
+            },
+        ));
+        let handled = f.run(60.0);
+        let actions = handled
+            .iter()
+            .filter(|kind| matches!(kind, EventKind::PlayerAction { .. }))
+            .count();
+        assert!(actions > 10, "{actions} player actions");
+
+        let stats = f.character.rotation().unwrap().statistics_by_spell();
+        let casts = |name: &str| stats[name].successful_casts;
+        // Whirlwind has a 10 s cooldown: 6 casts in 60 s at most, and most of them.
+        assert!(casts("Whirlwind") >= 4, "{:?}", stats["Whirlwind"]);
+        assert!(casts("Whirlwind") <= 6, "{:?}", stats["Whirlwind"]);
+        assert!(stats["Whirlwind"].spell_status[&SpellStatus::OnCooldown] > 0);
+        // Whirlwind spends the rage first; Heroic Strike is tried every action all the same.
+        assert!(
+            stats["Heroic Strike"].attempts() > 10,
+            "{:?}",
+            stats["Heroic Strike"]
+        );
+        assert!(casts("Bloodrage") >= 1, "{:?}", stats["Bloodrage"]);
+        assert!(casts("Blood Fury") >= 1, "{:?}", stats["Blood Fury"]);
+        assert_eq!(
+            casts("Battle Shout"),
+            0,
+            "the precombat shout lasts 2 minutes"
+        );
+        assert!(stats["Battle Shout"].no_condition_group_fulfilled > 0);
+        assert_eq!(casts("Execute"), 0, "not in execute range");
+        assert!(
+            stats["Execute"].spell_status[&SpellStatus::NotInExecuteRange] > 0,
+            "{:?}",
+            stats["Execute"]
+        );
+        // Every roll hits, so Overpower's combo point never comes: Berserker Stance stays,
+        // and re-casting it is refused as "already in it".
+        assert_eq!(casts("Battle Stance"), 0);
+        assert!(stats["Battle Stance"].no_condition_group_fulfilled > 0);
+        assert_eq!(casts("Berserker Stance"), 0);
+        assert!(stats["Berserker Stance"].spell_status[&SpellStatus::InBerserkerStance] > 0);
+        assert_eq!(f.character.stance(), Stance::Berserker);
+
+        // Zeroed for the next set of iterations.
+        f.ctx().prepare_set_of_combat_iterations();
+        let stats = f.character.rotation().unwrap().statistics_by_spell();
+        assert_eq!(stats["Whirlwind"].attempts(), 0);
     }
 }

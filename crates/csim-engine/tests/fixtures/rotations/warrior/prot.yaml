@@ -1,0 +1,9 @@
+# Test fixture for rotation::spec (RotationDb::load). Not a real rotation; see data/rotations/.
+class: WARRIOR
+name: Fixture Prot
+precombat_actions:
+  - Defensive Stance
+cast_if:
+  - name: Shield Slam
+  - name: Revenge
+  - name: Sunder Armor
