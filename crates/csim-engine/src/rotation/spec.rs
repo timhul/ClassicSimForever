@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::attack_mode::AttackMode;
 use crate::faction::PlayerClass;
+use crate::rotation::condition::{Condition, ConditionParseError};
 use crate::spell::MAX_RANK;
 
 /// One `cast_if` executor: cast `name` (at `rank`) when `condition` holds.
@@ -65,8 +66,13 @@ impl CastIfSpec {
         self.rank.unwrap_or(MAX_RANK)
     }
 
+    /// The parsed condition, `None` without one (cast whenever available).
+    pub fn parse_condition(&self) -> Result<Option<Condition>, ConditionParseError> {
+        self.condition.as_deref().map(Condition::parse).transpose()
+    }
+
     /// The non-blank, trimmed lines of the condition (empty without one): the sentences the
-    /// condition parser (Phase 5.2) consumes.
+    /// condition parser consumes.
     pub fn condition_lines(&self) -> Vec<&str> {
         self.condition
             .as_deref()
@@ -144,6 +150,15 @@ pub enum RotationSpecError {
     },
     #[error("rotation {name:?} for {class:?} is not in the rotation directory")]
     Missing { class: PlayerClass, name: String },
+    #[error("rotation {name:?} ({class:?}): cast_if {index} ({executor}): {source}")]
+    Condition {
+        class: PlayerClass,
+        name: String,
+        index: usize,
+        executor: String,
+        #[source]
+        source: ConditionParseError,
+    },
 }
 
 impl RotationSpec {
@@ -163,8 +178,8 @@ impl RotationSpec {
         Ok(spec)
     }
 
-    /// Structural checks: non-empty names, no explicit rank 0 and no blank conditions.
-    /// The condition grammar is checked by the parser (Phase 5.2), not here.
+    /// Checks: non-empty names, no explicit rank 0, no blank conditions and every condition
+    /// parses.
     pub fn validate(&self) -> Result<(), RotationSpecError> {
         let invalid = |message: String| RotationSpecError::Invalid {
             class: self.class,
@@ -205,6 +220,15 @@ impl RotationSpec {
                      available",
                     executor.name
                 )));
+            }
+            if let Err(source) = executor.parse_condition() {
+                return Err(RotationSpecError::Condition {
+                    class: self.class,
+                    name: self.name.clone(),
+                    index,
+                    executor: executor.name.clone(),
+                    source,
+                });
             }
         }
         Ok(())
@@ -520,6 +544,43 @@ cast_if:
             "class: WARRIOR\nname: X\ncast_if:\n  - name: Y\n    condition: \"  \\n \"\n",
             "condition is blank",
         );
+    }
+
+    #[test]
+    fn rejects_a_condition_that_does_not_parse() {
+        match parse(
+            "class: WARRIOR
+name: X
+cast_if:
+  - name: Overpower
+  - name: Bloodthirst
+    condition: spell \"Whirlwind\" gt 1
+",
+        ) {
+            Err(RotationSpecError::Condition {
+                index,
+                executor,
+                source,
+                ..
+            }) => {
+                assert_eq!(index, 1);
+                assert_eq!(executor, "Bloodthirst");
+                assert!(
+                    source.message.contains("unknown comparator `gt`"),
+                    "{source}"
+                );
+            }
+            other => panic!("expected Condition, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn parse_condition_returns_none_without_one() {
+        let spec = parse(DW_FURY).unwrap();
+        assert!(spec.cast_if[2].parse_condition().unwrap().is_none());
+        let battle_shout = spec.cast_if[1].parse_condition().unwrap().unwrap();
+        assert_eq!(battle_shout.groups().len(), 2);
+        assert_eq!(battle_shout.groups()[1].len(), 3);
     }
 
     #[test]
