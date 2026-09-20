@@ -12,10 +12,11 @@ use crate::ids::{CharId, SpellId};
 use crate::item::{EquipmentDb, EquipmentSlot, ItemSpec, WeaponType};
 use crate::phase::Phase;
 use crate::race::{Race, RaceDb, RaceSpec};
+use crate::raid::SharedBuffRegistry;
 use crate::resource::ResourceType;
 use crate::spell::dbc::AuraState;
 use crate::spell::record::{EquippedItems, SpellDb};
-use crate::spell::test_world::{db, Raid};
+use crate::spell::test_world::db;
 use crate::spell::{Hand, SpellHost, SpellResult, SpellStatus};
 use crate::stance::Stance;
 use crate::target::Target;
@@ -87,7 +88,7 @@ pub(crate) fn race(race: Race) -> RaceSpec {
     RaceDb::load(&path).unwrap().get(race).clone()
 }
 
-fn equipment_db() -> Arc<EquipmentDb> {
+pub(crate) fn equipment_db() -> Arc<EquipmentDb> {
     let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
     Arc::new(EquipmentDb::from_specs(items, Vec::new()).unwrap())
 }
@@ -97,7 +98,7 @@ pub(crate) struct Fixture {
     pub character: Character,
     pub engine: Engine,
     pub target: Target,
-    pub raid: Raid,
+    pub raid: SharedBuffRegistry,
     pub db: SpellDb,
 }
 
@@ -120,12 +121,12 @@ impl Fixture {
             character,
             engine,
             target: Target::new(63),
-            raid: Raid::default(),
+            raid: SharedBuffRegistry::new(),
             db: db(),
         }
     }
 
-    pub fn ctx(&mut self) -> CharacterContext<'_, Raid> {
+    pub fn ctx(&mut self) -> CharacterContext<'_, SharedBuffRegistry> {
         CharacterContext::new(
             &mut self.character,
             &mut self.engine,

@@ -889,4 +889,4 @@ impl Character {
 }
 
 #[cfg(test)]
-mod tests;
+pub(crate) mod tests;

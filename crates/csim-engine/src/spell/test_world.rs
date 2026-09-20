@@ -11,8 +11,9 @@ use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
 use crate::effect::EffectHost;
 use crate::engine::{Engine, Event, EventKind};
-use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SharedBuffId, SpellId};
+use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
 use crate::proc::{ProcHost, ProcSource};
+use crate::raid::SharedBuffRegistry;
 use crate::resource::ResourceType;
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
@@ -799,52 +800,6 @@ pub(crate) fn db() -> SpellDb {
     db
 }
 
-/// The raid's shared buffs, for one character.
-#[derive(Default)]
-pub(crate) struct Raid {
-    pub buffs: Vec<Buff>,
-    party: Vec<(String, u8, SharedBuffId)>,
-    raid: Vec<(String, SharedBuffId)>,
-}
-
-impl SharedBuffs for Raid {
-    fn shared_party_buff(&self, canonical_name: &str, party: u8) -> Option<SharedBuffId> {
-        self.party
-            .iter()
-            .find(|(name, p, _)| name == canonical_name && *p == party)
-            .map(|(_, _, id)| *id)
-    }
-    fn register_shared_party_buff(&mut self, mut buff: Buff, party: u8) -> SharedBuffId {
-        assert!(buff.is_enabled());
-        let id = SharedBuffId(self.buffs.len() as u32);
-        buff.set_instance_id(InstanceId(id.0 + 100));
-        self.party
-            .push((buff.canonical_name().to_string(), party, id));
-        self.buffs.push(buff);
-        id
-    }
-    fn shared_raid_buff(&self, canonical_name: &str) -> Option<SharedBuffId> {
-        self.raid
-            .iter()
-            .find(|(name, _)| name == canonical_name)
-            .map(|(_, id)| *id)
-    }
-    fn register_shared_raid_buff(&mut self, mut buff: Buff) -> SharedBuffId {
-        assert!(buff.is_enabled());
-        let id = SharedBuffId(self.buffs.len() as u32);
-        buff.set_instance_id(InstanceId(id.0 + 100));
-        self.raid.push((buff.canonical_name().to_string(), id));
-        self.buffs.push(buff);
-        id
-    }
-    fn shared_buff(&self, id: SharedBuffId) -> &Buff {
-        &self.buffs[id.index()]
-    }
-    fn shared_buff_mut(&mut self, id: SharedBuffId) -> &mut Buff {
-        &mut self.buffs[id.index()]
-    }
-}
-
 /// A one-character world around a [`CharacterSpells`] registry.
 pub(crate) struct World {
     pub db: SpellDb,
@@ -852,7 +807,7 @@ pub(crate) struct World {
     pub target: Target,
     pub stats: CharacterStats,
     pub spells: CharacterSpells,
-    pub raid: Raid,
+    pub raid: SharedBuffRegistry,
     pub modifiers: SpellModifiers,
     pub level: u32,
     pub rage: u32,
@@ -901,7 +856,7 @@ impl World {
             target: Target::new(63),
             stats: CharacterStats::new(),
             spells: CharacterSpells::new(CharId(0), 1),
-            raid: Raid::default(),
+            raid: SharedBuffRegistry::new(),
             modifiers: SpellModifiers::new(),
             level: 60,
             rage: 100,
@@ -1059,14 +1014,14 @@ impl World {
     fn buff_ref(&self, id: BuffId) -> &Buff {
         match self.spells.buff_slot(id) {
             BuffSlot::Owned(buff) => buff,
-            BuffSlot::Shared(handle) => &self.raid.buffs[handle.index()],
+            BuffSlot::Shared(handle) => self.raid.shared_buff(*handle),
         }
     }
 
     fn buff_ctx(&mut self, id: BuffId) -> (&mut Buff, BuffContext<'_>) {
         let buff = match self.spells.buff_slot_mut(id) {
             BuffSlot::Owned(buff) => buff,
-            BuffSlot::Shared(handle) => &mut self.raid.buffs[handle.index()],
+            BuffSlot::Shared(handle) => self.raid.shared_buff_mut(*handle),
         };
         (
             buff,

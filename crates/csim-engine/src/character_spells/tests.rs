@@ -1,7 +1,8 @@
 use super::*;
 use crate::ids::InstanceId;
+use crate::raid::SharedBuffRegistry;
 use crate::spell::record::SpellDb;
-use crate::spell::test_world::{db, Raid};
+use crate::spell::test_world::db;
 
 const HEROIC_STRIKE_1: u32 = 78;
 const HEROIC_STRIKE_2: u32 = 284;
@@ -23,8 +24,12 @@ const DEEP_WOUNDS: u32 = 12834;
 const DEEP_WOUNDS_BLEED: u32 = 12162;
 const BLOODRAGE: u32 = 2687;
 
-fn setup() -> (SpellDb, CharacterSpells, Raid) {
-    (db(), CharacterSpells::new(CharId(2), 1), Raid::default())
+fn setup() -> (SpellDb, CharacterSpells, SharedBuffRegistry) {
+    (
+        db(),
+        CharacterSpells::new(CharId(2), 1),
+        SharedBuffRegistry::new(),
+    )
 }
 
 #[test]
@@ -39,7 +44,7 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
     assert_eq!(rank6.id(), Some(id));
     assert_eq!(
         rank6.instance_id(),
-        Some(InstanceId(2 << CharacterSpells::INSTANCE_ID_SHIFT))
+        Some(InstanceId::for_character(CharId(2), 0))
     );
     assert!(rank6.cooldown_id().is_none());
     assert!(!rank6.is_enabled());
@@ -49,9 +54,9 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
     assert!(!spells.has_game_id(BATTLE_SHOUT_7));
 
     // The party buff is registered with the raid; the character keeps a shared handle.
-    assert_eq!(raid.buffs.len(), 1);
-    assert!(raid.buffs[0].is_enabled());
-    assert_eq!(raid.buffs[0].canonical_name(), "Battle Shout (11551)");
+    assert_eq!(raid.buffs().len(), 1);
+    assert!(raid.buffs()[0].is_enabled());
+    assert_eq!(raid.buffs()[0].canonical_name(), "Battle Shout (11551)");
     let marker = shout.buff.unwrap();
     assert_eq!(rank6.marker_buff(), Some(marker));
     assert!(matches!(
@@ -69,7 +74,7 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
         spells.rank_group_of(id).map(|g| g.name()),
         Some("Battle Shout")
     );
-    assert_eq!(raid.buffs.len(), 2, "each rank has its own party buff");
+    assert_eq!(raid.buffs().len(), 2, "each rank has its own party buff");
 
     // An owned marker buff, a category cooldown and an own cooldown.
     let rend = spells.add_spell(&db, REND, 0, &mut raid);
@@ -99,17 +104,17 @@ fn a_second_character_reuses_shared_buffs() {
     let mut second = CharacterSpells::new(CharId(3), 1);
     first.add_spell(&db, SUNDER_ARMOR, 0, &mut raid);
     second.add_spell(&db, SUNDER_ARMOR, 1, &mut raid);
-    assert_eq!(raid.buffs.len(), 1);
-    assert_eq!(raid.buffs[0].canonical_name(), "Sunder Armor (11597)");
-    assert_eq!(raid.buffs[0].kind(), BuffKind::SharedDebuff);
+    assert_eq!(raid.buffs().len(), 1);
+    assert_eq!(raid.buffs()[0].canonical_name(), "Sunder Armor (11597)");
+    assert_eq!(raid.buffs()[0].kind(), BuffKind::SharedDebuff);
 
     // Party buffs are per party.
     first.add_spell(&db, BATTLE_SHOUT_6, 0, &mut raid);
     second.add_spell(&db, BATTLE_SHOUT_6, 1, &mut raid);
-    assert_eq!(raid.buffs.len(), 3);
+    assert_eq!(raid.buffs().len(), 3);
     let mut third = CharacterSpells::new(CharId(4), 1);
     third.add_spell(&db, BATTLE_SHOUT_6, 1, &mut raid);
-    assert_eq!(raid.buffs.len(), 3);
+    assert_eq!(raid.buffs().len(), 3);
 }
 
 #[test]
@@ -299,7 +304,7 @@ fn owned_buffs_are_enabled_and_found_by_name() {
     assert_eq!(spells.owned_buff_by_name("Revenge Ready"), Some(id));
     assert_eq!(
         spells.owned_buff(id).unwrap().instance_id(),
-        Some(InstanceId(2 << CharacterSpells::INSTANCE_ID_SHIFT))
+        Some(InstanceId::for_character(CharId(2), 0))
     );
     spells.add_start_of_combat_buff(id);
     assert_eq!(spells.start_of_combat_buffs(), &[id]);
@@ -476,7 +481,7 @@ fn every_shipped_spell_can_be_added() {
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
     let db = SpellDb::load(&dir).expect("shipped spell data loads");
     let mut spells = CharacterSpells::new(CharId(1), 1);
-    let mut raid = Raid::default();
+    let mut raid = SharedBuffRegistry::new();
     let mut ids: Vec<u32> = db.records().iter().map(|r| r.id).collect();
     ids.sort_unstable();
     let mut abilities = 0;

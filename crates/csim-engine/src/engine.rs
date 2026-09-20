@@ -58,6 +58,22 @@ pub enum EventKind {
 }
 
 impl EventKind {
+    /// The character the event is addressed to; `None` for the raid-wide `EncounterEnd`.
+    pub fn character(&self) -> Option<CharId> {
+        match *self {
+            EventKind::BuffRemoval { character, .. }
+            | EventKind::CastComplete { character, .. }
+            | EventKind::DotTick { character, .. }
+            | EventKind::EncounterStart { character }
+            | EventKind::IncomingDamage { character }
+            | EventKind::MainhandMeleeHit { character, .. }
+            | EventKind::OffhandMeleeHit { character, .. }
+            | EventKind::PeriodicRefreshBuff { character, .. }
+            | EventKind::PlayerAction { character } => Some(character),
+            EventKind::EncounterEnd => None,
+        }
+    }
+
     /// The field-less type of this event, used for statistics.
     pub fn event_type(&self) -> EventType {
         match self {

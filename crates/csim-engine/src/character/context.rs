@@ -10,10 +10,10 @@
 
 use crate::buff::external::{ExternalBuffDb, ExternalBuffSpec};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
-use crate::character_spells::{AddedSpell, BuffSlot, SharedBuffs, SpellHandle};
+use crate::character_spells::{AddedSpell, BuffSlot, PartyAuraChange, SharedBuffs, SpellHandle};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
-use crate::effect::EffectHost;
+use crate::effect::{Effect, EffectHost};
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::EquipmentSlot;
@@ -157,16 +157,41 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     fn apply_auras(&mut self, id: BuffId) {
-        let effects = self.buff_ref(id).effects.clone();
-        for effect in &effects {
-            effect.apply_aura(self, effect.record().targets_enemy());
-        }
+        self.change_auras(id, true);
     }
 
     fn remove_auras(&mut self, id: BuffId) {
+        self.change_auras(id, false);
+    }
+
+    /// Applies (or removes) the aura effects of buff `id` on this character. A shared party
+    /// buff affects the whole party: the change is noted with the raid, which repeats it on the
+    /// other members (`RaidControl::propagate_party_auras`).
+    fn change_auras(&mut self, id: BuffId, apply: bool) {
         let effects = self.buff_ref(id).effects.clone();
-        for effect in &effects {
-            effect.remove_aura(self, effect.record().targets_enemy());
+        self.change_aura_effects(&effects, apply);
+        if let BuffSlot::Shared(handle) = self.character.spells.buff_slot(id) {
+            let handle = *handle;
+            if let BuffKind::PartyBuff { party } = self.raid.shared_buff(handle).kind() {
+                self.raid.note_party_aura_change(PartyAuraChange {
+                    buff: handle,
+                    party,
+                    by: self.character.id(),
+                    apply,
+                });
+            }
+        }
+    }
+
+    /// Applies (or removes) aura `effects` on this character, whichever buff they belong to.
+    pub(crate) fn change_aura_effects(&mut self, effects: &[Effect], apply: bool) {
+        for effect in effects {
+            let on_target = effect.record().targets_enemy();
+            if apply {
+                effect.apply_aura(self, on_target);
+            } else {
+                effect.remove_aura(self, on_target);
+            }
         }
     }
 
