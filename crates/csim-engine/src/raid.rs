@@ -388,8 +388,7 @@ impl RaidControl {
     }
 
     /// Routes an event to its character (`EncounterEnd` ends combat for everyone). Returns
-    /// `false` for events nobody handles yet (`PlayerAction` is the rotation's, Phase 5;
-    /// `IncomingDamage` is tank mode's).
+    /// `false` for events nobody handles yet (`IncomingDamage` is tank mode's).
     pub fn dispatch(&mut self, event: &Event) -> bool {
         match event.kind.character() {
             Some(id) => self.with_character(id, |ctx| ctx.handle_event(event)),

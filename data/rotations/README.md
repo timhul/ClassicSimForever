@@ -84,3 +84,20 @@ a line that does not follow the grammar, an unknown type, resource or variable, 
 non-buff type is a load error naming the file, the executor and the line. Buff and spell names
 are only resolved when the rotation is linked to a character; an executor naming something the
 character does not have is skipped then, not rejected here.
+
+## Linking and running
+
+A rotation is linked to a character (`Rotation::link`, again before every set of iterations):
+an executor is *active* when the character has learned its spell at the asked rank (the
+highest learned rank without `rank`), the spell is enabled (a talent taken, the race's racial,
+the item equipped) and every buff and spell its condition names resolves. The rest are skipped
+and never attempted. `spell "<name>"` in a condition resolves to the highest learned rank
+whether or not it is enabled (a disabled Bloodthirst has a cooldown of 0).
+
+Before the pull (at negative time) the precombat actions are cast in order when their spell is
+available or merely on cooldown (every cooldown reads as "ready at 0" then), followed by the
+precast. The rotation itself never runs before the pull; the first pass is the encounter start,
+after which every `PlayerAction` (a global cooldown or a cooldown ending, a rage gain, the
+stance swap lag, a completed cast) runs the active executors in order: a spell that is not
+available counts its status, one whose condition does not hold counts a failed condition, and
+one that is cast counts a successful cast. Those counts are the executor statistics.
