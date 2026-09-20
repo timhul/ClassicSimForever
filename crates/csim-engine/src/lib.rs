@@ -30,5 +30,8 @@ pub mod stats;
 pub mod talent;
 pub mod target;
 
+#[cfg(test)]
+mod ground_truth;
+
 /// Engine crate version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

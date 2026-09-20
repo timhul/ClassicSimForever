@@ -1443,6 +1443,9 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     fn target_armor(&self) -> i32 {
         self.target.armor()
     }
+    fn target_block_value(&self) -> u32 {
+        self.target.block_value()
+    }
     fn total_physical_damage_mod(&self) -> f64 {
         let view = self.target_view();
         self.character

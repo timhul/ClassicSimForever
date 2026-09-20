@@ -118,6 +118,8 @@ pub trait SpellHost: EffectHost {
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64);
 
     fn target_armor(&self) -> i32;
+    /// Damage a blocked attack loses (the target's block value).
+    fn target_block_value(&self) -> u32;
     fn total_physical_damage_mod(&self) -> f64;
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
@@ -1242,6 +1244,12 @@ impl Spell {
                     execution_time: self.execution_time(host),
                 });
             }
+        };
+        let damage = match result {
+            PhysicalAttackResult::Block | PhysicalAttackResult::BlockCritical => {
+                damage - f64::from(host.target_block_value())
+            }
+            _ => damage,
         };
         let damage = damage.round().max(0.0) as u32;
         let threat = (f64::from(damage) + innate_threat)
