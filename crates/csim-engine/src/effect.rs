@@ -610,12 +610,15 @@ impl Effect {
                     }
                 }
                 if magic {
-                    adjust(
-                        host.stats_mut(),
-                        signed,
-                        |s, v| s.increase_magic_school_damage_mod_all(v),
-                        |s, v| s.decrease_magic_school_damage_mod_all(v),
-                    );
+                    // A multiplicative stack: a negative aura (Defensive Stance's -10 %) is
+                    // added as-is and removed by the same value.
+                    if apply {
+                        host.stats_mut()
+                            .increase_magic_school_damage_mod_all(rounded);
+                    } else {
+                        host.stats_mut()
+                            .decrease_magic_school_damage_mod_all(rounded);
+                    }
                 }
             }
             A::ModDamagePercentTaken if !on_target => {
@@ -1248,12 +1251,12 @@ mod tests {
         assert_eq!(host.extra_attacks, 1);
 
         assert!(
-            effect(SpellEffectName::Dispel, 1.0)
+            effect(SpellEffectName::Unknown(38), 1.0)
                 .perform_independent(&mut host, 0, 0)
                 .success
         );
         assert!(
-            aura(AuraType::ModHealingPct, -50.0, 127)
+            aura(AuraType::Unknown(118), -50.0, 127)
                 .perform_independent(&mut host, 0, 0)
                 .success
         );
@@ -1273,7 +1276,7 @@ mod tests {
             aura(AuraType::ModStat, 15.0, 0),
             aura(AuraType::ModHitChance, 2.0, 0),
             aura(AuraType::ModOffhandDamagePct, 25.0, 0),
-            aura(AuraType::ModHealingPct, -50.0, 127),
+            aura(AuraType::Unknown(118), -50.0, 127),
         ];
         let sunder = aura(AuraType::ModResistance, -450.0, 1);
 

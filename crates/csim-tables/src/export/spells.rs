@@ -6,9 +6,11 @@
 //! `OVERRIDE_ACTIONBAR_SPELLS`, required auras and the overrides' references pulls in the hidden
 //! payloads. NPC spells are never reached because the walk only starts from a class or race.
 //! The result is pruned ([`crate::export::prune`]): effects the simulator has no use for and
-//! spells left with nothing to do are dropped.
+//! spells left with nothing to do are dropped. The external buffs (`data/external_buffs.yaml`)
+//! are walked the same way from the aura spells the registry names.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::path::{Path, PathBuf};
 
 use csim_engine::faction::PlayerClass;
 use csim_engine::spell::dbc::{
@@ -38,6 +40,26 @@ pub enum ExportError {
     NoSkillLines(String),
     #[error("no racial skill lines found (SkillLine category 9 named \"... Racial\")")]
     NoRacialLines,
+    #[error("external buff spells not in the tables: {0:?}")]
+    MissingSeeds(Vec<u32>),
+    #[error("class {0:?} has no Trait tree (SkillLineXTraitTree) or no tab groups")]
+    NoTraitTree(String),
+    #[error("talent node {0} has several prerequisites {1:?}; the schema allows one")]
+    SeveralPrerequisites(u32, Vec<u32>),
+    #[error("the exported talent tree of {0} is inconsistent: {1}")]
+    InvalidTalents(String, #[source] csim_engine::talent::TalentSpecError),
+    #[error("cannot read {path}: {source}")]
+    Io {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("cannot parse {path}: {source}")]
+    Yaml {
+        path: PathBuf,
+        #[source]
+        source: serde_yaml::Error,
+    },
 }
 
 /// The `ChrClasses` row of `class`, matched on the upper-case `Filename` token (`WARRIOR`).
@@ -158,6 +180,68 @@ pub fn export_racials_with_report(
     Ok((file, report))
 }
 
+/// Builds the external buff walk (`data/spells/externals.yaml`): the closure of `seeds` (the
+/// aura spells `data/external_buffs.yaml` names), pruned, minus `exclude` (the ids another
+/// file in `data/spells/` already carries, which the engine loads either way). The file has no
+/// class and its records no skill line: they are never learned, only turned into buffs.
+pub fn export_externals(
+    tables: &Tables,
+    seeds: &BTreeSet<u32>,
+    exclude: &BTreeSet<u32>,
+    overrides: &Overrides,
+) -> Result<SpellFile, ExportError> {
+    export_externals_with_report(tables, seeds, exclude, overrides).map(|(file, _)| file)
+}
+
+/// [`export_externals`] plus what the pruning removed.
+pub fn export_externals_with_report(
+    tables: &Tables,
+    seeds: &BTreeSet<u32>,
+    exclude: &BTreeSet<u32>,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport), ExportError> {
+    let missing: Vec<u32> = seeds
+        .iter()
+        .copied()
+        .filter(|id| !tables.spell_exists(*id))
+        .collect();
+    if !missing.is_empty() {
+        return Err(ExportError::MissingSeeds(missing));
+    }
+    let mut file = build_file(tables, None, &[], seeds.clone(), overrides);
+    file.learnable = false;
+    file.spells.retain(|record| !exclude.contains(&record.id));
+    let report = prune(&mut file, overrides);
+    Ok((file, report))
+}
+
+/// The spell ids of every `*.yaml` / `*.yml` file directly in `spells_dir` except `except`
+/// (by file name): what an export must not repeat because `SpellDb::load` reads them all.
+pub fn spell_ids_in_dir(spells_dir: &Path, except: &str) -> Result<BTreeSet<u32>, ExportError> {
+    let mut ids = BTreeSet::new();
+    let entries = std::fs::read_dir(spells_dir).map_err(|source| ExportError::Io {
+        path: spells_dir.to_path_buf(),
+        source,
+    })?;
+    for entry in entries.filter_map(Result::ok) {
+        let path = entry.path();
+        let is_yaml = path
+            .extension()
+            .is_some_and(|ext| ext == "yaml" || ext == "yml");
+        if !path.is_file() || !is_yaml || path.file_name().is_some_and(|name| name == except) {
+            continue;
+        }
+        let text = std::fs::read_to_string(&path).map_err(|source| ExportError::Io {
+            path: path.clone(),
+            source,
+        })?;
+        let file: SpellFile =
+            serde_yaml::from_str(&text).map_err(|source| ExportError::Yaml { path, source })?;
+        ids.extend(file.spells.iter().map(|record| record.id));
+    }
+    Ok(ids)
+}
+
 /// The `SkillLineAbility` row to describe each spell of `lines` with: a row of the lines whose
 /// spell exists, preferring the trainable one (`ClassMask` ≠ 0) when a spell has several.
 fn abilities_in<'a>(tables: &'a Tables, lines: &[u32]) -> BTreeMap<u32, &'a SkillLineAbilityRow> {
@@ -205,6 +289,7 @@ fn build_file(
     SpellFile {
         build: tables.build().to_owned(),
         class,
+        learnable: true,
         spells,
     }
 }

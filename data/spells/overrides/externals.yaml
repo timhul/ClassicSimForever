@@ -1,0 +1,8 @@
+# Hand-written overrides for the external buff spells (data/spells/externals.yaml, exported from
+# build 1.60.1.69893 from the ids in data/external_buffs.yaml). See
+# crates/csim-engine/src/spell/overrides.rs for the schema.
+
+overrides:
+  - id: 11717
+    note: Curse of Recklessness's DUMMY aura is the immunity to fear; the armor reduction is E1
+    effects: [{ index: 0, script: NO_OP }]

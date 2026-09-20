@@ -5,6 +5,7 @@
 
 pub mod attack_mode;
 pub mod buff;
+pub mod character;
 pub mod character_spells;
 pub mod combat_roll;
 pub mod cooldown;
@@ -19,11 +20,14 @@ pub mod magic_school;
 pub mod mechanics;
 pub mod phase;
 pub mod proc;
+pub mod race;
+pub mod raid;
 pub mod resource;
 pub mod rng;
 pub mod spell;
 pub mod stance;
 pub mod stats;
+pub mod talent;
 pub mod target;
 
 /// Engine crate version.

@@ -24,7 +24,7 @@ mod flags;
 mod misc;
 
 pub use aura::AuraType;
-pub use discard::{DISCARDED_AURAS, DISCARDED_EFFECTS};
+pub use discard::{DISCARDED_AURA_IDS, DISCARDED_EFFECT_IDS};
 pub use effect::SpellEffectName;
 pub use flags::{ProcFlags, SpellAttr0, SpellSchoolMask};
 pub use misc::{

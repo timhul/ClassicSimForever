@@ -355,6 +355,11 @@ scaling; this build scales through `EffectRealPointsPerLevel` instead), `SpellXS
 "after the target dodges" condition must be implemented elsewhere (proc/override), check in
 game.
 
+Not in any class walk: the buffs *other* players and consumables provide (Blessings, Gift of
+the Wild, totems, elixirs, food, the target debuffs of other classes). Their aura spells are in
+the dump like any other; `data/external_buffs.yaml` lists the ones the simulator offers and
+`export-spells --externals` writes them to `data/spells/externals.yaml` (see `README.md`).
+
 ## 1.10 What the exporter leaves out (pruning)
 
 A damage simulator has no use for most of what the tables describe: crowd control, movement,
@@ -364,8 +369,10 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
 1. **Effects** whose kind or aura is on the discard list are removed from their spell; the
    remaining effects keep their table `EffectIndex` (so `$s2`, `POINTS_INDEX_1` and override
    `index` values still mean what the tables say). The list is
-   `data/spells/overrides/discard.txt`, hardcoded as `DISCARDED_AURAS` / `DISCARDED_EFFECTS` in
-   `crates/csim-engine/src/spell/dbc/discard.rs`. Kept although the list names them as
+   `data/spells/overrides/discard.txt`; the engine's vocabulary (`crates/csim-engine/src/spell/dbc/
+   aura.rs`, `effect.rs`) does not name these values — they load as `UNKNOWN_<id>` — and
+   `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
+   exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
    simulated) and `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
@@ -400,6 +407,8 @@ overrides:
     proc: { hit_mask: [CRITICAL] }   # ProcHitMask: NORMAL CRITICAL MISS FULL_RESIST PARTIAL_RESIST
                                      #   DODGE PARRY BLOCK EVADE IMMUNE DEFLECT ABSORB REFLECT
                                      #   INTERRUPT FULL_BLOCK
+                                     # chance_effect: N — the proc chance is aura effect N's value
+                                     #   (talents whose rank value is the chance: Unbridled Wrath)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -432,7 +441,9 @@ overrides:
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
-`START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`.
+`START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`, `ENRAGE` (the buff
+puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Regeneration require;
+the client tables do not carry the enrage mechanic).
 
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,

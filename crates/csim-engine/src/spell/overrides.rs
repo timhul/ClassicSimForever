@@ -12,6 +12,8 @@
 //! overrides:
 //!   - id: 12834                          # Deep Wounds (talent): crits only
 //!     proc: { hit_mask: [CRITICAL] }
+//!   - id: 12322                          # Unbridled Wrath: the rank value is the proc chance
+//!     proc: { chance_effect: 0 }
 //!   - id: 12162                          # Deep Wounds payload (DUMMY)
 //!     effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
 //!   - id: 12319                          # Flurry (talent DUMMY)
@@ -260,6 +262,11 @@ pub struct ProcOverride {
     /// Hit results the proc fires on; the file default when absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hit_mask: Option<ProcHitMask>,
+    /// The aura effect whose value is the proc chance in percent, for talents whose rank value
+    /// is the chance (Unbridled Wrath 12/24/36/48/60 %) rather than the payload's value: the
+    /// table's `ProcChance` is the max-rank number.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chance_effect: Option<u32>,
 }
 
 /// Threat the client tables do not carry (innate threat of Heroic Strike, Revenge, Shield Slam).
@@ -307,6 +314,9 @@ pub enum SimFlag {
     StartOfCombat,
     /// The spell's damage never crits (Rend's bleed in Classic).
     CannotCrit,
+    /// While the buff is active the character is enraged (the `ENRAGED` caster aura state;
+    /// the client tables do not carry the enrage mechanic).
+    Enrage,
 }
 
 /// Everything hand-written about one spell.

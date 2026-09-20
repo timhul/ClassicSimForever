@@ -1,0 +1,97 @@
+# The Warrior class. Schema: crates/csim-engine/src/character/class.rs (`ClassSpec`).
+#
+# `stat_rules` come from the client tables (build 1.60.1.69893): ChrClasses
+# (AttackPowerPerStrength 2, AttackPowerPerAgility 0, RangedAttackPowerPerAgility 2) and
+# PlayerExpectedStat (CritPerAgility 0.0005 at level 60 = 20 agility per 1 % crit; no spell crit
+# from intellect). `available_races` are the CharBaseInfo rows of class 1 (the two Forever-only
+# race ids 95 / 96 are not playable in the simulator yet).
+#
+# The base attributes, attack power and base crit are ClassicSim's (Class/Warrior/Warrior.cpp);
+# the tables do not carry them. Proficiencies, armor type, the global cooldown and the starting
+# stance are Warrior.cpp too; the enchant lists per slot are WarriorEnchants.cpp. Whether an
+# enchant physically fits (two-handers only, sharp vs blunt weapons, faction) is decided by
+# data/enchants.yaml, so the lists here only say which enchants the class considers.
+
+class: WARRIOR
+resource: rage
+base_stats:
+  strength: 100
+  agility: 60
+  stamina: 90
+  intellect: 10
+  spirit: 25
+  melee_ap: 160
+  melee_crit: 200          # hundredths of a percent
+stat_rules:
+  agility_per_percent_crit: 20.0
+  melee_ap_per_strength: 2
+  melee_ap_per_agility: 0
+  ranged_ap_per_agility: 2
+global_cooldown: 1.5
+default_stance: BATTLE_STANCE
+highest_armor_type: PLATE
+weapon_proficiencies:
+  MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD, POLEARM, STAFF, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
+  OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND, SHIELD]
+  RANGED: [BOW, CROSSBOW, GUN, THROWN]
+available_races: [HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD, TAUREN, GNOME, TROLL]
+enchants:
+  MAINHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponAgility
+    - Enchant2HWeaponAgility
+    - Enchant2HWeaponSuperiorImpact
+    - IronCounterweight
+  OFFHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponAgility
+  HEAD:
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityAgility
+    - LesserArcanumOfVoracityStrength
+  LEGS:
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityAgility
+    - LesserArcanumOfVoracityStrength
+  SHOULDERS:
+    - MightOfTheScourge
+    - ZandalarSignetOfMight
+  BACK:
+    - EnchantCloakLesserAgility
+  WRIST:
+    - EnchantBracerGreaterStrength
+    - EnchantBracerSuperiorStrength
+  GLOVES:
+    - EnchantGlovesSuperiorAgility
+    - EnchantGlovesGreaterAgility
+    - EnchantGlovesMinorHaste
+    - EnchantGlovesGreaterStrength
+  CHEST:
+    - EnchantChestStats
+    - EnchantChestGreaterStats
+  BOOTS:
+    - EnchantBootsMinorSpeed
+    - EnchantBootsAgility
+    - EnchantBootsGreaterAgility
+temp_enchants:
+  MAINHAND:
+    - WindfuryTotem
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - ShadowOil
+  OFFHAND:
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - ShadowOil

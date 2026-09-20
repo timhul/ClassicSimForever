@@ -1,0 +1,51 @@
+# Playable races.
+#
+# `id` and `faction` come from ChrRaces (build 1.60.1.69893). The base attributes are ClassicSim's
+# values (Character/Race/Races/*.cpp): the client tables do not carry them (they are server-side
+# data), so they are seeded from Classic and are expected to be corrected for Forever.
+#
+# Everything else a race grants is a spell: data/spells/racials.yaml, selected by `race_mask` =
+# 1 << (id - 1). ClassicSim's hardcoded weapon skill bonuses and int/spirit multipliers have no
+# place here: in Forever the Sword / Mace / Axe Specialization racials are crit passives and The
+# Human Spirit (20598) is a +5% spirit aura, and a game version that grants weapon skill exports
+# that as a racial spell too.
+
+- race: HUMAN
+  id: 1
+  faction: ALLIANCE
+  base_stats: { strength: 20, agility: 20, stamina: 20, intellect: 20, spirit: 22 }
+
+- race: ORC
+  id: 2
+  faction: HORDE
+  base_stats: { strength: 23, agility: 17, stamina: 22, intellect: 17, spirit: 23 }
+
+- race: DWARF
+  id: 3
+  faction: ALLIANCE
+  base_stats: { strength: 22, agility: 16, stamina: 23, intellect: 19, spirit: 19 }
+
+- race: NIGHT_ELF
+  id: 4
+  faction: ALLIANCE
+  base_stats: { strength: 17, agility: 25, stamina: 19, intellect: 20, spirit: 20 }
+
+- race: UNDEAD
+  id: 5
+  faction: HORDE
+  base_stats: { strength: 19, agility: 18, stamina: 21, intellect: 18, spirit: 25 }
+
+- race: TAUREN
+  id: 6
+  faction: HORDE
+  base_stats: { strength: 25, agility: 15, stamina: 22, intellect: 15, spirit: 22 }
+
+- race: GNOME
+  id: 7
+  faction: ALLIANCE
+  base_stats: { strength: 15, agility: 23, stamina: 19, intellect: 25, spirit: 20 }
+
+- race: TROLL
+  id: 8
+  faction: HORDE
+  base_stats: { strength: 21, agility: 22, stamina: 21, intellect: 16, spirit: 21 }

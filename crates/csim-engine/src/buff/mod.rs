@@ -1,5 +1,6 @@
 //! Buffs and debuffs. Port of `Spells/Buff.*`, `SelfBuff`, `PartyBuff`, `UniqueDebuff`,
-//! `SharedDebuff` and `ExternalBuff` (the state machine part; the external buff *data* is Phase 4).
+//! `SharedDebuff` and `ExternalBuff` (the state machine part; the external buff *data* and
+//! registry are in [`external`]).
 //!
 //! The C++ class hierarchy is one struct with a [`BuffKind`]. A buff owns its timing state
 //! (applied / refreshed / expired, charges, stacks, removal iteration) and its aura effects, but
@@ -12,7 +13,9 @@
 //! On the table model a spell *is* its buff: [`Buff::from_record`] takes the spell's apply-aura
 //! effects, its `SpellDuration`, `SpellAuraOptions` (charges, stacks, the events that consume a
 //! charge) and `Attributes_0` (hidden), and derives the [`BuffKind`] from the effects' implicit
-//! targets.
+//! targets. The buffs other players and consumables provide are in [`external`].
+
+pub mod external;
 
 use crate::effect::Effect;
 use crate::engine::{Engine, EventKind};
@@ -33,7 +36,9 @@ pub enum BuffKind {
     UniqueDebuff,
     /// A debuff on the target shared by the whole raid (Sunder Armor).
     SharedDebuff,
-    /// A raid/consumable buff configured by the user rather than cast; behaves as a self buff.
+    /// A raid/consumable buff (or target debuff) configured by the user rather than cast
+    /// ([`external`]). Applied when selected and kept across iterations: [`Buff::reset`] and
+    /// [`Buff::initialize`] leave it alone, and it never claims a debuff slot.
     External,
 }
 
@@ -261,6 +266,24 @@ impl Buff {
 
     pub fn with_hidden(mut self, hidden: bool) -> Self {
         self.hidden = hidden;
+        self
+    }
+
+    /// Renames the buff (external buffs carry the registry's name, not the aura spell's); the
+    /// canonical name follows.
+    pub fn with_name(mut self, name: &str) -> Self {
+        self.name = name.to_string();
+        self.canonical_name = if self.spell == 0 {
+            name.to_string()
+        } else {
+            Buff::canonical_name_for(name, self.spell)
+        };
+        self
+    }
+
+    /// Replaces the duration (`None` = permanent).
+    pub fn with_duration(mut self, duration: Option<f64>) -> Self {
+        self.base_duration = duration;
         self
     }
 
@@ -551,8 +574,15 @@ impl Buff {
 
     /// End-of-iteration reset: removes the buff if active and returns the iteration's total
     /// uptime (for the statistics of non-hidden buffs), then clears the runtime state.
-    /// Port of `Buff::reset`; the caller removes aura effects if `was_active`.
+    /// Port of `Buff::reset`; the caller removes aura effects if `was_active`. External buffs
+    /// stay applied across iterations (the C++ kept them out of the enabled buffs).
     pub fn reset(&mut self, ctx: &mut BuffContext) -> BuffReset {
+        if self.kind == BuffKind::External {
+            return BuffReset {
+                was_active: false,
+                uptime: 0.0,
+            };
+        }
         let was_active = self.cancel(ctx);
         let uptime = self.uptime;
         self.initialize();
@@ -560,8 +590,12 @@ impl Buff {
     }
 
     /// Clears the runtime state without touching the enabled flag. Port of `Buff::initialize`
-    /// (also what `prepare_set_of_combat_iterations` does for every buff kind).
+    /// (also what `prepare_set_of_combat_iterations` does for every buff kind). A no-op for
+    /// external buffs, whose aura effects are applied for as long as they are selected.
     pub fn initialize(&mut self) {
+        if self.kind == BuffKind::External {
+            return;
+        }
         self.current_charges = 0;
         self.current_stacks = 0;
         self.iteration = 0;

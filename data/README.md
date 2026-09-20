@@ -11,11 +11,20 @@ data/
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
+│   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
 │   └── overrides/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
 │       ├── racials.yaml
+│       ├── externals.yaml
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
+├── talents/
+│   └── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
+├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
+│                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/ enchants.yaml set_bonuses.yaml   Phase 2 item data (see ITEM_INSTRUCTIONS.md)
+├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
+├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
+│                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
 ├── TALENT_INSTRUCTIONS.md
 └── ITEM_INSTRUCTIONS.md
@@ -29,9 +38,12 @@ data/tables/<Table>.<build>.csv
         ▼
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
+csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml)
+csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
         │  + data/spells/overrides/*.yaml
         ▼
 csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
+csim_engine::talent::TalentDb::load("data/talents")
 ```
 
 1. **`csim-tables`** reads the CSV dumps (`TableDir` finds the build from the file names,
@@ -39,13 +51,24 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
    talent tree (`Trait*`), the payload spells those reach through `EffectTriggerSpell`,
    `OVERRIDE_ACTIONBAR_SPELLS`, `SpellAuraRestrictions` and the overrides' references
    (`SPELL_INSTRUCTIONS.md` §1.3–1.6). Each spell becomes one `SpellRecord`: the joined
-   `Spell*` rows in snake_case (§1.7), effects included.
+   `Spell*` rows in snake_case (§1.7), effects included. The external buffs are walked the
+   same way from the aura spell ids `data/external_buffs.yaml` names (Greater Blessing of
+   Kings 25898, Faerie Fire 9907, …); ids another spell file already carries (the Warrior's
+   Sunder Armor and Battle Shout) are not repeated, since the engine loads every file.
 2. The walk is **pruned** (§1.10): effects the simulator has no use for are dropped, spells left
    with nothing to do are left out.
 3. The generated files are committed so the engine and its tests never need the dump.
 4. The engine loads the generated files plus the **overrides** and checks the cross references
    (`SpellDb::load`). `Spell`, `Buff`, `Effect`, `Proc` and `Periodic` are built from the
    records at runtime (`crates/csim-engine/src/spell/`).
+5. **Talents** are a second, small walk (`TALENT_INSTRUCTIONS.md` §1.2–1.5): the class's Trait
+   tree gives one entry per node — its spell, tab, tier, column, rank count, prerequisite and
+   the `CurvePoint` value of each effect per rank (`data/talents/<class>.yaml`, schema
+   `crates/csim-engine/src/talent/spec.rs`). What a talent *does* is not repeated there: it is
+   the talent spell in `data/spells/<class>.yaml`, and the runtime applies rank *r* by
+   substituting `rank_values[index][r − 1]` for the effect's base points and enabling the spell
+   (stat auras, modifiers, procs, scripts and granted abilities all go through the spell
+   machinery).
 
 ## Re-exporting from a new dump
 
@@ -55,21 +78,39 @@ csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
    ```
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --racials
+   cargo run -p csim-tables -- export-spells --externals
+   cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- check
    ```
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides
-   and fails with `--strict` if there are any.
-3. Look at the diff of `data/spells/*.yaml`: new ranks, changed numbers, new payloads.
+   and fails with `--strict` if there are any. `export-talents` warns when a node's `TraitCond`
+   gate is not the `points_per_tier × tier` rule or a node has no tab or spell.
+3. Look at the diff of `data/spells/*.yaml` and `data/talents/*.yaml`: new ranks, changed
+   numbers, new payloads, moved talents.
    `cargo run -p csim-tables -- spell <id>` prints one spell straight from the tables.
-4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed files match a
-   fresh export when `data/tables/` is present, and the parity tests in
+4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed spell and talent
+   files match a fresh export when `data/tables/` is present, and the parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
 5. Regenerate the test fixtures if the spells they use changed:
    `python crates/csim-tables/tests/fixtures/make_fixtures.py`.
 
 A different build changes the `build:` header; every file in `data/spells/` must carry the
 same build.
+
+## External buffs (`data/external_buffs.yaml`)
+
+The buffs other players and consumables provide are not hand-written numbers either: each
+entry of `external_buffs.yaml` names the *aura* spell that ends up on the player or the target
+(the buff, not the totem / item / cast that puts it there — Strength of Earth 25362, not the
+totem spell 25361; Well Fed 24799, not the Smoked Desert Dumplings food cast), and the engine
+builds the buff from that record like any other. The registry only adds what the tables do not
+have: `faction` (ALLIANCE / HORDE, absent = both), `classes` the buff is offered to (absent =
+all), a `mutex` key for the groups that exclude each other (one food, one strength elixir, …)
+and `stacks` for a stacking debuff kept up by others (absent = the spell's `max_stacks`:
+Sunder Armor ×5, Armor Shatter ×3). Selected buffs are applied once and stay applied across
+iterations; the numbers change by re-exporting `externals.yaml`, not by editing the registry.
+World buffs are deliberately absent (not available in Forever the same way).
 
 ## What goes in the overrides
 
@@ -81,11 +122,12 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
   `DEEP_WOUNDS_BLEED`, `TRIGGER_WITH_VALUE`, `PERIODIC_RESOURCE_GAIN`, … or `NO_OP` for a dummy
   that does nothing in the simulator. `csim-tables check` says which effects still need one.
 - **`proc`** — the hit results a proc fires on (`hit_mask: [CRITICAL]` for Flurry, Deep Wounds):
-  retail keeps this in the server-side `spell_proc` table.
+  retail keeps this in the server-side `spell_proc` table; and `chance_effect` for the talents
+  whose rank value is the proc chance (Unbridled Wrath 12–60 %) rather than the payload's value.
 - **`threat`** — innate threat (`flat`) and a multiplier; the client has no threat table.
 - **`sim_flags`** — how the simulator treats the spell: `IGNORED` (loads, never cast),
   `RESETS_SWING_TIMERS` / `STOPS_ATTACK_DURING_CAST` / `CANCELS_NEXT_SWING_QUEUE` (Slam),
-  `START_OF_COMBAT` (Anger Management), `CANNOT_CRIT`.
+  `START_OF_COMBAT` (Anger Management), `CANNOT_CRIT`, `ENRAGE` (Enrage: the `ENRAGED` aura state).
 - **`stance_passive`** — the hidden passive carrying a stance's numbers
   (`SpellShapeshiftForm.PresetSpellID` is empty in the dump).
 - **`on_event`** — a reaction to a combat event (Overpower's combo point on a dodge).
@@ -99,9 +141,11 @@ sources (`ProcTypeMask`). If a number looks wrong, check the dump before overrid
 ## Pruning
 
 `data/spells/overrides/discard.txt` lists the aura types and effect kinds a damage simulator
-has no use for (crowd control, movement, immunities, healing, …). The list is hardcoded in
-`crates/csim-engine/src/spell/dbc/discard.rs` and applied by the exporter
-(`crates/csim-tables/src/export/prune.rs`): those effects are dropped, spells with nothing left
-are dropped, triggers of dropped spells are dropped, to a fixed point. Spells the overrides
-mention are always kept. Details and the exceptions in `SPELL_INSTRUCTIONS.md` §1.10. Editing
-the list means editing `discard.rs` to match and re-exporting.
+has no use for (crowd control, movement, immunities, healing, …). They are **not part of the
+engine's vocabulary**: `crates/csim-engine/src/spell/dbc/aura.rs` and `effect.rs` do not name
+them (they load as `UNKNOWN_<id>`), and `dbc/discard.rs` lists their ids so the exporter
+(`crates/csim-tables/src/export/prune.rs`) can drop them: those effects go, spells with
+nothing left go, triggers of dropped spells go, to a fixed point. Spells the overrides mention
+are always kept. Details and the exceptions in `SPELL_INSTRUCTIONS.md` §1.10. Changing the
+list means removing (or re-adding) the variant in `aura.rs` / `effect.rs`, updating the ids
+in `discard.rs` and re-exporting.

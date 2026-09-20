@@ -1,9 +1,10 @@
 //! Pruning: drops what a damage simulator has no use for from an exported file
 //! (`data/SPELL_INSTRUCTIONS.md` §1.9, `data/spells/overrides/discard.txt`).
 //!
-//! 1. Effects whose kind or aura is discarded (`csim_engine::spell::dbc::DISCARDED_AURAS` /
-//!    `DISCARDED_EFFECTS`: crowd control, movement, immunities, healing, …) are removed from
-//!    their spells; the remaining effects keep their table indices.
+//! 1. Effects whose kind or aura is discarded (`csim_engine::spell::dbc::DISCARDED_AURA_IDS` /
+//!    `DISCARDED_EFFECT_IDS`: crowd control, movement, immunities, healing, … — values the
+//!    engine's vocabulary does not even name) are removed from their spells; the remaining
+//!    effects keep their table indices.
 //! 2. A spell with no effects left is dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), and so is
 //!    every trigger effect that pointed at a dropped spell (Intimidating Shout's stun), which can
 //!    empty further spells — repeated to a fixed point. Action-bar overrides of dropped spells
@@ -157,6 +158,15 @@ mod tests {
     use csim_engine::spell::dbc::{ImplicitTarget, SpellEffectName};
     use csim_engine::spell::record::SpellRecord;
 
+    // The discarded values are not in the vocabulary; the tests use their raw ids.
+    const MOD_TAUNT: AuraType = AuraType::Unknown(11);
+    const MOD_STUN: AuraType = AuraType::Unknown(12);
+    const MOD_FEAR: AuraType = AuraType::Unknown(7);
+    const MOD_INCREASE_SPEED: AuraType = AuraType::Unknown(31);
+    const MECHANIC_IMMUNITY: AuraType = AuraType::Unknown(77);
+    const MOD_HEALING_PCT: AuraType = AuraType::Unknown(118);
+    const ATTACK_ME: SpellEffectName = SpellEffectName::Unknown(114);
+
     fn aura(index: u32, aura: AuraType) -> EffectRecord {
         let mut effect = EffectRecord::new(index, SpellEffectName::ApplyAura);
         effect.aura = aura;
@@ -174,6 +184,7 @@ mod tests {
         SpellFile {
             build: "1.60.1.69893".into(),
             class: None,
+            learnable: true,
             spells,
         }
     }
@@ -181,21 +192,19 @@ mod tests {
     #[test]
     fn empty_spells_and_their_triggers_are_dropped_to_a_fixed_point() {
         let mut taunt = SpellRecord::new(355, "Taunt");
-        taunt
-            .effects
-            .push(EffectRecord::new(0, SpellEffectName::AttackMe));
-        taunt.effects.push(aura(1, AuraType::ModTaunt));
+        taunt.effects.push(EffectRecord::new(0, ATTACK_ME));
+        taunt.effects.push(aura(1, MOD_TAUNT));
         let mut mocking = SpellRecord::new(694, "Mocking Blow");
         mocking
             .effects
             .push(EffectRecord::new(0, SpellEffectName::SchoolDamage));
-        mocking.effects.push(aura(1, AuraType::ModTaunt));
+        mocking.effects.push(aura(1, MOD_TAUNT));
         let mut stun = SpellRecord::new(20511, "Intimidating Shout");
-        stun.effects.push(aura(0, AuraType::ModStun));
+        stun.effects.push(aura(0, MOD_STUN));
         let mut shout = SpellRecord::new(5246, "Intimidating Shout");
         shout.effects.push(trigger(0, 20511));
-        shout.effects.push(aura(1, AuraType::ModFear));
-        shout.effects.push(aura(2, AuraType::ModIncreaseSpeed));
+        shout.effects.push(aura(1, MOD_FEAR));
+        shout.effects.push(aura(2, MOD_INCREASE_SPEED));
         let mut talent = SpellRecord::new(12289, "Improved Hamstring");
         let mut proc = aura(0, AuraType::ProcTriggerSpell);
         proc.trigger_spell = 5246;
@@ -229,13 +238,13 @@ mod tests {
             .find(|e| e.spell == 5246 && e.index == 0)
             .unwrap();
         assert_eq!(shout_trigger.what, "trigger of dropped 20511");
-        assert_eq!(report.effects[0].what, "effect ATTACK_ME");
+        assert_eq!(report.effects[0].what, "effect UNKNOWN_114");
     }
 
     #[test]
     fn spells_the_overrides_mention_are_kept() {
         let mut rage = SpellRecord::new(18499, "Berserker Rage");
-        rage.effects.push(aura(0, AuraType::MechanicImmunity));
+        rage.effects.push(aura(0, MECHANIC_IMMUNITY));
         let mut f = file(vec![rage]);
         let mut overrides = Overrides::new();
         let mut talent = csim_engine::spell::overrides::SpellOverride::new(20500);
@@ -261,7 +270,7 @@ mod tests {
     #[test]
     fn kept_effects_keep_their_indices() {
         let mut ms = SpellRecord::new(12294, "Mortal Strike");
-        ms.effects.push(aura(0, AuraType::ModHealingPct));
+        ms.effects.push(aura(0, MOD_HEALING_PCT));
         ms.effects
             .push(EffectRecord::new(1, SpellEffectName::NormalizedWeaponDmg));
         let mut f = file(vec![ms]);
@@ -269,13 +278,13 @@ mod tests {
         assert_eq!(f.spells[0].effects.len(), 1);
         assert_eq!(f.spells[0].effects[0].index, 1);
         assert!(report.spells.is_empty());
-        assert_eq!(report.effects[0].what, "aura MOD_HEALING_PCT");
+        assert_eq!(report.effects[0].what, "aura UNKNOWN_118");
     }
 
     #[test]
     fn action_bar_overrides_of_dropped_spells_go_too() {
         let mut gone = SpellRecord::new(10, "Gone");
-        gone.effects.push(aura(0, AuraType::ModStun));
+        gone.effects.push(aura(0, MOD_STUN));
         let mut talent = SpellRecord::new(11, "Talent");
         let mut swap = aura(0, AuraType::OverrideActionbarSpells);
         swap.misc_value = [10, 0];

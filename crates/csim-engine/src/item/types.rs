@@ -75,6 +75,34 @@ impl WeaponType {
         )
     }
 
+    /// The `(ItemClass, ItemSubClass)` ids of the type: weapons are class 2 with the subclass
+    /// ids of `ItemSubClass`, shields / relics / held items are class 4. This is what a
+    /// `SpellEquippedItems` requirement is matched against (`subclass_mask` bit `1 << subclass`).
+    pub fn item_class_subclass(self) -> (u32, u32) {
+        match self {
+            WeaponType::Axe => (2, 0),
+            WeaponType::TwohandAxe => (2, 1),
+            WeaponType::Bow => (2, 2),
+            WeaponType::Gun => (2, 3),
+            WeaponType::Mace => (2, 4),
+            WeaponType::TwohandMace => (2, 5),
+            WeaponType::Polearm => (2, 6),
+            WeaponType::Sword => (2, 7),
+            WeaponType::TwohandSword => (2, 8),
+            WeaponType::Staff => (2, 10),
+            WeaponType::Fist => (2, 13),
+            WeaponType::Dagger => (2, 15),
+            WeaponType::Thrown => (2, 16),
+            WeaponType::Crossbow => (2, 18),
+            WeaponType::Wand => (2, 19),
+            WeaponType::CasterOffhand => (4, 0),
+            WeaponType::Shield => (4, 6),
+            WeaponType::Libram => (4, 7),
+            WeaponType::Idol => (4, 8),
+            WeaponType::Totem => (4, 9),
+        }
+    }
+
     /// Whether the weapon has a weapon skill that gear/race can raise.
     pub fn has_weapon_skill(self) -> bool {
         matches!(

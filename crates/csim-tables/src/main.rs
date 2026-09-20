@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
+use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::faction::PlayerClass;
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
@@ -21,6 +22,8 @@ enum CliError {
     #[error(transparent)]
     Overrides(#[from] csim_engine::spell::overrides::OverrideError),
     #[error(transparent)]
+    ExternalBuffs(#[from] csim_engine::buff::external::ExternalBuffError),
+    #[error(transparent)]
     SpellDb(#[from] csim_engine::spell::record::SpellDbError),
     #[error("cannot write {path}: {source}")]
     Write {
@@ -35,6 +38,9 @@ enum CliError {
     #[error("{0} unsupported effects (see above)")]
     Unsupported(usize),
 }
+
+/// The file `export-spells --externals` writes under the spell data directory.
+const EXTERNALS_FILE: &str = "externals.yaml";
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -62,18 +68,42 @@ enum Command {
         /// Spell id (`SpellName.ID`).
         id: u32,
     },
-    /// Writes the spellbook of a class (or the racials) as an engine data file.
+    /// Writes the spellbook of a class (or the racials, or the external buffs) as an engine
+    /// data file.
     ExportSpells {
         /// The class to export (`warrior`, `rogue`, ...).
-        #[arg(long, conflicts_with = "racials", required_unless_present = "racials")]
+        #[arg(
+            long,
+            conflicts_with_all = ["racials", "externals"],
+            required_unless_present_any = ["racials", "externals"]
+        )]
         class: Option<String>,
         /// Export the racial abilities instead of a class.
-        #[arg(long)]
+        #[arg(long, conflicts_with = "externals")]
         racials: bool,
+        /// Export the aura spells of the external buff registry instead of a class.
+        #[arg(long)]
+        externals: bool,
+        /// The external buff registry (`--externals`).
+        #[arg(long, default_value = "data/external_buffs.yaml")]
+        external_buffs: PathBuf,
         /// The spell data directory; the overrides in `<spells>/overrides/` extend the walk and
         /// the file is written to `<spells>/<class>.yaml` unless `--out` is given.
         #[arg(long, default_value = "data/spells")]
         spells: PathBuf,
+        /// Output file (`-` for stdout).
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
+    /// Writes the talent tree of a class as an engine data file.
+    ExportTalents {
+        /// The class to export (`warrior`, `rogue`, ...).
+        #[arg(long)]
+        class: String,
+        /// The talent data directory; the file is written to `<talents>/<class>.yaml` unless
+        /// `--out` is given.
+        #[arg(long, default_value = "data/talents")]
+        talents: PathBuf,
         /// Output file (`-` for stdout).
         #[arg(long)]
         out: Option<PathBuf>,
@@ -94,29 +124,49 @@ fn parse_class(name: &str) -> Result<PlayerClass, CliError> {
         .map_err(|_| CliError::UnknownClass(name.to_owned()))
 }
 
+/// What `export-spells` writes.
+enum ExportTarget {
+    Class(String),
+    Racials,
+    Externals(PathBuf),
+}
+
 fn export_spells(
     dir: &TableDir,
-    class: Option<String>,
-    racials: bool,
+    target: ExportTarget,
     spells_dir: &Path,
     out: Option<PathBuf>,
 ) -> Result<(), CliError> {
     let tables = Tables::load(dir)?;
     let overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
-    let ((file, pruned), command, default_name) = if racials {
-        (
+    let ((file, pruned), command, default_name) = match target {
+        ExportTarget::Racials => (
             export::export_racials_with_report(&tables, &overrides)?,
             "export-spells --racials".to_owned(),
             "racials.yaml".to_owned(),
-        )
-    } else {
-        let name = class.expect("clap requires --class or --racials");
-        let class = parse_class(&name)?;
-        (
-            export::export_class_with_report(&tables, class, &overrides)?,
-            format!("export-spells --class {}", class.name().to_lowercase()),
-            format!("{}.yaml", class.name().to_lowercase()),
-        )
+        ),
+        ExportTarget::Externals(registry) => {
+            let registry = ExternalBuffDb::load(&registry)?;
+            let exclude = export::spell_ids_in_dir(spells_dir, EXTERNALS_FILE)?;
+            let seeds = registry.spell_ids();
+            let repeated: Vec<u32> = seeds.intersection(&exclude).copied().collect();
+            if !repeated.is_empty() {
+                eprintln!("already in another spell file, not repeated: {repeated:?}");
+            }
+            (
+                export::export_externals_with_report(&tables, &seeds, &exclude, &overrides)?,
+                "export-spells --externals".to_owned(),
+                EXTERNALS_FILE.to_owned(),
+            )
+        }
+        ExportTarget::Class(name) => {
+            let class = parse_class(&name)?;
+            (
+                export::export_class_with_report(&tables, class, &overrides)?,
+                format!("export-spells --class {}", class.name().to_lowercase()),
+                format!("{}.yaml", class.name().to_lowercase()),
+            )
+        }
     };
     let text = export::render(&file, &command)?;
     eprintln!(
@@ -144,6 +194,55 @@ fn export_spells(
         eprintln!(
             "wrote {} spells (build {}) to {}",
             file.spells.len(),
+            file.build,
+            out.display()
+        );
+    }
+    Ok(())
+}
+
+fn export_talents(
+    dir: &TableDir,
+    class: &str,
+    talents_dir: &Path,
+    out: Option<PathBuf>,
+) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    let class = parse_class(class)?;
+    let (file, report) = export::export_talents_with_report(&tables, class)?;
+    let command = format!("export-talents --class {}", class.name().to_lowercase());
+    let text = export::render_talents(&file, &command)?;
+    for (node, required) in &report.odd_gates {
+        eprintln!(
+            "warning: node {node} is gated on {required} points, not {} per tier",
+            file.points_per_tier
+        );
+    }
+    if !report.without_tab.is_empty() {
+        eprintln!(
+            "warning: nodes without a tab, skipped: {:?}",
+            report.without_tab
+        );
+    }
+    if !report.without_spell.is_empty() {
+        eprintln!(
+            "warning: nodes without a spell, skipped: {:?}",
+            report.without_spell
+        );
+    }
+    let out =
+        out.unwrap_or_else(|| talents_dir.join(format!("{}.yaml", class.name().to_lowercase())));
+    if out == Path::new("-") {
+        print!("{text}");
+    } else {
+        std::fs::write(&out, text).map_err(|source| CliError::Write {
+            path: out.clone(),
+            source,
+        })?;
+        eprintln!(
+            "wrote {} talents in {} tabs (build {}) to {}",
+            file.talents.len(),
+            file.tabs.len(),
             file.build,
             out.display()
         );
@@ -351,9 +450,24 @@ fn run(cli: Cli) -> Result<(), CliError> {
         Command::ExportSpells {
             class,
             racials,
+            externals,
+            external_buffs,
             spells,
             out,
-        } => export_spells(&open(&cli)?, class.clone(), *racials, spells, out.clone()),
+        } => {
+            let target = match class {
+                Some(class) => ExportTarget::Class(class.clone()),
+                None if *racials => ExportTarget::Racials,
+                None if *externals => ExportTarget::Externals(external_buffs.clone()),
+                None => unreachable!("clap requires --class, --racials or --externals"),
+            };
+            export_spells(&open(&cli)?, target, spells, out.clone())
+        }
+        Command::ExportTalents {
+            class,
+            talents,
+            out,
+        } => export_talents(&open(&cli)?, class, talents, out.clone()),
         Command::Check { spells, strict } => check(spells, *strict),
     }
 }

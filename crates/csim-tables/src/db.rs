@@ -89,6 +89,9 @@ pub struct Tables {
 
     chr_classes: HashMap<u32, ChrClassesRow>,
     chr_races: HashMap<u32, ChrRacesRow>,
+    /// By class id, sorted by level.
+    player_expected_stats: HashMap<u32, Vec<PlayerExpectedStatRow>>,
+    char_base_info: Vec<CharBaseInfoRow>,
     power_types: HashMap<u32, PowerTypeRow>,
 }
 
@@ -122,6 +125,13 @@ impl Tables {
                 rows.sort_by(|a, b| a.pos[0].total_cmp(&b.pos[0]));
             }
             points
+        };
+        let player_expected_stats = {
+            let mut stats = group_by(dir.read::<PlayerExpectedStatRow>()?, |r| r.class_id);
+            for rows in stats.values_mut() {
+                rows.sort_by_key(|r| r.level);
+            }
+            stats
         };
 
         let skill_line_abilities = dir.read::<SkillLineAbilityRow>()?;
@@ -277,6 +287,8 @@ impl Tables {
 
             chr_classes: by_key(dir.read::<ChrClassesRow>()?, |r| r.id),
             chr_races: by_key(dir.read::<ChrRacesRow>()?, |r| r.id),
+            player_expected_stats,
+            char_base_info: dir.read()?,
             power_types: by_key(dir.read::<PowerTypeRow>()?, |r| r.power_type_enum),
         })
     }
@@ -570,6 +582,30 @@ impl Tables {
     /// Every `ChrClasses` row.
     pub fn chr_classes(&self) -> impl Iterator<Item = &ChrClassesRow> {
         self.chr_classes.values()
+    }
+
+    /// The `PlayerExpectedStat` row of a class at a level.
+    pub fn player_expected_stat(
+        &self,
+        class_id: u32,
+        level: u32,
+    ) -> Option<&PlayerExpectedStatRow> {
+        slice(&self.player_expected_stats, &class_id)
+            .iter()
+            .find(|row| row.level == level)
+    }
+
+    /// The race ids `CharBaseInfo` allows for a class, sorted.
+    pub fn races_of_class(&self, class_id: u32) -> Vec<u32> {
+        let mut races: Vec<u32> = self
+            .char_base_info
+            .iter()
+            .filter(|row| row.class_id == class_id)
+            .map(|row| row.race_id)
+            .collect();
+        races.sort_unstable();
+        races.dedup();
+        races
     }
 
     /// `ChrRaces` by race id.

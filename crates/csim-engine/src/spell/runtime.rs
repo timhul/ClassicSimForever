@@ -508,6 +508,32 @@ impl Spell {
         &self.setup.overrides.on_event
     }
 
+    /// The hidden spells this spell casts as payloads: its `trigger_spell`s and the spells
+    /// its scripts name (`TRIGGER_WITH_VALUE`, event reactions). They are enabled and disabled
+    /// together with this spell.
+    pub fn payload_spells(&self) -> Vec<u32> {
+        let mut ids = self.setup.record.trigger_spells();
+        let scripted = self
+            .setup
+            .overrides
+            .effects
+            .iter()
+            .filter_map(|script| script.params.spell)
+            .chain(
+                self.setup
+                    .overrides
+                    .on_event
+                    .iter()
+                    .filter_map(|script| script.params.spell),
+            );
+        for id in scripted {
+            if id != self.game_id() && !ids.contains(&id) {
+                ids.push(id);
+            }
+        }
+        ids
+    }
+
     pub fn threat_override(&self) -> ThreatOverride {
         self.setup.overrides.threat.unwrap_or_default()
     }
@@ -583,10 +609,22 @@ impl Spell {
     pub fn proc_chance(&self, host: &impl SpellHost) -> f64 {
         let record = &self.setup.record;
         let chance = record.aura_options.proc_chance;
-        let percent = if chance == 0 || chance > 100 {
-            100.0
-        } else {
-            f64::from(chance)
+        let from_effect = self
+            .setup
+            .overrides
+            .proc
+            .and_then(|p| p.chance_effect)
+            .and_then(|index| {
+                let buff = host.buff(self.marker_buff?);
+                buff.effects
+                    .iter()
+                    .find(|e| e.index() == index)
+                    .map(Effect::value)
+            });
+        let percent = match from_effect {
+            Some(percent) => percent,
+            None if chance == 0 || chance > 100 => 100.0,
+            None => f64::from(chance),
         };
         let percent = host.spell_modifiers().apply(
             record.class_options.as_ref(),

@@ -107,4 +107,6 @@ keep("TraitCurrencySource", lambda get: int(get("TraitCurrencyID")) == 3820 and 
 # --- chr ---------------------------------------------------------------------------------
 keep("ChrClasses", in_set("ID", CLASSES))
 keep("ChrRaces", in_set("ID", RACES))
+keep("PlayerExpectedStat", lambda get: int(get("ClassID")) in CLASSES and int(get("Level")) in (1, 60))
+keep("CharBaseInfo", lambda get: int(get("ClassID")) in CLASSES and int(get("RaceID")) in RACES)
 keep("PowerType", lambda get: True)

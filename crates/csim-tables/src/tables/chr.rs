@@ -44,6 +44,28 @@ table_row! {
 }
 
 table_row! {
+    /// `PlayerExpectedStat`: per class and level, the stat conversions (`crit_per_agility` is a
+    /// fraction: 0.0005 = 0.05 % crit per agility = 20 agility per 1 %).
+    PlayerExpectedStatRow, "PlayerExpectedStat" {
+        id: u32 = "ID",
+        level: u32 = "Level",
+        class_id: u32 = "ClassID",
+        base_mana: u32 = "BaseMana",
+        crit_per_agility: f32 = "CritPerAgility",
+        spell_crit_per_intellect: f32 = "SpellCritPerIntellect",
+    }
+}
+
+table_row! {
+    /// `CharBaseInfo`: the playable race / class combinations.
+    CharBaseInfoRow, "CharBaseInfo" {
+        id: u32 = "ID",
+        race_id: u32 = "RaceID",
+        class_id: u32 = "ClassID",
+    }
+}
+
+table_row! {
     /// `PowerType`: resource enums and their storage scale (`display_modifier`: rage 10).
     PowerTypeRow, "PowerType" {
         name_global_string_tag: String = "NameGlobalStringTag",

@@ -6,7 +6,9 @@ dbc_enum! {
     /// Retail `SpellEffectName`, the `Effect` column of `SpellEffect`.
     ///
     /// The engine interprets the values listed in `data/SPELL_INSTRUCTIONS.md` §1.7; the rest are
-    /// named so that reports read well and are otherwise treated as no-ops.
+    /// named so that reports read well and are otherwise treated as no-ops. The values a damage
+    /// simulator has no use for are not named at all (`super::discard`): they load as
+    /// `Unknown(id)` and the exporter drops them.
     SpellEffectName: u32 {
         None = 0 => "NONE",
         Instakill = 1 => "INSTAKILL",
@@ -49,7 +51,6 @@ dbc_enum! {
         ApplyAreaAuraParty = 35 => "APPLY_AREA_AURA_PARTY",
         LearnSpell = 36 => "LEARN_SPELL",
         SpellDefense = 37 => "SPELL_DEFENSE",
-        Dispel = 38 => "DISPEL",
         Language = 39 => "LANGUAGE",
         DualWield = 40 => "DUAL_WIELD",
         Jump = 41 => "JUMP",
@@ -81,7 +82,6 @@ dbc_enum! {
         ApplyAreaAuraRaid = 65 => "APPLY_AREA_AURA_RAID",
         CreateManaGem = 66 => "CREATE_MANA_GEM",
         HealMaxHealth = 67 => "HEAL_MAX_HEALTH",
-        InterruptCast = 68 => "INTERRUPT_CAST",
         Distract = 69 => "DISTRACT",
         Pickpocket = 71 => "PICKPOCKET",
         AddFarsight = 72 => "ADD_FARSIGHT",
@@ -118,13 +118,10 @@ dbc_enum! {
         Survey = 105 => "SURVEY",
         ChangeRaidMarker = 106 => "CHANGE_RAID_MARKER",
         ShowCorpseLoot = 107 => "SHOW_CORPSE_LOOT",
-        DispelMechanic = 108 => "DISPEL_MECHANIC",
         ResurrectPet = 109 => "RESURRECT_PET",
         DestroyAllTotems = 110 => "DESTROY_ALL_TOTEMS",
         DurabilityDamage = 111 => "DURABILITY_DAMAGE",
         ResurrectNew = 113 => "RESURRECT_NEW",
-        /// Taunt.
-        AttackMe = 114 => "ATTACK_ME",
         DurabilityDamagePct = 115 => "DURABILITY_DAMAGE_PCT",
         SkinPlayerCorpse = 116 => "SKIN_PLAYER_CORPSE",
         SpiritHeal = 117 => "SPIRIT_HEAL",
@@ -176,7 +173,6 @@ dbc_enum! {
         RemoveAura = 164 => "REMOVE_AURA",
         DamageFromMaxHealthPct = 165 => "DAMAGE_FROM_MAX_HEALTH_PCT",
         GiveCurrency = 166 => "GIVE_CURRENCY",
-        UpdatePlayerPhase = 167 => "UPDATE_PLAYER_PHASE",
         AllowControlPet = 168 => "ALLOW_CONTROL_PET",
         DestroyItem = 169 => "DESTROY_ITEM",
         UpdateZoneAurasAndPhases = 170 => "UPDATE_ZONE_AURAS_AND_PHASES",
@@ -237,18 +233,14 @@ mod tests {
             (31, "WEAPON_PERCENT_DAMAGE"),
             (35, "APPLY_AREA_AURA_PARTY"),
             (36, "LEARN_SPELL"),
-            (38, "DISPEL"),
             (54, "ENCHANT_ITEM_TEMPORARY"),
             (58, "WEAPON_DAMAGE"),
             (63, "THREAT"),
             (64, "TRIGGER_SPELL"),
             (65, "APPLY_AREA_AURA_RAID"),
-            (68, "INTERRUPT_CAST"),
             (77, "SCRIPT_EFFECT"),
             (96, "CHARGE"),
             (98, "KNOCK_BACK"),
-            (108, "DISPEL_MECHANIC"),
-            (114, "ATTACK_ME"),
             (121, "NORMALIZED_WEAPON_DMG"),
         ];
         for (id, name) in seen {

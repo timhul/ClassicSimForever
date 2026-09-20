@@ -38,7 +38,7 @@ pub enum BuffSlot {
 }
 
 /// The raid's registry of buffs shared between characters. Port of the shared buff part of
-/// `RaidControl`; implemented by the raid control in Phase 4.
+/// `RaidControl`; implemented by [`crate::raid::SharedBuffRegistry`].
 pub trait SharedBuffs {
     /// The registered party buff with `canonical_name` in `party`, if any.
     fn shared_party_buff(&self, canonical_name: &str, party: u8) -> Option<SharedBuffId>;
@@ -46,6 +46,24 @@ pub trait SharedBuffs {
     fn register_shared_party_buff(&mut self, buff: Buff, party: u8) -> SharedBuffId;
     fn shared_raid_buff(&self, canonical_name: &str) -> Option<SharedBuffId>;
     fn register_shared_raid_buff(&mut self, buff: Buff) -> SharedBuffId;
+    /// The shared buff behind a handle.
+    fn shared_buff(&self, id: SharedBuffId) -> &Buff;
+    fn shared_buff_mut(&mut self, id: SharedBuffId) -> &mut Buff;
+    /// Records that a character applied or removed the aura effects of a shared party buff on
+    /// itself, for the raid control to do the same on the party's other members afterwards
+    /// (the C++ `RaidControl::apply_party_buff` / `remove_party_buff` loop).
+    fn note_party_aura_change(&mut self, change: PartyAuraChange);
+}
+
+/// A shared party buff's aura effects were applied to (or removed from) the character `by`,
+/// one of the members of `party`; the other members are still to follow.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PartyAuraChange {
+    pub buff: SharedBuffId,
+    pub party: u8,
+    pub by: CharId,
+    /// `true` for an application, `false` for a removal.
+    pub apply: bool,
 }
 
 /// What [`CharacterSpells::add_spell`] created.
@@ -103,10 +121,6 @@ pub struct CharacterSpells {
 }
 
 impl CharacterSpells {
-    /// Instance ids of a character's buffs and spells are `character << 24 | counter`, keeping
-    /// them unique across the raid without a central allocator.
-    const INSTANCE_ID_SHIFT: u32 = 24;
-
     pub fn new(character: CharId, proc_seed: u64) -> Self {
         CharacterSpells {
             character,
@@ -136,11 +150,12 @@ impl CharacterSpells {
         self.character
     }
 
-    /// A raid-unique instance id for this character's spells and buffs.
+    /// A raid-unique instance id for this character's spells and buffs
+    /// ([`InstanceId::for_character`] keeps them unique without a central allocator).
     pub fn next_instance_id(&mut self) -> InstanceId {
         let id = self.next_instance_id;
         self.next_instance_id += 1;
-        InstanceId((u32::from(self.character.0) << Self::INSTANCE_ID_SHIFT) | id)
+        InstanceId::for_character(self.character, id)
     }
 
     // --- Spells ---
@@ -510,6 +525,24 @@ impl CharacterSpells {
     /// Adds a handle to a buff owned by the raid.
     pub fn add_shared_buff(&mut self, shared: SharedBuffId) -> BuffId {
         self.add_buff_slot(BuffSlot::Shared(shared))
+    }
+
+    /// Adds an external buff ([`BuffKind::External`]): enabled with an instance id, but kept
+    /// out of the enabled buffs as the C++ `ExternalBuff` was, so it is never found by name
+    /// (an external Sunder Armor must not shadow the shared debuff) and never consumes charges.
+    ///
+    /// # Panics
+    /// Panics if the buff is not an external buff.
+    pub fn add_external_buff(&mut self, mut buff: Buff) -> BuffId {
+        assert!(
+            buff.kind() == BuffKind::External,
+            "{} is not an external buff",
+            buff.name()
+        );
+        let instance_id = self.next_instance_id();
+        buff.set_instance_id(instance_id);
+        buff.enable();
+        self.add_buff_slot(BuffSlot::Owned(Box::new(buff)))
     }
 
     fn add_buff_slot(&mut self, slot: BuffSlot) -> BuffId {

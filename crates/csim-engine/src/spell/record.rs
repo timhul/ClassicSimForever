@@ -26,13 +26,7 @@
 //!     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
 //!     equipped_items: { class: 2, subclass_mask: 173555 }
 //!     effects:
-//!       - index: 0
-//!         effect: APPLY_AURA
-//!         aura: MOD_HEALING_PCT
-//!         base_points: -50
-//!         misc_value: [127, 0]
-//!         implicit_target: [UNIT_TARGET_ENEMY, NONE]
-//!       - index: 1
+//!       - index: 1                     # effect 0, the healing debuff, is pruned (§1.10)
 //!         effect: NORMALIZED_WEAPON_DMG
 //!         base_points: 85
 //!         implicit_target: [UNIT_TARGET_ENEMY, NONE]
@@ -43,7 +37,7 @@
 //! [`SpellDb`] loads from `data/spells/overrides/` and keeps next to the records: a record is
 //! always the table row, and [`SpellDb::overrides`] answers what the sim adds to it.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -68,21 +62,45 @@ fn one() -> f32 {
     1.0
 }
 
+fn yes() -> bool {
+    true
+}
+
+fn is_true(value: &bool) -> bool {
+    *value
+}
+
 fn is_one(value: &f32) -> bool {
     *value == 1.0
 }
 
 /// One `data/spells/*.yaml` file: the spells of one class (or the racials when `class` is absent).
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellFile {
     /// The client build the records were exported from (`1.60.1.69893`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
-    /// The class whose spellbook this is; `None` for class-independent spells (racials).
+    /// The class whose spellbook this is; `None` for class-independent spells (racials, the
+    /// external buff auras).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub class: Option<PlayerClass>,
+    /// Whether characters learn these spells (`CharacterContext::learn_all`): `false` for the
+    /// external buff auras of `externals.yaml`, which are only turned into buffs.
+    #[serde(default = "yes", skip_serializing_if = "is_true")]
+    pub learnable: bool,
     #[serde(default)]
     pub spells: Vec<SpellRecord>,
+}
+
+impl Default for SpellFile {
+    fn default() -> Self {
+        Self {
+            build: String::new(),
+            class: None,
+            learnable: true,
+            spells: Vec::new(),
+        }
+    }
 }
 
 /// A `SpellPower` row: what casting the spell costs.
@@ -313,8 +331,8 @@ impl EffectRecord {
         }
     }
 
-    /// Whether the simulator has no use for the effect (`crate::spell::dbc::DISCARDED_AURAS` /
-    /// `DISCARDED_EFFECTS`): the exporter drops such effects from the data files.
+    /// Whether the simulator has no use for the effect (`crate::spell::dbc::DISCARDED_AURA_IDS` /
+    /// `DISCARDED_EFFECT_IDS`): the exporter drops such effects from the data files.
     pub fn is_discarded(&self) -> bool {
         if self.is_apply_aura() {
             self.aura.is_discarded()
@@ -344,7 +362,6 @@ impl EffectRecord {
             && matches!(
                 self.aura,
                 AuraType::PeriodicDamage
-                    | AuraType::PeriodicHeal
                     | AuraType::PeriodicEnergize
                     | AuraType::PeriodicTriggerSpell
                     | AuraType::PeriodicDummy
@@ -382,10 +399,7 @@ impl EffectRecord {
     pub fn is_scripted(&self) -> bool {
         matches!(self.effect, SpellEffectName::Dummy)
             || (self.is_apply_aura()
-                && matches!(
-                    self.aura,
-                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::OverrideClassScripts
-                ))
+                && matches!(self.aura, AuraType::Dummy | AuraType::PeriodicDummy))
     }
 
     /// Whether the first implicit target is the caster.
@@ -807,6 +821,8 @@ pub struct SpellDb {
     spells: HashMap<u32, Arc<SpellRecord>>,
     by_name: HashMap<String, Vec<u32>>,
     by_class: BTreeMap<Option<PlayerClass>, Vec<u32>>,
+    /// Ids from files with `learnable: false` (the external buff auras).
+    unlearnable: HashSet<u32>,
     next_rank: HashMap<u32, u32>,
     overrides: Overrides,
 }
@@ -879,6 +895,9 @@ impl SpellDb {
             }
         }
         for record in file.spells {
+            if !file.learnable {
+                self.unlearnable.insert(record.id);
+            }
             self.add_record(file.class, record);
         }
         Ok(())
@@ -945,6 +964,19 @@ impl SpellDb {
                             "the override scripts effect {}, but the spell has {} effects",
                             script.index,
                             record.effects.len()
+                        ),
+                    });
+                }
+            }
+            if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect) {
+                if !record
+                    .effect(index)
+                    .is_some_and(EffectRecord::is_apply_aura)
+                {
+                    return Err(SpellDbError::Invalid {
+                        spell: id,
+                        message: format!(
+                            "the override takes the proc chance from effect {index}, which is not an aura effect of the spell"
                         ),
                     });
                 }
@@ -1101,6 +1133,12 @@ impl SpellDb {
         self.by_class.get(&class).map_or(&[], Vec::as_slice)
     }
 
+    /// Whether characters learn spell `id` (`false` for the auras of a `learnable: false` file:
+    /// the external buffs, which only ever become buffs).
+    pub fn is_learnable(&self, id: u32) -> bool {
+        !self.unlearnable.contains(&id)
+    }
+
     /// The spells `class` can have: its own records plus the class-independent ones, restricted
     /// to skill-line entries (hidden payloads are reached through their triggers).
     pub fn spellbook(&self, class: PlayerClass) -> Vec<&Arc<SpellRecord>> {
@@ -1231,7 +1269,7 @@ spells:
     levels: { base: 40, spell: 40 }
     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
     effects:
-      - { index: 0, effect: APPLY_AURA, aura: MOD_HEALING_PCT, base_points: -50, misc_value: [127, 0], implicit_target: [UNIT_TARGET_ENEMY, NONE] }
+      - { index: 0, effect: APPLY_AURA, aura: 118, base_points: -50, misc_value: [127, 0], implicit_target: [UNIT_TARGET_ENEMY, NONE] }
       - { index: 1, effect: NORMALIZED_WEAPON_DMG, base_points: 85, implicit_target: [UNIT_TARGET_ENEMY, NONE] }
   - id: 12282
     name: Improved Heroic Strike
@@ -1696,6 +1734,7 @@ overrides:
         let file = SpellFile {
             build: "1.60.1.69893".into(),
             class: Some(PlayerClass::Warrior),
+            learnable: true,
             spells: vec![
                 (**db.get(12294).unwrap()).clone(),
                 (**db.get(284).unwrap()).clone(),
@@ -1703,7 +1742,7 @@ overrides:
         };
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));
-        assert!(yaml.contains("aura: MOD_HEALING_PCT"));
+        assert!(yaml.contains("aura: 118"), "discarded auras stay numbers");
         assert!(yaml.contains("type: RAGE"));
         assert!(yaml.contains("defense_type: MELEE"));
         assert!(yaml.contains("- UNIT_TARGET_ENEMY\n"), "{yaml}");
@@ -1772,7 +1811,8 @@ overrides:
         let ms = &file.spells[0];
         assert_eq!(ms.id, 12294);
         assert_eq!(ms.school_mask, SpellSchoolMask::PHYSICAL);
-        assert_eq!(ms.effects[1].effect, SpellEffectName::NormalizedWeaponDmg);
+        assert_eq!(ms.effects[0].index, 1);
+        assert_eq!(ms.effects[0].effect, SpellEffectName::NormalizedWeaponDmg);
         assert_eq!(ms.categories.defense_type, DefenseType::Melee);
         assert_eq!(ms.equipped_items.unwrap().subclass_mask, 173555);
     }
@@ -1796,12 +1836,6 @@ spells:
     class_options: { set: 4, mask: [33554432, 0, 0, 0] }
     equipped_items: { class: 2, subclass_mask: 173555 }
     effects:
-      - index: 0
-        effect: APPLY_AURA
-        aura: MOD_HEALING_PCT
-        base_points: -50
-        misc_value: [127, 0]
-        implicit_target: [UNIT_TARGET_ENEMY, NONE]
       - index: 1
         effect: NORMALIZED_WEAPON_DMG
         base_points: 85
