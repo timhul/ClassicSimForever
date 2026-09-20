@@ -15,8 +15,8 @@
 //! repeats it on the other members before handing control back
 //! ([`RaidControl::propagate_party_auras`]), the equivalent of the C++
 //! `RaidControl::apply_party_buff` loop. The registry remembers who holds the auras, so a
-//! removal only reaches the members that received the application. Statistics (the C++
-//! `raid_statistics`) arrive in Phase 5.
+//! removal only reaches the members that received the application. Each character keeps its
+//! own [`ClassStatistics`]; [`RaidControl::take_statistics`] collects them.
 
 use std::collections::BTreeMap;
 
@@ -26,6 +26,7 @@ use crate::character::Character;
 use crate::character_spells::{PartyAuraChange, SharedBuffs};
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{CharId, InstanceId, SharedBuffId};
+use crate::statistics::ClassStatistics;
 use crate::target::Target;
 
 /// Parties in a raid.
@@ -427,6 +428,24 @@ impl RaidControl {
             self.with_character(id, |ctx| ctx.reset());
         }
         self.target.check_clean();
+    }
+
+    /// Closes an iteration for every character's statistics (its DPS). Port of the
+    /// `finish_combat_iteration` loop of `SimControl::run_sim`.
+    pub fn finish_combat_iteration(&mut self) {
+        for character in &mut self.characters {
+            character.finish_combat_iteration();
+        }
+    }
+
+    /// Syncs and takes every character's statistics, in `CharId` order, leaving fresh ones
+    /// behind. Port of the `relinquish_ownership_of_statistics` loop of `SimControl::run_sim`.
+    pub fn take_statistics(&mut self) -> Vec<ClassStatistics> {
+        self.char_ids()
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|id| self.with_character(id, |ctx| ctx.take_statistics()))
+            .collect()
     }
 }
 
