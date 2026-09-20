@@ -25,6 +25,8 @@ data/
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
+├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
+│                         executors with conditions), see rotations/README.md
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
 ├── TALENT_INSTRUCTIONS.md
 └── ITEM_INSTRUCTIONS.md
