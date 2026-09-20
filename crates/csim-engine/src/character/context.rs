@@ -1255,6 +1255,9 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             BuiltinVariable::TimeSinceSwing => {
                 now - self.character.spells.mh_attack().last_used().max(0.0)
             }
+            BuiltinVariable::TimeRemainingSwing => {
+                self.character.spells.mh_attack().time_until_next_swing(now)
+            }
             // Ranged auto attacks are not simulated: no shot was ever fired.
             BuiltinVariable::TimeSinceAutoShot => now.max(0.0),
             BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),

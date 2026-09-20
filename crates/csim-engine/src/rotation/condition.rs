@@ -119,6 +119,9 @@ pub enum BuiltinVariable {
     TimeRemainingExecute,
     /// Seconds since the last main hand swing.
     TimeSinceSwing,
+    /// Seconds until the next main hand swing (not in C++, whose rotations read the swing
+    /// timer through `spell "Mainhand Attack"`; auto attacks are not spells here).
+    TimeRemainingSwing,
     /// Seconds since the last auto shot.
     TimeSinceAutoShot,
     /// Melee attack power.
@@ -130,11 +133,12 @@ pub enum BuiltinVariable {
 }
 
 impl BuiltinVariable {
-    pub const ALL: [BuiltinVariable; 8] = [
+    pub const ALL: [BuiltinVariable; 9] = [
         BuiltinVariable::TargetHealth,
         BuiltinVariable::TimeRemainingEncounter,
         BuiltinVariable::TimeRemainingExecute,
         BuiltinVariable::TimeSinceSwing,
+        BuiltinVariable::TimeRemainingSwing,
         BuiltinVariable::TimeSinceAutoShot,
         BuiltinVariable::MeleeAp,
         BuiltinVariable::ComboPoints,
@@ -149,6 +153,7 @@ impl BuiltinVariable {
             BuiltinVariable::TimeRemainingEncounter => "time_remaining_encounter",
             BuiltinVariable::TimeRemainingExecute => "time_remaining_execute",
             BuiltinVariable::TimeSinceSwing => "time_since_swing",
+            BuiltinVariable::TimeRemainingSwing => "time_remaining_swing",
             BuiltinVariable::TimeSinceAutoShot => "time_since_auto_shot",
             BuiltinVariable::MeleeAp => "melee_ap",
             BuiltinVariable::ComboPoints => "combo_points",
@@ -170,6 +175,7 @@ impl BuiltinVariable {
             BuiltinVariable::TimeRemainingEncounter => "Time Remaining Encounter",
             BuiltinVariable::TimeRemainingExecute => "Time Remaining Until Execute",
             BuiltinVariable::TimeSinceSwing => "Time Since Mainhand Swing",
+            BuiltinVariable::TimeRemainingSwing => "Time Until Mainhand Swing",
             BuiltinVariable::TimeSinceAutoShot => "Time Since Auto Shot",
             BuiltinVariable::MeleeAp => "Melee Attack Power",
             BuiltinVariable::ComboPoints => "Combo Points",
