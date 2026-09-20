@@ -74,6 +74,7 @@ Builtin variables:
 | `time_remaining_encounter` | seconds until the fight ends                                 |
 | `time_remaining_execute`   | seconds until the execute phase; negative once in it         |
 | `time_since_swing`         | seconds since the last main hand swing                       |
+| `time_remaining_swing`     | seconds until the next main hand swing                       |
 | `time_since_auto_shot`     | seconds since the last auto shot                             |
 | `melee_ap`                 | melee attack power                                           |
 | `combo_points`             | combo points on the target                                   |
@@ -101,3 +102,18 @@ after which every `PlayerAction` (a global cooldown or a cooldown ending, a rage
 stance swap lag, a completed cast) runs the active executors in order: a spell that is not
 available counts its status, one whose condition does not hold counts a failed condition, and
 one that is cast counts a successful cast. Those counts are the executor statistics.
+
+## The Warrior rotations
+
+`warrior/` holds the six ClassicSim rotations (`DWFury`, `DWFuryConservative`, `DWFuryHSFocus`,
+`2hFury`, `Arms`, `Prot`) under their original names, with two translations the port needs:
+
+- Overpower readiness: ClassicSim modelled it as an "Overpower Buff"; here it is the combo
+  point the target's dodge grants (`data/spells/overrides/warrior.yaml`), so
+  `buff_duration "Overpower Buff" is true | greater N` is `variable "combo_points" greater 0`
+  and `is false` is `variable "combo_points" eq 0`.
+- The rage dump before stancing (`spell "Mainhand Attack" less 1.5`) reads the swing timer;
+  auto attacks are not spells here, so it is `variable "time_remaining_swing" less 1.5`.
+
+The trinket and item-use lines (Kiss of the Spider, Jom Gabbar, …) are kept: they link only
+when the item is equipped and are skipped otherwise.

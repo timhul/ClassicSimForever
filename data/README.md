@@ -26,7 +26,8 @@ data/
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
-│                         executors with conditions), see rotations/README.md
+│                         executors with conditions), see rotations/README.md; the six
+│                         Warrior rotations are ports of the ClassicSim XML files
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
 ├── TALENT_INSTRUCTIONS.md
 └── ITEM_INSTRUCTIONS.md

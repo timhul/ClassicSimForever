@@ -1806,96 +1806,8 @@ mod rotation {
     use super::*;
     use crate::attack_mode::AttackMode;
     use crate::rotation::condition::{BuiltinVariable, Comparator, Measure, Test};
-    use crate::rotation::{ConditionContext, RotationSpec, Sentence};
+    use crate::rotation::{ConditionContext, RotationDb, RotationSpec, Sentence};
     use crate::talent::{CharacterTalents, TalentDb};
-
-    /// `DWFury.xml` with `buff_duration "Overpower Buff"` replaced by the combo point the
-    /// dodge grants in this port (`variable "combo_points"`).
-    const DW_FURY: &str = r#"
-class: WARRIOR
-name: DW Fury High Rage
-attack_mode: melee
-precombat_actions: [Bloodrage, Battle Shout, Berserker Stance]
-cast_if:
-  - name: Bloodrage
-    condition: resource "Rage" less 70
-  - name: Berserker Rage
-    condition: resource "Rage" less 50
-  - name: Battle Shout
-    condition: |
-      buff_duration "Battle Shout" less 3
-      or variable "time_remaining_execute" less 10
-      and variable "time_remaining_execute" greater 0
-      and buff_duration "Battle Shout" less 45
-  - name: Heroic Strike
-    condition: |
-      variable "time_remaining_execute" greater 3
-      and resource "Rage" greater 50
-  - name: Manual Crowd Pummeler
-  - name: Kiss of the Spider
-    condition: buff_duration "Death Wish" is true
-  - name: Jom Gabbar
-    condition: buff_duration "Death Wish" is true
-  - name: Badge of the Swarmguard
-    condition: buff_duration "Death Wish" is true
-  - name: Slayer's Crest
-    condition: buff_duration "Death Wish" is true
-  - name: Earthstrike
-    condition: buff_duration "Death Wish" is true
-  - name: Zandalarian Hero Medallion
-    condition: buff_duration "Death Wish" is true
-  - name: Diamond Flask
-    condition: buff_duration "Death Wish" is true
-  - name: Cloudkeeper Legplates
-    condition: buff_duration "Death Wish" is true
-  - name: Death Wish
-    condition: |
-      variable "time_remaining_encounter" less 33
-      or variable "time_remaining_execute" less 3
-      or variable "time_remaining_execute" greater 180
-  - name: Recklessness
-    condition: |
-      variable "time_remaining_execute" less 0
-      or variable "time_remaining_encounter" less 20
-  - name: Blood Fury
-    condition: |
-      variable "time_remaining_execute" less 0
-      and resource "Rage" less 50
-      or variable "time_remaining_execute" greater 120
-  - name: Berserking
-    condition: |
-      variable "time_remaining_execute" less 0
-      and resource "Rage" less 50
-      or variable "time_remaining_execute" greater 180
-  - name: Execute
-    condition: |
-      variable "melee_ap" leq 2000
-      or spell "Bloodthirst" greater 1.0
-  - name: Bloodthirst
-    condition: |
-      variable "time_remaining_execute" greater 0
-      or variable "melee_ap" greater 2000
-  - name: Whirlwind
-    condition: |
-      spell "Bloodthirst" greater 1.5
-      and variable "time_remaining_execute" greater 0
-  - name: Overpower
-  - name: Hamstring
-    condition: |
-      spell "Bloodthirst" greater 1.5
-      and variable "time_remaining_execute" greater 0
-      and variable "combo_points" eq 0
-  - name: Battle Stance
-    condition: |
-      variable "time_remaining_execute" greater 5
-      and variable "combo_points" greater 0
-      and spell "Bloodthirst" greater 3
-      and resource "Rage" less 50
-  - name: Berserker Stance
-    condition: |
-      variable "time_remaining_execute" less 0
-      or variable "combo_points" eq 0
-"#;
 
     const BATTLE_SHOUT: u32 = 25289;
 
@@ -1928,8 +1840,22 @@ cast_if:
         f
     }
 
+    /// The shipped rotations (`data/rotations/`).
+    fn rotations() -> RotationDb {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/rotations");
+        RotationDb::load(&data).expect("shipped rotations load")
+    }
+
+    fn shipped(name: &str) -> Arc<RotationSpec> {
+        Arc::clone(
+            rotations()
+                .get(crate::faction::PlayerClass::Warrior, name)
+                .unwrap_or_else(|| panic!("no shipped rotation {name:?}")),
+        )
+    }
+
     fn dw_fury() -> Arc<RotationSpec> {
-        Arc::new(serde_yaml::from_str(DW_FURY).unwrap())
+        shipped("DW Fury High Rage")
     }
 
     #[test]
@@ -2141,7 +2067,12 @@ cast_if:
         };
         assert!(less(&mut f, 0.2));
         assert!(less(&mut f, 0.3));
-        f.ctx().mh_swing(0);
+        f.ctx().start_attack();
+        let iteration = f.character.spells().mh_attack().iteration();
+        assert!(matches!(
+            f.ctx().mh_swing(iteration),
+            SwingOutcome::Swing(_)
+        ));
         for (now, less_200, less_300) in [
             (0.1, true, true),
             (0.19, true, true),
@@ -2149,10 +2080,18 @@ cast_if:
             (0.29, false, true),
             (0.31, false, false),
         ] {
-            f.engine.add_event(Event::new(now, EventKind::EncounterEnd));
-            f.engine.next_event();
+            f.engine.prepare_iteration(now);
             assert_eq!(less(&mut f, 0.2), less_200, "{now}");
             assert_eq!(less(&mut f, 0.3), less_300, "{now}");
+            // The time until the next swing is the rest of the 2.6 s sword speed.
+            let ctx = f.ctx();
+            let since = ctx.variable(BuiltinVariable::TimeSinceSwing);
+            let remaining = ctx.variable(BuiltinVariable::TimeRemainingSwing);
+            assert!((since - now).abs() < 1e-9, "{now}: since {since}");
+            assert!(
+                (since + remaining - 2.6).abs() < 1e-9,
+                "{now}: remaining {remaining}"
+            );
         }
     }
 
@@ -2226,6 +2165,147 @@ cast_if:
   - name: Berserker Stance
     condition: variable "combo_points" eq 0
 "#;
+
+    /// The six Warrior rotations of `data/rotations/warrior/` load, and linked to a
+    /// talent-less Orc without trinkets each keeps the executors that character can use.
+    #[test]
+    fn the_shipped_warrior_rotations_link() {
+        let db = rotations();
+        let warrior = crate::faction::PlayerClass::Warrior;
+        let names: Vec<&str> = db
+            .rotations_for(warrior)
+            .iter()
+            .map(|spec| spec.name.as_str())
+            .collect();
+        assert_eq!(
+            names,
+            [
+                "2h Fury",
+                "Mortal Strike",
+                "DW Fury High Rage",
+                "Fury Rage conservative stance dancing",
+                "Fury Heroic Strike Focus",
+                "Protection",
+            ],
+            "file order"
+        );
+        let expected: [(&str, &[&str]); 6] = [
+            (
+                "DW Fury High Rage",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Fury Rage conservative stance dancing",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Fury Heroic Strike Focus",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Overpower",
+                    "Hamstring",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "2h Fury",
+                &[
+                    "Bloodrage",
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Execute",
+                    "Whirlwind",
+                    "Hamstring",
+                    "Overpower",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Mortal Strike",
+                &[
+                    "Bloodrage",
+                    "Battle Shout",
+                    "Recklessness",
+                    "Blood Fury",
+                    "Overpower",
+                    "Execute",
+                    "Whirlwind",
+                    "Heroic Strike",
+                    "Heroic Strike",
+                    "Battle Stance",
+                    "Berserker Stance",
+                ],
+            ),
+            (
+                "Protection",
+                &[
+                    "Berserker Rage",
+                    "Battle Shout",
+                    "Heroic Strike",
+                    "Blood Fury",
+                    "Revenge",
+                    "Sunder Armor",
+                ],
+            ),
+        ];
+        for (name, active) in expected {
+            let spec = shipped(name);
+            let mut f = shipped_orc_warrior();
+            f.ctx().set_rotation(Arc::clone(&spec));
+            let rotation = f.character.rotation().unwrap();
+            let linked: Vec<&str> = rotation
+                .active_executors()
+                .map(|e| e.spell_name())
+                .collect();
+            assert_eq!(linked, active, "{name}");
+            assert_eq!(
+                rotation.precombat_spells().len(),
+                spec.precombat_actions.len(),
+                "{name}: every precombat spell links"
+            );
+            assert_eq!(f.character.rotation_name(), name);
+        }
+    }
 
     #[test]
     fn the_rotation_runs_through_the_event_loop() {
