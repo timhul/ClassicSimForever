@@ -288,8 +288,8 @@ fn hit_cap_follows_the_defense_minus_skill_difference() {
     assert!(failures.is_empty(), "hit cap:\n{}", failures.join("\n"));
 }
 
-/// "If the target is a mob below level 10: MissChance = NormalMissChance * (TargetLevel / 10)"
-/// SKIPPED: simulator does not care about low level fights.
+// "If the target is a mob below level 10: MissChance = NormalMissChance * (TargetLevel / 10)"
+// SKIPPED: simulator does not care about low level fights.
 // #[test]
 // fn mobs_below_level_10_are_missed_less_often() {
 //     // A level 5 character with 25 weapon skill vs a level 5 mob: 5 % × 5 / 10.
@@ -371,8 +371,8 @@ fn weapon_skill_above_the_level_cap_does_not_reduce_glancing_chance() {
     }
 }
 
-/// ... but weapon skill below the level cap raises it.
-/// SKIPPED: Simulator assumes max weapon skill.
+// ... but weapon skill below the level cap raises it.
+// SKIPPED: Simulator assumes max weapon skill.
 // #[test]
 // fn weapon_skill_below_the_level_cap_raises_glancing_chance() {
 //     // 295 skill vs 315 defense: 10 % + 20 × 2 %.
@@ -436,9 +436,9 @@ fn glancing_penalty_follows_the_defense_minus_skill_difference() {
     );
 }
 
-/// The low end is only capped at 0.91 and the high end only floored at 0.2: beyond a difference
-/// of 15 the penalty keeps growing.
-/// SKIPPED: Simulator does not support +4+ level difference.
+// The low end is only capped at 0.91 and the high end only floored at 0.2: beyond a difference
+// of 15 the penalty keeps growing.
+// SKIPPED: Simulator does not support +4+ level difference.
 // #[test]
 // fn glancing_penalty_keeps_growing_beyond_a_difference_of_15() {
 //     let mechanics = Mechanics::new(63);
@@ -552,9 +552,9 @@ fn crit_suppression_ignores_weapon_skill_above_the_level_cap() {
     }
 }
 
-/// Against mobs whose defense is below the attack rating the crit chance rises by 0.04 % per
-/// point of difference.
-/// SKIPPED: Simulator does not care about fighting lower level mobs.
+// Against mobs whose defense is below the attack rating the crit chance rises by 0.04 % per
+// point of difference.
+// SKIPPED: Simulator does not care about fighting lower level mobs.
 // #[test]
 // fn crit_rises_by_0_04_percent_per_point_of_rating_above_defense() {
 //     // 300 rating vs a level 59 mob (295 defense): +0.2 %; vs level 58 (290): +0.4 %.
