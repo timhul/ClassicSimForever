@@ -1813,7 +1813,7 @@ mod rotation {
 
     /// An Orc Warrior with the shipped class, spell and talent data (no points spent), a
     /// sword and a dagger.
-    fn shipped_orc_warrior() -> Fixture {
+    pub(super) fn shipped_orc_warrior() -> Fixture {
         let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let mut f = Fixture::orc_warrior();
         f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
@@ -2146,7 +2146,7 @@ mod rotation {
 
     /// A rotation whose casts do not depend on talents: Whirlwind whenever it is up, Heroic
     /// Strike above 50 rage, Bloodrage below 70, Battle Shout when it is about to fall off.
-    const FURY_NO_TALENTS: &str = r#"
+    pub(super) const FURY_NO_TALENTS: &str = r#"
 class: WARRIOR
 name: Fury (no talents)
 precombat_actions: [Bloodrage, Battle Shout, Berserker Stance]
@@ -2368,5 +2368,241 @@ cast_if:
         f.ctx().prepare_set_of_combat_iterations();
         let stats = f.character.rotation().unwrap().statistics_by_spell();
         assert_eq!(stats["Whirlwind"].attempts(), 0);
+    }
+}
+
+mod statistics {
+    use super::rotation::{shipped_orc_warrior, FURY_NO_TALENTS};
+    use super::*;
+    use crate::statistics::{ClassStatistics, Outcome, SpellStatistics};
+
+    const IMPROVED_REND: u32 = 105956;
+    const DEFLECTION: u32 = 105957;
+    const IMPROVED_TACTICAL_MASTERY: u32 = 105954;
+    const IMPROVED_OVERPOWER: u32 = 105952;
+    const ANGER_MANAGEMENT: u32 = 105951;
+    const DEEP_WOUNDS: u32 = 105950;
+
+    /// The Orc with the no-talent Fury rotation and every roll a hit, ready to pull at 0.
+    fn ready_to_pull(f: &mut Fixture) {
+        f.rig_rolls(PhysicalAttackResult::Hit);
+        f.ctx()
+            .set_rotation(Arc::new(serde_yaml::from_str(FURY_NO_TALENTS).unwrap()));
+        f.ctx().prepare_set_of_combat_iterations();
+        f.ctx().reset();
+        f.engine.prepare_iteration(-1.5);
+        f.ctx().run_precombat_actions();
+        f.engine.add_event(Event::new(
+            0.0,
+            EventKind::EncounterStart {
+                character: CharId(0),
+            },
+        ));
+    }
+
+    /// The statistics of the spell called `name`, whatever its rank.
+    fn spell<'a>(stats: &'a ClassStatistics, name: &str) -> &'a SpellStatistics {
+        stats
+            .spells()
+            .find(|(key, _)| key.name == name)
+            .unwrap_or_else(|| panic!("no statistics for {name}"))
+            .1
+    }
+
+    #[test]
+    fn a_fight_records_spells_swings_ticks_buffs_and_resources() {
+        let mut f = shipped_orc_warrior();
+        ready_to_pull(&mut f);
+        let handled = f.run(60.0);
+        let events =
+            |kind: fn(&EventKind) -> bool| handled.iter().filter(|k| kind(k)).count() as u64;
+        let mh_events = events(|k| matches!(k, EventKind::MainhandMeleeHit { .. }));
+        let oh_events = events(|k| matches!(k, EventKind::OffhandMeleeHit { .. }));
+        let ticks = events(|k| matches!(k, EventKind::DotTick { .. }));
+        f.ctx().reset();
+        f.character.finish_combat_iteration();
+        let stats = f.ctx().take_statistics();
+
+        // Every main hand swing event landed a white swing or the queued Heroic Strike
+        // (Whirlwind spends the rage first, so the Heroic Strike may never come).
+        let mh = spell(&stats, "Mainhand Attack");
+        let hs_attempts: u64 = stats
+            .spells()
+            .filter(|(key, _)| key.name == "Heroic Strike")
+            .map(|(_, s)| s.total_attempts())
+            .sum();
+        assert!(mh.total_attempts() > 10, "{mh:?}");
+        assert_eq!(mh.total_attempts() + hs_attempts, mh_events);
+        assert_eq!(
+            mh.hits(),
+            mh.total_attempts(),
+            "every roll is rigged to hit"
+        );
+        assert_eq!(mh.attempts(Outcome::Crit), 0);
+        assert!(mh.damage(Outcome::Hit).min() >= 80, "{mh:?}");
+        assert!(mh.damage(Outcome::Hit).max() > mh.damage(Outcome::Hit).min());
+        assert!(
+            mh.total_threat() < mh.total_damage(),
+            "Berserker Stance lowers threat"
+        );
+        assert!(!mh.dpr().is_set(), "white swings cost nothing");
+        let oh = spell(&stats, "Offhand Attack");
+        assert_eq!(oh.total_attempts(), oh_events);
+        assert!(oh.damage(Outcome::Hit).max() < mh.damage(Outcome::Hit).min());
+
+        // Whirlwind: one recorded attempt per successful executor cast, GCD execution time.
+        let ww = spell(&stats, "Whirlwind");
+        let executors = stats.executors();
+        let ww_executor = executors
+            .iter()
+            .find(|e| e.spell_name() == "Whirlwind")
+            .unwrap();
+        assert!(
+            ww_executor.name().starts_with('('),
+            "{}",
+            ww_executor.name()
+        );
+        assert_eq!(ww.total_attempts(), ww_executor.successful_casts());
+        assert!(ww.total_attempts() >= 4, "{ww:?}");
+        assert!(ww.dpet().is_set());
+        assert!((ww.dpet().avg() - ww.damage(Outcome::Hit).avg() / 1.5).abs() < 1e-6);
+        assert_eq!(executors.len(), 8, "the active executors, in file order");
+        assert_eq!(executors[0].spell_name(), "Bloodrage");
+        assert!(executors[0].outcomes().len() >= 2);
+
+        // Bloodrage: 10 rage up front and 1 per tick, no damage.
+        let bloodrage = stats.resource_statistics("Bloodrage", 1).unwrap();
+        let bloodrage_casts = executors[0].successful_casts() + 1;
+        assert!(
+            bloodrage.gain(ResourceType::Rage) >= bloodrage_casts * 10,
+            "{bloodrage:?} for {bloodrage_casts} casts"
+        );
+        assert!(ticks > 0);
+        assert!(
+            stats.spell_statistics("Bloodrage", 1).is_none(),
+            "no damage"
+        );
+        // The swings generate rage.
+        let mh_rage = stats.resource_statistics("Mainhand Attack", 1).unwrap();
+        assert!(mh_rage.gain(ResourceType::Rage) > 0);
+        assert!(mh_rage.gain_per_5(ResourceType::Rage, stats.time_in_combat()) > 0.0);
+
+        // Buffs: the precombat Battle Shout ran from -1.5 s to the reset at 60 s.
+        let shout = stats.buff_statistics("Battle Shout (party 1)").unwrap();
+        assert!(!shout.is_debuff());
+        assert!((shout.max_uptime() - 61.5).abs() < 1e-9, "{shout:?}");
+        assert!((shout.min_uptime() - 61.5).abs() < 1e-9, "{shout:?}");
+        assert_eq!(shout.encounters(), 1);
+        assert!(
+            (shout.avg_uptime() - 61.5 / 300.0).abs() < 1e-9,
+            "{shout:?}"
+        );
+        // Blood Fury expired on its own.
+        let blood_fury = stats.buff_statistics("Blood Fury").unwrap();
+        assert!(blood_fury.max_uptime() > 0.0 && blood_fury.max_uptime() < 60.0);
+        assert!(stats.buffs().all(|b| b.encounters() == 1));
+        assert!(
+            stats.buffs().all(|b| b.name() != "Heroic Strike"),
+            "the queue marker is hidden"
+        );
+
+        // Totals and the iteration.
+        assert_eq!(
+            stats.total_damage(),
+            stats.spells().map(|(_, s)| s.total_damage()).sum::<u64>()
+        );
+        assert_eq!(stats.iterations(), 1);
+        assert_eq!(stats.time_in_combat(), 300.0);
+        assert!((stats.personal_dps() - stats.total_damage() as f64 / 300.0).abs() < 1e-9);
+        assert_eq!(stats.dps_per_iteration(), &[stats.personal_dps()]);
+        assert_eq!(stats.personal_result().player_name, "You");
+        // The engine's counters came along.
+        assert_eq!(
+            stats
+                .engine()
+                .event_count(crate::engine::EventType::MainhandMeleeHit),
+            mh_events
+        );
+        assert!(stats.engine().total_events() > mh_events + oh_events);
+
+        // Taking left fresh statistics behind.
+        assert_eq!(f.character.statistics().spells().count(), 0);
+        assert_eq!(f.character.statistics().iterations(), 0);
+        assert_eq!(f.character.statistics().combat_length(), 300.0);
+    }
+
+    /// Deep Wounds procs on every crit and its bleed ticks under the bleed's name; Anger
+    /// Management's periodic rage is a resource source.
+    #[test]
+    fn procs_their_payloads_and_periodic_resources_are_recorded() {
+        let mut f = shipped_orc_warrior();
+        let short = f.ctx().spend_talent_points(&[
+            (IMPROVED_REND, 3),
+            (DEFLECTION, 2),
+            (IMPROVED_TACTICAL_MASTERY, 5),
+            (IMPROVED_OVERPOWER, 2),
+            (ANGER_MANAGEMENT, 1),
+            (DEEP_WOUNDS, 3),
+        ]);
+        assert!(short.is_empty(), "{short:?}");
+        f.character.stats_mut().increase_melee_base_crit(10000);
+        ready_to_pull(&mut f);
+        f.run(30.0);
+        f.ctx().sync_statistics();
+        let stats = f.character.statistics();
+
+        let mh = spell(stats, "Mainhand Attack");
+        assert_eq!(mh.crits(), mh.total_attempts(), "100 % crit");
+        let crits: u64 = stats.spells().map(|(_, s)| s.crits()).sum();
+        let deep_wounds = stats.proc_statistics("Deep Wounds").unwrap();
+        assert_eq!(deep_wounds.attempts(), crits, "one attempt per crit");
+        assert_eq!(deep_wounds.procs(), crits, "always procs");
+        assert_eq!(deep_wounds.avg_proc_rate(), 1.0);
+        assert!(
+            stats.procs().all(|p| p.name() == "Deep Wounds"),
+            "only the enabled proc is listed: {:?}",
+            stats.procs().map(|p| p.name()).collect::<Vec<_>>()
+        );
+        // The bleed ticks every 3 s for 12 s and refreshes: at most 10 ticks in 30 s.
+        let bleed = spell(stats, "Deep Wounds");
+        assert!(bleed.hits() >= 8 && bleed.hits() <= 10, "{bleed:?}");
+        assert_eq!(bleed.hits(), bleed.total_attempts());
+        assert!(bleed.total_damage() > 0);
+        assert!(bleed.damage(Outcome::Hit).min() > 0);
+        assert!(!bleed.dpr().is_set(), "the bleed costs nothing");
+        // Anger Management: 1 rage every 3 s.
+        let anger = stats.resource_statistics("Anger Management", 1).unwrap();
+        assert!(anger.gain(ResourceType::Rage) >= 9, "{anger:?}");
+        assert!(anger.gain(ResourceType::Rage) <= 11, "{anger:?}");
+        assert!(stats.spell_statistics("Anger Management", 1).is_none());
+
+        // Syncing again does not double the counts.
+        f.ctx().sync_statistics();
+        assert_eq!(
+            f.character
+                .statistics()
+                .proc_statistics("Deep Wounds")
+                .unwrap()
+                .procs(),
+            crits
+        );
+    }
+
+    #[test]
+    fn a_new_set_of_iterations_starts_from_empty_statistics() {
+        let mut f = shipped_orc_warrior();
+        ready_to_pull(&mut f);
+        f.run(20.0);
+        f.ctx().reset();
+        f.character.finish_combat_iteration();
+        assert!(f.character.statistics().total_damage() > 0);
+        assert_eq!(f.character.statistics().iterations(), 1);
+
+        f.ctx().prepare_set_of_combat_iterations();
+        let stats = f.character.statistics();
+        assert_eq!(stats.total_damage(), 0);
+        assert_eq!(stats.iterations(), 0);
+        assert_eq!(stats.spells().count(), 0);
+        assert_eq!(stats.buffs().count(), 0);
     }
 }

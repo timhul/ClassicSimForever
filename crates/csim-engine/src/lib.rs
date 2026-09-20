@@ -27,6 +27,7 @@ pub mod rng;
 pub mod rotation;
 pub mod spell;
 pub mod stance;
+pub mod statistics;
 pub mod stats;
 pub mod talent;
 pub mod target;

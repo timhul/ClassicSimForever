@@ -38,6 +38,7 @@ use crate::spell::auto_attack::rage_gained_from_damage;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::{AutoAttack, Hand};
 use crate::stance::Stance;
+use crate::statistics::ClassStatistics;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
 use crate::talent::CharacterTalents;
 
@@ -132,6 +133,8 @@ pub struct Character {
     /// The rotation, linked to the spells. Taken out by the context to run it.
     rotation: Option<Rotation>,
     player_name: String,
+    /// The statistics of the current set of iterations (the context records into them).
+    statistics: ClassStatistics,
 }
 
 impl Character {
@@ -173,6 +176,11 @@ impl Character {
             mana.set_base_mana(base.mana);
         }
         let seed = u64::from(id.0) + 1;
+        let player_name = if party == 0 && member == 0 {
+            "You".to_string()
+        } else {
+            format!("P{}M{}", party + 1, member + 1)
+        };
         let mut character = Character {
             id,
             equipment: Equipment::new(equipment_db, phase, faction, class.class),
@@ -200,11 +208,8 @@ impl Character {
             pending_extra_attacks: 0,
             last_roll_context: None,
             rotation: None,
-            player_name: if party == 0 && member == 0 {
-                "You".to_string()
-            } else {
-                format!("P{}M{}", party + 1, member + 1)
-            },
+            statistics: ClassStatistics::new(&player_name, sim.combat_length),
+            player_name,
             race: race.race,
             race_stats: race.race_stats(),
             stat_rules: class.stat_rules.rules(),
@@ -341,6 +346,22 @@ impl Character {
 
     pub fn sim(&self) -> &SimParams {
         &self.sim
+    }
+
+    /// The statistics of the current set of iterations. The proc, executor and engine
+    /// statistics are snapshots taken by `CharacterContext::sync_statistics`.
+    pub fn statistics(&self) -> &ClassStatistics {
+        &self.statistics
+    }
+
+    pub fn statistics_mut(&mut self) -> &mut ClassStatistics {
+        &mut self.statistics
+    }
+
+    /// Closes an iteration for the statistics (its DPS). Port of
+    /// `ClassStatistics::finish_combat_iteration` as called from `SimControl::run_sim`.
+    pub fn finish_combat_iteration(&mut self) {
+        self.statistics.finish_combat_iteration();
     }
 
     pub fn set_sim(&mut self, sim: SimParams) {
@@ -900,6 +921,7 @@ impl Character {
 
     /// The state part of `Character::prepare_set_of_combat_iterations`.
     pub(crate) fn prepare_set_of_combat_iterations_state(&mut self) {
+        self.statistics.prepare(self.sim.combat_length);
         self.spells.prepare_set_of_combat_iterations();
         self.roll.drop_tables();
         self.last_roll_context = None;

@@ -32,6 +32,7 @@ use crate::spell::{
     AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellStatus, SwingReport,
 };
 use crate::stance::Stance;
+use crate::statistics::{ClassStatistics, EngineStatistics, RotationExecutorStatistics};
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::Target;
@@ -778,18 +779,21 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// extra attacks it granted. Port of the `Spell::perform` → `run_proc_check` flow.
     pub fn cast(&mut self, id: SpellId) -> CastReport {
         let report = self.with_spell(id, |spell, ctx| spell.perform(ctx));
-        self.after_cast(&report);
+        self.after_cast(id, &report);
         self.perform_extra_attacks();
         report
     }
 
-    /// Runs the proc sources of a completed cast.
-    fn after_cast(&mut self, report: &CastReport) {
+    /// Records the statistics of a completed cast of `id` and runs its proc sources.
+    fn after_cast(&mut self, id: SpellId, report: &CastReport) {
+        self.record_cast(id, report);
         let sources = report.all_proc_sources();
         self.run_proc_checks(&sources);
     }
 
+    /// Records the statistics of a swing and runs its proc sources.
     fn after_swing(&mut self, report: &SwingReport) {
+        self.record_swing(report);
         let sources = report.proc_sources.clone();
         self.run_proc_checks(&sources);
     }
@@ -806,6 +810,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 continue;
             }
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, ctx)));
+        }
+        for (id, report) in &fired {
+            let (name, rank) = {
+                let spell = self.character.spells.procs().get(*id).spell();
+                (spell.name().to_string(), spell.rank())
+            };
+            self.record_report(&name, rank, report);
         }
         if self.character.pending_extra_attacks() > before {
             for (id, _) in &fired {
@@ -859,7 +870,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     .mh_attack_mut()
                     .complete_swing(now, speed);
                 let report = self.with_spell(queued, |spell, ctx| spell.perform_on_swing(ctx));
-                self.after_cast(&report);
+                self.after_cast(queued, &report);
                 self.perform_extra_attacks();
                 SwingOutcome::NextSwingSpell(report)
             }
@@ -984,12 +995,35 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             self.sync_stance_passives();
         }
+        let now = self.now();
+        let combat_length = self.character.sim().combat_length;
         for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
-            let stacks = self.buff_ref(id).stacks();
+            let (stacks, applied, hidden) = {
+                let buff = self.buff_ref(id);
+                (buff.stacks(), buff.applied_at(), buff.is_hidden())
+            };
             let (buff, mut ctx) = self.buff_ctx(id);
-            if buff.reset(&mut ctx).was_active {
+            let reset = buff.reset(&mut ctx);
+            if reset.was_active {
                 for _ in 0..stacks.max(1) {
                     self.remove_auras(id);
+                }
+            }
+            // Port of the statistics in `Buff::reset`: the application the end of the
+            // iteration cut short, then the iteration's share of the encounter.
+            if !hidden {
+                if reset.was_active {
+                    self.record_buff_uptime(id, now - applied);
+                }
+                if reset.uptime > 0.0 {
+                    let (name, debuff) = {
+                        let buff = self.buff_ref(id);
+                        (buff.statistics_name(), buff.is_debuff())
+                    };
+                    self.character
+                        .statistics
+                        .buff(&name, debuff)
+                        .add_uptime_for_encounter(reset.uptime / combat_length);
                 }
             }
         }
@@ -1013,10 +1047,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Before a set of iterations: the state, the buffs and the rotation, which is relinked
-    /// here so that spells enabled since it was set (talents, racials, equipment) join it.
-    /// Port of `Character::prepare_set_of_combat_iterations` + `CharacterSpells::relink_spells`
-    /// (the statistics objects arrive in Phase 5.5).
+    /// Before a set of iterations: the statistics (cleared), the state, the buffs and the
+    /// rotation, which is relinked here so that spells enabled since it was set (talents,
+    /// racials, equipment) join it. Port of `Character::prepare_set_of_combat_iterations` +
+    /// `CharacterSpells::relink_spells`.
     pub fn prepare_set_of_combat_iterations(&mut self) {
         self.character.prepare_set_of_combat_iterations_state();
         for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
@@ -1050,7 +1084,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 }
             });
             if let Some(report) = report {
-                self.after_cast(&report);
+                self.after_cast(id, &report);
                 self.perform_extra_attacks();
             }
         }
@@ -1092,6 +1126,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     for _ in 0..stacks.max(1) {
                         self.remove_auras(buff);
                     }
+                    self.record_buff_removed(buff);
                 }
             }
             EventKind::DotTick {
@@ -1108,7 +1143,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             } if character == me => {
                 if let Some(report) = self.with_spell(spell, |s, ctx| s.complete_cast(cast_id, ctx))
                 {
-                    self.after_cast(&report);
+                    self.after_cast(spell, &report);
                     self.perform_extra_attacks();
                 }
             }
@@ -1119,7 +1154,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// A periodic tick of `spell`; returns the tick report if the application is current.
     pub fn dot_tick(&mut self, spell: SpellId, application_id: u32) -> Option<TickReport> {
-        self.with_spell(spell, |s, ctx| s.perform_periodic(application_id, ctx))
+        let report = self.with_spell(spell, |s, ctx| s.perform_periodic(application_id, ctx))?;
+        self.record_tick(spell, &report);
+        Some(report)
     }
 
     /// Uses a charge of every buff that reacts to `source`.
@@ -1128,8 +1165,141 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             let (buff, mut ctx) = self.buff_ctx(id);
             if buff.use_charge(&mut ctx) == ChargeUse::Removed {
                 self.remove_auras(id);
+                self.record_buff_removed(id);
             }
         }
+    }
+
+    // ---------------------------------------------------------------- statistics
+
+    /// Records the attack outcome and resource gains of a cast of `id` (not of the spells it
+    /// triggered: those were recorded when they were cast through [`SpellHost::trigger_spell`]).
+    fn record_cast(&mut self, id: SpellId, report: &CastReport) {
+        let (name, rank) = {
+            let spell = self.character.spells.spell(id);
+            (spell.name().to_string(), spell.rank())
+        };
+        self.record_report(&name, rank, report);
+    }
+
+    /// Records a cast report under `name` / `rank`. Port of the `statistics_spell` /
+    /// `statistics_resource` updates of `Spell.cpp`.
+    fn record_report(&mut self, name: &str, rank: u32, report: &CastReport) {
+        let statistics = &mut self.character.statistics;
+        if let Some(attack) = &report.attack {
+            statistics
+                .spell(name, rank)
+                .record_attack(attack, f64::from(report.resource_cost));
+        }
+        for &(resource, amount) in &report.resource_gained {
+            statistics.resource(name, rank).add_gain(resource, amount);
+        }
+    }
+
+    /// Records a white swing under its hand's attack name. Port of the statistics of
+    /// `MainhandAttack::calculate_damage` / `OffhandAttack::calculate_damage`.
+    fn record_swing(&mut self, report: &SwingReport) {
+        let name = match report.hand {
+            Hand::Mainhand => self.character.spells.mh_attack().name(),
+            Hand::Offhand => self.character.spells.oh_attack().name(),
+        };
+        let statistics = &mut self.character.statistics;
+        statistics.spell(name, 1).record_attack(&report.attack, 0.0);
+        if let Some(rage) = report.rage_gained {
+            statistics
+                .resource(name, 1)
+                .add_gain(ResourceType::Rage, rage);
+        }
+    }
+
+    /// Records a periodic tick of `id`: its damage as a hit, its resource gain. Port of the
+    /// statistics in the C++ periodic spells' `tick_effect`.
+    fn record_tick(&mut self, id: SpellId, report: &TickReport) {
+        let (name, rank) = {
+            let spell = self.character.spells.spell(id);
+            (spell.name().to_string(), spell.rank())
+        };
+        let statistics = &mut self.character.statistics;
+        if report.damage > 0 || report.threat > 0.0 {
+            statistics.spell(&name, rank).record_tick(
+                report.damage,
+                report.threat,
+                report.resource_cost,
+                report.execution_time,
+            );
+        }
+        if let Some((resource, amount)) = report.resource_gained {
+            statistics.resource(&name, rank).add_gain(resource, amount);
+        }
+    }
+
+    /// Records the application that just ended for a removed buff. Port of the
+    /// `add_uptime` call in `Buff::force_remove_buff`.
+    fn record_buff_removed(&mut self, id: BuffId) {
+        let buff = self.buff_ref(id);
+        if buff.is_hidden() {
+            return;
+        }
+        let uptime = buff.expired_at() - buff.applied_at();
+        self.record_buff_uptime(id, uptime);
+    }
+
+    fn record_buff_uptime(&mut self, id: BuffId, uptime: f64) {
+        let (name, debuff) = {
+            let buff = self.buff_ref(id);
+            (buff.statistics_name(), buff.is_debuff())
+        };
+        self.character
+            .statistics
+            .buff(&name, debuff)
+            .add_uptime(uptime);
+    }
+
+    /// Copies the counters kept elsewhere into the statistics: the procs' attempts and
+    /// successes, the rotation's executor statistics and the engine's event counts and
+    /// elapsed time. Idempotent; called before the statistics are read or taken.
+    pub fn sync_statistics(&mut self) {
+        let procs = self.character.spells.procs();
+        let counts: Vec<(String, u64, u64)> = procs
+            .procs()
+            .iter()
+            .enumerate()
+            .filter(|(i, proc)| procs.is_enabled(ProcId(*i as u32)) || proc.attempts() > 0)
+            .map(|(_, proc)| {
+                (
+                    proc.name().to_string(),
+                    u64::from(proc.attempts()),
+                    u64::from(proc.procs()),
+                )
+            })
+            .collect();
+        let executors: Vec<RotationExecutorStatistics> = self
+            .character
+            .rotation
+            .as_ref()
+            .map(|rotation| {
+                rotation
+                    .active_executors()
+                    .enumerate()
+                    .map(|(i, executor)| RotationExecutorStatistics::from_executor(i + 1, executor))
+                    .collect()
+            })
+            .unwrap_or_default();
+        let statistics = &mut self.character.statistics;
+        for (name, attempts, procs) in counts {
+            statistics.proc(&name).set_counts(attempts, procs);
+        }
+        statistics.set_executors(executors);
+        statistics.set_engine(EngineStatistics::from_engine(self.engine));
+    }
+
+    /// Syncs and hands over the statistics of the set of iterations, leaving fresh ones
+    /// behind. Port of `Character::relinquish_ownership_of_statistics`.
+    pub fn take_statistics(&mut self) -> ClassStatistics {
+        self.sync_statistics();
+        let combat_length = self.character.sim().combat_length;
+        let fresh = ClassStatistics::new(self.character.player_name(), combat_length);
+        std::mem::replace(&mut self.character.statistics, fresh)
     }
 
     // ---------------------------------------------------------------- equipment
@@ -1568,6 +1738,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             for _ in 0..stacks.max(1) {
                 self.remove_auras(id);
             }
+            self.record_buff_removed(id);
         }
         cancelled
     }
@@ -1583,10 +1754,12 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     }
     fn trigger_spell(&mut self, spell: u32, trigger_value: Option<f64>) -> Option<CastReport> {
         let id = self.character.spells().spell_by_game_id(spell)?;
-        Some(self.with_spell(id, |s, ctx| {
+        let report = self.with_spell(id, |s, ctx| {
             s.set_trigger_value(trigger_value);
             s.perform(ctx)
-        }))
+        });
+        self.record_cast(id, &report);
+        Some(report)
     }
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64) {
         if let Some(id) = self.character.spells().spell_by_game_id(spell) {

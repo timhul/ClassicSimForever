@@ -313,7 +313,7 @@ impl Rotation {
     }
 
     /// Zeroes the executor statistics. Port of `Rotation::prepare_set_of_combat_iterations`
-    /// (the statistics objects themselves arrive in Phase 5.5).
+    /// (`crate::statistics::RotationExecutorStatistics` snapshots them for reporting).
     pub fn prepare_set_of_combat_iterations(&mut self) {
         for executor in &mut self.executors {
             executor.statistics.reset();
