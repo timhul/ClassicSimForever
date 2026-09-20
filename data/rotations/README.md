@@ -62,11 +62,25 @@ no precedence beyond that).
 | `resource`      | `Rage` / `Mana` / `Energy` / `Focus` | current amount                       |
 | `variable`      | a builtin (below)              | its value                                 |
 
-Comparisons: `less`, `leq`, `eq`, `geq`, `greater` followed by a number, or `is true` /
-`is false` (for `buff_duration`: whether the buff is up).
+Comparisons: `less`, `leq`, `eq`, `geq`, `greater` followed by a number (`leq` / `geq` /
+`eq` are within 0.0001), or `is true` / `is false` — only for the buff types: whether the
+buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 
-Builtin variables: `target_health`, `time_remaining_encounter`, `time_remaining_execute`,
-`swing_timer`, `melee_ap`, `combo_points`, `time_remaining_gcd`.
+Builtin variables:
 
-The grammar is parsed by `crates/csim-engine/src/rotation/condition.rs` (Phase 5.2); until
-then the text is stored as written and only checked for being non-blank.
+| variable                   | value                                                        |
+|----------------------------|--------------------------------------------------------------|
+| `target_health`            | remaining target health as a fraction of the fight, 1 → 0    |
+| `time_remaining_encounter` | seconds until the fight ends                                 |
+| `time_remaining_execute`   | seconds until the execute phase; negative once in it         |
+| `time_since_swing`         | seconds since the last main hand swing                       |
+| `time_since_auto_shot`     | seconds since the last auto shot                             |
+| `melee_ap`                 | melee attack power                                           |
+| `combo_points`             | combo points on the target                                   |
+| `time_remaining_gcd`       | seconds until the global cooldown ends                       |
+
+Every condition is parsed when the file is loaded (`crates/csim-engine/src/rotation/condition.rs`);
+a line that does not follow the grammar, an unknown type, resource or variable, or `is` on a
+non-buff type is a load error naming the file, the executor and the line. Buff and spell names
+are only resolved when the rotation is linked to a character; an executor naming something the
+character does not have is skipped then, not rejected here.
