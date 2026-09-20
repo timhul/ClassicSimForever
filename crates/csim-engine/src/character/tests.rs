@@ -1274,3 +1274,517 @@ debuffs:
         assert_eq!(f.target.armor(), base_armor);
     }
 }
+
+// ---------------------------------------------------------------- talents
+
+/// Talents on the shipped data: the Warrior tree of `data/talents/warrior.yaml` applied to
+/// the spells of `data/spells/warrior.yaml`. Port of `Test/Warrior/Talents/*` (the parts
+/// whose Forever value exists: Defiance, Two-Handed Weapon Specialization, the Arms tree).
+mod talents {
+    use super::*;
+    use crate::proc::ProcSource;
+    use crate::spell::dbc::SpellModOp;
+    use crate::talent::{CharacterTalents, TalentDb};
+
+    const DEFLECTION: u32 = 105957;
+    const IMPROVED_HEROIC_STRIKE: u32 = 105958;
+    const IMPROVED_REND: u32 = 105956;
+    const IMPROVED_TACTICAL_MASTERY: u32 = 105954;
+    const IMPROVED_OVERPOWER: u32 = 105952;
+    const ANGER_MANAGEMENT: u32 = 105951;
+    const DEEP_WOUNDS: u32 = 105950;
+    const TWO_HANDED_SPEC: u32 = 105948;
+    const IMPALE: u32 = 105947;
+    const SWEEPING_STRIKES: u32 = 105945;
+    const WEAPONMASTER: u32 = 105944;
+    const IMPROVED_SLAM: u32 = 110858;
+    const IMPROVED_HAMSTRING: u32 = 105942;
+    const MORTAL_STRIKE: u32 = 105941;
+    const CRUELTY: u32 = 105939;
+    const UNBRIDLED_WRATH: u32 = 105937;
+    const ANTICIPATION: u32 = 105975;
+    const TOUGHNESS: u32 = 105973;
+    const DEFIANCE: u32 = 110856;
+    const BLOOD_CRAZE: u32 = 105934;
+    const BOUNDLESS_RAGE: u32 = 105953;
+    const ENRAGE: u32 = 105931;
+    const DEATH_WISH: u32 = 105927;
+    const FLURRY: u32 = 105928;
+    const BLOODTHIRST_TALENT: u32 = 105930;
+
+    const MORTAL_STRIKE_R1: u32 = 12294;
+    const MORTAL_STRIKE_R2: u32 = 21551;
+    const HEROIC_STRIKE_9: u32 = 25286;
+    const UNBRIDLED_WRATH_SPELL: u32 = 12322;
+    const FLURRY_SPELL: u32 = 12319;
+    const DEFENSIVE_STANCE: u32 = 71;
+    const ARMS: u32 = 26;
+    const FURY: u32 = 256;
+    const PROTECTION: u32 = 257;
+
+    /// An Orc Warrior with the shipped spells and talents attached (before learning).
+    fn fixture() -> Fixture {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let mut f = Fixture::orc_warrior();
+        f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
+        let classes = super::super::ClassDb::load(&data.join("classes"), None).unwrap();
+        f.character = Character::new(
+            CharId(0),
+            Arc::clone(classes.get(crate::faction::PlayerClass::Warrior).unwrap()),
+            &race(Race::Orc),
+            equipment_db(),
+            Phase::MoltenCore,
+            SimParams::default(),
+            63,
+            0,
+            0,
+        );
+        let talents = TalentDb::load(&data.join("talents")).expect("shipped talent data loads");
+        let tree = Arc::clone(talents.get(crate::faction::PlayerClass::Warrior).unwrap());
+        f.ctx().set_talents(CharacterTalents::new(tree));
+        f.equip(EquipmentSlot::Mainhand, SWORD);
+        let db = std::mem::take(&mut f.db);
+        f.ctx().learn_all(&db);
+        f.db = db;
+        f
+    }
+
+    fn enabled(f: &Fixture, game_id: u32) -> bool {
+        let spells = f.character.spells();
+        match spells.handle(game_id) {
+            Some(crate::character_spells::SpellHandle::Spell(id)) => spells.spell(id).is_enabled(),
+            Some(crate::character_spells::SpellHandle::Proc(id)) => spells.procs().is_enabled(id),
+            None => panic!("{game_id} not learned"),
+        }
+    }
+
+    fn inc(f: &mut Fixture, node: u32) -> bool {
+        f.ctx().increment_talent(node)
+    }
+
+    fn dec(f: &mut Fixture, node: u32) -> bool {
+        f.ctx().decrement_talent(node)
+    }
+
+    fn inc_n(f: &mut Fixture, node: u32, n: u32) -> bool {
+        (0..n).all(|_| inc(f, node))
+    }
+
+    fn rank(f: &Fixture, node: u32) -> u32 {
+        f.character.talents().unwrap().rank(node)
+    }
+
+    fn mh_crit(f: &Fixture) -> u32 {
+        let view = f.target.stat_view();
+        f.character
+            .stats()
+            .get_mh_crit_chance(&f.character.stat_context(&view))
+    }
+
+    fn phys_dmg_mod(f: &Fixture) -> f64 {
+        let view = f.target.stat_view();
+        f.character
+            .stats()
+            .get_total_physical_damage_mod(&f.character.stat_context(&view))
+    }
+
+    fn cost(f: &mut Fixture, game_id: u32) -> u32 {
+        let id = f.spell_id(game_id);
+        let ctx = f.ctx();
+        ctx.character.spells().spell(id).resource_cost(&ctx)
+    }
+
+    /// The Arms build the C++ `TestArms::spec_ms` spent, on Forever's tiers (31 points).
+    fn spec_ms(f: &mut Fixture) {
+        assert!(inc_n(f, IMPROVED_REND, 3));
+        assert!(inc_n(f, DEFLECTION, 2));
+        assert!(inc_n(f, IMPROVED_TACTICAL_MASTERY, 5));
+        assert!(inc_n(f, IMPROVED_OVERPOWER, 2));
+        assert!(inc_n(f, ANGER_MANAGEMENT, 1));
+        assert!(inc_n(f, DEEP_WOUNDS, 3));
+        assert!(inc_n(f, TWO_HANDED_SPEC, 3));
+        assert!(inc_n(f, IMPALE, 2));
+        assert!(inc_n(f, SWEEPING_STRIKES, 1));
+        assert!(inc_n(f, WEAPONMASTER, 5));
+        assert!(inc_n(f, IMPROVED_SLAM, 2));
+        assert!(inc_n(f, IMPROVED_HAMSTRING, 1));
+        assert!(inc_n(f, MORTAL_STRIKE, 1));
+    }
+
+    #[test]
+    fn talent_granted_spells_wait_for_their_talent() {
+        let mut f = fixture();
+        // Mortal Strike r1 is flagged trainable in SkillLineAbility, r2 genuinely is: both wait.
+        assert!(!enabled(&f, MORTAL_STRIKE_R1));
+        assert!(!enabled(&f, MORTAL_STRIKE_R2));
+        assert!(!enabled(&f, 23881), "Bloodthirst");
+        assert!(!enabled(&f, 12320), "Cruelty");
+        assert!(enabled(&f, HEROIC_STRIKE_9), "trainable spells are enabled");
+        assert_eq!(f.status(MORTAL_STRIKE_R1), SpellStatus::NotEnabled);
+
+        assert!(!inc(&mut f, MORTAL_STRIKE), "tier 6 locked");
+        spec_ms(&mut f);
+        assert_eq!(f.character.talents().unwrap().tab_points(ARMS), 31);
+        assert!(enabled(&f, MORTAL_STRIKE_R1));
+        assert!(enabled(&f, MORTAL_STRIKE_R2), "the rank group came with it");
+        assert_ne!(f.status(MORTAL_STRIKE_R1), SpellStatus::NotEnabled);
+
+        // Nothing below comes out while Mortal Strike holds tier 6 at exactly 30 points.
+        for node in [
+            DEFLECTION,
+            IMPROVED_REND,
+            IMPROVED_TACTICAL_MASTERY,
+            DEEP_WOUNDS,
+            IMPALE,
+            SWEEPING_STRIKES,
+            IMPROVED_SLAM,
+        ] {
+            assert!(!dec(&mut f, node), "{node}");
+        }
+        assert!(dec(&mut f, MORTAL_STRIKE));
+        assert!(!enabled(&f, MORTAL_STRIKE_R1));
+        assert!(!enabled(&f, MORTAL_STRIKE_R2));
+        assert!(!dec(&mut f, IMPROVED_REND), "Deep Wounds requires it");
+        assert!(dec(&mut f, SWEEPING_STRIKES));
+        assert!(
+            !dec(&mut f, DEFLECTION),
+            "tier 0 is at 5 with tier 1 invested"
+        );
+        assert!(dec(&mut f, WEAPONMASTER), "tier 5 keeps 25 below it");
+        assert!(!dec(&mut f, WEAPONMASTER), "24 would not");
+        assert_eq!(f.character.talents().unwrap().points_remaining(), 51 - 28);
+    }
+
+    #[test]
+    fn talents_attached_after_learning_are_synced() {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let mut f = fixture();
+        // Detach, learn a fresh character's spells without talents: the talent abilities
+        // flagged trainable come up enabled; attaching the tree takes them down again.
+        f.character.set_talents_unsynced(None);
+        let db = std::mem::take(&mut f.db);
+        let mut fresh = Fixture::orc_warrior();
+        fresh.db = db;
+        fresh.character = Character::new(
+            CharId(0),
+            Arc::clone(f.character.class()),
+            &race(Race::Orc),
+            equipment_db(),
+            Phase::MoltenCore,
+            SimParams::default(),
+            63,
+            0,
+            0,
+        );
+        let db = std::mem::take(&mut fresh.db);
+        fresh.ctx().learn_all(&db);
+        fresh.db = db;
+        assert!(enabled(&fresh, MORTAL_STRIKE_R1));
+        let talents = TalentDb::load(&data.join("talents")).unwrap();
+        let mut setup = CharacterTalents::new(Arc::clone(
+            talents.get(crate::faction::PlayerClass::Warrior).unwrap(),
+        ));
+        assert_eq!(setup.increase_to_max_rank(CRUELTY).len(), 5);
+        fresh.ctx().set_talents(setup);
+        assert!(!enabled(&fresh, MORTAL_STRIKE_R1));
+        assert!(!enabled(&fresh, MORTAL_STRIKE_R2));
+        assert!(
+            enabled(&fresh, 12320),
+            "Cruelty had points in the attached setup"
+        );
+    }
+
+    #[test]
+    fn a_talent_spell_learned_after_its_talent_comes_up_at_its_rank() {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let mut f = Fixture::orc_warrior();
+        f.db = SpellDb::load(&data.join("spells")).unwrap();
+        let talents = TalentDb::load(&data.join("talents")).unwrap();
+        let mut setup = CharacterTalents::new(Arc::clone(
+            talents.get(crate::faction::PlayerClass::Warrior).unwrap(),
+        ));
+        setup.increase_to_max_rank(CRUELTY);
+        setup.increase_to_max_rank(DEFLECTION);
+        setup.increase_to_max_rank(IMPROVED_HEROIC_STRIKE);
+        f.ctx().set_talents(setup);
+        f.equip(EquipmentSlot::Mainhand, SWORD);
+        let base_crit = mh_crit(&f);
+        f.learn(12320);
+        assert!(enabled(&f, 12320));
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(5));
+        f.learn(HEROIC_STRIKE_9);
+        f.learn(12282);
+        assert_eq!(
+            cost(&mut f, HEROIC_STRIKE_9),
+            12,
+            "Improved Heroic Strike 3/3"
+        );
+        // Ranks of a granted ability stay down until their talent has points.
+        f.learn(MORTAL_STRIKE_R1);
+        assert!(!enabled(&f, MORTAL_STRIKE_R1));
+        f.learn(MORTAL_STRIKE_R2);
+        assert!(!enabled(&f, MORTAL_STRIKE_R2));
+    }
+
+    /// Aura crit is suppressed by 1.8 % against the level 63 target
+    /// (`Mechanics::suppressed_aura_crit_chance`), so Cruelty's `percent` shows as
+    /// `percent × 100 − 180`.
+    fn cruelty_crit(percent: u32) -> u32 {
+        percent * 100 - 180
+    }
+
+    #[test]
+    fn rank_values_replace_the_effect_values() {
+        let mut f = fixture();
+        let base_crit = mh_crit(&f);
+        assert!(inc_n(&mut f, CRUELTY, 3));
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(3), "Cruelty 3 %");
+        assert!(inc_n(&mut f, CRUELTY, 2));
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(5));
+        assert!(dec(&mut f, CRUELTY));
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(4));
+
+        assert_eq!(cost(&mut f, HEROIC_STRIKE_9), 15);
+        assert!(inc_n(&mut f, IMPROVED_HEROIC_STRIKE, 2));
+        assert_eq!(cost(&mut f, HEROIC_STRIKE_9), 13, "-1 rage per rank");
+        assert_eq!(f.character.spell_modifiers().len(), 1);
+        assert_eq!(
+            f.character
+                .spell_modifiers()
+                .all()
+                .iter()
+                .map(|m| (m.op, m.amount))
+                .collect::<Vec<_>>(),
+            [(SpellModOp::PowerCost0, -20.0)]
+        );
+        assert!(inc(&mut f, IMPROVED_HEROIC_STRIKE));
+        assert_eq!(cost(&mut f, HEROIC_STRIKE_9), 12);
+        assert!(f.ctx().clear_talent_tab(ARMS));
+        assert_eq!(cost(&mut f, HEROIC_STRIKE_9), 15);
+        assert!(f.character.spell_modifiers().is_empty());
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(4), "Fury untouched");
+        assert!(f.ctx().clear_talents());
+        assert_eq!(mh_crit(&f), base_crit);
+        assert!(!f.ctx().clear_talents(), "nothing left to clear");
+    }
+
+    #[test]
+    fn a_proc_chance_talent_rolls_with_its_rank_value() {
+        let mut f = fixture();
+        let proc = f
+            .character
+            .spells()
+            .proc_by_game_id(UNBRIDLED_WRATH_SPELL)
+            .unwrap();
+        assert!(!f.character.spells().procs().is_enabled(proc));
+        assert!(!inc(&mut f, UNBRIDLED_WRATH), "tier 1 needs 5 points");
+        assert!(inc_n(&mut f, CRUELTY, 5));
+        assert!(inc(&mut f, UNBRIDLED_WRATH));
+        assert!(f.character.spells().procs().is_enabled(proc));
+        let chance = |f: &mut Fixture| {
+            let ctx = f.ctx();
+            ctx.character
+                .spells()
+                .procs()
+                .get(proc)
+                .spell()
+                .proc_chance(&ctx)
+        };
+        assert!((chance(&mut f) - 0.12).abs() < 1e-9, "rank 1");
+        assert!(inc_n(&mut f, UNBRIDLED_WRATH, 4));
+        assert!((chance(&mut f) - 0.60).abs() < 1e-9, "rank 5");
+        assert!(dec(&mut f, UNBRIDLED_WRATH));
+        assert!((chance(&mut f) - 0.48).abs() < 1e-9, "rank 4");
+        f.ctx().clear_talents();
+        assert!(!f.character.spells().procs().is_enabled(proc));
+    }
+
+    /// Flurry's rank value travels through the proc's `TRIGGER_WITH_VALUE` script into the
+    /// haste buff: 15 % at rank 3, 25 % at rank 5.
+    #[test]
+    fn a_scripted_talent_forwards_its_rank_value_to_its_buff() {
+        let mut f = fixture();
+        let short = f.ctx().spend_talent_points(&[
+            (CRUELTY, 5),
+            (UNBRIDLED_WRATH, 5),
+            (BLOOD_CRAZE, 3),
+            (BOUNDLESS_RAGE, 3),
+            (ENRAGE, 5),
+            (105929, 3), // Precision
+            (DEATH_WISH, 1),
+            (FLURRY, 3),
+        ]);
+        assert!(short.is_empty(), "{short:?}");
+        assert!(enabled(&f, FLURRY_SPELL));
+        f.ctx().reset();
+        f.engine.prepare_iteration(0.0);
+        let procs = f.ctx().run_proc_checks(&[ProcSource::MeleeCritical]);
+        assert!(
+            procs.iter().any(
+                |(id, _)| f.character.spells().procs().get(*id).spell().game_id() == FLURRY_SPELL
+            ),
+            "Flurry procs on a crit: {procs:?}"
+        );
+        let haste = f.character.stats().get_melee_attack_speed_mod();
+        assert!((haste - 1.15).abs() < 1e-9, "rank 3: {haste}");
+        assert!(inc_n(&mut f, FLURRY, 2));
+        f.ctx().reset();
+        f.engine.prepare_iteration(0.0);
+        f.ctx().run_proc_checks(&[ProcSource::MeleeCritical]);
+        let haste = f.character.stats().get_melee_attack_speed_mod();
+        assert!((haste - 1.25).abs() < 1e-9, "rank 5: {haste}");
+    }
+
+    /// Port of `TestTwoHandedWeaponSpecialization`: 1 % per rank (3 ranks in Forever), only
+    /// while a two-hander is equipped.
+    #[test]
+    fn two_handed_weapon_specialization_needs_a_two_hander() {
+        let mut f = fixture();
+        assert!((phys_dmg_mod(&f) - 1.0).abs() < 1e-9);
+        assert!(inc_n(&mut f, IMPROVED_REND, 3));
+        assert!(inc_n(&mut f, DEFLECTION, 2));
+        assert!(inc_n(&mut f, IMPROVED_TACTICAL_MASTERY, 5));
+        assert!(inc_n(&mut f, IMPROVED_OVERPOWER, 2));
+        assert!(inc_n(&mut f, DEEP_WOUNDS, 3));
+        assert!(inc(&mut f, TWO_HANDED_SPEC));
+        assert!((phys_dmg_mod(&f) - 1.0).abs() < 1e-9, "sword equipped");
+        f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+        f.ctx().reevaluate_passives();
+        assert!((phys_dmg_mod(&f) - 1.01).abs() < 1e-9);
+        assert!(inc(&mut f, TWO_HANDED_SPEC));
+        assert!((phys_dmg_mod(&f) - 1.02).abs() < 1e-9);
+        assert!(inc(&mut f, TWO_HANDED_SPEC));
+        assert!((phys_dmg_mod(&f) - 1.03).abs() < 1e-9);
+        assert!(!inc(&mut f, TWO_HANDED_SPEC), "maxed");
+        f.equip(EquipmentSlot::Mainhand, SWORD);
+        f.ctx().reevaluate_passives();
+        assert!((phys_dmg_mod(&f) - 1.0).abs() < 1e-9);
+        f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+        f.ctx().reevaluate_passives();
+        assert!((phys_dmg_mod(&f) - 1.03).abs() < 1e-9);
+        assert!(dec(&mut f, TWO_HANDED_SPEC));
+        assert!((phys_dmg_mod(&f) - 1.02).abs() < 1e-9);
+        f.ctx().reset();
+        assert!(
+            (phys_dmg_mod(&f) - 1.02).abs() < 1e-9,
+            "ranks survive the reset"
+        );
+    }
+
+    /// Port of `TestDefiance`: 5 % threat per rank (Forever), in Defensive Stance with a
+    /// shield, nothing in Battle Stance.
+    #[test]
+    fn defiance_raises_threat_in_defensive_stance_only() {
+        let mut f = fixture();
+        f.equip(EquipmentSlot::Offhand, SHIELD);
+        assert!(inc_n(&mut f, ANTICIPATION, 5));
+        assert!(inc_n(&mut f, TOUGHNESS, 5));
+        f.ctx().reset();
+        f.engine.prepare_iteration(0.0);
+        let defensive = f.spell_id(DEFENSIVE_STANCE);
+        f.ctx().cast(defensive);
+        assert_eq!(f.character.stance(), Stance::Defensive);
+        let base = f.character.stats().get_total_threat_mod();
+        assert!(
+            (base - 1.3).abs() < 1e-9,
+            "Defensive Stance passive: {base}"
+        );
+        for rank in 1..=3 {
+            assert!(inc(&mut f, DEFIANCE));
+            let threat = f.character.stats().get_total_threat_mod();
+            let expected = 1.3 * (1.0 + 0.05 * f64::from(rank));
+            assert!((threat - expected).abs() < 1e-9, "rank {rank}: {threat}");
+        }
+        assert_eq!(f.character.talents().unwrap().tab_points(PROTECTION), 13);
+
+        f.engine.prepare_iteration(2.0);
+        let battle = f.spell_id(BATTLE_STANCE);
+        f.ctx().cast(battle);
+        assert_eq!(f.character.stance(), Stance::Battle);
+        let threat = f.character.stats().get_total_threat_mod();
+        assert!((threat - 0.8).abs() < 1e-9, "Battle Stance: {threat}");
+        f.ctx().clear_talent_tab(PROTECTION);
+        assert!((f.character.stats().get_total_threat_mod() - 0.8).abs() < 1e-9);
+    }
+
+    /// Port of `TestArms::test_refilling_tree_after_switching_talent_setup` and
+    /// `test_clearing_tree_after_filling`.
+    #[test]
+    fn setups_are_independent_and_switching_moves_the_effects() {
+        let mut f = fixture();
+        let base_crit = mh_crit(&f);
+        spec_ms(&mut f);
+        assert!(inc_n(&mut f, CRUELTY, 5));
+        let points = |f: &Fixture| f.character.talents().unwrap().tab_points(ARMS);
+        assert_eq!(points(&f), 31);
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(5));
+        assert!(enabled(&f, MORTAL_STRIKE_R1));
+
+        assert!(f.ctx().switch_talent_setup(1));
+        assert_eq!(points(&f), 0);
+        assert_eq!(mh_crit(&f), base_crit);
+        assert!(!enabled(&f, MORTAL_STRIKE_R1));
+        assert!(f.character.spell_modifiers().is_empty());
+        spec_ms(&mut f);
+        assert_eq!(points(&f), 31);
+        assert!(enabled(&f, MORTAL_STRIKE_R1));
+        assert_eq!(mh_crit(&f), base_crit, "Cruelty only in setup 0");
+
+        assert!(f.ctx().switch_talent_setup(2));
+        assert_eq!(points(&f), 0);
+        spec_ms(&mut f);
+        assert_eq!(points(&f), 31);
+        assert!(!f.ctx().switch_talent_setup(2), "already current");
+        assert!(!f.ctx().switch_talent_setup(7), "no such setup");
+
+        assert!(f.ctx().switch_talent_setup(0));
+        assert_eq!(points(&f), 31);
+        assert_eq!(mh_crit(&f), base_crit + cruelty_crit(5));
+        assert!(!dec(&mut f, TWO_HANDED_SPEC), "Mortal Strike holds tier 6");
+        assert!(f.ctx().clear_talent_tab(ARMS));
+        assert_eq!(points(&f), 0);
+        assert_eq!(f.character.talents().unwrap().points_remaining(), 46);
+        assert!(!enabled(&f, MORTAL_STRIKE_R1));
+    }
+
+    #[test]
+    fn a_setup_is_spent_in_order_and_reports_what_it_could_not_reach() {
+        let mut f = fixture();
+        let short = f.ctx().spend_talent_points(&[
+            (CRUELTY, 5),
+            (UNBRIDLED_WRATH, 5),
+            (DEATH_WISH, 1),
+            (BLOODTHIRST_TALENT, 1),
+        ]);
+        assert_eq!(
+            short,
+            [(DEATH_WISH, 0), (BLOODTHIRST_TALENT, 0)],
+            "tier 4 needs 20 points"
+        );
+        assert_eq!(rank(&f, CRUELTY), 5);
+        assert_eq!(rank(&f, UNBRIDLED_WRATH), 5);
+        // Blood Craze 3, Boundless Rage 3, Enrage 4 unlock tier 4 (20 points).
+        let short = f.ctx().spend_talent_points(&[
+            (CRUELTY, 5),
+            (BLOOD_CRAZE, 3),
+            (BOUNDLESS_RAGE, 3),
+            (ENRAGE, 4),
+            (DEATH_WISH, 1),
+        ]);
+        assert!(short.is_empty(), "{short:?}");
+        assert_eq!(f.character.talents().unwrap().tab_points(FURY), 21);
+        assert!(f.ctx().max_talent(ENRAGE));
+        assert_eq!(rank(&f, ENRAGE), 5);
+        assert!(!f.ctx().max_talent(ENRAGE), "nothing to add");
+        assert!(
+            !f.ctx().min_talent(CRUELTY),
+            "tier 0 sits at exactly 5 with tier 1 invested"
+        );
+        assert_eq!(rank(&f, CRUELTY), 5);
+        assert!(f.ctx().min_talent(DEATH_WISH));
+        assert_eq!(rank(&f, DEATH_WISH), 0);
+        assert!(f.ctx().min_talent(ENRAGE));
+        assert_eq!(rank(&f, ENRAGE), 0);
+        assert_eq!(f.character.talents().unwrap().tab_points(FURY), 16);
+    }
+}

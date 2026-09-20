@@ -10,7 +10,7 @@
 
 use crate::buff::external::{ExternalBuffDb, ExternalBuffSpec};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
-use crate::character_spells::{AddedSpell, BuffSlot, SharedBuffs};
+use crate::character_spells::{AddedSpell, BuffSlot, SharedBuffs, SpellHandle};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
 use crate::effect::EffectHost;
@@ -28,6 +28,7 @@ use crate::spell::record::{EquippedItems, SpellDb};
 use crate::spell::{AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SwingReport};
 use crate::stance::Stance;
 use crate::stats::{CharacterStats, TargetStatView};
+use crate::talent::{CharacterTalents, RankChange};
 use crate::target::Target;
 
 use super::{Character, StanceLink};
@@ -50,6 +51,23 @@ pub enum ExternalBuffToggleError {
     #[error("the external buff {0:?} is not available to the {1}")]
     WrongFaction(String, &'static str),
 }
+
+/// The first rank of spell `id`: the start of its `supercedes` chain.
+fn base_rank(db: &SpellDb, id: u32) -> u32 {
+    let mut current = id;
+    let mut hops = 0;
+    while let Some(record) = db.get(current) {
+        if record.supercedes == 0 || hops > MAX_RANK_CHAIN {
+            break;
+        }
+        current = record.supercedes;
+        hops += 1;
+    }
+    current
+}
+
+/// Longest `supercedes` chain `base_rank` follows (guards against a cyclic data file).
+const MAX_RANK_CHAIN: u32 = 32;
 
 /// The character together with everything it acts on.
 pub struct CharacterContext<'a, S: SharedBuffs> {
@@ -155,11 +173,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     // ---------------------------------------------------------------- learning spells
 
     /// Adds spell `id` from `db` and enables it when it is a trainable / racial spell. Stance
-    /// spells register their stance link. Port of the spell construction in the C++ class
-    /// constructors.
+    /// spells register their stance link. Spells a talent of the attached tree grants (the
+    /// talent spell and its higher ranks, whatever their `class_mask` says) wait for the
+    /// talent. Port of the spell construction in the C++ class constructors.
     pub fn learn(&mut self, db: &SpellDb, id: u32) -> AddedSpell {
         let party = self.character.party();
-        let added = self.character.spells.add_spell(db, id, party, self.raid);
+        let mut added = self.character.spells.add_spell(db, id, party, self.raid);
+        let base = base_rank(db, id);
+        let granted = self.character.talent_grants(base);
+        if granted {
+            added.enable_now = false;
+        }
         if let Some(spell) = added.spell {
             let stance = {
                 let spell = self.character.spells.spell(spell);
@@ -188,6 +212,22 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         // A payload learned after the spell that casts it.
         if self.enabled_source_of(id) {
             self.set_payloads_enabled(&[id], true);
+        }
+        // A talent spell (or a rank of one) learned after its talent got points.
+        if granted {
+            let change = self.character.talents().and_then(|t| {
+                let node = t.node_of_spell(base)?;
+                let rank = t.rank(node);
+                (rank > 0).then_some(RankChange {
+                    node,
+                    spell: base,
+                    from: 0,
+                    to: rank,
+                })
+            });
+            if let Some(change) = change {
+                self.apply_talent_change(change);
+            }
         }
         self.sync_stance_passives();
         added
@@ -307,14 +347,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 continue;
             }
             match self.character.spells.handle(game_id) {
-                Some(crate::character_spells::SpellHandle::Spell(id)) => {
+                Some(SpellHandle::Spell(id)) => {
                     if enabled {
                         self.enable_spell(id);
                     } else {
                         self.disable_spell(id);
                     }
                 }
-                Some(crate::character_spells::SpellHandle::Proc(id)) => {
+                Some(SpellHandle::Proc(id)) => {
                     if enabled {
                         self.enable_proc(id);
                     } else {
@@ -333,8 +373,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let old = self.character.race();
         for record in old.racials(db) {
             match self.character.spells.handle(record.id) {
-                Some(crate::character_spells::SpellHandle::Spell(id)) => self.disable_spell(id),
-                Some(crate::character_spells::SpellHandle::Proc(id)) => self.disable_proc(id),
+                Some(SpellHandle::Spell(id)) => self.disable_spell(id),
+                Some(SpellHandle::Proc(id)) => self.disable_proc(id),
                 None => {}
             }
         }
@@ -342,8 +382,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.character.set_race_stats(race);
         for record in race.race.racials(db) {
             match self.character.spells.handle(record.id) {
-                Some(crate::character_spells::SpellHandle::Spell(id)) => self.enable_spell(id),
-                Some(crate::character_spells::SpellHandle::Proc(id)) => self.enable_proc(id),
+                Some(SpellHandle::Spell(id)) => self.enable_spell(id),
+                Some(SpellHandle::Proc(id)) => self.enable_proc(id),
                 None => {
                     self.learn(db, record.id);
                 }
@@ -351,6 +391,210 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
         if self.character.faction() != faction {
             self.switch_faction();
+        }
+    }
+
+    // ---------------------------------------------------------------- talents
+
+    /// Attaches the talent setups and brings the spells in line with the current setup:
+    /// every talent spell (and the ranks it grants) is enabled with its rank values when the
+    /// talent has points and disabled otherwise. Port of the talent trees' construction in
+    /// the C++ class constructors.
+    pub fn set_talents(&mut self, talents: CharacterTalents) {
+        self.character.set_talents_unsynced(Some(talents));
+        self.sync_talents();
+    }
+
+    /// Re-applies the current setup to the spells (after learning spells, or after the
+    /// talents were changed through `Character::talents_mut`).
+    pub fn sync_talents(&mut self) {
+        let Some(talents) = self.character.talents() else {
+            return;
+        };
+        let changes: Vec<RankChange> = talents
+            .file()
+            .talents
+            .iter()
+            .map(|spec| RankChange {
+                node: spec.node,
+                spell: spec.spell,
+                from: 0,
+                to: talents.rank(spec.node),
+            })
+            .collect();
+        for change in changes {
+            self.apply_talent_change(change);
+        }
+    }
+
+    /// Spends a point in talent `node` of the current setup and applies the new rank.
+    /// Returns `false` when the rules (tier, prerequisite, budget) refuse it.
+    pub fn increment_talent(&mut self, node: u32) -> bool {
+        let change = self
+            .character
+            .talents_mut()
+            .and_then(|t| t.increment_rank(node));
+        self.apply_talent_changes(change)
+    }
+
+    /// Takes a point out of talent `node` and applies the new rank.
+    pub fn decrement_talent(&mut self, node: u32) -> bool {
+        let change = self
+            .character
+            .talents_mut()
+            .and_then(|t| t.decrement_rank(node));
+        self.apply_talent_changes(change)
+    }
+
+    /// Spends points in `node` until it is maxed or none remain.
+    pub fn max_talent(&mut self, node: u32) -> bool {
+        let changes = self
+            .character
+            .talents_mut()
+            .map(|t| t.increase_to_max_rank(node))
+            .unwrap_or_default();
+        self.apply_talent_changes(changes)
+    }
+
+    /// Takes points out of `node` while the rules allow.
+    pub fn min_talent(&mut self, node: u32) -> bool {
+        let changes = self
+            .character
+            .talents_mut()
+            .map(|t| t.decrease_to_min_rank(node))
+            .unwrap_or_default();
+        self.apply_talent_changes(changes)
+    }
+
+    /// Refunds every point of tab `skill_line` of the current setup.
+    pub fn clear_talent_tab(&mut self, skill_line: u32) -> bool {
+        let changes = self
+            .character
+            .talents_mut()
+            .map(|t| t.clear_tab(skill_line))
+            .unwrap_or_default();
+        self.apply_talent_changes(changes)
+    }
+
+    /// Refunds every point of the current setup.
+    pub fn clear_talents(&mut self) -> bool {
+        let changes = self
+            .character
+            .talents_mut()
+            .map(CharacterTalents::clear_all)
+            .unwrap_or_default();
+        self.apply_talent_changes(changes)
+    }
+
+    /// Switches to talent setup `index`: the current setup's ranks come off the spells, the
+    /// new setup's go on. Port of `CharacterTalents::set_current_index`.
+    pub fn switch_talent_setup(&mut self, index: usize) -> bool {
+        let changes = self
+            .character
+            .talents_mut()
+            .map(|t| t.set_current_index(index))
+            .unwrap_or_default();
+        self.apply_talent_changes(changes)
+    }
+
+    /// Spends points into the current setup so each `(node, rank)` reaches its rank, in
+    /// order (a setup lists talents tier by tier). Returns the entries that could not be
+    /// reached, with the rank they stopped at.
+    pub fn spend_talent_points(&mut self, setup: &[(u32, u32)]) -> Vec<(u32, u32)> {
+        let mut short = Vec::new();
+        for &(node, rank) in setup {
+            while self
+                .character
+                .talents()
+                .is_some_and(|t| t.rank(node) < rank)
+            {
+                if !self.increment_talent(node) {
+                    break;
+                }
+            }
+            let reached = self.character.talents().map_or(0, |t| t.rank(node));
+            if reached < rank {
+                short.push((node, reached));
+            }
+        }
+        short
+    }
+
+    /// Applies rank changes to the spells; returns whether there were any.
+    pub fn apply_talent_changes(&mut self, changes: impl IntoIterator<Item = RankChange>) -> bool {
+        let mut any = false;
+        for change in changes {
+            self.apply_talent_change(change);
+            any = true;
+        }
+        any
+    }
+
+    /// What a talent rank means for the character's spells: the talent spell's effect values
+    /// become the rank's curve values and the spell (or proc) is enabled — its passive aura
+    /// goes up, its modifiers land in the modifier table, its proc arms, and an ability it
+    /// grants becomes castable together with the trainable higher ranks of its rank group.
+    /// At rank 0 everything is disabled and the table values restored. Port of
+    /// `Talent::apply_rank_effect` / `remove_rank_effect` on the table model.
+    fn apply_talent_change(&mut self, change: RankChange) {
+        let Some(values) = self
+            .character
+            .talents()
+            .and_then(|t| t.spec(change.node))
+            .map(|spec| spec.values_at(change.to))
+        else {
+            return;
+        };
+        let spell = change.spell;
+        if change.to == 0 {
+            for handle in self.talent_spell_handles(spell) {
+                match handle {
+                    SpellHandle::Spell(id) => self.disable_spell(id),
+                    SpellHandle::Proc(id) => self.disable_proc(id),
+                }
+            }
+            self.reset_spell_effect_values(spell);
+            return;
+        }
+        for (index, value) in values {
+            self.set_spell_effect_value(spell, index, value);
+        }
+        for handle in self.talent_spell_handles(spell) {
+            match handle {
+                SpellHandle::Spell(id) => self.enable_spell(id),
+                SpellHandle::Proc(id) => self.enable_proc(id),
+            }
+        }
+    }
+
+    /// The talent spell's handle and, for an ability, the other ranks of its rank group.
+    fn talent_spell_handles(&self, spell: u32) -> Vec<SpellHandle> {
+        let spells = self.character.spells();
+        let Some(handle) = spells.handle(spell) else {
+            return Vec::new();
+        };
+        let mut handles = vec![handle];
+        if let SpellHandle::Spell(id) = handle {
+            if let Some(group) = spells.rank_group_of(id) {
+                handles.extend(
+                    group
+                        .spells()
+                        .filter(|&other| other != id)
+                        .map(SpellHandle::Spell),
+                );
+            }
+        }
+        handles
+    }
+
+    /// Restores the table values of every effect of spell `spell`.
+    fn reset_spell_effect_values(&mut self, spell: u32) {
+        if let Some(id) = self.character.spells().spell_by_game_id(spell) {
+            self.with_spell(id, |s, ctx| s.reset_effect_values(ctx));
+        } else if let Some(id) = self.character.spells().proc_by_game_id(spell) {
+            self.with_procs(|procs, ctx| {
+                procs.get_mut(id).spell_mut().reset_effect_values(ctx);
+            });
         }
     }
 
@@ -661,6 +905,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.cancel_stance_spell(link);
         }
         self.sync_stance_passives();
+        // Passives gated on a stance (Defiance in Defensive Stance) follow the change.
+        self.reevaluate_passives();
     }
 
     /// Cancels a stance spell's buff (unless the spell is being performed right now).

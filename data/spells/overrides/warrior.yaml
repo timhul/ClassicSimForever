@@ -23,6 +23,15 @@ overrides:
   - id: 12880
     note: the Enrage buff makes the character ENRAGED (the tables do not carry the mechanic)
     sim_flags: [ENRAGE]
+  - id: 12322
+    note: Unbridled Wrath (talent); the rank value 12-60 is the proc chance (ProcChance holds the max rank's 60)
+    proc: { chance_effect: 0 }
+  - id: 12298
+    note: Shield Specialization (talent); E1's rank value 20-100 is the chance of the rage on block
+    proc: { chance_effect: 1 }
+  - id: 1310316
+    note: Master of Defense (talent); the rank value 50/100 is the chance of the rage on dodge/parry
+    proc: { chance_effect: 0 }
 
   # ----- Scripted (DUMMY) effects ------------------------------------------------------------
   - id: 12162

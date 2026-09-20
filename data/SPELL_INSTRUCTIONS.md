@@ -407,6 +407,8 @@ overrides:
     proc: { hit_mask: [CRITICAL] }   # ProcHitMask: NORMAL CRITICAL MISS FULL_RESIST PARTIAL_RESIST
                                      #   DODGE PARRY BLOCK EVADE IMMUNE DEFLECT ABSORB REFLECT
                                      #   INTERRUPT FULL_BLOCK
+                                     # chance_effect: N — the proc chance is aura effect N's value
+                                     #   (talents whose rank value is the chance: Unbridled Wrath)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }

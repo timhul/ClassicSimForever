@@ -609,10 +609,22 @@ impl Spell {
     pub fn proc_chance(&self, host: &impl SpellHost) -> f64 {
         let record = &self.setup.record;
         let chance = record.aura_options.proc_chance;
-        let percent = if chance == 0 || chance > 100 {
-            100.0
-        } else {
-            f64::from(chance)
+        let from_effect = self
+            .setup
+            .overrides
+            .proc
+            .and_then(|p| p.chance_effect)
+            .and_then(|index| {
+                let buff = host.buff(self.marker_buff?);
+                buff.effects
+                    .iter()
+                    .find(|e| e.index() == index)
+                    .map(Effect::value)
+            });
+        let percent = match from_effect {
+            Some(percent) => percent,
+            None if chance == 0 || chance > 100 => 100.0,
+            None => f64::from(chance),
         };
         let percent = host.spell_modifiers().apply(
             record.class_options.as_ref(),

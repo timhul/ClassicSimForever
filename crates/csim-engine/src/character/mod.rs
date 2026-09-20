@@ -38,6 +38,7 @@ use crate::spell::modifiers::SpellModifiers;
 use crate::spell::{AutoAttack, Hand};
 use crate::stance::Stance;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
+use crate::talent::CharacterTalents;
 
 pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets, StatRules};
 
@@ -91,6 +92,8 @@ pub struct Character {
     /// The external buffs the character is offered (`CharacterContext::add_external_buffs`).
     general_buffs: GeneralBuffs,
     modifiers: SpellModifiers,
+    /// The talent setups, once attached (`CharacterContext::set_talents`).
+    talents: Option<CharacterTalents>,
     roll: CombatRoll,
     /// Rolls weapon damage between the weapon's min and max (the C++ `Weapon::random`).
     dmg_roll: Random,
@@ -170,6 +173,7 @@ impl Character {
             spells: CharacterSpells::new(id, seed),
             general_buffs: GeneralBuffs::new(),
             modifiers: SpellModifiers::new(),
+            talents: None,
             roll: CombatRoll::new(target_level),
             dmg_roll: Random::new(0, 1),
             resource,
@@ -373,6 +377,28 @@ impl Character {
 
     pub fn spell_modifiers_mut(&mut self) -> &mut SpellModifiers {
         &mut self.modifiers
+    }
+
+    /// The talent setups, if attached.
+    pub fn talents(&self) -> Option<&CharacterTalents> {
+        self.talents.as_ref()
+    }
+
+    /// The talent setups for bookkeeping only: rank changes made here are not applied to
+    /// the spells (use the context's talent methods for that).
+    pub fn talents_mut(&mut self) -> Option<&mut CharacterTalents> {
+        self.talents.as_mut()
+    }
+
+    /// Attaches (or replaces) the talent setups without touching the spells; the context's
+    /// `set_talents` also syncs the spells.
+    pub fn set_talents_unsynced(&mut self, talents: Option<CharacterTalents>) {
+        self.talents = talents;
+    }
+
+    /// Whether `spell` is granted by a talent of the attached tree (not by the trainer).
+    pub fn talent_grants(&self, spell: u32) -> bool {
+        self.talents.as_ref().is_some_and(|t| t.grants(spell))
     }
 
     pub fn roll(&self) -> &CombatRoll {

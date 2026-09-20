@@ -968,6 +968,19 @@ impl SpellDb {
                     });
                 }
             }
+            if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect) {
+                if !record
+                    .effect(index)
+                    .is_some_and(EffectRecord::is_apply_aura)
+                {
+                    return Err(SpellDbError::Invalid {
+                        spell: id,
+                        message: format!(
+                            "the override takes the proc chance from effect {index}, which is not an aura effect of the spell"
+                        ),
+                    });
+                }
+            }
             for target in spell_override.referenced_spells() {
                 if !self.spells.contains_key(&target) {
                     return Err(SpellDbError::UnknownReference {

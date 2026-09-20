@@ -122,7 +122,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
   `DEEP_WOUNDS_BLEED`, `TRIGGER_WITH_VALUE`, `PERIODIC_RESOURCE_GAIN`, … or `NO_OP` for a dummy
   that does nothing in the simulator. `csim-tables check` says which effects still need one.
 - **`proc`** — the hit results a proc fires on (`hit_mask: [CRITICAL]` for Flurry, Deep Wounds):
-  retail keeps this in the server-side `spell_proc` table.
+  retail keeps this in the server-side `spell_proc` table; and `chance_effect` for the talents
+  whose rank value is the proc chance (Unbridled Wrath 12–60 %) rather than the payload's value.
 - **`threat`** — innate threat (`flat`) and a multiplier; the client has no threat table.
 - **`sim_flags`** — how the simulator treats the spell: `IGNORED` (loads, never cast),
   `RESETS_SWING_TIMERS` / `STOPS_ATTACK_DURING_CAST` / `CANCELS_NEXT_SWING_QUEUE` (Slam),
