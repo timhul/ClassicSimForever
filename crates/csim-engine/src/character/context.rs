@@ -10,7 +10,7 @@
 
 use std::sync::Arc;
 
-use crate::buff::external::{ExternalBuffDb, ExternalBuffSpec};
+use crate::buff::external::{ExternalBuffDb};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{AddedSpell, BuffSlot, PartyAuraChange, SharedBuffs, SpellHandle};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
@@ -20,7 +20,6 @@ use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::EquipmentSlot;
 use crate::proc::{ProcHost, ProcSource};
-use crate::race::RaceSpec;
 use crate::resource::ResourceType;
 use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
 use crate::spell::dbc::AuraState;
@@ -397,34 +396,6 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Changes the race: the racial spells of the old race are disabled, those of the new
-    /// race enabled (learning them first when needed). Port of `Character::set_race` +
-    /// `CharacterSpells::activate_racials`.
-    pub fn set_race(&mut self, db: &SpellDb, race: &RaceSpec) {
-        let old = self.character.race();
-        for record in old.racials(db) {
-            match self.character.spells.handle(record.id) {
-                Some(SpellHandle::Spell(id)) => self.disable_spell(id),
-                Some(SpellHandle::Proc(id)) => self.disable_proc(id),
-                None => {}
-            }
-        }
-        let faction = self.character.faction();
-        self.character.set_race_stats(race);
-        for record in race.race.racials(db) {
-            match self.character.spells.handle(record.id) {
-                Some(SpellHandle::Spell(id)) => self.enable_spell(id),
-                Some(SpellHandle::Proc(id)) => self.enable_proc(id),
-                None => {
-                    self.learn(db, record.id);
-                }
-            }
-        }
-        if self.character.faction() != faction {
-            self.switch_faction();
-        }
-    }
-
     // ---------------------------------------------------------------- talents
 
     /// Attaches the talent setups and brings the spells in line with the current setup:
@@ -751,29 +722,6 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 .selected = false;
         }
     }
-
-    /// After the faction changed: selected buffs the new faction cannot have are removed
-    /// (they stay selected, as in C++), selected ones it can have again are re-applied. Port of
-    /// `GeneralBuffs::switch_faction`.
-    pub fn switch_faction(&mut self) {
-        let faction = self.character.faction();
-        let entries: Vec<(ExternalBuffSpec, BuffId, u32, bool)> = self
-            .character
-            .general_buffs
-            .entries()
-            .iter()
-            .map(|e| (e.spec.clone(), e.buff, e.stacks, e.selected))
-            .collect();
-        for (spec, buff, stacks, selected) in entries {
-            if !spec.valid_for_faction(faction) {
-                self.cancel_buff(buff);
-            } else if selected {
-                self.apply_external(buff, stacks);
-            }
-        }
-    }
-
-    // ---------------------------------------------------------------- casting
 
     /// Casts a spell: performs it, then runs the proc checks its report asks for and the
     /// extra attacks it granted. Port of the `Spell::perform` → `run_proc_check` flow.

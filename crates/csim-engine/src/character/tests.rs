@@ -264,46 +264,6 @@ fn unavailable_race_is_rejected() {
 }
 
 #[test]
-fn race_change_swaps_attributes_and_offsets() {
-    let mut class = (*warrior_class()).clone();
-    class.race_stat_offsets.insert(
-        Race::Human,
-        super::StatOffsets {
-            spirit: 4,
-            stamina: -1,
-            ..Default::default()
-        },
-    );
-    let mut f = Fixture::orc_warrior();
-    f.character = Character::new(
-        CharId(0),
-        Arc::new(class),
-        &race(Race::Orc),
-        equipment_db(),
-        Phase::MoltenCore,
-        SimParams::default(),
-        63,
-        0,
-        0,
-    );
-    let db = std::mem::take(&mut f.db);
-    f.ctx().set_race(&db, &race(Race::Human));
-    f.db = db;
-    let view = f.target.stat_view();
-    let ctx = f.character.stat_context(&view);
-    assert_eq!(f.character.race(), Race::Human);
-    assert_eq!(f.character.stats().get_strength(&ctx), 120);
-    assert_eq!(f.character.stats().get_spirit(&ctx), 25 + 22 + 4);
-    assert_eq!(f.character.stats().get_stamina(&ctx), 90 + 20 - 1);
-    let db = std::mem::take(&mut f.db);
-    f.ctx().set_race(&db, &race(Race::Orc));
-    f.db = db;
-    let ctx = f.character.stat_context(&view);
-    assert_eq!(f.character.stats().get_spirit(&ctx), 48, "offsets removed");
-    assert_eq!(f.character.stats().get_stamina(&ctx), 112);
-}
-
-#[test]
 fn global_cooldown_timing() {
     let mut f = Fixture::orc_warrior();
     assert!(f.character.action_ready(0.0), "starts off the GCD");
@@ -1179,44 +1139,6 @@ debuffs:
             .collect();
         assert!(!offered.contains(&"Greater Blessing of Kings"));
         assert!(offered.contains(&"Sunder Armor"));
-    }
-
-    #[test]
-    fn a_race_change_across_factions_swaps_the_faction_buffs() {
-        let (mut f, _) = fixture();
-        f.ctx()
-            .toggle_external_buff("Strength of Earth Totem")
-            .unwrap();
-        f.ctx().toggle_external_buff("Juju Power").unwrap();
-        assert_eq!(strength(&f), 123 + 53 + 30);
-
-        let db = std::mem::take(&mut f.db);
-        f.ctx().set_race(&db, &race(Race::Human));
-        f.db = db;
-        assert_eq!(
-            strength(&f),
-            120 + 30,
-            "the totem is gone, Juju Power stays"
-        );
-        assert!(
-            f.character
-                .external_buffs()
-                .is_selected("Strength of Earth Totem"),
-            "still selected, as in C++"
-        );
-        assert_eq!(
-            f.ctx().toggle_external_buff("Greater Blessing of Kings"),
-            Ok(true)
-        );
-        assert_eq!(strength(&f), (120 + 30) * 110 / 100);
-
-        let db = std::mem::take(&mut f.db);
-        f.ctx().set_race(&db, &race(Race::Orc));
-        f.db = db;
-        assert_eq!(strength(&f), 123 + 53 + 30, "the totem is back, Kings gone");
-        f.ctx().clear_external_buffs();
-        assert_eq!(strength(&f), 123);
-        assert!(f.character.external_buffs().selected_buffs().is_empty());
     }
 
     #[test]

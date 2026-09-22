@@ -243,25 +243,6 @@ impl Character {
         self.race.faction()
     }
 
-    /// Changes the race: the attributes and the per-race stat offsets follow. The racial
-    /// spells are the context's business (`CharacterContext::set_race`).
-    ///
-    /// # Panics
-    /// Panics if the race is not available to the class.
-    pub(crate) fn set_race_stats(&mut self, race: &RaceSpec) {
-        assert!(
-            self.class.race_available(race.race),
-            "Race {:?} not available to {:?}",
-            race.race,
-            self.class.class
-        );
-        self.apply_stat_offsets(self.race, false);
-        self.race = race.race;
-        self.race_stats = race.race_stats();
-        self.apply_stat_offsets(self.race, true);
-        self.equipment.set_faction(self.race.faction());
-    }
-
     /// Port of `Character::set_special_statistics`, from the class data.
     fn apply_stat_offsets(&mut self, race: Race, apply: bool) {
         let offsets = self.class.stat_offsets(race);
