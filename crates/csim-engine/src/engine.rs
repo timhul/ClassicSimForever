@@ -1,14 +1,14 @@
 //! Discrete-event engine.
 //!
-//! Port of `Engine/Engine.*`, `Queue/Queue.*` and `Event/*`.
+//! An [`Event`] is plain data: a timestamp and an [`EventKind`] that names the objects involved by
+//! handle. The engine only orders and hands out events; the simulation owner pops them with
+//! [`Engine::next_event`] and dispatches on the kind.
 //!
-//! The C++ engine stored heap-allocated `Event` objects with a virtual `act()` and let each event
-//! mutate the simulation through raw pointers. Here an [`Event`] is plain data: a timestamp and an
-//! [`EventKind`] that names the objects involved by handle. The engine only orders and hands out
-//! events; the simulation owner pops them with [`Engine::next_event`] and dispatches on the kind.
+//! Events with equal timestamps are ordered by insertion (a sequence number).
 //!
-//! Events with equal timestamps are ordered by insertion (a sequence number), which the C++
-//! `std::priority_queue` left unspecified. This makes runs reproducible for a fixed seed.
+//! Many events have an identifier approach where instead of removing stale events from the queue
+//! (expensive operation) the staleness of an event is evaluated at event dispatch-time using the
+//! identifier (if the identifier does not match immediately discard event and continue).
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
@@ -16,45 +16,45 @@ use std::time::Instant;
 
 use crate::ids::{BuffId, CharId, SpellId};
 
-/// The kinds of events the engine can schedule, with the handles each one needs when dispatched.
-///
-/// Pet, ranged and spell-callback events from the C++ engine are not part of the Warrior scope and
-/// will be added together with the classes that need them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EventKind {
-    /// A buff application expires. `iteration` identifies the application; a stale removal
-    /// (the buff was re-applied since) is ignored by the buff.
     BuffRemoval {
         character: CharId,
         buff: BuffId,
         iteration: u32,
     },
-    /// A cast with casting time completes.
     CastComplete {
         character: CharId,
         spell: SpellId,
         cast_id: u32,
     },
-    /// A periodic spell ticks. `application_id` identifies the application that scheduled the tick.
     DotTick {
         character: CharId,
         spell: SpellId,
         application_id: u32,
     },
-    /// Combat ends: the queue is cleared.
     EncounterEnd,
-    /// Combat starts for a character: start-of-combat buffs/spells, auto attacks and the rotation.
-    EncounterStart { character: CharId },
-    /// The tanked target swings at the character.
-    IncomingDamage { character: CharId },
-    /// Mainhand auto attack swing lands. `iteration` invalidates swings that were re-timed.
-    MainhandMeleeHit { character: CharId, iteration: u32 },
-    /// Offhand auto attack swing lands. `iteration` invalidates swings that were re-timed.
-    OffhandMeleeHit { character: CharId, iteration: u32 },
-    /// A buff refreshes itself periodically.
-    PeriodicRefreshBuff { character: CharId, buff: BuffId },
-    /// The character gets to run its rotation.
-    PlayerAction { character: CharId },
+    EncounterStart {
+        character: CharId,
+    },
+    IncomingDamage {
+        character: CharId,
+    },
+    MainhandMeleeHit {
+        character: CharId,
+        iteration: u32,
+    },
+    OffhandMeleeHit {
+        character: CharId,
+        iteration: u32,
+    },
+    PeriodicRefreshBuff {
+        character: CharId,
+        buff: BuffId,
+    },
+    PlayerAction {
+        character: CharId,
+    },
 }
 
 impl EventKind {
@@ -107,7 +107,6 @@ pub enum EventType {
 }
 
 impl EventType {
-    /// Every event type, in declaration order.
     pub const ALL: [EventType; 10] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
@@ -121,28 +120,11 @@ impl EventType {
         EventType::PlayerAction,
     ];
 
-    /// Display name, as used by the C++ engine breakdown.
-    pub fn name(self) -> &'static str {
-        match self {
-            EventType::BuffRemoval => "BuffRemoval",
-            EventType::CastComplete => "CastComplete",
-            EventType::DotTick => "DotTick",
-            EventType::EncounterEnd => "EncounterEnd",
-            EventType::EncounterStart => "EncounterStart",
-            EventType::IncomingDamage => "IncomingDamage",
-            EventType::MainhandMeleeHit => "MainhandMeleeHit",
-            EventType::OffhandMeleeHit => "OffhandMeleeHit",
-            EventType::PeriodicRefreshBuff => "PeriodicRefreshBuff",
-            EventType::PlayerAction => "PlayerAction",
-        }
-    }
-
     fn index(self) -> usize {
         self as usize
     }
 }
 
-/// A scheduled event: when it happens and what it is.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Event {
     /// Simulation time in seconds. Negative times are used for the precombat phase.
@@ -200,6 +182,7 @@ impl EventQueue {
         Self::default()
     }
 
+    /// Queues given event.
     pub fn push(&mut self, event: Event) {
         debug_assert!(!event.time.is_nan(), "event time must not be NaN");
         let seq = self.next_seq;
@@ -233,6 +216,7 @@ impl EventQueue {
 }
 
 /// Per-event-type counters for a set of combat iterations.
+/// Only used for statistic purposes.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct EventCounts {
     counts: [u64; EventType::ALL.len()],
@@ -259,7 +243,7 @@ impl EventCounts {
         }
     }
 
-    /// `(event type, count)` pairs for every type with a non-zero count, in declaration order.
+    /// `(event type, count)` pairs for every type with a non-zero count.
     pub fn non_zero(&self) -> impl Iterator<Item = (EventType, u64)> + '_ {
         EventType::ALL
             .iter()
@@ -268,7 +252,8 @@ impl EventCounts {
     }
 }
 
-/// The event engine: the queue, the current simulation time and event statistics.
+/// The event engine itself. It contains the event queue, keeps track of the current simulation
+/// time, and event + engine performance statistics.
 #[derive(Debug)]
 pub struct Engine {
     queue: EventQueue,
@@ -293,7 +278,7 @@ impl Engine {
         }
     }
 
-    /// Current simulation time ("now") in seconds.
+    /// Current simulation time in seconds.
     pub fn current_time(&self) -> f64 {
         self.current_time
     }
@@ -303,7 +288,7 @@ impl Engine {
         self.queue.push(event);
     }
 
-    /// Schedules an event of `kind` at `current_time + delay`.
+    /// Schedules an event of `kind` at current simulation time + `delay`.
     pub fn add_event_in(&mut self, delay: f64, kind: EventKind) {
         self.queue.push(Event::new(self.current_time + delay, kind));
     }
@@ -335,11 +320,13 @@ impl Engine {
     }
 
     /// Wall-clock time spent since [`Engine::prepare_set_of_iterations`].
+    /// Used for engine statistics.
     pub fn elapsed(&self) -> std::time::Duration {
         self.started_at.elapsed()
     }
 
     /// Prepares for a new set of combat iterations: clears statistics, the queue and the clock.
+    /// This should only be done once per thread before any iteration starts.
     pub fn prepare_set_of_iterations(&mut self) {
         self.event_counts = EventCounts::default();
         self.current_time = 0.0;
@@ -348,7 +335,7 @@ impl Engine {
     }
 
     /// Prepares for a single combat iteration starting at `start_at` (usually negative, leaving
-    /// room for precombat actions before the encounter starts at time 0).
+    /// room for precombat actions before the encounter starts at T=0).
     pub fn prepare_iteration(&mut self, start_at: f64) {
         self.queue.clear();
         self.current_time = start_at;
@@ -359,6 +346,10 @@ impl Engine {
         self.queue.clear();
     }
 
+    /// Sets current simulation time in a given iteration. Only allows for monotonic values.
+    ///
+    /// # Panics
+    /// Panics if the event lies in the past, which indicates a scheduling bug.
     fn set_current_time(&mut self, event: &Event) {
         assert!(
             event.time >= self.current_time,
@@ -491,7 +482,8 @@ mod tests {
         engine.add_event(Event::new(0.0, action(0)));
         engine.next_event();
 
-        assert_eq!(engine.event_counts().get(EventType::PlayerAction), 2);
+        let non_zero: Vec<_> = engine.event_counts().non_zero().collect();
+        assert_eq!(non_zero, vec![(EventType::PlayerAction, 2)]);
 
         engine.prepare_set_of_iterations();
         assert_eq!(engine.event_counts().total(), 0);
@@ -525,12 +517,5 @@ mod tests {
             non_zero,
             vec![(EventType::BuffRemoval, 1), (EventType::DotTick, 3)]
         );
-    }
-
-    #[test]
-    fn event_type_names_match_cpp() {
-        for event_type in EventType::ALL {
-            assert_eq!(event_type.name(), format!("{event_type:?}"));
-        }
     }
 }
