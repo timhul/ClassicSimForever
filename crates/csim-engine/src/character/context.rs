@@ -61,8 +61,10 @@ pub enum ExternalBuffToggleError {
 fn base_rank(db: &SpellDb, id: u32) -> u32 {
     let mut current = id;
     let mut hops = 0;
+    const MAX_RANK_CHAIN: u32 = 32;
     while let Some(record) = db.get(current) {
-        if record.supercedes == 0 || hops > MAX_RANK_CHAIN {
+        assert!(hops < MAX_RANK_CHAIN, "Cycle in data - could not find base rank for id {id}");
+        if record.supercedes == 0 {
             break;
         }
         current = record.supercedes;
@@ -70,9 +72,6 @@ fn base_rank(db: &SpellDb, id: u32) -> u32 {
     }
     current
 }
-
-/// Longest `supercedes` chain `base_rank` follows (guards against a cyclic data file).
-const MAX_RANK_CHAIN: u32 = 32;
 
 /// The character together with everything it acts on.
 pub struct CharacterContext<'a, S: SharedBuffs> {
