@@ -46,8 +46,9 @@ pub enum ProcRate {
 /// One payload of a proc: what its aura effects do when it fires.
 #[derive(Debug, Clone, PartialEq)]
 enum Payload {
-    /// `PROC_TRIGGER_SPELL`: cast `spell` with the aura's value as trigger value.
-    Trigger { spell: u32, value: f64 },
+    /// `PROC_TRIGGER_SPELL` (or a `TRIGGER_SPELL` script): cast `spell`, with the aura's value
+    /// as trigger value when the aura carries one.
+    Trigger { spell: u32, value: Option<f64> },
     /// `TRIGGER_WITH_VALUE`: set effect `effect` of `spell` to the aura's value, then cast it.
     TriggerWithValue { spell: u32, effect: u32, value: f64 },
 }
@@ -73,13 +74,37 @@ impl Proc {
     /// Panics if the spell is not passive, has no proc sources, or has neither effects nor a
     /// marker buff (the C++ constructor checks).
     pub fn new(spell: Spell, seed: u64) -> Self {
-        let record = spell.record();
-        assert!(spell.is_passive(), "{} is not a passive spell", record.name);
-        let mut sources =
-            ProcSource::from_masks(record.aura_options.proc_type_mask, spell.setup().hit_mask);
+        let mut sources = Self::record_sources(&spell);
         if let Some(hand) = spell.setup().overrides.proc.and_then(|p| p.hand) {
             sources.retain(|source| source.hand() == hand);
         }
+        Self::build(spell, sources, seed)
+    }
+
+    /// Builds the proc an equipped item or enchant grants: the record says what the proc does
+    /// and how often, the equipment slot which attacks trigger it (`allowed`, from
+    /// [`crate::item::EquipmentSlot::default_proc_sources`] or the spec's own flags), so that a
+    /// weapon enchant only procs off its own hand. Port of the `EnchantProc` constructor and
+    /// `Item::add_default_proc_sources`. Returns `None` when the record and the slot have no
+    /// trigger in common (a main-hand only proc on a trinket).
+    pub fn for_equipment(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
+        let mut sources = Self::record_sources(&spell);
+        sources.retain(|source| allowed.contains(source));
+        if sources.is_empty() {
+            return None;
+        }
+        Some(Self::build(spell, sources, seed))
+    }
+
+    /// The sources the record's `ProcTypeMask` and hit mask name.
+    fn record_sources(spell: &Spell) -> Vec<ProcSource> {
+        let record = spell.record();
+        assert!(spell.is_passive(), "{} is not a passive spell", record.name);
+        ProcSource::from_masks(record.aura_options.proc_type_mask, spell.setup().hit_mask)
+    }
+
+    fn build(spell: Spell, sources: Vec<ProcSource>, seed: u64) -> Self {
+        let record = spell.record();
         assert!(
             !sources.is_empty(),
             "Proc {} ({}) has no proc sources",
@@ -221,20 +246,29 @@ impl Proc {
                 if record.is_proc_trigger() && record.trigger_spell != 0 {
                     return Some(Payload::Trigger {
                         spell: record.trigger_spell,
-                        value: effect.effective_value(host),
+                        value: Some(effect.effective_value(host)),
                     });
                 }
-                if effect.aura() == AuraType::Dummy
-                    && effect.script_kind() == Some(ScriptKind::TriggerWithValue)
-                {
-                    let params = &effect.script()?.params;
-                    return Some(Payload::TriggerWithValue {
-                        spell: params.spell?,
-                        effect: params.effect?,
-                        value: effect.effective_value(host),
-                    });
+                if effect.aura() != AuraType::Dummy {
+                    return None;
                 }
-                None
+                match effect.script_kind()? {
+                    ScriptKind::TriggerWithValue => {
+                        let params = &effect.script()?.params;
+                        Some(Payload::TriggerWithValue {
+                            spell: params.spell?,
+                            effect: params.effect?,
+                            value: effect.effective_value(host),
+                        })
+                    }
+                    // The server-side script: the value is the payload's id, not a number the
+                    // payload wants.
+                    ScriptKind::TriggerSpell => Some(Payload::Trigger {
+                        spell: effect.script()?.params.spell?,
+                        value: None,
+                    }),
+                    _ => None,
+                }
             })
             .collect()
     }
@@ -256,7 +290,7 @@ impl Proc {
         for payload in self.payloads(host) {
             match payload {
                 Payload::Trigger { spell, value } => {
-                    if let Some(triggered) = host.trigger_spell(spell, Some(value)) {
+                    if let Some(triggered) = host.trigger_spell(spell, value) {
                         report.triggered.push((spell, triggered));
                     }
                 }

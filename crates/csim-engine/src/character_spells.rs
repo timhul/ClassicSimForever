@@ -22,7 +22,9 @@ use std::collections::BTreeMap;
 use crate::attack_mode::AttackMode;
 use crate::buff::{Buff, BuffKind};
 use crate::cooldown::{category_cooldown_name, CooldownRegistry};
+use crate::enchant::EnchantName;
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, ProcId, SharedBuffId, SpellId};
+use crate::item::EquipmentSlot;
 use crate::proc::{EnabledProcs, Proc, ProcSource};
 use crate::spell::overrides::{Overrides, SimFlag};
 use crate::spell::record::SpellDb;
@@ -85,6 +87,23 @@ pub struct AddedSpell {
     pub enable_now: bool,
 }
 
+/// What granted an equipment proc: the item worn in the slot, or one of its enchants.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ProcGrantor {
+    Item(u32),
+    Enchant(EnchantName),
+}
+
+/// One proc of an equipped item or enchant, as [`CharacterSpells`] keys it: the slot decides
+/// which attacks trigger it, so the same enchant on both weapons is two procs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct EquipmentProcKey {
+    pub slot: EquipmentSlot,
+    pub grantor: ProcGrantor,
+    /// Position in the item's or enchant's `procs` list.
+    pub index: usize,
+}
+
 /// Where a game id lives in a character's registry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SpellHandle {
@@ -108,6 +127,9 @@ pub struct CharacterSpells {
     enabled_buffs: Vec<BuffId>,
     start_of_combat_buffs: Vec<BuffId>,
     procs: EnabledProcs,
+    /// The procs the equipped items and enchants granted, kept across unequips so that
+    /// re-equipping reuses the proc (and its statistics) instead of registering a second one.
+    equipment_procs: BTreeMap<EquipmentProcKey, ProcId>,
     start_of_combat_spells: Vec<SpellId>,
     next_instance_id: u32,
     next_proc_seed: u64,
@@ -133,6 +155,7 @@ impl CharacterSpells {
             enabled_buffs: Vec::new(),
             start_of_combat_buffs: Vec::new(),
             procs: EnabledProcs::new(),
+            equipment_procs: BTreeMap::new(),
             start_of_combat_spells: Vec::new(),
             next_instance_id: 0,
             next_proc_seed: proc_seed,
@@ -198,20 +221,8 @@ impl CharacterSpells {
             record.name,
             record.id
         );
-        let cooldown = match Spell::own_cooldown_ms(&record) {
-            0 => None,
-            ms => Some(
-                self.cooldowns
-                    .new_spell_cooldown(record.id, f64::from(ms) / 1000.0),
-            ),
-        };
-        let category_cooldown = match record.cooldown.category_recovery_ms {
-            0 => None,
-            ms => Some(self.category_cooldown(record.categories.category, ms)),
-        };
-        let marker = self.create_marker_buff(&setup, overrides, party, shared);
-        let mut spell = Spell::new(setup, cooldown, category_cooldown, marker);
-        spell.set_instance_id(self.next_instance_id());
+        let (spell, marker) = self.build_spell(setup, overrides, party, shared);
+        let mut spell = spell;
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
 
         if record.is_passive() && record.aura_options.proc_type_mask.bits() != 0 {
@@ -309,6 +320,73 @@ impl CharacterSpells {
     /// Creates and registers the marker buff of a spell, if it applies auras. Shared buffs are
     /// looked up in (or added to) the raid registry by canonical name. Port of the marker buff
     /// setup in the `Spell` constructor.
+    /// Builds the [`Spell`] of `setup` with its cooldown controls and marker buff, without
+    /// registering it anywhere.
+    fn build_spell(
+        &mut self,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> (Spell, Option<BuffId>) {
+        let record = std::sync::Arc::clone(&setup.record);
+        let cooldown = match Spell::own_cooldown_ms(&record) {
+            0 => None,
+            ms => Some(
+                self.cooldowns
+                    .new_spell_cooldown(record.id, f64::from(ms) / 1000.0),
+            ),
+        };
+        let category_cooldown = match record.cooldown.category_recovery_ms {
+            0 => None,
+            ms => Some(self.category_cooldown(record.categories.category, ms)),
+        };
+        let marker = self.create_marker_buff(&setup, overrides, party, shared);
+        let mut spell = Spell::new(setup, cooldown, category_cooldown, marker);
+        spell.set_instance_id(self.next_instance_id());
+        (spell, marker)
+    }
+
+    // --- Equipment procs ---
+
+    /// Registers the proc `key` of an equipped item or enchant: its spell is built from
+    /// `setup` and only the sources `allowed` (what the slot lets an item proc react to) can
+    /// trigger it. Unlike a learned passive the proc is not keyed by game id — the same
+    /// enchant on both weapons is two procs — so a key already registered keeps its proc and a
+    /// second call returns it unchanged. Port of the `EnchantProc` constructor and the proc
+    /// creation in `Item::apply_proc`. Returns `None` when the record and the slot have no
+    /// trigger in common.
+    pub fn add_equipment_proc(
+        &mut self,
+        key: EquipmentProcKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        allowed: &[ProcSource],
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> Option<ProcId> {
+        if let Some(&id) = self.equipment_procs.get(&key) {
+            return Some(id);
+        }
+        let (spell, _) = self.build_spell(setup, overrides, party, shared);
+        let seed = self.next_proc_seed;
+        let proc = Proc::for_equipment(spell, allowed, seed)?;
+        self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
+        let id = self.procs.add_proc(proc);
+        self.equipment_procs.insert(key, id);
+        Some(id)
+    }
+
+    /// The proc registered for `key`, if any.
+    pub fn equipment_proc(&self, key: EquipmentProcKey) -> Option<ProcId> {
+        self.equipment_procs.get(&key).copied()
+    }
+
+    /// Every registered equipment proc with the item or enchant that granted it.
+    pub fn equipment_procs(&self) -> impl Iterator<Item = (EquipmentProcKey, ProcId)> + '_ {
+        self.equipment_procs.iter().map(|(&key, &id)| (key, id))
+    }
+
     fn create_marker_buff(
         &mut self,
         setup: &SpellSetup,

@@ -1,0 +1,11 @@
+# Hand-written overrides for the spells the enchant procs cast (data/spells/enchants.yaml,
+# exported from build 1.60.1.69893 from the `spell:` keys in data/enchants.yaml). See
+# crates/csim-engine/src/spell/overrides.rs for the schema.
+
+overrides:
+  - id: 10612
+    note: >-
+      Windfury Totem Passive: the party aura is a server-side DUMMY script that casts the
+      payload 10610 on a main-hand hit. The hand the enchant sits in decides the proc sources,
+      so the override only names the payload.
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 10610 } }]

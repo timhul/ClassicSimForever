@@ -180,6 +180,18 @@ pub fn export_racials_with_report(
     Ok((file, report))
 }
 
+/// Builds the equipment walk (`data/spells/enchants.yaml`): the closure of the spells the
+/// procs of `data/enchants.yaml` name, the same way as [`export_externals`]. The records are
+/// never learned; a character registers the proc when it equips the enchant.
+pub fn export_enchants(
+    tables: &Tables,
+    seeds: &BTreeSet<u32>,
+    exclude: &BTreeSet<u32>,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport), ExportError> {
+    export_externals_with_report(tables, seeds, exclude, overrides)
+}
+
 /// Builds the external buff walk (`data/spells/externals.yaml`): the closure of `seeds` (the
 /// aura spells `data/external_buffs.yaml` names), pruned, minus `exclude` (the ids another
 /// file in `data/spells/` already carries, which the engine loads either way). The file has no

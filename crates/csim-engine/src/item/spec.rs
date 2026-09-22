@@ -10,8 +10,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::faction::{Faction, PlayerClass};
 use crate::phase::Phase;
+use crate::proc::ProcSource;
 
-use super::types::{ItemSlot, ItemStat, ItemType, Quality};
+use super::types::{EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality};
 
 /// One item as stored in the item database.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -81,7 +82,15 @@ pub struct WeaponDamageSpec {
 #[serde(deny_unknown_fields)]
 pub struct ItemProcSpec {
     pub name: String,
-    /// Proc chance as a fraction, or procs per minute when `ppm` is set.
+    /// The client-table spell that implements the proc: a passive whose `ProcTypeMask` and
+    /// `ProcChance` describe the trigger and whose aura casts the payload (Windfury Totem's
+    /// 10612). The character registers a proc per equipped item or enchant that names one
+    /// ([`crate::character::context::CharacterContext::sync_equipment_procs`]); a proc without
+    /// a spell is data the engine cannot run yet and stays unregistered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spell: Option<u32>,
+    /// Proc chance as a fraction, or procs per minute when `ppm` is set. The record of `spell`
+    /// decides for a proc that names one.
     pub rate: f64,
     #[serde(default)]
     pub ppm: bool,
@@ -136,6 +145,39 @@ pub struct ProcSourceFlags {
 impl ProcSourceFlags {
     pub fn is_empty(&self) -> bool {
         *self == Self::default()
+    }
+
+    /// The sources these flags name for an item worn in `slot`. Port of
+    /// `Item::add_proc_sources_from_map`.
+    pub fn sources(&self, slot: EquipmentSlot) -> Vec<ProcSource> {
+        let mut sources = Vec::new();
+        let mut push = |source: ProcSource| {
+            if !sources.contains(&source) {
+                sources.push(source);
+            }
+        };
+        if self.magic_hit {
+            push(ProcSource::MagicSpell);
+        }
+        if self.ranged_auto {
+            push(ProcSource::RangedAutoShot);
+        }
+        if self.ranged_skill {
+            push(ProcSource::RangedSpell);
+        }
+        if self.melee_auto {
+            push(ProcSource::MainhandSwing);
+            push(ProcSource::OffhandSwing);
+        }
+        if self.melee_skill {
+            push(ProcSource::MainhandSpell);
+        }
+        if self.melee_weapon_side {
+            for source in slot.default_proc_sources() {
+                push(source);
+            }
+        }
+        sources
     }
 }
 

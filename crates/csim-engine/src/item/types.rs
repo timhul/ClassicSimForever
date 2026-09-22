@@ -5,6 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::magic_school::MagicSchool;
+use crate::proc::ProcSource;
 use crate::target::CreatureType;
 
 /// Weapon (and off-hand / relic) types.
@@ -280,6 +281,22 @@ impl EquipmentSlot {
             self,
             EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
         )
+    }
+
+    /// The attacks a proc of an item worn in this slot reacts to when nothing narrows them: a
+    /// weapon only procs off its own hand, anything else off any melee attack. Port of
+    /// `Item::add_default_proc_sources`.
+    pub fn default_proc_sources(self) -> Vec<ProcSource> {
+        match self {
+            EquipmentSlot::Mainhand => vec![ProcSource::MainhandSwing, ProcSource::MainhandSpell],
+            EquipmentSlot::Offhand => vec![ProcSource::OffhandSwing],
+            EquipmentSlot::Ranged => vec![ProcSource::RangedAutoShot, ProcSource::RangedSpell],
+            _ => vec![
+                ProcSource::MainhandSwing,
+                ProcSource::MainhandSpell,
+                ProcSource::OffhandSwing,
+            ],
+        }
     }
 }
 

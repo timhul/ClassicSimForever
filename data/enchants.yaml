@@ -207,6 +207,11 @@
   procs:
     - name: WINDFURY_ATTACK
       display_name: Windfury Totem Attack
+      # Windfury Totem Passive (Rank 3): a 20 % chance on a main-hand hit to cast 10610, which
+      # grants the extra attack and the two-charge attack power aura. The record decides the
+      # chance, the internal cooldown and the attack power (246 in the Forever tables); the
+      # `rate` and `value` below are the Classic numbers ClassicSim was authored with.
+      spell: 10612
       rate: 0.2
       value: 315
 

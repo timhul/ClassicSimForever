@@ -14,13 +14,13 @@
 //!     proc: { hit_mask: [CRITICAL] }
 //!   - id: 12322                          # Unbridled Wrath: the rank value is the proc chance
 //!     proc: { chance_effect: 0 }
-//!   - id: 10612                          # Windfury Totem passive: main-hand hits only
-//!     proc: { hand: mainhand }
 //!   - id: 12162                          # Deep Wounds payload (DUMMY)
 //!     effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
 //!   - id: 12319                          # Flurry (talent DUMMY)
 //!     proc: { hit_mask: [CRITICAL] }
 //!     effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12966, effect: 0 } }]
+//!   - id: 10612                          # Windfury Totem passive: the server-side DUMMY
+//!     effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 10610 } }]
 //!   - id: 23881                          # Bloodthirst: 35 % of attack power
 //!     effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
 //!   - id: 25286                          # Heroic Strike r9
@@ -145,6 +145,9 @@ pub enum ScriptKind {
     /// Casts `params.spell` with effect `params.effect`'s value replaced by this effect's value
     /// (Flurry's talent value into its haste buff, Enrage's into its damage buff).
     TriggerWithValue,
+    /// Casts `params.spell` when the proc fires, forwarding nothing: what a server-side
+    /// `DUMMY` proc aura does (Windfury Totem's party aura casting its payload).
+    TriggerSpell,
     /// Rage retained when changing stance is raised by `base_points` (Tactical Mastery).
     StanceRageRetained,
     /// `base_points` (or `params.value`) of `params.resource` (rage by default) every
@@ -233,7 +236,9 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.resource.is_some(), "resource")
             }
-            ScriptKind::ExtraAttack | ScriptKind::ResetCooldown => need(p.spell.is_some(), "spell"),
+            ScriptKind::ExtraAttack | ScriptKind::ResetCooldown | ScriptKind::TriggerSpell => {
+                need(p.spell.is_some(), "spell")
+            }
             ScriptKind::AddComboPoints => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
             ScriptKind::AttackPowerPercentDamage
             | ScriptKind::Execute

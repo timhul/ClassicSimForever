@@ -6,6 +6,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 use csim_engine::buff::external::ExternalBuffDb;
+use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::PlayerClass;
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
@@ -24,6 +25,8 @@ enum CliError {
     #[error(transparent)]
     ExternalBuffs(#[from] csim_engine::buff::external::ExternalBuffError),
     #[error(transparent)]
+    Enchants(#[from] csim_engine::enchant::EnchantDbError),
+    #[error(transparent)]
     SpellDb(#[from] csim_engine::spell::record::SpellDbError),
     #[error("cannot write {path}: {source}")]
     Write {
@@ -41,6 +44,8 @@ enum CliError {
 
 /// The file `export-spells --externals` writes under the spell data directory.
 const EXTERNALS_FILE: &str = "externals.yaml";
+/// The file `export-spells --enchants` writes under the spell data directory.
+const ENCHANTS_FILE: &str = "enchants.yaml";
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -74,19 +79,25 @@ enum Command {
         /// The class to export (`warrior`, `rogue`, ...).
         #[arg(
             long,
-            conflicts_with_all = ["racials", "externals"],
-            required_unless_present_any = ["racials", "externals"]
+            conflicts_with_all = ["racials", "externals", "enchants"],
+            required_unless_present_any = ["racials", "externals", "enchants"]
         )]
         class: Option<String>,
         /// Export the racial abilities instead of a class.
-        #[arg(long, conflicts_with = "externals")]
+        #[arg(long, conflicts_with_all = ["externals", "enchants"])]
         racials: bool,
         /// Export the aura spells of the external buff registry instead of a class.
-        #[arg(long)]
+        #[arg(long, conflicts_with = "enchants")]
         externals: bool,
+        /// Export the spells the enchant procs name instead of a class.
+        #[arg(long)]
+        enchants: bool,
         /// The external buff registry (`--externals`).
         #[arg(long, default_value = "data/external_buffs.yaml")]
         external_buffs: PathBuf,
+        /// The enchant data file (`--enchants`).
+        #[arg(long, default_value = "data/enchants.yaml")]
+        enchant_data: PathBuf,
         /// The spell data directory; the overrides in `<spells>/overrides/` extend the walk and
         /// the file is written to `<spells>/<class>.yaml` unless `--out` is given.
         #[arg(long, default_value = "data/spells")]
@@ -129,6 +140,7 @@ enum ExportTarget {
     Class(String),
     Racials,
     Externals(PathBuf),
+    Enchants(PathBuf),
 }
 
 fn export_spells(
@@ -157,6 +169,20 @@ fn export_spells(
                 export::export_externals_with_report(&tables, &seeds, &exclude, &overrides)?,
                 "export-spells --externals".to_owned(),
                 EXTERNALS_FILE.to_owned(),
+            )
+        }
+        ExportTarget::Enchants(enchants) => {
+            let enchants = EnchantDb::load(&enchants)?;
+            let exclude = export::spell_ids_in_dir(spells_dir, ENCHANTS_FILE)?;
+            let seeds = enchants.spell_ids();
+            let repeated: Vec<u32> = seeds.intersection(&exclude).copied().collect();
+            if !repeated.is_empty() {
+                eprintln!("already in another spell file, not repeated: {repeated:?}");
+            }
+            (
+                export::export_enchants(&tables, &seeds, &exclude, &overrides)?,
+                "export-spells --enchants".to_owned(),
+                ENCHANTS_FILE.to_owned(),
             )
         }
         ExportTarget::Class(name) => {
@@ -451,7 +477,9 @@ fn run(cli: Cli) -> Result<(), CliError> {
             class,
             racials,
             externals,
+            enchants,
             external_buffs,
+            enchant_data,
             spells,
             out,
         } => {
@@ -459,7 +487,10 @@ fn run(cli: Cli) -> Result<(), CliError> {
                 Some(class) => ExportTarget::Class(class.clone()),
                 None if *racials => ExportTarget::Racials,
                 None if *externals => ExportTarget::Externals(external_buffs.clone()),
-                None => unreachable!("clap requires --class, --racials or --externals"),
+                None if *enchants => ExportTarget::Enchants(enchant_data.clone()),
+                None => {
+                    unreachable!("clap requires --class, --racials, --externals or --enchants")
+                }
             };
             export_spells(&open(&cli)?, target, spells, out.clone())
         }

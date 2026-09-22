@@ -7,7 +7,7 @@
 //! (using the same generic proc schema as items). Per-class availability lists live in the class
 //! data (Phase 4).
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -330,6 +330,16 @@ impl EnchantDb {
 
     pub fn specs(&self) -> &[EnchantSpec] {
         &self.specs
+    }
+
+    /// The client-table spells the enchant procs name: what
+    /// `csim-tables export-spells --enchants` walks into `data/spells/enchants.yaml`.
+    pub fn spell_ids(&self) -> BTreeSet<u32> {
+        self.specs
+            .iter()
+            .flat_map(|spec| spec.procs.iter())
+            .filter_map(|proc| proc.spell)
+            .collect()
     }
 
     /// Enchants applicable in `ctx`, optionally filtered by temporariness.
