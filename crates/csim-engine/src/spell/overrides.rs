@@ -427,6 +427,17 @@ impl SpellOverride {
             script.validate().map_err(invalid)?;
         }
         for event in &self.on_event {
+            // The engine runs event reactions in `CharacterContext::run_event_scripts`; a
+            // script it does not run there is refused here rather than silently ignored.
+            if event.script != ScriptKind::AddComboPoints {
+                return Err(invalid(format!(
+                    "on_event does not support {:?} (only ADD_COMBO_POINTS)",
+                    event.script
+                )));
+            }
+            if event.source == ProcSource::Manual {
+                return Err(invalid("on_event cannot react to MANUAL".into()));
+            }
             EffectScript {
                 index: 0,
                 script: event.script,
@@ -897,6 +908,14 @@ overrides:
         ));
         assert!(matches!(
             parse("overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: ADD_COMBO_POINTS }] }]"),
+            Err(OverrideError::Invalid { spell: 1, .. })
+        ));
+        assert!(matches!(
+            parse("overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: RESET_COOLDOWN, params: { spell: 2 } }] }]"),
+            Err(OverrideError::Invalid { spell: 1, .. })
+        ));
+        assert!(matches!(
+            parse("overrides: [{ id: 1, on_event: [{ source: MANUAL, script: ADD_COMBO_POINTS, params: { value: 1 } }] }]"),
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(

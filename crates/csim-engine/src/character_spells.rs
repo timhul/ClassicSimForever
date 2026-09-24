@@ -131,6 +131,8 @@ pub struct CharacterSpells {
     /// re-equipping reuses the proc (and its statistics) instead of registering a second one.
     equipment_procs: BTreeMap<EquipmentProcKey, ProcId>,
     start_of_combat_spells: Vec<SpellId>,
+    /// The spells whose overrides attach event reactions (`on_event`).
+    event_reactors: Vec<SpellId>,
     next_instance_id: u32,
     next_proc_seed: u64,
     attack_mode: AttackMode,
@@ -157,6 +159,7 @@ impl CharacterSpells {
             procs: EnabledProcs::new(),
             equipment_procs: BTreeMap::new(),
             start_of_combat_spells: Vec::new(),
+            event_reactors: Vec::new(),
             next_instance_id: 0,
             next_proc_seed: proc_seed,
             attack_mode: AttackMode::MeleeAttack,
@@ -245,6 +248,9 @@ impl CharacterSpells {
         if spell.has_sim_flag(SimFlag::StartOfCombat) {
             self.start_of_combat_spells.push(id);
         }
+        if !spell.event_scripts().is_empty() {
+            self.event_reactors.push(id);
+        }
         self.spells[id.index()] = Some(spell);
         self.by_game_id.insert(record.id, SpellHandle::Spell(id));
 
@@ -288,6 +294,9 @@ impl CharacterSpells {
         spell.set_instance_id(self.next_instance_id());
         if spell.has_sim_flag(SimFlag::StartOfCombat) {
             self.start_of_combat_spells.push(id);
+        }
+        if !spell.event_scripts().is_empty() {
+            self.event_reactors.push(id);
         }
         let rank = spell.rank();
         if spell.game_id() != 0 {
@@ -550,6 +559,12 @@ impl CharacterSpells {
 
     /// Spells performed automatically when combat starts (`START_OF_COMBAT` flag). Port of
     /// `start_of_combat_spells`.
+    /// The spells (enabled or not) whose overrides attach event reactions, in registration
+    /// order.
+    pub fn event_reactors(&self) -> &[SpellId] {
+        &self.event_reactors
+    }
+
     pub fn start_of_combat_spells(&self) -> &[SpellId] {
         &self.start_of_combat_spells
     }

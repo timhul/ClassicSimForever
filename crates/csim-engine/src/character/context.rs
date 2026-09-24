@@ -19,7 +19,7 @@ use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost,
 use crate::rulesets::Ruleset;
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
-use crate::spell::overrides::{SimFlag, SpellOverride};
+use crate::spell::overrides::{EventScript, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
 use crate::spell::record::{EquippedItems, SpellDb};
 use crate::spell::{
@@ -900,8 +900,43 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Totem), so the swing that proc'd Windfury uses a charge of the aura it just applied.
     fn run_sources(&mut self, sources: &[ProcSource]) {
         self.run_proc_checks(sources);
+        self.run_event_scripts(sources);
         for &source in sources {
             self.consume_charges(source);
+        }
+    }
+
+    /// Runs the overrides' event reactions (`on_event`) of the enabled spells to the sources of
+    /// one event: server-side scripts the client tables do not carry (Overpower's combo point
+    /// when the target dodges). Like a proc, a reaction fires at most once per event, and the
+    /// ranks of one spell react once between them: Overpower's four ranks grant one combo
+    /// point per dodge, not four.
+    fn run_event_scripts(&mut self, sources: &[ProcSource]) {
+        let spells = &self.character.spells;
+        let mut seen: Vec<(&str, usize)> = Vec::new();
+        let mut reactions: Vec<EventScript> = Vec::new();
+        for &id in spells.event_reactors() {
+            let spell = spells.spell(id);
+            if !spell.is_enabled() {
+                continue;
+            }
+            for (index, event) in spell.event_scripts().iter().enumerate() {
+                if !sources.contains(&event.source) || seen.contains(&(spell.name(), index)) {
+                    continue;
+                }
+                seen.push((spell.name(), index));
+                reactions.push(*event);
+            }
+        }
+        for event in reactions {
+            match event.script {
+                ScriptKind::AddComboPoints => {
+                    // Validated as present and positive when the overrides were loaded.
+                    let value = event.params.value.unwrap_or(0.0).round() as u32;
+                    self.character.gain_combo_points(value);
+                }
+                other => unreachable!("on_event script {other:?} is refused by the overrides"),
+            }
         }
     }
 

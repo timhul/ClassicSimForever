@@ -176,11 +176,15 @@ fn stances() {
 }
 
 #[test]
-#[ignore = "the engine does not run the overrides' on_event scripts yet (Overpower's combo             point on a dodge)"]
 fn overpower_activation() {
     let mut test = WarriorTest::new("overpower");
     test.then_overpower_is_inactive();
     test.given_overpower_is_active();
+    assert_eq!(
+        test.character().combo_points(),
+        1,
+        "one dodge, one combo point (the ranks react once between them)"
+    );
     assert_eq!(test.rage(), 100, "the GCD is rage neutral");
     assert!(!test.character().on_global_cooldown(test.now()));
 }
