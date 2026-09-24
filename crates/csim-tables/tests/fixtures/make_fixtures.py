@@ -110,3 +110,33 @@ keep("ChrRaces", in_set("ID", RACES))
 keep("PlayerExpectedStat", lambda get: int(get("ClassID")) in CLASSES and int(get("Level")) in (1, 60))
 keep("CharBaseInfo", lambda get: int(get("ClassID")) in CLASSES and int(get("RaceID")) in RACES)
 keep("PowerType", lambda get: True)
+
+# --- items -------------------------------------------------------------------------------
+# Thunderfury, Lionheart Helm, Huhuran's Stinger (AQ40 bow), Earthstrike (on-use), Drake Fang
+# Talisman, Arena Master (limit category), Wild Leather Shoulders (random suffix), Force Reactive
+# Disk (shield, two on-equip effects), High Warlord's Greatsword, Zandalar Vindicator's Breastplate (set 474),
+# Chromatic Cloak, Assassin's Throwing Axe, Conqueror's Battlegear (set 496) and Hand of Justice
+# (no ItemSparse row in this dump). Battlegear of Might (set 209) has no member with a sparse row.
+ITEMS = {19019, 12640, 21616, 21180, 19406, 18706, 8210, 18168, 18877, 19822, 18509, 21135,
+         21331, 21329, 21333, 21332, 21330, 11815}
+keep("Item", in_set("ID", ITEMS))
+_, sparse, sidx = keep("ItemSparse", in_set("ID", ITEMS))
+keep("ItemSubClass", lambda get: True)
+for table in ("RandPropPoints", "ItemArmorTotal", "ItemArmorQuality", "ItemArmorShield",
+              "ArmorLocation", "ItemDamageOneHand", "ItemDamageTwoHand", "ItemDamageRanged",
+              "ItemDamageWand", "ItemDamageThrown"):
+    keep(table, lambda get: True)
+_, ixe, xidx = keep("ItemXItemEffect", in_set("ItemID", ITEMS))
+keep("ItemEffect", in_set("ID", {int(r[xidx["ItemEffectID"]]) for r in ixe}))
+sets = {int(r[sidx["ItemSet"]]) for r in sparse} - {0} | {209}
+keep("ItemSet", in_set("ID", sets))
+keep("ItemSetSpell", in_set("ItemSetID", sets))
+keep("ItemLimitCategory", in_set("ID", {int(r[sidx["LimitCategory"]]) for r in sparse}))
+_, ixt, tidx = keep("ItemXBonusTree", in_set("ItemID", ITEMS))
+trees = {int(r[tidx["ItemBonusTreeID"]]) for r in ixt}
+_, tnodes, nidx = keep("ItemBonusTreeNode", in_set("ParentItemBonusTreeID", trees))
+_, bonuses, bidx = keep("ItemBonus", in_set("ParentItemBonusListID",
+                                            {int(r[nidx["ChildItemBonusListID"]]) for r in tnodes}))
+names = {int(r[sidx["ItemNameDescriptionID"]]) for r in sparse}
+names |= {int(r[bidx["Value_0"]]) for r in bonuses if r[bidx["Type"]] == "5"}
+keep("ItemNameDescription", in_set("ID", names))

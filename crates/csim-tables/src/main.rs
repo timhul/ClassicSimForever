@@ -73,6 +73,12 @@ enum Command {
         /// Spell id (`SpellName.ID`).
         id: u32,
     },
+    /// Prints the joined item rows of one item: identity, stats, spells, set, unique group and
+    /// random-suffix pools.
+    Item {
+        /// Item id (`Item.ID`).
+        id: u32,
+    },
     /// Writes the spellbook of a class (or the racials, or the external buffs) as an engine
     /// data file.
     ExportSpells {
@@ -466,12 +472,135 @@ fn describe_spell(tables: &Tables, id: u32, depth: usize, seen: &mut Vec<u32>) {
     }
 }
 
+fn describe_item(tables: &Tables, id: u32) {
+    let Some(item) = tables.item(id) else {
+        println!("{id}: no such item");
+        return;
+    };
+    let sub_class = tables
+        .item_sub_class(item.class_id, item.subclass_id)
+        .map(|s| s.display_name.as_str())
+        .unwrap_or("");
+    println!(
+        "{id} class {} subclass {} {sub_class:?} inventory type {} material {} icon {}",
+        item.class_id, item.subclass_id, item.inventory_type, item.material, item.icon_file_data_id
+    );
+    let Some(sparse) = tables.item_sparse(id) else {
+        println!("  no ItemSparse row (not in this dump)");
+        return;
+    };
+    println!("  {:?}", sparse.name);
+    if !sparse.description.is_empty() {
+        println!("  description: {:?}", sparse.description);
+    }
+    println!(
+        "  item level {} required level {} quality {} bonding {} max count {} flags (hex) {:x?}",
+        sparse.item_level,
+        sparse.required_level,
+        sparse.overall_quality_id,
+        sparse.bonding,
+        sparse.max_count,
+        sparse.flags
+    );
+    println!(
+        "  allowable class {} race (hex) {:x?} faction {} reputation {} skill {} rank {}",
+        sparse.allowable_class,
+        sparse.allowable_race,
+        sparse.min_faction_id,
+        sparse.min_reputation,
+        sparse.required_skill,
+        sparse.required_skill_rank
+    );
+    if sparse.item_delay > 0 {
+        println!(
+            "  delay {} ms variance {} damage type {}",
+            sparse.item_delay, sparse.dmg_variance, sparse.damage_type
+        );
+    }
+    if sparse.quality_modifier != 0.0 {
+        println!("  bonus armor {}", sparse.quality_modifier);
+    }
+    for (stat, pct) in sparse
+        .stat_modifier_bonus_stat
+        .iter()
+        .zip(&sparse.stat_percent_editor)
+        .filter(|(stat, _)| **stat >= 0)
+    {
+        println!("  stat {stat} budget share {pct}");
+    }
+    for effect in tables.item_effects_of_item(id) {
+        let name = tables.spell_name(effect.spell_id).unwrap_or("?");
+        println!(
+            "  effect {} trigger {} spell {} {name:?} charges {} cooldown {} ms category {} ({} ms)",
+            effect.id,
+            effect.trigger_type,
+            effect.spell_id,
+            effect.charges,
+            effect.cooldown_ms,
+            effect.spell_category_id,
+            effect.category_cooldown_ms
+        );
+    }
+    if let Some(set) = tables.item_set(sparse.item_set) {
+        let members: Vec<u32> = set.item_ids.iter().copied().filter(|&i| i != 0).collect();
+        println!("  set {} {:?} items {members:?}", set.id, set.name);
+        for bonus in tables.item_set_spells(set.id) {
+            let name = tables.spell_name(bonus.spell_id).unwrap_or("?");
+            println!(
+                "    ({}) spell {} {name:?}",
+                bonus.threshold, bonus.spell_id
+            );
+        }
+    }
+    if let Some(limit) = tables.item_limit_category(sparse.limit_category) {
+        println!(
+            "  limit category {} {:?} quantity {}",
+            limit.id, limit.name, limit.quantity
+        );
+    }
+    if let Some(subtitle) = tables.item_name_description(sparse.item_name_description_id) {
+        println!("  subtitle {:?}", subtitle.description);
+    }
+    for &tree in tables.item_bonus_trees(id) {
+        let nodes = tables.item_bonus_tree_nodes(tree);
+        println!("  bonus tree {tree}: {} nodes", nodes.len());
+        for node in nodes {
+            let bonuses: Vec<String> = tables
+                .item_bonuses(node.child_item_bonus_list_id)
+                .iter()
+                .map(|b| match b.bonus_type {
+                    5 => format!(
+                        "{:?}",
+                        tables
+                            .item_name_description(b.value[0] as u32)
+                            .map(|d| d.description.as_str())
+                            .unwrap_or("?")
+                    ),
+                    2 => format!("stat {} share {}", b.value[0], b.value[1]),
+                    other => format!("type {other} {:?}", b.value),
+                })
+                .collect();
+            println!(
+                "    context {} list {}: {}",
+                node.item_context,
+                node.child_item_bonus_list_id,
+                bonuses.join(", ")
+            );
+        }
+    }
+}
+
 fn run(cli: Cli) -> Result<(), CliError> {
     match &cli.command {
         Command::Info { all } => Ok(info(&open(&cli)?, *all)?),
         Command::Spell { id } => {
             let tables = Tables::load(&open(&cli)?)?;
             describe_spell(&tables, *id, 0, &mut Vec::new());
+            Ok(())
+        }
+        Command::Item { id } => {
+            let tables = Tables::load(&open(&cli)?)?;
+            describe_item(&tables, *id);
             Ok(())
         }
         Command::ExportSpells {

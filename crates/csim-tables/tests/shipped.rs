@@ -180,3 +180,52 @@ fn shipped_warrior_class_matches_the_tables() {
     listed.sort_unstable();
     assert_eq!(listed, races, "CharBaseInfo races of class 1");
 }
+
+/// The item tables of the real dump load and join as ITEM_INSTRUCTIONS §1.1–1.9 describes.
+#[test]
+fn item_tables_of_the_dump_join() {
+    let tables_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/tables");
+    let Ok(dir) = TableDir::open(&tables_dir) else {
+        eprintln!("data/tables/ not present, skipping the item table check");
+        return;
+    };
+    let tables = Tables::load(&dir).unwrap();
+    // `Item` is complete, `ItemSparse` is not (§1.1).
+    assert!(tables.items().count() > tables.item_sparse_rows().count());
+    assert!(tables.item(11815).is_some(), "Hand of Justice");
+    let equippable_without_sparse = tables
+        .items()
+        .filter(|i| matches!(i.class_id, 2 | 4) && tables.item_sparse(i.id).is_none())
+        .count();
+    assert!(equippable_without_sparse > 0);
+    // Every sparse row has its Item row and an in-range budget / armor / damage row.
+    for sparse in tables.item_sparse_rows() {
+        assert!(tables.item(sparse.id).is_some(), "item {}", sparse.id);
+    }
+    assert_eq!(tables.rand_prop_points(80).unwrap().epic[3], 23);
+    for level in 1..=100 {
+        assert!(
+            tables.item_armor_total(level).is_some(),
+            "armor total {level}"
+        );
+        assert!(
+            tables.item_armor_quality(level).is_some(),
+            "armor quality {level}"
+        );
+        assert!(tables.item_armor_shield(level).is_some(), "shield {level}");
+        for table in csim_tables::tables::ItemDamageTable::ALL {
+            assert!(
+                tables.item_damage(table, level).is_some(),
+                "{table:?} {level}"
+            );
+        }
+    }
+    // Battlegear of Might (§1.8) and a Classic suffix pool (§1.9).
+    let bonuses: Vec<(u32, u32)> = tables
+        .item_set_spells(209)
+        .iter()
+        .map(|b| (b.threshold, b.spell_id))
+        .collect();
+    assert_eq!(bonuses, [(3, 23562), (5, 21838), (8, 23561)]);
+    assert!(tables.item_bonus_tree_nodes(5654).len() >= 24);
+}

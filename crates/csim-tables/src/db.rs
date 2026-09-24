@@ -6,6 +6,7 @@ use std::path::Path;
 
 use crate::dir::TableDir;
 use crate::error::Result;
+use crate::row::TableRow;
 use crate::tables::*;
 
 /// Indexes `rows` by `key`; when several rows share a key the first one in file order wins.
@@ -93,6 +94,35 @@ pub struct Tables {
     player_expected_stats: HashMap<u32, Vec<PlayerExpectedStatRow>>,
     char_base_info: Vec<CharBaseInfoRow>,
     power_types: HashMap<u32, PowerTypeRow>,
+
+    items: HashMap<u32, ItemRow>,
+    item_sparse: HashMap<u32, ItemSparseRow>,
+    item_sub_classes: HashMap<(u32, u32), ItemSubClassRow>,
+    rand_prop_points: HashMap<u32, RandPropPointsRow>,
+    item_armor_total: HashMap<u32, ItemArmorTotalRow>,
+    item_armor_quality: HashMap<u32, ItemArmorQualityRow>,
+    item_armor_shield: HashMap<u32, ItemArmorShieldRow>,
+    armor_locations: HashMap<u32, ArmorLocationRow>,
+    item_damage: HashMap<(ItemDamageTable, u32), ItemDamageRow>,
+    item_effects: HashMap<u32, ItemEffectRow>,
+    /// Effect ids by item id, sorted by (legacy slot index, effect id).
+    effects_by_item: HashMap<u32, Vec<u32>>,
+    item_sets: HashMap<u32, ItemSetRow>,
+    /// By set id, sorted by (threshold, spell id).
+    item_set_spells: HashMap<u32, Vec<ItemSetSpellRow>>,
+    item_limit_categories: HashMap<u32, ItemLimitCategoryRow>,
+    item_name_descriptions: HashMap<u32, ItemNameDescriptionRow>,
+    /// Bonus tree ids by item id, sorted.
+    bonus_trees_by_item: HashMap<u32, Vec<u32>>,
+    /// By parent tree id, sorted by node id.
+    item_bonus_tree_nodes: HashMap<u32, Vec<ItemBonusTreeNodeRow>>,
+    /// By bonus list id, sorted by (order index, id).
+    item_bonuses: HashMap<u32, Vec<ItemBonusRow>>,
+}
+
+/// Reads one `ItemDamage*` table into the shared row layout.
+fn read_damage<R: TableRow + Into<ItemDamageRow>>(dir: &TableDir) -> Result<Vec<ItemDamageRow>> {
+    Ok(dir.read::<R>()?.into_iter().map(Into::into).collect())
 }
 
 fn slice<'a, K: Eq + Hash, R>(map: &'a HashMap<K, Vec<R>>, key: &K) -> &'a [R] {
@@ -207,6 +237,88 @@ impl Tables {
                 .push(label.label_id);
         }
 
+        let item_damage = {
+            let mut damage = HashMap::new();
+            for (table, rows) in [
+                (
+                    ItemDamageTable::OneHand,
+                    read_damage::<ItemDamageOneHandRow>(dir)?,
+                ),
+                (
+                    ItemDamageTable::TwoHand,
+                    read_damage::<ItemDamageTwoHandRow>(dir)?,
+                ),
+                (
+                    ItemDamageTable::Ranged,
+                    read_damage::<ItemDamageRangedRow>(dir)?,
+                ),
+                (
+                    ItemDamageTable::Wand,
+                    read_damage::<ItemDamageWandRow>(dir)?,
+                ),
+                (
+                    ItemDamageTable::Thrown,
+                    read_damage::<ItemDamageThrownRow>(dir)?,
+                ),
+            ] {
+                for row in rows {
+                    damage.entry((table, row.item_level)).or_insert(row);
+                }
+            }
+            damage
+        };
+        let item_effects = by_key(dir.read::<ItemEffectRow>()?, |r| r.id);
+        let effects_by_item = {
+            let mut map: HashMap<u32, Vec<u32>> = HashMap::new();
+            for link in dir.read::<ItemXItemEffectRow>()? {
+                map.entry(link.item_id)
+                    .or_default()
+                    .push(link.item_effect_id);
+            }
+            for ids in map.values_mut() {
+                ids.sort_by_key(|id| (item_effects.get(id).map(|e| e.legacy_slot_index), *id));
+                ids.dedup();
+            }
+            map
+        };
+        let item_set_spells = {
+            let mut spells = group_by(dir.read::<ItemSetSpellRow>()?, |r| r.item_set_id);
+            for rows in spells.values_mut() {
+                rows.sort_by_key(|r| (r.threshold, r.spell_id));
+            }
+            spells
+        };
+        let bonus_trees_by_item = {
+            let mut map: HashMap<u32, Vec<u32>> = HashMap::new();
+            for link in dir.read::<ItemXBonusTreeRow>()? {
+                map.entry(link.item_id)
+                    .or_default()
+                    .push(link.item_bonus_tree_id);
+            }
+            for ids in map.values_mut() {
+                ids.sort_unstable();
+                ids.dedup();
+            }
+            map
+        };
+        let item_bonus_tree_nodes = {
+            let mut nodes = group_by(dir.read::<ItemBonusTreeNodeRow>()?, |r| {
+                r.parent_item_bonus_tree_id
+            });
+            for rows in nodes.values_mut() {
+                rows.sort_by_key(|r| r.id);
+            }
+            nodes
+        };
+        let item_bonuses = {
+            let mut bonuses =
+                group_by(dir.read::<ItemBonusRow>()?, |r| r.parent_item_bonus_list_id);
+            for rows in bonuses.values_mut() {
+                rows.sort_by_key(|r| (r.order_index, r.id));
+            }
+            bonuses
+        };
+
         Ok(Self {
             build: dir.build().to_owned(),
             spell_names: by_key(dir.read::<SpellNameRow>()?, |r| r.id),
@@ -290,6 +402,27 @@ impl Tables {
             player_expected_stats,
             char_base_info: dir.read()?,
             power_types: by_key(dir.read::<PowerTypeRow>()?, |r| r.power_type_enum),
+
+            items: by_key(dir.read::<ItemRow>()?, |r| r.id),
+            item_sparse: by_key(dir.read::<ItemSparseRow>()?, |r| r.id),
+            item_sub_classes: by_key(dir.read::<ItemSubClassRow>()?, |r| {
+                (r.class_id, r.sub_class_id)
+            }),
+            rand_prop_points: by_key(dir.read::<RandPropPointsRow>()?, |r| r.id),
+            item_armor_total: by_key(dir.read::<ItemArmorTotalRow>()?, |r| r.item_level),
+            item_armor_quality: by_key(dir.read::<ItemArmorQualityRow>()?, |r| r.id),
+            item_armor_shield: by_key(dir.read::<ItemArmorShieldRow>()?, |r| r.item_level),
+            armor_locations: by_key(dir.read::<ArmorLocationRow>()?, |r| r.id),
+            item_damage,
+            item_effects,
+            effects_by_item,
+            item_sets: by_key(dir.read::<ItemSetRow>()?, |r| r.id),
+            item_set_spells,
+            item_limit_categories: by_key(dir.read::<ItemLimitCategoryRow>()?, |r| r.id),
+            item_name_descriptions: by_key(dir.read::<ItemNameDescriptionRow>()?, |r| r.id),
+            bonus_trees_by_item,
+            item_bonus_tree_nodes,
+            item_bonuses,
         })
     }
 
@@ -621,5 +754,114 @@ impl Tables {
     /// `PowerType` by `PowerTypeEnum` (0 mana, 1 rage, ...).
     pub fn power_type(&self, power_type_enum: u32) -> Option<&PowerTypeRow> {
         self.power_types.get(&power_type_enum)
+    }
+
+    // ----- Item* ---------------------------------------------------------------------------
+
+    /// `Item` by item id.
+    pub fn item(&self, item_id: u32) -> Option<&ItemRow> {
+        self.items.get(&item_id)
+    }
+
+    /// Every `Item` row, unsorted.
+    pub fn items(&self) -> impl Iterator<Item = &ItemRow> {
+        self.items.values()
+    }
+
+    /// `ItemSparse` by item id; `None` for the items the dump has no row for.
+    pub fn item_sparse(&self, item_id: u32) -> Option<&ItemSparseRow> {
+        self.item_sparse.get(&item_id)
+    }
+
+    /// Every `ItemSparse` row, unsorted.
+    pub fn item_sparse_rows(&self) -> impl Iterator<Item = &ItemSparseRow> {
+        self.item_sparse.values()
+    }
+
+    /// `ItemSubClass` by (`ClassID`, `SubClassID`).
+    pub fn item_sub_class(&self, class_id: u32, sub_class_id: u32) -> Option<&ItemSubClassRow> {
+        self.item_sub_classes.get(&(class_id, sub_class_id))
+    }
+
+    /// `RandPropPoints` of an item level.
+    pub fn rand_prop_points(&self, item_level: u32) -> Option<&RandPropPointsRow> {
+        self.rand_prop_points.get(&item_level)
+    }
+
+    /// `ItemArmorTotal` of an item level.
+    pub fn item_armor_total(&self, item_level: u32) -> Option<&ItemArmorTotalRow> {
+        self.item_armor_total.get(&item_level)
+    }
+
+    /// `ItemArmorQuality` of an item level.
+    pub fn item_armor_quality(&self, item_level: u32) -> Option<&ItemArmorQualityRow> {
+        self.item_armor_quality.get(&item_level)
+    }
+
+    /// `ItemArmorShield` of an item level.
+    pub fn item_armor_shield(&self, item_level: u32) -> Option<&ItemArmorShieldRow> {
+        self.item_armor_shield.get(&item_level)
+    }
+
+    /// `ArmorLocation` of an `InventoryType`.
+    pub fn armor_location(&self, inventory_type: u32) -> Option<&ArmorLocationRow> {
+        self.armor_locations.get(&inventory_type)
+    }
+
+    /// The row of an `ItemDamage*` table at an item level.
+    pub fn item_damage(&self, table: ItemDamageTable, item_level: u32) -> Option<&ItemDamageRow> {
+        self.item_damage.get(&(table, item_level))
+    }
+
+    /// `ItemEffect` by effect id.
+    pub fn item_effect(&self, effect_id: u32) -> Option<&ItemEffectRow> {
+        self.item_effects.get(&effect_id)
+    }
+
+    /// The effects of an item, by legacy slot index.
+    pub fn item_effects_of_item(&self, item_id: u32) -> impl Iterator<Item = &ItemEffectRow> {
+        slice(&self.effects_by_item, &item_id)
+            .iter()
+            .filter_map(|id| self.item_effects.get(id))
+    }
+
+    /// `ItemSet` by set id.
+    pub fn item_set(&self, set_id: u32) -> Option<&ItemSetRow> {
+        self.item_sets.get(&set_id)
+    }
+
+    /// Every `ItemSet` row, unsorted.
+    pub fn item_sets(&self) -> impl Iterator<Item = &ItemSetRow> {
+        self.item_sets.values()
+    }
+
+    /// The bonuses of a set, sorted by threshold.
+    pub fn item_set_spells(&self, set_id: u32) -> &[ItemSetSpellRow] {
+        slice(&self.item_set_spells, &set_id)
+    }
+
+    /// `ItemLimitCategory` by id.
+    pub fn item_limit_category(&self, category_id: u32) -> Option<&ItemLimitCategoryRow> {
+        self.item_limit_categories.get(&category_id)
+    }
+
+    /// `ItemNameDescription` by id.
+    pub fn item_name_description(&self, id: u32) -> Option<&ItemNameDescriptionRow> {
+        self.item_name_descriptions.get(&id)
+    }
+
+    /// The bonus tree ids of an item, sorted.
+    pub fn item_bonus_trees(&self, item_id: u32) -> &[u32] {
+        slice(&self.bonus_trees_by_item, &item_id)
+    }
+
+    /// The nodes of a bonus tree, sorted by id.
+    pub fn item_bonus_tree_nodes(&self, tree_id: u32) -> &[ItemBonusTreeNodeRow] {
+        slice(&self.item_bonus_tree_nodes, &tree_id)
+    }
+
+    /// The bonuses of a bonus list, by order index.
+    pub fn item_bonuses(&self, bonus_list_id: u32) -> &[ItemBonusRow] {
+        slice(&self.item_bonuses, &bonus_list_id)
     }
 }

@@ -91,7 +91,8 @@ csim_engine::talent::TalentDb::load("data/talents")
    gate is not the `points_per_tier × tier` rule or a node has no tab or spell.
 3. Look at the diff of `data/spells/*.yaml` and `data/talents/*.yaml`: new ranks, changed
    numbers, new payloads, moved talents.
-   `cargo run -p csim-tables -- spell <id>` prints one spell straight from the tables.
+   `cargo run -p csim-tables -- spell <id>` prints one spell straight from the tables,
+   `cargo run -p csim-tables -- item <id>` one item (stats, spells, set, suffix pools).
 4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed spell and talent
    files match a fresh export when `data/tables/` is present, and the parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.

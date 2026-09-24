@@ -6,11 +6,13 @@
 //! the dump only carries for the UI or for retail-only systems are left out.
 
 mod chr;
+mod item;
 mod skill;
 mod spell;
 mod traits;
 
 pub use chr::*;
+pub use item::*;
 pub use skill::*;
 pub use spell::*;
 pub use traits::*;
@@ -64,6 +66,28 @@ pub const ALL_TABLES: &[&str] = &[
     PlayerExpectedStatRow::TABLE,
     CharBaseInfoRow::TABLE,
     PowerTypeRow::TABLE,
+    ItemRow::TABLE,
+    ItemSparseRow::TABLE,
+    ItemSubClassRow::TABLE,
+    RandPropPointsRow::TABLE,
+    ItemArmorTotalRow::TABLE,
+    ItemArmorQualityRow::TABLE,
+    ItemArmorShieldRow::TABLE,
+    ArmorLocationRow::TABLE,
+    ItemDamageOneHandRow::TABLE,
+    ItemDamageTwoHandRow::TABLE,
+    ItemDamageRangedRow::TABLE,
+    ItemDamageWandRow::TABLE,
+    ItemDamageThrownRow::TABLE,
+    ItemEffectRow::TABLE,
+    ItemXItemEffectRow::TABLE,
+    ItemSetRow::TABLE,
+    ItemSetSpellRow::TABLE,
+    ItemLimitCategoryRow::TABLE,
+    ItemNameDescriptionRow::TABLE,
+    ItemXBonusTreeRow::TABLE,
+    ItemBonusTreeNodeRow::TABLE,
+    ItemBonusRow::TABLE,
 ];
 
 use crate::row::TableRow;
