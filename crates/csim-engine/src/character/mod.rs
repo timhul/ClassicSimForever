@@ -32,7 +32,7 @@ use crate::item::{EquipmentDb, EquipmentSlot, WeaponSlot, WeaponType};
 use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
 use crate::resource::{Resource, ResourceType};
-use crate::rng::Random;
+use crate::rng::{Random, Xoroshiro128Plus};
 use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
 use crate::spell::auto_attack::rage_gained_from_damage;
@@ -733,6 +733,16 @@ impl Character {
                 scaled.round().max(0.0) as u32
             }
         })
+    }
+
+    /// Re-seeds every random generator of the character from `seed`: the attack tables, the
+    /// weapon damage roll and each proc's roll. The C++ `SimulationRunner` only re-seeded the
+    /// combat roll (`CombatRoll::set_new_seed`); here a seed fixes the whole run.
+    pub fn set_seed(&mut self, seed: u64) {
+        let mut seeds = Xoroshiro128Plus::from_seed(seed);
+        self.roll.set_new_seed(seeds.next());
+        self.dmg_roll.set_gen_from_seed(seeds.next());
+        self.spells.procs_mut().reseed(|| seeds.next());
     }
 
     // ---------------------------------------------------------------- weapon damage

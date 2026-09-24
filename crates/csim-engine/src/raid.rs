@@ -26,6 +26,7 @@ use crate::character::Character;
 use crate::character_spells::{PartyAuraChange, SharedBuffs};
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{CharId, InstanceId, SharedBuffId};
+use crate::rng::Xoroshiro128Plus;
 use crate::statistics::ClassStatistics;
 use crate::target::Target;
 
@@ -409,6 +410,15 @@ impl RaidControl {
     }
 
     // ---------------------------------------------------------------- lifecycle
+
+    /// Seeds every character, in `CharId` order, from one seed. Port of the `pchar_seeds`
+    /// loop of `SimulationRunner::sim_runner_run` (see [`Character::set_seed`]).
+    pub fn set_seed(&mut self, seed: u64) {
+        let mut seeds = Xoroshiro128Plus::from_seed(seed);
+        for character in &mut self.characters {
+            character.set_seed(seeds.next());
+        }
+    }
 
     /// Before a set of iterations: the engine, every character and, through them, the shared
     /// buffs. Port of `RaidControl::prepare_set_of_combat_iterations` plus the per-character

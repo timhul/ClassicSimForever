@@ -1,5 +1,5 @@
 //! Simulation statistics. Port of `Statistics/*` minus the GUI models and the stat-weight
-//! cruncher (`NumberCruncher`, Phase 5.7).
+//! cruncher, which is [`NumberCruncher`].
 //!
 //! A [`ClassStatistics`] belongs to one character and collects, for one set of combat
 //! iterations: the [`SpellStatistics`] of every spell, auto attack and proc that dealt
@@ -18,6 +18,7 @@
 pub mod buff;
 pub mod engine;
 pub mod executor;
+pub mod number_cruncher;
 pub mod proc;
 pub mod resource;
 pub mod spell;
@@ -27,6 +28,7 @@ use std::collections::BTreeMap;
 pub use buff::BuffStatistics;
 pub use engine::EngineStatistics;
 pub use executor::{ExecutorOutcome, ExecutorResult, RotationExecutorStatistics};
+pub use number_cruncher::{NumberCruncher, ScaleResult};
 pub use proc::ProcStatistics;
 pub use resource::ResourceStatistics;
 pub use spell::{Outcome, Ratio, SpellStatistics, Tally};

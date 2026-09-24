@@ -1,0 +1,307 @@
+//! Running the simulation: the iteration loop, the scaling runs and the threads. Port of
+//! `GUI/SimControl.*` and `Thread/SimulationThreadPool.*` / `SimulationRunner.*`.
+//!
+//! [`SimControl::run_sim`] runs a set of iterations of a raid: each iteration starts early
+//! enough for the slowest precombat actions, shuffles the raid (who acts first at a tie),
+//! runs every character's precombat actions, starts the encounter for each of them (and the
+//! incoming damage of the tanks), ends it after the combat length and resets the raid.
+//! [`SimControl::run_quick_sim`] runs the baseline, [`SimControl::run_full_sim`] also one run
+//! per scaling option with the option's stat added; both hand the statistics of the raid's
+//! first character, with every member's result added, to a [`NumberCruncher`].
+//!
+//! [`run_threaded`] is the thread pool: each thread builds its own raid (the raid is not
+//! shared between threads), seeds it, runs its share of the iterations and returns its
+//! cruncher; the crunchers are merged in thread order. With the same seed and thread count
+//! a run is reproducible.
+//!
+//! Differences from the C++: the iterations are split so that every requested iteration runs
+//! (the C++ dropped the remainder of `iterations / threads`), a seed fixes every random roll
+//! of the run including the raid shuffle, and the progress callback also reports the last
+//! iterations that do not fill a group of ten.
+
+use std::sync::Arc;
+
+use crate::engine::{Event, EventKind};
+use crate::ids::CharId;
+use crate::raid::RaidControl;
+use crate::rng::Xoroshiro128Plus;
+use crate::sim_settings::{SimOption, SimSettings};
+use crate::statistics::NumberCruncher;
+
+/// Called with the number of iterations completed since the previous call.
+pub type Progress = Arc<dyn Fn(u32) + Send + Sync>;
+
+/// Iterations between two progress reports.
+const PROGRESS_INTERVAL: u32 = 10;
+
+/// A baseline run, or also the scaling runs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SimMode {
+    /// [`SimSettings::iterations_quick_sim`] iterations, no scaling.
+    Quick,
+    /// [`SimSettings::iterations_full_sim`] iterations for the baseline and for each option.
+    Full,
+}
+
+impl SimMode {
+    fn iterations(self, settings: &SimSettings) -> u32 {
+        match self {
+            SimMode::Quick => settings.iterations_quick_sim,
+            SimMode::Full => settings.iterations_full_sim,
+        }
+    }
+
+    fn set_iterations(self, settings: &mut SimSettings, iterations: u32) {
+        match self {
+            SimMode::Quick => settings.iterations_quick_sim = iterations,
+            SimMode::Full => settings.iterations_full_sim = iterations,
+        }
+    }
+}
+
+/// Runs iterations of one raid. See the module documentation. Port of `SimControl`.
+pub struct SimControl {
+    settings: SimSettings,
+    /// Shuffles the raid order each iteration (the C++ `std::mt19937` on a random device).
+    shuffle: Xoroshiro128Plus,
+    progress: Option<Progress>,
+}
+
+impl SimControl {
+    /// A sim control for `settings` whose raid shuffles derive from `seed`.
+    pub fn new(settings: SimSettings, seed: u64) -> Self {
+        SimControl {
+            settings,
+            shuffle: Xoroshiro128Plus::from_seed(seed),
+            progress: None,
+        }
+    }
+
+    /// Reports the iterations completed to `progress`. Port of the `update_progress` signal.
+    pub fn with_progress(mut self, progress: Progress) -> Self {
+        self.progress = Some(progress);
+        self
+    }
+
+    pub fn settings(&self) -> &SimSettings {
+        &self.settings
+    }
+
+    /// Runs the baseline and collects it. Port of `SimControl::run_quick_sim`.
+    pub fn run_quick_sim(&mut self, raid: &mut RaidControl, cruncher: &mut NumberCruncher) {
+        let (combat_length, iterations) = (
+            self.settings.combat_length,
+            self.settings.iterations_quick_sim,
+        );
+        self.run_sim(raid, combat_length, iterations);
+        collect(raid, None, cruncher);
+    }
+
+    /// Runs the baseline, then each scaling option of the settings, and collects every run.
+    /// Port of `SimControl::run_full_sim`.
+    pub fn run_full_sim(&mut self, raid: &mut RaidControl, cruncher: &mut NumberCruncher) {
+        let (combat_length, iterations) = (
+            self.settings.combat_length,
+            self.settings.iterations_full_sim,
+        );
+        self.run_sim(raid, combat_length, iterations);
+        collect(raid, None, cruncher);
+
+        let options: Vec<SimOption> = self.settings.options.iter().copied().collect();
+        for option in options {
+            self.run_sim_with_option(raid, option, combat_length, iterations);
+            collect(raid, Some(option), cruncher);
+        }
+    }
+
+    /// Runs [`SimControl::run_quick_sim`] or [`SimControl::run_full_sim`].
+    pub fn run(&mut self, mode: SimMode, raid: &mut RaidControl, cruncher: &mut NumberCruncher) {
+        match mode {
+            SimMode::Quick => self.run_quick_sim(raid, cruncher),
+            SimMode::Full => self.run_full_sim(raid, cruncher),
+        }
+    }
+
+    /// Runs `iterations` encounters of `combat_length` seconds. The characters' statistics
+    /// hold the result afterwards. Port of `SimControl::run_sim`.
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length (its DPS would be wrong).
+    pub fn run_sim(&mut self, raid: &mut RaidControl, combat_length: u32, iterations: u32) {
+        let combat_length = f64::from(combat_length);
+        for character in raid.characters() {
+            assert_eq!(
+                character.sim().combat_length,
+                combat_length,
+                "{} was set up for another combat length",
+                character.player_name()
+            );
+        }
+
+        // Drops the attack tables and prepares the characters' statistics and rotations.
+        raid.prepare_set_of_combat_iterations();
+
+        // The C++ started from the smallest positive double; the pull is at 0 either way.
+        let start_at = raid
+            .char_ids()
+            .map(|id| raid.context(id).time_required_to_run_precombat())
+            .fold(0.0, f64::max);
+
+        let mut order: Vec<CharId> = raid.char_ids().collect();
+        let mut reported = 0;
+        for _ in 0..iterations {
+            raid.engine_mut().prepare_iteration(-start_at);
+
+            self.shuffle_order(&mut order);
+
+            // Also casts the precast spell if it is enabled.
+            for &id in &order {
+                raid.with_character(id, |ctx| ctx.run_precombat_actions());
+            }
+
+            for &id in &order {
+                if raid.character(id).is_tanking() {
+                    raid.engine_mut()
+                        .add_event(Event::new(0.0, EventKind::IncomingDamage { character: id }));
+                }
+                raid.engine_mut()
+                    .add_event(Event::new(0.0, EventKind::EncounterStart { character: id }));
+            }
+
+            raid.engine_mut()
+                .add_event(Event::new(combat_length, EventKind::EncounterEnd));
+            raid.run();
+
+            // Resets every character and checks that the target is clean.
+            raid.reset();
+            raid.finish_combat_iteration();
+
+            reported += 1;
+            if reported == PROGRESS_INTERVAL {
+                self.report(reported);
+                reported = 0;
+            }
+        }
+        if reported > 0 {
+            self.report(reported);
+        }
+    }
+
+    /// Runs with `option`'s stat added to every character. Port of
+    /// `SimControl::run_sim_with_option`.
+    fn run_sim_with_option(
+        &mut self,
+        raid: &mut RaidControl,
+        option: SimOption,
+        combat_length: u32,
+        iterations: u32,
+    ) {
+        for id in raid.char_ids().collect::<Vec<_>>() {
+            option.add_to(raid.character_mut(id).stats_mut());
+        }
+        self.run_sim(raid, combat_length, iterations);
+        for id in raid.char_ids().collect::<Vec<_>>() {
+            option.remove_from(raid.character_mut(id).stats_mut());
+        }
+    }
+
+    /// Fisher–Yates, the `std::shuffle` of `SimControl::run_sim`.
+    fn shuffle_order(&mut self, order: &mut [CharId]) {
+        for i in (1..order.len()).rev() {
+            let j = (self.shuffle.next() % (i as u64 + 1)) as usize;
+            order.swap(i, j);
+        }
+    }
+
+    fn report(&self, iterations: u32) {
+        if let Some(progress) = &self.progress {
+            progress(iterations);
+        }
+    }
+}
+
+/// Hands the first character's statistics, with every member's result added, to the
+/// cruncher. The `add_player_result` / `add_class_statistic` lines of `SimControl`.
+fn collect(raid: &mut RaidControl, option: Option<SimOption>, cruncher: &mut NumberCruncher) {
+    let mut statistics = raid.take_statistics();
+    assert!(
+        !statistics.is_empty(),
+        "Cannot collect the results of an empty raid"
+    );
+    let results: Vec<_> = statistics.iter().map(|s| s.personal_result()).collect();
+    let mut first = statistics.swap_remove(0);
+    for result in results {
+        first.add_player_result(result);
+    }
+    cruncher.add_class_statistics(option, first);
+}
+
+/// Runs `settings.threads` threads, each on a raid of its own from `build`, and merges their
+/// results. `seed` fixes the run; `progress` hears from every thread. Port of
+/// `SimulationThreadPool::run_sim` and `SimulationRunner::sim_runner_run`.
+///
+/// # Errors
+/// The first error `build` returns, in thread order.
+///
+/// # Panics
+/// Panics if a thread panicked.
+pub fn run_threaded<E: Send>(
+    settings: &SimSettings,
+    mode: SimMode,
+    seed: u64,
+    progress: Option<Progress>,
+    build: impl Fn() -> Result<RaidControl, E> + Sync,
+) -> Result<NumberCruncher, E> {
+    let threads = settings.threads.max(1);
+    let iterations = mode.iterations(settings);
+    let mut seeds = Xoroshiro128Plus::from_seed(seed);
+    let jobs: Vec<(u32, u64, u64)> = split_iterations(iterations, threads)
+        .into_iter()
+        .map(|share| (share, seeds.next(), seeds.next()))
+        .filter(|&(share, _, _)| share > 0)
+        .collect();
+
+    let build = &build;
+    let results: Vec<Result<NumberCruncher, E>> = std::thread::scope(|scope| {
+        let handles: Vec<_> = jobs
+            .into_iter()
+            .map(|(share, raid_seed, shuffle_seed)| {
+                let mut local = settings.clone();
+                mode.set_iterations(&mut local, share);
+                let progress = progress.clone();
+                scope.spawn(move || {
+                    let mut raid = build()?;
+                    raid.set_seed(raid_seed);
+                    let mut control = SimControl::new(local, shuffle_seed);
+                    if let Some(progress) = progress {
+                        control = control.with_progress(progress);
+                    }
+                    let mut cruncher = NumberCruncher::new();
+                    control.run(mode, &mut raid, &mut cruncher);
+                    Ok(cruncher)
+                })
+            })
+            .collect();
+        handles
+            .into_iter()
+            .map(|handle| handle.join().expect("simulation thread panicked"))
+            .collect()
+    });
+
+    let mut cruncher = NumberCruncher::new();
+    for result in results {
+        cruncher.absorb(result?);
+    }
+    Ok(cruncher)
+}
+
+/// `iterations` split over `threads`, the first threads taking one more of the remainder.
+fn split_iterations(iterations: u32, threads: usize) -> Vec<u32> {
+    let threads = u32::try_from(threads).expect("thread count fits u32");
+    (0..threads)
+        .map(|i| iterations / threads + u32::from(i < iterations % threads))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests;

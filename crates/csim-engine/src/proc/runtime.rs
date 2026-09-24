@@ -360,6 +360,13 @@ impl EnabledProcs {
         (0..self.procs.len()).map(|index| ProcId(index as u32))
     }
 
+    /// Re-seeds every proc's roll, in registration order, with the seeds `next` hands out.
+    pub fn reseed(&mut self, mut next: impl FnMut() -> u64) {
+        for proc in &mut self.procs {
+            proc.set_seed(next());
+        }
+    }
+
     pub fn find_by_name(&self, name: &str) -> Option<ProcId> {
         self.procs
             .iter()
