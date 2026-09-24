@@ -21,7 +21,11 @@ data/
 │   └── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
-├── items/ enchants.yaml set_bonuses.yaml   Phase 2 item data (see ITEM_INSTRUCTIONS.md)
+├── items/
+│   ├── <slot>.yaml       generated: the weapons and armor of quality Rare+ (one file per slot)
+│   └── legacy/           hand-authored Classic items, used only for ids the export lacks
+├── item_sets.yaml        generated: the item sets and their bonus spells
+├── enchants.yaml set_bonuses.yaml   hand-written enchants and (legacy) stat set bonuses
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
@@ -83,18 +87,25 @@ csim_engine::talent::TalentDb::load("data/talents")
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-talents --class warrior
+   cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- check
    ```
+   `export-items` also prints why items were skipped, what it could not resolve and the ids
+   still served from `data/items/legacy/`.
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides
    and fails with `--strict` if there are any. `export-talents` warns when a node's `TraitCond`
    gate is not the `points_per_tier × tier` rule or a node has no tab or spell.
-3. Look at the diff of `data/spells/*.yaml` and `data/talents/*.yaml`: new ranks, changed
-   numbers, new payloads, moved talents.
+3. Look at the diff of `data/spells/*.yaml`, `data/talents/*.yaml` and `data/items/*.yaml`: new
+   ranks, changed numbers, new payloads, moved talents, re-tuned items.
    `cargo run -p csim-tables -- spell <id>` prints one spell straight from the tables,
    `cargo run -p csim-tables -- item <id>` one item (stats, spells, set, suffix pools).
-4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed spell and talent
-   files match a fresh export when `data/tables/` is present, and the parity tests in
+4. `cargo test` — `crates/csim-tables/tests/shipped.rs` checks the committed spell, talent and
+   item files match a fresh export when `data/tables/` is present, and that the items differ
+   from their hand-authored Classic version only as reviewed in
+   `crates/csim-tables/tests/fixtures/classic_item_differences.txt` (regenerate with
+   `csim-tables compare-items --legacy crates/csim-tables/tests/fixtures/classic_items.yaml`
+   after reviewing the change). The parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
 5. Regenerate the test fixtures if the spells they use changed:
    `python crates/csim-tables/tests/fixtures/make_fixtures.py`.

@@ -32,6 +32,37 @@ pub struct ItemFile {
     pub items: Vec<ItemSpec>,
 }
 
+/// The exported item sets (`data/item_sets.yaml`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemSetFile {
+    /// The client build the sets were exported from.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub build: String,
+    #[serde(default)]
+    pub sets: Vec<ItemSetSpec>,
+}
+
+/// One item set (`ItemSet`) and its bonuses (`ItemSetSpell`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemSetSpec {
+    pub id: u32,
+    pub name: String,
+    /// The member item ids.
+    pub items: Vec<u32>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub bonuses: Vec<ItemSetBonus>,
+}
+
+/// A set bonus: `spell` is active while at least `pieces` members are worn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemSetBonus {
+    pub pieces: u32,
+    pub spell: u32,
+}
+
 /// One item as stored in the item database.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -43,15 +74,15 @@ pub struct ItemSpec {
     #[serde(rename = "type")]
     pub item_type: ItemType,
     pub quality: Quality,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub unique: bool,
     #[serde(default)]
     pub req_lvl: u32,
     #[serde(default)]
     pub item_lvl: u32,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub boe: bool,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub icon: String,
     /// `None` means available to both factions.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -107,6 +138,10 @@ pub struct WeaponDamageSpec {
     /// The school of the weapon's damage (a few wands and staves deal magic damage).
     #[serde(default = "physical", skip_serializing_if = "is_physical")]
     pub school: MagicSchool,
+}
+
+fn is_false(value: &bool) -> bool {
+    !*value
 }
 
 fn physical() -> MagicSchool {

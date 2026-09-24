@@ -28,6 +28,10 @@ enum CliError {
     Enchants(#[from] csim_engine::enchant::EnchantDbError),
     #[error(transparent)]
     SpellDb(#[from] csim_engine::spell::record::SpellDbError),
+    #[error(transparent)]
+    ReadItems(#[from] export::items::ReadItemsError),
+    #[error(transparent)]
+    EquipmentDb(#[from] csim_engine::item::EquipmentDbError),
     #[error("cannot write {path}: {source}")]
     Write {
         path: PathBuf,
@@ -125,6 +129,26 @@ enum Command {
         /// Output file (`-` for stdout).
         #[arg(long)]
         out: Option<PathBuf>,
+    },
+    /// Writes the weapons and armor of quality Rare and above as engine item files (one per
+    /// slot) and the item sets they belong to.
+    ExportItems {
+        /// The item data directory; one `<slot>.yaml` per slot is written there.
+        #[arg(long, default_value = "data/items")]
+        items: PathBuf,
+        /// The item set file.
+        #[arg(long, default_value = "data/item_sets.yaml")]
+        sets: PathBuf,
+    },
+    /// Compares the exported items with hand-authored Classic items of the same id and prints
+    /// the differences (ratings through the interim level-60 factors).
+    CompareItems {
+        /// The hand-authored item files (a directory or one file).
+        #[arg(long, default_value = "data/items/legacy")]
+        legacy: PathBuf,
+        /// Also write the compared legacy items (their newest phase) to this file.
+        #[arg(long)]
+        snapshot: Option<PathBuf>,
     },
     /// Loads the exported spell files with the engine and reports what the sim cannot use.
     Check {
@@ -278,6 +302,92 @@ fn export_talents(
             file.tabs.len(),
             file.build,
             out.display()
+        );
+    }
+    Ok(())
+}
+
+fn write(path: &Path, text: &str) -> Result<(), CliError> {
+    std::fs::write(path, text).map_err(|source| CliError::Write {
+        path: path.to_path_buf(),
+        source,
+    })
+}
+
+fn export_items(dir: &TableDir, items_dir: &Path, sets_path: &Path) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    let report = export::items::derive_items(&tables);
+    for (file_name, file) in export::item_files(&tables, &report.items) {
+        let path = items_dir.join(format!("{file_name}.yaml"));
+        write(&path, &export::render_items(&file, "export-items")?)?;
+        eprintln!("wrote {} items to {}", file.items.len(), path.display());
+    }
+    let sets = export::item_set_file(&tables, &report.items);
+    write(sets_path, &export::render_item_sets(&sets, "export-items")?)?;
+    eprintln!(
+        "wrote {} item sets to {}",
+        sets.sets.len(),
+        sets_path.display()
+    );
+
+    for (skip, ids) in &report.skipped {
+        eprintln!("skipped {} items: {skip:?}", ids.len());
+    }
+    for issue in &report.issues {
+        eprintln!("warning: item {}: {}", issue.item_id, issue.message);
+    }
+    let db = csim_engine::item::EquipmentDb::load(items_dir, None, None)?;
+    let legacy = db.legacy_item_ids();
+    eprintln!(
+        "{} items exported, {} still served from {}: {legacy:?}",
+        report.items.len(),
+        legacy.len(),
+        items_dir.join("legacy").display()
+    );
+    Ok(())
+}
+
+fn compare_items(
+    dir: &TableDir,
+    legacy_path: &Path,
+    snapshot: Option<&Path>,
+) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    let exported: Vec<_> = export::items::derive_items(&tables)
+        .items
+        .iter()
+        .map(|item| item.to_spec())
+        .collect();
+    let legacy = export::newest_versions(export::items::read_item_specs(legacy_path)?);
+    let lines = export::compare_items(&exported, &legacy);
+    for line in &lines {
+        println!("{line}");
+    }
+    let compared: Vec<_> = exported
+        .iter()
+        .filter_map(|item| legacy.get(&item.id).cloned())
+        .collect();
+    let differing: std::collections::BTreeSet<&str> = lines
+        .iter()
+        .filter_map(|line| line.split(' ').next())
+        .collect();
+    eprintln!(
+        "{} exported items have a legacy version, {} of them differ",
+        compared.len(),
+        differing.len()
+    );
+    if let Some(path) = snapshot {
+        let text = format!(
+            "# The hand-authored Classic version (newest phase) of every item `csim-tables\n\
+             # export-items` produces, written by `csim-tables compare-items --snapshot`. Frozen\n\
+             # reference data for the comparison test; not loaded by the engine.\n{}",
+            serde_yaml::to_string(&compared)?
+        );
+        write(path, &text)?;
+        eprintln!(
+            "wrote {} legacy items to {}",
+            compared.len(),
+            path.display()
         );
     }
     Ok(())
@@ -629,6 +739,10 @@ fn run(cli: Cli) -> Result<(), CliError> {
             talents,
             out,
         } => export_talents(&open(&cli)?, class, talents, out.clone()),
+        Command::ExportItems { items, sets } => export_items(&open(&cli)?, items, sets),
+        Command::CompareItems { legacy, snapshot } => {
+            compare_items(&open(&cli)?, legacy, snapshot.as_deref())
+        }
         Command::Check { spells, strict } => check(spells, *strict),
     }
 }

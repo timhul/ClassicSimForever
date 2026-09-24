@@ -194,7 +194,7 @@ equipment:
   MAINHAND: { item: 18832, enchant: EnchantBootsGreaterAgility }
   OFFHAND: { item: 17076 }
   HEAD: { item: 18404 }
-  LEGS: { item: 22385 }
+  LEGS: { item: 23068 }
   RING1: { item: 999999 }
   BACK: { item: 13340, temp_enchant: WindfuryTotem }
 buffs: [Sunder Armor, Juju Power, Elixir of Giants, Greater Blessing of Kings, Nothing]
@@ -242,9 +242,8 @@ target:
         message.starts_with("character setup \"Minimal\" is invalid:\n  "),
         "{message}"
     );
-    assert!(
-        message.contains("equipment.LEGS: Titanic Leggings (22385) is not available in phase 3")
-    );
+    assert!(message
+        .contains("equipment.LEGS: Legplates of Carnage (23068) is not available in phase 3"));
 }
 
 #[test]

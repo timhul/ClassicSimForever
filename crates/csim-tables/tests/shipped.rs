@@ -268,3 +268,89 @@ fn items_of_the_dump_derive() {
     assert_eq!(lionheart.stats[&ItemStat::CritRating], 28.0);
     assert_eq!(lionheart.stats[&ItemStat::Armor], 565.0);
 }
+
+/// The tables of the build the shipped item files name, or `None` (with a note) without a dump.
+fn item_tables(root: &Path) -> Option<Tables> {
+    let build = std::fs::read_to_string(root.join("data/items/one_hand.yaml"))
+        .unwrap()
+        .lines()
+        .find_map(|l| l.strip_prefix("build: "))
+        .expect("the shipped item file names its build")
+        .trim()
+        .to_owned();
+    let Ok(dir) = TableDir::open_build(root.join("data/tables"), &build) else {
+        eprintln!("data/tables/*.{build}.csv not present, skipping the item checks");
+        return None;
+    };
+    Some(Tables::load(&dir).unwrap())
+}
+
+/// `data/items/*.yaml` and `data/item_sets.yaml` are what `export-items` writes, and nothing
+/// else sits next to the generated item files.
+#[test]
+fn shipped_item_files_match_a_fresh_export() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let Some(tables) = item_tables(&root) else {
+        return;
+    };
+    let report = export::items::derive_items(&tables);
+    let files = export::item_files(&tables, &report.items);
+    let items_dir = root.join("data/items");
+    for (name, file) in &files {
+        let rendered = export::render_items(file, "export-items").unwrap();
+        let shipped = std::fs::read_to_string(items_dir.join(format!("{name}.yaml"))).unwrap();
+        assert!(
+            rendered == shipped.replace("\r\n", "\n"),
+            "data/items/{name}.yaml is stale: re-run `csim-tables export-items`"
+        );
+    }
+    for entry in std::fs::read_dir(&items_dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_file() {
+            let stem = path.file_stem().unwrap().to_str().unwrap();
+            assert!(
+                files.contains_key(stem),
+                "{} is not written by `csim-tables export-items`",
+                path.display()
+            );
+        }
+    }
+    let sets = export::item_set_file(&tables, &report.items);
+    let rendered = export::render_item_sets(&sets, "export-items").unwrap();
+    let shipped = std::fs::read_to_string(root.join("data/item_sets.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/item_sets.yaml is stale: re-run `csim-tables export-items`"
+    );
+}
+
+/// The exported items differ from their hand-authored Classic version exactly as reviewed in
+/// `tests/fixtures/classic_item_differences.txt`: a change to the item formulas shows up here.
+#[test]
+fn exported_items_differ_from_classic_only_as_reviewed() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let Some(tables) = item_tables(&root) else {
+        return;
+    };
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+    let exported: Vec<_> = export::items::derive_items(&tables)
+        .items
+        .iter()
+        .map(|item| item.to_spec())
+        .collect();
+    let classic = export::items::read_item_specs(&fixtures.join("classic_items.yaml")).unwrap();
+    let lines = export::compare_items(&exported, &export::newest_versions(classic));
+    let reviewed: Vec<String> =
+        std::fs::read_to_string(fixtures.join("classic_item_differences.txt"))
+            .unwrap()
+            .lines()
+            .filter(|line| !line.starts_with('#') && !line.is_empty())
+            .map(str::to_owned)
+            .collect();
+    let new: Vec<&String> = lines.iter().filter(|l| !reviewed.contains(l)).collect();
+    let gone: Vec<&String> = reviewed.iter().filter(|l| !lines.contains(l)).collect();
+    assert!(
+        new.is_empty() && gone.is_empty(),
+        "differences to review:\nnew: {new:#?}\nno longer different: {gone:#?}"
+    );
+}

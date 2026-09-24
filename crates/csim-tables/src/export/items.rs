@@ -4,12 +4,22 @@
 //!
 //! Everything here is a pure function of [`Tables`]. Ratings are kept as ratings (`HIT_RATING`,
 //! ...); converting them is the engine's job (`csim_engine::item::rating`).
+//!
+//! `export-items` writes the derived items as one [`ItemFile`] per slot ([`item_file_name`]) and
+//! the item sets as an [`ItemSetFile`]; [`compare_items`] lists where they differ from the
+//! hand-authored Classic items.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::{Path, PathBuf};
 
 use csim_engine::faction::PlayerClass;
+use csim_engine::item::{
+    rating, ItemFile, ItemSetBonus, ItemSetFile, ItemSetSpec, ItemSlot, ItemSpec, ItemStat,
+    ItemType, Quality, WeaponDamageSpec,
+};
 pub use csim_engine::item::{EffectTrigger, ItemEffect, ItemSuffix, LimitCategory};
-use csim_engine::item::{ItemSlot, ItemStat, ItemType, Quality};
+use csim_engine::magic_school::MagicSchool;
+use csim_engine::phase::Phase;
 
 use crate::tables::{ItemDamageTable, ItemRow, ItemSparseRow};
 use crate::Tables;
@@ -706,4 +716,338 @@ pub fn derive_items(tables: &Tables) -> ItemReport {
         }
     }
     report
+}
+
+/// The magic school of a `DamageType`.
+pub fn damage_school(damage_type: u32) -> MagicSchool {
+    match damage_type {
+        1 => MagicSchool::Holy,
+        2 => MagicSchool::Fire,
+        3 => MagicSchool::Nature,
+        4 => MagicSchool::Frost,
+        5 => MagicSchool::Shadow,
+        6 => MagicSchool::Arcane,
+        _ => MagicSchool::Physical,
+    }
+}
+
+impl DerivedItem {
+    /// The item as the engine reads it. Every generated item is `phase: 1` (decision D4).
+    pub fn to_spec(&self) -> ItemSpec {
+        ItemSpec {
+            id: self.id,
+            name: self.name.clone(),
+            phase: Phase::MoltenCore,
+            slot: self.slot,
+            item_type: self.item_type,
+            quality: self.quality,
+            unique: self.unique,
+            req_lvl: self.required_level,
+            item_lvl: self.item_level,
+            boe: self.boe,
+            icon: String::new(),
+            faction: None,
+            class_restrictions: self.class_restrictions.clone(),
+            damage: self.damage.map(|damage| WeaponDamageSpec {
+                min: damage.min,
+                max: damage.max,
+                speed: damage.speed,
+                school: damage_school(damage.school),
+            }),
+            stats: self.stats.clone(),
+            effects: self.effects.clone(),
+            set: self.set,
+            limit_category: self.limit_category.clone(),
+            suffixes: self.suffixes.clone(),
+            procs: Vec::new(),
+            uses: Vec::new(),
+            modifies: Vec::new(),
+            mutex: Vec::new(),
+            random_affixes: Vec::new(),
+            special_equip_effects: Vec::new(),
+            source: String::new(),
+            flavour_text: self.flavour_text.clone(),
+        }
+    }
+}
+
+/// The file (under `data/items/`, without `.yaml`) an item of `slot` is written to.
+pub fn item_file_name(slot: ItemSlot) -> &'static str {
+    match slot {
+        ItemSlot::OneHand => "one_hand",
+        ItemSlot::Mainhand => "main_hand",
+        ItemSlot::Offhand => "off_hand",
+        ItemSlot::TwoHand => "two_hand",
+        ItemSlot::Ranged => "ranged",
+        ItemSlot::Head => "head",
+        ItemSlot::Neck => "neck",
+        ItemSlot::Shoulders => "shoulders",
+        ItemSlot::Back => "back",
+        ItemSlot::Chest => "chest",
+        ItemSlot::Wrist => "wrist",
+        ItemSlot::Gloves => "gloves",
+        ItemSlot::Belt => "belt",
+        ItemSlot::Legs => "legs",
+        ItemSlot::Boots => "boots",
+        ItemSlot::Ring => "ring",
+        ItemSlot::Trinket => "trinket",
+        ItemSlot::Relic => "relic",
+        ItemSlot::Projectile => "projectile",
+        ItemSlot::Quiver => "quiver",
+    }
+}
+
+/// The item files of the derived items, by file name; items stay sorted by id.
+pub fn item_files(tables: &Tables, items: &[DerivedItem]) -> BTreeMap<&'static str, ItemFile> {
+    let mut files: BTreeMap<&'static str, ItemFile> = BTreeMap::new();
+    for item in items {
+        files
+            .entry(item_file_name(item.slot))
+            .or_insert_with(|| ItemFile {
+                build: tables.build().to_owned(),
+                items: Vec::new(),
+            })
+            .items
+            .push(item.to_spec());
+    }
+    files
+}
+
+/// The item sets with at least one derived member, sorted by id.
+pub fn item_set_file(tables: &Tables, items: &[DerivedItem]) -> ItemSetFile {
+    let ids: BTreeSet<u32> = items.iter().filter_map(|item| item.set).collect();
+    let sets = ids
+        .into_iter()
+        .filter_map(|id| tables.item_set(id))
+        .map(|set| ItemSetSpec {
+            id: set.id,
+            name: set.name.clone(),
+            items: set.item_ids.iter().copied().filter(|&id| id != 0).collect(),
+            bonuses: tables
+                .item_set_spells(set.id)
+                .iter()
+                .map(|bonus| ItemSetBonus {
+                    pieces: bonus.threshold,
+                    spell: bonus.spell_id,
+                })
+                .collect(),
+        })
+        .collect();
+    ItemSetFile {
+        build: tables.build().to_owned(),
+        sets,
+    }
+}
+
+/// Renders an item file with a header naming its origin.
+pub fn render_items(file: &ItemFile, command: &str) -> Result<String, serde_yaml::Error> {
+    let body = crate::export::spells::flow_scalar_sequences(&serde_yaml::to_string(file)?);
+    let body = whole_numbers(&body);
+    Ok(format!(
+        "# Generated by `csim-tables {command}` from client build {}.\n\
+         # Do not edit: re-export from a new table dump instead. Items the dump lacks are\n\
+         # hand-authored in data/items/legacy/.\n\
+         {body}",
+        file.build
+    ))
+}
+
+/// Writes the whole-number float values of a rendered file without the `.0` (`STAMINA: 8`).
+fn whole_numbers(yaml: &str) -> String {
+    let mut out = String::with_capacity(yaml.len());
+    for line in yaml.lines() {
+        match line.rsplit_once(": ") {
+            Some((key, value))
+                if value.ends_with(".0") && value[..value.len() - 2].parse::<i64>().is_ok() =>
+            {
+                out.push_str(key);
+                out.push_str(": ");
+                out.push_str(&value[..value.len() - 2]);
+            }
+            _ => out.push_str(line),
+        }
+        out.push('\n');
+    }
+    out
+}
+
+/// Renders the item set file with a header naming its origin.
+pub fn render_item_sets(file: &ItemSetFile, command: &str) -> Result<String, serde_yaml::Error> {
+    let body = crate::export::spells::flow_scalar_sequences(&serde_yaml::to_string(file)?);
+    Ok(format!(
+        "# Generated by `csim-tables {command}` from client build {}.\n\
+         # Do not edit: re-export from a new table dump instead. A bonus is the spell active\n\
+         # while at least `pieces` members are worn.\n\
+         {body}",
+        file.build
+    ))
+}
+
+/// Why item specs could not be read.
+#[derive(Debug, thiserror::Error)]
+pub enum ReadItemsError {
+    #[error("cannot read {path}: {source}")]
+    Io {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("cannot parse {path}: {source}")]
+    Yaml {
+        path: PathBuf,
+        #[source]
+        source: serde_yaml::Error,
+    },
+}
+
+/// The item specs of one item file (an [`ItemFile`] or a plain list), or of every `*.yaml` file
+/// directly in a directory.
+pub fn read_item_specs(path: &Path) -> Result<Vec<ItemSpec>, ReadItemsError> {
+    let io = |source| ReadItemsError::Io {
+        path: path.to_path_buf(),
+        source,
+    };
+    if path.is_dir() {
+        let mut paths: Vec<PathBuf> = std::fs::read_dir(path)
+            .map_err(io)?
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .filter(|p| p.is_file() && p.extension().is_some_and(|ext| ext == "yaml"))
+            .collect();
+        paths.sort();
+        let mut specs = Vec::new();
+        for p in paths {
+            specs.extend(read_item_specs(&p)?);
+        }
+        return Ok(specs);
+    }
+    let yaml = |source| ReadItemsError::Yaml {
+        path: path.to_path_buf(),
+        source,
+    };
+    let text = std::fs::read_to_string(path).map_err(io)?;
+    let value: serde_yaml::Value = serde_yaml::from_str(&text).map_err(yaml)?;
+    if value.is_sequence() {
+        serde_yaml::from_value(value).map_err(yaml)
+    } else {
+        let file: ItemFile = serde_yaml::from_value(value).map_err(yaml)?;
+        Ok(file.items)
+    }
+}
+
+/// The legacy version an exported item is compared with: the newest phase.
+pub fn newest_versions(legacy: Vec<ItemSpec>) -> BTreeMap<u32, ItemSpec> {
+    let mut newest: BTreeMap<u32, ItemSpec> = BTreeMap::new();
+    for spec in legacy {
+        match newest.get(&spec.id) {
+            Some(existing) if existing.phase >= spec.phase => {}
+            _ => {
+                newest.insert(spec.id, spec);
+            }
+        }
+    }
+    newest
+}
+
+/// The stats of an exported item in the legacy units: the ratings the interim factors convert
+/// become the chance fractions the hand-authored items use.
+fn comparable_stats(stats: &BTreeMap<ItemStat, f64>) -> BTreeMap<ItemStat, f64> {
+    let mut result = BTreeMap::new();
+    for (&stat, &value) in stats {
+        match rating::interim_chance(stat) {
+            Some((chance, per_percent)) => {
+                *result.entry(chance).or_default() += value / per_percent / 100.0
+            }
+            None => *result.entry(stat).or_default() += value,
+        }
+    }
+    result
+}
+
+/// A number without float noise (`0.020000000000000004` → `0.02`).
+fn number(value: f64) -> String {
+    let rounded = (value * 1e6).round() / 1e6;
+    format!("{rounded}")
+}
+
+fn stat_name(stat: ItemStat) -> String {
+    serde_yaml::to_string(&stat)
+        .map(|s| s.trim().to_owned())
+        .unwrap_or_else(|_| format!("{stat:?}"))
+}
+
+/// The differences between the exported items and the hand-authored Classic items with the same
+/// id (their newest phase), one line per differing field: `id name: field: legacy -> exported`.
+/// Ratings are compared through the interim factors. Items without a legacy version are skipped.
+pub fn compare_items(exported: &[ItemSpec], legacy: &BTreeMap<u32, ItemSpec>) -> Vec<String> {
+    let mut lines = Vec::new();
+    for item in exported {
+        let Some(old) = legacy.get(&item.id) else {
+            continue;
+        };
+        let mut diff = |field: &str, old: String, new: String| {
+            if old != new {
+                lines.push(format!(
+                    "{} {}: {field}: {old} -> {new}",
+                    item.id, item.name
+                ));
+            }
+        };
+        diff("name", old.name.clone(), item.name.clone());
+        diff(
+            "slot",
+            format!("{:?}", old.slot),
+            format!("{:?}", item.slot),
+        );
+        diff(
+            "type",
+            format!("{:?}", old.item_type),
+            format!("{:?}", item.item_type),
+        );
+        diff(
+            "quality",
+            format!("{:?}", old.quality),
+            format!("{:?}", item.quality),
+        );
+        diff("unique", old.unique.to_string(), item.unique.to_string());
+        diff("boe", old.boe.to_string(), item.boe.to_string());
+        diff("req_lvl", old.req_lvl.to_string(), item.req_lvl.to_string());
+        diff(
+            "item_lvl",
+            old.item_lvl.to_string(),
+            item.item_lvl.to_string(),
+        );
+        let classes = |classes: &[PlayerClass]| {
+            let mut names: Vec<&str> = classes.iter().map(|class| class.name()).collect();
+            names.sort_unstable();
+            format!("{names:?}")
+        };
+        diff(
+            "classes",
+            classes(&old.class_restrictions),
+            classes(&item.class_restrictions),
+        );
+        // Shields and held off-hands carry placeholder damage in both.
+        if !matches!(item.item_type, ItemType::Shield | ItemType::CasterOffhand) {
+            let damage = |d: Option<WeaponDamageSpec>| {
+                d.map_or("none".to_owned(), |d| {
+                    format!("{}-{} / {}", d.min, d.max, number(d.speed))
+                })
+            };
+            diff("damage", damage(old.damage), damage(item.damage));
+        }
+        let new_stats = comparable_stats(&item.stats);
+        let keys: BTreeSet<ItemStat> = old.stats.keys().chain(new_stats.keys()).copied().collect();
+        for stat in keys {
+            let value = |stats: &BTreeMap<ItemStat, f64>| {
+                stats.get(&stat).map_or("-".to_owned(), |&v| number(v))
+            };
+            diff(
+                &format!("stat {}", stat_name(stat)),
+                value(&old.stats),
+                value(&new_stats),
+            );
+        }
+    }
+    lines
 }

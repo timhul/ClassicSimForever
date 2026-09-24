@@ -1,0 +1,583 @@
+# Reviewed differences between the exported items and their hand-authored Classic version
+# (tests/fixtures/classic_items.yaml), from `csim-tables compare-items --legacy <snapshot>`.
+# They are Forever changes (re-tuned PvP gear, unified spell/melee hit and crit ratings, caster
+# weapons at full DPS, slot, speed, level and flag changes) or Classic typos. A change to the
+# item formulas shows up as a difference to this list (tests/shipped.rs).
+9517 Celestial Stave: req_lvl: 35 -> 0
+9517 Celestial Stave: stat SPELL_DAMAGE: 22 -> -
+12639 Stronghold Gauntlets: boe: false -> true
+12639 Stronghold Gauntlets: stat STAMINA: 12 -> 18
+12783 Heartseeker: unique: false -> true
+12783 Heartseeker: damage: 49-92 / 1.7 -> 55-102 / 1.9
+12783 Heartseeker: stat AGILITY: - -> 4
+12783 Heartseeker: stat STRENGTH: 4 -> -
+14139 Mooncloth Shoulders: stat INTELLECT: 17 -> -
+14139 Mooncloth Shoulders: stat SPELL_DAMAGE: - -> 13
+14139 Mooncloth Shoulders: stat HEALING_POWER: - -> 37
+14140 Mooncloth Circlet: stat INTELLECT: 23 -> -
+14140 Mooncloth Circlet: stat SPELL_DAMAGE: - -> 17
+14140 Mooncloth Circlet: stat HEALING_POWER: - -> 51
+14146 Gloves of Spell Mastery: stat SPIRIT: 8 -> -
+14146 Gloves of Spell Mastery: stat CRIT_CHANCE: - -> 0.02
+14146 Gloves of Spell Mastery: stat SPELL_DAMAGE: - -> 9
+14146 Gloves of Spell Mastery: stat SPELL_CRIT_CHANCE: 0.02 -> -
+14152 Robe of the Archmage: stat CRIT_CHANCE: - -> 0.01
+14152 Robe of the Archmage: stat SPELL_CRIT_CHANCE: 0.01 -> -
+14153 Robe of the Void: stat INTELLECT: - -> 9
+14153 Robe of the Void: stat STAMINA: 14 -> 10
+15138 Onyxia Scale Cloak: req_lvl: 58 -> 55
+15138 Onyxia Scale Cloak: item_lvl: 63 -> 60
+15138 Onyxia Scale Cloak: stat ARMOR: - -> 43
+16007 Flawless Arcanite Rifle: stat STAMINA: - -> 9
+16007 Flawless Arcanite Rifle: stat GUN_SKILL: 4 -> -
+16437 Marshal's Silk Footwraps: unique: false -> true
+16437 Marshal's Silk Footwraps: stat HIT_CHANCE: - -> 0.01
+16437 Marshal's Silk Footwraps: stat SPELL_HIT_CHANCE: 0.01 -> -
+16440 Marshal's Silk Gloves: name: Marshal's Silk Handguards -> Marshal's Silk Gloves
+16440 Marshal's Silk Gloves: unique: false -> true
+16441 Field Marshal's Coronet: unique: false -> true
+16441 Field Marshal's Coronet: stat CRIT_CHANCE: - -> 0.01
+16441 Field Marshal's Coronet: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16442 Marshal's Silk Leggings: unique: false -> true
+16442 Marshal's Silk Leggings: stat CRIT_CHANCE: - -> 0.01
+16442 Marshal's Silk Leggings: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16443 Field Marshal's Silk Vestments: unique: false -> true
+16443 Field Marshal's Silk Vestments: stat CRIT_CHANCE: - -> 0.01
+16443 Field Marshal's Silk Vestments: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16444 Field Marshal's Silk Spaulders: unique: false -> true
+16444 Field Marshal's Silk Spaulders: stat SPELL_PENETRATION: 10 -> 3
+16473 Field Marshal's Lamellar Chestplate: name: Field Marshal's Lamellar Breastplate -> Field Marshal's Lamellar Chestplate
+16474 Field Marshal's Lamellar Faceguard: name: Field Marshal's Lamellar Headguard -> Field Marshal's Lamellar Faceguard
+16476 Field Marshal's Lamellar Pauldrons: name: Field Marshal's Lamellar Shoulders -> Field Marshal's Lamellar Pauldrons
+16478 Field Marshal's Plate Helm: quality: Rare -> Epic
+16478 Field Marshal's Plate Helm: item_lvl: 71 -> 74
+16478 Field Marshal's Plate Helm: stat STAMINA: 24 -> 34
+16478 Field Marshal's Plate Helm: stat STRENGTH: 21 -> 28
+16478 Field Marshal's Plate Helm: stat ARMOR: 598 -> 719
+16483 Marshal's Plate Boots: stat STAMINA: 23 -> 24
+16486 First Sergeant's Silk Cuffs: unique: false -> true
+16533 Warlord's Silk Cowl: unique: false -> true
+16533 Warlord's Silk Cowl: stat CRIT_CHANCE: - -> 0.01
+16533 Warlord's Silk Cowl: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16534 General's Silk Trousers: unique: false -> true
+16534 General's Silk Trousers: stat CRIT_CHANCE: - -> 0.01
+16534 General's Silk Trousers: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16535 Warlord's Silk Raiment: name: Warlord's Silk Raiments -> Warlord's Silk Raiment
+16535 Warlord's Silk Raiment: unique: false -> true
+16535 Warlord's Silk Raiment: stat CRIT_CHANCE: - -> 0.01
+16535 Warlord's Silk Raiment: stat SPELL_CRIT_CHANCE: 0.01 -> -
+16536 Warlord's Silk Amice: unique: false -> true
+16536 Warlord's Silk Amice: stat SPELL_PENETRATION: 10 -> 3
+16539 General's Silk Boots: unique: false -> true
+16539 General's Silk Boots: stat HIT_CHANCE: - -> 0.01
+16539 General's Silk Boots: stat SPELL_HIT_CHANCE: 0.01 -> -
+16540 General's Silk Handguards: unique: false -> true
+16545 General's Plate Boots: stat STAMINA: 23 -> 24
+16569 General's Chain Sabatons: name: General's Chain Boots -> General's Chain Sabatons
+16984 Black Dragonscale Boots: boe: false -> true
+16996 Gorewood Bow: req_lvl: 56 -> 0
+16997 Stormrager: req_lvl: 56 -> 0
+16997 Stormrager: stat INTELLECT: 5 -> 7
+16997 Stormrager: stat STAMINA: 8 -> 11
+17015 Dark Iron Reaver: slot: Mainhand -> OneHand
+17015 Dark Iron Reaver: stat STAMINA: - -> 10
+17015 Dark Iron Reaver: stat STRENGTH: 10 -> -
+17016 Dark Iron Destroyer: slot: Mainhand -> OneHand
+17182 Sulfuras, Hand of Ragnaros: unique: false -> true
+17193 Sulfuron Hammer: damage: 176-295 / 3.7 -> 188-283 / 3.7
+17223 Thunderstrike: req_lvl: 60 -> 58
+18399 Ocean's Breeze: unique: true -> false
+18399 Ocean's Breeze: req_lvl: 60 -> 0
+18403 Dragonslayer's Signet: unique: true -> false
+18403 Dragonslayer's Signet: req_lvl: 60 -> 0
+18403 Dragonslayer's Signet: item_lvl: 74 -> 65
+18403 Dragonslayer's Signet: stat INTELLECT: 12 -> 11
+18403 Dragonslayer's Signet: stat SPIRIT: 6 -> -
+18403 Dragonslayer's Signet: stat STAMINA: 12 -> 11
+18403 Dragonslayer's Signet: stat FIRE_RESISTANCE: 10 -> 6
+18403 Dragonslayer's Signet: stat CRIT_CHANCE: - -> 0.01
+18403 Dragonslayer's Signet: stat SPELL_DAMAGE: - -> 7
+18403 Dragonslayer's Signet: stat SPELL_CRIT_CHANCE: 0.01 -> -
+18404 Onyxia Tooth Pendant: req_lvl: 60 -> 0
+18404 Onyxia Tooth Pendant: item_lvl: 77 -> 65
+18404 Onyxia Tooth Pendant: stat AGILITY: 12 -> 7
+18404 Onyxia Tooth Pendant: stat STAMINA: 9 -> 8
+18405 Belt of the Archmage: stat INTELLECT: 25 -> 16
+18405 Belt of the Archmage: stat CRIT_CHANCE: - -> 0.01
+18405 Belt of the Archmage: stat SPELL_DAMAGE: - -> 20
+18405 Belt of the Archmage: stat SPELL_CRIT_CHANCE: 0.01 -> -
+18409 Mooncloth Gloves: stat SPIRIT: 15 -> -
+18409 Mooncloth Gloves: stat SPELL_DAMAGE: - -> 11
+18409 Mooncloth Gloves: stat HEALING_POWER: - -> 33
+18456 Sergeant Major's Silk Cuffs: unique: false -> true
+18486 Mooncloth Robe: stat SPIRIT: 12 -> -
+18486 Mooncloth Robe: stat SPELL_DAMAGE: - -> 9
+18486 Mooncloth Robe: stat HEALING_POWER: - -> 26
+18509 Chromatic Cloak: stat ARMOR: - -> 48
+18509 Chromatic Cloak: stat FIRE_RESISTANCE: 9 -> 12
+18509 Chromatic Cloak: stat SHADOW_RESISTANCE: 9 -> 12
+18509 Chromatic Cloak: stat CRIT_CHANCE: - -> 0.01
+18509 Chromatic Cloak: stat SPELL_CRIT_CHANCE: 0.01 -> -
+18543 Ring of Entropy: unique: true -> false
+18543 Ring of Entropy: stat CRIT_CHANCE: - -> 0.01
+18543 Ring of Entropy: stat SPELL_CRIT_CHANCE: 0.01 -> -
+18847 Grand Marshal's Left Hand Blade: name: Grand Marshal's Razor Hand Blade -> Grand Marshal's Left Hand Blade
+18848 High Warlord's Left Claw: name: High Warlord's Razor Claw -> High Warlord's Left Claw
+18873 Grand Marshal's Stave: damage: 131-225 / 3 -> 152-229 / 3
+18874 High Warlord's War Staff: damage: 131-225 / 3 -> 185-279 / 3
+18874 High Warlord's War Staff: stat SPELL_DAMAGE: 71 -> -
+19019 Thunderfury, Blessed Blade of the Windseeker: classes: ["Hunter", "Paladin", "Rogue", "Warrior"] -> []
+19019 Thunderfury, Blessed Blade of the Windseeker: damage: 44-115 / 1.9 -> 65-122 / 1.9
+19050 Mantle of the Timbermaw: req_lvl: 59 -> 56
+19050 Mantle of the Timbermaw: item_lvl: 64 -> 61
+19050 Mantle of the Timbermaw: stat INTELLECT: 21 -> 13
+19050 Mantle of the Timbermaw: stat ARMOR: 68 -> 65
+19050 Mantle of the Timbermaw: stat CRIT_CHANCE: - -> 0.01
+19050 Mantle of the Timbermaw: stat MANA_PER_5: 6 -> -
+19050 Mantle of the Timbermaw: stat SPELL_DAMAGE: - -> 17
+19059 Argent Shoulders: req_lvl: 59 -> 56
+19059 Argent Shoulders: item_lvl: 64 -> 61
+19059 Argent Shoulders: stat SPIRIT: 8 -> 7
+19059 Argent Shoulders: stat STAMINA: 23 -> -
+19059 Argent Shoulders: stat ARMOR: 68 -> 65
+19059 Argent Shoulders: stat SPELL_DAMAGE: - -> 25
+19101 Whiteout Staff: unique: false -> true
+19101 Whiteout Staff: stat SPELL_DAMAGE: 15 -> -
+19102 Crackling Staff: unique: false -> true
+19102 Crackling Staff: stat INTELLECT: 16 -> 25
+19102 Crackling Staff: stat STAMINA: 25 -> -
+19102 Crackling Staff: stat SPELL_DAMAGE: 15 -> 25
+19106 Ice Barbed Spear: req_lvl: 51 -> 0
+19107 Bloodseeker: req_lvl: 51 -> 0
+19108 Wand of Biting Cold: req_lvl: 51 -> 0
+19108 Wand of Biting Cold: stat SPELL_DAMAGE_FROST: 16 -> 22
+19148 Dark Iron Helm: boe: false -> true
+19156 Flarecore Robe: name: Flarecore Robes -> Flarecore Robe
+19157 Chromatic Gauntlets: stat SPELL_CRIT_CHANCE: 0.01 -> -
+19163 Molten Belt: boe: false -> true
+19168 Blackguard: stat STAMINA: 9 -> 12
+19315 Therazane's Touch: stat SPELL_DAMAGE: 33 -> 31
+19323 The Unstoppable Force: unique: false -> true
+19323 The Unstoppable Force: damage: 175-292 / 3.8 -> 166-277 / 3.6
+19379 Neltharion's Tear: stat HIT_CHANCE: - -> 0.02
+19379 Neltharion's Tear: stat SPELL_HIT_CHANCE: 0.02 -> -
+19384 Master Dragonslayer's Ring: item_lvl: 78 -> 83
+19403 Band of Forced Concentration: stat HIT_CHANCE: - -> 0.01
+19403 Band of Forced Concentration: stat SPELL_HIT_CHANCE: 0.01 -> -
+19534 Scout's Medallion: unique: false -> true
+19538 Sentinel's Medallion: unique: false -> true
+19571 Lorekeeper's Staff: req_lvl: 58 -> 48
+19571 Lorekeeper's Staff: item_lvl: 63 -> 53
+19571 Lorekeeper's Staff: damage: 125-188 / 2.9 -> 106-160 / 2.9
+19571 Lorekeeper's Staff: stat INTELLECT: 13 -> 11
+19571 Lorekeeper's Staff: stat STAMINA: 21 -> 18
+19571 Lorekeeper's Staff: stat MANA_PER_5: 8 -> 7
+19578 Berserker Bracers: unique: false -> true
+19600 Pebble of Kajaro: unique: false -> true
+19600 Pebble of Kajaro: req_lvl: 60 -> 0
+19601 Jewel of Kajaro: unique: false -> true
+19601 Jewel of Kajaro: req_lvl: 60 -> 0
+19617 Zandalarian Shadow Mastery Talisman: req_lvl: 60 -> 0
+19621 Maelstrom's Wrath: req_lvl: 60 -> 0
+19682 Bloodvine Vest: stat HIT_CHANCE: - -> 0.02
+19682 Bloodvine Vest: stat SPELL_HIT_CHANCE: 0.02 -> -
+19683 Bloodvine Leggings: stat HIT_CHANCE: - -> 0.01
+19683 Bloodvine Leggings: stat SPELL_HIT_CHANCE: 0.01 -> -
+19684 Bloodvine Boots: stat HIT_CHANCE: - -> 0.01
+19684 Bloodvine Boots: stat SPELL_HIT_CHANCE: 0.01 -> -
+19690 Bloodsoul Breastplate: boe: false -> true
+19822 Zandalar Vindicator's Breastplate: req_lvl: 60 -> 0
+19823 Zandalar Vindicator's Belt: req_lvl: 58 -> 0
+19824 Zandalar Vindicator's Armguards: req_lvl: 60 -> 0
+19825 Zandalar Freethinker's Breastplate: req_lvl: 60 -> 0
+19831 Zandalar Predator's Mantle: req_lvl: 60 -> 0
+19832 Zandalar Predator's Belt: req_lvl: 60 -> 0
+19833 Zandalar Predator's Bracers: req_lvl: 60 -> 0
+19834 Zandalar Madcap's Tunic: req_lvl: 60 -> 0
+19835 Zandalar Madcap's Mantle: req_lvl: 60 -> 0
+19836 Zandalar Madcap's Bracers: boe: true -> false
+19836 Zandalar Madcap's Bracers: req_lvl: 58 -> 0
+19845 Zandalar Illusionist's Mantle: req_lvl: 60 -> 0
+19846 Zandalar Illusionist's Wraps: req_lvl: 60 -> 0
+19884 Jin'do's Judgement: damage: 144-227 / 3.3 -> 165-248 / 3.3
+19884 Jin'do's Judgement: stat HIT_CHANCE: - -> 0.02
+19884 Jin'do's Judgement: stat SPELL_DAMAGE: 27 -> -
+19884 Jin'do's Judgement: stat SPELL_HIT_CHANCE: 0.02 -> -
+19949 Zandalarian Hero Medallion: req_lvl: 60 -> 0
+19950 Zandalarian Hero Charm: req_lvl: 60 -> 0
+19999 Bloodvine Goggles: stat HIT_CHANCE: - -> 0.02
+19999 Bloodvine Goggles: stat CRIT_CHANCE: - -> 0.01
+19999 Bloodvine Goggles: stat SPELL_CRIT_CHANCE: 0.01 -> -
+19999 Bloodvine Goggles: stat SPELL_HIT_CHANCE: 0.02 -> -
+20034 Zandalar Illusionist's Robe: req_lvl: 60 -> 0
+20034 Zandalar Illusionist's Robe: stat HIT_CHANCE: - -> 0.01
+20034 Zandalar Illusionist's Robe: stat SPELL_HIT_CHANCE: 0.01 -> -
+20041 Highlander's Plate Girdle: classes: ["Paladin", "Warrior"] -> []
+20042 Highlander's Lamellar Girdle: classes: ["Paladin"] -> []
+20043 Highlander's Chain Girdle: classes: ["Hunter"] -> []
+20045 Highlander's Leather Girdle: quality: Epic -> Rare
+20045 Highlander's Leather Girdle: unique: false -> true
+20045 Highlander's Leather Girdle: req_lvl: 60 -> 58
+20045 Highlander's Leather Girdle: classes: ["Druid", "Rogue"] -> []
+20047 Highlander's Cloth Girdle: classes: ["Mage", "Priest", "Warlock"] -> []
+20047 Highlander's Cloth Girdle: stat CRIT_CHANCE: - -> 0.01
+20047 Highlander's Cloth Girdle: stat SPELL_CRIT_CHANCE: 0.01 -> -
+20048 Highlander's Plate Greaves: classes: ["Paladin", "Warrior"] -> []
+20049 Highlander's Lamellar Greaves: classes: ["Paladin"] -> []
+20052 Highlander's Leather Boots: unique: false -> true
+20052 Highlander's Leather Boots: classes: ["Druid", "Rogue"] -> []
+20054 Highlander's Cloth Boots: unique: false -> true
+20054 Highlander's Cloth Boots: classes: ["Mage", "Priest", "Warlock"] -> []
+20055 Highlander's Chain Pauldrons: classes: ["Hunter"] -> []
+20057 Highlander's Plate Spaulders: classes: ["Paladin", "Warrior"] -> []
+20058 Highlander's Lamellar Spaulders: classes: ["Paladin"] -> []
+20059 Highlander's Leather Shoulders: classes: ["Druid", "Rogue"] -> []
+20061 Highlander's Epaulets: unique: false -> true
+20061 Highlander's Epaulets: classes: ["Mage", "Priest", "Warlock"] -> []
+20069 Ironbark Staff: damage: 137-243 / 3.4 -> 167-251 / 3.4
+20069 Ironbark Staff: stat CRIT_CHANCE: - -> 0.02
+20069 Ironbark Staff: stat SPELL_DAMAGE: 41 -> -
+20069 Ironbark Staff: stat SPELL_CRIT_CHANCE: 0.02 -> -
+20150 Defiler's Chain Girdle: classes: ["Hunter", "Shaman"] -> []
+20154 Defiler's Chain Greaves: classes: ["Hunter", "Shaman"] -> []
+20158 Defiler's Chain Pauldrons: classes: ["Hunter", "Shaman"] -> []
+20159 Defiler's Cloth Boots: unique: false -> true
+20159 Defiler's Cloth Boots: classes: ["Mage", "Priest", "Warlock"] -> []
+20163 Defiler's Cloth Girdle: classes: ["Mage", "Priest", "Warlock"] -> []
+20163 Defiler's Cloth Girdle: stat CRIT_CHANCE: - -> 0.01
+20163 Defiler's Cloth Girdle: stat SPELL_CRIT_CHANCE: 0.01 -> -
+20176 Defiler's Epaulets: unique: false -> true
+20176 Defiler's Epaulets: classes: ["Mage", "Priest", "Warlock"] -> []
+20186 Defiler's Leather Boots: unique: false -> true
+20186 Defiler's Leather Boots: classes: ["Druid", "Rogue"] -> []
+20190 Defiler's Leather Girdle: quality: Epic -> Rare
+20190 Defiler's Leather Girdle: unique: false -> true
+20190 Defiler's Leather Girdle: req_lvl: 60 -> 58
+20190 Defiler's Leather Girdle: classes: ["Druid", "Rogue"] -> []
+20194 Defiler's Leather Shoulders: classes: ["Druid", "Rogue"] -> []
+20204 Defiler's Plate Girdle: classes: ["Warrior"] -> []
+20208 Defiler's Plate Greaves: classes: ["Warrior"] -> []
+20212 Defiler's Plate Spaulders: classes: ["Warrior"] -> []
+20213 Belt of Shrunken Heads: req_lvl: 60 -> 0
+20214 Mindfang: slot: OneHand -> Mainhand
+20214 Mindfang: damage: 49-95 / 1.7 -> 56-105 / 1.7
+20214 Mindfang: stat ARMOR: 35 -> 40
+20214 Mindfang: stat CRIT_CHANCE: - -> 0.01
+20214 Mindfang: stat SPELL_DAMAGE: 30 -> -
+20214 Mindfang: stat SPELL_CRIT_CHANCE: 0.01 -> -
+20216 Belt of Preserved Heads: req_lvl: 60 -> 0
+20217 Belt of Tiny Heads: req_lvl: 58 -> 0
+20537 Runed Stygian Boots: stat MANA_PER_5: 5 -> -
+20537 Runed Stygian Boots: stat SPELL_DAMAGE_SHADOW: - -> 14
+20538 Runed Stygian Leggings: stat MANA_PER_5: 6 -> -
+20538 Runed Stygian Leggings: stat SPELL_DAMAGE_SHADOW: - -> 20
+20539 Runed Stygian Belt: stat MANA_PER_5: 3 -> -
+20539 Runed Stygian Belt: stat SPELL_DAMAGE_SHADOW: - -> 11
+20551 Darkrune Helm: boe: false -> true
+20551 Darkrune Helm: stat ARMOR: 584 -> 534
+20632 Mindtear Band: stat CRIT_CHANCE: - -> 0.01
+20632 Mindtear Band: stat SPELL_CRIT_CHANCE: 0.01 -> -
+20705 Cenarion Reservist's Pants: req_lvl: 58 -> 0
+20705 Cenarion Reservist's Pants: classes: ["Mage", "Warlock"] -> []
+20716 Sandworm Skin Gloves: req_lvl: 60 -> 0
+20716 Sandworm Skin Gloves: classes: ["Mage", "Warlock"] -> []
+21126 Death's Sting: damage: 95-144 / 1.8 -> 83-156 / 1.8
+21134 Dark Edge of Insanity: unique: false -> true
+21178 Gloves of Earthen Power: req_lvl: 54 -> 0
+21180 Earthstrike: req_lvl: 60 -> 0
+21182 Band of Earthen Might: req_lvl: 60 -> 0
+21183 Earthpower Vest: req_lvl: 60 -> 0
+21183 Earthpower Vest: stat CRIT_CHANCE: - -> 0.01
+21183 Earthpower Vest: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21184 Deeprock Bracers: req_lvl: 60 -> 0
+21186 Rockfury Bracers: req_lvl: 60 -> 0
+21186 Rockfury Bracers: stat HIT_CHANCE: - -> 0.01
+21186 Rockfury Bracers: stat SPELL_HIT_CHANCE: 0.01 -> -
+21188 Fist of Cenarius: stat CRIT_CHANCE: - -> 0.02
+21188 Fist of Cenarius: stat SPELL_CRIT_CHANCE: 0.02 -> -
+21189 Might of Cenarius: req_lvl: 60 -> 0
+21242 Blessed Qiraji War Axe: unique: true -> false
+21268 Blessed Qiraji War Hammer: stat FERAL_ATTACK_POWER: 280 -> -
+21272 Blessed Qiraji Musket: unique: false -> true
+21273 Blessed Qiraji Acolyte Staff: damage: 132-227 / 3 -> 189-284 / 3
+21273 Blessed Qiraji Acolyte Staff: stat HIT_CHANCE: - -> 0.02
+21273 Blessed Qiraji Acolyte Staff: stat CRIT_CHANCE: - -> 0.01
+21273 Blessed Qiraji Acolyte Staff: stat SPELL_DAMAGE: 76 -> -
+21273 Blessed Qiraji Acolyte Staff: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21273 Blessed Qiraji Acolyte Staff: stat SPELL_HIT_CHANCE: 0.02 -> -
+21335 Doomcaller's Mantle: stat HIT_CHANCE: - -> 0.01
+21335 Doomcaller's Mantle: stat SPELL_HIT_CHANCE: 0.01 -> -
+21335 Doomcaller's Mantle: stat SPELL_PENETRATION: 10 -> 3
+21337 Doomcaller's Circlet: stat HIT_CHANCE: - -> 0.01
+21337 Doomcaller's Circlet: stat CRIT_CHANCE: - -> 0.01
+21337 Doomcaller's Circlet: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21337 Doomcaller's Circlet: stat SPELL_HIT_CHANCE: 0.01 -> -
+21343 Enigma Robes: stat CRIT_CHANCE: - -> 0.01
+21343 Enigma Robes: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21343 Enigma Robes: stat SPELL_PENETRATION: 20 -> 5
+21344 Enigma Boots: stat HIT_CHANCE: - -> 0.01
+21344 Enigma Boots: stat SPELL_HIT_CHANCE: 0.01 -> -
+21345 Enigma Shoulderpads: stat SPELL_PENETRATION: 10 -> 3
+21346 Enigma Leggings: stat CRIT_CHANCE: - -> 0.01
+21346 Enigma Leggings: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21347 Enigma Circlet: stat HIT_CHANCE: - -> 0.01
+21347 Enigma Circlet: stat CRIT_CHANCE: - -> 0.01
+21347 Enigma Circlet: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21347 Enigma Circlet: stat SPELL_HIT_CHANCE: 0.01 -> -
+21389 Avenger's Breastplate: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21404 Dagger of Veiled Shadows: unique: false -> true
+21413 Blade of Vaulted Secrets: unique: false -> true
+21413 Blade of Vaulted Secrets: damage: 60-131 / 2.3 -> 74-139 / 2.3
+21413 Blade of Vaulted Secrets: stat HIT_CHANCE: - -> 0.01
+21413 Blade of Vaulted Secrets: stat SPELL_DAMAGE: 40 -> -
+21413 Blade of Vaulted Secrets: stat SPELL_HIT_CHANCE: 0.01 -> -
+21417 Ring of Unspoken Names: stat HIT_CHANCE: - -> 0.01
+21417 Ring of Unspoken Names: stat CRIT_CHANCE: - -> 0.01
+21417 Ring of Unspoken Names: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21417 Ring of Unspoken Names: stat SPELL_HIT_CHANCE: 0.01 -> -
+21483 Ring of the Desert Winds: stat CRIT_CHANCE: - -> 0.01
+21483 Ring of the Desert Winds: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21521 Runesword of the Red: damage: 53-129 / 2.2 -> 88-164 / 2.2
+21521 Runesword of the Red: stat SPELL_DAMAGE: 64 -> -
+21565 Rune of Perfection: unique: true -> false
+21565 Rune of Perfection: classes: ["Druid", "Mage", "Priest", "Shaman", "Warlock"] -> []
+21565 Rune of Perfection: stat STAMINA: 7 -> 8
+21565 Rune of Perfection: stat SPELL_PENETRATION: 20 -> -
+21585 Dark Storm Gauntlets: name: Darkstorm Gauntlets -> Dark Storm Gauntlets
+21585 Dark Storm Gauntlets: stat HIT_CHANCE: - -> 0.01
+21585 Dark Storm Gauntlets: stat SPELL_HIT_CHANCE: 0.01 -> -
+21597 Royal Scepter of Vek'lor: stat HIT_CHANCE: - -> 0.01
+21597 Royal Scepter of Vek'lor: stat CRIT_CHANCE: - -> 0.01
+21597 Royal Scepter of Vek'lor: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21597 Royal Scepter of Vek'lor: stat SPELL_HIT_CHANCE: 0.01 -> -
+21608 Amulet of Vek'nilash: stat CRIT_CHANCE: - -> 0.01
+21608 Amulet of Vek'nilash: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21618 Hive Defiler Wristguards: name: Hive Defiler's Wristguards -> Hive Defiler Wristguards
+21622 Sharpened Silithid Femur: damage: 54-137 / 2.3 -> 95-178 / 2.3
+21622 Sharpened Silithid Femur: stat CRIT_CHANCE: - -> 0.01
+21622 Sharpened Silithid Femur: stat SPELL_DAMAGE: 72 -> -
+21622 Sharpened Silithid Femur: stat SPELL_CRIT_CHANCE: 0.01 -> -
+21623 Gauntlets of the Righteous Champion: stat SPIRIT: - -> 10
+21707 Ring of Swarming Thought: stat SPELL_PENETRATION: 20 -> 5
+21709 Ring of the Fallen God: stat HIT_CHANCE: - -> 0.01
+21709 Ring of the Fallen God: stat SPELL_HIT_CHANCE: 0.01 -> -
+21836 Ritssyn's Ring of Chaos: stat CRIT_CHANCE: - -> 0.01
+21836 Ritssyn's Ring of Chaos: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22002 Darkmantle Belt: req_lvl: 60 -> 0
+22002 Darkmantle Belt: classes: ["Rogue"] -> []
+22003 Darkmantle Boots: req_lvl: 60 -> 0
+22003 Darkmantle Boots: item_lvl: 65 -> 60
+22003 Darkmantle Boots: classes: ["Rogue"] -> []
+22004 Darkmantle Bracers: req_lvl: 60 -> 0
+22004 Darkmantle Bracers: classes: ["Rogue"] -> []
+22005 Darkmantle Cap: req_lvl: 60 -> 0
+22005 Darkmantle Cap: item_lvl: 65 -> 60
+22005 Darkmantle Cap: classes: ["Rogue"] -> []
+22006 Darkmantle Gloves: req_lvl: 60 -> 0
+22006 Darkmantle Gloves: item_lvl: 65 -> 55
+22006 Darkmantle Gloves: classes: ["Rogue"] -> []
+22007 Darkmantle Pants: req_lvl: 60 -> 0
+22007 Darkmantle Pants: classes: ["Rogue"] -> []
+22008 Darkmantle Spaulders: req_lvl: 60 -> 0
+22008 Darkmantle Spaulders: classes: ["Rogue"] -> []
+22009 Darkmantle Tunic: req_lvl: 60 -> 0
+22009 Darkmantle Tunic: classes: ["Rogue"] -> []
+22010 Beastmaster's Belt: req_lvl: 60 -> 0
+22011 Beastmaster's Bindings: req_lvl: 58 -> 0
+22013 Beastmaster's Cap: req_lvl: 60 -> 0
+22015 Beastmaster's Gloves: req_lvl: 60 -> 0
+22016 Beastmaster's Mantle: req_lvl: 60 -> 0
+22017 Beastmaster's Pants: req_lvl: 60 -> 0
+22060 Beastmaster's Tunic: req_lvl: 60 -> 0
+22061 Beastmaster's Boots: req_lvl: 60 -> 0
+22062 Sorcerer's Belt: req_lvl: 60 -> 0
+22062 Sorcerer's Belt: classes: ["Mage"] -> []
+22063 Sorcerer's Bindings: req_lvl: 58 -> 0
+22063 Sorcerer's Bindings: classes: ["Mage"] -> []
+22064 Sorcerer's Boots: req_lvl: 58 -> 0
+22064 Sorcerer's Boots: classes: ["Mage"] -> []
+22065 Sorcerer's Crown: req_lvl: 58 -> 0
+22065 Sorcerer's Crown: classes: ["Mage"] -> []
+22065 Sorcerer's Crown: stat CRIT_CHANCE: - -> 0.01
+22065 Sorcerer's Crown: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22066 Sorcerer's Gloves: req_lvl: 58 -> 0
+22066 Sorcerer's Gloves: classes: ["Mage"] -> []
+22066 Sorcerer's Gloves: stat HIT_CHANCE: - -> 0.01
+22066 Sorcerer's Gloves: stat SPELL_HIT_CHANCE: 0.01 -> -
+22067 Sorcerer's Leggings: req_lvl: 58 -> 0
+22067 Sorcerer's Leggings: classes: ["Mage"] -> []
+22068 Sorcerer's Mantle: req_lvl: 60 -> 0
+22068 Sorcerer's Mantle: classes: ["Mage"] -> []
+22069 Sorcerer's Robes: req_lvl: 58 -> 0
+22069 Sorcerer's Robes: classes: ["Mage"] -> []
+22069 Sorcerer's Robes: stat SPELL_PENETRATION: 20 -> 5
+22070 Deathmist Belt: req_lvl: 60 -> 0
+22070 Deathmist Belt: classes: ["Warlock"] -> []
+22071 Deathmist Bracers: req_lvl: 58 -> 0
+22071 Deathmist Bracers: classes: ["Warlock"] -> []
+22079 Virtuous Bracers: req_lvl: 58 -> 0
+22079 Virtuous Bracers: classes: ["Priest"] -> []
+22149 Beads of Ogre Mojo: req_lvl: 60 -> 0
+22150 Beads of Ogre Might: req_lvl: 60 -> 0
+22378 Ravenholdt Slicer: unique: true -> false
+22378 Ravenholdt Slicer: req_lvl: 60 -> 0
+22379 Shivsprocket's Shiv: req_lvl: 60 -> 0
+22379 Shivsprocket's Shiv: damage: 42-82 / 1.5 -> 44-84 / 1.5
+22379 Shivsprocket's Shiv: stat SPELL_DAMAGE: 13 -> -
+22383 Sageblade: req_lvl: 60 -> 59
+22383 Sageblade: damage: 49-100 / 1.8 -> 58-109 / 1.8
+22383 Sageblade: stat HIT_CHANCE: - -> 0.01
+22383 Sageblade: stat SPELL_DAMAGE: 20 -> -
+22383 Sageblade: stat SPELL_PENETRATION: 10 -> -
+22384 Persuader: slot: Mainhand -> OneHand
+22384 Persuader: unique: false -> true
+22384 Persuader: damage: 86-161 / 2.7 -> 89-167 / 2.8
+22418 Dreadnaught Helmet: classes: ["Warrior"] -> []
+22436 Cryptstalker Tunic: name: Crypstalker Tunic -> Cryptstalker Tunic
+22436 Cryptstalker Tunic: classes: ["Hunter"] -> []
+22437 Cryptstalker Legguards: name: Crypstalker Legguards -> Cryptstalker Legguards
+22437 Cryptstalker Legguards: classes: ["Hunter"] -> []
+22438 Cryptstalker Headpiece: name: Crypstalker Headpiece -> Cryptstalker Headpiece
+22438 Cryptstalker Headpiece: classes: ["Hunter"] -> []
+22439 Cryptstalker Spaulders: name: Crypstalker Spaulders -> Cryptstalker Spaulders
+22439 Cryptstalker Spaulders: classes: ["Hunter"] -> []
+22440 Cryptstalker Boots: name: Crypstalker Boots -> Cryptstalker Boots
+22440 Cryptstalker Boots: classes: ["Hunter"] -> []
+22441 Cryptstalker Handguards: name: Crypstalker Handguards -> Cryptstalker Handguards
+22441 Cryptstalker Handguards: classes: ["Hunter"] -> []
+22442 Cryptstalker Girdle: name: Crypstalker Girdle -> Cryptstalker Girdle
+22442 Cryptstalker Girdle: classes: ["Hunter"] -> []
+22443 Cryptstalker Wristguards: name: Crypstalker Wristguards -> Cryptstalker Wristguards
+22443 Cryptstalker Wristguards: classes: ["Hunter"] -> []
+22476 Bonescythe Breastplate: classes: ["Rogue"] -> []
+22477 Bonescythe Legplates: classes: ["Rogue"] -> []
+22478 Bonescythe Helmet: classes: ["Rogue"] -> []
+22479 Bonescythe Pauldrons: classes: ["Rogue"] -> []
+22480 Bonescythe Sabatons: classes: ["Rogue"] -> []
+22481 Bonescythe Gauntlets: classes: ["Rogue"] -> []
+22482 Bonescythe Waistguard: classes: ["Rogue"] -> []
+22483 Bonescythe Bracers: classes: ["Rogue"] -> []
+22496 Frostfire Robe: classes: ["Mage"] -> []
+22496 Frostfire Robe: stat HIT_CHANCE: - -> 0.01
+22496 Frostfire Robe: stat CRIT_CHANCE: - -> 0.01
+22496 Frostfire Robe: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22496 Frostfire Robe: stat SPELL_HIT_CHANCE: 0.01 -> -
+22496 Frostfire Robe: stat SPELL_PENETRATION: - -> 13
+22497 Frostfire Leggings: classes: ["Mage"] -> []
+22497 Frostfire Leggings: stat HIT_CHANCE: - -> 0.01
+22497 Frostfire Leggings: stat SPELL_HIT_CHANCE: 0.01 -> -
+22498 Frostfire Circlet: classes: ["Mage"] -> []
+22498 Frostfire Circlet: stat HIT_CHANCE: - -> 0.01
+22498 Frostfire Circlet: stat CRIT_CHANCE: - -> 0.02
+22498 Frostfire Circlet: stat SPELL_CRIT_CHANCE: 0.02 -> -
+22498 Frostfire Circlet: stat SPELL_HIT_CHANCE: 0.01 -> -
+22499 Frostfire Shoulderpads: classes: ["Mage"] -> []
+22500 Frostfire Sandals: classes: ["Mage"] -> []
+22500 Frostfire Sandals: stat CRIT_CHANCE: - -> 0.01
+22500 Frostfire Sandals: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22501 Frostfire Gloves: classes: ["Mage"] -> []
+22502 Frostfire Belt: classes: ["Mage"] -> []
+22502 Frostfire Belt: stat HIT_CHANCE: - -> 0.01
+22502 Frostfire Belt: stat SPELL_HIT_CHANCE: 0.01 -> -
+22503 Frostfire Bindings: classes: ["Mage"] -> []
+22503 Frostfire Bindings: stat SPELL_PENETRATION: 10 -> 3
+22504 Plagueheart Robe: classes: ["Warlock"] -> []
+22504 Plagueheart Robe: stat HIT_CHANCE: - -> 0.01
+22504 Plagueheart Robe: stat CRIT_CHANCE: - -> 0.01
+22504 Plagueheart Robe: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22504 Plagueheart Robe: stat SPELL_HIT_CHANCE: 0.01 -> -
+22505 Plagueheart Leggings: classes: ["Warlock"] -> []
+22505 Plagueheart Leggings: stat CRIT_CHANCE: - -> 0.01
+22505 Plagueheart Leggings: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22505 Plagueheart Leggings: stat SPELL_PENETRATION: 10 -> 3
+22506 Plagueheart Circlet: classes: ["Warlock"] -> []
+22506 Plagueheart Circlet: stat HIT_CHANCE: - -> 0.01
+22506 Plagueheart Circlet: stat CRIT_CHANCE: - -> 0.02
+22506 Plagueheart Circlet: stat SPELL_CRIT_CHANCE: 0.02 -> -
+22506 Plagueheart Circlet: stat SPELL_HIT_CHANCE: 0.01 -> -
+22507 Plagueheart Shoulderpads: classes: ["Warlock"] -> []
+22507 Plagueheart Shoulderpads: stat HIT_CHANCE: - -> 0.01
+22507 Plagueheart Shoulderpads: stat SPELL_HIT_CHANCE: 0.01 -> -
+22508 Plagueheart Sandals: classes: ["Warlock"] -> []
+22508 Plagueheart Sandals: stat CRIT_CHANCE: - -> 0.01
+22508 Plagueheart Sandals: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22509 Plagueheart Gloves: classes: ["Warlock"] -> []
+22509 Plagueheart Gloves: stat CRIT_CHANCE: - -> 0.01
+22509 Plagueheart Gloves: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22510 Plagueheart Belt: classes: ["Warlock"] -> []
+22510 Plagueheart Belt: stat CRIT_CHANCE: - -> 0.01
+22510 Plagueheart Belt: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22511 Plagueheart Bindings: classes: ["Warlock"] -> []
+22657 Amulet of the Dawn: req_lvl: 60 -> 0
+22659 Medallion of the Dawn: req_lvl: 60 -> 0
+22688 Verimonde's Last Resort: unique: false -> true
+22688 Verimonde's Last Resort: req_lvl: 60 -> 0
+22688 Verimonde's Last Resort: damage: 39-76 / 1.4 -> 42-79 / 1.4
+22688 Verimonde's Last Resort: stat SPELL_DAMAGE: 19 -> -
+22700 Glacial Leggings: req_lvl: 60 -> 0
+22747 Outrider's Silk Leggings: unique: false -> true
+22752 Sentinel's Silk Leggings: unique: false -> true
+22843 Blood Guard's Chain Greaves: req_lvl: 58 -> 60
+22860 Blood Guard's Silk Walkers: unique: false -> true
+22860 Blood Guard's Silk Walkers: stat HIT_CHANCE: - -> 0.01
+22860 Blood Guard's Silk Walkers: stat SPELL_HIT_CHANCE: 0.01 -> -
+22870 Blood Guard's Silk Handwraps: name: Blood Guard's Silk Handguards -> Blood Guard's Silk Handwraps
+22870 Blood Guard's Silk Handwraps: unique: false -> true
+22883 Legionnaire's Silk Legguards: unique: false -> true
+22883 Legionnaire's Silk Legguards: stat CRIT_CHANCE: - -> 0.01
+22883 Legionnaire's Silk Legguards: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22886 Legionnaire's Silk Tunic: unique: false -> true
+22886 Legionnaire's Silk Tunic: stat CRIT_CHANCE: - -> 0.01
+22886 Legionnaire's Silk Tunic: stat SPELL_CRIT_CHANCE: 0.01 -> -
+22968 Glacial Mantle: req_lvl: 60 -> 0
+23001 Eye of Diminution: name: Eye of Dimunition -> Eye of Diminution
+23001 Eye of Diminution: stat CRIT_CHANCE: - -> 0.02
+23001 Eye of Diminution: stat SPELL_CRIT_CHANCE: 0.02 -> -
+23025 Seal of the Damned: stat HIT_CHANCE: - -> 0.01
+23025 Seal of the Damned: stat CRIT_CHANCE: - -> 0.01
+23025 Seal of the Damned: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23025 Seal of the Damned: stat SPELL_HIT_CHANCE: 0.01 -> -
+23031 Band of the Inevitable: stat HIT_CHANCE: - -> 0.01
+23031 Band of the Inevitable: stat SPELL_HIT_CHANCE: 0.01 -> -
+23057 Gem of Trapped Innocents: stat CRIT_CHANCE: - -> 0.02
+23057 Gem of Trapped Innocents: stat SPELL_CRIT_CHANCE: 0.02 -> -
+23062 Frostfire Ring: stat CRIT_CHANCE: - -> 0.01
+23062 Frostfire Ring: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23067 Ring of the Cryptstalker: name: Ring of the Crypstalker -> Ring of the Cryptstalker
+23084 Gloves of Undead Cleansing: req_lvl: 50 -> 0
+23084 Gloves of Undead Cleansing: stat SPELL_DAMAGE: - -> 18
+23084 Gloves of Undead Cleansing: stat SPELL_DAMAGE_UNDEAD: 35 -> 18
+23197 Idol of the Moon: type: Relic -> Idol
+23197 Idol of the Moon: classes: ["Druid"] -> []
+23199 Totem of the Storm: type: Relic -> Totem
+23199 Totem of the Storm: classes: ["Shaman"] -> []
+23203 Libram of Fervor: type: Relic -> Libram
+23203 Libram of Fervor: classes: ["Paladin"] -> []
+23206 Mark of the Champion: req_lvl: 60 -> 0
+23207 Mark of the Champion: req_lvl: 60 -> 0
+23237 Ring of the Eternal Flame: stat CRIT_CHANCE: - -> 0.01
+23237 Ring of the Eternal Flame: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23263 Champion's Silk Cowl: unique: false -> true
+23263 Champion's Silk Cowl: stat CRIT_CHANCE: - -> 0.01
+23263 Champion's Silk Cowl: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23264 Champion's Silk Mantle: unique: false -> true
+23264 Champion's Silk Mantle: stat CRIT_CHANCE: - -> 0.01
+23264 Champion's Silk Mantle: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23275 Knight-Lieutenant's Lamellar Sabatons: name: Knight-Lieutenant's Lamellar Greaves -> Knight-Lieutenant's Lamellar Sabatons
+23290 Knight-Lieutenant's Silk Handwraps: name: Knight-Lieutenant's Silk Handguards -> Knight-Lieutenant's Silk Handwraps
+23290 Knight-Lieutenant's Silk Handwraps: unique: false -> true
+23291 Knight-Lieutenant's Silk Walkers: unique: false -> true
+23291 Knight-Lieutenant's Silk Walkers: stat HIT_CHANCE: - -> 0.01
+23291 Knight-Lieutenant's Silk Walkers: stat SPELL_HIT_CHANCE: 0.01 -> -
+23304 Knight-Captain's Silk Legguards: unique: false -> true
+23304 Knight-Captain's Silk Legguards: stat CRIT_CHANCE: - -> 0.01
+23304 Knight-Captain's Silk Legguards: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23305 Knight-Captain's Silk Tunic: unique: false -> true
+23305 Knight-Captain's Silk Tunic: stat CRIT_CHANCE: - -> 0.01
+23305 Knight-Captain's Silk Tunic: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23318 Lieutenant Commander's Silk Cowl: unique: false -> true
+23318 Lieutenant Commander's Silk Cowl: stat CRIT_CHANCE: - -> 0.01
+23318 Lieutenant Commander's Silk Cowl: stat SPELL_CRIT_CHANCE: 0.01 -> -
+23319 Lieutenant Commander's Silk Mantle: unique: false -> true
+23319 Lieutenant Commander's Silk Mantle: stat CRIT_CHANCE: - -> 0.01
+23319 Lieutenant Commander's Silk Mantle: stat SPELL_CRIT_CHANCE: 0.01 -> -
