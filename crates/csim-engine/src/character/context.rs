@@ -1,12 +1,16 @@
 use std::sync::Arc;
 
-use crate::buff::external::{ExternalBuffDb};
+use crate::buff::external::ExternalBuffDb;
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
-use crate::character_spells::{AddedSpell, BuffSlot, PartyAuraChange, SharedBuffs, SpellHandle};
+use crate::character_spells::{
+    AddedSpell, BuffSlot, EquipmentProcKey, PartyAuraChange, ProcGrantor, SharedBuffs, SpellHandle,
+};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
 use crate::effect::{Effect, EffectHost};
+use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
+use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::EquipmentSlot;
 use crate::proc::{ProcHost, ProcSource};
@@ -14,11 +18,12 @@ use crate::resource::ResourceType;
 use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
-use crate::spell::overrides::SimFlag;
+use crate::spell::overrides::{SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
 use crate::spell::record::{EquippedItems, SpellDb};
 use crate::spell::{
-    AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellStatus, SwingReport,
+    AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellSetup, SpellStatus,
+    SwingReport,
 };
 use crate::stance::Stance;
 use crate::statistics::{ClassStatistics, EngineStatistics, RotationExecutorStatistics};
@@ -52,7 +57,10 @@ fn base_rank(db: &SpellDb, id: u32) -> u32 {
     let mut hops = 0;
     const MAX_RANK_CHAIN: u32 = 32;
     while let Some(record) = db.get(current) {
-        assert!(hops < MAX_RANK_CHAIN, "Cycle in data - could not find base rank for id {id}");
+        assert!(
+            hops < MAX_RANK_CHAIN,
+            "Cycle in data - could not find base rank for id {id}"
+        );
         if record.supercedes == 0 {
             break;
         }
@@ -581,6 +589,130 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 procs.get_mut(id).spell_mut().reset_effect_values(ctx);
             });
         }
+    }
+
+    // ---------------------------------------------------------------- equipment procs
+
+    /// Equips `item_id` in `slot` and registers what it grants.
+    pub fn equip(
+        &mut self,
+        db: &SpellDb,
+        slot: EquipmentSlot,
+        item_id: u32,
+    ) -> Result<EquipChange, EquipError> {
+        let change = self.character.equipment.equip(slot, item_id)?;
+        self.sync_equipment_procs(db);
+        Ok(change)
+    }
+
+    /// Empties `slot` and disables what its item granted.
+    pub fn unequip(&mut self, db: &SpellDb, slot: EquipmentSlot) -> EquipChange {
+        let change = self.character.equipment.unequip(slot);
+        self.sync_equipment_procs(db);
+        change
+    }
+
+    /// Puts the permanent enchant `enchant` on the item in `slot` (`None` removes it) and
+    /// registers what it grants.
+    pub fn set_enchant(
+        &mut self,
+        db: &SpellDb,
+        slot: EquipmentSlot,
+        enchant: Option<EnchantName>,
+    ) -> Result<(), EnchantError> {
+        self.character.equipment.set_enchant(slot, enchant)?;
+        self.sync_equipment_procs(db);
+        Ok(())
+    }
+
+    /// Puts the temporary enchant `enchant` (sharpening stone, oil, Windfury Totem, ...) on the
+    /// item in `slot` (`None` removes it) and registers what it grants.
+    pub fn set_temp_enchant(
+        &mut self,
+        db: &SpellDb,
+        slot: EquipmentSlot,
+        enchant: Option<EnchantName>,
+    ) -> Result<(), EnchantError> {
+        self.character.equipment.set_temp_enchant(slot, enchant)?;
+        self.sync_equipment_procs(db);
+        Ok(())
+    }
+
+    /// Brings the procs of the equipped items and enchants in line with the equipment: every
+    /// proc whose [`crate::item::ItemProcSpec::spell`] names a record in `db` is registered (once per slot,
+    /// with the payloads it casts learned) and enabled, and the procs of an item or enchant
+    /// that is no longer worn are disabled. Procs without a spell are data the engine cannot
+    /// run yet and are skipped. Port of `Item::apply_proc` and the `EnchantProc` constructor /
+    /// destructor, which created and destroyed the procs with the equipment.
+    pub fn sync_equipment_procs(&mut self, db: &SpellDb) {
+        let granted = self.granted_equipment_procs();
+        let mut wanted = Vec::new();
+        for (key, spell, allowed) in granted {
+            if db.get(spell).is_none() {
+                continue;
+            }
+            for payload in payload_spells(db, spell) {
+                if db.get(payload).is_some() && !self.character.spells.has_game_id(payload) {
+                    self.learn(db, payload);
+                }
+            }
+            let setup = SpellSetup::from_db(db, spell).expect("the record is in the db");
+            let party = self.character.party();
+            let proc = self.character.spells.add_equipment_proc(
+                key,
+                setup,
+                db.overrides(),
+                &allowed,
+                party,
+                self.raid,
+            );
+            if let Some(proc) = proc {
+                wanted.push(proc);
+                self.enable_proc(proc);
+            }
+        }
+        let stale: Vec<ProcId> = self
+            .character
+            .spells
+            .equipment_procs()
+            .map(|(_, proc)| proc)
+            .filter(|proc| !wanted.contains(proc))
+            .collect();
+        for proc in stale {
+            self.disable_proc(proc);
+        }
+    }
+
+    /// The procs the equipped items and enchants grant: their key, the spell that implements
+    /// them and the sources the slot lets them react to.
+    fn granted_equipment_procs(&self) -> Vec<(EquipmentProcKey, u32, Vec<ProcSource>)> {
+        let equipment = self.character.equipment();
+        let items = equipment
+            .equipped_items()
+            .map(|(slot, item)| (slot, ProcGrantor::Item(item.id()), item.procs()));
+        let enchants = equipment
+            .active_enchants()
+            .into_iter()
+            .map(|(slot, spec)| (slot, ProcGrantor::Enchant(spec.name), spec.procs.as_slice()))
+            .collect::<Vec<_>>();
+        items
+            .chain(enchants)
+            .flat_map(|(slot, grantor, procs)| {
+                procs.iter().enumerate().filter_map(move |(index, spec)| {
+                    let allowed = if spec.sources.is_empty() {
+                        slot.default_proc_sources()
+                    } else {
+                        spec.sources.sources(slot)
+                    };
+                    let key = EquipmentProcKey {
+                        slot,
+                        grantor,
+                        index,
+                    };
+                    Some((key, spec.spell?, allowed))
+                })
+            })
+            .collect()
     }
 
     // ---------------------------------------------------------------- external buffs
@@ -1901,4 +2033,25 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
     fn is_melee_attacking(&self) -> bool {
         self.character.spells().is_melee_attacking()
     }
+}
+
+/// The spells the record of `spell` casts: its `EffectTriggerSpell`s and the spells its
+/// override scripts name (the server-side `DUMMY` payloads). They must be learned before a proc
+/// built from the record can trigger them.
+fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
+    let mut ids = db
+        .get(spell)
+        .map(|r| r.trigger_spells())
+        .unwrap_or_default();
+    for id in db
+        .overrides()
+        .get(spell)
+        .map(SpellOverride::referenced_spells)
+        .unwrap_or_default()
+    {
+        if id != spell && !ids.contains(&id) {
+            ids.push(id);
+        }
+    }
+    ids
 }
