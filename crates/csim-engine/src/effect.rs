@@ -538,11 +538,12 @@ impl Effect {
                 |s, v| s.increase_ranged_ap(v),
                 |s, v| s.decrease_ranged_ap(v),
             ),
-            A::ModAttackPowerPct => adjust(
+            A::ModAttackPowerPct => multiplier(
                 host.stats_mut(),
-                signed,
-                |s, v| s.add_ap_multiplier(v as i32),
-                |s, v| s.remove_ap_multiplier(v as i32),
+                apply,
+                rounded,
+                CharacterStats::add_ap_multiplier,
+                CharacterStats::remove_ap_multiplier,
             ),
             A::ModStat => {
                 let stats: Vec<ItemStat> = match self.record.misc_value[0] {
@@ -569,11 +570,12 @@ impl Effect {
                     );
                 }
             }
-            A::ModTotalStatPercentage => adjust(
+            A::ModTotalStatPercentage => multiplier(
                 host.stats_mut(),
-                signed,
-                |s, v| s.add_total_stat_mod(v as i32),
-                |s, v| s.remove_total_stat_mod(v as i32),
+                apply,
+                rounded,
+                CharacterStats::add_total_stat_mod,
+                CharacterStats::remove_total_stat_mod,
             ),
             A::ModResistance if school.is_physical() => {
                 if on_target {
@@ -588,11 +590,12 @@ impl Effect {
                 }
             }
             A::ModBaseResistancePct if school.is_physical() => {
-                adjust(
+                multiplier(
                     host.stats_mut(),
-                    signed,
-                    |s, v| s.add_armor_mod(v as i32),
-                    |s, v| s.remove_armor_mod(v as i32),
+                    apply,
+                    rounded,
+                    CharacterStats::add_armor_mod,
+                    CharacterStats::remove_armor_mod,
                 );
             }
             A::ModDamageDone if physical => adjust(
@@ -766,6 +769,23 @@ fn adjust(
         inc(stats, signed as u32);
     } else {
         dec(stats, signed.unsigned_abs());
+    }
+}
+
+/// Adds (`apply`) or removes the percentage effect `percent` on a multiplicative stack. The
+/// sign of the value cannot pick the direction as with [`adjust`]: a stack holds negative
+/// effects too, and a 0 % effect must be removed like any other.
+fn multiplier(
+    stats: &mut CharacterStats,
+    apply: bool,
+    percent: i32,
+    add: impl FnOnce(&mut CharacterStats, i32),
+    remove: impl FnOnce(&mut CharacterStats, i32),
+) {
+    if apply {
+        add(stats, percent);
+    } else {
+        remove(stats, percent);
     }
 }
 

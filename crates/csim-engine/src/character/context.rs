@@ -1179,10 +1179,22 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// rotation, which is relinked here so that spells enabled since it was set (talents,
     /// racials, equipment) join it.
     pub fn prepare_set_of_combat_iterations(&mut self) {
+        // The passives' auras are applied between sets (the reset re-applies them).
+        // Initializing their buffs would mark them inactive with their effects still applied,
+        // and the next reevaluation would apply them a second time: take them off first and
+        // put them back once the buffs are initialized.
+        let buffs: Vec<BuffId> = self.character.spells.buff_ids().collect();
+        for &id in &buffs {
+            let buff = self.buff_ref(id);
+            if buff.is_active() && buff.kind() != BuffKind::External {
+                self.cancel_buff(id);
+            }
+        }
         self.character.prepare_set_of_combat_iterations_state();
-        for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
+        for &id in &buffs {
             self.buff_ctx(id).0.initialize();
         }
+        self.reevaluate_passives();
         self.relink_rotation();
         if let Some(rotation) = self.character.rotation.as_mut() {
             rotation.prepare_set_of_combat_iterations();

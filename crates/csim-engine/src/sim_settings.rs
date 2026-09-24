@@ -169,7 +169,7 @@ impl SimOption {
     }
 
     /// The weapon type a weapon skill option scales.
-    fn weapon_type(self) -> Option<WeaponType> {
+    pub fn weapon_type(self) -> Option<WeaponType> {
         match self {
             SimOption::ScaleAxeSkill => Some(WeaponType::Axe),
             SimOption::ScaleDaggerSkill => Some(WeaponType::Dagger),

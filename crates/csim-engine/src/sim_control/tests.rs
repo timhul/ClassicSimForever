@@ -8,6 +8,8 @@ use std::sync::Arc;
 use super::*;
 use crate::character::tests::{equipment_db, race};
 use crate::character::{Character, ClassDb, ClassSpec};
+use crate::character_loader::CharacterSetup;
+use crate::data_bundle::DataBundle;
 use crate::engine::EventType;
 use crate::faction::PlayerClass;
 use crate::item::EquipmentSlot;
@@ -187,6 +189,37 @@ fn a_full_sim_runs_each_option_and_takes_its_stat_back() {
     assert_eq!(cruncher.stat_weights_dps().len(), 2);
     // The raid results are the baseline's.
     assert_eq!(cruncher.player_results()[0].iterations, 10);
+}
+
+/// A set of iterations leaves the character as it found it: the passives' auras (talents,
+/// here also a 0 % attack power aura) are neither applied twice nor left behind.
+#[test]
+fn every_set_of_iterations_starts_from_the_same_stats() {
+    let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
+    let setup =
+        CharacterSetup::load(&DataBundle::repository_dir().join("characters/dw_fury_orc.yaml"))
+            .unwrap();
+    let settings = settings(5);
+    let mut raid = setup.build_raid(&data, &settings).unwrap();
+    let mut control = SimControl::new(settings, 1);
+    let stats = |raid: &RaidControl| format!("{:?}", raid.character(CharId(0)).stats());
+
+    control.run_sim(&mut raid, 60, 5);
+    let after_first = stats(&raid);
+    // Back in caster form: Berserker Stance Passive's -20 % threat is off, not left behind by
+    // the first set (its buff was active from the setup).
+    let threat = raid.character(CharId(0)).stats().get_total_threat_mod();
+    assert!((threat - 1.0).abs() < 1e-9, "threat modifier {threat}");
+    let first = raid.take_statistics().remove(0).personal_dps();
+    for _ in 0..2 {
+        control.run_sim(&mut raid, 60, 5);
+        assert_eq!(stats(&raid), after_first);
+        let dps = raid.take_statistics().remove(0).personal_dps();
+        assert!(
+            (dps - first).abs() < first * 0.25,
+            "DPS drifted from {first} to {dps}"
+        );
+    }
 }
 
 #[test]

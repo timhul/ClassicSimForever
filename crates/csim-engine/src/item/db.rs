@@ -201,6 +201,13 @@ impl EquipmentDb {
             .collect()
     }
 
+    /// Every item id, sorted.
+    pub fn item_ids(&self) -> Vec<u32> {
+        let mut ids: Vec<u32> = self.items.keys().copied().collect();
+        ids.sort_unstable();
+        ids
+    }
+
     /// Number of distinct item ids.
     pub fn len(&self) -> usize {
         self.items.len()

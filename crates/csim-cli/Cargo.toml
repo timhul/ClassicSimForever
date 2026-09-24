@@ -12,3 +12,6 @@ path = "src/main.rs"
 
 [dependencies]
 csim-engine = { path = "../csim-engine" }
+clap.workspace = true
+serde.workspace = true
+serde_yaml.workspace = true
