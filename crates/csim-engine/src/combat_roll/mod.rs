@@ -246,6 +246,34 @@ impl CombatRoll {
         &self.magic_attack_tables[&school]
     }
 
+    /// The white hit table for `wpn_skill` and the facing in `ctx`, for tests that force
+    /// outcomes by reshaping it.
+    #[cfg(test)]
+    pub(crate) fn melee_white_table_mut(
+        &mut self,
+        ctx: &RollContext,
+        wpn_skill: u32,
+    ) -> &mut MeleeWhiteHitTable {
+        self.ensure_melee_white_table(ctx, wpn_skill);
+        self.melee_white_tables
+            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .expect("ensured above")
+    }
+
+    /// The special hit table for `wpn_skill` and the facing in `ctx`, for tests that force
+    /// outcomes by reshaping it.
+    #[cfg(test)]
+    pub(crate) fn melee_special_table_mut(
+        &mut self,
+        ctx: &RollContext,
+        wpn_skill: u32,
+    ) -> &mut MeleeSpecialTable {
+        self.ensure_melee_special_table(ctx, wpn_skill);
+        self.melee_special_tables
+            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .expect("ensured above")
+    }
+
     fn ensure_melee_white_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
         let key = (wpn_skill, ctx.attacking_from_behind);
         if self.melee_white_tables.contains_key(&key) {

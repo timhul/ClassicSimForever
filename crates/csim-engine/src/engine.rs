@@ -346,6 +346,21 @@ impl Engine {
         self.queue.clear();
     }
 
+    /// Moves the clock forward to `time`, leaving the queue alone. For tests that start an
+    /// action at a given time (the C++ tests' `Engine::set_current_priority`).
+    ///
+    /// # Panics
+    /// Panics if `time` lies in the past.
+    #[cfg(test)]
+    pub(crate) fn advance_time_to(&mut self, time: f64) {
+        assert!(
+            time >= self.current_time,
+            "Engine is at '{}' and cannot go back to '{time}'",
+            self.current_time
+        );
+        self.current_time = time;
+    }
+
     /// Sets current simulation time in a given iteration. Only allows for monotonic values.
     ///
     /// # Panics

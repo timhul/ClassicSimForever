@@ -134,7 +134,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         result
     }
 
-    fn buff_ref(&self, id: BuffId) -> &Buff {
+    pub(crate) fn buff_ref(&self, id: BuffId) -> &Buff {
         match self.character.spells.buff_slot(id) {
             BuffSlot::Owned(buff) => buff,
             BuffSlot::Shared(handle) => self.raid.shared_buff(*handle),

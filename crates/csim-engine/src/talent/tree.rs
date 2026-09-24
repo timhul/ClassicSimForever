@@ -245,6 +245,18 @@ impl TalentTree {
         if !self.is_available(node) {
             return None;
         }
+        self.force_increment_rank(node)
+    }
+
+    /// Spends a point in `node` without the tier unlock check; the prerequisite must still be
+    /// maxed. Shared by `increment_rank` and the tests' `CharacterTalents::force_increment_rank`.
+    pub(crate) fn force_increment_rank(&mut self, node: u32) -> Option<RankChange> {
+        if self
+            .parent(node)
+            .is_some_and(|parent| !self.is_maxed(parent))
+        {
+            return None;
+        }
         let talent = self.talent_mut(node)?;
         if talent.is_maxed() {
             return None;

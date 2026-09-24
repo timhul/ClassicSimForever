@@ -39,6 +39,8 @@ pub mod target;
 
 #[cfg(test)]
 mod ground_truth;
+#[cfg(test)]
+pub(crate) mod testing;
 
 /// Engine crate version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

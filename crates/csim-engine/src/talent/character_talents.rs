@@ -191,6 +191,17 @@ impl CharacterTalents {
         Some(change)
     }
 
+    /// Spends a point in `node` ignoring the tier unlock and the point budget; the
+    /// prerequisite must still be maxed. The C++ tests' `Talent::increment_rank`, which let a
+    /// test put points into a deep talent without filling the tiers above it.
+    #[cfg(test)]
+    pub(crate) fn force_increment_rank(&mut self, node: u32) -> Option<RankChange> {
+        let change = self.tree_of_mut(node)?.force_increment_rank(node)?;
+        let setup = &mut self.setups[self.current];
+        setup.points_remaining = setup.points_remaining.saturating_sub(1);
+        Some(change)
+    }
+
     /// Takes a point out of `node`. Port of `CharacterTalents::decrement_rank`.
     pub fn decrement_rank(&mut self, node: u32) -> Option<RankChange> {
         let change = self.tree_of_mut(node)?.decrement_rank(node)?;
