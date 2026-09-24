@@ -27,7 +27,8 @@ Do not implement anything during the planning phase.
 
 Implement the given task in `TASKS.md`. Add tests if relevant.
 
-Run `cargo clippy`, `cargo nextest run` to verify building works and source code passes linting.
+Run `cargo clippy --all-targets -- -D warnings`, , `cargo fmt --check` `cargo nextest run` to verify
+building works and source code passes linting.
 
 Commit each defined task once complete.
 
