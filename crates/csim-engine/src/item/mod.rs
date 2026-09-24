@@ -6,6 +6,7 @@
 //! lives in the equipment, not in the item.
 
 pub mod db;
+pub mod rating;
 pub mod set_bonus;
 pub mod spec;
 pub mod types;

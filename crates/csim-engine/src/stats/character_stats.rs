@@ -11,7 +11,7 @@
 
 use crate::attack_mode::AttackMode;
 use crate::ids::BuffId;
-use crate::item::{ItemStat, WeaponType};
+use crate::item::{rating, ItemStat, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::target::CreatureType;
@@ -1437,6 +1437,20 @@ impl CharacterStats {
                     self.decrease_oh_weapon_damage_bonus(value);
                 }
             }
+            ItemStat::HitRating
+            | ItemStat::CritRating
+            | ItemStat::DodgeRating
+            | ItemStat::ParryRating
+            | ItemStat::BlockRating => {
+                let (target, per_percent) = rating::interim_chance(stat).expect("rating stat");
+                let units = rating::to_chance_units(f64::from(value), per_percent);
+                self.change_stat(target, units, change);
+            }
+            // No interim factor yet (see `item::rating`); healing is not simulated.
+            ItemStat::HasteRating
+            | ItemStat::ExpertiseRating
+            | ItemStat::ArmorPenetrationRating
+            | ItemStat::HealingPower => {}
         }
     }
 }

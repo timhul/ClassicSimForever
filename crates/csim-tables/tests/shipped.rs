@@ -229,3 +229,42 @@ fn item_tables_of_the_dump_join() {
     assert_eq!(bonuses, [(3, 23562), (5, 21838), (8, 23561)]);
     assert!(tables.item_bonus_tree_nodes(5654).len() >= 24);
 }
+
+/// Every in-scope item of the real dump derives without unresolved stats or rows.
+#[test]
+fn items_of_the_dump_derive() {
+    use csim_engine::item::{ItemSlot, ItemStat};
+    use csim_tables::export::items::{derive_items, Skip};
+
+    let tables_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/tables");
+    let Ok(dir) = TableDir::open(&tables_dir) else {
+        eprintln!("data/tables/ not present, skipping the item derivation check");
+        return;
+    };
+    let tables = Tables::load(&dir).unwrap();
+    let report = derive_items(&tables);
+    assert!(report.items.len() > 2500, "{} items", report.items.len());
+    // The only unresolved references are item spells missing from the dump.
+    for issue in &report.issues {
+        assert!(
+            issue.message.contains("names missing spell"),
+            "{}: {}",
+            issue.item_id,
+            issue.message
+        );
+    }
+    assert!(report.skipped[&Skip::NoSparseRow].contains(&11815));
+    for item in &report.items {
+        assert_eq!(
+            item.damage.is_some(),
+            item.slot.weapon_slot().is_some(),
+            "{} {}",
+            item.id,
+            item.name
+        );
+    }
+    let lionheart = report.items.iter().find(|i| i.id == 12640).unwrap();
+    assert_eq!(lionheart.slot, ItemSlot::Head);
+    assert_eq!(lionheart.stats[&ItemStat::CritRating], 28.0);
+    assert_eq!(lionheart.stats[&ItemStat::Armor], 565.0);
+}

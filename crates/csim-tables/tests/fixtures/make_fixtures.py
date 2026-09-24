@@ -117,8 +117,12 @@ keep("PowerType", lambda get: True)
 # Disk (shield, two on-equip effects), High Warlord's Greatsword, Zandalar Vindicator's Breastplate (set 474),
 # Chromatic Cloak, Assassin's Throwing Axe, Conqueror's Battlegear (set 496) and Hand of Justice
 # (no ItemSparse row in this dump). Battlegear of Might (set 209) has no member with a sparse row.
+# For the derivation: Arena Grand Master (Rare, limit category), Libram of Fervor (relic), Tome of
+# Arcane Domination (held off-hand), Sandstalker Breastplate (bonus armor), Green Lens (base stats
+# and a suffix pool) and the deprecated Thunderfury copy.
 ITEMS = {19019, 12640, 21616, 21180, 19406, 18706, 8210, 18168, 18877, 19822, 18509, 21135,
-         21331, 21329, 21333, 21332, 21330, 11815}
+         21331, 21329, 21333, 21332, 21330, 11815,
+         19024, 23203, 19308, 20478, 10504, 17802}
 keep("Item", in_set("ID", ITEMS))
 _, sparse, sidx = keep("ItemSparse", in_set("ID", ITEMS))
 keep("ItemSubClass", lambda get: True)
@@ -140,3 +144,12 @@ _, bonuses, bidx = keep("ItemBonus", in_set("ParentItemBonusListID",
 names = {int(r[sidx["ItemNameDescriptionID"]]) for r in sparse}
 names |= {int(r[bidx["Value_0"]]) for r in bonuses if r[bidx["Type"]] == "5"}
 keep("ItemNameDescription", in_set("ID", names))
+# The item spells and set bonuses only need to exist (SpellName); the Spell* rows stay Warrior only.
+header, rows = load("ItemEffect")
+eidx = {c: i for i, c in enumerate(header)}
+effect_ids = {int(r[xidx["ItemEffectID"]]) for r in ixe}
+item_spells = {int(r[eidx["SpellID"]]) for r in rows if int(r[eidx["ID"]]) in effect_ids}
+header, rows = load("ItemSetSpell")
+sidx2 = {c: i for i, c in enumerate(header)}
+item_spells |= {int(r[sidx2["SpellID"]]) for r in rows if int(r[sidx2["ItemSetID"]]) in sets}
+keep("SpellName", in_set("ID", SPELLS | item_spells))

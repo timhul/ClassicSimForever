@@ -1,5 +1,6 @@
 //! Exporters: turn the loaded tables into the YAML files under `data/`.
 
+pub mod items;
 pub mod prune;
 pub mod spells;
 pub mod talents;

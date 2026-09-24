@@ -477,6 +477,18 @@ pub enum ItemStat {
     SpellCritChance,
     SpellHitChance,
     SpellPenetration,
+    /// Healing done. The sim does no healing, so it has no effect.
+    HealingPower,
+    /// Combat ratings as the tables store them (not converted). Until the engine has a rating
+    /// system they are turned into chances by [`crate::item::rating`].
+    HitRating,
+    CritRating,
+    DodgeRating,
+    ParryRating,
+    BlockRating,
+    HasteRating,
+    ExpertiseRating,
+    ArmorPenetrationRating,
 }
 
 impl ItemStat {

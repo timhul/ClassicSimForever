@@ -27,11 +27,11 @@ table_row! {
         /// Flavour text.
         description: String = "Description_lang",
         /// Weapon damage range: average × (1 ± variance / 2).
-        dmg_variance: f32 = "DmgVariance",
+        dmg_variance: f64 = "DmgVariance",
         /// → `ItemLimitCategory.ID` (unique-equipped group); 0 = none.
         limit_category: u32 = "LimitCategory",
         /// Bonus armor (same value as `bonusStat` 50).
-        quality_modifier: f32 = "QualityModifier",
+        quality_modifier: f64 = "QualityModifier",
         /// Share of the `RandPropPoints` budget per stat, in 1/10000.
         stat_percent_editor: [i32; 10] = "StatPercentEditor_",
         /// `ItemModType` per stat; −1 = unused.
@@ -97,10 +97,10 @@ table_row! {
     ItemArmorTotalRow, "ItemArmorTotal" {
         id: u32 = "ID",
         item_level: u32 = "ItemLevel",
-        cloth: f32 = "Cloth",
-        leather: f32 = "Leather",
-        mail: f32 = "Mail",
-        plate: f32 = "Plate",
+        cloth: f64 = "Cloth",
+        leather: f64 = "Leather",
+        mail: f64 = "Mail",
+        plate: f64 = "Plate",
     }
 }
 
@@ -108,7 +108,7 @@ table_row! {
     /// `ItemArmorQuality`: armor multiplier per quality (`id` = item level).
     ItemArmorQualityRow, "ItemArmorQuality" {
         id: u32 = "ID",
-        quality_mod: [f32; 7] = "Qualitymod_",
+        quality_mod: [f64; 7] = "Qualitymod_",
     }
 }
 
@@ -116,7 +116,7 @@ table_row! {
     /// `ItemArmorShield`: shield armor per item level and quality.
     ItemArmorShieldRow, "ItemArmorShield" {
         id: u32 = "ID",
-        quality: [f32; 7] = "Quality_",
+        quality: [f64; 7] = "Quality_",
         item_level: u32 = "ItemLevel",
     }
 }
@@ -126,11 +126,11 @@ table_row! {
     /// columns are identical per row; `modifier` is the cloak column.
     ArmorLocationRow, "ArmorLocation" {
         id: u32 = "ID",
-        cloth_modifier: f32 = "Clothmodifier",
-        leather_modifier: f32 = "Leathermodifier",
-        chain_modifier: f32 = "Chainmodifier",
-        plate_modifier: f32 = "Platemodifier",
-        modifier: f32 = "Modifier",
+        cloth_modifier: f64 = "Clothmodifier",
+        leather_modifier: f64 = "Leathermodifier",
+        chain_modifier: f64 = "Chainmodifier",
+        plate_modifier: f64 = "Platemodifier",
+        modifier: f64 = "Modifier",
     }
 }
 
@@ -170,7 +170,7 @@ impl ItemDamageTable {
 pub struct ItemDamageRow {
     pub item_level: u32,
     /// DPS by `OverallQualityID` (float, not rounded).
-    pub quality: [f32; 7],
+    pub quality: [f64; 7],
 }
 
 macro_rules! item_damage_table {
@@ -181,7 +181,7 @@ macro_rules! item_damage_table {
                 $name, $table {
                     id: u32 = "ID",
                     item_level: u32 = "ItemLevel",
-                    quality: [f32; 7] = "Quality_",
+                    quality: [f64; 7] = "Quality_",
                 }
             }
 

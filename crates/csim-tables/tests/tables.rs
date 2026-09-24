@@ -528,7 +528,11 @@ fn class_and_race_rows_are_read() {
         "COMBO_POINTS"
     );
     assert!(t.power_type(99).is_none());
-    assert_eq!(t.spell_ids().count(), 25);
+    assert_eq!(
+        t.spell_ids().count(),
+        42,
+        "25 Warrior spells + 17 item and set spells"
+    );
     assert!(t.spell_class_options_iter().all(|c| c.spell_class_set == 4));
 }
 
@@ -589,8 +593,8 @@ fn item_rows_give_identity_stats_and_budgets() {
     assert!(t.item(11815).is_some());
     assert!(t.item_sparse(11815).is_none());
     assert!(t.item(1).is_none());
-    assert_eq!(t.items().count(), 18);
-    assert_eq!(t.item_sparse_rows().count(), 17);
+    assert_eq!(t.items().count(), 24);
+    assert_eq!(t.item_sparse_rows().count(), 23);
 }
 
 #[test]

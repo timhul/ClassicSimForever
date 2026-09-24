@@ -88,6 +88,10 @@ misc/cloth/leather/mail/plate/cosmetic/shield).
 
 **`AllowableRace_0/1`**: `-1` = all. Only 7 equippables are race-restricted. Ignore.
 
+**Faction** is not derivable for gear: the PvP sets (Grand Marshal's / High Warlord's, ...) carry
+no `Flags_1` horde/alliance bit, no race mask and no `OppositeFactionItemID`; those bits and
+columns are only set on mounts, pets and deprecated items. Exported items are for both factions.
+
 **Unique / unique-equipped**: `MaxCount == 1` → "Unique". `Flags_0 & 0x80000` → "Unique-Equipped"
 (86 items, mostly trinkets). `LimitCategory != 0` → unique-equipped group with
 `ItemLimitCategory.Quantity`.
@@ -148,11 +152,13 @@ Derived budgets for ~560 Classic items agreed with the table for every (ilvl, qu
 | 50 | Bonus armor | same number as `QualityModifier`; count it once (see 1.5) |
 | 51 52 53 54 55 56 | Fire, Frost, Holy, Shadow, Nature, Arcane resistance | |
 | 83 84 85 86 87 88 89 | Damage done: Physical ("+X weapon damage"), Holy, Fire, Nature, Frost, Shadow, Arcane | SpellSchool order; 83 verified on Might of Cenarius |
-| 90 91 92 96 98 | Weapon skill: Two-Handed Axes, Two-Handed Maces(?), Two-Handed Swords(?), Daggers, Unarmed/Fist(?) | 90 and 96 verified; 91/92/98 inferred from the carrying item's sub-class |
+| 90–105 | Weapon skill, in the `ITEM_MOD_*` order of `GlobalStrings`: 90 Two-Handed Axes, 91 Two-Handed Maces, 92 Two-Handed Swords, 93 Axes, 94 Bows, 95 Crossbows, 96 Daggers, 97 Dual Wield, 98 Fist Weapons, 99 Guns, 100 Maces, 101 Polearms, 102 Staves, 103 Swords, 104 Thrown, 105 Wands | every observed id matches its carrier (90 Huge Thorium Battleaxe, 91 Servomechanic Sledgehammer, 92 Bladewind, 96 Death's Sting, 98 Punchy's Punchers, 103 a test sword chest) |
+| 106–118 | Profession skills in the same order (Alchemy … Tailoring) | 112 Herbalism, 117 Fishing observed |
 | 112 113 114 117 | Herbalism, Mining, Skinning, Fishing skill | |
 | 124 | All resistances | Obsidian belts |
-| 127 128 131 132 | Attack power vs Demons, Undead, Beasts, Mechanical | `GlobalStrings` also has strings for Dragonkin/Elemental/Giant/Humanoid — ids not observed |
-| 135 136 | Spell damage vs Demons, Undead | |
+| 125–132 | Attack power vs Humanoid, Elemental, Demon, Undead, Dragonkin, Giant, Beast, Mechanical | `GlobalStrings` order; 127 128 131 132 observed |
+| 133–140 | Spell damage vs the same creature types, same order | 135 136 observed |
+| 119 121 | Unknown (only on "Spell Penetration" test staves) | |
 
 `GlobalStrings` (`ITEM_MOD_*` tags) holds the display strings but not the numeric ids.
 
@@ -170,7 +176,9 @@ other:   material = by SubclassID: 1 Cloth, 2 Leather, 3 Mail, 4 Plate   (cloaks
          slot  = ArmorLocation[InventoryType].<material>modifier   (cloak: ArmorLocation[16].Modifier)
                = Head .13  Shoulder .12  Chest/Robe .16  Waist .09  Legs .14  Feet .11  Wrist .07  Hands .10  Back .08
          armor = round(base) + bonus_armor
-bonus_armor = bonusStat 50 value  (== ItemSparse.QualityModifier; do not add both)
+bonus_armor = ItemSparse.QualityModifier  (armor only; bonusStat 50, when present, is the
+              same number — do not add both. 139 armor items have bonus armor without a
+              bonusStat 50: Runic Plate, Volcanic, Sandstalker, ...)
 ```
 
 Verified on 352 of ~360 Classic armor pieces (the rest are items Forever re-tuned).
@@ -184,6 +192,7 @@ table = InventoryType 17                → ItemDamageTwoHand
                                                          16 thrown → ItemDamageThrown
                                                          2 / 3 / 18 → ItemDamageRanged
 dps   = table[ItemLevel].Quality_<OverallQualityID>          (float, do not round)
+        * (1 + QualityModifier / 100)                        (weapons: a DPS percentage)
 avg   = dps * ItemDelay / 1000
 min   = floor(avg * (1 - DmgVariance / 2))
 max   = floor(avg * (1 + DmgVariance / 2) + 0.5)
@@ -193,12 +202,18 @@ Exact for 70 of 72 matched Classic melee/ranged weapons (the two others changed 
 `DamageType` (0 physical, 1–6 schools) is the school of the weapon's white damage; only a few
 Forever weapons are non-physical. `ItemRange` is 100 for ranged weapons (irrelevant).
 
+On a weapon `QualityModifier` is a DPS percentage, not bonus armor: Thunderfury −20 (its proc is
+the upside; 65–122 here vs Classic 44–115), Benediction / Anathema −14, Grand Marshal's Stave −18,
+the AQ20 caster weapons (Blade of Vaulted Secrets, Kris of Unspoken Names, …) −10, Atiesh −32.7.
+
 **Open question — caster weapons.** In Classic, spell-damage weapons (Sharpened Silithid Femur,
 Runesword of the Red, Jin'do's Judgement, Mindfang, …) have ~0.68–0.9× the DPS the formula gives.
 Retail selects `ItemDamage*Caster` via `Flags_1 & 0x200`, but here that flag is never set and the
 caster tables equal the melee tables, so nothing in the dump lowers their DPS. Either Forever gives
 them full melee DPS or the client uses a criterion not in these tables. Irrelevant for the Warrior
 milestone; check a caster dagger tooltip in game before relying on caster weapon damage.
+Only a few caster weapons carry a negative `QualityModifier` (above); the rest (Runesword of the
+Red, Sharpened Silithid Femur, Jin'do's Judgement, Mindfang) get full DPS from the tables.
 
 ## 1.7 Item spells: procs, on-use, on-equip
 

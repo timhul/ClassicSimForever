@@ -14,6 +14,8 @@ ID,Description_lang,Color
 14314,of Magic,-11776
 14315,of Healing,-11776
 14316,of Defense,-11776
+14317,of Regeneration,-11776
+14318,of Concentration,-11776
 14320,of Arcane Protection,-11776
 14321,of Fire Protection,-11776
 14322,of Frost Protection,-11776
@@ -28,7 +30,11 @@ ID,Description_lang,Color
 14331,of the Beast,-11776
 14332,of the Champion,-11776
 14335,of Arcane Wrath,-11776
+14336,of Fiery Wrath,-11776
+14337,of Frozen Wrath,-11776
+14338,of Holy Wrath,-11776
 14339,of Nature's Wrath,-11776
+14340,of Shadow Wrath,-11776
 14455,of the Monkey,0
 14309,of Intellect,-11776
 14310,of Spirit,-11776

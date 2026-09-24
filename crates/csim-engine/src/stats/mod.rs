@@ -15,7 +15,7 @@ pub use character_stats::{
     WeaponProfile,
 };
 
-use crate::item::{ItemStat, WeaponType};
+use crate::item::{rating, ItemStat, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::target::CreatureType;
 
@@ -114,6 +114,25 @@ impl Stats {
             result.apply_item_stat(stat, value)?;
         }
         Ok(result)
+    }
+
+    /// Adds a chance stat in internal units (`100` = 1 %).
+    fn apply_chance_units(&mut self, stat: ItemStat, units: u32) {
+        let fraction = f64::from(units) / 10_000.0;
+        match stat {
+            ItemStat::HitChance => {
+                self.increase_melee_hit(units);
+                self.increase_ranged_hit(units);
+            }
+            ItemStat::CritChance => {
+                self.increase_melee_aura_crit(units);
+                self.increase_ranged_crit(units);
+            }
+            ItemStat::DodgeChance => self.increase_dodge(fraction),
+            ItemStat::ParryChance => self.increase_parry(fraction),
+            ItemStat::BlockChance => self.increase_block_chance(fraction),
+            other => unreachable!("{other:?} is not a rating target"),
+        }
     }
 
     /// Adds one item stat with data-file value semantics (chances as fractions, `0.01` = 1%).
@@ -226,6 +245,19 @@ impl Stats {
                 self.increase_resistance(school, signed());
             }
             ItemStat::RangedAttackSpeed => self.increase_ranged_attack_speed(flat()),
+            ItemStat::HitRating
+            | ItemStat::CritRating
+            | ItemStat::DodgeRating
+            | ItemStat::ParryRating
+            | ItemStat::BlockRating => {
+                let (target, per_percent) = rating::interim_chance(stat).expect("rating stat");
+                self.apply_chance_units(target, rating::to_chance_units(value, per_percent));
+            }
+            // No interim factor yet (see `item::rating`); healing is not simulated.
+            ItemStat::HasteRating
+            | ItemStat::ExpertiseRating
+            | ItemStat::ArmorPenetrationRating
+            | ItemStat::HealingPower => {}
             ItemStat::AttackSpeed
             | ItemStat::MeleeAttackSpeed
             | ItemStat::CastingSpeed
@@ -734,6 +766,27 @@ mod tests {
         let mut stats = Stats::new();
         stats.increase_ranged_attack_speed(10);
         stats.increase_ranged_attack_speed(10);
+    }
+
+    #[test]
+    fn ratings_use_the_interim_level_60_factors() {
+        let stats = Stats::from_item_stats([
+            (ItemStat::CritRating, 28.0),
+            (ItemStat::HitRating, 15.0),
+            (ItemStat::DodgeRating, 12.0),
+            (ItemStat::ParryRating, 15.0),
+            (ItemStat::BlockRating, 5.0),
+            (ItemStat::HasteRating, 40.0),
+            (ItemStat::HealingPower, 50.0),
+        ])
+        .unwrap();
+        assert_eq!(stats.get_melee_crit_chance(), 200);
+        assert_eq!(stats.get_ranged_crit_chance(), 200);
+        assert_eq!(stats.get_melee_hit_chance(), 150);
+        assert_eq!(stats.get_ranged_hit_chance(), 150);
+        assert!((stats.get_dodge_chance() - 0.01).abs() < 1e-9);
+        assert!((stats.get_parry_chance() - 0.01).abs() < 1e-9);
+        assert!((stats.get_block_chance() - 0.01).abs() < 1e-9);
     }
 
     #[test]
