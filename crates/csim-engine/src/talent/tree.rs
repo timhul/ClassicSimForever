@@ -1,5 +1,5 @@
 //! One tab of a talent tree: the points spent per talent and per tier, and the rules that
-//! allow a point to go in or come out. Port of `Talent/TalentTree.*` and `Talent/Talent.*`
+//! allow a point to go in or come out.
 //! (the bookkeeping; what a rank does to the character is
 //! [`CharacterTalents`](crate::talent::CharacterTalents)'s business).
 //!

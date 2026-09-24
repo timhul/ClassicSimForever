@@ -1,13 +1,3 @@
-//! The character's world context: the [`Character`] borrowed together with the engine, the
-//! target and the raid's shared buffs. This is the "spell context" the spell runtime, the
-//! procs and the auto attacks were written against: it implements [`EffectHost`],
-//! [`SpellHost`], [`ProcHost`] and [`AutoAttackHost`], and offers the world operations of the
-//! C++ `Character` / `CharacterSpells` / `EnabledBuffs` that need more than the character's own
-//! state (learning and casting spells, swinging, stance swaps, resets, event handling).
-//!
-//! A context is short-lived: the simulation owner builds one per event from `&mut` borrows and
-//! drops it afterwards, so no back-pointers survive between events.
-
 use std::sync::Arc;
 
 use crate::buff::external::{ExternalBuffDb};
@@ -38,7 +28,6 @@ use crate::target::Target;
 
 use super::{Character, StanceLink};
 
-/// What one main-hand swing event did: the swing, or the on-next-swing spell that replaced it.
 #[derive(Debug, Clone, PartialEq)]
 pub enum SwingOutcome {
     /// The swing event was stale or the character is not attacking.
@@ -521,7 +510,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         short
     }
 
-    /// Applies rank changes to the spells; returns whether there were any.
+    /// Applies rank changes to all ranks of a given spell.
     pub fn apply_talent_changes(&mut self, changes: impl IntoIterator<Item = RankChange>) -> bool {
         let mut any = false;
         for change in changes {
@@ -531,12 +520,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         any
     }
 
-    /// What a talent rank means for the character's spells: the talent spell's effect values
-    /// become the rank's curve values and the spell (or proc) is enabled — its passive aura
-    /// goes up, its modifiers land in the modifier table, its proc arms, and an ability it
-    /// grants becomes castable together with the trainable higher ranks of its rank group.
-    /// At rank 0 everything is disabled and the table values restored. Port of
-    /// `Talent::apply_rank_effect` / `remove_rank_effect` on the table model.
+    /// Apply a talent effect to a specific rank of a spell.
     fn apply_talent_change(&mut self, change: RankChange) {
         let Some(values) = self
             .character
@@ -603,7 +587,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Offers the character the external buffs of `registry` its class can have: each becomes
     /// a permanent, hidden [`BuffKind::External`] buff built from its aura spell in `db`.
-    /// Port of the `GeneralBuffs` constructor. Entries already offered are skipped.
+    /// Entries already offered are skipped.
     ///
     /// # Panics
     /// Panics if an entry's spell is not in `db` or applies no auras
@@ -640,8 +624,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Selects or deselects an external buff: selecting applies its auras (once per stack,
     /// armor reductions on the target) and cancels the other buffs of its mutex group,
-    /// deselecting removes them. Returns whether the buff is now selected. Port of
-    /// `GeneralBuffs::toggle_external_buff` / `toggle_external_debuff`.
+    /// deselecting removes them. Returns whether the buff is now selected.
     pub fn toggle_external_buff(&mut self, name: &str) -> Result<bool, ExternalBuffToggleError> {
         let selected = self.character.general_buffs.is_selected(name);
         self.set_external_buff_selected(name, !selected)
@@ -702,7 +685,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Deselects every external buff. Port of `GeneralBuffs::clear_all`.
+    /// Deselects every external buff.
     pub fn clear_external_buffs(&mut self) {
         let selected: Vec<(String, BuffId)> = self
             .character
@@ -723,7 +706,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Casts a spell: performs it, then runs the proc checks its report asks for and the
-    /// extra attacks it granted. Port of the `Spell::perform` → `run_proc_check` flow.
+    /// extra attacks it granted.
     pub fn cast(&mut self, id: SpellId) -> CastReport {
         let report = self.with_spell(id, |spell, ctx| spell.perform(ctx));
         self.after_cast(id, &report);
@@ -756,10 +739,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Runs the proc check for each source and returns the reports of the procs that fired.
     /// The sources of one event form one check: a proc fires at most once per event. Extra
-    /// attacks the procs granted stay pending (see [`Self::perform_extra_attacks`]); they
-    /// continue the check, so that no proc re-fires off its own extra attack or twice in one
-    /// chain of extra attacks (the C++ nesting guard, where the extra attacks were performed
-    /// inside the proc).
+    /// attacks the procs granted stay pending so that no proc re-fires off its own extra attack or
+    /// twice in one chain of extra attacks.
     pub fn run_proc_checks(&mut self, sources: &[ProcSource]) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
         self.character.spells.procs_mut().begin_check();
@@ -788,12 +769,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Performs the main-hand extra attacks granted so far (Windfury, Sword Specialization),
-    /// including the ones those attacks grant in turn. The C++ performed them inside the
-    /// granting proc; here they follow the action that produced them. Port of
-    /// `MainhandAttack::extra_attack`. An extra attack finishes the swing timer, so a queued
-    /// on-next-swing spell that is available goes off in its place (the `classic-warrior` wiki
-    /// on Windfury Totem: the queued Heroic Strike "is executed immediately"). Returns the
-    /// reports of the white swings performed.
+    /// including the ones those attacks grant in turn. An extra attack finishes the swing timer,
+    /// so a queued on-next-swing spell that is available goes off in its place.
+    /// Returns the reports of the white swings performed.
     pub fn perform_extra_attacks(&mut self) -> Vec<SwingReport> {
         let mut reports = Vec::new();
         while self.character.take_extra_attack() {
@@ -842,8 +820,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     // ---------------------------------------------------------------- auto attacks
 
-    /// A main-hand swing event. Port of `WarriorSpells::mh_auto_attack`: a queued on-next-swing
-    /// spell that is available replaces the swing; a queued one that is not is cancelled.
+    /// A main-hand swing event. A queued on-next-swing spell that is available replaces the swing.
+    /// If the queued spell cannot run it is cancelled.
     pub fn mh_swing(&mut self, iteration: u32) -> SwingOutcome {
         if !self.character.spells.mh_attack().attack_is_valid(iteration)
             || !self.character.spells.is_melee_attacking()
@@ -872,7 +850,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         outcome
     }
 
-    /// An off-hand swing event. Port of `WarriorSpells::oh_auto_attack`.
+    /// An off-hand swing event.
     pub fn oh_swing(&mut self, iteration: u32) -> SwingOutcome {
         if !self.character.spells.oh_attack().attack_is_valid(iteration)
             || !self.character.spells.is_melee_attacking()
@@ -887,7 +865,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         SwingOutcome::Swing(report)
     }
 
-    /// Schedules the pending swing of each attacking hand. Port of `start_melee_attack`.
+    /// Schedules the pending swing of each attacking hand.
     fn schedule_swings(&mut self) {
         if !self.character.spells.is_melee_attacking() || !self.character.has_mainhand() {
             return;
@@ -899,7 +877,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Re-times both swings after the melee attack speed changed by `haste_change` (a
-    /// fraction). Port of `Character::increase_melee_attack_speed`'s swing part.
+    /// fraction).
     fn retime_swings(&mut self, haste_change: f64) {
         let now = self.now();
         self.character
@@ -917,7 +895,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Puts the character in `stance`: the previous stance spell's buff is cancelled, its
     /// hidden passive disabled and the new stance's passive enabled; rage above the Tactical
-    /// Mastery remainder is lost. Port of `Character::swap_stance`.
+    /// Mastery remainder is lost.
     pub fn swap_stance(&mut self, stance: Stance) {
         let old = self.character.stance();
         if old == stance {
@@ -965,9 +943,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     // ---------------------------------------------------------------- lifecycle
 
-    /// Start of an iteration. Port of `Character::reset`: back to caster form, cooldowns and
-    /// resource cleared, every buff removed and every spell and proc reset; the passives are
-    /// then re-applied for the new iteration.
+    /// Start of an iteration. Back to caster form, cooldowns and resource cleared, every buff
+    /// removed and every spell and proc reset; the passives are then re-applied for the new
+    /// iteration.
     pub fn reset(&mut self) {
         let stance = self.character.stance();
         if stance != Stance::Caster {
@@ -991,8 +969,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     self.remove_auras(id);
                 }
             }
-            // Port of the statistics in `Buff::reset`: the application the end of the
-            // iteration cut short, then the iteration's share of the encounter.
+            // The application the end of the iteration cut short, then the iteration's share of the
+            // encounter.
             if !hidden {
                 if reset.was_active {
                     self.record_buff_uptime(id, now - applied);
@@ -1018,7 +996,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Re-applies the permanent auras of the enabled passives (after a reset, or after the
-    /// equipment / stance changed). Port of the C++ talents re-applying their stat changes.
+    /// equipment / stance changed).
     pub fn reevaluate_passives(&mut self) {
         for id in self.character.spells.spell_ids().collect::<Vec<_>>() {
             self.with_spell(id, |spell, ctx| spell.reevaluate_passive(ctx));
@@ -1031,8 +1009,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Before a set of iterations: the statistics (cleared), the state, the buffs and the
     /// rotation, which is relinked here so that spells enabled since it was set (talents,
-    /// racials, equipment) join it. Port of `Character::prepare_set_of_combat_iterations` +
-    /// `CharacterSpells::relink_spells`.
+    /// racials, equipment) join it.
     pub fn prepare_set_of_combat_iterations(&mut self) {
         self.character.prepare_set_of_combat_iterations_state();
         for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
@@ -1045,7 +1022,6 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Combat starts: start-of-combat buffs and spells, the auto attacks, then the rotation.
-    /// Port of `EncounterStart::act`.
     pub fn encounter_start(&mut self) {
         for id in self.character.spells.start_of_combat_buffs().to_vec() {
             self.apply_buff(id);
@@ -1164,8 +1140,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.record_report(&name, rank, report);
     }
 
-    /// Records a cast report under `name` / `rank`. Port of the `statistics_spell` /
-    /// `statistics_resource` updates of `Spell.cpp`.
+    /// Records a cast report under `name` / `rank`.
     fn record_report(&mut self, name: &str, rank: u32, report: &CastReport) {
         let statistics = &mut self.character.statistics;
         if let Some(attack) = &report.attack {
@@ -1178,8 +1153,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Records a white swing under its hand's attack name. Port of the statistics of
-    /// `MainhandAttack::calculate_damage` / `OffhandAttack::calculate_damage`.
+    /// Records a white swing under its hand's attack name.
     fn record_swing(&mut self, report: &SwingReport) {
         let name = match report.hand {
             Hand::Mainhand => self.character.spells.mh_attack().name(),
@@ -1194,8 +1168,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Records a periodic tick of `id`: its damage as a hit, its resource gain. Port of the
-    /// statistics in the C++ periodic spells' `tick_effect`.
+    /// Records a periodic tick of `id`: its damage as a hit, its resource gain.
     fn record_tick(&mut self, id: SpellId, report: &TickReport) {
         let (name, rank) = {
             let spell = self.character.spells.spell(id);
@@ -1215,8 +1188,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Records the application that just ended for a removed buff. Port of the
-    /// `add_uptime` call in `Buff::force_remove_buff`.
+    /// Records the application that just ended for a removed buff.
     fn record_buff_removed(&mut self, id: BuffId) {
         let buff = self.buff_ref(id);
         if buff.is_hidden() {
@@ -1276,7 +1248,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Syncs and hands over the statistics of the set of iterations, leaving fresh ones
-    /// behind. Port of `Character::relinquish_ownership_of_statistics`.
+    /// behind.
     pub fn take_statistics(&mut self) -> ClassStatistics {
         self.sync_statistics();
         let combat_length = self.character.sim().combat_length;
@@ -1311,7 +1283,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     // ---------------------------------------------------------------- rotation
 
     /// Gives the character a rotation: builds it, links it to the spells and takes its attack
-    /// mode. Port of `CharacterSpells::set_rotation`.
+    /// mode.
     pub fn set_rotation(&mut self, spec: Arc<RotationSpec>) {
         let attack_mode = spec.attack_mode;
         let mut rotation = Rotation::new(spec);
@@ -1326,7 +1298,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Links the rotation to the spells again, after they changed (a talent, a racial, an
-    /// item use came or went). Port of `CharacterSpells::relink_spells`.
+    /// item use came or went).
     pub fn relink_rotation(&mut self) {
         if let Some(mut rotation) = self.character.take_rotation() {
             rotation.link(self);
@@ -1334,10 +1306,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Runs the rotation: every active executor attempts its cast in priority order. Not before
-    /// the pull: the player actions that precombat casts schedule at negative time (cooldowns
-    /// ending, the stance swap lag, Bloodrage's rage) wait for the encounter. Port of
-    /// `CharacterSpells::perform_rotation`.
+    /// Evaluate player action according to current rotation.
+    /// This is a no-op before combat start (T < 0).
     pub fn perform_rotation(&mut self) {
         if self.now() < 0.0 {
             return;
@@ -1348,9 +1318,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells and starts its precast (before the pull, at
-    /// negative time). Port of `Rotation::run_precombat_actions` plus the precast lines of
-    /// `SimControl::run_sim`.
+    /// Casts the rotation's precombat spells.
+    /// Expected to run at T < 0, but not strictly enforced.
     pub fn run_precombat_actions(&mut self) {
         if let Some(rotation) = self.character.take_rotation() {
             rotation.run_precombat_actions(self);
@@ -1359,8 +1328,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Seconds before the pull the precombat actions need: the precast's cast time, else one
-    /// global cooldown (also without a rotation). Port of
-    /// `Rotation::get_time_required_to_run_precombat`.
+    /// global cooldown (also without a rotation).
     pub fn time_required_to_run_precombat(&self) -> f64 {
         match self.character.rotation() {
             Some(rotation) => rotation.time_required_to_run_precombat(self),
@@ -1377,24 +1345,28 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 }
 
-/// The values rotation conditions compare. Port of the `Rotation/Conditions/*` lookups.
+/// The values rotation conditions compare.
 impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, S> {
     fn buff_time_left(&self, buff: &BuffId) -> f64 {
         self.buff_ref(*buff).time_left(self.now())
     }
+
     fn buff_is_active(&self, buff: &BuffId) -> bool {
         self.buff_ref(*buff).is_active()
     }
+
     fn buff_stacks(&self, buff: &BuffId) -> u32 {
         self.buff_ref(*buff).stacks()
     }
+
     fn spell_cooldown_remaining(&self, spell: &SpellId) -> f64 {
         self.character.spells.spell(*spell).cooldown_remaining(self)
     }
+
     fn resource_level(&self, resource: ResourceType) -> u32 {
         self.character.resource_level(resource)
     }
-    /// Port of `ConditionVariableBuiltin::condition_fulfilled`'s value computations.
+
     fn variable(&self, variable: BuiltinVariable) -> f64 {
         let now = self.now();
         let sim = self.character.sim();
@@ -1423,6 +1395,7 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
     fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
         self.spell_rank_by_name(name, rank)
     }
+
     fn buff_by_name(&self, name: &str) -> Option<BuffId> {
         let party = self.character.party();
         self.character
@@ -1431,24 +1404,31 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
                 self.character.spells.spell(id).is_rank_learned(self)
             })
     }
+
     fn spell_is_enabled(&self, spell: SpellId) -> bool {
         self.character.spells.spell(spell).is_enabled()
     }
+
     fn spell_has_cast_time(&self, spell: SpellId) -> bool {
         self.character.spells.spell(spell).has_cast_time()
     }
+
     fn spell_cast_time(&self, spell: SpellId) -> f64 {
         self.character.spells.spell(spell).cast_time(self)
     }
+
     fn spell_status(&self, spell: SpellId) -> SpellStatus {
         self.character.spells.spell(spell).status(self)
     }
+
     fn cast_spell(&mut self, spell: SpellId) {
         self.cast(spell);
     }
+
     fn is_casting(&self) -> bool {
         self.character.spells.cast_in_progress()
     }
+
     fn gcd_length(&self) -> f64 {
         self.character.global_cooldown()
     }
@@ -1458,18 +1438,23 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
     fn caster_level(&self) -> u32 {
         self.character.clvl()
     }
+
     fn combo_points(&self) -> u32 {
         self.character.combo_points()
     }
+
     fn gain_combo_points(&mut self, amount: u32) {
         self.character.gain_combo_points(amount);
     }
+
     fn spend_combo_points(&mut self) {
         self.character.spend_combo_points();
     }
+
     fn resource_level(&self, resource: ResourceType) -> u32 {
         self.character.resource_level(resource)
     }
+
     /// Rage gains wake the player up (`Warrior::gain_rage` adds a reaction event).
     fn gain_resource(&mut self, resource: ResourceType, amount: u32) -> u32 {
         let gained = self.character.gain_resource(resource, amount);
@@ -1478,20 +1463,25 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         }
         gained
     }
+
     fn melee_ap(&self) -> u32 {
         self.character.melee_ap(&self.target_view())
     }
+
     fn random_in_range(&mut self, min: f64, max: f64) -> f64 {
         self.character.random_in_range(min, max)
     }
+
     fn random_normalized_mh_dmg(&mut self) -> f64 {
         let view = self.target_view();
         self.character.random_normalized_mh_dmg(&view)
     }
+
     fn random_non_normalized_mh_dmg(&mut self) -> f64 {
         let view = self.target_view();
         self.character.random_non_normalized_mh_dmg(&view)
     }
+
     fn roll_melee_ability(
         &mut self,
         included: IncludedOutcomes,
@@ -1511,45 +1501,57 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
             .roll_mut()
             .get_melee_ability_result(&roll_ctx, skill, crit, included)
     }
+
     fn stats_mut(&mut self) -> &mut CharacterStats {
         self.character.stats_mut()
     }
+
     fn target_mut(&mut self) -> &mut Target {
         self.target
     }
+
     fn increase_melee_attack_speed(&mut self, percent: u32) {
         self.character
             .stats_mut()
             .increase_melee_attack_speed(percent);
         self.retime_swings(f64::from(percent) / 100.0);
     }
+
     fn decrease_melee_attack_speed(&mut self, percent: u32) {
         self.character
             .stats_mut()
             .decrease_melee_attack_speed(percent);
         self.retime_swings(-f64::from(percent) / 100.0);
     }
+
     fn swap_stance(&mut self, stance: Stance) {
         CharacterContext::swap_stance(self, stance);
     }
+
     fn spell_modifiers(&self) -> &SpellModifiers {
         self.character.spell_modifiers()
     }
+
     fn spell_modifiers_mut(&mut self) -> &mut SpellModifiers {
         self.character.spell_modifiers_mut()
     }
+
     fn add_extra_attacks(&mut self, count: u32) {
         self.character.add_extra_attacks(count);
     }
+
     fn adjust_stance_rage_retained(&mut self, delta: i32) {
         self.character.adjust_stance_rage_retained(delta);
     }
+
     fn adjust_offhand_damage_percent(&mut self, percent: i32) {
         self.character.adjust_offhand_damage_percent(percent);
     }
+
     fn adjust_offhand_rage_percent(&mut self, percent: i32) {
         self.character.adjust_offhand_rage_percent(percent);
     }
+
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
         self.character
             .spells_mut()
@@ -1561,30 +1563,38 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     fn character_id(&self) -> CharId {
         self.character.id()
     }
+
     fn engine(&self) -> &Engine {
         self.engine
     }
+
     fn engine_mut(&mut self) -> &mut Engine {
         self.engine
     }
+
     fn combat_length(&self) -> f64 {
         self.character.sim().combat_length
     }
+
     fn on_global_cooldown(&self) -> bool {
         self.character.on_global_cooldown(self.now())
     }
+
     fn global_cooldown(&self) -> f64 {
         self.character.global_cooldown()
     }
+
     fn start_global_cooldown(&mut self) {
         let now = self.now();
         self.character.start_global_cooldown(now);
     }
+
     fn on_stance_cooldown(&self) -> bool {
         self.character.on_stance_cooldown(self.now())
     }
-    /// The stance swap lag pushes the global cooldown forward slightly; the player action is
-    /// scheduled for then. Port of `Character::start_stance_cooldown`.
+
+    /// The stance swap lag pushes the global cooldown forward slightly. The player action is
+    /// scheduled for then.
     fn start_stance_cooldown(&mut self) {
         let now = self.now();
         if let Some(at) = self.character.start_stance_cooldown(now) {
@@ -1593,31 +1603,38 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
                 .add_event(Event::new(at, EventKind::PlayerAction { character }));
         }
     }
+
     fn cast_in_progress(&self) -> bool {
         self.character.spells().cast_in_progress()
     }
+
     fn start_cast(&mut self) -> u32 {
         self.character.spells_mut().start_cast()
     }
+
     fn complete_cast(&mut self, cast_id: u32) {
         self.character.spells_mut().complete_cast(cast_id);
         self.add_player_reaction_event();
     }
+
     fn casting_speed_mod(&self) -> f64 {
         self.character.stats().get_casting_speed_mod()
     }
+
     fn casting_speed_flat_reduction(&self) -> u32 {
         self.character.stats().get_casting_speed_flat_reduction()
     }
+
     fn stop_attack(&mut self) {
         self.character.spells_mut().stop_attack();
     }
-    /// Port of `CharacterSpells::start_attack`: marks the character as attacking and schedules
-    /// the swings of each hand.
+
+    /// Marks the character as attacking and schedules the swings of each hand.
     fn start_attack(&mut self) {
         self.character.spells_mut().start_attack();
         self.schedule_swings();
     }
+
     fn reset_swing_timers(&mut self) {
         self.with_auto_attack(Hand::Mainhand, |attack, ctx| {
             attack.reset_swing_timer_and_schedule(ctx)
@@ -1628,21 +1645,27 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             });
         }
     }
+
     fn queue_next_swing(&mut self, spell: SpellId) {
         self.character.spells_mut().queue_next_swing(spell);
     }
+
     fn cancel_next_swing(&mut self) {
         self.character.spells_mut().cancel_next_swing();
     }
+
     fn queued_next_swing(&self) -> Option<SpellId> {
         self.character.spells().queued_next_swing()
     }
+
     fn stance(&self) -> Stance {
         self.character.stance()
     }
+
     fn equipped_item_matches(&self, requirement: &EquippedItems) -> bool {
         CharacterContext::equipped_item_matches(self, requirement)
     }
+
     fn caster_aura_state(&self, state: AuraState) -> bool {
         match state {
             AuraState::None => true,
@@ -1662,9 +1685,11 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             _ => false,
         }
     }
+
     fn target_aura_state(&self, state: AuraState) -> bool {
         state == AuraState::None
     }
+
     fn aura_active(&self, spell: u32) -> bool {
         self.character
             .spells()
@@ -1672,22 +1697,28 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             .map(|id| self.buff_ref(id))
             .any(|buff| buff.spell() == spell && buff.is_active())
     }
+
     fn lose_resource(&mut self, resource: ResourceType, amount: u32) {
         let now = self.now();
         self.character.lose_resource(resource, amount, now);
     }
+
     fn cooldown(&self, id: CooldownId) -> &CooldownControl {
         self.character.spells().cooldowns().get(id)
     }
+
     fn cooldown_mut(&mut self, id: CooldownId) -> &mut CooldownControl {
         self.character.spells_mut().cooldowns_mut().get_mut(id)
     }
+
     fn buff(&self, id: BuffId) -> &Buff {
         self.buff_ref(id)
     }
+
     fn buff_mut(&mut self, id: BuffId) -> &mut Buff {
         self.buff_ctx(id).0
     }
+
     /// Aura effects are applied once per stack (Sunder Armor's armor reduction × 5).
     fn apply_buff(&mut self, id: BuffId) -> BuffApplication {
         let before = self.buff_ref(id).stacks();
@@ -1712,6 +1743,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         }
         application
     }
+
     fn cancel_buff(&mut self, id: BuffId) -> bool {
         let stacks = self.buff_ref(id).stacks();
         let (buff, mut ctx) = self.buff_ctx(id);
@@ -1724,6 +1756,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         }
         cancelled
     }
+
     fn enable_buff(&mut self, id: BuffId) {
         if self.character.spells().owned_buff(id).is_some() {
             self.character.spells_mut().enable_buff(id);
@@ -1731,9 +1764,11 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             self.buff_ctx(id).0.enable();
         }
     }
+
     fn disable_buff(&mut self, id: BuffId) {
         self.character.spells_mut().disable_buff(id);
     }
+
     fn trigger_spell(&mut self, spell: u32, trigger_value: Option<f64>) -> Option<CastReport> {
         let id = self.character.spells().spell_by_game_id(spell)?;
         let report = self.with_spell(id, |s, ctx| {
@@ -1743,6 +1778,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.record_cast(id, &report);
         Some(report)
     }
+
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64) {
         if let Some(id) = self.character.spells().spell_by_game_id(spell) {
             self.with_spell(id, |s, ctx| s.set_effect_value(ctx, index, value));
@@ -1755,30 +1791,37 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             });
         }
     }
+
     fn target_armor(&self) -> i32 {
         self.target.armor()
     }
+
     fn target_block_value(&self) -> u32 {
         self.target.block_value()
     }
+
     fn total_physical_damage_mod(&self) -> f64 {
         let view = self.target_view();
         self.character
             .stats()
             .get_total_physical_damage_mod(&self.character.stat_context(&view))
     }
+
     fn flat_physical_damage_bonus(&self) -> u32 {
         self.character.stats().get_flat_physical_damage_bonus()
     }
+
     fn melee_ability_crit_dmg_mod(&self) -> f64 {
         let view = self.target_view();
         self.character
             .stats()
             .get_melee_ability_crit_dmg_mod(&self.character.stat_context(&view))
     }
+
     fn total_threat_mod(&self) -> f64 {
         self.character.stats().get_total_threat_mod()
     }
+
     fn avg_mh_damage(&self) -> f64 {
         f64::from(self.character.avg_mh_damage(&self.target_view()))
     }
@@ -1801,9 +1844,11 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
     fn weapon_speed(&self, hand: Hand) -> Option<f64> {
         self.character.weapon_speed(hand, &self.target_view())
     }
+
     fn weapon_skill(&self, hand: Hand) -> u32 {
         self.character.weapon_skill(hand, &self.target_view())
     }
+
     fn roll_melee_hit(&mut self, hand: Hand) -> PhysicalAttackResult {
         let view = self.target_view();
         let roll_ctx = self.character.refresh_roll_context(&view);
@@ -1822,31 +1867,37 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
             .roll_mut()
             .get_melee_hit_result(&roll_ctx, skill, crit)
     }
+
     fn glancing_blow_dmg_penalty(&mut self, weapon_skill: u32) -> f64 {
         let clvl = self.character.clvl();
         self.character
             .roll_mut()
             .get_glancing_blow_dmg_penalty(clvl, weapon_skill)
     }
+
     fn random_non_normalized_oh_dmg(&mut self) -> f64 {
         let view = self.target_view();
         self.character.random_non_normalized_oh_dmg(&view)
     }
+
     fn avg_oh_damage(&self) -> f64 {
         f64::from(self.character.avg_oh_damage(&self.target_view()))
     }
+
     fn melee_crit_dmg_mod(&self) -> f64 {
         2.0
     }
+
     fn rage_from_damage(&self, hand: Hand, damage: f64) -> Option<u32> {
         self.character.rage_from_damage(hand, damage)
     }
-    /// Port of `Character::add_player_reaction_event`: the rotation runs again 0.1 s later.
+
     fn add_player_reaction_event(&mut self) {
         let character = self.character.id();
         self.engine
             .add_event_in(0.1, EventKind::PlayerAction { character });
     }
+
     fn is_melee_attacking(&self) -> bool {
         self.character.spells().is_melee_attacking()
     }
