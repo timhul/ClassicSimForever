@@ -1009,7 +1009,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Lets the queued on-next-swing spell `queued` replace the main-hand swing that is due:
     /// completes the swing timer, performs the spell and runs what followed from it.
-    fn perform_next_swing(&mut self, queued: SpellId) -> CastReport {
+    pub(crate) fn perform_next_swing(&mut self, queued: SpellId) -> CastReport {
         let now = self.now();
         let speed = self.weapon_speed(Hand::Mainhand).unwrap_or(0.0);
         self.character
@@ -1051,6 +1051,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         };
         self.with_auto_attack(Hand::Mainhand, |attack, ctx| attack.schedule_next(ctx));
         outcome
+    }
+
+    /// Swings `hand` now outside the swing events, without scheduling the next swing, and runs
+    /// what follows from it. Port of `MainhandAttack::perform` / `OffhandAttack::perform` as the
+    /// C++ tests call them.
+    #[cfg(test)]
+    pub(crate) fn perform_swing(&mut self, hand: Hand) -> SwingReport {
+        let report = self.with_auto_attack(hand, |attack, ctx| attack.perform(ctx));
+        self.after_swing(&report);
+        self.perform_extra_attacks();
+        report
     }
 
     /// An off-hand swing event.

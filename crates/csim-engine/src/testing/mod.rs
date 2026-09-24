@@ -11,6 +11,8 @@ pub(crate) mod warrior;
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod warrior_tests;
 
 use std::collections::HashSet;
 use std::sync::{Arc, OnceLock};
@@ -22,17 +24,19 @@ use crate::character::Character;
 use crate::character_loader::{MAX_LEVEL, MAX_TARGET_LEVEL};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult, ROLL_RANGE};
 use crate::data_bundle::DataBundle;
+use crate::effect::EffectHost;
 use crate::engine::{Event, EventType};
 use crate::faction::PlayerClass;
 use crate::ids::{BuffId, CharId, ProcId, SpellId};
 use crate::item::{EquipmentSlot, Item, ItemSpec, WeaponType};
+use crate::proc::ProcSource;
 use crate::race::Race;
 use crate::raid::{RaidControl, SharedBuffRegistry};
 use crate::resource::ResourceType;
 use crate::rng::Random;
 use crate::rotation::RotationHost;
 use crate::sim_settings::SimSettings;
-use crate::spell::{CastReport, SpellHost, MAX_RANK};
+use crate::spell::{CastReport, Hand, SpellHost, SpellStatus, SwingReport, MAX_RANK};
 use crate::stats::{CharacterStats, StatContext, TargetStatView};
 use crate::talent::CharacterTalents;
 use crate::target::{CreatureType, Target};
@@ -155,6 +159,8 @@ pub(crate) struct SpellTest {
     /// What is under test, for the assertion messages (`spell_under_test`).
     label: String,
     ignored_events: HashSet<EventType>,
+    /// The crit adjustment of the last forced outcome, undone by the next one.
+    forced_crit: Option<Outcome>,
 }
 
 impl SpellTest {
@@ -162,28 +168,60 @@ impl SpellTest {
     /// empty talent setup, no gear and no rotation, in a raid at T = 0 whose set of iterations
     /// is not prepared yet (see [`Self::prepare_set_of_combat_iterations`]).
     pub fn new(class: PlayerClass, race: Race, label: &str) -> Self {
+        let mut raid = RaidControl::new(Target::new(MAX_TARGET_LEVEL));
+        let id = Self::add_character_to(&mut raid, class, race, None);
+        raid.set_seed(SEED);
+        SpellTest {
+            raid,
+            id,
+            label: label.to_string(),
+            ignored_events: HashSet::new(),
+            forced_crit: None,
+        }
+    }
+
+    /// Adds another level 60 character to the raid, at `place` (party, member) or the first
+    /// free place, set up like the one under test.
+    pub fn add_character(
+        &mut self,
+        class: PlayerClass,
+        race: Race,
+        place: Option<(u8, u8)>,
+    ) -> CharId {
+        let id = Self::add_character_to(&mut self.raid, class, race, place);
+        self.raid.set_seed(SEED);
+        id
+    }
+
+    fn add_character_to(
+        raid: &mut RaidControl,
+        class: PlayerClass,
+        race: Race,
+        place: Option<(u8, u8)>,
+    ) -> CharId {
         let data = data();
         let settings = SimSettings::default();
         let class_spec = Arc::clone(data.classes.get(class).expect("the class exists"));
         let race_spec = data.races.get(race);
-        let mut raid = RaidControl::new(Target::new(MAX_TARGET_LEVEL));
-        let id = raid
-            .add_character(|id, party, member| {
-                Character::new(
-                    id,
-                    class_spec,
-                    race_spec,
-                    Arc::clone(&data.equipment),
-                    settings.phase,
-                    settings.sim_params(),
-                    MAX_TARGET_LEVEL,
-                    party,
-                    member,
-                )
-            })
-            .expect("the raid is empty");
+        let build = |id, party, member| {
+            Character::new(
+                id,
+                class_spec,
+                race_spec,
+                Arc::clone(&data.equipment),
+                settings.phase,
+                settings.sim_params(),
+                MAX_TARGET_LEVEL,
+                party,
+                member,
+            )
+        };
+        let id = match place {
+            Some((party, member)) => raid.add_character_at(party, member, build),
+            None => raid.add_character(build),
+        }
+        .expect("a free place");
         raid.character_mut(id).set_clvl(MAX_LEVEL);
-        raid.set_seed(SEED);
         raid.with_character(id, |ctx| {
             if let Some(file) = data.talents.get(class) {
                 ctx.set_talents(CharacterTalents::new(Arc::clone(file)));
@@ -191,12 +229,7 @@ impl SpellTest {
             ctx.learn_all(&data.spells);
             ctx.sync_ruleset_spells(&data.spells);
         });
-        SpellTest {
-            raid,
-            id,
-            label: label.to_string(),
-            ignored_events: HashSet::new(),
-        }
+        id
     }
 
     /// Prepares the raid (and so the character) for a set of iterations.
@@ -263,9 +296,22 @@ impl SpellTest {
             .unwrap_or_else(|| panic!("{}: no buff {name:?}", self.label))
     }
 
+    /// The buff of game spell `spell`, for names several buffs share (the Flurry talent's
+    /// passive and its haste buff).
+    pub fn buff_by_spell(&mut self, spell: u32) -> BuffId {
+        let ids: Vec<BuffId> = self.character().spells().buff_ids().collect();
+        ids.into_iter()
+            .find(|&id| self.with_ctx(|ctx| ctx.buff_ref(id).spell()) == spell)
+            .unwrap_or_else(|| panic!("{}: no buff of spell {spell}", self.label))
+    }
+
     /// Reads buff `name`.
     pub fn with_buff<R>(&mut self, name: &str, f: impl FnOnce(&Buff) -> R) -> R {
         let id = self.buff(name);
+        self.with_buff_id(id, f)
+    }
+
+    pub fn with_buff_id<R>(&mut self, id: BuffId, f: impl FnOnce(&Buff) -> R) -> R {
         self.with_ctx(|ctx| f(ctx.buff_ref(id)))
     }
 
@@ -277,6 +323,23 @@ impl SpellTest {
             .position(|proc| proc.name() == name)
             .map(|index| ProcId(index as u32))
             .unwrap_or_else(|| panic!("{}: no proc {name:?}", self.label))
+    }
+
+    /// The proc chance of proc `name` out of [`PROC_ROLL_RANGE`](crate::proc::PROC_ROLL_RANGE) for an event from `source`
+    /// (`get_proc_range`).
+    pub fn proc_range(&mut self, name: &str, source: ProcSource) -> u32 {
+        let id = self.proc(name);
+        let proc = self.character().spells().procs().get(id).clone();
+        self.with_ctx(|ctx| proc.proc_range(source, ctx))
+    }
+
+    /// Whether proc `name` may fire on an event from `source` now: it listens to the source
+    /// and its conditions hold (`proc_specific_conditions_fulfilled`).
+    pub fn proc_conditions_fulfilled(&mut self, name: &str, source: ProcSource) -> bool {
+        let id = self.proc(name);
+        let proc = self.character().spells().procs().get(id).clone();
+        proc.procs_from_source(source)
+            && self.with_ctx(|ctx| proc.conditions_fulfilled(source, ctx))
     }
 
     /// Performs spell `id` (no availability checks, like the C++ `Spell::perform`) and runs
@@ -291,6 +354,129 @@ impl SpellTest {
         self.perform(id)
     }
 
+    /// The status of the highest learned rank of spell `name` (`get_spell_status`).
+    pub fn status(&mut self, name: &str) -> SpellStatus {
+        let id = self.spell(name);
+        self.with_ctx(|ctx| ctx.with_spell(id, |spell, ctx| spell.status(ctx)))
+    }
+
+    /// Asserts the status of spell `name`.
+    pub fn then_status_is(&mut self, name: &str, status: SpellStatus) {
+        assert_eq!(
+            self.status(name),
+            status,
+            "{}: status of {name}",
+            self.label
+        );
+    }
+
+    pub fn enable_spell(&mut self, name: &str) {
+        let id = self.spell(name);
+        self.with_ctx(|ctx| ctx.enable_spell(id));
+        assert!(self.is_enabled(name));
+    }
+
+    pub fn disable_spell(&mut self, name: &str) {
+        let id = self.spell(name);
+        self.with_ctx(|ctx| ctx.disable_spell(id));
+        assert!(!self.is_enabled(name));
+    }
+
+    pub fn is_enabled(&mut self, name: &str) -> bool {
+        let id = self.spell(name);
+        self.character().spells().spell(id).is_enabled()
+    }
+
+    /// The cooldown of spell `name` in seconds, three decimals (`get_base_cooldown`): the
+    /// longer of its own and its category cooldown.
+    pub fn base_cooldown(&mut self, name: &str) -> String {
+        let id = self.spell(name);
+        let seconds = self.with_ctx(|ctx| {
+            ctx.with_spell(id, |spell, ctx| {
+                spell
+                    .cooldown_seconds(ctx)
+                    .max(spell.category_cooldown_seconds())
+            })
+        });
+        format!("{seconds:.3}")
+    }
+
+    pub fn cooldown_remaining(&mut self, name: &str) -> f64 {
+        let id = self.spell(name);
+        self.with_ctx(|ctx| ctx.with_spell(id, |spell, ctx| spell.cooldown_remaining(ctx)))
+    }
+
+    pub fn on_global_cooldown(&self) -> bool {
+        self.character().on_global_cooldown(self.now())
+    }
+
+    pub fn on_stance_cooldown(&self) -> bool {
+        self.character().on_stance_cooldown(self.now())
+    }
+
+    pub fn action_ready(&self) -> bool {
+        self.character().action_ready(self.now())
+    }
+
+    /// Whether buff `name` is active.
+    pub fn buff_is_active(&mut self, name: &str) -> bool {
+        self.with_buff(name, Buff::is_active)
+    }
+
+    /// Lands on-next-swing spell `name` as if its main-hand swing came (`calculate_damage`),
+    /// queued or not, and runs what follows from it.
+    pub fn when_next_swing_spell_lands(&mut self, name: &str) -> CastReport {
+        let id = self.spell(name);
+        self.with_ctx(|ctx| {
+            let report = ctx.perform_next_swing(id);
+            ctx.perform_extra_attacks();
+            report
+        })
+    }
+
+    /// Applies buff `name` (`apply_buff`).
+    pub fn apply_buff(&mut self, name: &str) {
+        let id = self.buff(name);
+        self.apply_buff_id(id);
+    }
+
+    pub fn apply_buff_id(&mut self, id: BuffId) {
+        self.with_ctx(|ctx| SpellHost::apply_buff(ctx, id));
+    }
+
+    /// Removes buff `id` before it runs out (all its charges or stacks).
+    pub fn cancel_buff_id(&mut self, id: BuffId) {
+        self.with_ctx(|ctx| SpellHost::cancel_buff(ctx, id));
+    }
+
+    pub fn buff_charges(&mut self, name: &str) -> u32 {
+        self.with_buff(name, Buff::charges)
+    }
+
+    pub fn buff_stacks(&mut self, name: &str) -> u32 {
+        self.with_buff(name, Buff::stacks)
+    }
+
+    /// Swings `hand` now (`perform` of the auto attack): the swing timer restarts, the next
+    /// swing is not scheduled.
+    pub fn when_swing_is_performed(&mut self, hand: Hand) -> SwingReport {
+        self.with_ctx(|ctx| ctx.perform_swing(hand))
+    }
+
+    /// When the next swing of `hand` is due, three decimals (`get_next_expected_use`).
+    pub fn next_expected_use(&self, hand: Hand) -> String {
+        let attack = self.character().spells().auto_attack(hand);
+        format!("{:.3}", attack.next_expected_use(self.now()))
+    }
+
+    pub fn when_increasing_attack_speed(&mut self, percent: u32) {
+        self.with_ctx(|ctx| EffectHost::increase_melee_attack_speed(ctx, percent));
+    }
+
+    pub fn when_decreasing_attack_speed(&mut self, percent: u32) {
+        self.with_ctx(|ctx| EffectHost::decrease_melee_attack_speed(ctx, percent));
+    }
+
     /// Starts auto attacking: the swings of each hand are scheduled from now.
     pub fn when_starting_attack(&mut self) {
         self.with_ctx(|ctx| SpellHost::start_attack(ctx));
@@ -298,18 +484,32 @@ impl SpellTest {
 
     // ---------------------------------------------------------------- equipment
 
-    /// Equips item `item` in `slot` and checks that it took.
+    /// Equips item `item` in `slot` and checks that it took. The passives with equipment
+    /// requirements (Two-Handed Weapon Specialization, Defiance) are re-evaluated, as the C++
+    /// checked the weapon when it applied them.
     pub fn equip(&mut self, slot: EquipmentSlot, item: u32) {
         let db = &data().spells;
-        self.with_ctx(|ctx| ctx.equip(db, slot, item))
-            .unwrap_or_else(|error| panic!("{}: equipping {item}: {error}", self.label));
+        self.with_ctx(|ctx| {
+            let change = ctx.equip(db, slot, item);
+            ctx.reevaluate_passives();
+            change
+        })
+        .unwrap_or_else(|error| panic!("{}: equipping {item}: {error}", self.label));
         assert_eq!(self.character().equipment().item_id(slot), Some(item));
     }
 
     pub fn unequip(&mut self, slot: EquipmentSlot) {
         let db = &data().spells;
-        self.with_ctx(|ctx| ctx.unequip(db, slot));
+        self.with_ctx(|ctx| {
+            ctx.unequip(db, slot);
+            ctx.reevaluate_passives();
+        });
         assert_eq!(self.character().equipment().item_id(slot), None);
+    }
+
+    /// A shield (Drillborer Disk) in the off hand.
+    pub fn given_a_shield_equipped(&mut self) {
+        self.equip(EquipmentSlot::Offhand, 17066);
     }
 
     fn equip_weapon(&mut self, slot: EquipmentSlot, item: u32, min_max: Option<u32>, speed: f64) {
@@ -598,12 +798,19 @@ impl SpellTest {
 
     /// Makes crits impossible (hit, block) or certain (crit), as the C++ tests did through the
     /// crit penalty and the melee aura crit.
+    /// The previous forced outcome's adjustment is undone first, so outcomes can be switched.
     fn force_crit(&mut self, outcome: Outcome) {
+        match self.forced_crit.take() {
+            Some(Outcome::Crit) => self.stats_mut().decrease_melee_aura_crit(999_999),
+            Some(_) => self.stats_mut().decrease_crit_penalty(999_999),
+            None => {}
+        }
         match outcome {
             Outcome::Hit | Outcome::Block => self.stats_mut().increase_crit_penalty(999_999),
             Outcome::Crit => self.stats_mut().increase_melee_aura_crit(999_999),
-            _ => {}
+            _ => return,
         }
+        self.forced_crit = Some(outcome);
     }
 
     /// Reshapes the white (`white`) or special hit tables of both hands' weapon skills so that
@@ -615,6 +822,16 @@ impl SpellTest {
             "special attacks cannot glance"
         );
         self.force_crit(outcome);
+        self.reshape_melee_tables(outcome, white);
+        let skills = [self.mh_weapon_skill(), self.oh_weapon_skill()];
+        for skill in skills {
+            self.assert_melee_table_can_only(skill, white, outcome);
+        }
+    }
+
+    /// Sets the miss, dodge, parry, glancing and block ranges of the white or special tables
+    /// of both hands' weapon skills to all or nothing of the roll range.
+    fn reshape_melee_tables(&mut self, outcome: Outcome, white: bool) {
         let view = self.view();
         let skills = [self.mh_weapon_skill(), self.oh_weapon_skill()];
         let character = self.character_mut();
@@ -639,9 +856,6 @@ impl SpellTest {
                 table.update_parry_chance(outcome.chance(Outcome::Parry));
                 table.update_block_chance(outcome.chance(Outcome::Block));
             }
-        }
-        for skill in skills {
-            self.assert_melee_table_can_only(skill, white, outcome);
         }
     }
 
@@ -732,6 +946,12 @@ impl SpellTest {
 
     pub fn given_a_guaranteed_melee_ability_block(&mut self) {
         self.force_melee_tables(Outcome::Block, false);
+    }
+
+    /// Special attacks can neither miss nor be avoided, and crit as often as the crit chance
+    /// says (a guaranteed hit without the crit penalty).
+    pub fn given_no_melee_ability_avoidance(&mut self) {
+        self.reshape_melee_tables(Outcome::Hit, false);
     }
 
     // ---------------------------------------------------------------- stats and target
@@ -839,9 +1059,15 @@ impl SpellTest {
     /// Puts `rank` points into talent `talent` of tab `tab` (e.g. `"Fury"`), ignoring the tier
     /// unlock and the point budget like the C++ tests did; a prerequisite must be maxed first.
     pub fn given_talent_rank(&mut self, tab: &str, talent: &str, rank: u32) {
+        self.given_talent_rank_of(self.id, tab, talent, rank);
+    }
+
+    /// [`Self::given_talent_rank`] for character `id` of the raid.
+    pub fn given_talent_rank_of(&mut self, id: CharId, tab: &str, talent: &str, rank: u32) {
         assert!(rank > 0);
         let talents = self
-            .character()
+            .raid
+            .character(id)
             .talents()
             .unwrap_or_else(|| panic!("{}: the class has no talents", self.label));
         let skill_line = talents
@@ -856,7 +1082,8 @@ impl SpellTest {
             .unwrap_or_else(|| panic!("{}: no talent {talent:?} in {tab}", self.label));
         for i in 0..rank {
             let change = self
-                .character_mut()
+                .raid
+                .character_mut(id)
                 .talents_mut()
                 .and_then(|t| t.force_increment_rank(node))
                 .unwrap_or_else(|| {
@@ -865,7 +1092,8 @@ impl SpellTest {
                         i + 1
                     )
                 });
-            self.with_ctx(|ctx| ctx.apply_talent_changes([change]));
+            self.raid
+                .with_character(id, |ctx| ctx.apply_talent_changes([change]));
         }
     }
 
@@ -923,6 +1151,35 @@ impl SpellTest {
         }
     }
 
+    /// Drops queued events until one of `event_type`, which is dispatched; returns its time.
+    ///
+    /// # Panics
+    /// Panics if the queue runs dry first.
+    pub fn when_running_until_event(&mut self, event_type: EventType) -> f64 {
+        loop {
+            let event = self.raid.engine_mut().next_event().unwrap_or_else(|| {
+                panic!(
+                    "{}: ran out of events waiting for {event_type:?}",
+                    self.label
+                )
+            });
+            if event.kind.event_type() == event_type {
+                self.raid.dispatch(&event);
+                return event.time;
+            }
+        }
+    }
+
+    /// Runs only the queued events of `event_type` until the queue is empty; the others are
+    /// dropped.
+    pub fn when_running_only(&mut self, event_type: EventType) {
+        while let Some(event) = self.raid.engine_mut().next_event() {
+            if event.kind.event_type() == event_type {
+                self.raid.dispatch(&event);
+            }
+        }
+    }
+
     /// Pops the next event that is not ignored.
     fn next_event(&mut self) -> Option<Event> {
         loop {
@@ -972,6 +1229,16 @@ impl SpellTest {
 
     pub fn damage_dealt(&self) -> u64 {
         self.character().statistics().total_damage()
+    }
+
+    /// The damage of spell `name`, every rank (`get_total_damage_for_spell`).
+    pub fn damage_dealt_by(&self, name: &str) -> u64 {
+        self.character()
+            .statistics()
+            .spells()
+            .filter(|(key, _)| key.name == name)
+            .map(|(_, statistics)| statistics.total_damage())
+            .sum()
     }
 
     pub fn threat_dealt(&self) -> u64 {

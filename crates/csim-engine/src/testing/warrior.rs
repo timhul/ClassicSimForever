@@ -6,10 +6,14 @@ use std::ops::{Deref, DerefMut};
 use super::SpellTest;
 use crate::character::STANCE_COOLDOWN;
 use crate::faction::PlayerClass;
+use crate::ids::BuffId;
 use crate::race::Race;
 use crate::resource::ResourceType;
 use crate::spell::dbc::SpellModOp;
 use crate::stance::Stance;
+
+/// The haste buff the Flurry talent triggers.
+pub(crate) const FLURRY_HASTE: u32 = 12966;
 
 /// A level 60 Orc Warrior with 100 rage. Derefs to the class-agnostic [`SpellTest`].
 pub(crate) struct WarriorTest {
@@ -179,6 +183,13 @@ impl WarriorTest {
 
     pub fn then_warrior_has_rage(&self, rage: u32) {
         self.then_resource_is(ResourceType::Rage, rage);
+    }
+
+    // ---------------------------------------------------------------- buffs
+
+    /// Flurry's haste buff (the talent's own passive is also named Flurry).
+    pub fn flurry(&mut self) -> BuffId {
+        self.buff_by_spell(FLURRY_HASTE)
     }
 
     // ---------------------------------------------------------------- overpower

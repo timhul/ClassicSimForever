@@ -520,6 +520,10 @@ impl CharacterStats {
         self.crit_penalty += value;
     }
 
+    pub fn decrease_crit_penalty(&mut self, value: u32) {
+        self.crit_penalty -= value;
+    }
+
     // ---------------------------------------------------------------- attack power
 
     pub fn get_melee_ap(&self, ctx: &StatContext) -> u32 {
