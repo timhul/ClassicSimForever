@@ -86,7 +86,8 @@ enum Command {
         /// Export the racial abilities instead of a class.
         #[arg(long, conflicts_with_all = ["externals", "enchants"])]
         racials: bool,
-        /// Export the aura spells of the external buff registry instead of a class.
+        /// Export the aura spells of the external buff registry and the rulesets instead of a
+        /// class.
         #[arg(long, conflicts_with = "enchants")]
         externals: bool,
         /// Export the spells the enchant procs name instead of a class.
@@ -160,7 +161,7 @@ fn export_spells(
         ExportTarget::Externals(registry) => {
             let registry = ExternalBuffDb::load(&registry)?;
             let exclude = export::spell_ids_in_dir(spells_dir, EXTERNALS_FILE)?;
-            let seeds = registry.spell_ids();
+            let seeds = export::external_seeds(&registry);
             let repeated: Vec<u32> = seeds.intersection(&exclude).copied().collect();
             if !repeated.is_empty() {
                 eprintln!("already in another spell file, not repeated: {repeated:?}");

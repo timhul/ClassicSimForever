@@ -41,7 +41,7 @@ data/tables/<Table>.<build>.csv
         ▼
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
-csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml)
+csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
         │  + data/spells/overrides/*.yaml
         ▼

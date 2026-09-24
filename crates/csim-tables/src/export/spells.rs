@@ -12,7 +12,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
+use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::faction::PlayerClass;
+use csim_engine::rulesets::Ruleset;
 use csim_engine::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
     SpellEffectName, SpellSchoolMask,
@@ -192,8 +194,16 @@ pub fn export_enchants(
     export_externals_with_report(tables, seeds, exclude, overrides)
 }
 
-/// Builds the external buff walk (`data/spells/externals.yaml`): the closure of `seeds` (the
-/// aura spells `data/external_buffs.yaml` names), pruned, minus `exclude` (the ids another
+/// The seeds of the external buff walk: the aura spells `data/external_buffs.yaml` names and
+/// the rulesets' spells (Essence of the Red), which are external to the character too.
+pub fn external_seeds(registry: &ExternalBuffDb) -> BTreeSet<u32> {
+    let mut seeds = registry.spell_ids();
+    seeds.extend(Ruleset::all_spells());
+    seeds
+}
+
+/// Builds the external buff walk (`data/spells/externals.yaml`): the closure of `seeds`
+/// ([`external_seeds`]), pruned, minus `exclude` (the ids another
 /// file in `data/spells/` already carries, which the engine loads either way). The file has no
 /// class and its records no skill line: they are never learned, only turned into buffs.
 pub fn export_externals(

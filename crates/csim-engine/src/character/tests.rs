@@ -2034,7 +2034,7 @@ mod rotation {
         f.character.set_sim(SimParams {
             combat_length: 200.0,
             execute_threshold: 0.2,
-            glancing_blows: true,
+            ruleset: crate::rulesets::Ruleset::Standard,
         });
         f.engine
             .add_event(Event::new(50.0, EventKind::EncounterEnd));
@@ -2589,5 +2589,95 @@ mod statistics {
         assert_eq!(stats.iterations(), 0);
         assert_eq!(stats.spells().count(), 0);
         assert_eq!(stats.buffs().count(), 0);
+    }
+}
+
+mod rulesets {
+    use super::rotation::shipped_orc_warrior;
+    use super::*;
+    use crate::rulesets::{Ruleset, ESSENCE_OF_THE_RED};
+    use crate::stats::TargetStatView;
+
+    fn mh_crit(f: &Fixture) -> u32 {
+        let target = TargetStatView::default();
+        let ctx = f.character.stat_context(&target);
+        f.character.stats().get_mh_crit_chance(&ctx)
+    }
+
+    fn set_ruleset(f: &mut Fixture, ruleset: Ruleset) {
+        let db = std::mem::take(&mut f.db);
+        f.ctx().set_sim(
+            SimParams {
+                ruleset,
+                ..SimParams::default()
+            },
+            &db,
+        );
+        f.db = db;
+    }
+
+    #[test]
+    fn loatheb_adds_melee_crit_until_the_ruleset_changes() {
+        let mut f = shipped_orc_warrior();
+        let base = mh_crit(&f);
+        set_ruleset(&mut f, Ruleset::Loatheb);
+        // +100 % aura crit, less the aura crit suppression against a level 63 target: every
+        // swing that is not avoided crits.
+        let loatheb = mh_crit(&f);
+        assert!(loatheb > 10_000, "{base} -> {loatheb}");
+        assert!(
+            !f.character
+                .roll_context(&TargetStatView::default())
+                .glancing_blows
+        );
+        set_ruleset(&mut f, Ruleset::Loatheb);
+        assert_eq!(mh_crit(&f), loatheb, "applied once");
+        set_ruleset(&mut f, Ruleset::Standard);
+        assert_eq!(mh_crit(&f), base);
+        assert!(
+            f.character
+                .roll_context(&TargetStatView::default())
+                .glancing_blows
+        );
+    }
+
+    #[test]
+    fn standard_learns_no_ruleset_spell() {
+        let mut f = shipped_orc_warrior();
+        set_ruleset(&mut f, Ruleset::Standard);
+        assert!(!f.character.spells().has_game_id(ESSENCE_OF_THE_RED));
+    }
+
+    #[test]
+    fn vaelastrasz_gives_twenty_rage_per_second_from_the_pull() {
+        let mut f = shipped_orc_warrior();
+        set_ruleset(&mut f, Ruleset::Vaelastrasz);
+        let essence = f.spell_id(ESSENCE_OF_THE_RED);
+        assert!(f.character.spells().spell(essence).is_enabled());
+        assert!(f
+            .character
+            .spells()
+            .start_of_combat_spells()
+            .contains(&essence));
+
+        f.set_rage(0);
+        f.ctx().encounter_start();
+        assert!(f.ctx().aura_active(ESSENCE_OF_THE_RED));
+        // Keep the auto attacks and their rage out of the count.
+        f.character.spells_mut().stop_attack();
+        f.advance_to(3.5);
+        assert_eq!(f.rage(), 60, "three ticks of 20 rage");
+    }
+
+    #[test]
+    fn leaving_vaelastrasz_disables_essence_of_the_red() {
+        let mut f = shipped_orc_warrior();
+        set_ruleset(&mut f, Ruleset::Vaelastrasz);
+        set_ruleset(&mut f, Ruleset::Loatheb);
+        let essence = f.spell_id(ESSENCE_OF_THE_RED);
+        assert!(!f.character.spells().spell(essence).is_enabled());
+        f.set_rage(0);
+        f.ctx().encounter_start();
+        assert!(!f.ctx().aura_active(ESSENCE_OF_THE_RED));
     }
 }

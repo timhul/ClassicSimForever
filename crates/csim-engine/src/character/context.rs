@@ -16,6 +16,7 @@ use crate::item::EquipmentSlot;
 use crate::proc::{ProcHost, ProcSource};
 use crate::resource::ResourceType;
 use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
+use crate::rulesets::Ruleset;
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{SimFlag, SpellOverride};
@@ -31,7 +32,7 @@ use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::Target;
 
-use super::{Character, StanceLink};
+use super::{Character, SimParams, StanceLink};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SwingOutcome {
@@ -296,6 +297,41 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
         }
         added
+    }
+
+    // ---------------------------------------------------------------- simulation settings
+
+    /// Replaces the simulation settings and applies the ruleset: its stat change
+    /// (`Character::set_sim`) and its spells ([`CharacterContext::sync_ruleset_spells`]).
+    /// Port of `SimSettings::use_ruleset` / `RulesetControl::use_ruleset`.
+    pub fn set_sim(&mut self, sim: SimParams, db: &SpellDb) {
+        self.character.set_sim(sim);
+        self.sync_ruleset_spells(db);
+    }
+
+    /// Enables the spells of the active ruleset (Essence of the Red under Vaelastrasz),
+    /// learning them on first use, and disables those of the other rulesets.
+    ///
+    /// # Panics
+    /// Panics if the active ruleset's spell is not in `db`.
+    pub fn sync_ruleset_spells(&mut self, db: &SpellDb) {
+        let active = self.character.sim().ruleset;
+        for game_id in Ruleset::all_spells() {
+            let wanted = active.spells().contains(&game_id);
+            let id = match self.character.spells.spell_by_game_id(game_id) {
+                Some(id) => id,
+                None if wanted => self
+                    .learn(db, game_id)
+                    .spell
+                    .unwrap_or_else(|| panic!("ruleset spell {game_id} is not a castable spell")),
+                None => continue,
+            };
+            if wanted {
+                self.enable_spell(id);
+            } else {
+                self.disable_spell(id);
+            }
+        }
     }
 
     /// Enables a spell and the hidden payloads it casts (a trainable spell's trigger
@@ -1694,6 +1730,10 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
 impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     fn character_id(&self) -> CharId {
         self.character.id()
+    }
+
+    fn resource_type(&self) -> ResourceType {
+        self.character.resource_type()
     }
 
     fn engine(&self) -> &Engine {

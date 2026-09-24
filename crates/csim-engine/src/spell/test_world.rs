@@ -1140,6 +1140,9 @@ impl SpellHost for World {
     fn character_id(&self) -> CharId {
         CharId(0)
     }
+    fn resource_type(&self) -> ResourceType {
+        ResourceType::Rage
+    }
     fn engine(&self) -> &Engine {
         &self.engine
     }

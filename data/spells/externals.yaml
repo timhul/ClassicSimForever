@@ -486,6 +486,38 @@ spells:
     aura: MOD_MELEE_HASTE_3
     base_points: 5.0
     implicit_target: [UNIT_MASTER, UNIT_CASTER]
+- id: 23513
+  name: Essence of the Red
+  attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: 180000
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PERIODIC_ENERGIZE
+    base_points: 500.0
+    aura_period_ms: 1000
+    bonus_coefficient: 1.0
+    radius_yd: [0.0, 100.0]
+    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
+  - index: 1
+    effect: APPLY_AURA
+    aura: PERIODIC_ENERGIZE
+    base_points: 50.0
+    aura_period_ms: 1000
+    bonus_coefficient: 1.0
+    misc_value: [3, 0]
+    radius_yd: [100.0, 0.0]
+    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
+  - index: 2
+    effect: APPLY_AURA
+    aura: PERIODIC_ENERGIZE
+    base_points: 200.0
+    aura_period_ms: 1000
+    bonus_coefficient: 1.0
+    misc_value: [1, 0]
+    radius_yd: [100.0, 0.0]
+    implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
 - id: 24799
   name: Well Fed
   attributes: [134217984, 32, 2415935488, 5242880, 0, 0, 4, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]

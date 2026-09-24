@@ -35,7 +35,7 @@ use crate::spell::overrides::{
     EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride, ThreatOverride,
 };
 use crate::spell::periodic::{Periodic, PeriodicKind, TickReport};
-use crate::spell::record::{EquippedItems, SpellDb, SpellRecord};
+use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{SpellResult, SpellStatus};
 use crate::stance::Stance;
 
@@ -46,6 +46,9 @@ const COOLDOWN_EPSILON: f64 = 0.0001;
 /// `CharacterSpells`, `Engine`, `EnabledBuffs` and `SimSettings` calls made by `Spell.cpp`.
 pub trait SpellHost: EffectHost {
     fn character_id(&self) -> CharId;
+    /// The resource the character spends and gains (which of an aura's per-power
+    /// `PERIODIC_ENERGIZE` effects ticks).
+    fn resource_type(&self) -> ResourceType;
     fn engine(&self) -> &Engine;
     fn engine_mut(&mut self) -> &mut Engine;
     /// Configured encounter length in seconds (execute range is derived from it).
@@ -372,7 +375,10 @@ impl Spell {
                 });
             Some(Periodic::new(None, period))
         } else {
-            let mut periodic = None;
+            // One periodic aura effect, or several `PERIODIC_ENERGIZE` effects on one period,
+            // one per power type (Essence of the Red: mana, rage and energy), of which the one
+            // for the character's resource ticks.
+            let mut periodic: Option<(Vec<usize>, u32)> = None;
             for (index, effect) in record
                 .effects
                 .iter()
@@ -380,17 +386,30 @@ impl Spell {
                 .enumerate()
             {
                 let script = setup.overrides.effect_script(effect.index);
-                if let Some(ms) = crate::spell::periodic::period_ms(effect, script) {
-                    assert!(
-                        periodic.is_none(),
-                        "{} ({}) has more than one periodic aura effect",
-                        record.name,
-                        record.id
-                    );
-                    periodic = Some(Periodic::new(Some(index), f64::from(ms) / 1000.0));
+                let Some(ms) = crate::spell::periodic::period_ms(effect, script) else {
+                    continue;
+                };
+                match &mut periodic {
+                    None => periodic = Some((vec![index], ms)),
+                    Some((indices, period)) => {
+                        let energize = |e: &EffectRecord| e.aura == AuraType::PeriodicEnergize;
+                        let first = record
+                            .effects
+                            .iter()
+                            .filter(|e| e.is_apply_aura())
+                            .nth(indices[0])
+                            .expect("indexed above");
+                        assert!(
+                            energize(first) && energize(effect) && *period == ms,
+                            "{} ({}) has more than one periodic aura effect",
+                            record.name,
+                            record.id
+                        );
+                        indices.push(index);
+                    }
                 }
             }
-            periodic
+            periodic.map(|(indices, ms)| Periodic::with_effects(indices, f64::from(ms) / 1000.0))
         };
 
         Spell {
@@ -1365,8 +1384,17 @@ impl Spell {
             return Some(PeriodicKind::weapon_damage(percent, duration, periodic.tick_rate()).0);
         }
         let buff = host.buff(self.marker_buff?);
-        let effect = buff.effects.get(periodic.effect_index()?)?;
-        PeriodicKind::from_effect(effect, buff.duration(), host).map(|(kind, _)| kind)
+        let kinds = periodic.effect_indices().iter().filter_map(|&index| {
+            let effect = buff.effects.get(index)?;
+            PeriodicKind::from_effect(effect, buff.duration(), host).map(|(kind, _)| kind)
+        });
+        if periodic.effect_indices().len() == 1 {
+            return kinds.into_iter().next();
+        }
+        let resource = host.resource_type();
+        kinds.into_iter().find(|kind| {
+            matches!(kind, PeriodicKind::ResourceGain { resource: gained, .. } if *gained == resource)
+        })
     }
 
     /// Handles a `DotTick` event for this spell. Port of `SpellPeriodic::perform_periodic`.

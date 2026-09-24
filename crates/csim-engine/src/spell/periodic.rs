@@ -135,9 +135,10 @@ pub struct TickReport {
 /// per-subclass state.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Periodic {
-    /// Index of the periodic aura effect in the buff's effect list (`None` for a scripted
-    /// bleed, whose kind is fixed at construction).
-    effect_index: Option<usize>,
+    /// Indices of the periodic aura effects in the buff's effect list: one, or one
+    /// `PERIODIC_ENERGIZE` per power type (empty for a scripted bleed, whose kind is fixed at
+    /// construction).
+    effect_indices: Vec<usize>,
     tick_rate: f64,
     application_id: u32,
     // Rend-style state.
@@ -149,9 +150,15 @@ pub struct Periodic {
 
 impl Periodic {
     pub fn new(effect_index: Option<usize>, tick_rate: f64) -> Self {
+        Self::with_effects(effect_index.into_iter().collect(), tick_rate)
+    }
+
+    /// A periodic driven by several aura effects of which one applies (see
+    /// `effect_indices`).
+    pub fn with_effects(effect_indices: Vec<usize>, tick_rate: f64) -> Self {
         assert!(tick_rate > 0.0, "periodic tick rate must be positive");
         Periodic {
-            effect_index,
+            effect_indices,
             tick_rate,
             application_id: 0,
             ticks_left: 0,
@@ -160,8 +167,13 @@ impl Periodic {
         }
     }
 
+    /// The first periodic aura effect's index.
     pub fn effect_index(&self) -> Option<usize> {
-        self.effect_index
+        self.effect_indices.first().copied()
+    }
+
+    pub fn effect_indices(&self) -> &[usize] {
+        &self.effect_indices
     }
 
     pub fn tick_rate(&self) -> f64 {

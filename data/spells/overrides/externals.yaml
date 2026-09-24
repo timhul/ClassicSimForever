@@ -6,3 +6,6 @@ overrides:
   - id: 11717
     note: Curse of Recklessness's DUMMY aura is the immunity to fear; the armor reduction is E1
     effects: [{ index: 0, script: NO_OP }]
+  - id: 23513
+    note: Essence of the Red, cast on the character when combat starts under the Vaelastrasz ruleset
+    sim_flags: [START_OF_COMBAT]

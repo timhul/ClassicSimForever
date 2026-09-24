@@ -25,6 +25,8 @@ pub mod raid;
 pub mod resource;
 pub mod rng;
 pub mod rotation;
+pub mod rulesets;
+pub mod sim_settings;
 pub mod spell;
 pub mod stance;
 pub mod statistics;

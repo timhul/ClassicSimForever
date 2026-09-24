@@ -34,6 +34,7 @@ use crate::race::{Race, RaceSpec};
 use crate::resource::{Resource, ResourceType};
 use crate::rng::Random;
 use crate::rotation::Rotation;
+use crate::rulesets::Ruleset;
 use crate::spell::auto_attack::rage_gained_from_damage;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::{AutoAttack, Hand};
@@ -45,16 +46,19 @@ use crate::talent::CharacterTalents;
 pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets, StatRules};
 
 /// Simulation settings the character reads. Port of the `SimSettings` / ruleset queries made
-/// from `Character` and `CombatRoll`.
+/// from `Character` and `CombatRoll`; built by
+/// [`SimSettings::sim_params`](crate::sim_settings::SimSettings::sim_params).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SimParams {
     /// Encounter length in seconds.
     pub combat_length: f64,
     /// Fraction of the encounter that is the execute phase (target below 20 % health for the
-    /// last `execute_threshold` of the fight). `SimSettings::get_execute_threshold`.
+    /// last `execute_threshold` of the fight). `SimSettings::get_execute_threshold`, the
+    /// ruleset's already applied.
     pub execute_threshold: f64,
-    /// Whether glancing blows occur (the Loatheb ruleset turns them off).
-    pub glancing_blows: bool,
+    /// The encounter ruleset (no glancing blows and extra crit under Loatheb, Essence of the
+    /// Red under Vaelastrasz).
+    pub ruleset: Ruleset,
 }
 
 impl Default for SimParams {
@@ -62,7 +66,7 @@ impl Default for SimParams {
         Self {
             combat_length: 300.0,
             execute_threshold: 0.2,
-            glancing_blows: true,
+            ruleset: Ruleset::Standard,
         }
     }
 }
@@ -171,6 +175,7 @@ impl Character {
         stats.increase_melee_ap(base.melee_ap);
         stats.increase_ranged_ap(base.ranged_ap);
         stats.increase_melee_base_crit(base.melee_crit);
+        stats.increase_melee_aura_crit(sim.ruleset.melee_aura_crit());
         let mut resource = Resource::new(class.resource);
         if let Some(mana) = resource.as_mana_mut() {
             mana.set_base_mana(base.mana);
@@ -345,8 +350,15 @@ impl Character {
         self.statistics.finish_combat_iteration();
     }
 
+    /// Replaces the simulation settings, moving the ruleset's stat change from the old ruleset
+    /// to the new one (the stat half of `RulesetControl::use_ruleset`; the ruleset's spells
+    /// need the spell db, see `CharacterContext::set_sim`).
     pub fn set_sim(&mut self, sim: SimParams) {
+        self.stats
+            .decrease_melee_aura_crit(self.sim.ruleset.melee_aura_crit());
         self.sim = sim;
+        self.stats
+            .increase_melee_aura_crit(self.sim.ruleset.melee_aura_crit());
         self.last_roll_context = None;
     }
 
@@ -466,7 +478,7 @@ impl Character {
             melee_hit_chance: self.stats.get_melee_hit_chance(&self.stat_context(target)),
             dual_wielding: self.is_dual_wielding(),
             attacking_from_behind: self.is_attacking_from_behind(),
-            glancing_blows: self.sim.glancing_blows,
+            glancing_blows: self.sim.ruleset.glancing_blows(),
         }
     }
 

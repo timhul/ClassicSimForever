@@ -495,6 +495,9 @@ mod tests {
         fn character_id(&self) -> CharId {
             CharId(1)
         }
+        fn resource_type(&self) -> ResourceType {
+            ResourceType::Rage
+        }
         fn engine(&self) -> &Engine {
             &self.engine
         }
