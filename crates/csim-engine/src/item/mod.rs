@@ -15,12 +15,16 @@ use std::sync::Arc;
 
 pub use db::{EquipmentDb, EquipmentDbError};
 pub use set_bonus::{SetBonusDb, SetBonusError, SetBonusSpec, SetSpec};
-pub use spec::{ItemProcSpec, ItemSpec, ItemUseSpec, ProcSourceFlags, WeaponDamageSpec};
+pub use spec::{
+    EffectTrigger, ItemEffect, ItemFile, ItemProcSpec, ItemSpec, ItemSuffix, ItemUseSpec,
+    LimitCategory, ProcSourceFlags, WeaponDamageSpec,
+};
 pub use types::{
     ArmorType, EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality, WeaponSlot, WeaponType,
 };
 
 use crate::faction::{Faction, PlayerClass};
+use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::rng::Random;
 use crate::stats::{Stats, UnsupportedItemStat, WeaponProfile};
@@ -222,6 +226,36 @@ impl Item {
         &self.spec.mutex
     }
 
+    /// The spells the item grants.
+    pub fn effects(&self) -> &[ItemEffect] {
+        &self.spec.effects
+    }
+
+    /// The item set (`ItemSet.ID`) of an exported item.
+    pub fn set_id(&self) -> Option<u32> {
+        self.spec.set
+    }
+
+    /// The unique-equipped group the item counts towards.
+    pub fn limit_category(&self) -> Option<&LimitCategory> {
+        self.spec.limit_category.as_ref()
+    }
+
+    /// The random suffixes the item can roll.
+    pub fn suffixes(&self) -> &[ItemSuffix] {
+        &self.spec.suffixes
+    }
+
+    pub fn flavour_text(&self) -> &str {
+        &self.spec.flavour_text
+    }
+
+    /// The school of the weapon damage; `None` for items that are not weapons.
+    pub fn damage_school(&self) -> Option<MagicSchool> {
+        self.weapon
+            .and(self.spec.damage.map(|damage| damage.school))
+    }
+
     pub fn available_for_phase(&self, phase: Phase) -> bool {
         self.spec.phase.available_in(phase)
     }
@@ -344,6 +378,10 @@ mod tests {
             class_restrictions: Vec::new(),
             damage: None,
             stats: Default::default(),
+            effects: Vec::new(),
+            set: None,
+            limit_category: None,
+            suffixes: Vec::new(),
             procs: Vec::new(),
             uses: Vec::new(),
             modifies: Vec::new(),
@@ -363,7 +401,12 @@ mod tests {
         speed: f64,
     ) -> ItemSpec {
         let mut spec = spec(slot, item_type);
-        spec.damage = Some(WeaponDamageSpec { min, max, speed });
+        spec.damage = Some(WeaponDamageSpec {
+            min,
+            max,
+            speed,
+            school: MagicSchool::Physical,
+        });
         spec
     }
 

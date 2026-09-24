@@ -1,16 +1,18 @@
 //! The item database. Port of `Equipment/EquipmentDb/EquipmentDb.*` and the item file readers.
 //!
-//! Items are loaded from YAML files that each hold a list of [`ItemSpec`]s. The same item id may
-//! appear in several content phases (items that were changed by a patch); lookups take the
-//! current phase and return the newest version available in it, like the C++ database did.
+//! Items are loaded from the exported YAML files of `data/items/` (each an [`ItemFile`]) and from
+//! the hand-authored files of `data/items/legacy/` (each a plain list of [`ItemSpec`]s), which
+//! only fill in the ids the export does not have. The same item id may appear in several content
+//! phases (items that were changed by a patch); lookups take the current phase and return the
+//! newest version available in it, like the C++ database did.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use super::set_bonus::{SetBonusDb, SetBonusError, SetSpec};
-use super::{EquipmentSlot, Item, ItemError, ItemSpec};
+use super::{EquipmentSlot, Item, ItemError, ItemFile, ItemSpec};
 use crate::enchant::{EnchantDb, EnchantDbError};
 use crate::phase::Phase;
 
@@ -31,6 +33,12 @@ pub enum EquipmentDbError {
     },
     #[error(transparent)]
     Item(#[from] ItemError),
+    #[error("{path}: exported from build {found}, other item files from {expected}")]
+    BuildMismatch {
+        path: PathBuf,
+        expected: String,
+        found: String,
+    },
     #[error("item {id} ({name}) is defined twice for phase {phase:?}")]
     DuplicateItem { id: u32, name: String, phase: Phase },
     #[error(transparent)]
@@ -44,6 +52,10 @@ pub enum EquipmentDbError {
 pub struct EquipmentDb {
     /// Every version of an item, sorted by ascending phase.
     items: HashMap<u32, Vec<Arc<Item>>>,
+    /// The ids served from the legacy files.
+    legacy_ids: HashSet<u32>,
+    /// The client build of the exported item files.
+    build: Option<String>,
     sets: SetBonusDb,
     enchants: EnchantDb,
 }
@@ -63,8 +75,9 @@ impl EquipmentDb {
         Ok(db)
     }
 
-    /// Loads every `*.yaml` item file in `items_dir` (sorted by file name) and, when given, the
-    /// set bonus and enchant files.
+    /// Loads every `*.yaml` item file in `items_dir` (sorted by file name), then the legacy files
+    /// of `items_dir/legacy/` for the ids not already loaded, and, when given, the set bonus and
+    /// enchant files.
     pub fn load(
         items_dir: &Path,
         set_bonuses: Option<&Path>,
@@ -72,22 +85,14 @@ impl EquipmentDb {
     ) -> Result<Self, EquipmentDbError> {
         let mut db = Self::new();
 
-        let mut paths: Vec<PathBuf> = fs::read_dir(items_dir)
-            .map_err(|source| EquipmentDbError::Io {
-                path: items_dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.extension()
-                    .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
-
-        for path in paths {
+        for path in yaml_files(items_dir)? {
             db.load_item_file(&path)?;
+        }
+        let legacy_dir = items_dir.join("legacy");
+        if legacy_dir.is_dir() {
+            for path in yaml_files(&legacy_dir)? {
+                db.load_legacy_item_file(&path)?;
+            }
         }
 
         if let Some(path) = set_bonuses {
@@ -101,21 +106,56 @@ impl EquipmentDb {
         Ok(db)
     }
 
-    /// Adds the items of one YAML file (a list of item specs).
+    /// Adds the items of one item file: an exported [`ItemFile`], or a plain list of item specs
+    /// (the legacy format).
     pub fn load_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
+        for spec in self.read_item_file(path)? {
+            self.add_item(Item::from_spec(spec)?)?;
+        }
+        Ok(())
+    }
+
+    /// Adds the items of one legacy file whose ids are not already in the database: the
+    /// exported items take precedence over the hand-authored ones.
+    pub fn load_legacy_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
+        for spec in self.read_item_file(path)? {
+            if self.items.contains_key(&spec.id) && !self.legacy_ids.contains(&spec.id) {
+                continue;
+            }
+            self.legacy_ids.insert(spec.id);
+            self.add_item(Item::from_spec(spec)?)?;
+        }
+        Ok(())
+    }
+
+    fn read_item_file(&mut self, path: &Path) -> Result<Vec<ItemSpec>, EquipmentDbError> {
+        let yaml_error = |source| EquipmentDbError::Yaml {
+            path: path.to_path_buf(),
+            source,
+        };
         let text = fs::read_to_string(path).map_err(|source| EquipmentDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;
-        let specs: Vec<ItemSpec> =
-            serde_yaml::from_str(&text).map_err(|source| EquipmentDbError::Yaml {
-                path: path.to_path_buf(),
-                source,
-            })?;
-        for spec in specs {
-            self.add_item(Item::from_spec(spec)?)?;
+        let value: serde_yaml::Value = serde_yaml::from_str(&text).map_err(yaml_error)?;
+        if value.is_sequence() {
+            return serde_yaml::from_value(value).map_err(yaml_error);
         }
-        Ok(())
+        let file: ItemFile = serde_yaml::from_value(value).map_err(yaml_error)?;
+        if !file.build.is_empty() {
+            match &self.build {
+                Some(build) if *build != file.build => {
+                    return Err(EquipmentDbError::BuildMismatch {
+                        path: path.to_path_buf(),
+                        expected: build.clone(),
+                        found: file.build,
+                    })
+                }
+                Some(_) => {}
+                None => self.build = Some(file.build),
+            }
+        }
+        Ok(file.items)
     }
 
     /// Replaces the item sets with those of a YAML file (a list of set specs).
@@ -165,6 +205,23 @@ impl EquipmentDb {
 
     pub fn enchants(&self) -> &EnchantDb {
         &self.enchants
+    }
+
+    /// The client build of the exported item files.
+    pub fn build(&self) -> Option<&str> {
+        self.build.as_deref()
+    }
+
+    /// Whether the item comes from a hand-authored legacy file.
+    pub fn is_legacy(&self, item_id: u32) -> bool {
+        self.legacy_ids.contains(&item_id)
+    }
+
+    /// The ids served from the legacy files, sorted.
+    pub fn legacy_item_ids(&self) -> Vec<u32> {
+        let mut ids: Vec<u32> = self.legacy_ids.iter().copied().collect();
+        ids.sort_unstable();
+        ids
     }
 
     /// The newest version of an item available in `phase`.
@@ -218,10 +275,31 @@ impl EquipmentDb {
     }
 }
 
+/// The `*.yaml` / `*.yml` files directly in `dir`, sorted by name.
+fn yaml_files(dir: &Path) -> Result<Vec<PathBuf>, EquipmentDbError> {
+    let mut paths: Vec<PathBuf> = fs::read_dir(dir)
+        .map_err(|source| EquipmentDbError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .is_some_and(|ext| ext == "yaml" || ext == "yml")
+        })
+        .collect();
+    paths.sort();
+    Ok(paths)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::item::{ItemSlot, ItemStat, ItemType, Quality, WeaponDamageSpec};
+    use crate::magic_school::MagicSchool;
 
     fn spec(id: u32, name: &str, phase: Phase, slot: ItemSlot, item_type: ItemType) -> ItemSpec {
         ItemSpec {
@@ -240,6 +318,10 @@ mod tests {
             class_restrictions: Vec::new(),
             damage: None,
             stats: Default::default(),
+            effects: Vec::new(),
+            set: None,
+            limit_category: None,
+            suffixes: Vec::new(),
             procs: Vec::new(),
             uses: Vec::new(),
             modifies: Vec::new(),
@@ -257,6 +339,7 @@ mod tests {
             min: 10,
             max: 20,
             speed: 2.0,
+            school: MagicSchool::Physical,
         });
         spec
     }
@@ -530,6 +613,43 @@ mod tests {
 
         let error = EquipmentDb::load(&dir.join("missing"), None, None).unwrap_err();
         assert!(matches!(error, EquipmentDbError::Io { .. }));
+
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn exported_items_take_precedence_over_legacy_items() {
+        let dir = std::env::temp_dir().join(format!("csim-db-legacy-{}", std::process::id()));
+        let legacy = dir.join("legacy");
+        fs::create_dir_all(&legacy).unwrap();
+        fs::write(
+            dir.join("head.yaml"),
+            "build: 1.60.1.69893\nitems:\n  - id: 1\n    name: Exported Helm\n    phase: 1\n    slot: HEAD\n    type: PLATE\n    quality: EPIC\n    stats: {STAMINA: 20}\n",
+        )
+        .unwrap();
+        fs::write(
+            legacy.join("helms.yaml"),
+            "- id: 1\n  name: Legacy Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n  stats: {STAMINA: 10}\n\
+             - id: 2\n  name: Old Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n\
+             - id: 2\n  name: Old Helm\n  phase: 5\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n",
+        )
+        .unwrap();
+
+        let db = EquipmentDb::load(&dir, None, None).unwrap();
+        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.len(), 2);
+        let helm = db.get_item_any_phase(1).unwrap();
+        assert_eq!(helm.name(), "Exported Helm");
+        assert_eq!(db.item_versions(1).len(), 1);
+        assert!(!db.is_legacy(1));
+        // Every phase version of a legacy-only id is kept.
+        assert_eq!(db.item_versions(2).len(), 2);
+        assert!(db.is_legacy(2));
+        assert_eq!(db.legacy_item_ids(), [2]);
+
+        fs::write(dir.join("legs.yaml"), "build: 9.9.9.9\nitems: []\n").unwrap();
+        let error = EquipmentDb::load(&dir, None, None).unwrap_err();
+        assert!(matches!(error, EquipmentDbError::BuildMismatch { .. }));
 
         fs::remove_dir_all(&dir).unwrap();
     }

@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 
 use csim_engine::faction::PlayerClass;
+pub use csim_engine::item::{EffectTrigger, ItemEffect, ItemSuffix, LimitCategory};
 use csim_engine::item::{ItemSlot, ItemStat, ItemType, Quality};
 
 use crate::tables::{ItemDamageTable, ItemRow, ItemSparseRow};
@@ -73,7 +74,7 @@ pub struct DerivedItem {
     /// `ItemSet.ID`.
     pub set: Option<u32>,
     /// The random suffixes the item can roll ("of the Bear"); its base stats are then empty.
-    pub suffixes: Vec<Suffix>,
+    pub suffixes: Vec<ItemSuffix>,
     pub flavour_text: String,
 }
 
@@ -86,46 +87,6 @@ pub struct WeaponDamage {
     pub speed: f64,
     /// `DamageType`: 0 physical, 1–6 holy, fire, nature, frost, shadow, arcane.
     pub school: u32,
-}
-
-/// A unique-equipped group: at most `quantity` of its items can be worn.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LimitCategory {
-    pub id: u32,
-    pub name: String,
-    pub quantity: u32,
-}
-
-/// When an item spell fires (`ItemEffect.TriggerType`, §1.7).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum EffectTrigger {
-    /// 0 on use, 5 no-delay use.
-    Use,
-    /// 1: a passive aura while equipped.
-    Equip,
-    /// 2: chance on hit; the chance lives on the spell.
-    OnHit,
-}
-
-/// An item spell.
-#[derive(Debug, Clone, PartialEq)]
-pub struct ItemEffect {
-    pub trigger: EffectTrigger,
-    pub spell: u32,
-    /// The item's own cooldown.
-    pub cooldown_ms: Option<u32>,
-    /// Shared cooldown group (`SpellCategoryID`) and its cooldown.
-    pub category: Option<u32>,
-    pub category_cooldown_ms: Option<u32>,
-    /// −1 unlimited, 0 n/a.
-    pub charges: i32,
-}
-
-/// One random suffix of an item.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Suffix {
-    pub name: String,
-    pub stats: BTreeMap<ItemStat, f64>,
 }
 
 /// Why an item is not exported.
@@ -522,7 +483,7 @@ fn suffixes(
     item_id: u32,
     budget: Option<u32>,
     issues: &mut Vec<ItemIssue>,
-) -> Vec<Suffix> {
+) -> Vec<ItemSuffix> {
     let mut suffixes = Vec::new();
     for &tree in tables.item_bonus_trees(item_id) {
         for node in tables.item_bonus_tree_nodes(tree) {
@@ -552,7 +513,7 @@ fn suffixes(
                     message: format!("suffix {name:?}: no stat budget"),
                 }),
             }
-            suffixes.push(Suffix { name, stats });
+            suffixes.push(ItemSuffix { name, stats });
         }
     }
     suffixes

@@ -31,6 +31,13 @@ pub enum EquipError {
     },
     #[error("setup index {0} is out of range")]
     InvalidSetup(usize),
+    #[error("item {item_id} ({name}): at most {quantity} {category} item(s) can be equipped")]
+    LimitCategory {
+        item_id: u32,
+        name: String,
+        category: String,
+        quantity: u32,
+    },
 }
 
 /// Why an enchant could not be applied.
@@ -286,7 +293,8 @@ impl Equipment {
     /// Handles the interactions the C++ setters had: a two-hand weapon clears the offhand and vice
     /// versa, ranged weapons and relics exclude each other, unique items already worn in the
     /// paired slot (rings, trinkets, weapons) are moved out of the way, and items listed as
-    /// mutually exclusive with the new item are removed.
+    /// mutually exclusive with the new item are removed. An item whose unique-equipped group
+    /// (limit category) is already full with the items that stay equipped is refused.
     pub fn equip(&mut self, slot: EquipmentSlot, item_id: u32) -> Result<EquipChange, EquipError> {
         let item = self
             .db
@@ -308,6 +316,24 @@ impl Equipment {
                 name: item.name().to_string(),
                 slot,
             });
+        }
+
+        if let Some(category) = item.limit_category() {
+            let vacated = self.slots_vacated_by(slot, &item);
+            let worn = EquipmentSlot::ALL
+                .into_iter()
+                .filter(|other| !vacated.contains(other))
+                .filter_map(|other| self.item(other))
+                .filter(|other| other.limit_category().is_some_and(|c| c.id == category.id))
+                .count();
+            if worn >= category.quantity as usize {
+                return Err(EquipError::LimitCategory {
+                    item_id: item.id(),
+                    name: item.name().to_string(),
+                    category: category.name.clone(),
+                    quantity: category.quantity,
+                });
+            }
         }
 
         let mut change = EquipChange::default();
@@ -375,6 +401,55 @@ impl Equipment {
         let _ = self.set_temp_enchant(slot, temp_enchant);
 
         Ok(change)
+    }
+
+    /// The slots whose items are no longer worn after equipping `item` in `slot`, following the
+    /// rules of [`Self::equip_item`]. When a unique item is equipped into the pair of a slot that
+    /// holds it, the item in `slot` moves over and stays worn.
+    fn slots_vacated_by(&self, slot: EquipmentSlot, item: &Item) -> Vec<EquipmentSlot> {
+        let holds_item = |other| self.item_id(other) == Some(item.id());
+        let mut vacated = Vec::new();
+        match slot {
+            EquipmentSlot::Mainhand => {
+                if item.is_two_hand() {
+                    vacated.extend([slot, EquipmentSlot::Offhand]);
+                } else if item.is_unique() && holds_item(EquipmentSlot::Offhand) {
+                    vacated.push(EquipmentSlot::Offhand);
+                } else {
+                    vacated.push(slot);
+                }
+            }
+            EquipmentSlot::Offhand => {
+                vacated.push(slot);
+                if self.has_two_hand_weapon()
+                    || (item.is_unique() && holds_item(EquipmentSlot::Mainhand))
+                {
+                    vacated.push(EquipmentSlot::Mainhand);
+                }
+            }
+            EquipmentSlot::Ranged => vacated.extend([slot, EquipmentSlot::Relic]),
+            EquipmentSlot::Relic => vacated.extend([slot, EquipmentSlot::Ranged]),
+            EquipmentSlot::Ring1
+            | EquipmentSlot::Ring2
+            | EquipmentSlot::Trinket1
+            | EquipmentSlot::Trinket2 => {
+                let other = paired_slot(slot);
+                if item.is_unique() && holds_item(other) {
+                    vacated.push(other);
+                } else {
+                    vacated.push(slot);
+                }
+            }
+            _ => vacated.push(slot),
+        }
+        for &mutex_id in item.mutex_item_ids() {
+            vacated.extend(
+                EquipmentSlot::ALL
+                    .into_iter()
+                    .filter(|&other| self.item_id(other) == Some(mutex_id)),
+            );
+        }
+        vacated
     }
 
     /// Moves the item in `from` to `to` (after clearing `to`), as the C++ setters did for unique
@@ -730,8 +805,10 @@ fn paired_slot(slot: EquipmentSlot) -> EquipmentSlot {
 mod tests {
     use super::*;
     use crate::item::{
-        ItemSlot, ItemSpec, ItemType, Quality, SetBonusSpec, SetSpec, WeaponDamageSpec,
+        ItemSlot, ItemSpec, ItemType, LimitCategory, Quality, SetBonusSpec, SetSpec,
+        WeaponDamageSpec,
     };
+    use crate::magic_school::MagicSchool;
 
     fn spec(id: u32, slot: ItemSlot, item_type: ItemType) -> ItemSpec {
         ItemSpec {
@@ -750,6 +827,10 @@ mod tests {
             class_restrictions: Vec::new(),
             damage: None,
             stats: Default::default(),
+            effects: Vec::new(),
+            set: None,
+            limit_category: None,
+            suffixes: Vec::new(),
             procs: Vec::new(),
             uses: Vec::new(),
             modifies: Vec::new(),
@@ -767,6 +848,7 @@ mod tests {
             min: 100,
             max: 100,
             speed,
+            school: MagicSchool::Physical,
         });
         spec
     }
@@ -794,6 +876,27 @@ mod tests {
         mutex_a.mutex = vec![14];
         let mut mutex_b = spec(14, ItemSlot::Trinket, ItemType::Trinket);
         mutex_b.mutex = vec![13];
+        let arena = |id| {
+            let mut trinket = spec(id, ItemSlot::Trinket, ItemType::Trinket);
+            trinket.limit_category = Some(LimitCategory {
+                id: 718,
+                name: "Arena Master".into(),
+                quantity: 1,
+            });
+            trinket
+        };
+        let (arena_a, arena_b) = (arena(15), arena(16));
+        let pair_ring = |id| {
+            let mut ring = spec(id, ItemSlot::Ring, ItemType::Ring);
+            ring.unique = true;
+            ring.limit_category = Some(LimitCategory {
+                id: 5,
+                name: "Pair".into(),
+                quantity: 2,
+            });
+            ring
+        };
+        let (pair_a, pair_b, pair_c) = (pair_ring(17), pair_ring(18), pair_ring(19));
 
         let mut horde_helm = spec(20, ItemSlot::Head, ItemType::Plate);
         horde_helm.faction = Some(Faction::Horde);
@@ -825,6 +928,11 @@ mod tests {
                     trinket,
                     mutex_a,
                     mutex_b,
+                    arena_a,
+                    arena_b,
+                    pair_a,
+                    pair_b,
+                    pair_c,
                     horde_helm,
                     naxx_helm,
                     helm_p1,
@@ -1049,6 +1157,38 @@ mod tests {
         assert_eq!(ids(&change.unequipped), vec![(EquipmentSlot::Trinket1, 13)]);
         assert!(eq.item(EquipmentSlot::Trinket1).is_none());
         assert_eq!(eq.item_id(EquipmentSlot::Trinket2), Some(14));
+    }
+
+    #[test]
+    fn full_unique_equipped_groups_refuse_another_item() {
+        let mut eq = equipment();
+        eq.equip(EquipmentSlot::Trinket1, 15).unwrap();
+        let error = eq.equip(EquipmentSlot::Trinket2, 16).unwrap_err();
+        assert!(matches!(
+            error,
+            EquipError::LimitCategory {
+                item_id: 16,
+                quantity: 1,
+                ..
+            }
+        ));
+        assert_eq!(eq.item_id(EquipmentSlot::Trinket1), Some(15));
+        assert!(eq.item(EquipmentSlot::Trinket2).is_none());
+
+        // Replacing the item of the same group in its own slot is fine.
+        eq.equip(EquipmentSlot::Trinket1, 16).unwrap();
+        assert_eq!(eq.item_id(EquipmentSlot::Trinket1), Some(16));
+        eq.equip(EquipmentSlot::Trinket2, 12).unwrap();
+        eq.equip(EquipmentSlot::Trinket2, 15).unwrap_err();
+
+        // A group of two: two different rings fit, and moving one to the other slot swaps them.
+        eq.equip(EquipmentSlot::Ring1, 17).unwrap();
+        eq.equip(EquipmentSlot::Ring2, 18).unwrap();
+        eq.equip(EquipmentSlot::Ring2, 17).unwrap();
+        assert_eq!(eq.item_id(EquipmentSlot::Ring1), Some(18));
+        assert_eq!(eq.item_id(EquipmentSlot::Ring2), Some(17));
+        eq.equip(EquipmentSlot::Ring1, 19).unwrap();
+        assert_eq!(eq.item_id(EquipmentSlot::Ring1), Some(19));
     }
 
     #[test]

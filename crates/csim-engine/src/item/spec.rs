@@ -1,18 +1,36 @@
 //! Serde schema of the item database files (`data/items/*.yaml`).
 //!
-//! The schema follows the C++ XML item files (`Equipment/EquipmentDb/**/*.xml`) with the
-//! attributes turned into typed fields. Procs and uses are kept as data (a generic name plus its
-//! parameters); the spell system decides what to build from them when the item is equipped.
+//! Item files are exported from the client tables by `csim-tables export-items` as an
+//! [`ItemFile`] (`build:` header plus `items:`). Their items name the spells they grant
+//! ([`ItemEffect`]), their set, unique-equipped group and random-suffix pool.
+//!
+//! The hand-authored files of `data/items/legacy/` (a plain list of items, converted from the C++
+//! XML item files `Equipment/EquipmentDb/**/*.xml`) fill in the items the table dump lacks. Only
+//! they use the legacy fields (`icon`, `procs`, `uses`, `modifies`, `mutex`, `random_affixes`,
+//! `special_equip_effects`, `source`, `faction`): procs and uses there are kept as data (a generic
+//! name plus its parameters).
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::{Faction, PlayerClass};
+use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::proc::ProcSource;
 
 use super::types::{EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality};
+
+/// One exported item file (`data/items/*.yaml`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemFile {
+    /// The client build the items were exported from (`1.60.1.69893`).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub build: String,
+    #[serde(default)]
+    pub items: Vec<ItemSpec>,
+}
 
 /// One item as stored in the item database.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -47,6 +65,18 @@ pub struct ItemSpec {
     /// Static stats, keyed by stat with data-file value semantics.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub stats: BTreeMap<ItemStat, f64>,
+    /// The spells the item grants (`ItemEffect`), in the item's slot order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub effects: Vec<ItemEffect>,
+    /// The item set (`ItemSet.ID`) the item belongs to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub set: Option<u32>,
+    /// The unique-equipped group the item counts towards.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit_category: Option<LimitCategory>,
+    /// The random suffixes ("of the Bear") the item can roll, on top of `stats`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub suffixes: Vec<ItemSuffix>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub procs: Vec<ItemProcSpec>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -74,6 +104,70 @@ pub struct WeaponDamageSpec {
     pub min: u32,
     pub max: u32,
     pub speed: f64,
+    /// The school of the weapon's damage (a few wands and staves deal magic damage).
+    #[serde(default = "physical", skip_serializing_if = "is_physical")]
+    pub school: MagicSchool,
+}
+
+fn physical() -> MagicSchool {
+    MagicSchool::Physical
+}
+
+fn is_physical(school: &MagicSchool) -> bool {
+    *school == MagicSchool::Physical
+}
+
+/// When an item spell takes effect (`ItemEffect.TriggerType`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum EffectTrigger {
+    /// Cast on use (trigger types 0 and 5).
+    Use,
+    /// A passive aura while the item is equipped (1).
+    Equip,
+    /// Chance on hit (2); the chance is on the spell.
+    OnHit,
+}
+
+/// A spell granted by an item.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemEffect {
+    pub trigger: EffectTrigger,
+    pub spell: u32,
+    /// The item's own cooldown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cooldown_ms: Option<u32>,
+    /// The shared cooldown group (`SpellCategoryID`, e.g. the trinket category) and its
+    /// cooldown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category_cooldown_ms: Option<u32>,
+    /// −1 unlimited, 0 not applicable.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub charges: i32,
+}
+
+fn is_zero(value: &i32) -> bool {
+    *value == 0
+}
+
+/// A unique-equipped group (`ItemLimitCategory`): at most `quantity` of its items can be worn.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LimitCategory {
+    pub id: u32,
+    pub name: String,
+    pub quantity: u32,
+}
+
+/// One random suffix of an item and the stats it adds.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemSuffix {
+    pub name: String,
+    pub stats: BTreeMap<ItemStat, f64>,
 }
 
 /// A proc granted by an item. `name` selects the generic proc (`EXTRA_ATTACK`,
@@ -238,7 +332,8 @@ source: Quest reward. Requires killing Princess Theradras in Maraudon.
             Some(WeaponDamageSpec {
                 min: 66,
                 max: 124,
-                speed: 2.7
+                speed: 2.7,
+                school: MagicSchool::Physical,
             })
         );
         assert_eq!(item.mutex, vec![17743, 17753]);
@@ -310,5 +405,97 @@ procs:
         let yaml = serde_yaml::to_string(&item).unwrap();
         let again: ItemSpec = serde_yaml::from_str(&yaml).unwrap();
         assert_eq!(item, again);
+    }
+
+    const GENERATED: &str = r#"
+build: 1.60.1.69893
+items:
+  - id: 19019
+    name: Thunderfury, Blessed Blade of the Windseeker
+    phase: 1
+    slot: 1H
+    type: SWORD
+    quality: LEGENDARY
+    unique: true
+    req_lvl: 60
+    item_lvl: 80
+    damage: { min: 65, max: 122, speed: 1.9 }
+    stats: { AGILITY: 5, STAMINA: 8 }
+    effects:
+      - { trigger: ON_HIT, spell: 21992 }
+  - id: 19024
+    name: Arena Grand Master
+    phase: 1
+    slot: TRINKET
+    type: TRINKET
+    quality: EPIC
+    limit_category: { id: 718, name: Arena Master, quantity: 1 }
+    effects:
+      - { trigger: EQUIP, spell: 23506 }
+      - trigger: USE
+        spell: 23506
+        cooldown_ms: 120000
+        category: 1141
+        category_cooldown_ms: 20000
+        charges: -1
+  - id: 10504
+    name: Green Lens
+    phase: 1
+    slot: HEAD
+    type: CLOTH
+    quality: RARE
+    set: 209
+    flavour_text: Look through it.
+    damage: { min: 1, max: 2, speed: 1.5, school: arcane }
+    suffixes:
+      - name: of Magic
+        stats: { SPELL_DAMAGE: 28 }
+"#;
+
+    #[test]
+    fn parses_a_generated_item_file() {
+        let file: ItemFile = serde_yaml::from_str(GENERATED).unwrap();
+        assert_eq!(file.build, "1.60.1.69893");
+        let [thunderfury, arena, lens] = &file.items[..] else {
+            panic!("{:?}", file.items)
+        };
+        assert_eq!(
+            thunderfury.effects,
+            [ItemEffect {
+                trigger: EffectTrigger::OnHit,
+                spell: 21992,
+                cooldown_ms: None,
+                category: None,
+                category_cooldown_ms: None,
+                charges: 0,
+            }]
+        );
+        assert_eq!(thunderfury.damage.unwrap().school, MagicSchool::Physical);
+        assert_eq!(
+            arena.limit_category,
+            Some(LimitCategory {
+                id: 718,
+                name: "Arena Master".into(),
+                quantity: 1
+            })
+        );
+        assert_eq!(arena.effects[1].trigger, EffectTrigger::Use);
+        assert_eq!(arena.effects[1].category, Some(1141));
+        assert_eq!(arena.effects[1].charges, -1);
+        assert_eq!(lens.set, Some(209));
+        assert_eq!(lens.flavour_text, "Look through it.");
+        assert_eq!(lens.damage.unwrap().school, MagicSchool::Arcane);
+        assert_eq!(lens.suffixes[0].name, "of Magic");
+        assert_eq!(lens.suffixes[0].stats[&ItemStat::SpellDamage], 28.0);
+    }
+
+    #[test]
+    fn item_file_round_trips_through_yaml() {
+        let file: ItemFile = serde_yaml::from_str(GENERATED).unwrap();
+        let yaml = serde_yaml::to_string(&file).unwrap();
+        assert!(!yaml.contains("charges: 0"), "{yaml}");
+        assert!(!yaml.contains("school: physical"), "{yaml}");
+        let again: ItemFile = serde_yaml::from_str(&yaml).unwrap();
+        assert_eq!(file, again);
     }
 }
