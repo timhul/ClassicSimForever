@@ -6,9 +6,11 @@
 pub mod attack_mode;
 pub mod buff;
 pub mod character;
+pub mod character_loader;
 pub mod character_spells;
 pub mod combat_roll;
 pub mod cooldown;
+pub mod data_bundle;
 pub mod effect;
 pub mod enchant;
 pub mod engine;

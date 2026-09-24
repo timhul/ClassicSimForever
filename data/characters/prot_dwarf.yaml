@@ -1,0 +1,54 @@
+# Shield Slam Protection Dwarf Warrior main-tanking a raid boss.
+# Schema: crates/csim-engine/src/character_loader.rs.
+name: Prot Dwarf
+class: WARRIOR
+race: DWARF
+phase: 3
+rotation: Protection
+tanking: true
+talents:
+  Protection:
+    Shield Specialization: 5
+    Anticipation: 5
+    Improved Bloodrage: 2
+    Toughness: 5
+    Last Stand: 1
+    Defiance: 3
+    Improved Sunder Armor: 3
+    Concussion Blow: 1
+    Bastion: 5
+    Shield Slam: 1
+  Fury:
+    Cruelty: 5
+    Unbridled Wrath: 5
+    Blood Craze: 3
+    Boundless Rage: 3
+    Enrage: 4
+equipment:
+  MAINHAND: { item: 18832, enchant: Crusader }                     # Brutality Blade
+  OFFHAND: { item: 19349 }                                         # Elementium Reinforced Bulwark
+  RANGED: { item: 17072 }                                          # Blastershot Launcher
+  HEAD: { item: 16963, enchant: LesserArcanumOfVoracityStrength }  # Helm of Wrath
+  NECK: { item: 17065 }                                            # Medallion of Steadfast Might
+  SHOULDERS: { item: 16961, enchant: MightOfTheScourge }           # Pauldrons of Wrath
+  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
+  CHEST: { item: 16966, enchant: EnchantChestGreaterStats }        # Breastplate of Wrath
+  WRIST: { item: 16959, enchant: EnchantBracerSuperiorStrength }   # Bracelets of Wrath
+  GLOVES: { item: 16964, enchant: EnchantGlovesGreaterStrength }   # Gauntlets of Wrath
+  BELT: { item: 16960 }                                            # Waistband of Wrath
+  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
+  BOOTS: { item: 16965, enchant: EnchantBootsGreaterAgility }      # Sabatons of Wrath
+  RING1: { item: 17063 }                                           # Band of Accuria
+  RING2: { item: 18879 }                                           # Heavy Dark Iron Ring
+  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
+  TRINKET2: { item: 11815 }                                        # Hand of Justice
+buffs:
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
+  - Gift of the Wild
+  - Elixir of the Mongoose
+  - Elixir of Giants
+  - Grilled Squid
+debuffs:
+  - Sunder Armor
+  - Faerie Fire

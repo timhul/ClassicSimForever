@@ -1,0 +1,62 @@
+# Dual-wield Fury Orc Warrior in Blackwing Lair gear with the usual Horde raid buffs.
+# Schema: crates/csim-engine/src/character_loader.rs.
+name: DW Fury Orc
+class: WARRIOR
+race: ORC
+level: 60
+phase: 3
+rotation: DW Fury High Rage
+talents:
+  Arms:
+    Improved Heroic Strike: 3
+    Improved Rend: 3
+    Improved Tactical Mastery: 5
+    Anger Management: 1
+    Deep Wounds: 3
+  Fury:
+    Cruelty: 5
+    Unbridled Wrath: 5
+    Blood Craze: 3
+    Boundless Rage: 3
+    Dual Wield Specialization: 5
+    Enrage: 5
+    Precision: 3
+    Death Wish: 1
+    Flurry: 5
+    Bloodthirst: 1
+equipment:
+  MAINHAND: { item: 18832, enchant: Crusader, temp_enchant: WindfuryTotem }  # Brutality Blade
+  OFFHAND: { item: 17075, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Vis'kag the Bloodletter
+  RANGED: { item: 17072 }                                          # Blastershot Launcher
+  HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
+  NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
+  SHOULDERS: { item: 12927, enchant: MightOfTheScourge }           # Truestrike Shoulders
+  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
+  CHEST: { item: 11726, enchant: EnchantChestGreaterStats }        # Savage Gladiator Chain
+  WRIST: { item: 19146, enchant: EnchantBracerSuperiorStrength }   # Wristguards of Stability
+  GLOVES: { item: 19143, enchant: EnchantGlovesGreaterStrength }   # Flameguard Gauntlets
+  BELT: { item: 19137 }                                            # Onslaught Girdle
+  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
+  BOOTS: { item: 19387, enchant: EnchantBootsGreaterAgility }      # Chromatic Boots
+  RING1: { item: 19325 }                                           # Don Julio's Band
+  RING2: { item: 18821 }                                           # Quick Strike Ring
+  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
+  TRINKET2: { item: 11815 }                                        # Hand of Justice
+buffs:
+  - Strength of Earth Totem
+  - Trueshot Aura
+  - Gift of the Wild
+  - Elixir of the Mongoose
+  - Juju Power
+  - Juju Might
+  - R.O.I.D.S.
+  - Battle Squawk
+  - Grilled Squid
+debuffs:
+  - Sunder Armor
+  - Faerie Fire
+  - Curse of Recklessness
+target:
+  level: 63
+  armor: 3731
+  creature_type: Dragonkin

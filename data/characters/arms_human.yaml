@@ -1,0 +1,58 @@
+# Arms Human Warrior (Mortal Strike) with a two-handed sword and the Alliance raid buffs.
+# Schema: crates/csim-engine/src/character_loader.rs.
+name: Arms Human
+class: WARRIOR
+race: HUMAN
+phase: 3
+rotation: Mortal Strike
+talents:
+  Arms:
+    Improved Heroic Strike: 3
+    Improved Rend: 3
+    Improved Tactical Mastery: 5
+    Anger Management: 1
+    Deep Wounds: 3
+    Two-Handed Weapon Specialization: 3
+    Impale: 2
+    Sweeping Strikes: 1
+    Weaponmaster: 5
+    Improved Slam: 2
+    Improved Hamstring: 2
+    Mortal Strike: 1
+  Fury:
+    Cruelty: 5
+    Unbridled Wrath: 5
+    Blood Craze: 3
+    Boundless Rage: 3
+    Enrage: 4
+equipment:
+  MAINHAND: { item: 17076, enchant: Crusader, temp_enchant: DenseSharpeningStone }  # Bonereaver's Edge
+  RANGED: { item: 17072 }                                          # Blastershot Launcher
+  HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
+  NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
+  SHOULDERS: { item: 12927, enchant: MightOfTheScourge }           # Truestrike Shoulders
+  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
+  CHEST: { item: 11726, enchant: EnchantChestGreaterStats }        # Savage Gladiator Chain
+  WRIST: { item: 19146, enchant: EnchantBracerSuperiorStrength }   # Wristguards of Stability
+  GLOVES: { item: 19143, enchant: EnchantGlovesGreaterStrength }   # Flameguard Gauntlets
+  BELT: { item: 19137 }                                            # Onslaught Girdle
+  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
+  BOOTS: { item: 19387, enchant: EnchantBootsGreaterAgility }      # Chromatic Boots
+  RING1: { item: 19325 }                                           # Don Julio's Band
+  RING2: { item: 18821 }                                           # Quick Strike Ring
+  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
+  TRINKET2: { item: 11815 }                                        # Hand of Justice
+buffs:
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
+  - Trueshot Aura
+  - Gift of the Wild
+  - Elixir of the Mongoose
+  - Juju Power
+  - Juju Might
+  - R.O.I.D.S.
+  - Grilled Squid
+debuffs:
+  - Sunder Armor
+  - Faerie Fire
+  - Curse of Recklessness
