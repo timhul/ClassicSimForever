@@ -52,6 +52,13 @@ effects, set bonuses and suffixes are not scored):
 
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot mainhand --type axe,sword,mace,dagger,fist`
 
+Sweeps (`data/sweeps/`, schema in `crates/csim-engine/src/sweep_loader.rs`): a base character setup
+plus variation points (`talent_points`: every way to spend exactly N more points over some talents;
+`options`: explicit overrides of race, rotation, equipment slots, ...). Every combination is simmed
+with the same seed and ranked by DPS; `--dry-run` only counts and lists the variants:
+
+`cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml --dry-run`
+
 # Known issues
 
 - Raid DPS is much lower than solo DPS. This is because debuffs are not applied in the current

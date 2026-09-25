@@ -410,6 +410,11 @@ fn validate_checks_every_shipped_setup() {
     assert!(report.contains("ok       "), "{report}");
     assert!(report.contains("character setups are valid"), "{report}");
     assert!(report.contains("raid setups are valid"), "{report}");
+    assert!(
+        report.contains("dw_fury_last_3_points.yaml (46 variants)"),
+        "{report}"
+    );
+    assert!(report.contains("sweeps are valid"), "{report}");
 }
 
 #[test]

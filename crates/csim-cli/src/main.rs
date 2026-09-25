@@ -4,8 +4,8 @@
 //!   (`--raid <raid.yaml>`), and prints the results (`--output-format terminal|yaml|html`,
 //!   `--output-file <path>`). `--scale` adds the stat weights; `--weights-file <path>` writes
 //!   them per item stat point.
-//! - `csim validate` loads the data directory and checks every character and raid setup
-//!   against it.
+//! - `csim validate` loads the data directory and checks every character setup, raid setup
+//!   and sweep against it.
 //! - `csim list-items` / `list-spells` / `list-rotations` list what setups can refer to.
 //! - `csim rank-items --weights <weights.yaml>` ranks items by their stats times the stat
 //!   weights `csim run --scale --weights-file` wrote.
@@ -30,6 +30,7 @@ use clap::{Parser, Subcommand};
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::raid_loader::RaidSetup;
+use csim_engine::sweep_loader::SweepSetup;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -49,7 +50,7 @@ struct Cli {
 enum Command {
     /// Simulates a character setup and prints DPS, TPS and the breakdowns.
     Run(run::RunArgs),
-    /// Loads and cross-validates every data file, character setup and raid setup.
+    /// Loads and cross-validates every data file, character setup, raid setup and sweep.
     Validate {
         /// Character setups to check besides the ones in <data>/characters.
         setups: Vec<PathBuf>,
@@ -101,7 +102,7 @@ fn load(dir: &Path) -> Result<DataBundle> {
 }
 
 /// Loads the data, then builds every setup of `<data>/characters` and `extra` and every raid of
-/// `<data>/raids` against it.
+/// `<data>/raids` against it, and expands every sweep of `<data>/sweeps`.
 fn validate(dir: &Path, extra: &[PathBuf]) -> Result<()> {
     let data = load(dir)?;
     println!(
@@ -165,6 +166,34 @@ fn validate(dir: &Path, extra: &[PathBuf]) -> Result<()> {
         return Err(format!("{invalid} of {} raid setups are invalid", raids.len()).into());
     }
     println!("{} raid setups are valid", raids.len());
+
+    let sweeps = dir.join("sweeps");
+    let sweeps = if sweeps.is_dir() {
+        SweepSetup::load_dir(&sweeps)?
+    } else {
+        Vec::new()
+    };
+    for sweep in &sweeps {
+        let label = sweep
+            .path
+            .as_ref()
+            .map_or_else(|| sweep.name.clone(), |path| path.display().to_string());
+        match sweep.expand(&data) {
+            Ok(expansion) if expansion.variants.is_empty() => {
+                invalid += 1;
+                println!("INVALID  {label}: none of the variants is a valid setup");
+            }
+            Ok(expansion) => println!("ok       {label} ({} variants)", expansion.variants.len()),
+            Err(error) => {
+                invalid += 1;
+                println!("INVALID  {error}");
+            }
+        }
+    }
+    if invalid > 0 {
+        return Err(format!("{invalid} of {} sweeps are invalid", sweeps.len()).into());
+    }
+    println!("{} sweeps are valid", sweeps.len());
     Ok(())
 }
 
