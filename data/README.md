@@ -52,7 +52,11 @@ data/tables/<Table>.<build>.csv
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
+csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
+csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml
+csim-tables export-spells --items           →  data/spells/items.yaml      (item and set bonus spells)
+csim-tables export-all                      →  all of the above, then check
         │  + data/spells/overrides/*.yaml
         ▼
 csim_engine::spell::record::SpellDb::load("data/spells")   (the engine)
@@ -89,9 +93,14 @@ csim_engine::talent::TalentDb::load("data/talents")
    is there and what is missing).
 2. Run, from the repository root:
    ```
+   cargo run -p csim-tables -- export-all
+   ```
+   which runs every export below in this order, then `check` (`--strict` passes through):
+   ```
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
+   cargo run -p csim-tables -- export-spells --enchants
    cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- export-spells --items

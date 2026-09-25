@@ -60,6 +60,8 @@ const EXTERNALS_FILE: &str = "externals.yaml";
 const ENCHANTS_FILE: &str = "enchants.yaml";
 /// The file `export-spells --items` writes under the spell data directory.
 const ITEMS_FILE: &str = "items.yaml";
+/// The classes whose spells and talents `export-all` writes.
+const EXPORTED_CLASSES: &[&str] = &["warrior"];
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -160,6 +162,32 @@ enum Command {
         #[arg(long, default_value = "data/item_sets.yaml")]
         sets: PathBuf,
     },
+    /// Runs every export in dependency order: the class spells (`warrior`), the racials, the
+    /// external buff and enchant spells, the class talents, the items and item sets, then the
+    /// item spells, and finally `check`.
+    ExportAll {
+        /// The spell data directory.
+        #[arg(long, default_value = "data/spells")]
+        spells: PathBuf,
+        /// The talent data directory.
+        #[arg(long, default_value = "data/talents")]
+        talents: PathBuf,
+        /// The item data directory with its legacy files.
+        #[arg(long, default_value = "data/items")]
+        items: PathBuf,
+        /// The item set file.
+        #[arg(long, default_value = "data/item_sets.yaml")]
+        item_sets: PathBuf,
+        /// The external buff registry.
+        #[arg(long, default_value = "data/external_buffs.yaml")]
+        external_buffs: PathBuf,
+        /// The enchant data file.
+        #[arg(long, default_value = "data/enchants.yaml")]
+        enchant_data: PathBuf,
+        /// Fail when the final check finds unsupported effects.
+        #[arg(long)]
+        strict: bool,
+    },
     /// Compares the exported items with hand-authored Classic items of the same id and prints
     /// the differences (ratings through the interim level-60 factors).
     CompareItems {
@@ -196,16 +224,15 @@ enum ExportTarget {
 }
 
 fn export_spells(
-    dir: &TableDir,
+    tables: &Tables,
     target: ExportTarget,
     spells_dir: &Path,
     out: Option<PathBuf>,
 ) -> Result<(), CliError> {
-    let tables = Tables::load(dir)?;
     let overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
     let ((file, pruned), command, default_name) = match target {
         ExportTarget::Racials => (
-            export::export_racials_with_report(&tables, &overrides)?,
+            export::export_racials_with_report(tables, &overrides)?,
             "export-spells --racials".to_owned(),
             "racials.yaml".to_owned(),
         ),
@@ -218,7 +245,7 @@ fn export_spells(
                 eprintln!("already in another spell file, not repeated: {repeated:?}");
             }
             (
-                export::export_externals_with_report(&tables, &seeds, &exclude, &overrides)?,
+                export::export_externals_with_report(tables, &seeds, &exclude, &overrides)?,
                 "export-spells --externals".to_owned(),
                 EXTERNALS_FILE.to_owned(),
             )
@@ -232,7 +259,7 @@ fn export_spells(
                 eprintln!("already in another spell file, not repeated: {repeated:?}");
             }
             (
-                export::export_enchants(&tables, &seeds, &exclude, &overrides)?,
+                export::export_enchants(tables, &seeds, &exclude, &overrides)?,
                 "export-spells --enchants".to_owned(),
                 ENCHANTS_FILE.to_owned(),
             )
@@ -251,7 +278,7 @@ fn export_spells(
                 eprintln!("already in another spell file, not repeated: {repeated:?}");
             }
             let (file, pruned, missing) =
-                export::export_items(&tables, &seeds, &exclude, &overrides)?;
+                export::export_items(tables, &seeds, &exclude, &overrides)?;
             if !missing.is_empty() {
                 eprintln!("warning: item spells missing from the dump, left out: {missing:?}");
             }
@@ -264,7 +291,7 @@ fn export_spells(
         ExportTarget::Class(name) => {
             let class = parse_class(&name)?;
             (
-                export::export_class_with_report(&tables, class, &overrides)?,
+                export::export_class_with_report(tables, class, &overrides)?,
                 format!("export-spells --class {}", class.name().to_lowercase()),
                 format!("{}.yaml", class.name().to_lowercase()),
             )
@@ -304,14 +331,13 @@ fn export_spells(
 }
 
 fn export_talents(
-    dir: &TableDir,
+    tables: &Tables,
     class: &str,
     talents_dir: &Path,
     out: Option<PathBuf>,
 ) -> Result<(), CliError> {
-    let tables = Tables::load(dir)?;
     let class = parse_class(class)?;
-    let (file, report) = export::export_talents_with_report(&tables, class)?;
+    let (file, report) = export::export_talents_with_report(tables, class)?;
     let command = format!("export-talents --class {}", class.name().to_lowercase());
     let text = export::render_talents(&file, &command)?;
     for (node, required) in &report.odd_gates {
@@ -359,10 +385,9 @@ fn write(path: &Path, text: &str) -> Result<(), CliError> {
     })
 }
 
-fn export_items(dir: &TableDir, items_dir: &Path, sets_path: &Path) -> Result<(), CliError> {
-    let tables = Tables::load(dir)?;
-    let report = export::items::derive_items(&tables);
-    for (file_name, file) in export::item_files(&tables, &report.items) {
+fn export_items(tables: &Tables, items_dir: &Path, sets_path: &Path) -> Result<(), CliError> {
+    let report = export::items::derive_items(tables);
+    for (file_name, file) in export::item_files(tables, &report.items) {
         let path = items_dir.join(format!("{file_name}.yaml"));
         write(&path, &export::render_items(&file, "export-items")?)?;
         eprintln!("wrote {} items to {}", file.items.len(), path.display());
@@ -372,7 +397,7 @@ fn export_items(dir: &TableDir, items_dir: &Path, sets_path: &Path) -> Result<()
         .iter()
         .map(|item| item.id)
         .collect();
-    let sets = export::item_set_file(&tables, &report.items, &legacy);
+    let sets = export::item_set_file(tables, &report.items, &legacy);
     write(sets_path, &export::render_item_sets(&sets, "export-items")?)?;
     eprintln!(
         "wrote {} item sets to {}",
@@ -395,6 +420,66 @@ fn export_items(dir: &TableDir, items_dir: &Path, sets_path: &Path) -> Result<()
         items_dir.join("legacy").display()
     );
     Ok(())
+}
+
+/// The paths `export-all` reads and writes.
+struct ExportAllPaths<'a> {
+    spells: &'a Path,
+    talents: &'a Path,
+    items: &'a Path,
+    item_sets: &'a Path,
+    external_buffs: &'a Path,
+    enchant_data: &'a Path,
+}
+
+/// Runs every export in the order their inputs need: the item spells exclude what the other
+/// spell files carry and read the exported items and sets, so they come last; `check` loads
+/// the result.
+fn export_all(dir: &TableDir, paths: &ExportAllPaths, strict: bool) -> Result<(), CliError> {
+    let tables = Tables::load(dir)?;
+    for &class in EXPORTED_CLASSES {
+        eprintln!("== export-spells --class {class}");
+        export_spells(
+            &tables,
+            ExportTarget::Class(class.to_owned()),
+            paths.spells,
+            None,
+        )?;
+    }
+    eprintln!("== export-spells --racials");
+    export_spells(&tables, ExportTarget::Racials, paths.spells, None)?;
+    eprintln!("== export-spells --externals");
+    export_spells(
+        &tables,
+        ExportTarget::Externals(paths.external_buffs.to_path_buf()),
+        paths.spells,
+        None,
+    )?;
+    eprintln!("== export-spells --enchants");
+    export_spells(
+        &tables,
+        ExportTarget::Enchants(paths.enchant_data.to_path_buf()),
+        paths.spells,
+        None,
+    )?;
+    for &class in EXPORTED_CLASSES {
+        eprintln!("== export-talents --class {class}");
+        export_talents(&tables, class, paths.talents, None)?;
+    }
+    eprintln!("== export-items");
+    export_items(&tables, paths.items, paths.item_sets)?;
+    eprintln!("== export-spells --items");
+    export_spells(
+        &tables,
+        ExportTarget::Items {
+            items: paths.items.to_path_buf(),
+            sets: paths.item_sets.to_path_buf(),
+        },
+        paths.spells,
+        None,
+    )?;
+    eprintln!("== check");
+    check(paths.spells, strict)
 }
 
 fn compare_items(
@@ -789,14 +874,36 @@ fn run(cli: Cli) -> Result<(), CliError> {
                     "clap requires --class, --racials, --externals, --enchants or --items"
                 ),
             };
-            export_spells(&open(&cli)?, target, spells, out.clone())
+            export_spells(&Tables::load(&open(&cli)?)?, target, spells, out.clone())
         }
         Command::ExportTalents {
             class,
             talents,
             out,
-        } => export_talents(&open(&cli)?, class, talents, out.clone()),
-        Command::ExportItems { items, sets } => export_items(&open(&cli)?, items, sets),
+        } => export_talents(&Tables::load(&open(&cli)?)?, class, talents, out.clone()),
+        Command::ExportItems { items, sets } => {
+            export_items(&Tables::load(&open(&cli)?)?, items, sets)
+        }
+        Command::ExportAll {
+            spells,
+            talents,
+            items,
+            item_sets,
+            external_buffs,
+            enchant_data,
+            strict,
+        } => export_all(
+            &open(&cli)?,
+            &ExportAllPaths {
+                spells,
+                talents,
+                items,
+                item_sets,
+                external_buffs,
+                enchant_data,
+            },
+            *strict,
+        ),
         Command::CompareItems { legacy, snapshot } => {
             compare_items(&open(&cli)?, legacy, snapshot.as_deref())
         }
