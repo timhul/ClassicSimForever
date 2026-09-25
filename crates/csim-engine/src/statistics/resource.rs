@@ -6,11 +6,12 @@
 use crate::resource::ResourceType;
 
 /// Resource gained by one spell, proc or auto attack. Port of `StatisticsResource`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ResourceStatistics {
     name: String,
     rank: u32,
-    gains: [u64; ResourceType::ALL.len()],
+    /// Gains in displayed units; fractional, as swing rage is measured in tenths.
+    gains: [f64; ResourceType::ALL.len()],
 }
 
 fn index(resource: ResourceType) -> usize {
@@ -25,7 +26,7 @@ impl ResourceStatistics {
         ResourceStatistics {
             name: name.into(),
             rank,
-            gains: [0; ResourceType::ALL.len()],
+            gains: [0.0; ResourceType::ALL.len()],
         }
     }
 
@@ -47,21 +48,26 @@ impl ResourceStatistics {
     }
 
     pub fn reset(&mut self) {
-        self.gains = [0; ResourceType::ALL.len()];
+        self.gains = [0.0; ResourceType::ALL.len()];
     }
 
     pub fn add_gain(&mut self, resource: ResourceType, amount: u32) {
-        self.gains[index(resource)] += u64::from(amount);
+        self.add_fractional_gain(resource, f64::from(amount));
+    }
+
+    /// Adds a fractional gain (swing rage in tenths, divided by ten).
+    pub fn add_fractional_gain(&mut self, resource: ResourceType, amount: f64) {
+        self.gains[index(resource)] += amount;
     }
 
     /// Total gained of `resource`.
-    pub fn gain(&self, resource: ResourceType) -> u64 {
+    pub fn gain(&self, resource: ResourceType) -> f64 {
         self.gains[index(resource)]
     }
 
     /// Whether anything was gained at all.
     pub fn is_empty(&self) -> bool {
-        self.gains.iter().all(|g| *g == 0)
+        self.gains.iter().all(|g| *g == 0.0)
     }
 
     /// Gain of `resource` per 5 seconds over `time_in_combat` seconds, 0 for no time.
@@ -69,7 +75,7 @@ impl ResourceStatistics {
         if time_in_combat <= 0.0 {
             0.0
         } else {
-            self.gain(resource) as f64 / time_in_combat * 5.0
+            self.gain(resource) / time_in_combat * 5.0
         }
     }
 
@@ -93,12 +99,14 @@ mod tests {
         stats.add_gain(ResourceType::Rage, 1);
         stats.add_gain(ResourceType::Mana, 300);
         assert!(!stats.is_empty());
-        assert_eq!(stats.gain(ResourceType::Rage), 11);
-        assert_eq!(stats.gain(ResourceType::Mana), 300);
-        assert_eq!(stats.gain(ResourceType::Energy), 0);
+        assert_eq!(stats.gain(ResourceType::Rage), 11.0);
+        assert_eq!(stats.gain(ResourceType::Mana), 300.0);
+        assert_eq!(stats.gain(ResourceType::Energy), 0.0);
         // 11 rage over 55 s = 1 per 5 s.
         assert!((stats.gain_per_5(ResourceType::Rage, 55.0) - 1.0).abs() < 1e-12);
         assert_eq!(stats.gain_per_5(ResourceType::Rage, 0.0), 0.0);
+        stats.add_fractional_gain(ResourceType::Rage, 5.5);
+        assert_eq!(stats.gain(ResourceType::Rage), 16.5);
     }
 
     #[test]
@@ -109,8 +117,8 @@ mod tests {
         b.add_gain(ResourceType::Rage, 50);
         b.add_gain(ResourceType::Energy, 5);
         a.add(&b);
-        assert_eq!(a.gain(ResourceType::Rage), 150);
-        assert_eq!(a.gain(ResourceType::Energy), 5);
+        assert_eq!(a.gain(ResourceType::Rage), 150.0);
+        assert_eq!(a.gain(ResourceType::Energy), 5.0);
         a.reset();
         assert!(a.is_empty());
         assert_eq!(

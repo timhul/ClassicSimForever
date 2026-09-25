@@ -69,63 +69,97 @@ impl ResourceType {
 const UNDERFLOW: &str = "Underflow decrease RegeneratingResource::lose_resource()";
 
 /// Rage: 0–100, gained from damage dealt and taken, never regenerates. Port of `Resource/Rage.*`.
+///
+/// Stored in tenths, as the client does, so a swing can add fractional rage (5.54 for a 1.6
+/// one-hander). The whole-rage API (`current`, `gain`, `lose`) is what costs and conditions
+/// see; `current` floors, so 14.9 rage cannot pay a 15 rage cost.
 #[derive(Debug, Clone, Default)]
 pub struct Rage {
-    current: u32,
+    tenths: u32,
+    /// Sub-tenth remainder of fractional gains, carried to the next gain so the average stays
+    /// exact (55.36 tenths per swing lands as 55, 55, 56, 55, 55, 56, ...).
+    carry: f64,
     max_mod: MultiplicativeStack,
 }
 
 impl Rage {
     pub const BASE_MAX: u32 = 100;
+    /// Tenths per displayed rage point.
+    pub const TENTHS: u32 = 10;
 
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Whole rage, rounded down.
     pub fn current(&self) -> u32 {
-        self.current
+        self.tenths / Self::TENTHS
+    }
+
+    /// Current rage in tenths.
+    pub fn current_tenths(&self) -> u32 {
+        self.tenths
     }
 
     pub fn max(&self) -> u32 {
         (self.max_mod.modifier() * f64::from(Self::BASE_MAX)).round() as u32
     }
 
-    /// Adds rage, capped at the maximum; returns the amount actually gained.
-    pub fn gain(&mut self, amount: u32) -> u32 {
-        let before = self.current;
-        self.current = (self.current + amount).min(self.max());
-        self.current - before
+    fn max_tenths(&self) -> u32 {
+        self.max() * Self::TENTHS
     }
 
+    /// Adds whole rage, capped at the maximum; returns the whole rage actually gained.
+    pub fn gain(&mut self, amount: u32) -> u32 {
+        let before = self.current();
+        self.tenths = (self.tenths + amount * Self::TENTHS).min(self.max_tenths());
+        self.current() - before
+    }
+
+    /// Adds `tenths` (fractional) of rage, capped at the maximum; the sub-tenth part carries to
+    /// the next gain. Returns the tenths actually gained.
+    pub fn gain_tenths(&mut self, tenths: f64) -> u32 {
+        // The epsilon keeps products like 3.2 × 45 = 143.99999... at 144.
+        let total = tenths.max(0.0) + self.carry;
+        let whole = (total + 1e-9).floor();
+        self.carry = (total - whole).max(0.0);
+        let before = self.tenths;
+        self.tenths = (self.tenths + whole as u32).min(self.max_tenths());
+        self.tenths - before
+    }
+
+    /// Spends whole rage; the fraction below one point is kept.
+    ///
     /// # Panics
     /// Panics if `amount` exceeds the current rage (the C++ `check`).
     pub fn lose(&mut self, amount: u32) {
         assert!(
-            self.current >= amount,
+            self.current() >= amount,
             "Underflow decrease Rage::lose_resource()"
         );
-        self.current -= amount;
+        self.tenths -= amount * Self::TENTHS;
     }
 
     pub fn reset(&mut self) {
-        self.current = 0;
+        self.tenths = 0;
+        self.carry = 0.0;
     }
 
     /// Drops rage above `amount` (a stance change keeps only the Tactical Mastery remainder).
     /// Port of `Warrior::new_stance_effect`.
     pub fn retain_at_most(&mut self, amount: u32) {
-        self.current = self.current.min(amount);
+        self.tenths = self.tenths.min(amount * Self::TENTHS);
     }
 
     /// Adds a maximum rage percentage modifier (`MOD_MAX_POWER_PCT`, e.g. Expansive Mind +5).
     pub fn increase_max_mod(&mut self, percent: i32) {
         self.max_mod.add(percent);
-        self.current = self.current.min(self.max());
+        self.tenths = self.tenths.min(self.max_tenths());
     }
 
     pub fn decrease_max_mod(&mut self, percent: i32) {
         self.max_mod.remove(percent);
-        self.current = self.current.min(self.max());
+        self.tenths = self.tenths.min(self.max_tenths());
     }
 }
 
@@ -592,6 +626,45 @@ mod tests {
         assert_eq!(rage.current(), 55);
         rage.reset();
         assert_eq!(rage.current(), 0);
+    }
+
+    #[test]
+    fn fractional_rage_gains_carry_and_floor() {
+        let mut rage = Rage::new();
+        // 55.36 tenths per gain: the cumulative floor of 55.36 × n.
+        let gains: Vec<u32> = (0..5).map(|_| rage.gain_tenths(55.36)).collect();
+        assert_eq!(gains, [55, 55, 56, 55, 55]);
+        assert_eq!(rage.current_tenths(), 276);
+        assert_eq!(rage.current(), 27, "whole rage floors");
+
+        // 14.4 × 10 is 143.99999... in floating point; it still lands as 144.
+        let mut rage = Rage::new();
+        assert_eq!(rage.gain_tenths(3.2 * 4.5 * 10.0), 144);
+
+        // Spending whole rage keeps the fraction.
+        let mut rage = Rage::new();
+        rage.gain_tenths(155.0);
+        rage.lose(15);
+        assert_eq!(rage.current_tenths(), 5);
+        assert_eq!(rage.current(), 0);
+        rage.gain(1);
+        assert_eq!(rage.current_tenths(), 15);
+
+        // Capped at the maximum, in tenths.
+        let mut rage = Rage::new();
+        rage.gain(99);
+        assert_eq!(rage.gain_tenths(55.0), 10);
+        assert_eq!(rage.current(), 100);
+        rage.retain_at_most(5);
+        assert_eq!(rage.current_tenths(), 50);
+        rage.reset();
+        assert_eq!(rage.current_tenths(), 0);
+
+        // A reset clears the carry.
+        let mut rage = Rage::new();
+        rage.gain_tenths(0.6);
+        rage.reset();
+        assert_eq!(rage.gain_tenths(0.6), 0);
     }
 
     #[test]

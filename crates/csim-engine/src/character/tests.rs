@@ -2410,7 +2410,7 @@ mod statistics {
         let bloodrage = stats.resource_statistics("Bloodrage", 1).unwrap();
         let bloodrage_casts = executors[0].successful_casts() + 1;
         assert!(
-            bloodrage.gain(ResourceType::Rage) >= bloodrage_casts * 10,
+            bloodrage.gain(ResourceType::Rage) >= (bloodrage_casts * 10) as f64,
             "{bloodrage:?} for {bloodrage_casts} casts"
         );
         assert!(ticks > 0);
@@ -2420,7 +2420,7 @@ mod statistics {
         );
         // The swings generate rage.
         let mh_rage = stats.resource_statistics("Mainhand Attack", 1).unwrap();
-        assert!(mh_rage.gain(ResourceType::Rage) > 0);
+        assert!(mh_rage.gain(ResourceType::Rage) > 0.0);
         assert!(mh_rage.gain_per_5(ResourceType::Rage, stats.time_in_combat()) > 0.0);
 
         // Buffs: the precombat Battle Shout ran from -1.5 s to the reset at 60 s.
@@ -2508,8 +2508,8 @@ mod statistics {
         assert!(!bleed.dpr().is_set(), "the bleed costs nothing");
         // Anger Management: 1 rage every 3 s.
         let anger = stats.resource_statistics("Anger Management", 1).unwrap();
-        assert!(anger.gain(ResourceType::Rage) >= 9, "{anger:?}");
-        assert!(anger.gain(ResourceType::Rage) <= 11, "{anger:?}");
+        assert!(anger.gain(ResourceType::Rage) >= 9.0, "{anger:?}");
+        assert!(anger.gain(ResourceType::Rage) <= 11.0, "{anger:?}");
         assert!(stats.spell_statistics("Anger Management", 1).is_none());
 
         // Syncing again does not double the counts.
@@ -2562,9 +2562,9 @@ mod statistics {
         let rage = stats
             .resource_statistics("Unbridled Wrath", rank)
             .expect("the proc's rage is a resource source");
-        assert!(rage.gain(ResourceType::Rage) > 0, "{rage:?}");
+        assert!(rage.gain(ResourceType::Rage) > 0.0, "{rage:?}");
         assert!(
-            rage.gain(ResourceType::Rage) <= unbridled_wrath.procs(),
+            rage.gain(ResourceType::Rage) <= unbridled_wrath.procs() as f64,
             "{rage:?} for {unbridled_wrath:?}"
         );
         assert!(

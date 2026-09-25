@@ -364,14 +364,26 @@ fn resource_table(stats: &ClassStatistics) -> Table {
                 .into_iter()
                 .map(move |kind| (key, resource, kind, resource.gain(kind)))
         })
-        .filter(|&(_, _, _, gain)| gain > 0)
+        .filter(|&(_, _, _, gain)| gain > 0.0)
         .collect();
-    gains.sort_by(|a, b| (a.2 as u8, b.3, a.0).cmp(&(b.2 as u8, a.3, b.0)));
+    gains.sort_by(|a, b| {
+        (a.2 as u8)
+            .cmp(&(b.2 as u8))
+            .then(b.3.total_cmp(&a.3))
+            .then(a.0.cmp(b.0))
+    });
     for (key, resource, kind, gain) in gains {
         table.row(vec![
             key.display_name(),
             kind.name().to_string(),
-            format!("{:.1}", per(gain, iterations)),
+            format!(
+                "{:.1}",
+                if iterations == 0 {
+                    0.0
+                } else {
+                    gain / iterations as f64
+                }
+            ),
             format!("{:.2}", resource.gain_per_5(kind, time)),
         ]);
     }
