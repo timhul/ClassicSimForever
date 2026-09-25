@@ -623,13 +623,25 @@ fn heroic_strike_replaces_the_next_swing() {
     f.learn(HEROIC_STRIKE);
     f.rig_rolls(PhysicalAttackResult::Hit);
     f.set_rage(100);
+    let avg_oh = f.character.avg_oh_damage(&f.target.stat_view());
+    assert!(avg_oh > 0);
     let hs = f.spell_id(HEROIC_STRIKE);
     let report = f.ctx().cast(hs);
     assert!(report.queued);
     assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
     assert!(
-        !f.character.is_dual_wielding(),
+        !f.character.uses_dual_wield_hit_table(),
         "a queued swing removes the DW penalty"
+    );
+    assert!(
+        f.character.is_dual_wielding(),
+        "both weapons are still equipped"
+    );
+    let view = f.target.stat_view();
+    assert_eq!(
+        f.character.avg_oh_damage(&view),
+        avg_oh,
+        "the off hand still hits for its damage"
     );
     f.ctx().start_attack();
     let outcome = f.ctx().mh_swing(1);
@@ -643,6 +655,7 @@ fn heroic_strike_replaces_the_next_swing() {
     assert_eq!(f.rage(), 85);
     assert_eq!(f.character.spells().queued_next_swing(), None);
     assert!(f.character.is_dual_wielding());
+    assert!(f.character.uses_dual_wield_hit_table());
 
     // Queued but unaffordable: the queue is dropped and the white swing lands.
     f.set_rage(100);

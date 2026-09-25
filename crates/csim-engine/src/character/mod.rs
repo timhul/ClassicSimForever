@@ -12,9 +12,10 @@
 //!
 //! The C++ virtual class methods (`get_agi_needed_for_one_percent_phys_crit`,
 //! `get_weapon_proficiencies_for_slot`, `global_cooldown`, ...) read the [`ClassSpec`]; the
-//! Warrior overrides (`is_dual_wielding` while Heroic Strike is queued, the Tactical Mastery
-//! rage remainder on a stance change, rage from damage dealt) are keyed on the resource and
-//! the queued swing rather than the class, so they apply to any class that shares the mechanic.
+//! Warrior overrides (`uses_dual_wield_hit_table` while Heroic Strike is queued, the Tactical
+//! Mastery rage remainder on a stance change, rage from damage dealt) are keyed on the resource
+//! and the queued swing rather than the class, so they apply to any class that shares the
+//! mechanic.
 
 pub mod class;
 pub mod context;
@@ -476,7 +477,7 @@ impl Character {
         RollContext {
             clvl: self.clvl,
             melee_hit_chance: self.stats.get_melee_hit_chance(&self.stat_context(target)),
-            dual_wielding: self.is_dual_wielding(),
+            dual_wielding: self.uses_dual_wield_hit_table(),
             attacking_from_behind: self.is_attacking_from_behind(),
             glancing_blows: self.sim.ruleset.glancing_blows(),
         }
@@ -663,12 +664,18 @@ impl Character {
         now < self.defensive_until
     }
 
-    /// Whether the attack table applies the dual-wield miss penalty: an off-hand weapon is
-    /// equipped and no on-next-swing spell is queued (a queued Heroic Strike removes the
-    /// penalty). Whether the off hand swings is `Equipment::is_dual_wielding`. Port of
-    /// `Warrior::is_dual_wielding`.
+    /// Whether two weapons are equipped (the off hand swings). This is about the equipment
+    /// only; the attack table reads [`Self::uses_dual_wield_hit_table`].
     pub fn is_dual_wielding(&self) -> bool {
-        self.spells.queued_next_swing().is_none() && self.equipment.is_dual_wielding()
+        self.equipment.is_dual_wielding()
+    }
+
+    /// Whether the attack table applies the dual-wield miss penalty: two weapons are equipped
+    /// and no on-next-swing spell is queued. This is the Heroic Strike special case: while the
+    /// main hand is queued, the off hand rolls on the one-hand table. Port of
+    /// `Warrior::is_dual_wielding`.
+    pub fn uses_dual_wield_hit_table(&self) -> bool {
+        self.spells.queued_next_swing().is_none() && self.is_dual_wielding()
     }
 
     pub fn has_mainhand(&self) -> bool {
@@ -878,7 +885,7 @@ impl Character {
     /// Average offhand damage including attack power (0 unless dual wielding). Port of
     /// `Character::get_avg_oh_damage`.
     pub fn avg_oh_damage(&self, target: &TargetStatView) -> u32 {
-        if !self.is_dual_wielding() {
+        if !self.equipment.is_dual_wielding() {
             return 0;
         }
         let ap = self.melee_ap(target);
