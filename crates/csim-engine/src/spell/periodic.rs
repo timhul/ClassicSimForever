@@ -261,6 +261,9 @@ impl Periodic {
                     ..quiet
                 })
             }
+            // The tick due as the buff expires (queued after its removal) casts nothing: what
+            // it would apply outlives the aura that should end it (Jom Gabbar's stacks).
+            PeriodicKind::TriggerSpell { .. } if !buff_active => None,
             PeriodicKind::TriggerSpell { spell: trigger } => {
                 self.schedule_tick(spell, host);
                 Some(TickReport {

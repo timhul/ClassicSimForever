@@ -251,3 +251,9 @@ overrides:
   - id: 1305398
     note: Shadow Bolt (Deathbringer) - ClassicSim's 3.87 % chance on hit
     proc: { chance: 3.87 }
+  # On-use auras.
+  - id: 29602
+    note: >-
+      Jom Gabbar - the attack power stacks (29604) have no duration in the tables; the server
+      removes them with the trinket's aura
+    ends_auras: [29604]

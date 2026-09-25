@@ -418,6 +418,7 @@ overrides:
     resource_miss_cost_mod: 0.16     # per-spell default override
     debuff_priority: high            # slot priority of the spell's debuff (low / mid / high)
     debuff_shared: true              # one raid-wide instance (default: true when it stacks)
+    ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)
 ```
 
 **Scripts** (`ScriptKind`; the interpreter implements each once, the data says where it applies):

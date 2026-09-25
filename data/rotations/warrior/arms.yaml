@@ -22,7 +22,7 @@ cast_if:
       or variable "time_remaining_execute" less 10
       and variable "time_remaining_execute" greater 0
       and buff_duration "Battle Shout" less 45
-  - name: Manual Crowd Pummeler
+  - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: |
       variable "time_remaining_execute" greater 120
@@ -43,15 +43,15 @@ cast_if:
     condition: |
       variable "time_remaining_execute" greater 120
       or variable "time_remaining_execute" less 0
-  - name: Zandalarian Hero Medallion
+  - name: Restless Strength  # Zandalarian Hero Medallion
     condition: |
       variable "time_remaining_execute" greater 120
       or variable "time_remaining_execute" less 0
-  - name: Diamond Flask
+  - name: CHUG! CHUG! CHUG! CHUG!  # Diamond Flask
     condition: |
       variable "time_remaining_execute" less 0
       or variable "time_remaining_encounter" less 65
-  - name: Cloudkeeper Legplates
+  - name: Heaven's Blessing  # Cloudkeeper Legplates
     condition: |
       variable "time_remaining_execute" less 0
       or variable "time_remaining_encounter" less 65

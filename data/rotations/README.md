@@ -34,7 +34,8 @@ cast_if:                      # the executors, highest priority first; default n
     condition: resource "Rage" greater 65
 ```
 
-- `name` in `cast_if` is the spell name a character knows it by (its rank group name). An
+- `name` in `cast_if` is the spell name a character knows it by (its rank group name; an item's
+  use goes by its spell's name: `Kiss of the Spider`, `Haste` for Manual Crowd Pummeler). An
   executor whose spell the character does not have (a trinket not equipped, a racial of
   another race, a talent not taken) is skipped when the rotation is linked.
 - The same spell may appear in several executors with different conditions (Arms has two
@@ -115,5 +116,10 @@ one that is cast counts a successful cast. Those counts are the executor statist
 - The rage dump before stancing (`spell "Mainhand Attack" less 1.5`) reads the swing timer;
   auto attacks are not spells here, so it is `variable "time_remaining_swing" less 1.5`.
 
-The trinket and item-use lines (Kiss of the Spider, Jom Gabbar, …) are kept: they link only
-when the item is equipped and are skipped otherwise.
+The trinket and item-use lines are kept: they link only when the item is equipped and are
+skipped otherwise. An item's use is named after its *spell*, not the item, so four lines were
+renamed (the item is in a comment): Manual Crowd Pummeler → `Haste`, Zandalarian Hero
+Medallion → `Restless Strength`, Diamond Flask → `CHUG! CHUG! CHUG! CHUG!`, Cloudkeeper
+Legplates → `Heaven's Blessing`. Uses the sim cannot run yet (Restless Strength and CHUG need a
+`DUMMY` script, Badge of the Swarmguard is a proc aura while its buff is up) are not given to
+the character, so their lines stay unlinked.

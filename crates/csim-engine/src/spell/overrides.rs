@@ -381,6 +381,10 @@ pub struct SpellOverride {
     /// one per caster; by default a stacking debuff is shared.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub debuff_shared: Option<bool>,
+    /// The spells whose buffs end when this spell's buff ends (the server removes Jom Gabbar's
+    /// permanent attack power stacks with the trinket's aura).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ends_auras: Vec<u32>,
 }
 
 impl SpellOverride {
@@ -423,6 +427,9 @@ impl SpellOverride {
         for event in &self.on_event {
             push(event.params.spell);
             push(event.params.duration_spell);
+        }
+        for &id in &self.ends_auras {
+            push(Some(id));
         }
         ids
     }
@@ -674,6 +681,11 @@ impl Overrides {
     /// Whether spell `id`'s debuff is raid-shared, if overridden.
     pub fn debuff_shared(&self, id: u32) -> Option<bool> {
         self.get(id).and_then(|o| o.debuff_shared)
+    }
+
+    /// The spells whose buffs end with spell `id`'s buff (`ends_auras`).
+    pub fn ends_auras(&self, id: u32) -> &[u32] {
+        self.get(id).map_or(&[], |o| o.ends_auras.as_slice())
     }
 }
 

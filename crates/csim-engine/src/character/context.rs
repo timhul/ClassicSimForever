@@ -13,7 +13,7 @@ use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
-use crate::item::{EffectTrigger, EquipmentSlot};
+use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect};
 use crate::proc::{ProcHost, ProcSource};
 use crate::resource::ResourceType;
 use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
@@ -133,6 +133,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let result = f(&mut attack, self);
         self.character.spells.put_auto_attack(attack);
         result
+    }
+
+    /// Cancels the active buffs of the spells that end with buff `id` (`ends_auras`).
+    fn end_linked_auras(&mut self, id: BuffId) {
+        let spells = self.buff_ref(id).ends_auras().to_vec();
+        if spells.is_empty() {
+            return;
+        }
+        let linked: Vec<BuffId> = self
+            .character
+            .spells
+            .buff_ids()
+            .filter(|&other| {
+                let buff = self.buff_ref(other);
+                spells.contains(&buff.spell()) && buff.is_active()
+            })
+            .collect();
+        for other in linked {
+            self.cancel_buff(other);
+        }
     }
 
     pub(crate) fn buff_ref(&self, id: BuffId) -> &Buff {
@@ -687,11 +707,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     ///   modifiers).
     /// - An item's chance-on-hit effect is a proc of the wielding hand casting the spell at the
     ///   target ([`crate::proc::Proc::on_hit`]); one whose rate is unknown is skipped.
+    /// - An item's on-use effect is a spell the rotation casts by its name, with the item's
+    ///   cooldown and shared category cooldown (the trinkets' 1141) in place of the record's.
+    ///   One the sim cannot run (an effect without its script, a proc aura while the buff is
+    ///   up: Badge of the Swarmguard) is skipped, so it does not start the shared cooldown for
+    ///   nothing.
     ///
-    /// Spells missing from `db` (pruned by the export: stuns, heals, immunities, ...), ignored
-    /// ones (`IGNORED`) and on-use effects (cast by the rotation) are skipped.
+    /// Spells missing from `db` (pruned by the export: stuns, heals, immunities, ...) and
+    /// ignored ones (`IGNORED`) are skipped. The rotation is linked again afterwards.
     pub fn sync_equipment_spells(&mut self, db: &SpellDb) {
         let mut wanted = Vec::new();
+        let mut uses = Vec::new();
         for grant in self.granted_equipment_spells() {
             let Some(record) = db.get(grant.spell) else {
                 continue;
@@ -701,6 +727,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 .get(grant.spell)
                 .is_some_and(|o| o.sim_flags.contains(&SimFlag::Ignored));
             if ignored {
+                continue;
+            }
+            let runnable_use = || {
+                !record.is_passive()
+                    && !record.is_proc_aura()
+                    && db.unsupported_effects(record).is_empty()
+            };
+            if matches!(grant.kind, GrantKind::Use(_)) && !runnable_use() {
                 continue;
             }
             for payload in payload_spells(db, grant.spell) {
@@ -728,6 +762,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 GrantKind::OnHit(allowed) => spells
                     .add_on_hit_proc(key, setup, overrides, &allowed, party, self.raid)
                     .map(SpellHandle::Proc),
+                GrantKind::Use(effect) => {
+                    let setup = with_item_cooldowns(setup, &effect);
+                    let id = spells.add_equipment_passive(key, setup, overrides, party, self.raid);
+                    uses.push(id);
+                    Some(SpellHandle::Spell(id))
+                }
             };
             if let Some(handle) = handle {
                 wanted.push(handle);
@@ -744,6 +784,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         for handle in stale {
             self.disable_handle(handle);
         }
+        // After the stale ones are disabled, so that a new item's use takes over the name of
+        // the one it replaced.
+        for id in uses {
+            self.character.spells.name_equipment_use(id);
+        }
+        self.relink_rotation();
     }
 
     fn enable_handle(&mut self, handle: SpellHandle) {
@@ -798,7 +844,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         for (slot, item) in equipment.equipped_items() {
             for (index, effect) in item.effects().iter().enumerate() {
                 let kind = match effect.trigger {
-                    EffectTrigger::Use => continue,
+                    EffectTrigger::Use => GrantKind::Use(effect.clone()),
                     EffectTrigger::Equip => GrantKind::Passive(passive_proc_sources(Some(slot))),
                     EffectTrigger::OnHit if slot.is_weapon_slot() => {
                         GrantKind::OnHit(slot.default_proc_sources())
@@ -1403,6 +1449,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                         self.remove_auras(buff);
                     }
                     self.record_buff_removed(buff);
+                    self.end_linked_auras(buff);
                 }
             }
             EventKind::DotTick {
@@ -2075,6 +2122,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
                 self.remove_auras(id);
             }
             self.record_buff_removed(id);
+            self.end_linked_auras(id);
         }
         cancelled
     }
@@ -2240,6 +2288,22 @@ enum GrantKind {
     Passive(Vec<ProcSource>),
     /// A weapon's chance-on-hit spell.
     OnHit(Vec<ProcSource>),
+    /// An item's on-use spell, with the item effect's cooldowns.
+    Use(ItemEffect),
+}
+
+/// `setup` with the cooldowns of the item effect that grants it: the item's own cooldown and
+/// its shared category cooldown replace the spell record's where the item has them.
+fn with_item_cooldowns(mut setup: SpellSetup, effect: &ItemEffect) -> SpellSetup {
+    let record = Arc::make_mut(&mut setup.record);
+    if let Some(ms) = effect.cooldown_ms {
+        record.cooldown.recovery_ms = ms;
+    }
+    if let Some(category) = effect.category {
+        record.categories.category = category;
+        record.cooldown.category_recovery_ms = effect.category_cooldown_ms.unwrap_or(0);
+    }
+    setup
 }
 
 /// The attacks an on-equip or set bonus proc aura may react to: a weapon's only its own hand's

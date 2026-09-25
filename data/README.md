@@ -157,6 +157,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
 - **`stance_passive`** — the hidden passive carrying a stance's numbers
   (`SpellShapeshiftForm.PresetSpellID` is empty in the dump).
 - **`on_event`** — a reaction to a combat event (Overpower's combo point on a dodge).
+- **`ends_auras`** — the spells whose buffs end with this spell's buff (Jom Gabbar's attack power
+  stacks, which have no duration in the tables).
 - **`resource_miss_cost_mod`**, **`debuff_priority`**, **`debuff_shared`** — per-spell values
   where the file `defaults` do not fit.
 

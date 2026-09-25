@@ -429,9 +429,11 @@ impl CharacterSpells {
         Some(id)
     }
 
-    /// Registers the passive `key` of the equipment (an on-equip or set bonus aura): a spell
-    /// outside the game-id index and the rank groups, whose aura is up while it is enabled. A
-    /// key already registered keeps its spell.
+    /// Registers the spell `key` of the equipment: a spell outside the game-id index and the
+    /// rank groups. An on-equip or set bonus aura is up while it is enabled; an item's on-use
+    /// spell (its `setup` carrying the item's cooldowns) is cast by name once
+    /// [`CharacterSpells::name_equipment_use`] gave it a rank group. A key already registered
+    /// keeps its spell.
     pub fn add_equipment_passive(
         &mut self,
         key: EquipmentSpellKey,
@@ -449,6 +451,37 @@ impl CharacterSpells {
         self.spells[id.index()] = Some(spell);
         self.equipment_spells.insert(key, SpellHandle::Spell(id));
         id
+    }
+
+    /// Makes the on-use spell `id` the one its name reaches: it gets a rank group of its own,
+    /// or takes the place of another item's use spell of the same name that is no longer
+    /// enabled (a trinket swapped for another with the same use). Returns `false` when the
+    /// name belongs to another spell (a spellbook spell, a second item worn with the same use).
+    pub fn name_equipment_use(&mut self, id: SpellId) -> bool {
+        let name = self.spell(id).name().to_string();
+        let Some(group) = self.rank_groups.get(&name) else {
+            self.rank_groups
+                .insert(name.clone(), SpellRankGroup::new(&name, [(1, id)]));
+            return true;
+        };
+        if group.contains(id) {
+            return true;
+        }
+        let members: Vec<SpellId> = group.spells().collect();
+        let [member] = members[..] else {
+            return false;
+        };
+        let replaceable = self
+            .equipment_spells
+            .values()
+            .any(|&handle| handle == SpellHandle::Spell(member))
+            && !self.spell(member).is_enabled();
+        replaceable
+            && self
+                .rank_groups
+                .get_mut(&name)
+                .expect("looked up above")
+                .replace(member, id)
     }
 
     /// The spell or proc registered for `key`, if any.

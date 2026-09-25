@@ -1076,43 +1076,48 @@ impl SpellDb {
     /// `OVERRIDE_CLASS_SCRIPTS`) without a script in the overrides. Spells the overrides mark
     /// `IGNORED` are skipped.
     pub fn unsupported(&self) -> Vec<Unsupported> {
+        self.records()
+            .into_iter()
+            .filter(|record| !self.overrides.has_sim_flag(record.id, SimFlag::Ignored))
+            .flat_map(|record| self.unsupported_effects(record))
+            .collect()
+    }
+
+    /// The effects of `record` the sim cannot interpret (see [`SpellDb::unsupported`]), whether
+    /// or not the spell is `IGNORED`.
+    pub fn unsupported_effects(&self, record: &SpellRecord) -> Vec<Unsupported> {
         let mut report = Vec::new();
-        for record in self.records() {
-            if self.overrides.has_sim_flag(record.id, SimFlag::Ignored) {
+        for effect in &record.effects {
+            if effect.is_discarded() {
                 continue;
             }
-            for effect in &record.effects {
-                if effect.is_discarded() {
-                    continue;
-                }
-                let reason = if !effect.effect.is_known() {
-                    Some(format!("unknown effect id {}", effect.effect.id()))
-                } else if effect.is_apply_aura() && !effect.aura.is_known() {
-                    Some(format!("unknown aura id {}", effect.aura.id()))
-                } else if effect.is_scripted()
-                    && self
-                        .overrides
-                        .effect_script(record.id, effect.index)
-                        .is_none()
-                {
-                    Some(format!(
-                        "{} needs a script in the overrides",
-                        if effect.is_apply_aura() {
-                            format!("aura {}", effect.aura)
-                        } else {
-                            format!("effect {}", effect.effect)
-                        }
-                    ))
-                } else {
-                    None
-                };
-                if let Some(reason) = reason {
-                    report.push(Unsupported {
-                        spell: record.id,
-                        effect: effect.index,
-                        reason,
-                    });
-                }
+            let reason = if !effect.effect.is_known() {
+                Some(format!("unknown effect id {}", effect.effect.id()))
+            } else if effect.is_apply_aura() && !effect.aura.is_known() {
+                Some(format!("unknown aura id {}", effect.aura.id()))
+            } else if effect.is_scripted()
+                && self
+                    .overrides
+                    .effect_script(record.id, effect.index)
+                    .is_none()
+            {
+                Some(format!(
+                    "{} needs a script in the overrides",
+                    if effect.is_apply_aura() {
+                        format!("aura {}", effect.aura)
+                    } else {
+                        format!("effect {}", effect.effect)
+                    }
+                ))
+            } else {
+                None
+            };
+            if let Some(reason) = reason {
+                report.push(Unsupported {
+                    spell: record.id,
+                    effect: effect.index,
+                    reason,
+                });
             }
         }
         report

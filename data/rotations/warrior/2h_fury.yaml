@@ -27,7 +27,7 @@ cast_if:
     condition: |
       variable "time_remaining_execute" greater 3
       and resource "Rage" greater 80
-  - name: Manual Crowd Pummeler
+  - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: buff_duration "Death Wish" is true
   - name: Jom Gabbar
@@ -38,11 +38,11 @@ cast_if:
     condition: buff_duration "Death Wish" is true
   - name: Earthstrike
     condition: buff_duration "Death Wish" is true
-  - name: Zandalarian Hero Medallion
+  - name: Restless Strength  # Zandalarian Hero Medallion
     condition: buff_duration "Death Wish" is true
-  - name: Diamond Flask
+  - name: CHUG! CHUG! CHUG! CHUG!  # Diamond Flask
     condition: buff_duration "Death Wish" is true
-  - name: Cloudkeeper Legplates
+  - name: Heaven's Blessing  # Cloudkeeper Legplates
     condition: buff_duration "Death Wish" is true
   - name: Death Wish
     condition: |

@@ -158,6 +158,8 @@ pub struct Buff {
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
+    /// The spells whose buffs end with this one (the overrides' `ends_auras`).
+    ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
     pub effects: Vec<Effect>,
 
@@ -202,6 +204,7 @@ impl Buff {
             refresh_policy: RefreshPolicy::default(),
             spell: 0,
             charge_sources: Vec::new(),
+            ends_auras: Vec::new(),
             effects: Vec::new(),
             instance_id: None,
             enabled: false,
@@ -247,6 +250,7 @@ impl Buff {
             buff.charge_sources =
                 ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
         }
+        buff.ends_auras = overrides.ends_auras(record.id).to_vec();
         let cannot_crit = overrides.has_sim_flag(record.id, SimFlag::CannotCrit);
         buff.effects = record
             .effects
@@ -375,6 +379,11 @@ impl Buff {
     /// The spell the buff belongs to (0 for buffs made in code).
     pub fn spell(&self) -> u32 {
         self.spell
+    }
+
+    /// The spells whose buffs end when this one does.
+    pub fn ends_auras(&self) -> &[u32] {
+        &self.ends_auras
     }
 
     /// The events that use up one charge.
