@@ -5,8 +5,9 @@ https://wago.tools/api/builds/<product>/latest for the newest build of the produ
 (`wow_classic_beta` by default), then fetches every table as
 `data/tables/<Table>.<build>.csv` from https://wago.tools/db2/<Table>/csv?build=<build>.
 
-Without table names it fetches the tables already present in `data/tables/` (any build), so a
-refresh keeps the same set; names given on the command line are fetched in addition. Once every
+It fetches the tables listed in `TABLES` below plus any other table already present in
+`data/tables/` (any build), so an empty directory can be filled and a refresh keeps extra
+tables; names given on the command line are fetched in addition. Once every
 table is downloaded, the files of the other builds are removed (`TableDir::open` wants a single
 build in the directory) unless `--keep-old` is given. Nothing is removed if a download fails.
 
@@ -30,6 +31,36 @@ DEFAULT_DIR = os.path.join(ROOT, "data", "tables")
 API = "https://wago.tools/api"
 DB2 = "https://wago.tools/db2"
 USER_AGENT = "ClassicSimForever-fetch-tables/1.0"
+
+# The tables the csim-tables exports read, so an empty directory can be filled.
+TABLES = [
+    "ArmorLocation", "CharBaseInfo", "CharBaseSection", "ChrClasses", "ChrClassesXPowerTypes",
+    "ChrRaceRacialAbility", "ChrRaces", "ChrRacesCreateScreenIcon", "ChrSpecialization",
+    "CooldownSet", "CooldownSetLinkedSpell", "CooldownSetSpell", "Curve", "CurvePoint",
+    "Faction", "FactionGroup", "GlobalStrings", "Item", "ItemArmorQuality", "ItemArmorShield",
+    "ItemArmorTotal", "ItemBonus", "ItemBonusList", "ItemBonusListGroup", "ItemBonusTree",
+    "ItemBonusTreeNode", "ItemClass", "ItemCondition", "ItemDamageAmmo", "ItemDamageOneHand",
+    "ItemDamageOneHandCaster", "ItemDamageRanged", "ItemDamageThrown", "ItemDamageTwoHand",
+    "ItemDamageTwoHandCaster", "ItemDamageWand", "ItemEffect", "ItemExtendedCost",
+    "ItemLimitCategory", "ItemLimitCategoryCondition", "ItemNameDescription", "ItemSearchName",
+    "ItemSet", "ItemSetSpell", "ItemSparse", "ItemSpecOverride", "ItemSubClass",
+    "ItemSubClassMask", "ItemXBonusTree", "ItemXItemEffect", "PlayerCondition",
+    "PlayerExpectedStat", "PowerDisplay", "PowerType", "RaceStat", "RandPropPoints",
+    "Resistances", "SkillLine", "SkillLineAbility", "SkillLineCategory", "SkillLineXTraitTree",
+    "SkillRaceClassInfo", "Spell", "SpellAuraOptions", "SpellAuraRestrictions",
+    "SpellCastTimes", "SpellCategories", "SpellCategory", "SpellClassOptions",
+    "SpellCooldowns", "SpellDescriptionVariables", "SpellDuration", "SpellEffect",
+    "SpellEquippedItems", "SpellInterrupts", "SpellItemEnchantment", "SpellLabel",
+    "SpellLevels", "SpellMisc", "SpellName", "SpellPower", "SpellProcsPerMinute",
+    "SpellRadius", "SpellRange", "SpellReagents", "SpellShapeshift", "SpellShapeshiftForm",
+    "SpellTargetRestrictions", "SpellTotems", "SpellXSpellVisual", "Talent", "TalentTab",
+    "TotemCategory", "TraitCond", "TraitCost", "TraitCurrency", "TraitCurrencySource",
+    "TraitDefinition", "TraitDefinitionEffectPoints", "TraitEdge", "TraitNode",
+    "TraitNodeEntry", "TraitNodeGroup", "TraitNodeGroupDisplayInfo",
+    "TraitNodeGroupXTraitCond", "TraitNodeGroupXTraitNode", "TraitNodeXTraitCond",
+    "TraitNodeXTraitNodeEntry", "TraitSystem", "TraitTree", "TraitTreeXTraitCost",
+    "TraitTreeXTraitCurrency",
+]
 
 # `<Table>.<build>.csv`, the same split as crates/csim-tables/src/dir.rs.
 FILE_NAME = re.compile(r"^([A-Za-z0-9_]+)\.(\d+(?:\.\d+)*)\.csv$")
@@ -84,7 +115,7 @@ def fetch(table, build, directory, force):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    p.add_argument("tables", nargs="*", help="extra tables to fetch besides the local ones")
+    p.add_argument("tables", nargs="*", help="extra tables to fetch besides the known ones")
     p.add_argument("--product", default="wow_classic_beta",
                    help="wago.tools product (default: %(default)s)")
     p.add_argument("--build", help="fetch this build instead of the product's latest")
@@ -96,9 +127,8 @@ def main():
     args = p.parse_args()
 
     builds = local_files(args.dir)
-    tables = sorted({t for files in builds.values() for t in files} | set(args.tables))
-    if not tables:
-        sys.exit(f"no tables in {args.dir} and none given on the command line")
+    local = {t for files in builds.values() for t in files}
+    tables = sorted(set(TABLES) | local | set(args.tables))
 
     build = args.build or latest_build(args.product)
     print(f"{args.product}: build {build}; local builds: {', '.join(sorted(builds)) or 'none'}")
