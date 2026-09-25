@@ -50,6 +50,8 @@ effects, set bonuses and suffixes are not scored):
 
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot gloves`
 
+`cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot mainhand --type axe,sword,mace,dagger,fist`
+
 # Known issues
 
 - Raid DPS is much lower than solo DPS. This is because debuffs are not applied in the current

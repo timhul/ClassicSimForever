@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use clap::Args;
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::faction::PlayerClass;
-use csim_engine::item::{EquipmentSlot, Item};
+use csim_engine::item::{EquipmentSlot, Item, ItemType};
 use csim_engine::phase::Phase;
 
 use crate::list::{matches, parse_phase, print_or_none};
@@ -26,6 +26,15 @@ pub struct RankArgs {
     /// Only items that fit this slot (MAINHAND, OFFHAND, HEAD, RING1, ...).
     #[arg(long, value_parser = parse_serde_name::<EquipmentSlot>)]
     slot: Option<EquipmentSlot>,
+    /// Only items of these types, comma separated (AXE, TWOHAND_SWORD, PLATE, SHIELD, ...),
+    /// e.g. `--slot mainhand --type axe,sword,mace,dagger,fist` for dual wielding.
+    #[arg(
+        long = "type",
+        value_delimiter = ',',
+        value_parser = parse_serde_name::<ItemType>,
+        value_name = "TYPES"
+    )]
+    types: Vec<ItemType>,
     /// Only items available in this content phase (1-6), in their version of that phase
     /// (default: the phase of the weights).
     #[arg(long, value_parser = parse_phase)]
@@ -57,6 +66,7 @@ pub fn items(data: &DataBundle, args: &RankArgs) -> Result<()> {
             item.available_for_class(class)
                 && matches(item.name(), args.search.as_deref())
                 && args.slot.is_none_or(|slot| item.fits(slot))
+                && of_types(item, &args.types)
         })
         .collect();
     let ranked = rank(items.iter().map(|item| item.as_ref()), &weights, args.tps);
@@ -106,6 +116,11 @@ pub fn items(data: &DataBundle, args: &RankArgs) -> Result<()> {
     }
     print_or_none(&table, "items");
     Ok(())
+}
+
+/// Whether the item is of one of `types`; any item when `types` is empty.
+fn of_types(item: &Item, types: &[ItemType]) -> bool {
+    types.is_empty() || types.contains(&item.item_type())
 }
 
 /// The items with their scores, best first; ties by id.
@@ -208,6 +223,14 @@ mod tests {
             .collect();
         // Bracers and gloves tie at 30.
         assert_eq!(ranked, [(2, 35.0), (1, 30.0), (3, 30.0)]);
+    }
+
+    #[test]
+    fn of_types_keeps_the_listed_types() {
+        let belt = item(BELT);
+        assert!(of_types(&belt, &[]));
+        assert!(of_types(&belt, &[ItemType::Mail, ItemType::Plate]));
+        assert!(!of_types(&belt, &[ItemType::Leather]));
     }
 
     #[test]

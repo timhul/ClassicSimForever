@@ -168,6 +168,63 @@ fn rank_items_orders_by_the_weighted_stats() {
 }
 
 #[test]
+fn rank_items_keeps_the_given_types() {
+    let path = std::env::temp_dir().join(format!("csim-rank-type-{}.yaml", std::process::id()));
+    std::fs::write(
+        &path,
+        "setup: Test\nclass: WARRIOR\nrotation: Fury\nphase: 6\niterations: 1\nseed: 1\n\
+         dps: 500\ntps: 400\nweights:\n  STRENGTH: { dps: 1.0, tps: 0.5 }\n",
+    )
+    .unwrap();
+    let rank = |types: &str| {
+        stdout(&csim(&[
+            "rank-items",
+            "--weights",
+            path.to_str().unwrap(),
+            "--slot",
+            "mainhand",
+            "--type",
+            types,
+            "--limit",
+            "0",
+        ]))
+    };
+    let one_hand = rank("axe,sword,mace,dagger,fist");
+    let two_hand = rank("TWOHAND_AXE,twohand_sword");
+    std::fs::remove_file(&path).ok();
+
+    let types = |report: &str| -> Vec<String> {
+        report
+            .lines()
+            .skip(3)
+            .map(|line| {
+                let start = report.lines().nth(1).unwrap().find("Type").unwrap();
+                line[start..].split_whitespace().next().unwrap().to_string()
+            })
+            .collect()
+    };
+    let one_hand = types(&one_hand);
+    assert!(!one_hand.is_empty());
+    assert!(
+        one_hand
+            .iter()
+            .all(|t| ["AXE", "SWORD", "MACE", "DAGGER", "FIST"].contains(&t.as_str())),
+        "{one_hand:?}"
+    );
+    let two_hand = types(&two_hand);
+    assert!(
+        two_hand.contains(&"TWOHAND_AXE".to_string()),
+        "{two_hand:?}"
+    );
+    assert!(
+        two_hand
+            .iter()
+            .all(|t| t == "TWOHAND_AXE" || t == "TWOHAND_SWORD"),
+        "{two_hand:?}"
+    );
+}
+
+#[test]
 fn weights_file_requires_scale() {
     let output = csim(&[&RUN[..], &["--weights-file", "weights.yaml"]].concat());
     assert!(!output.status.success());
