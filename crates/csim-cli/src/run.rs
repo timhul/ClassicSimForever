@@ -1,6 +1,7 @@
 //! `csim run`: simulates one character setup, alone or in a raid (`--raid`), and prints the
 //! results as text tables, YAML or HTML (`--output-format`), to stdout or a file
-//! (`--output-file`).
+//! (`--output-file`). With `--scale`, `--weights-file` also writes the stat weights per item
+//! stat point (see [`crate::weights`]).
 
 use std::fmt::Write;
 use std::io::IsTerminal;
@@ -20,6 +21,7 @@ use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
 use crate::table::{percent, Table};
+use crate::weights::StatWeights;
 use crate::Result;
 
 #[derive(Debug, Args)]
@@ -60,6 +62,10 @@ pub struct RunArgs {
     /// Writes the results to this file instead of stdout.
     #[arg(long, value_name = "PATH")]
     output_file: Option<PathBuf>,
+    /// Writes the stat weights per item stat point to this YAML file, for
+    /// `csim rank-items --weights`. Requires --scale.
+    #[arg(long, value_name = "PATH", requires = "scale")]
+    weights_file: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -197,14 +203,18 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         eprint!("\r{:<20}\r", "");
     }
 
-    let results = Results::collect(&Report {
+    let report = Report {
         setup: &setup,
         settings: &settings,
         seed,
         elapsed,
         cruncher: &cruncher,
         raid: roster.as_ref(),
-    });
+    };
+    if let Some(path) = &args.weights_file {
+        StatWeights::collect(&report).write(path)?;
+    }
+    let results = Results::collect(&report);
     let output = match args.output_format {
         OutputFormat::Terminal => results.text(),
         OutputFormat::Yaml => results.yaml()?,

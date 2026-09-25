@@ -2,7 +2,8 @@
 //!
 //! - `csim run <character.yaml>` simulates a character setup, alone or in a raid
 //!   (`--raid <raid.yaml>`), and prints the results (`--output-format terminal|yaml|html`,
-//!   `--output-file <path>`).
+//!   `--output-file <path>`). `--scale` adds the stat weights; `--weights-file <path>` writes
+//!   them per item stat point.
 //! - `csim validate` loads the data directory and checks every character and raid setup
 //!   against it.
 //! - `csim list-items` / `list-spells` / `list-rotations` list what setups can refer to.
@@ -14,6 +15,7 @@ mod html;
 mod list;
 mod run;
 mod table;
+mod weights;
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;

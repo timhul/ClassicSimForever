@@ -93,6 +93,46 @@ fn scale_prints_the_stat_weights() {
 }
 
 #[test]
+fn weights_file_writes_the_weights_per_item_stat_point() {
+    let path = std::env::temp_dir().join(format!("csim-weights-{}.yaml", std::process::id()));
+    stdout(&csim(
+        &[
+            &RUN[..],
+            &["--seed", "5", "--scale=strength,hit"],
+            &["--weights-file", path.to_str().unwrap()],
+        ]
+        .concat(),
+    ));
+    let yaml = std::fs::read_to_string(&path).expect("the weights file is written");
+    std::fs::remove_file(&path).ok();
+    let weights: serde_yaml::Value = serde_yaml::from_str(&yaml).expect("valid YAML");
+
+    assert_eq!(weights["setup"].as_str(), Some("DW Fury Orc"));
+    assert_eq!(weights["class"].as_str(), Some("WARRIOR"));
+    assert_eq!(weights["iterations"].as_u64(), Some(40));
+    assert!(weights["dps"].as_f64().unwrap() > 0.0, "{yaml}");
+    let stats: Vec<_> = weights["weights"]
+        .as_mapping()
+        .unwrap()
+        .keys()
+        .map(|key| key.as_str().unwrap())
+        .collect();
+    assert_eq!(stats, ["STRENGTH", "HIT_CHANCE", "HIT_RATING"], "{yaml}");
+    // 10 hit rating make the same 1 % as 0.01 hit chance.
+    let per_point = |stat: &str| weights["weights"][stat]["dps"].as_f64().unwrap();
+    assert!(
+        (per_point("HIT_CHANCE") * 0.01 - per_point("HIT_RATING") * 10.0).abs() < 1e-9,
+        "{yaml}"
+    );
+}
+
+#[test]
+fn weights_file_requires_scale() {
+    let output = csim(&[&RUN[..], &["--weights-file", "weights.yaml"]].concat());
+    assert!(!output.status.success());
+}
+
+#[test]
 fn damage_and_resource_gains_end_in_totals() {
     let report = stdout(&csim(&[&RUN[..], &["--seed", "7"]].concat()));
     let section = |title: &str| {

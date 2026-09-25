@@ -15,7 +15,8 @@ use std::num::NonZeroUsize;
 use serde::{Deserialize, Serialize};
 
 use crate::character::SimParams;
-use crate::item::WeaponType;
+use crate::item::rating::interim_chance;
+use crate::item::{ItemStat, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::rulesets::Ruleset;
@@ -165,6 +166,45 @@ impl SimOption {
                     stats.decrease_spell_penetration(school, 10);
                 }
             }
+        }
+    }
+
+    /// The item stats that give the option's bonus, each with the amount (in data-file units)
+    /// that equals the option: 10 `AGILITY` for "+10 Agility", 0.01 `HIT_CHANCE` or 10
+    /// `HIT_RATING` for "+1% Hit". Dividing the option's stat weight by an amount gives the
+    /// weight per point of that item stat.
+    ///
+    /// `RANGED_ATTACK_POWER` is not listed: the attack power option adds melee and ranged
+    /// attack power together, so its weight cannot be split between them.
+    pub fn item_stats(self) -> Vec<(ItemStat, f64)> {
+        let rating = |rating: ItemStat| {
+            let (_, per_percent) = interim_chance(rating).expect("a convertible rating");
+            (rating, per_percent)
+        };
+        match self {
+            SimOption::ScaleAgility => vec![(ItemStat::Agility, 10.0)],
+            SimOption::ScaleStrength => vec![(ItemStat::Strength, 10.0)],
+            SimOption::ScaleHitChance => {
+                vec![(ItemStat::HitChance, 0.01), rating(ItemStat::HitRating)]
+            }
+            SimOption::ScaleCritChance => {
+                vec![(ItemStat::CritChance, 0.01), rating(ItemStat::CritRating)]
+            }
+            SimOption::ScaleAttackPower => vec![
+                (ItemStat::AttackPower, 10.0),
+                (ItemStat::MeleeAttackPower, 10.0),
+            ],
+            SimOption::ScaleAxeSkill => vec![(ItemStat::AxeSkill, 1.0)],
+            SimOption::ScaleDaggerSkill => vec![(ItemStat::DaggerSkill, 1.0)],
+            SimOption::ScaleMaceSkill => vec![(ItemStat::MaceSkill, 1.0)],
+            SimOption::ScaleSwordSkill => vec![(ItemStat::SwordSkill, 1.0)],
+            SimOption::ScaleIntellect => vec![(ItemStat::Intellect, 10.0)],
+            SimOption::ScaleSpirit => vec![(ItemStat::Spirit, 10.0)],
+            SimOption::ScaleMp5 => vec![(ItemStat::ManaPer5, 10.0)],
+            SimOption::ScaleSpellDamage => vec![(ItemStat::SpellDamage, 10.0)],
+            SimOption::ScaleSpellCritChance => vec![(ItemStat::SpellCritChance, 0.01)],
+            SimOption::ScaleSpellHitChance => vec![(ItemStat::SpellHitChance, 0.01)],
+            SimOption::ScaleSpellPenetration => vec![(ItemStat::SpellPenetration, 10.0)],
         }
     }
 
@@ -414,6 +454,33 @@ mod tests {
         ];
         for (settings, error) in cases {
             assert_eq!(settings.validate(), Err(error));
+        }
+    }
+
+    #[test]
+    fn every_option_has_item_stat_equivalents() {
+        use crate::stats::Stats;
+        for option in SimOption::ALL {
+            let stats: Vec<_> = option
+                .item_stats()
+                .into_iter()
+                .map(|(stat, amount)| Stats::from_item_stats([(stat, amount)]).unwrap())
+                .collect();
+            assert!(!stats.is_empty(), "{option:?} has an item stat");
+            for bag in &stats {
+                assert_ne!(*bag, Stats::new(), "{option:?} item stats add something");
+            }
+        }
+        // A rating amount converts to the same chance as the chance amount.
+        for option in [SimOption::ScaleHitChance, SimOption::ScaleCritChance] {
+            let [chance, rating] = &option.item_stats()[..] else {
+                panic!("{option:?}: a chance and a rating");
+            };
+            assert_eq!(
+                Stats::from_item_stats([*chance]).unwrap(),
+                Stats::from_item_stats([*rating]).unwrap(),
+                "{option:?}"
+            );
         }
     }
 
