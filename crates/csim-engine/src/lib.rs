@@ -24,6 +24,7 @@ pub mod phase;
 pub mod proc;
 pub mod race;
 pub mod raid;
+pub mod raid_loader;
 pub mod resource;
 pub mod rng;
 pub mod rotation;

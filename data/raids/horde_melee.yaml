@@ -1,0 +1,8 @@
+# A Horde melee raid: the player joins party 1 with a two-hander Fury warrior and a
+# dual-wield Fury warrior, party 2 holds two more warriors.
+# Schema: crates/csim-engine/src/raid_loader.rs.
+name: Horde melee
+player_party: 1
+parties:
+  - [2h_fury_orc, dw_fury_orc]  # party 1, with the player
+  - [dw_fury_orc, 2h_fury_orc]  # party 2
