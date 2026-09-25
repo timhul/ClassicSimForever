@@ -801,6 +801,16 @@ impl Spell {
         self.enabled = false;
     }
 
+    /// Whether the spell strikes with the shield rather than the main hand (Shield Slam, Shield
+    /// Bash: `SpellEquippedItems` asks for a shield). Such attacks count as off-hand attacks
+    /// and do not trigger main-hand procs (Windfury).
+    pub fn is_offhand_attack(&self) -> bool {
+        self.setup
+            .record
+            .equipped_items
+            .is_some_and(|items| items.requires_shield())
+    }
+
     /// Whether the equipment and stance conditions of the record hold.
     pub fn conditions_hold(&self, host: &impl SpellHost) -> bool {
         let record = &self.setup.record;
@@ -1225,19 +1235,11 @@ impl Spell {
             None => return None,
         };
 
+        let crit = matches!(
+            result,
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
+        );
         let damage = match result {
-            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical => {
-                proc_sources.push(ProcSource::MeleeCritical);
-                self.damage_after_modifiers(host, raw_damage) * self.crit_damage_mod(host)
-            }
-            PhysicalAttackResult::Hit
-            | PhysicalAttackResult::Block
-            | PhysicalAttackResult::Glancing => {
-                if first_roll.is_some() {
-                    proc_sources.push(ProcSource::MeleeHit);
-                }
-                self.damage_after_modifiers(host, raw_damage)
-            }
             PhysicalAttackResult::Miss
             | PhysicalAttackResult::Dodge
             | PhysicalAttackResult::Parry => {
@@ -1248,7 +1250,21 @@ impl Spell {
                     execution_time: self.execution_time(host),
                 });
             }
+            _ if crit => self.damage_after_modifiers(host, raw_damage) * self.crit_damage_mod(host),
+            _ => self.damage_after_modifiers(host, raw_damage),
         };
+        // A landed melee ability is reported as a main-hand ability (`melee_mh_yellow_hit_effect`)
+        // unless it strikes with the shield (Shield Slam: an off-hand attack, which procs
+        // nothing main-hand like Windfury); a crit additionally by its result, for the crit-only
+        // procs. See `ProcSource::from_masks`.
+        if first_roll.is_some() {
+            if !self.is_offhand_attack() {
+                proc_sources.push(ProcSource::MainhandSpell);
+            }
+            if crit {
+                proc_sources.push(ProcSource::MeleeCritical);
+            }
+        }
         let damage = match result {
             PhysicalAttackResult::Block | PhysicalAttackResult::BlockCritical => {
                 damage - f64::from(host.target_block_value())

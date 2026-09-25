@@ -66,7 +66,8 @@ pub struct Proc {
 
 impl Proc {
     /// Builds the proc for a passive spell: its sources from `ProcTypeMask` and the override's
-    /// hit mask, its rate from `ProcChance` / `SpellProcsPerMinute`.
+    /// hit mask (narrowed to the override's hand, if any), its rate from `ProcChance` /
+    /// `SpellProcsPerMinute`.
     ///
     /// # Panics
     /// Panics if the spell is not passive, has no proc sources, or has neither effects nor a
@@ -74,8 +75,11 @@ impl Proc {
     pub fn new(spell: Spell, seed: u64) -> Self {
         let record = spell.record();
         assert!(spell.is_passive(), "{} is not a passive spell", record.name);
-        let sources =
+        let mut sources =
             ProcSource::from_masks(record.aura_options.proc_type_mask, spell.setup().hit_mask);
+        if let Some(hand) = spell.setup().overrides.proc.and_then(|p| p.hand) {
+            sources.retain(|source| source.hand() == hand);
+        }
         assert!(
             !sources.is_empty(),
             "Proc {} ({}) has no proc sources",
@@ -290,6 +294,8 @@ pub struct EnabledProcs {
     enabled: Vec<ProcId>,
     procced: HashSet<ProcId>,
     checks_in_progress: u32,
+    /// Checks left open by [`Self::hold_check`] for the extra attacks they granted.
+    held_checks: u32,
 }
 
 impl EnabledProcs {
@@ -366,6 +372,37 @@ impl EnabledProcs {
         self.procced.insert(id);
     }
 
+    /// Opens a check scope: the procs that fire inside it stay excluded from re-firing until
+    /// the outermost scope is closed (the C++ `procs_in_progress` nesting guard, which held
+    /// for the extra attacks a proc performed inside its own `perform`).
+    pub fn begin_check(&mut self) {
+        self.checks_in_progress += 1;
+    }
+
+    /// Closes a check scope opened by [`Self::begin_check`].
+    pub fn end_check(&mut self) {
+        self.checks_in_progress -= 1;
+        if self.checks_in_progress == 0 {
+            self.procced.clear();
+        }
+    }
+
+    /// Keeps the current check scope open for the extra attacks its procs granted: the chain
+    /// of extra attacks belongs to the check, so a proc fires at most once in it (Windfury
+    /// never procs off its own extra attack, nor twice off a Sword Specialization chain).
+    /// Closed by [`Self::release_held_checks`] once the extra attacks were performed.
+    pub fn hold_check(&mut self) {
+        self.held_checks += 1;
+    }
+
+    /// Closes the check scopes held for extra attacks.
+    pub fn release_held_checks(&mut self) {
+        while self.held_checks > 0 {
+            self.held_checks -= 1;
+            self.end_check();
+        }
+    }
+
     /// Runs the proc check for `source`: every enabled proc listening to it that has not
     /// already procced in this (possibly nested) check rolls and fires. Proc sources produced
     /// by the procs themselves (and by the spells they trigger) are checked recursively.
@@ -383,7 +420,7 @@ impl EnabledProcs {
             source != ProcSource::Manual,
             "Cannot run proc effects on manually triggered proc"
         );
-        self.checks_in_progress += 1;
+        self.begin_check();
         let mut reports = Vec::new();
 
         let candidates = self.enabled.clone();
@@ -398,10 +435,7 @@ impl EnabledProcs {
             self.fire(id, host, &mut reports);
         }
 
-        self.checks_in_progress -= 1;
-        if self.checks_in_progress == 0 {
-            self.procced.clear();
-        }
+        self.end_check();
         reports
     }
 
@@ -427,6 +461,7 @@ impl EnabledProcs {
         }
         self.procced.clear();
         self.checks_in_progress = 0;
+        self.held_checks = 0;
     }
 
     pub fn prepare_set_of_combat_iterations(&mut self) {

@@ -8,7 +8,8 @@
 //! Classic numbers — 315 attack power, a 1.5 s aura and a 1.5 s internal cooldown; the tests
 //! follow the tables for those three values and the wiki for every mechanic. The passive's
 //! party `DUMMY` aura (the server-side script) is written as a `PROC_TRIGGER_SPELL` aura so the
-//! engine's proc runtime can cast the payload.
+//! engine's proc runtime can cast the payload, and the script's main-hand restriction (the
+//! `ProcTypeMask` alone names both hands) as the `proc: { hand: mainhand }` override.
 //!
 //! The wiki's batching timings (400–800 ms uptimes, charges removed a tick later) describe the
 //! Classic client's 400 ms spell batching, which the simulator does not model; the charge
@@ -30,6 +31,7 @@ use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::proc::ProcSource;
 use crate::race::Race;
 use crate::rng::Random;
+use crate::spell::overrides::OverrideFile;
 use crate::spell::record::{SpellDb, SpellFile};
 use crate::spell::{Hand, SpellHost, SpellResult};
 use crate::stance::Stance;
@@ -63,19 +65,6 @@ const SHIELD: u32 = 3;
 const WINDFURY_YAML: &str = r#"
 build: 1.60.1.69893
 spells:
-- id: 10612
-  name: Windfury Totem Passive
-  rank_text: Rank 3
-  attributes: [320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  school_mask: 8
-  levels: {base: 0, spell: 52, max: 60}
-  aura_options: {proc_chance: 20, proc_category_recovery_ms: 100, proc_type_mask: 20}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PROC_TRIGGER_SPELL
-    trigger_spell: 10610
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 910612
   name: Windfury Totem Passive (always)
   attributes: [320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -87,24 +76,6 @@ spells:
     effect: APPLY_AURA
     aura: PROC_TRIGGER_SPELL
     trigger_spell: 10610
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 10610
-  name: Windfury Totem
-  rank_text: Rank 3
-  school_mask: 1
-  duration_ms: 1000
-  range_yd: 100.0
-  levels: {base: 52, spell: 52, max: 60}
-  aura_options: {proc_chance: 100, proc_charges: 2, proc_type_mask: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 246.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: ADD_EXTRA_ATTACKS
-    base_points: 1.0
     implicit_target: [UNIT_CASTER, NONE]
 - id: 910001
   name: Sword Specialization (always)
@@ -127,6 +98,17 @@ spells:
     effect: ADD_EXTRA_ATTACKS
     base_points: 1.0
     implicit_target: [UNIT_CASTER, NONE]
+"#;
+
+/// The always-procs copy of the passive needs the same two hand-written pieces as the shipped
+/// 10612 (`data/spells/overrides/enchants.yaml`): the payload its aura casts, and — because it
+/// is learned bare instead of coming from a main-hand enchant, which is what restricts the
+/// shipped one — the main hand.
+const WINDFURY_OVERRIDES_YAML: &str = r#"
+overrides:
+  - id: 910612
+    note: as if the Windfury Totem enchant sat on the main-hand weapon
+    proc: { hand: mainhand }
 "#;
 
 /// Fixed-damage weapons so that swing damage is deterministic.
@@ -169,6 +151,10 @@ fn fixture() -> Fixture {
     f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
     let file: SpellFile = serde_yaml::from_str(WINDFURY_YAML).expect("valid Windfury yaml");
     f.db.add_file(file).expect("Windfury records are valid");
+    let overrides: OverrideFile =
+        serde_yaml::from_str(WINDFURY_OVERRIDES_YAML).expect("valid override yaml");
+    f.db.add_overrides(overrides)
+        .expect("Windfury overrides are valid");
     f.db.check_references().expect("consistent references");
 
     let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
@@ -286,10 +272,7 @@ fn set_proc_seed(f: &mut Fixture, proc: ProcId, seed: u64) {
 #[test]
 fn the_windfury_totem_enchant_on_the_main_hand_registers_its_proc() {
     let mut f = fixture();
-    f.character
-        .equipment_mut()
-        .set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem))
-        .unwrap();
+    f.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem));
     assert_eq!(
         f.character
             .equipment()
@@ -306,14 +289,40 @@ fn the_windfury_totem_enchant_on_the_main_hand_registers_its_proc() {
     );
     let windfury = windfury.unwrap();
     assert!(procs.is_enabled(windfury), "the enchant proc is enabled");
-    let ctx = f.ctx();
-    let procs = ctx.character.spells().procs();
     assert_eq!(
-        procs
-            .get(windfury)
-            .proc_range(ProcSource::MainhandSwing, &ctx),
-        2000,
-        "20 % on main-hand hits"
+        procs.get(windfury).sources(),
+        &[ProcSource::MainhandSwing, ProcSource::MainhandSpell],
+        "a main-hand enchant reacts to main-hand hits only"
+    );
+    {
+        let ctx = f.ctx();
+        let procs = ctx.character.spells().procs();
+        assert_eq!(
+            procs
+                .get(windfury)
+                .proc_range(ProcSource::MainhandSwing, &ctx),
+            2000,
+            "20 % on main-hand hits"
+        );
+    }
+
+    // The payload is on the character and the proc grants it: the extra attack and the aura.
+    assert!(f.character.spells().has_game_id(WINDFURY_ATTACK));
+    let ap = melee_ap(&f);
+    set_proc_seed(&mut f, windfury, seed_for_rolls(&[true]));
+    assert_eq!(
+        f.ctx().run_proc_checks(&[ProcSource::MainhandSwing]).len(),
+        1,
+        "the enchant proc fires"
+    );
+    assert_eq!(melee_ap(&f), ap + WINDFURY_AP);
+    assert_eq!(f.character.pending_extra_attacks(), 1);
+
+    // Scraping the enchant off takes the proc out of the checks.
+    f.set_temp_enchant(EquipmentSlot::Mainhand, None);
+    assert!(
+        !f.character.spells().procs().is_enabled(windfury),
+        "the proc of a removed enchant no longer runs"
     );
 }
 
@@ -340,6 +349,15 @@ fn windfury_is_a_20_percent_proc_with_a_two_charge_attack_power_aura() {
             "20 % per melee ability"
         );
     }
+    assert_eq!(
+        f.character.spells().procs().get(proc).sources(),
+        &[
+            ProcSource::MainhandSwing,
+            ProcSource::OffhandSwing,
+            ProcSource::MainhandSpell
+        ],
+        "the record reacts to melee swings and melee abilities; the enchant's slot is what          narrows that to the main hand"
+    );
     let buff = windfury_buff(&f);
     {
         let ctx = f.ctx();

@@ -120,7 +120,10 @@ fn flurry_gives_three_charges_of_haste_on_crits() {
     assert_eq!(world.buff(buff).base_charges(), 3);
     assert_eq!(world.buff(buff).duration(), Some(15.0));
 
-    assert!(world.run_proc_check(ProcSource::MeleeHit).is_empty());
+    assert!(
+        world.run_proc_check(ProcSource::MainhandSwing).is_empty(),
+        "a plain landed swing does not proc Flurry"
+    );
     assert_eq!(world.run_proc_check(ProcSource::MeleeCritical).len(), 1);
     assert!((world.stats.get_melee_attack_speed_mod() - 1.3).abs() < 1e-9);
     for _ in 0..3 {

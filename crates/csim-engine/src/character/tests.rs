@@ -7,6 +7,7 @@ use std::sync::Arc;
 use super::context::{CharacterContext, SwingOutcome};
 use super::{Character, ClassSpec, SimParams, STANCE_COOLDOWN};
 use crate::combat_roll::PhysicalAttackResult;
+use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{CharId, SpellId};
 use crate::item::{EquipmentDb, EquipmentSlot, ItemSpec, WeaponType};
@@ -150,7 +151,17 @@ impl Fixture {
     }
 
     pub fn equip(&mut self, slot: EquipmentSlot, item: u32) {
-        self.character.equipment_mut().equip(slot, item).unwrap();
+        let db = std::mem::take(&mut self.db);
+        self.ctx().equip(&db, slot, item).unwrap();
+        self.db = db;
+    }
+
+    /// Puts a temporary enchant on the item in `slot` (`None` scrapes it off), registering the
+    /// procs it grants.
+    pub fn set_temp_enchant(&mut self, slot: EquipmentSlot, enchant: Option<EnchantName>) {
+        let db = std::mem::take(&mut self.db);
+        self.ctx().set_temp_enchant(&db, slot, enchant).unwrap();
+        self.db = db;
     }
 
     pub fn status(&mut self, game_id: u32) -> SpellStatus {

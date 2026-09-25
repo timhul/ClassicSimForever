@@ -49,7 +49,7 @@ use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
     ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
 };
-use crate::spell::overrides::{OverrideError, Overrides, SimFlag};
+use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
 /// The subdirectory of the spell directory that holds the hand-written overrides.
 pub const OVERRIDES_DIR: &str = "overrides";
@@ -224,6 +224,19 @@ pub struct EquippedItems {
     pub subclass_mask: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub inv_type_mask: u32,
+}
+
+impl EquippedItems {
+    /// `ItemClass` of armor (shields, held items, relics).
+    pub const ARMOR: i32 = 4;
+    /// `ItemSubClass` of a shield within the armor class.
+    pub const SHIELD_SUBCLASS: u32 = 6;
+
+    /// Whether the requirement is for a shield: the spell strikes with it (Shield Slam, Shield
+    /// Bash), which makes it an off-hand attack.
+    pub fn requires_shield(&self) -> bool {
+        self.class == Self::ARMOR && self.subclass_mask & (1 << Self::SHIELD_SUBCLASS) != 0
+    }
 }
 
 /// The `SpellAuraRestrictions` row: aura-state gates.
@@ -937,6 +950,12 @@ impl SpellDb {
     /// Replaces the overrides (checked against the records by `check_references`).
     pub fn set_overrides(&mut self, overrides: Overrides) {
         self.overrides = overrides;
+    }
+
+    /// Adds the overrides of one file (checked against the records by `check_references`).
+    pub fn add_overrides(&mut self, file: OverrideFile) -> Result<(), SpellDbError> {
+        self.overrides.add_file(file)?;
+        Ok(())
     }
 
     /// Checks that every `supercedes` and `trigger_spell` reference points at a loaded spell,
@@ -1876,6 +1895,20 @@ spells:
         assert!(db.get(412609).is_some(), "reached through the overrides");
         assert!(db.get(7381).is_some(), "stance passive");
         assert_eq!(db.overrides().stance_passive(2458), Some(7381));
+        // Shield Slam strikes with the shield, Heroic Strike with the main-hand weapon.
+        assert!(db
+            .get(23925)
+            .unwrap()
+            .equipped_items
+            .unwrap()
+            .requires_shield());
+        assert!(!ms.equipped_items.unwrap().requires_shield());
+        assert!(!db
+            .get(78)
+            .unwrap()
+            .equipped_items
+            .unwrap()
+            .requires_shield());
 
         let blood_fury = db.get(20572).unwrap();
         assert_eq!(blood_fury.race_mask, 2);

@@ -13,6 +13,12 @@ use crate::spell::overrides::ProcHitMask;
 use crate::spell::Hand;
 
 /// The events a proc can trigger on. Port of `ProcInfo::Source`.
+///
+/// A landed swing is reported by its hand (`MainhandSwing` / `OffhandSwing`), a landed melee
+/// ability as `MainhandSpell`, and a crit additionally as `MeleeCritical` (the C++
+/// `melee_mh_white_hit_effect` / `melee_mh_yellow_hit_effect` plus `add_crit_dmg`); the
+/// avoided results by their kind. The C++ `MeleeHit` result source is kept in the vocabulary
+/// but nothing emits it: [`ProcSource::from_masks`] never listens to it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ProcSource {
