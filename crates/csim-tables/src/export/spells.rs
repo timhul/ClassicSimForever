@@ -14,6 +14,7 @@ use std::path::{Path, PathBuf};
 
 use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::faction::PlayerClass;
+use csim_engine::item::{ItemSetFile, ItemSpec};
 use csim_engine::rulesets::Ruleset;
 use csim_engine::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
@@ -192,6 +193,36 @@ pub fn export_enchants(
     overrides: &Overrides,
 ) -> Result<(SpellFile, PruneReport), ExportError> {
     export_externals_with_report(tables, seeds, exclude, overrides)
+}
+
+/// The seeds of the item spell walk: the spells the exported items grant (on use, on equip,
+/// on hit) and the set bonus spells.
+pub fn item_seeds(items: &[ItemSpec], sets: &ItemSetFile) -> BTreeSet<u32> {
+    let mut seeds: BTreeSet<u32> = items
+        .iter()
+        .flat_map(|item| item.effects.iter().map(|effect| effect.spell))
+        .collect();
+    seeds.extend(
+        sets.sets
+            .iter()
+            .flat_map(|set| set.bonuses.iter().map(|bonus| bonus.spell)),
+    );
+    seeds
+}
+
+/// Builds the item spell walk (`data/spells/items.yaml`): the closure of `seeds`
+/// ([`item_seeds`]) the same way as [`export_externals`]. Seeds the dump has no spell for are
+/// left out and returned (an item effect naming a removed spell), not an error.
+pub fn export_items(
+    tables: &Tables,
+    seeds: &BTreeSet<u32>,
+    exclude: &BTreeSet<u32>,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport, Vec<u32>), ExportError> {
+    let (present, missing): (BTreeSet<u32>, BTreeSet<u32>) =
+        seeds.iter().partition(|&&id| tables.spell_exists(id));
+    let (file, report) = export_externals_with_report(tables, &present, exclude, overrides)?;
+    Ok((file, report, missing.into_iter().collect()))
 }
 
 /// The seeds of the external buff walk: the aura spells `data/external_buffs.yaml` names and

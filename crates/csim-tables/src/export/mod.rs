@@ -12,8 +12,8 @@ pub use items::{
 pub use prune::{prune, PruneReport};
 pub use spells::{
     export_class, export_class_with_report, export_enchants, export_externals,
-    export_externals_with_report, export_racials, export_racials_with_report, external_seeds,
-    render, spell_ids_in_dir, ExportError,
+    export_externals_with_report, export_items, export_racials, export_racials_with_report,
+    external_seeds, item_seeds, render, spell_ids_in_dir, ExportError,
 };
 pub use talents::{
     export_talents, export_talents_with_report, render_talents, trait_tree, TalentReport,

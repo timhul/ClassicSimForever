@@ -1,0 +1,101 @@
+# Hand-written overrides for the item and set bonus spells (data/spells/items.yaml, exported from
+# build 1.60.1.69893 from the effects of data/items/*.yaml and the bonuses of
+# data/item_sets.yaml). See crates/csim-engine/src/spell/overrides.rs for the schema.
+#
+# The DUMMY effects the sim can use (Zandalarian trinkets, Arcanite Dragonling, weapon procs, ...)
+# are left without a script until item spells run (TASKS 7.7 / 7.8); `csim-tables check` lists
+# them. The ones below do nothing a melee sim models.
+
+overrides:
+  # Healing, resurrection, utility and cosmetic effects.
+  - id: 22563
+    note: Recall (Frostwolf Insignia) teleports
+    sim_flags: [IGNORED]
+  - id: 22564
+    note: Recall (Stormpike Insignia) teleports
+    sim_flags: [IGNORED]
+  - id: 22683
+    note: Onyxia Scale Cloak protects from Onyxia's Shadow Flame
+    sim_flags: [IGNORED]
+  - id: 22848
+    note: Force Reactive Disk Visual is a visual
+    sim_flags: [IGNORED]
+  - id: 23701
+    note: Twisting Nether ('Darkmoon Card - Twisting Nether') resurrects on death
+    sim_flags: [IGNORED]
+  - id: 23725
+    note: Gift of Life (Lifegiving Gem) raises maximum health
+    sim_flags: [IGNORED]
+  - id: 27539
+    note: Obsidian Armor (Thick Obsidian Breastplate) absorbs incoming magic damage
+    sim_flags: [IGNORED]
+  - id: 27798
+    note: Nature's Bounty is a mana / healing effect
+    sim_flags: [IGNORED]
+  - id: 1270941
+    note: Gnomish Poultryizer polymorphs the target
+    sim_flags: [IGNORED]
+  - id: 1295271
+    note: Everlook Delivery Bot is a utility summon
+    sim_flags: [IGNORED]
+  - id: 1295661
+    note: Parachute-Priest Pager (triggered) is a utility summon
+    sim_flags: [IGNORED]
+  - id: 1318317
+    note: Parachute-Priest Pager is a utility summon
+    sim_flags: [IGNORED]
+  # Other classes' items and set bonuses.
+  - id: 17768
+    note: Wolfshead Helm gives energy / rage on druid shapeshift
+    sim_flags: [IGNORED]
+  - id: 24531
+    note: Refocus (Renataki's Charm of Beasts) resets hunter cooldowns
+    sim_flags: [IGNORED]
+  - id: 26169
+    note: Oracle Healing Bonus (Garments of the Oracle 3) is a priest healing bonus
+    sim_flags: [IGNORED]
+  - id: 28719
+    note: Healing Touch (Dreamwalker Raiment 8) is a druid healing bonus
+    sim_flags: [IGNORED]
+  - id: 28746
+    note: Plagueheart (Plagueheart Raiment 6) is a warlock set bonus
+    sim_flags: [IGNORED]
+  - id: 28757
+    note: Stalker's Ally is a hunter pet bonus
+    sim_flags: [IGNORED]
+  - id: 28764
+    note: Adaptive Warding (Frostfire Regalia 4) is a mage set bonus
+    sim_flags: [IGNORED]
+  - id: 28775
+    note: Judgement of Light (Redemption Armor 2) is a paladin set bonus
+    sim_flags: [IGNORED]
+  - id: 28789
+    note: Holy Power (Redemption Armor 6) is a paladin set bonus
+    sim_flags: [IGNORED]
+  - id: 28809
+    note: Greater Heal (Vestments of Faith 4) is a priest set bonus
+    sim_flags: [IGNORED]
+  - id: 28823
+    note: Totemic Power (The Earthshatterer 6) is a shaman set bonus
+    sim_flags: [IGNORED]
+  - id: 28847
+    note: Healing Touch Refund (Idol of Longevity) is a druid relic
+    sim_flags: [IGNORED]
+  - id: 28849
+    note: Lesser Healing Wave (Totem of Flowing Water) is a shaman relic
+    sim_flags: [IGNORED]
+  - id: 28851
+    note: Increased Flash of Light Healing (Libram of Light) is a paladin relic
+    sim_flags: [IGNORED]
+  - id: 1291075
+    note: Swiftmend Cooldown Reduction (Idol of Synthesis) is a druid relic
+    sim_flags: [IGNORED]
+  - id: 1291078
+    note: Lightning Bolt Can Activate Maelstrom Weapon (Totem of the Storm) is a shaman relic
+    sim_flags: [IGNORED]
+  - id: 1306433
+    note: Holy Shield Block Value Increase (Steadfast Libram) is a paladin relic
+    sim_flags: [IGNORED]
+  - id: 1306483
+    note: Lacerate Mangle Reset Chance (Idol of the Ursine Twins) is a druid relic
+    sim_flags: [IGNORED]

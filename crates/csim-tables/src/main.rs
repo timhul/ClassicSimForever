@@ -8,6 +8,7 @@ use clap::{Parser, Subcommand};
 use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::PlayerClass;
+use csim_engine::item::ItemSetFile;
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
 use csim_tables::export::{self, ExportError};
@@ -32,6 +33,12 @@ enum CliError {
     ReadItems(#[from] export::items::ReadItemsError),
     #[error(transparent)]
     EquipmentDb(#[from] csim_engine::item::EquipmentDbError),
+    #[error("cannot read {path}: {source}")]
+    Read {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
     #[error("cannot write {path}: {source}")]
     Write {
         path: PathBuf,
@@ -50,6 +57,8 @@ enum CliError {
 const EXTERNALS_FILE: &str = "externals.yaml";
 /// The file `export-spells --enchants` writes under the spell data directory.
 const ENCHANTS_FILE: &str = "enchants.yaml";
+/// The file `export-spells --items` writes under the spell data directory.
+const ITEMS_FILE: &str = "items.yaml";
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -89,26 +98,36 @@ enum Command {
         /// The class to export (`warrior`, `rogue`, ...).
         #[arg(
             long,
-            conflicts_with_all = ["racials", "externals", "enchants"],
-            required_unless_present_any = ["racials", "externals", "enchants"]
+            conflicts_with_all = ["racials", "externals", "enchants", "items"],
+            required_unless_present_any = ["racials", "externals", "enchants", "items"]
         )]
         class: Option<String>,
         /// Export the racial abilities instead of a class.
-        #[arg(long, conflicts_with_all = ["externals", "enchants"])]
+        #[arg(long, conflicts_with_all = ["externals", "enchants", "items"])]
         racials: bool,
         /// Export the aura spells of the external buff registry and the rulesets instead of a
         /// class.
-        #[arg(long, conflicts_with = "enchants")]
+        #[arg(long, conflicts_with_all = ["enchants", "items"])]
         externals: bool,
         /// Export the spells the enchant procs name instead of a class.
-        #[arg(long)]
+        #[arg(long, conflicts_with = "items")]
         enchants: bool,
+        /// Export the spells the exported items grant and the set bonus spells instead of a
+        /// class. Run it after the other exports: spells they already carry are not repeated.
+        #[arg(long)]
+        items: bool,
         /// The external buff registry (`--externals`).
         #[arg(long, default_value = "data/external_buffs.yaml")]
         external_buffs: PathBuf,
         /// The enchant data file (`--enchants`).
         #[arg(long, default_value = "data/enchants.yaml")]
         enchant_data: PathBuf,
+        /// The exported item files (`--items`).
+        #[arg(long, default_value = "data/items")]
+        item_data: PathBuf,
+        /// The exported item sets (`--items`).
+        #[arg(long, default_value = "data/item_sets.yaml")]
+        item_sets: PathBuf,
         /// The spell data directory; the overrides in `<spells>/overrides/` extend the walk and
         /// the file is written to `<spells>/<class>.yaml` unless `--out` is given.
         #[arg(long, default_value = "data/spells")]
@@ -172,6 +191,7 @@ enum ExportTarget {
     Racials,
     Externals(PathBuf),
     Enchants(PathBuf),
+    Items { items: PathBuf, sets: PathBuf },
 }
 
 fn export_spells(
@@ -214,6 +234,30 @@ fn export_spells(
                 export::export_enchants(&tables, &seeds, &exclude, &overrides)?,
                 "export-spells --enchants".to_owned(),
                 ENCHANTS_FILE.to_owned(),
+            )
+        }
+        ExportTarget::Items { items, sets } => {
+            let specs = export::items::read_item_specs(&items)?;
+            let sets_text = std::fs::read_to_string(&sets).map_err(|source| CliError::Read {
+                path: sets.clone(),
+                source,
+            })?;
+            let sets: ItemSetFile = serde_yaml::from_str(&sets_text)?;
+            let exclude = export::spell_ids_in_dir(spells_dir, ITEMS_FILE)?;
+            let seeds = export::item_seeds(&specs, &sets);
+            let repeated: Vec<u32> = seeds.intersection(&exclude).copied().collect();
+            if !repeated.is_empty() {
+                eprintln!("already in another spell file, not repeated: {repeated:?}");
+            }
+            let (file, pruned, missing) =
+                export::export_items(&tables, &seeds, &exclude, &overrides)?;
+            if !missing.is_empty() {
+                eprintln!("warning: item spells missing from the dump, left out: {missing:?}");
+            }
+            (
+                (file, pruned),
+                "export-spells --items".to_owned(),
+                ITEMS_FILE.to_owned(),
             )
         }
         ExportTarget::Class(name) => {
@@ -720,6 +764,9 @@ fn run(cli: Cli) -> Result<(), CliError> {
             enchants,
             external_buffs,
             enchant_data,
+            items,
+            item_data,
+            item_sets,
             spells,
             out,
         } => {
@@ -728,9 +775,13 @@ fn run(cli: Cli) -> Result<(), CliError> {
                 None if *racials => ExportTarget::Racials,
                 None if *externals => ExportTarget::Externals(external_buffs.clone()),
                 None if *enchants => ExportTarget::Enchants(enchant_data.clone()),
-                None => {
-                    unreachable!("clap requires --class, --racials, --externals or --enchants")
-                }
+                None if *items => ExportTarget::Items {
+                    items: item_data.clone(),
+                    sets: item_sets.clone(),
+                },
+                None => unreachable!(
+                    "clap requires --class, --racials, --externals, --enchants or --items"
+                ),
             };
             export_spells(&open(&cli)?, target, spells, out.clone())
         }

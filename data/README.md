@@ -88,9 +88,12 @@ csim_engine::talent::TalentDb::load("data/talents")
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- export-items
+   cargo run -p csim-tables -- export-spells --items
    cargo run -p csim-tables -- check
    ```
-   `export-items` also prints why items were skipped, what it could not resolve and the ids
+   `export-spells --items` walks the spells the items and set bonuses grant into
+   `data/spells/items.yaml`; run it after the other spell exports, since spells another file
+   already carries are not repeated. `export-items` also prints why items were skipped, what it could not resolve and the ids
    still served from `data/items/legacy/`.
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides

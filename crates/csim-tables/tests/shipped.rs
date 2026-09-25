@@ -72,6 +72,26 @@ fn shipped_spell_files_match_a_fresh_export() {
         rendered == shipped.replace("\r\n", "\n"),
         "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
     );
+
+    let items = export::items::read_item_specs(&root.join("data/items")).unwrap();
+    let sets: csim_engine::item::ItemSetFile =
+        serde_yaml::from_str(&std::fs::read_to_string(root.join("data/item_sets.yaml")).unwrap())
+            .unwrap();
+    let exclude = export::spell_ids_in_dir(&spells_dir, "items.yaml").unwrap();
+    let (items_file, _, missing) = export::export_items(
+        &tables,
+        &export::item_seeds(&items, &sets),
+        &exclude,
+        &overrides,
+    )
+    .unwrap();
+    assert_eq!(missing, [469141], "item spells the dump lacks");
+    let rendered = export::render(&items_file, "export-spells --items").unwrap();
+    let shipped = std::fs::read_to_string(spells_dir.join("items.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/spells/items.yaml is stale: re-run `csim-tables export-spells --items`"
+    );
 }
 
 /// `data/races.yaml` ids, names and factions agree with `ChrRaces`, and each race's bit matches

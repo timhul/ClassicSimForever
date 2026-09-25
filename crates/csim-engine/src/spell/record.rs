@@ -1919,8 +1919,12 @@ spells:
         pending.dedup();
         assert_eq!(
             pending,
-            [12299, 402911, 403196, 1289682, 1290261, 1310315],
-            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill, Weaponmaster, Raging Blows"
+            [
+                12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
+                403196, 1287808, 1289682, 1290261, 1295744, 1310315, 1317432, 1318325, 1318470,
+                1318514
+            ],
+            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill, Weaponmaster, Raging              Blows, and the item spells that wait for TASKS 7.7 / 7.8 (Zandalarian trinkets,              Six Demon Bag, Arcanite Dragonling, weapon procs, ...)"
         );
     }
 }
