@@ -55,13 +55,28 @@ h1 { margin: 0; color: var(--yellow); font-size: 1.9rem; letter-spacing: 0.01em;
 .stats { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-top: 20px; }
 .stat .name { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .stat .value { font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-h2 {
-  color: var(--yellow);
-  font-size: 1.15rem;
-  margin: 36px 0 10px;
+details { margin-top: 36px; }
+summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
   padding-left: 10px;
   border-left: 4px solid var(--yellow);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
 }
+summary::-webkit-details-marker { display: none; }
+summary::after {
+  content: "\25B8";
+  color: var(--yellow-dim);
+  transition: transform 0.15s;
+}
+details[open] > summary::after { transform: rotate(90deg); }
+summary:hover h2, summary:hover::after { color: #fff; }
+summary:focus-visible { outline: 2px solid var(--yellow); outline-offset: 4px; }
+h2 { color: var(--yellow); font-size: 1.15rem; margin: 0; }
 .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { padding: 6px 12px; white-space: nowrap; text-align: right; }
@@ -77,7 +92,12 @@ tbody tr { border-top: 1px solid var(--line); }
 tbody tr:nth-child(even) { background: var(--panel); }
 tbody tr:hover { background: #221d00; }
 td:first-child { color: #fff; }
+tfoot tr { border-top: 2px solid var(--yellow); }
+tfoot td, tfoot td:first-child { color: var(--yellow); font-weight: 700; }
 "#;
+
+/// Sections that start collapsed.
+const COLLAPSED: [&str; 1] = ["Rotation"];
 
 /// The results as an HTML page.
 pub fn render(results: &Results) -> String {
@@ -140,8 +160,18 @@ pub fn render(results: &Results) -> String {
     out.push_str("</div>\n</section>\n");
 
     for (title, table) in results.tables() {
-        let _ = writeln!(out, "<h2>{}</h2>", escape(title));
+        let open = if COLLAPSED.contains(&title) {
+            ""
+        } else {
+            " open"
+        };
+        let _ = writeln!(
+            out,
+            "<details{open}>\n<summary><h2>{}</h2></summary>",
+            escape(title)
+        );
         table_html(&mut out, &table);
+        out.push_str("</details>\n");
     }
     out.push_str("</main>\n</body>\n</html>\n");
     out
@@ -159,15 +189,22 @@ fn table_html(out: &mut String, table: &Table) {
     for (column, header) in table.headers().iter().enumerate() {
         let _ = write!(out, "<th{}>{}</th>", align(column), escape(header));
     }
-    out.push_str("</tr></thead>\n<tbody>\n");
-    for row in table.rows() {
-        out.push_str("<tr>");
-        for (column, cell) in row.iter().enumerate() {
-            let _ = write!(out, "<td{}>{}</td>", align(column), escape(cell));
+    out.push_str("</tr></thead>\n");
+    for (part, rows) in [("tbody", table.rows()), ("tfoot", table.totals())] {
+        if rows.is_empty() {
+            continue;
         }
-        out.push_str("</tr>\n");
+        let _ = writeln!(out, "<{part}>");
+        for row in rows {
+            out.push_str("<tr>");
+            for (column, cell) in row.iter().enumerate() {
+                let _ = write!(out, "<td{}>{}</td>", align(column), escape(cell));
+            }
+            out.push_str("</tr>\n");
+        }
+        let _ = writeln!(out, "</{part}>");
     }
-    out.push_str("</tbody>\n</table></div>\n");
+    out.push_str("</table></div>\n");
 }
 
 fn escape(text: &str) -> String {

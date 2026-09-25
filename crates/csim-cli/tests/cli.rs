@@ -80,6 +80,36 @@ fn scale_prints_the_stat_weights() {
     assert!(report.contains("Stat weights"), "{report}");
     assert!(report.contains("+10 Strength"), "{report}");
     assert!(report.contains("+1% Hit"), "{report}");
+
+    let order = [
+        "\nDamage and threat\n",
+        "\nStat weights\n",
+        "\nBuffs and debuffs\n",
+        "\nResource gains\n",
+        "\nRotation\n",
+    ]
+    .map(|title| report.find(title).unwrap_or_else(|| panic!("{title:?}")));
+    assert!(order.is_sorted(), "sections out of order:\n{report}");
+}
+
+#[test]
+fn damage_and_resource_gains_end_in_totals() {
+    let report = stdout(&csim(&[&RUN[..], &["--seed", "7"]].concat()));
+    let section = |title: &str| {
+        let start = report.find(&format!("\n{title}\n")).unwrap();
+        let rest = &report[start + 1..];
+        rest[..rest.find("\n\n").unwrap_or(rest.len())].to_string()
+    };
+    let damage = section("Damage and threat");
+    let total = damage.lines().last().unwrap();
+    assert!(total.starts_with("Total "), "{damage}");
+    assert!(total.contains("100.0%"), "{damage}");
+    let resources = section("Resource gains");
+    let total = resources.lines().last().unwrap();
+    assert!(
+        total.starts_with("Total ") && total.contains("Rage"),
+        "{resources}"
+    );
 }
 
 #[test]
@@ -107,9 +137,32 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
         spells.iter().any(|s| s["name"] == "Mainhand Attack"),
         "{yaml}"
     );
-    for section in ["buffs", "procs", "resources", "rotation"] {
+    for section in ["buffs", "procs", "resources", "resource_totals", "rotation"] {
         assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
     }
+
+    let spell_dps: f64 = spells.iter().map(|s| s["dps"].as_f64().unwrap()).sum();
+    let total = &results["spell_total"];
+    assert!(
+        (total["dps"].as_f64().unwrap() - spell_dps).abs() < 1e-6,
+        "{yaml}"
+    );
+    assert!(
+        (total["damage_share"].as_f64().unwrap() - 1.0).abs() < 1e-6,
+        "{yaml}"
+    );
+    let rage_per_fight: f64 = results["resources"]
+        .as_sequence()
+        .unwrap()
+        .iter()
+        .map(|r| r["per_fight"].as_f64().unwrap())
+        .sum();
+    let rage = &results["resource_totals"][0];
+    assert_eq!(rage["resource"].as_str(), Some("Rage"), "{yaml}");
+    assert!(
+        (rage["per_fight"].as_f64().unwrap() - rage_per_fight).abs() < 1e-6,
+        "{yaml}"
+    );
     assert_eq!(
         results["stat_weights"][0]["option"].as_str(),
         Some("+10 Strength")
@@ -133,7 +186,9 @@ fn output_format_prints_yaml_and_html() {
         "<!DOCTYPE html>".to_string(),
         "<h1>DW Fury Orc</h1>".to_string(),
         format!("<div class=\"dps\">{dps:.2}</div>"),
-        "<h2>Damage and threat</h2>".to_string(),
+        "<details open>\n<summary><h2>Damage and threat</h2></summary>".to_string(),
+        "<details>\n<summary><h2>Rotation</h2></summary>".to_string(),
+        "<tfoot>".to_string(),
         "<td class=\"left\">Mainhand Attack</td>".to_string(),
         "</html>".to_string(),
     ] {
