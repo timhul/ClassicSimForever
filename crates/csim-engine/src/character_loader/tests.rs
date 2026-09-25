@@ -54,7 +54,7 @@ fn minimal() -> CharacterSetup {
 fn every_shipped_setup_builds() {
     let setups =
         CharacterSetup::load_dir(&DataBundle::repository_dir().join("characters")).unwrap();
-    assert!(setups.len() > 0);
+    assert!(!setups.is_empty());
     for setup in &setups {
         let raid = setup
             .build_raid(data(), &settings())
