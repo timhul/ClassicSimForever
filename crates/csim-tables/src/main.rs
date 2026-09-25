@@ -69,7 +69,7 @@ struct Cli {
     /// Directory holding the `<Table>.<build>.csv` files.
     #[arg(long, default_value = "data/tables", global = true)]
     tables: PathBuf,
-    /// Build to use when the directory holds several (e.g. `1.60.1.69893`).
+    /// Build to use when the directory holds several (e.g. `1.60.1.70009`).
     #[arg(long, global = true)]
     build: Option<String>,
     #[command(subcommand)]

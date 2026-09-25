@@ -1,6 +1,6 @@
 # Playable races.
 #
-# `id` and `faction` come from ChrRaces (build 1.60.1.69893). The base attributes are ClassicSim's
+# `id` and `faction` come from ChrRaces (build 1.60.1.70009). The base attributes are ClassicSim's
 # values (Character/Race/Races/*.cpp): the client tables do not carry them (they are server-side
 # data), so they are seeded from Classic and are expected to be corrected for Forever.
 #

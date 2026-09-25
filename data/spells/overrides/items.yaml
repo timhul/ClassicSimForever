@@ -1,5 +1,5 @@
 # Hand-written overrides for the item and set bonus spells (data/spells/items.yaml, exported from
-# build 1.60.1.69893 from the effects of data/items/*.yaml and the bonuses of
+# build 1.60.1.70009 from the effects of data/items/*.yaml and the bonuses of
 # data/item_sets.yaml). See crates/csim-engine/src/spell/overrides.rs for the schema.
 #
 # The DUMMY effects the sim can use (Zandalarian trinkets, Arcanite Dragonling, creature-type

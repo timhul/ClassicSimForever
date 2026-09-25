@@ -1,7 +1,7 @@
 # 1. Playable class spells (`SkillLine*`, `Trait*`, `Spell*` tables)
 
 Goal: for a playable class, find every spell it can have (spellbook, talents, runes, racials) and
-what each spell does, from the dumped build `1.60.1.69893`. Verified against Warrior; the other
+what each spell does, from the dumped build `1.60.1.70009`. Verified against Warrior; the other
 classes use the same tables. NPC/creature spells are excluded by only ever walking *from* a class
 (sections 1.3–1.6) — never by scanning `SpellName`.
 
@@ -385,7 +385,7 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    `stance_passive`) are never dropped, even when empty: Berserker Rage keeps existing as the
    spell Improved Berserker Rage's `GAIN_RESOURCE_ON_USE` reacts to.
 
-The exporter prints what it pruned. Build 1.60.1.69893: 63 effects and 16 spells from the
+The exporter prints what it pruned. Build 1.60.1.70009: 63 effects and 16 spells from the
 Warrior walk, 32 effects and 12 spells from the racials. A talent whose spell was pruned
 (Iron Will, Improved Hamstring) has nothing to do in the simulator; the talent data will list
 it without a spell.

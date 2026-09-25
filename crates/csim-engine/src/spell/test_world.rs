@@ -1,6 +1,6 @@
 //! A one-character test world: what the Phase 4 spell context will be, built on
 //! [`CharacterSpells`] and a small spell db whose records are copied from the exported
-//! `data/spells/warrior.yaml` (build 1.60.1.69893) with the matching overrides. Shared by the
+//! `data/spells/warrior.yaml` (build 1.60.1.70009) with the matching overrides. Shared by the
 //! spell runtime, proc and registry tests.
 
 use std::collections::VecDeque;
@@ -27,7 +27,7 @@ use crate::target::Target;
 
 /// Records copied from the pruned export (descriptions and labels dropped).
 pub(crate) const SPELLS_YAML: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 class: WARRIOR
 spells:
 - id: 78

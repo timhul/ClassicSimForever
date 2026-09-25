@@ -8,7 +8,7 @@
 //! default are omitted on export, so a record reads like a joined table row:
 //!
 //! ```yaml
-//! build: 1.60.1.69893
+//! build: 1.60.1.70009
 //! class: WARRIOR
 //! spells:
 //!   - id: 12294
@@ -77,7 +77,7 @@ fn is_one(value: &f32) -> bool {
 /// One `data/spells/*.yaml` file: the spells of one class (or the racials when `class` is absent).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellFile {
-    /// The client build the records were exported from (`1.60.1.69893`).
+    /// The client build the records were exported from (`1.60.1.70009`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     /// The class whose spellbook this is; `None` for class-independent spells (racials, the
@@ -1272,7 +1272,7 @@ mod tests {
     use super::*;
 
     const WARRIOR_YAML: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 class: WARRIOR
 spells:
   - id: 78
@@ -1369,7 +1369,7 @@ spells:
 "#;
 
     const RACIAL_YAML: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 spells:
   - id: 20572
     name: Blood Fury
@@ -1532,7 +1532,7 @@ overrides:
             db.get(12834).unwrap().aura_options.proc_type_mask,
             ProcFlags::DEAL_ANY_DAMAGE
         );
-        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.build(), Some("1.60.1.70009"));
         assert_eq!(db.len(), 10);
     }
 
@@ -1778,7 +1778,7 @@ overrides:
     fn serialization_omits_defaults_and_round_trips() {
         let db = db();
         let file = SpellFile {
-            build: "1.60.1.69893".into(),
+            build: "1.60.1.70009".into(),
             class: Some(PlayerClass::Warrior),
             learnable: true,
             spells: vec![
@@ -1821,7 +1821,7 @@ overrides:
 
         let db = SpellDb::load(&dir).unwrap();
         assert_eq!(db.len(), 10);
-        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.build(), Some("1.60.1.70009"));
         assert_eq!(db.overrides().len(), 3);
         assert!(db.unsupported().is_empty());
 
@@ -1864,7 +1864,7 @@ overrides:
     }
 
     const DOC_EXAMPLE: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 class: WARRIOR
 spells:
   - id: 12294
@@ -1891,7 +1891,7 @@ spells:
     fn shipped_spell_data_loads() {
         let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
         let db = SpellDb::load(&dir).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.build(), Some("1.60.1.70009"));
         assert!(db.len() > 240, "{}", db.len());
         assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
         assert!(db.ids_of_class(None).len() > 30, "racials");

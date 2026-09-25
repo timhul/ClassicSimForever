@@ -8,7 +8,7 @@ use crate::row::{Header, Row, TableRow};
 
 /// The table files of one client build inside a directory.
 ///
-/// A dump directory may hold several builds side by side (`Spell.1.60.1.69893.csv`,
+/// A dump directory may hold several builds side by side (`Spell.1.60.1.70009.csv`,
 /// `Spell.1.61.0.70012.csv`); [`TableDir::open`] requires the build to be unambiguous and
 /// [`TableDir::open_build`] picks one explicitly.
 #[derive(Debug, Clone)]
@@ -18,7 +18,7 @@ pub struct TableDir {
     files: BTreeMap<String, PathBuf>,
 }
 
-/// Splits `SpellEffect.1.60.1.69893.csv` into `("SpellEffect", "1.60.1.69893")`.
+/// Splits `SpellEffect.1.60.1.70009.csv` into `("SpellEffect", "1.60.1.70009")`.
 fn split_file_name(name: &str) -> Option<(&str, &str)> {
     let stem = name.strip_suffix(".csv")?;
     let (table, build) = stem.split_once('.')?;
@@ -110,7 +110,7 @@ impl TableDir {
         &self.dir
     }
 
-    /// The build the files belong to, e.g. `1.60.1.69893`.
+    /// The build the files belong to, e.g. `1.60.1.70009`.
     pub fn build(&self) -> &str {
         &self.build
     }
@@ -234,15 +234,15 @@ mod tests {
     #[test]
     fn file_names_split_into_table_and_build() {
         assert_eq!(
-            split_file_name("SpellEffect.1.60.1.69893.csv"),
-            Some(("SpellEffect", "1.60.1.69893"))
+            split_file_name("SpellEffect.1.60.1.70009.csv"),
+            Some(("SpellEffect", "1.60.1.70009"))
         );
         assert_eq!(
             split_file_name("TraitNodeXTraitNodeEntry.2.0.csv"),
             Some(("TraitNodeXTraitNodeEntry", "2.0"))
         );
         assert_eq!(split_file_name("Spell.csv"), None);
-        assert_eq!(split_file_name("Spell.1.60.1.69893.txt"), None);
+        assert_eq!(split_file_name("Spell.1.60.1.70009.txt"), None);
         assert_eq!(split_file_name("notes.1.txt.csv"), None);
         assert_eq!(split_file_name(".1.2.csv"), None);
         assert_eq!(split_file_name("Spell..csv"), None);

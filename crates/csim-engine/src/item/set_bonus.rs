@@ -88,7 +88,7 @@ mod tests {
     use crate::item::ItemSetFile;
 
     const SETS: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 sets:
 - id: 1
   name: The Gladiator

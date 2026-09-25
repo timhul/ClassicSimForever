@@ -1,5 +1,5 @@
 # Hand-written overrides for the external buff spells (data/spells/externals.yaml, exported from
-# build 1.60.1.69893 from the ids in data/external_buffs.yaml). See
+# build 1.60.1.70009 from the ids in data/external_buffs.yaml). See
 # crates/csim-engine/src/spell/overrides.rs for the schema.
 
 overrides:

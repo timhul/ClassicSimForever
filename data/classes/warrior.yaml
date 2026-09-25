@@ -1,6 +1,6 @@
 # The Warrior class. Schema: crates/csim-engine/src/character/class.rs (`ClassSpec`).
 #
-# `stat_rules` come from the client tables (build 1.60.1.69893): ChrClasses
+# `stat_rules` come from the client tables (build 1.60.1.70009): ChrClasses
 # (AttackPowerPerStrength 2, AttackPowerPerAgility 0, RangedAttackPowerPerAgility 2) and
 # PlayerExpectedStat (CritPerAgility 0.0005 at level 60 = 20 agility per 1 % crit; no spell crit
 # from intellect). `available_races` are the CharBaseInfo rows of class 1 (the two Forever-only

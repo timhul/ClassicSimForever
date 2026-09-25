@@ -1,7 +1,7 @@
 //! Reader for the World of Warcraft Forever client table dumps.
 //!
 //! The game data used by ClassicSimForever comes from the client DB2 tables, dumped as one CSV
-//! file per table named `<Table>.<build>.csv` (for example `SpellEffect.1.60.1.69893.csv`). The
+//! file per table named `<Table>.<build>.csv` (for example `SpellEffect.1.60.1.70009.csv`). The
 //! files live outside git (`data/tables/`, see `data/SPELL_INSTRUCTIONS.md`,
 //! `data/TALENT_INSTRUCTIONS.md` and `data/ITEM_INSTRUCTIONS.md` for what each table holds).
 //!

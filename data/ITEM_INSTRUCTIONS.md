@@ -1,6 +1,6 @@
 # 1. Equippable items (`data/tables/Item*.csv`)
 
-Everything below was verified against build `1.60.1.69893` by re-deriving the Classic values in
+Everything below was verified against build `1.60.1.70009` by re-deriving the Classic values in
 `data/items/*.yaml` (converted from ClassicSim) from the tables. Where a formula is given it
 reproduced the Classic numbers exactly unless noted. The tables are the standard client DB2
 tables (same layout as retail / Classic Era on wago.tools), so TrinityCore's `ItemTemplate.cpp`

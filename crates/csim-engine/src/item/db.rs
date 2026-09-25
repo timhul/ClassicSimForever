@@ -514,7 +514,7 @@ mod tests {
 
         // Sets and enchants are attached.
         assert!(db.sets().sets().len() > 150);
-        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.build(), Some("1.60.1.70009"));
         assert!(!db.enchants().is_empty());
 
         // Every weapon slot item carries weapon data, every set item exists.
@@ -605,7 +605,7 @@ mod tests {
         fs::create_dir_all(&legacy).unwrap();
         fs::write(
             dir.join("head.yaml"),
-            "build: 1.60.1.69893\nitems:\n  - id: 1\n    name: Exported Helm\n    phase: 1\n    slot: HEAD\n    type: PLATE\n    quality: EPIC\n    stats: {STAMINA: 20}\n",
+            "build: 1.60.1.70009\nitems:\n  - id: 1\n    name: Exported Helm\n    phase: 1\n    slot: HEAD\n    type: PLATE\n    quality: EPIC\n    stats: {STAMINA: 20}\n",
         )
         .unwrap();
         fs::write(
@@ -616,7 +616,7 @@ mod tests {
         .unwrap();
 
         let db = EquipmentDb::load(&dir, None, None).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.69893"));
+        assert_eq!(db.build(), Some("1.60.1.70009"));
         assert_eq!(db.len(), 2);
         let helm = db.item(1).unwrap();
         assert_eq!(helm.name(), "Exported Helm");

@@ -358,7 +358,7 @@ pub(crate) mod tests {
 
     /// Four Arms talents (the `csim-tables` fixture nodes) plus Cruelty in Fury.
     pub(crate) const ARMS_YAML: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 class: WARRIOR
 tree: 1117
 points: 51

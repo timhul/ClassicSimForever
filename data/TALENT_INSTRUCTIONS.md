@@ -2,7 +2,7 @@
 
 How to go from a class (Warrior) to its talent tree, and from each talent to the concrete thing
 it does (a stat aura, a modifier on specific spells, a proc, a new ability, a spell replacement,
-or a scripted "dummy"). Verified on build `1.60.1.69893` with the full Warrior tree; the other
+or a scripted "dummy"). Verified on build `1.60.1.70009` with the full Warrior tree; the other
 classes use the same tables. Companion docs: `SPELL_INSTRUCTIONS.md` (spell tables, effect and
 aura enums), `ITEM_INSTRUCTIONS.md`.
 

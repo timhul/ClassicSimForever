@@ -1,5 +1,5 @@
 # Hand-written Warrior spell overrides: what the client tables (data/spells/warrior.yaml, exported
-# from build 1.60.1.69893) do not contain. See crates/csim-engine/src/spell/overrides.rs for the
+# from build 1.60.1.70009) do not contain. See crates/csim-engine/src/spell/overrides.rs for the
 # schema and data/SPELL_INSTRUCTIONS.md §1.7-1.9 for the table side.
 #
 # Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.

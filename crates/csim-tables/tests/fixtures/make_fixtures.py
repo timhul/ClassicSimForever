@@ -13,7 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 SRC = os.path.join(ROOT, "data", "tables")
 DST = os.path.join(HERE, "tables")
-V = sys.argv[1] if len(sys.argv) > 1 else "1.60.1.69893"
+V = sys.argv[1] if len(sys.argv) > 1 else "1.60.1.70009"
 
 SPELLS = {12294, 12834, 12162, 412609, 12319, 12966, 78, 284, 2458, 7381, 11574, 2687, 29131,
           12282, 20572, 12292, 12286, 5308, 26651, 1680, 25288, 355, 694, 5246, 20511}

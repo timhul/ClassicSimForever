@@ -2,7 +2,7 @@
 //! `SpellEffect.EffectAura`, `SpellMisc.Attributes_0`, `SpellAuraOptions.ProcTypeMask_0`, … store.
 //!
 //! The numeric values are the retail client's (TrinityCore `SharedDefines.h` /
-//! `SpellDefines.h` names), which is what the Forever build `1.60.1.69893` dumps use; see
+//! `SpellDefines.h` names), which is what the Forever build `1.60.1.70009` dumps use; see
 //! `data/SPELL_INSTRUCTIONS.md` §1.7 for which of them the player spells actually carry.
 //!
 //! Every enum here follows the same contract so that a new dump never fails to load:

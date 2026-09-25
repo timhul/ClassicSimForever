@@ -63,7 +63,7 @@ const DAGGER: u32 = 2;
 const SHIELD: u32 = 3;
 
 const WINDFURY_YAML: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 spells:
 - id: 910612
   name: Windfury Totem Passive (always)

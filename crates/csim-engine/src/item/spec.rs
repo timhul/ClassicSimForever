@@ -26,7 +26,7 @@ use super::types::{EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ItemFile {
-    /// The client build the items were exported from (`1.60.1.69893`).
+    /// The client build the items were exported from (`1.60.1.70009`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     #[serde(default)]
@@ -444,7 +444,7 @@ procs:
     }
 
     const GENERATED: &str = r#"
-build: 1.60.1.69893
+build: 1.60.1.70009
 items:
   - id: 19019
     name: Thunderfury, Blessed Blade of the Windseeker
@@ -491,7 +491,7 @@ items:
     #[test]
     fn parses_a_generated_item_file() {
         let file: ItemFile = serde_yaml::from_str(GENERATED).unwrap();
-        assert_eq!(file.build, "1.60.1.69893");
+        assert_eq!(file.build, "1.60.1.70009");
         let [thunderfury, arena, lens] = &file.items[..] else {
             panic!("{:?}", file.items)
         };
