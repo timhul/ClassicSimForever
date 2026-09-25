@@ -194,3 +194,88 @@ fn dodge_applies_overpower_buff() {
     when_mh_attack_is_performed(&mut test);
     test.then_overpower_is_active();
 }
+
+/// Rage of one main-hand swing of the weapon `equip` puts on, with the outcome `force` picks.
+fn swing_rage(equip: fn(&mut WarriorTest), force: fn(&mut WarriorTest)) -> Option<f64> {
+    let mut test = test();
+    equip(&mut test);
+    force(&mut test);
+    test.given_warrior_has_rage(0);
+    test.when_swing_is_performed(Hand::Mainhand).rage_gained
+}
+
+fn sword(test: &mut WarriorTest) {
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+}
+
+/// Forever swing rage (magey/forever-warrior#3): 3.46 per second of weapon speed for a
+/// one-hander, whatever the damage; 3.46 × 2.6 = 8.996 rage lands as 89 tenths.
+#[test]
+fn landed_swings_give_rage_by_weapon_speed() {
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_hit()),
+        Some(8.9)
+    );
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_crit()),
+        Some(8.9),
+        "no crit bonus"
+    );
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_glancing_blow()),
+        Some(8.9),
+        "glancing blows give full rage"
+    );
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_block()),
+        Some(8.9)
+    );
+    assert_eq!(
+        swing_rage(sword, |t| {
+            t.given_a_guaranteed_white_hit();
+            t.given_1000_melee_ap();
+        }),
+        Some(8.9),
+        "attack power does not change the rage"
+    );
+}
+
+#[test]
+fn avoided_swings_give_no_rage() {
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_miss()),
+        None
+    );
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_dodge()),
+        None
+    );
+    assert_eq!(
+        swing_rage(sword, |t| t.given_a_guaranteed_white_parry()),
+        None
+    );
+}
+
+/// Two-handers: 4.5 per second, 4.5 × 3.5 = 15.75 rage.
+#[test]
+fn two_handers_give_more_rage_per_second() {
+    assert_eq!(
+        swing_rage(
+            |t| t.given_a_twohand_weapon_with_100_min_max_dmg(),
+            |t| t.given_a_guaranteed_white_hit()
+        ),
+        Some(15.7)
+    );
+}
+
+/// Haste shortens the swing but not the rage of a swing (the base weapon speed counts).
+#[test]
+fn hasted_swings_give_base_speed_rage() {
+    assert_eq!(
+        swing_rage(sword, |t| {
+            t.given_a_guaranteed_white_hit();
+            t.when_increasing_attack_speed(30);
+        }),
+        Some(8.9)
+    );
+}
