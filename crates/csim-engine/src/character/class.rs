@@ -102,6 +102,12 @@ pub struct ClassSpec {
     #[serde(default = "default_stance")]
     pub default_stance: Stance,
     pub highest_armor_type: ArmorType,
+    /// Most combo points the character holds; a gain beyond it only restarts their window.
+    #[serde(default = "default_max_combo_points")]
+    pub max_combo_points: u32,
+    /// Seconds combo points last after the last gain; absent, they do not lapse.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub combo_point_duration: Option<f64>,
     /// The weapon types the class can wield per weapon slot.
     pub weapon_proficiencies: BTreeMap<EquipmentSlot, Vec<WeaponType>>,
     pub available_races: Vec<Race>,
@@ -118,6 +124,10 @@ pub struct ClassSpec {
 
 fn default_stance() -> Stance {
     Stance::Caster
+}
+
+fn default_max_combo_points() -> u32 {
+    5
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -172,6 +182,11 @@ pub enum ClassSpecError {
         found: PlayerClass,
         expected: PlayerClass,
     },
+    #[error("class {class:?}: {message}")]
+    ComboPoints {
+        class: PlayerClass,
+        message: &'static str,
+    },
     #[error("class {0:?} is not defined in the class directory")]
     Missing(PlayerClass),
 }
@@ -192,6 +207,19 @@ impl ClassSpec {
     }
 
     pub fn validate(&self) -> Result<(), ClassSpecError> {
+        let combo_points = |message| ClassSpecError::ComboPoints {
+            class: self.class,
+            message,
+        };
+        if !(1..=5).contains(&self.max_combo_points) {
+            return Err(combo_points("max_combo_points must be 1 to 5"));
+        }
+        if self
+            .combo_point_duration
+            .is_some_and(|d| d.is_nan() || d <= 0.0)
+        {
+            return Err(combo_points("combo_point_duration must be positive"));
+        }
         if let Some(race) = self
             .race_stat_offsets
             .keys()
@@ -397,6 +425,8 @@ stat_rules: { agility_per_percent_crit: 20.0, melee_ap_per_strength: 2 }
 global_cooldown: 1.5
 default_stance: BATTLE_STANCE
 highest_armor_type: PLATE
+max_combo_points: 1
+combo_point_duration: 4.0
 weapon_proficiencies:
   MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD, POLEARM, STAFF, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
   OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND, SHIELD]
@@ -458,6 +488,34 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn combo_point_limits_default_and_validate() {
+        let yaml = WARRIOR_YAML
+            .replace(
+                "max_combo_points: 1
+",
+                "",
+            )
+            .replace(
+                "combo_point_duration: 4.0
+",
+                "",
+            );
+        let spec: ClassSpec = serde_yaml::from_str(&yaml).unwrap();
+        assert_eq!(spec.max_combo_points, 5);
+        assert_eq!(spec.combo_point_duration, None);
+
+        for (max, duration) in [(0, None), (6, None), (1, Some(0.0)), (1, Some(-4.0))] {
+            let mut spec = spec.clone();
+            spec.max_combo_points = max;
+            spec.combo_point_duration = duration;
+            assert!(
+                matches!(spec.validate(), Err(ClassSpecError::ComboPoints { .. })),
+                "{max} points, {duration:?} s"
+            );
+        }
     }
 
     fn data_dir() -> PathBuf {

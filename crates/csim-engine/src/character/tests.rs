@@ -5,7 +5,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use super::context::{CharacterContext, SwingOutcome};
-use super::{Character, ClassSpec, SimParams, COMBO_POINT_DURATION, STANCE_COOLDOWN};
+use super::{Character, ClassSpec, SimParams, STANCE_COOLDOWN};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
@@ -105,11 +105,16 @@ pub(crate) struct Fixture {
 
 impl Fixture {
     pub fn orc_warrior() -> Self {
+        Self::orc(warrior_class())
+    }
+
+    /// An orc of `class`.
+    pub fn orc(class: Arc<ClassSpec>) -> Self {
         let mut engine = Engine::new();
         engine.prepare_iteration(0.0);
         let character = Character::new(
             CharId(0),
-            warrior_class(),
+            class,
             &race(Race::Orc),
             equipment_db(),
             Phase::MoltenCore,
@@ -307,36 +312,39 @@ fn stance_and_trinket_cooldowns() {
 }
 
 #[test]
-fn combo_points_cap_at_five() {
+fn a_warrior_holds_one_combo_point_that_a_gain_only_refreshes() {
     let mut f = Fixture::orc_warrior();
-    f.character.gain_combo_points(3, 0.0);
-    f.character.gain_combo_points(3, 0.0);
-    assert_eq!(f.character.combo_points(0.0), 5);
+    f.character.gain_combo_points(1, 10.0);
+    f.character.gain_combo_points(1, 13.0);
+    assert_eq!(
+        f.character.combo_points(13.0),
+        1,
+        "the second gain does not stack"
+    );
+    assert_eq!(
+        f.character.combo_points(16.99),
+        1,
+        "the second gain restarted the window"
+    );
+    assert_eq!(f.character.combo_points(17.0), 0, "4 s after the last gain");
+
+    f.character.gain_combo_points(1, 30.0);
+    assert_eq!(f.character.combo_points(30.0), 1);
     f.character.spend_combo_points();
-    assert_eq!(f.character.combo_points(0.0), 0);
+    assert_eq!(f.character.combo_points(30.0), 0);
 }
 
 #[test]
-fn combo_points_lapse_after_their_window() {
-    let mut f = Fixture::orc_warrior();
-    f.character.gain_combo_points(1, 10.0);
-    assert_eq!(
-        f.character.combo_points(10.0 + COMBO_POINT_DURATION - 0.01),
-        1
-    );
-    assert_eq!(f.character.combo_points(10.0 + COMBO_POINT_DURATION), 0);
-
-    // A gain restarts the window of the points already held.
-    f.character.gain_combo_points(1, 12.0);
-    assert_eq!(
-        f.character.combo_points(12.0 + COMBO_POINT_DURATION - 0.01),
-        2
-    );
-    assert_eq!(f.character.combo_points(12.0 + COMBO_POINT_DURATION), 0);
-
-    // Lapsed points are gone: a later gain starts from zero.
-    f.character.gain_combo_points(1, 30.0);
-    assert_eq!(f.character.combo_points(30.0), 1);
+fn combo_points_cap_at_five_and_never_lapse_by_default() {
+    let mut spec = (*warrior_class()).clone();
+    spec.max_combo_points = 5;
+    spec.combo_point_duration = None;
+    let mut f = Fixture::orc(Arc::new(spec));
+    f.character.gain_combo_points(3, 0.0);
+    f.character.gain_combo_points(3, 0.0);
+    assert_eq!(f.character.combo_points(1000.0), 5);
+    f.character.spend_combo_points();
+    assert_eq!(f.character.combo_points(0.0), 0);
 }
 
 #[test]
@@ -2155,13 +2163,13 @@ mod rotation {
         f.engine
             .add_event(Event::new(50.0, EventKind::EncounterEnd));
         f.engine.next_event();
-        f.character.gain_combo_points(2, f.engine.current_time());
+        f.character.gain_combo_points(1, f.engine.current_time());
         let ctx = f.ctx();
         let var = |v| ctx.variable(v);
         assert!((var(BuiltinVariable::TimeRemainingEncounter) - 150.0).abs() < 1e-9);
         assert!((var(BuiltinVariable::TimeRemainingExecute) - 110.0).abs() < 1e-9);
         assert!((var(BuiltinVariable::TargetHealth) - 0.75).abs() < 1e-9);
-        assert_eq!(var(BuiltinVariable::ComboPoints), 2.0);
+        assert_eq!(var(BuiltinVariable::ComboPoints), 1.0);
         assert_eq!(var(BuiltinVariable::TimeSinceAutoShot), 50.0);
         assert!(var(BuiltinVariable::MeleeAp) > 400.0);
         assert_eq!(var(BuiltinVariable::TimeRemainingGcd), 0.0);

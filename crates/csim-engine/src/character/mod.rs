@@ -76,9 +76,6 @@ impl Default for SimParams {
 pub const STANCE_COOLDOWN: f64 = 1.0;
 /// How long after avoiding an incoming attack the `DEFENSIVE` aura state (Revenge) lasts.
 pub const DEFENSIVE_STATE_DURATION: f64 = 5.0;
-/// How long combo points last after the last one was gained: the Warrior's Overpower window
-/// after the target dodged (the only combo points simulated). Each dodge restarts it.
-pub const COMBO_POINT_DURATION: f64 = 5.0;
 /// Tolerance when comparing the global cooldown with the current time (C++ `action_ready`).
 const GCD_EPSILON: f64 = 0.0001;
 
@@ -123,7 +120,7 @@ pub struct Character {
     /// End of the `DEFENSIVE` aura state window.
     defensive_until: f64,
     combo_points: u32,
-    /// When the combo points lapse ([`COMBO_POINT_DURATION`] after the last gain).
+    /// When the combo points lapse (`ClassSpec::combo_point_duration` after the last gain).
     combo_points_until: f64,
     tanking: bool,
     party: u8,
@@ -652,7 +649,8 @@ impl Character {
 
     // ---------------------------------------------------------------- combat state
 
-    /// The combo points at `now`: none once [`COMBO_POINT_DURATION`] passed since the last gain.
+    /// The combo points at `now`: none once the class's `combo_point_duration` passed since the
+    /// last gain.
     pub fn combo_points(&self, now: f64) -> u32 {
         if now < self.combo_points_until {
             self.combo_points
@@ -661,10 +659,14 @@ impl Character {
         }
     }
 
-    /// Gains `amount` combo points at `now` (at most five) and restarts their window.
+    /// Gains `amount` combo points at `now`, up to the class's `max_combo_points`, and restarts
+    /// their window.
     pub fn gain_combo_points(&mut self, amount: u32, now: f64) {
-        self.combo_points = (self.combo_points(now) + amount).min(5);
-        self.combo_points_until = now + COMBO_POINT_DURATION;
+        self.combo_points = (self.combo_points(now) + amount).min(self.class.max_combo_points);
+        self.combo_points_until = self
+            .class
+            .combo_point_duration
+            .map_or(f64::INFINITY, |duration| now + duration);
     }
 
     pub fn spend_combo_points(&mut self) {

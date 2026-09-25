@@ -1,6 +1,5 @@
 //! Port of `Test/Warrior/Spells/TestOverpower`.
 
-use crate::character::COMBO_POINT_DURATION;
 use crate::engine::EventType;
 use crate::spell::SpellStatus;
 use crate::testing::warrior::WarriorTest;
@@ -99,6 +98,7 @@ fn stance_cooldown() {
     let mut test = test_with_overpower();
     test.given_warrior_in_berserker_stance();
     test.given_warrior_has_rage(100);
+    given_overpower_window_refreshed(&mut test);
     test.then_status_is(SPELL, SpellStatus::InBerserkerStance);
 
     test.when_switching_to_battle_stance();
@@ -204,18 +204,28 @@ fn given_time_is(test: &mut WarriorTest, time: f64) {
     test.given_engine_priority_pushed_forward(delay);
 }
 
+/// The Overpower window: 4 seconds after the last dodge.
+const WINDOW: f64 = 4.0;
+
 #[test]
 fn overpower_window_lapses() {
     let mut test = test();
     let dodged_at = given_overpower_dodged(&mut test);
 
-    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION - 0.01);
+    given_time_is(&mut test, dodged_at + WINDOW - 0.01);
     test.then_overpower_is_active();
     test.then_status_is(SPELL, SpellStatus::Available);
 
-    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION + 0.001);
+    given_time_is(&mut test, dodged_at + WINDOW + 0.001);
     test.then_overpower_is_inactive();
     test.then_status_is(SPELL, SpellStatus::InsufficientComboPoints);
+}
+
+/// Dodges Bloodthirst at `time` (Whirlwind, the first dodge, is on cooldown).
+fn given_bloodthirst_dodged_at(test: &mut WarriorTest, time: f64) {
+    given_time_is(test, time);
+    test.given_a_guaranteed_melee_ability_dodge();
+    test.given_warrior_is_on_gcd_from("Bloodthirst");
 }
 
 #[test]
@@ -223,15 +233,27 @@ fn another_dodge_restarts_the_overpower_window() {
     let mut test = test();
     let dodged_at = given_overpower_dodged(&mut test);
 
-    // Whirlwind (the first dodge) is on cooldown: Bloodthirst is dodged the second time.
-    let dodged_again_at = dodged_at + 4.0;
-    given_time_is(&mut test, dodged_again_at);
-    test.given_a_guaranteed_melee_ability_dodge();
-    test.given_warrior_is_on_gcd_from("Bloodthirst");
+    let dodged_again_at = dodged_at + 3.0;
+    given_bloodthirst_dodged_at(&mut test, dodged_again_at);
 
-    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION + 0.001);
+    given_time_is(&mut test, dodged_at + WINDOW + 0.001);
     test.then_overpower_is_active();
 
-    given_time_is(&mut test, dodged_again_at + COMBO_POINT_DURATION + 0.001);
+    given_time_is(&mut test, dodged_again_at + WINDOW + 0.001);
+    test.then_overpower_is_inactive();
+}
+
+#[test]
+fn another_dodge_does_not_grant_a_second_combo_point() {
+    let mut test = test();
+    let dodged_at = given_overpower_dodged(&mut test);
+    given_bloodthirst_dodged_at(&mut test, dodged_at + 3.0);
+    assert_eq!(test.character().combo_points(test.now()), 1);
+
+    // One Overpower spends the only one: there is no second Overpower banked.
+    let gcd = test.character().global_cooldown();
+    test.given_engine_priority_pushed_forward(gcd);
+    test.given_a_guaranteed_melee_ability_hit();
+    when_overpower_is_performed(&mut test);
     test.then_overpower_is_inactive();
 }
