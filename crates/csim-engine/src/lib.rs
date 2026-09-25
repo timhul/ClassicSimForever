@@ -35,6 +35,7 @@ pub mod spell;
 pub mod stance;
 pub mod statistics;
 pub mod stats;
+pub mod sweep_loader;
 pub mod talent;
 pub mod target;
 
