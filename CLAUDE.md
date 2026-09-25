@@ -42,3 +42,8 @@ Toolchain note: cargo/rustc are installed at `C:\Users\timhu\.cargo\bin` but are
 In a raid (`data/raids/`, members refer to `data/characters/`):
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --raid data/raids/horde_melee.yaml`
+
+# Known issues
+
+- Raid DPS is much lower than solo DPS. This is because debuffs are not applied in the current
+raid setup, and many raid buffs are missing.
