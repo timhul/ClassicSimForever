@@ -118,12 +118,19 @@ pub fn render(results: &Results) -> String {
          <div class=\"stats\">\n",
         dps.mean, dps.confidence_interval,
     );
+    let raid = results
+        .raid
+        .iter()
+        .flat_map(|raid| [("Raid DPS", raid.dps), ("Raid TPS", raid.tps)]);
     for (name, value) in [
         ("TPS", results.tps),
         ("Std dev", dps.standard_deviation),
         ("Min", dps.min),
         ("Max", dps.max),
-    ] {
+    ]
+    .into_iter()
+    .chain(raid)
+    {
         let _ = writeln!(
             out,
             "<div class=\"stat\"><div class=\"name\">{name}</div>\

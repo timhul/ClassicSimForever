@@ -10,6 +10,8 @@
 #   classes   the classes the buff is offered to; absent = every class
 #   mutex     entries sharing a key exclude each other (one food, one strength elixir, ...)
 #   stacks    stacks applied; absent = the spell's max stacks (Sunder Armor 5, Armor Shatter 3)
+#   raid      true for a buff another raid member's class provides; `csim run --raid` leaves
+#             these and every debuff out of the setups, the raid provides them or not
 #
 # World buffs (Rallying Cry, Songflower, Spirit of Zandalar, Warchief's Blessing, the
 # Dire Maul tribute buffs) are left out on purpose: Forever does not offer them the same way.
@@ -21,19 +23,25 @@ buffs:
   - name: Greater Blessing of Kings
     spell: 25898
     faction: ALLIANCE
+    raid: true
   - name: Greater Blessing of Might
     spell: 25916
     faction: ALLIANCE
+    raid: true
   - name: Strength of Earth Totem
     spell: 25362
     faction: HORDE
+    raid: true
   - name: Trueshot Aura
     spell: 19506
+    raid: true
   - name: Gift of the Wild
     spell: 21850
+    raid: true
   - name: Battle Shout
     spell: 25289
     classes: [DRUID, HUNTER, PALADIN, ROGUE, SHAMAN]
+    raid: true
   # Elixirs
   - name: Elixir of the Mongoose
     spell: 17538

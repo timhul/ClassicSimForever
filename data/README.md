@@ -38,6 +38,10 @@ data/
 ├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
 │                         executors with conditions), see rotations/README.md; the six
 │                         Warrior rotations are ports of the ClassicSim XML files
+├── characters/           hand-written: character setups for `csim run` (class, race, talents,
+│                         gear, buffs, rotation, target)
+├── raids/                hand-written: raid setups for `csim run --raid`, up to 8 parties of 5
+│                         (counting the player) listing setups of characters/ by file name
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
 ├── TALENT_INSTRUCTIONS.md
 └── ITEM_INSTRUCTIONS.md

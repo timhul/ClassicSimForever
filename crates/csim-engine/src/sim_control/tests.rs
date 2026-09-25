@@ -164,10 +164,11 @@ fn a_full_sim_runs_each_option_and_takes_its_stat_back() {
     settings.options = [SimOption::ScaleStrength, SimOption::ScaleAttackPower]
         .into_iter()
         .collect();
-    let mut raid = data.raid(&settings, 1, false);
+    let mut raid = data.raid(&settings, 2, false);
     let ap = |raid: &RaidControl| {
-        raid.character(CharId(0))
-            .melee_ap(&raid.target().stat_view())
+        raid.char_ids()
+            .map(|id| raid.character(id).melee_ap(&raid.target().stat_view()))
+            .collect::<Vec<_>>()
     };
     let before = ap(&raid);
 

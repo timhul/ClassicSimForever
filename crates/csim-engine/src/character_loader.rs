@@ -293,6 +293,28 @@ impl CharacterSetup {
         data: &DataBundle,
         settings: &SimSettings,
     ) -> Result<CharId, CharacterSetupError> {
+        self.add_to_raid_place(raid, None, data, settings)
+    }
+
+    /// [`add_to_raid`](Self::add_to_raid) at `party` (0-based) `member`, which must be free.
+    pub fn add_to_raid_at(
+        &self,
+        raid: &mut RaidControl,
+        party: u8,
+        member: u8,
+        data: &DataBundle,
+        settings: &SimSettings,
+    ) -> Result<CharId, CharacterSetupError> {
+        self.add_to_raid_place(raid, Some((party, member)), data, settings)
+    }
+
+    fn add_to_raid_place(
+        &self,
+        raid: &mut RaidControl,
+        place: Option<(u8, u8)>,
+        data: &DataBundle,
+        settings: &SimSettings,
+    ) -> Result<CharId, CharacterSetupError> {
         let settings = self.sim_settings(settings);
         let mut issues = Issues::default();
 
@@ -346,25 +368,28 @@ impl CharacterSetup {
 
         let race = data.races.get(self.race);
         let target_level = raid.target().level();
-        let id = raid
-            .add_character(|id, party, member| {
-                Character::new(
-                    id,
-                    Arc::clone(&class),
-                    race,
-                    Arc::clone(&data.equipment),
-                    settings.phase,
-                    settings.sim_params(),
-                    target_level,
-                    party,
-                    member,
-                )
-            })
-            .map_err(|error| {
-                let mut issues = Issues::default();
-                issues.push("raid", error.to_string());
-                self.invalid(issues)
-            })?;
+        let build = |id, party, member| {
+            Character::new(
+                id,
+                Arc::clone(&class),
+                race,
+                Arc::clone(&data.equipment),
+                settings.phase,
+                settings.sim_params(),
+                target_level,
+                party,
+                member,
+            )
+        };
+        let id = match place {
+            Some((party, member)) => raid.add_character_at(party, member, build),
+            None => raid.add_character(build),
+        }
+        .map_err(|error| {
+            let mut issues = Issues::default();
+            issues.push("raid", error.to_string());
+            self.invalid(issues)
+        })?;
         let character = raid.character_mut(id);
         character.set_clvl(self.level);
         character.set_tanking(self.tanking);

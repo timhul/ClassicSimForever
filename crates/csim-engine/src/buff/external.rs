@@ -45,6 +45,11 @@ pub struct ExternalBuffSpec {
     /// How many stacks are applied; absent = the spell's `max_stacks` (at least 1).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stacks: Option<u32>,
+    /// A buff another raid member's class provides (Blessing of Kings, Trueshot Aura, ...),
+    /// left out when the character is simulated in a raid, which provides it or not. Debuffs
+    /// are always provided by the raid ([`ExternalBuffSpec::provided_by_raid`]).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub raid: bool,
 }
 
 impl ExternalBuffSpec {
@@ -56,7 +61,14 @@ impl ExternalBuffSpec {
             classes: Vec::new(),
             mutex: None,
             stacks: None,
+            raid: false,
         }
+    }
+
+    /// Whether the raid, not the character, provides the entry: a buff marked `raid` or any
+    /// target debuff. A raid simulation leaves these out.
+    pub fn provided_by_raid(&self, debuff: bool) -> bool {
+        debuff || self.raid
     }
 
     /// Port of `ExternalBuff::valid_for_faction`.
@@ -78,7 +90,7 @@ impl ExternalBuffSpec {
 /// The file layout of `data/external_buffs.yaml`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExternalBuffFile {
-    /// Buffs on the character (raid buffs, consumables).
+    /// Buffs on the character (raid buffs, marked `raid`, and consumables).
     #[serde(default)]
     pub buffs: Vec<ExternalBuffSpec>,
     /// Debuffs on the target kept up by other players.

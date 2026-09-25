@@ -142,6 +142,62 @@ fn output_format_prints_yaml_and_html() {
 }
 
 #[test]
+fn raid_runs_the_player_with_the_members() {
+    let raid = [
+        &RUN[..],
+        &["--seed", "4", "--raid", "data/raids/horde_melee.yaml"],
+    ]
+    .concat();
+    let report = stdout(&csim(&raid));
+    for expected in [
+        "Raid Horde melee: 5 players, DPS ",
+        "Raid members",
+        "2H Fury Orc",
+        "Damage and threat",
+    ] {
+        assert!(
+            report.contains(expected),
+            "{expected:?} missing:
+{report}"
+        );
+    }
+
+    let yaml = stdout(&csim(&[&raid[..], &["--output-format", "yaml"]].concat()));
+    let results: serde_yaml::Value = serde_yaml::from_str(&yaml).expect("valid YAML");
+    let members = results["raid"]["members"].as_sequence().unwrap();
+    assert_eq!(members.len(), 5, "{yaml}");
+    assert_eq!(members[0]["name"].as_str(), Some("DW Fury Orc"));
+    assert_eq!(members[0]["party"].as_u64(), Some(1));
+    assert_eq!(members[4]["party"].as_u64(), Some(2));
+    let raid_dps = results["raid"]["dps"].as_f64().unwrap();
+    let sum: f64 = members.iter().map(|m| m["dps"].as_f64().unwrap()).sum();
+    assert!((raid_dps - sum).abs() < 1e-6, "{yaml}");
+    let player = members[0]["dps"].as_f64().unwrap();
+    assert!((player - results["dps"]["mean"].as_f64().unwrap()).abs() < 1e-6);
+
+    let solo = stdout(&csim(&[&RUN[..], &["--output-format", "yaml"]].concat()));
+    assert!(!solo.contains("raid:"), "{solo}");
+}
+
+#[test]
+fn a_raid_of_the_other_faction_fails() {
+    let output = csim(&[
+        "run",
+        "data/characters/arms_human.yaml",
+        "--raid",
+        "data/raids/horde_melee.yaml",
+        "--iterations",
+        "1",
+    ]);
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("2H Fury Orc is Horde, the raid is Alliance"),
+        "{stderr}"
+    );
+}
+
+#[test]
 fn an_unknown_output_format_fails() {
     let output = csim(&[&RUN[..], &["--output-format", "csv"]].concat());
     assert!(!output.status.success());
@@ -160,6 +216,7 @@ fn validate_checks_every_shipped_setup() {
     let report = stdout(&csim(&["validate"]));
     assert!(report.contains("ok       "), "{report}");
     assert!(report.contains("character setups are valid"), "{report}");
+    assert!(report.contains("raid setups are valid"), "{report}");
 }
 
 #[test]
