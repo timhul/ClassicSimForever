@@ -502,6 +502,7 @@ mod tests {
         fn adjust_stance_rage_retained(&mut self, _: i32) {}
         fn adjust_offhand_damage_percent(&mut self, _: i32) {}
         fn adjust_offhand_rage_percent(&mut self, _: i32) {}
+        fn adjust_offhand_copy(&mut self, _: u32, _: bool) {}
         fn override_actionbar_spell(&mut self, _: u32, _: u32, _: bool) {}
     }
 
@@ -622,6 +623,23 @@ mod tests {
         }
         fn avg_mh_damage(&self) -> f64 {
             self.random_non_normalized_mh_dmg_const()
+        }
+        fn offhand_copy_active(&self, _: u32) -> bool {
+            false
+        }
+        fn roll_offhand_melee_ability(
+            &mut self,
+            _: IncludedOutcomes,
+            _: u32,
+            _: bool,
+        ) -> PhysicalAttackResult {
+            unreachable!()
+        }
+        fn random_oh_weapon_dmg(&mut self, _: bool) -> f64 {
+            unreachable!()
+        }
+        fn offhand_penalty(&self) -> f64 {
+            unreachable!()
         }
     }
 

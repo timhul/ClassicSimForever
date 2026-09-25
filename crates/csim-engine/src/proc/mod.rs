@@ -15,7 +15,8 @@ use crate::spell::Hand;
 /// The events a proc can trigger on. Port of `ProcInfo::Source`.
 ///
 /// A landed swing is reported by its hand (`MainhandSwing` / `OffhandSwing`), a landed melee
-/// ability as `MainhandSpell`, and a crit additionally as `MeleeCritical` (the C++
+/// ability as `MainhandSpell` (or `OffhandSpell` for an ability's off-hand strike: Whirlwind
+/// with Raging Blows), and a crit additionally as `MeleeCritical` (the C++
 /// `melee_mh_white_hit_effect` / `melee_mh_yellow_hit_effect` plus `add_crit_dmg`); the
 /// avoided results by their kind. The C++ `MeleeHit` result source is kept in the vocabulary
 /// but nothing emits it: [`ProcSource::from_masks`] never listens to it.
@@ -25,6 +26,7 @@ pub enum ProcSource {
     MainhandSwing,
     OffhandSwing,
     MainhandSpell,
+    OffhandSpell,
     MeleeDodge,
     MeleeParry,
     MeleeMiss,
@@ -44,10 +46,11 @@ pub enum ProcSource {
 }
 
 impl ProcSource {
-    pub const ALL: [ProcSource; 17] = [
+    pub const ALL: [ProcSource; 18] = [
         ProcSource::MainhandSwing,
         ProcSource::OffhandSwing,
         ProcSource::MainhandSpell,
+        ProcSource::OffhandSpell,
         ProcSource::MeleeDodge,
         ProcSource::MeleeParry,
         ProcSource::MeleeMiss,
@@ -64,10 +67,10 @@ impl ProcSource {
         ProcSource::Manual,
     ];
 
-    /// The hand a source concerns (the off hand only for off-hand swings).
+    /// The hand a source concerns (the off hand only for off-hand swings and strikes).
     pub fn hand(self) -> Hand {
         match self {
-            ProcSource::OffhandSwing => Hand::Offhand,
+            ProcSource::OffhandSwing | ProcSource::OffhandSpell => Hand::Offhand,
             _ => Hand::Mainhand,
         }
     }
@@ -108,6 +111,7 @@ impl ProcSource {
             }
             if melee_ability {
                 push(ProcSource::MainhandSpell);
+                push(ProcSource::OffhandSpell);
             }
             if ranged_swing {
                 push(ProcSource::RangedAutoShot);
@@ -183,7 +187,8 @@ mod tests {
             [
                 ProcSource::MainhandSwing,
                 ProcSource::OffhandSwing,
-                ProcSource::MainhandSpell
+                ProcSource::MainhandSpell,
+                ProcSource::OffhandSpell
             ]
         );
         // Overpower-style reaction: the target dodged.
@@ -198,8 +203,9 @@ mod tests {
         );
         assert!(ProcSource::from_masks(ProcFlags::empty(), ProcHitMask::LANDED).is_empty());
         assert_eq!(ProcSource::OffhandSwing.hand(), Hand::Offhand);
+        assert_eq!(ProcSource::OffhandSpell.hand(), Hand::Offhand);
         assert_eq!(ProcSource::MeleeCritical.hand(), Hand::Mainhand);
-        assert_eq!(ProcSource::ALL.len(), 17);
+        assert_eq!(ProcSource::ALL.len(), 18);
     }
 }
 

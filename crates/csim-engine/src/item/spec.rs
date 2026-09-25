@@ -301,6 +301,7 @@ impl ProcSourceFlags {
         }
         if self.melee_skill {
             push(ProcSource::MainhandSpell);
+            push(ProcSource::OffhandSpell);
         }
         if self.melee_weapon_side {
             for source in slot.default_proc_sources() {

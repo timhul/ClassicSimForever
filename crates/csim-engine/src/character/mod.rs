@@ -130,6 +130,8 @@ pub struct Character {
     offhand_damage_percent: i32,
     /// Off-hand rage generation bonus in percent (`OFFHAND_RAGE_PERCENT`).
     offhand_rage_percent: i32,
+    /// Abilities that also strike with the off hand (`OFFHAND_COPY`), once per active aura.
+    offhand_copies: Vec<u32>,
     /// Extra main-hand attacks granted by `ADD_EXTRA_ATTACKS` and not yet performed.
     pending_extra_attacks: u32,
     /// Cached roll context, to refresh the attack tables only when it changes.
@@ -211,6 +213,7 @@ impl Character {
             stance_rage_retained: 0,
             offhand_damage_percent: 0,
             offhand_rage_percent: 0,
+            offhand_copies: Vec::new(),
             pending_extra_attacks: 0,
             last_roll_context: None,
             rotation: None,
@@ -611,6 +614,20 @@ impl Character {
         self.offhand_rage_percent += percent;
     }
 
+    /// Whether ability `spell` also strikes with the off hand (Raging Blows' Whirlwind).
+    pub fn has_offhand_copy(&self, spell: u32) -> bool {
+        self.offhand_copies.contains(&spell)
+    }
+
+    /// Adds (`apply`) or removes one off-hand copy of ability `spell`.
+    pub fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
+        if apply {
+            self.offhand_copies.push(spell);
+        } else if let Some(index) = self.offhand_copies.iter().position(|&s| s == spell) {
+            self.offhand_copies.swap_remove(index);
+        }
+    }
+
     pub fn pending_extra_attacks(&self) -> u32 {
         self.pending_extra_attacks
     }
@@ -844,6 +861,28 @@ impl Character {
         };
         let damage = self
             .random_weapon_dmg(EquipmentSlot::Mainhand)
+            .unwrap_or(0.0)
+            + bonus;
+        Self::non_normalized_dmg(damage, ap, Self::normalized_speed(profile.0, profile.1))
+    }
+
+    /// Random off-hand damage normalized to the weapon type's standard speed, before the
+    /// off-hand penalty (0 without an off-hand weapon).
+    pub fn random_normalized_oh_dmg(&mut self, target: &TargetStatView) -> f64 {
+        let ap = self.melee_ap(target);
+        let bonus = f64::from(
+            self.stats
+                .get_oh_weapon_damage_bonus(&self.stat_context(target)),
+        );
+        let Some(profile) = self
+            .equipment
+            .offhand()
+            .map(|w| (w.weapon_slot(), w.weapon_type()))
+        else {
+            return 0.0;
+        };
+        let damage = self
+            .random_weapon_dmg(EquipmentSlot::Offhand)
             .unwrap_or(0.0)
             + bonus;
         Self::non_normalized_dmg(damage, ap, Self::normalized_speed(profile.0, profile.1))

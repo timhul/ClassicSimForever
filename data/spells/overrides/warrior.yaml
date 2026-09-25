@@ -78,6 +78,9 @@ overrides:
   - id: 23584
     note: Dual Wield Specialization; E0 and E2 are plain auras, E1 is off-hand rage generation
     effects: [{ index: 1, script: OFFHAND_RAGE_PERCENT }]
+  - id: 1310315
+    note: Raging Blows (talent); E0 makes Whirlwind also strike with the off hand, E1 is the Cleave cost modifier
+    effects: [{ index: 0, script: OFFHAND_COPY, params: { spell: 1680 } }]
   - id: 20500
     note: Improved Berserker Rage; E0 = rage (x10) gained when Berserker Rage is used, E1 = snare removal
     effects:

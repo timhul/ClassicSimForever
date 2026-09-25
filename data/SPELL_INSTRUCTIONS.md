@@ -439,7 +439,7 @@ overrides:
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
 | `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
-| `OFFHAND_COPY` | the ability also hits with the off hand | — | Raging Blows |
+| `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `NO_OP` | nothing; keeps the dummy out of `csim-tables check` | — | markers, unmodelled halves |
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
@@ -449,7 +449,7 @@ puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Rege
 the client tables do not carry the enrage mechanic).
 
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
-`MAINHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
+`MAINHAND_SPELL`, `OFFHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
 `MELEE_FULL_BLOCK`, `SPELL_HIT`, `SPELL_CRITICAL`, `SPELL_FULL_RESIST`, `RANGED_AUTO_SHOT`,
 `RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`.
 

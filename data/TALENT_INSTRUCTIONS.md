@@ -177,7 +177,7 @@ with Defensive-Stance-usable copies 1240287–89. Resolve the replacement spell 
 
 **F. Pure DUMMY** — `EffectAura` 4 with no proc mask: script only, rank value is the tooltip
 number. Improved Tactical Mastery 3–15 rage kept on stance change; Weaponmaster three values
-(per-weapon-type bonuses per the description); Raging Blows E0 (Whirlwind hits with off-hand);
+(per-weapon-type bonuses per the description); Raging Blows E0 (Whirlwind hits with off-hand; the `OFFHAND_COPY` override);
 Anger Management E1–E3 (1 rage / 3 s, 30 % less decay).
 
 **G. New ability** — `MaxRanks` 1 and the definition spell is a castable: Mortal Strike (aura

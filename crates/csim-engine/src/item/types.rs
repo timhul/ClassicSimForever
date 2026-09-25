@@ -289,12 +289,13 @@ impl EquipmentSlot {
     pub fn default_proc_sources(self) -> Vec<ProcSource> {
         match self {
             EquipmentSlot::Mainhand => vec![ProcSource::MainhandSwing, ProcSource::MainhandSpell],
-            EquipmentSlot::Offhand => vec![ProcSource::OffhandSwing],
+            EquipmentSlot::Offhand => vec![ProcSource::OffhandSwing, ProcSource::OffhandSpell],
             EquipmentSlot::Ranged => vec![ProcSource::RangedAutoShot, ProcSource::RangedSpell],
             _ => vec![
                 ProcSource::MainhandSwing,
                 ProcSource::MainhandSpell,
                 ProcSource::OffhandSwing,
+                ProcSource::OffhandSpell,
             ],
         }
     }

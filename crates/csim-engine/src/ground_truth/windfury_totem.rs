@@ -355,7 +355,8 @@ fn windfury_is_a_20_percent_proc_with_a_two_charge_attack_power_aura() {
         &[
             ProcSource::MainhandSwing,
             ProcSource::OffhandSwing,
-            ProcSource::MainhandSpell
+            ProcSource::MainhandSpell,
+            ProcSource::OffhandSpell
         ],
         "the record reacts to melee swings and melee abilities; the enchant's slot is what          narrows that to the main hand"
     );

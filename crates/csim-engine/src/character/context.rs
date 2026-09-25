@@ -1011,6 +1011,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     fn after_cast(&mut self, id: SpellId, report: &CastReport) {
         self.record_cast(id, report);
         self.run_sources(&report.all_proc_sources());
+        if let Some(offhand) = &report.offhand {
+            self.run_sources(&offhand.proc_sources);
+        }
     }
 
     /// Records the statistics of a swing and runs its proc sources.
@@ -1514,6 +1517,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 .spell(name, rank)
                 .record_attack(attack, f64::from(report.resource_cost));
         }
+        if let Some(offhand) = &report.offhand {
+            statistics
+                .spell(&format!("{name} Off-Hand"), rank)
+                .record_attack(&offhand.attack, 0.0);
+        }
         for &(resource, amount) in &report.resource_gained {
             statistics.resource(name, rank).add_gain(resource, amount);
         }
@@ -1918,6 +1926,10 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character.adjust_offhand_rage_percent(percent);
     }
 
+    fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
+        self.character.adjust_offhand_copy(spell, apply);
+    }
+
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
         self.character
             .spells_mut()
@@ -2199,6 +2211,43 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn avg_mh_damage(&self) -> f64 {
         f64::from(self.character.avg_mh_damage(&self.target_view()))
+    }
+
+    fn offhand_copy_active(&self, spell: u32) -> bool {
+        self.character.has_offhand_copy(spell) && self.character.is_dual_wielding()
+    }
+
+    fn roll_offhand_melee_ability(
+        &mut self,
+        included: IncludedOutcomes,
+        extra_crit: u32,
+        can_crit: bool,
+    ) -> PhysicalAttackResult {
+        let view = self.target_view();
+        let roll_ctx = self.character.refresh_roll_context(&view);
+        let stat_ctx = self.character.stat_context(&view);
+        let skill = self.character.stats().get_oh_wpn_skill(&stat_ctx);
+        let crit = if can_crit {
+            self.character.stats().get_oh_crit_chance(&stat_ctx) + extra_crit
+        } else {
+            0
+        };
+        self.character
+            .roll_mut()
+            .get_melee_ability_result(&roll_ctx, skill, crit, included)
+    }
+
+    fn random_oh_weapon_dmg(&mut self, normalized: bool) -> f64 {
+        let view = self.target_view();
+        if normalized {
+            self.character.random_normalized_oh_dmg(&view)
+        } else {
+            self.character.random_non_normalized_oh_dmg(&view)
+        }
+    }
+
+    fn offhand_penalty(&self) -> f64 {
+        self.character.spells.oh_attack().offhand_penalty()
     }
 }
 

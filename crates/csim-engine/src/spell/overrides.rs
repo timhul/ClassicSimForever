@@ -158,7 +158,7 @@ pub enum ScriptKind {
     WeaponTypeDamagePercent,
     /// Crit chance `base_points` % with the weapon types the aura requires.
     WeaponTypeCritPercent,
-    /// Whirlwind also hits with the off hand (Raging Blows).
+    /// Ability `spell` also strikes with the off-hand weapon (Raging Blows: Whirlwind).
     OffhandCopy,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
@@ -224,9 +224,10 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.resource.is_some(), "resource")
             }
-            ScriptKind::ExtraAttack | ScriptKind::ResetCooldown | ScriptKind::TriggerSpell => {
-                need(p.spell.is_some(), "spell")
-            }
+            ScriptKind::ExtraAttack
+            | ScriptKind::ResetCooldown
+            | ScriptKind::TriggerSpell
+            | ScriptKind::OffhandCopy => need(p.spell.is_some(), "spell"),
             ScriptKind::AddComboPoints => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
             ScriptKind::AttackPowerPercentDamage
             | ScriptKind::Execute
@@ -234,7 +235,6 @@ impl EffectScript {
             | ScriptKind::OffhandRagePercent
             | ScriptKind::WeaponTypeDamagePercent
             | ScriptKind::WeaponTypeCritPercent
-            | ScriptKind::OffhandCopy
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -843,6 +843,7 @@ overrides:
         .is_ok());
         assert!(script(ScriptKind::ExtraAttack, none).validate().is_err());
         assert!(script(ScriptKind::ResetCooldown, none).validate().is_err());
+        assert!(script(ScriptKind::OffhandCopy, none).validate().is_err());
         assert!(script(
             ScriptKind::AddComboPoints,
             ScriptParams {
@@ -863,7 +864,6 @@ overrides:
             ScriptKind::OffhandRagePercent,
             ScriptKind::WeaponTypeDamagePercent,
             ScriptKind::WeaponTypeCritPercent,
-            ScriptKind::OffhandCopy,
             ScriptKind::NoOp,
         ] {
             assert!(script(kind, none).validate().is_ok(), "{kind:?}");

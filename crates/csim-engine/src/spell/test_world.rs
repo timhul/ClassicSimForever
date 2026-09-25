@@ -844,6 +844,8 @@ pub(crate) struct World {
     pub stance_rage_retained: i32,
     pub offhand_damage_percent: i32,
     pub offhand_rage_percent: i32,
+    /// `OFFHAND_COPY` abilities, once per active aura.
+    pub offhand_copies: Vec<u32>,
     pub actionbar_log: Vec<(u32, u32, bool)>,
 }
 
@@ -891,6 +893,7 @@ impl World {
             stance_rage_retained: 0,
             offhand_damage_percent: 0,
             offhand_rage_percent: 0,
+            offhand_copies: Vec::new(),
             actionbar_log: Vec::new(),
         }
     }
@@ -1133,6 +1136,13 @@ impl EffectHost for World {
     fn adjust_offhand_rage_percent(&mut self, percent: i32) {
         self.offhand_rage_percent += percent;
     }
+    fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
+        if apply {
+            self.offhand_copies.push(spell);
+        } else if let Some(i) = self.offhand_copies.iter().position(|&s| s == spell) {
+            self.offhand_copies.remove(i);
+        }
+    }
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
         self.actionbar_log.push((replaced, replacement, apply));
         self.spells
@@ -1321,6 +1331,30 @@ impl SpellHost for World {
     }
     fn avg_mh_damage(&self) -> f64 {
         200.0
+    }
+    fn offhand_copy_active(&self, spell: u32) -> bool {
+        self.offhand_copies.contains(&spell) && self.oh_speed.is_some()
+    }
+    fn roll_offhand_melee_ability(
+        &mut self,
+        _: IncludedOutcomes,
+        extra_crit: u32,
+        can_crit: bool,
+    ) -> PhysicalAttackResult {
+        self.extra_crits.push(extra_crit);
+        self.can_crits.push(can_crit);
+        self.rolls.pop_front().expect("no roll queued")
+    }
+    /// Half the main-hand values, so an off-hand strike is told apart.
+    fn random_oh_weapon_dmg(&mut self, normalized: bool) -> f64 {
+        if normalized {
+            150.0
+        } else {
+            200.0
+        }
+    }
+    fn offhand_penalty(&self) -> f64 {
+        0.5
     }
 }
 

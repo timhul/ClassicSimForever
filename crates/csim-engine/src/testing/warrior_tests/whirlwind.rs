@@ -1,6 +1,8 @@
 //! Port of `Test/Warrior/Spells/TestWhirlwind`.
 
+use crate::combat_roll::PhysicalAttackResult;
 use crate::engine::EventType;
+use crate::proc::ProcSource;
 use crate::spell::SpellStatus;
 use crate::testing::warrior::WarriorTest;
 
@@ -138,4 +140,123 @@ fn dodge_applies_overpower_buff() {
     test.given_a_guaranteed_melee_ability_dodge();
     when_whirlwind_is_performed(&mut test);
     test.then_overpower_is_active();
+}
+
+// ---------------------------------------------------------------- Raging Blows (off hand)
+
+const OFFHAND: &str = "Whirlwind Off-Hand";
+
+/// Dual wielding the 100 - 100 test swords against an unarmored target, 1000 AP.
+fn dual_wield_test(raging_blows: bool) -> WarriorTest {
+    let mut test = test();
+    test.given_target_has_0_armor();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_100_min_max_dmg();
+    test.given_1000_melee_ap();
+    if raging_blows {
+        test.given_fury_talent_with_rank("Raging Blows", 1);
+    }
+    test.given_no_previous_damage_dealt();
+    test
+}
+
+fn offhand_attempts(test: &WarriorTest) -> u64 {
+    test.character()
+        .statistics()
+        .spell_statistics(OFFHAND, 1)
+        .map_or(0, |s| s.total_attempts())
+}
+
+#[test]
+fn whirlwind_strikes_with_the_mainhand_only_without_raging_blows() {
+    let mut test = dual_wield_test(false);
+    test.given_a_guaranteed_melee_ability_hit();
+    let report = test.cast(SPELL);
+    assert!(report.offhand.is_none());
+    assert_eq!(test.damage_dealt(), 271);
+    assert_eq!(offhand_attempts(&test), 0);
+}
+
+#[test]
+fn raging_blows_adds_an_offhand_strike() {
+    let mut test = dual_wield_test(true);
+    test.given_a_guaranteed_melee_ability_hit();
+    let report = test.cast(SPELL);
+    // Off hand: [136] = (100 + (2.4 * 1000 / 14)) * 0.5
+    assert_eq!(report.offhand.unwrap().attack.damage, 136);
+    assert_eq!(test.damage_dealt_by(SPELL), 271);
+    assert_eq!(test.damage_dealt_by(OFFHAND), 136);
+    assert_eq!(offhand_attempts(&test), 1);
+}
+
+#[test]
+fn offhand_strike_crits_like_the_mainhand() {
+    let mut test = dual_wield_test(true);
+    test.given_a_guaranteed_melee_ability_crit();
+    test.cast(SPELL);
+    // [543] = (100 + (2.4 * 1000 / 14)) * 2.0, [271] = the same * 0.5 * 2.0
+    assert_eq!(test.damage_dealt_by(SPELL), 543);
+    assert_eq!(test.damage_dealt_by(OFFHAND), 271);
+}
+
+#[test]
+fn offhand_strike_uses_the_dual_wield_specialization_penalty() {
+    let mut test = dual_wield_test(true);
+    test.given_fury_talent_with_rank("Dual Wield Specialization", 5);
+    test.given_a_guaranteed_melee_ability_hit();
+    test.cast(SPELL);
+    // [170] = (100 + (2.4 * 1000 / 14)) * 0.5 * 1.25
+    assert_eq!(test.damage_dealt_by(OFFHAND), 170);
+}
+
+#[test]
+fn offhand_strike_rolls_on_its_own() {
+    let mut test = dual_wield_test(true);
+    test.given_a_guaranteed_melee_ability_dodge();
+    let report = test.cast(SPELL);
+    // The main hand was dodged; the off hand still swings (and is dodged too).
+    assert_eq!(
+        report.offhand.unwrap().attack.result,
+        PhysicalAttackResult::Dodge
+    );
+    let offhand = test
+        .character()
+        .statistics()
+        .spell_statistics(OFFHAND, 1)
+        .unwrap();
+    assert_eq!(offhand.dodges(), 1);
+    assert_eq!(test.damage_dealt(), 0);
+}
+
+#[test]
+fn no_offhand_strike_with_a_twohander() {
+    let mut test = test();
+    test.given_a_twohand_weapon_with_100_min_max_dmg();
+    test.given_fury_talent_with_rank("Raging Blows", 1);
+    test.given_a_guaranteed_melee_ability_hit();
+    let report = test.cast(SPELL);
+    assert!(report.offhand.is_none());
+    assert_eq!(offhand_attempts(&test), 0);
+}
+
+#[test]
+fn offhand_strike_costs_no_extra_rage() {
+    let mut test = dual_wield_test(true);
+    test.given_a_guaranteed_melee_ability_hit();
+    test.given_warrior_has_rage(25);
+    let report = test.cast(SPELL);
+    assert!(report.offhand.is_some());
+    test.then_warrior_has_rage(0);
+}
+
+#[test]
+fn offhand_strike_is_an_offhand_proc_event() {
+    let mut test = dual_wield_test(true);
+    test.given_a_guaranteed_melee_ability_crit();
+    let report = test.cast(SPELL);
+    assert_eq!(
+        report.offhand.unwrap().proc_sources,
+        [ProcSource::OffhandSpell, ProcSource::MeleeCritical]
+    );
+    assert!(!report.proc_sources.contains(&ProcSource::OffhandSpell));
 }

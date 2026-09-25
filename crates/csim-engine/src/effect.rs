@@ -71,6 +71,9 @@ pub trait EffectHost {
     fn adjust_offhand_damage_percent(&mut self, percent: i32);
     /// Changes the off-hand rage generation by `percent` points (`OFFHAND_RAGE_PERCENT`).
     fn adjust_offhand_rage_percent(&mut self, percent: i32);
+    /// Adds (`apply`) or removes an off-hand copy of ability `spell` (`OFFHAND_COPY`: Raging
+    /// Blows makes Whirlwind also strike with the off hand).
+    fn adjust_offhand_copy(&mut self, spell: u32, apply: bool);
     /// Replaces spell `replaced` by `replacement` on the action bar while `apply` is true
     /// (`OVERRIDE_ACTIONBAR_SPELLS`: Improved Slam, Vanguard).
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool);
@@ -728,6 +731,12 @@ impl Effect {
             A::Dummy => match self.script_kind() {
                 Some(ScriptKind::StanceRageRetained) => host.adjust_stance_rage_retained(signed),
                 Some(ScriptKind::OffhandRagePercent) => host.adjust_offhand_rage_percent(signed),
+                Some(ScriptKind::OffhandCopy) => {
+                    // Validated as present when the overrides were loaded.
+                    if let Some(spell) = self.script().and_then(|s| s.params.spell) {
+                        host.adjust_offhand_copy(spell, apply);
+                    }
+                }
                 // Proc payloads (`TRIGGER_WITH_VALUE`), periodic gains and the talent scripts
                 // without a runtime yet act through the proc / periodic systems.
                 _ => {}
@@ -823,6 +832,7 @@ mod tests {
         stance_rage: i32,
         offhand_damage: i32,
         offhand_rage: i32,
+        offhand_copies: Vec<(u32, bool)>,
         overrides: Vec<(u32, u32, bool)>,
     }
 
@@ -846,6 +856,7 @@ mod tests {
                 stance_rage: 0,
                 offhand_damage: 0,
                 offhand_rage: 0,
+                offhand_copies: Vec::new(),
                 overrides: Vec::new(),
             }
         }
@@ -936,6 +947,9 @@ mod tests {
         }
         fn adjust_offhand_rage_percent(&mut self, percent: i32) {
             self.offhand_rage += percent;
+        }
+        fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
+            self.offhand_copies.push((spell, apply));
         }
         fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
             self.overrides.push((replaced, replacement, apply));

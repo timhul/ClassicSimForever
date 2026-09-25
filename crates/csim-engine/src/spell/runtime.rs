@@ -22,7 +22,7 @@
 use std::sync::Arc;
 
 use crate::buff::{Buff, BuffApplication};
-use crate::combat_roll::PhysicalAttackResult;
+use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::{add_gcd_event, CooldownControl};
 use crate::effect::{ChainState, Dependency, Effect, EffectHost};
 use crate::engine::{Engine, EventKind};
@@ -30,7 +30,7 @@ use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
 use crate::mechanics::Mechanics;
 use crate::proc::ProcSource;
 use crate::resource::ResourceType;
-use crate::spell::dbc::{AuraState, AuraType, PowerType, SpellModOp};
+use crate::spell::dbc::{AuraState, AuraType, PowerType, SpellEffectName, SpellModOp};
 use crate::spell::overrides::{
     EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride, ThreatOverride,
 };
@@ -136,6 +136,23 @@ pub trait SpellHost: EffectHost {
     fn total_threat_mod(&self) -> f64;
     /// Average mainhand damage including attack power (bleeds are based on it).
     fn avg_mh_damage(&self) -> f64;
+
+    /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
+    /// names it and the character is dual wielding.
+    fn offhand_copy_active(&self, spell: u32) -> bool;
+    /// Rolls an off-hand melee ability on the special attack table (off-hand weapon skill and
+    /// crit chance), like [`EffectHost::roll_melee_ability`] for the main hand.
+    fn roll_offhand_melee_ability(
+        &mut self,
+        included: IncludedOutcomes,
+        extra_crit: u32,
+        can_crit: bool,
+    ) -> PhysicalAttackResult;
+    /// Random off-hand damage including attack power, `normalized` to the weapon type's
+    /// standard speed or at the weapon's own speed.
+    fn random_oh_weapon_dmg(&mut self, normalized: bool) -> f64;
+    /// The off-hand damage multiplier (0.5, raised by Dual Wield Specialization).
+    fn offhand_penalty(&self) -> f64;
 }
 
 /// The attack outcome of one cast, for the spell statistics.
@@ -148,6 +165,15 @@ pub struct AttackOutcome {
     pub threat: f64,
     /// Seconds the cast occupied (the global cooldown for GCD spells).
     pub execution_time: f64,
+}
+
+/// The off-hand strike of a cast (Whirlwind with Raging Blows): its own attack and its own proc
+/// event.
+#[derive(Debug, Clone, PartialEq)]
+pub struct OffhandStrike {
+    pub attack: AttackOutcome,
+    /// Proc sources to run after the cast's own, as a separate event.
+    pub proc_sources: Vec<ProcSource>,
 }
 
 /// What happened during [`Spell::perform`]. Port of the `StatisticsSpell` / `StatisticsResource`
@@ -169,6 +195,8 @@ pub struct CastReport {
     pub proc_sources: Vec<ProcSource>,
     /// The reports of the spells this cast triggered (`TRIGGER_SPELL`), by game id.
     pub triggered: Vec<(u32, CastReport)>,
+    /// The off-hand strike, when the ability also strikes with the off hand (`OFFHAND_COPY`).
+    pub offhand: Option<OffhandStrike>,
     /// The spell has a cast time and only started casting; the rest of the report is empty
     /// until [`Spell::complete_cast`].
     pub cast_started: bool,
@@ -187,9 +215,11 @@ impl CastReport {
         sources
     }
 
-    /// The total damage of this cast and of every spell it triggered.
+    /// The total damage of this cast (off-hand strike included) and of every spell it
+    /// triggered.
     pub fn total_damage(&self) -> u32 {
         self.attack.map_or(0, |a| a.damage)
+            + self.offhand.as_ref().map_or(0, |o| o.attack.damage)
             + self
                 .triggered
                 .iter()
@@ -1239,6 +1269,10 @@ impl Spell {
                 self.collect_damage(host, first_roll, innate_threat, &mut report.proc_sources);
         }
 
+        if host.offhand_copy_active(self.game_id()) {
+            report.offhand = self.offhand_strike(host);
+        }
+
         for trigger in triggers {
             if let Some(triggered) = host.trigger_spell(trigger, None) {
                 report.triggered.push((trigger, triggered));
@@ -1323,6 +1357,91 @@ impl Spell {
             damage,
             threat,
             execution_time: self.execution_time(host),
+        })
+    }
+
+    /// The off-hand strike of an ability with an off-hand copy (Raging Blows' Whirlwind). It
+    /// rolls on its own, whatever the main hand did, with the off-hand weapon skill and crit
+    /// chance; the weapon damage effects deal the off-hand weapon's damage times the off-hand
+    /// penalty, then the modifiers, crit bonus, armor and block of a main-hand hit apply. Only
+    /// the weapon damage effects are copied. `None` for a spell without one.
+    fn offhand_strike(&mut self, host: &mut impl SpellHost) -> Option<OffhandStrike> {
+        use SpellEffectName as E;
+        let is_weapon_damage = |kind| {
+            matches!(
+                kind,
+                E::NormalizedWeaponDmg
+                    | E::WeaponDamage
+                    | E::WeaponDamageNoschool
+                    | E::WeaponPercentDamage
+            )
+        };
+        let weapon = self.effects.iter().find(|e| is_weapon_damage(e.kind()))?;
+        let (included, can_crit) = (weapon.included_outcomes(), weapon.can_crit());
+        let extra_crit = self.crit_chance_bonus(host);
+        let result = host.roll_offhand_melee_ability(included, extra_crit, can_crit);
+
+        let mut proc_sources = Vec::new();
+        let avoided = match result {
+            PhysicalAttackResult::Miss => Some(ProcSource::MeleeMiss),
+            PhysicalAttackResult::Dodge => Some(ProcSource::MeleeDodge),
+            PhysicalAttackResult::Parry => Some(ProcSource::MeleeParry),
+            _ => None,
+        };
+        if let Some(source) = avoided {
+            proc_sources.push(source);
+            let attack = AttackOutcome {
+                result,
+                damage: 0,
+                threat: 0.0,
+                execution_time: 0.0,
+            };
+            return Some(OffhandStrike {
+                attack,
+                proc_sources,
+            });
+        }
+
+        let mut raw_damage = 0.0;
+        for effect in &self.effects {
+            let value = effect.effective_value(&*host);
+            raw_damage += match effect.kind() {
+                E::NormalizedWeaponDmg => host.random_oh_weapon_dmg(true) + value,
+                E::WeaponDamage | E::WeaponDamageNoschool => {
+                    host.random_oh_weapon_dmg(false) + value
+                }
+                E::WeaponPercentDamage => host.random_oh_weapon_dmg(false) * value / 100.0,
+                _ => 0.0,
+            };
+        }
+        raw_damage *= host.offhand_penalty() * self.damage_mod(host);
+
+        let crit = matches!(
+            result,
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
+        );
+        let mut damage = self.damage_after_modifiers(host, raw_damage);
+        proc_sources.push(ProcSource::OffhandSpell);
+        if crit {
+            damage *= self.crit_damage_mod(host);
+            proc_sources.push(ProcSource::MeleeCritical);
+        }
+        if matches!(
+            result,
+            PhysicalAttackResult::Block | PhysicalAttackResult::BlockCritical
+        ) {
+            damage -= f64::from(host.target_block_value());
+        }
+        let damage = damage.round().max(0.0) as u32;
+        let threat = f64::from(damage) * host.total_threat_mod() * self.threat_override().modifier;
+        Some(OffhandStrike {
+            attack: AttackOutcome {
+                result,
+                damage,
+                threat,
+                execution_time: 0.0,
+            },
+            proc_sources,
         })
     }
 
