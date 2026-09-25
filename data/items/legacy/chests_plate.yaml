@@ -1,20 +1,7 @@
 # Generated from ClassicSim Items/Chests/plate.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 11195
-  name: "Warforged Chestplate"
-  phase: 1
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "UNCOMMON"
-  req_lvl: 40
-  item_lvl: 57
-  icon: "Inv_chest_chain_16.png"
-  stats:
-    ARMOR: 543
-    STAMINA: 2
-    STRENGTH: 24
-  mutex: [11193, 11194, 11196]
-  source: "Quest reward. Elite group quest in Badlands."
 - id: 11678
   name: "Carapace of Anub'shiah"
   phase: 1
@@ -64,23 +51,6 @@
     STAMINA: 28
     STRENGTH: 20
   source: "Drops from Golemagg in Molten Core."
-- id: 19822
-  name: "Zandalar Vindicator's Breastplate"
-  phase: 4
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_chest_plate07.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 15
-    ARMOR: 828
-    DEFENSE: 4
-    STAMINA: 24
-    STRENGTH: 23
-  source: "Reward for turning in the Primal Hakari Kossak dropped in Zul'Gurub."
 - id: 16966
   name: "Breastplate of Wrath"
   phase: 3
@@ -115,136 +85,6 @@
     STAMINA: 20
     STRENGTH: 19
   source: "Drops from Skul in Stratholme."
-- id: 16477
-  name: "Field Marshal's Plate Armor"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_plate03.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 14
-    ARMOR: 875
-    CRIT_CHANCE: 0.01
-    STAMINA: 33
-    STRENGTH: 16
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13)."
-- id: 16541
-  name: "Warlord's Plate Armor"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_plate16.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 14
-    ARMOR: 875
-    CRIT_CHANCE: 0.01
-    STAMINA: 33
-    STRENGTH: 16
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13)."
-- id: 23272
-  name: "Knight-Captain's Lamellar Breastplate"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_chest_plate03.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 706
-    INTELLECT: 12
-    SPELL_DAMAGE: 25
-    STAMINA: 18
-    STRENGTH: 17
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8)."
-- id: 16473
-  name: "Field Marshal's Lamellar Breastplate"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_plate03.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 835
-    CRIT_CHANCE: 0.01
-    INTELLECT: 20
-    MANA_PER_5: 5
-    SPELL_DAMAGE: 25
-    STAMINA: 21
-    STRENGTH: 21
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13)."
-- id: 23300
-  name: "Knight-Captain's Plate Hauberk"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_chest_plate16.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 706
-    CRIT_CHANCE: 0.01
-    STAMINA: 23
-    STRENGTH: 21
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8)."
-- id: 22872
-  name: "Legionnaire's Plate Hauberk"
-  phase: 2
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_chest_plate16.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 706
-    CRIT_CHANCE: 0.01
-    STAMINA: 23
-    STRENGTH: 21
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Legionnaire (rank 8)."
-- id: 19825
-  name: "Zandalar Freethinker's Breastplate"
-  phase: 4
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_chest_plate07.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 738
-    CRIT_CHANCE: 0.01
-    INTELLECT: 16
-    SPIRIT: 7
-    STAMINA: 26
-    STRENGTH: 19
-  source: "Quest reward. Requires boss drops from Zul'Gurub and Revered with Zandalar Tribe."
 - id: 21814
   name: "Breastplate of Annihilation"
   phase: 5
@@ -261,44 +101,6 @@
     STAMINA: 13
     STRENGTH: 37
   source: "Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
-- id: 21331
-  name: "Conqueror's Breastplate"
-  phase: 5
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_chest_plate12.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 24
-    ARMOR: 985
-    DEFENSE: 6
-    STAMINA: 38
-    STRENGTH: 34
-  source: "Quest reward. Requires drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
-- id: 21389
-  name: "Avenger's Breastplate"
-  phase: 5
-  slot: "CHEST"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_chest_plate03.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    AGILITY: 12
-    ARMOR: 985
-    CRIT_CHANCE: 0.01
-    INTELLECT: 24
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 18
-    SPIRIT: 11
-    STAMINA: 24
-    STRENGTH: 23
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
 - id: 23000
   name: "Plated Abomination Ribcage"
   phase: 6

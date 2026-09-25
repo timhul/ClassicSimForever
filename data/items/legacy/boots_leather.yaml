@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Boots/leather.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 11675
   name: "Shadefiend Boots"
@@ -30,21 +32,6 @@
     STAMINA: 17
     STRENGTH: 9
   source: "Drops from Hurley Blackbreath in Blackrock Depths."
-- id: 15861
-  name: "Swiftfoot Treads"
-  phase: 1
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "UNCOMMON"
-  req_lvl: 57
-  item_lvl: 60
-  icon: "Inv_boots_07.png"
-  stats:
-    AGILITY: 18
-    ARMOR: 106
-    STRENGTH: 5
-  mutex: [15860]
-  source: "Quest reward. Requires Upper Blackrock Spire (UBRS)."
 - id: 16711
   name: "Shadowcraft Boots"
   phase: 1
@@ -133,27 +120,6 @@
     SPELL_DAMAGE: 25
     SPIRIT: 6
   source: "Drops from Hydrospawn in Dire Maul: East."
-- id: 16554
-  name: "General's Dragonhide Boots"
-  phase: 2
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_boots_08.png"
-  faction: "HORDE"
-  class_restrictions: ["DRUID"]
-  stats:
-    AGILITY: 11
-    ARMOR: 176
-    INTELLECT: 10
-    SPELL_DAMAGE: 16
-    SPIRIT: 10
-    STAMINA: 14
-    STRENGTH: 18
-  source: "This item is obtainable from Lady Palanseer upon reaching Honor Rank 12/General."
 - id: 16906
   name: "Bloodfang Boots"
   phase: 3
@@ -217,55 +183,6 @@
     STAMINA: 11
     STRENGTH: 22
   source: "Drops from General Rajaxx in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21645
-  name: "Hive Tunneler's Boots"
-  phase: 5
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 77
-  icon: "Inv_boots_04.png"
-  stats:
-    AGILITY: 17
-    ARMOR: 216
-    STAMINA: 30
-    STRENGTH: 10
-  source: "Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40)."
-- id: 21532
-  name: "Drudge Boots"
-  phase: 5
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 77
-  icon: "Inv_boots_08.png"
-  stats:
-    AGILITY: 17
-    ARMOR: 156
-    NATURE_RESISTANCE: 20
-    STAMINA: 20
-    STRENGTH: 13
-  mutex: [21531]
-  source: "Quest reward. Part of the Scarab Lord quest chain."
-- id: 21359
-  name: "Deathdealer's Boots"
-  phase: 5
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_boots_08.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 26
-    ARMOR: 158
-    HIT_CHANCE: 0.01
-    STAMINA: 17
-    STRENGTH: 14
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
 - id: 23073
   name: "Boots of Displacement"
   phase: 6
@@ -281,69 +198,3 @@
     STAMINA: 21
   special_equip_effects: ["Equip: Increases your effective stealth level."]
   source: "Drops from Gothik the Harvester in Naxxramas."
-- id: 22480
-  name: "Bonescythe Sabatons"
-  phase: 6
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 86
-  icon: "Inv_boots_plate_06.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    ARMOR: 171
-    ATTACK_POWER: 64
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 18
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 20186
-  name: "Defiler's Leather Boots"
-  phase: 4
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_boots_cloth_05.png"
-  faction: "HORDE"
-  class_restrictions: ["ROGUE", "DRUID"]
-  stats:
-    AGILITY: 12
-    ARMOR: 181
-    ATTACK_POWER: 16
-    STAMINA: 16
-  source: "Sold by Arathi Basin vendor Rutherford Twing."
-- id: 22003
-  name: "Darkmantle Boots"
-  phase: 5
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_boots_08.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 24
-    ARMOR: 127
-    STAMINA: 10
-  source: "Darkmantle Quest line (Shadowcraft required)."
-- id: 20052
-  name: "Highlander's Leather Boots"
-  phase: 4
-  slot: "BOOTS"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_boots_cloth_05.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["ROGUE", "DRUID"]
-  stats:
-    AGILITY: 12
-    ARMOR: 181
-    ATTACK_POWER: 16
-    STAMINA: 16
-  source: "Sold by Arathi Basin vendors."

@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Helms/mail.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 7719
   name: "Raging Berserker's Helm"
@@ -135,82 +137,6 @@
     STAMINA: 13
   mutex: [18420, 18424]
   source: "Quest reward. Requires Dire Maul West."
-- id: 23306
-  name: "Lieutenant Commander's Chain Helm"
-  phase: 2
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_helmet_21.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 18
-    ARMOR: 337
-    CRIT_CHANCE: 0.02
-    INTELLECT: 9
-    STAMINA: 14
-  source: "Purchased with Honor Points and Alterac Valley marks. Requires Lieutenant Commander (rank 10)."
-- id: 23251
-  name: "Champion's Chain Helm"
-  phase: 2
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_helmet_03.png"
-  faction: "HORDE"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 18
-    ARMOR: 337
-    CRIT_CHANCE: 0.02
-    INTELLECT: 9
-    STAMINA: 14
-  source: "Purchased with Honor Points and Alterac Valley marks. Requires Champion (rank 10)."
-- id: 16465
-  name: "Field Marshal's Chain Helm"
-  phase: 2
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_helmet_05.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 34
-    ARMOR: 432
-    CRIT_CHANCE: 0.01
-    INTELLECT: 12
-    STAMINA: 28
-  source: "Purchased with Honor Points and Alterac Valley marks. Requires Field Marshal (rank 13)."
-- id: 16566
-  name: "Warlord's Chain Helmet"
-  phase: 2
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_helmet_09.png"
-  faction: "HORDE"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 34
-    ARMOR: 432
-    CRIT_CHANCE: 0.01
-    INTELLECT: 12
-    STAMINA: 28
-  source: "Purchased with Honor Points and Alterac Valley marks. Requires Warlord (rank 13)."
 - id: 19875
   name: "Bloodstained Coif"
   phase: 4
@@ -227,57 +153,3 @@
     INTELLECT: 14
     STAMINA: 14
   source: "Drops from Jin'do the Hexxer in Zul'Gurub."
-- id: 21366
-  name: "Striker's Diadem"
-  phase: 5
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_helmet_73.png"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 29
-    ARMOR: 416
-    CRIT_CHANCE: 0.01
-    INTELLECT: 18
-    SPELL_DAMAGE: 12
-    SPIRIT: 10
-    STAMINA: 26
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-- id: 22013
-  name: "Beastmaster's Cap"
-  phase: 5
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 60
-  icon: "Inv_helmet_24.png"
-  stats:
-    AGILITY: 22
-    ARMOR: 314
-    HIT_CHANCE: 0.01
-    INTELLECT: 12
-    STAMINA: 21
-  special_equip_effects: ["Equip: Increases your pet's maximum health by 3%."]
-  source: "Quest reward. Requires Beaststalker's Cap and Beaststalker's Tunic."
-- id: 22438
-  name: "Crypstalker Headpiece"
-  phase: 6
-  slot: "HEAD"
-  type: "MAIL"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_helmet_15.png"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 31
-    ARMOR: 449
-    CRIT_CHANCE: 0.02
-    INTELLECT: 12
-    MANA_PER_5: 3
-    STAMINA: 30
-  source: "Quest reward. Requires boss drops from Naxxramas."

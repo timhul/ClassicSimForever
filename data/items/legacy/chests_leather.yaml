@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Chests/leather.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 12793
   name: "Mixologist's Tunic"
@@ -77,22 +79,6 @@
     SPIRIT: 12
     STAMINA: 13
   source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
-- id: 22009
-  name: "Darkmantle Tunic"
-  phase: 5
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 60
-  icon: "Inv_chest_leather_07.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 31
-    ARMOR: 185
-    HIT_CHANCE: 0.02
-    STAMINA: 15
-  source: "Darkmantle Quest line (Shadowcraft required)."
 - id: 12757
   name: "Breastplate of Bloodthirst"
   phase: 1
@@ -161,59 +147,6 @@
     STAMINA: 22
     STRENGTH: 40
   source: "Drops from Ebonroc in Blackwing Lair."
-- id: 16549
-  name: "Warlord's Dragonhide Hauberk"
-  phase: 2
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_chain_16.png"
-  faction: "HORDE"
-  class_restrictions: ["DRUID"]
-  stats:
-    AGILITY: 14
-    ARMOR: 260
-    CRIT_CHANCE: 0.01
-    INTELLECT: 13
-    SPELL_DAMAGE: 21
-    STAMINA: 19
-    STRENGTH: 25
-  source: "This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord."
-- id: 19685
-  name: "Primal Batskin Jerkin"
-  phase: 4
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_chest_leather_03.png"
-  stats:
-    AGILITY: 32
-    ARMOR: 181
-    HIT_CHANCE: 0.01
-    STAMINA: 6
-  source: "Crafted by Leatherworkers (300 skill). Pattern requires Revered with Zandalar Tribe."
-- id: 19834
-  name: "Zandalar Madcap's Tunic"
-  phase: 4
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_chest_leather_10.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    ARMOR: 197
-    ATTACK_POWER: 44
-    CRIT_CHANCE: 0.02
-    STAMINA: 19
-  source: "Quest reward. Requires boss drop from Zul'Gurub and Revered with Zandalar Tribe."
 - id: 21680
   name: "Vest of Swift Execution"
   phase: 5
@@ -229,24 +162,6 @@
     STAMINA: 20
     STRENGTH: 21
   source: "Drops from Lord Kri (bug trio) in Temple of Ahn'Qiraj (AQ40)."
-- id: 21364
-  name: "Deathdealer's Vest"
-  phase: 5
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_chest_leather_08.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 37
-    ARMOR: 253
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 28
-    STRENGTH: 19
-  source: "Quest reward. Requires boss drops Temple of Ahn'Qiraj (AQ40)."
 - id: 21467
   name: "Thick Silithid Chestguard"
   phase: 5
@@ -282,35 +197,3 @@
     STAMINA: 22
     STRENGTH: 40
   source: "Drops from trash mobs in Naxxramas."
-- id: 22476
-  name: "Bonescythe Breastplate"
-  phase: 6
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 92
-  icon: "Inv_chest_plate02.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    ARMOR: 262
-    ATTACK_POWER: 80
-    CRIT_CHANCE: 0.02
-    HIT_CHANCE: 0.01
-    STAMINA: 29
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 15056
-  name: "Stormshroud Armor"
-  phase: 1
-  slot: "CHEST"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 52
-  item_lvl: 57
-  boe: true
-  icon: "Inv_chest_leather_08.png"
-  stats:
-    ARMOR: 163
-    CRIT_CHANCE: 0.02
-    DODGE_CHANCE: 0.01
-  source: "Crafted by Leatherworkers."

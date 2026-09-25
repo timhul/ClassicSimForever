@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/1hFists.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 13198
   name: "Hurd Smasher"
@@ -66,82 +68,6 @@
       amount: 5
   special_equip_effects: ["Chance on hit: Slows enemy's movement by 60% and causes them to bleed for 150 damage over 30 sec."]
   source: "Drops from Azuregos (world boss)."
-- id: 18844
-  name: "High Warlord's Right Claw"
-  phase: 2
-  slot: "MH"
-  type: "FIST"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_misc_monsterclaw_03.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 18843
-  name: "Grand Marshal's Right Hand Blade"
-  phase: 2
-  slot: "MH"
-  type: "FIST"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_weapon_shortblade_07.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 18848
-  name: "High Warlord's Razor Claw"
-  phase: 2
-  slot: "OH"
-  type: "FIST"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_misc_monsterclaw_04.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 18847
-  name: "Grand Marshal's Razor Hand Blade"
-  phase: 2
-  slot: "OH"
-  type: "FIST"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Ability_rogue_rupture.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
 - id: 19365
   name: "Claw of the Black Drake"
   phase: 3

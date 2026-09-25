@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Misc/backs.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 11626
   name: "Blackveil Cape"
@@ -86,21 +88,6 @@
     AGILITY: 15
     ATTACK_POWER: 20
   source: "Drops from Baron Rivendare in Stratholme Undead."
-- id: 15138
-  name: "Onyxia Scale Cloak"
-  phase: 1
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  boe: true
-  icon: "Inv_misc_cape_05.png"
-  stats:
-    FIRE_RESISTANCE: 16
-    STAMINA: 7
-  special_equip_effects: ["Equip: Protects the wearer from being fully engulfed by Shadow Flame."]
-  source: "Crafted by leatherworkers."
 - id: 17078
   name: "Sapphiron Drape"
   phase: 1
@@ -181,22 +168,6 @@
     CRIT_CHANCE: 0.01
     STAMINA: 20
   source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
-- id: 18509
-  name: "Chromatic Cloak"
-  phase: 2
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 57
-  item_lvl: 62
-  boe: true
-  icon: "Inv_misc_cape_02.png"
-  stats:
-    FIRE_RESISTANCE: 9
-    SHADOW_RESISTANCE: 9
-    SPELL_CRIT_CHANCE: 0.01
-    STAMINA: 10
-  source: "Crafted by leatherworkers."
 - id: 18541
   name: "Puissant Cape"
   phase: 2
@@ -212,21 +183,6 @@
     HIT_CHANCE: 0.01
     STAMINA: 12
   source: "Drops from Azuregos (world boss)."
-- id: 19083
-  name: "Frostwolf Legionnaire's Cloak"
-  phase: 2
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 55
-  item_lvl: 60
-  icon: "Inv_misc_cape_16.png"
-  stats:
-    ARMOR: 43
-    ATTACK_POWER: 24
-    FROST_RESISTANCE: 5
-    STAMINA: 11
-  source: "Grunnda Wolfheart. Requires Honored with Alterac Valley."
 - id: 19436
   name: "Cloak of Draconic Might"
   phase: 3
@@ -272,38 +228,6 @@
     STAMINA: 10
   source: "Drops from Nefarian in Blackwing Lair."
   flavour_text: "\"The threading is unlike anything you have ever seen. It appears metallic in origin.\""
-- id: 20073
-  name: "Cloak of the Honor Guard"
-  phase: 4
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_cape_02.png"
-  faction: "ALLIANCE"
-  stats:
-    AGILITY: 5
-    ARMOR: 50
-    ATTACK_POWER: 34
-    STAMINA: 11
-  source: "Requires Exalted with The League of Arathor (Arathi Basin)."
-- id: 20068
-  name: "Deathguard's Cloak"
-  phase: 4
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_cape_02.png"
-  faction: "HORDE"
-  stats:
-    AGILITY: 5
-    ARMOR: 50
-    ATTACK_POWER: 34
-    STAMINA: 11
-  source: "Requires Exalted with The Defilers (Arathi Basin)."
 - id: 22712
   name: "Might of the Tribe"
   phase: 4
@@ -391,89 +315,6 @@
     STAMINA: 7
     STRENGTH: 17
   source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
-- id: 21394
-  name: "Drape of Unyielding Strength"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  icon: "Inv_misc_cape_20.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 9
-    ARMOR: 52
-    HIT_CHANCE: 0.01
-    STAMINA: 9
-    STRENGTH: 15
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
-- id: 21397
-  name: "Cape of Eternal Justice"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  icon: "Inv_misc_cape_14.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 52
-    INTELLECT: 12
-    MANA_PER_5: 5
-    STAMINA: 13
-    STRENGTH: 11
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
-- id: 21406
-  name: "Cloak of Veiled Shadows"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  icon: "Inv_misc_cape_19.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 18
-    ARMOR: 52
-    HIT_CHANCE: 0.01
-    STAMINA: 11
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
-- id: 21403
-  name: "Cloak of the Unseen Path"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  icon: "Inv_misc_cape_15.png"
-  class_restrictions: ["HUNTER"]
-  stats:
-    AGILITY: 17
-    ARMOR: 52
-    HIT_CHANCE: 0.01
-    STAMINA: 13
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
-- id: 21415
-  name: "Drape of Vaulted Secrets"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  icon: "Inv_misc_cape_19.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 52
-    INTELLECT: 9
-    SPELL_DAMAGE: 18
-    SPIRIT: 6
-    STAMINA: 14
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold."
 - id: 20691
   name: "Windshear Cape"
   phase: 5
@@ -537,22 +378,6 @@
     STAMINA: 15
     STRENGTH: 11
   source: "Drops from Prophet Skeram in Temple of Ahn'Qiraj (AQ40)."
-- id: 21710
-  name: "Cloak of the Fallen God"
-  phase: 5
-  slot: "BACK"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_misc_cape_10.png"
-  stats:
-    AGILITY: 26
-    ARMOR: 66
-    STAMINA: 15
-    STRENGTH: 11
-  mutex: [21712, 21709]
-  source: "Quest reward. Requires Eye of C'Thun from C'Thun in Temple of Ahn'Qiraj (AQ40)."
 - id: 22731
   name: "Cloak of the Devoured"
   phase: 5

@@ -1,27 +1,7 @@
 # Generated from ClassicSim Items/Weapons/Staves.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 18715
-  name: "Lok'delar, Stave of the Ancient Keepers"
-  phase: 1
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 75
-  icon: "Inv_staff_21.png"
-  class_restrictions: ["HUNTER"]
-  damage:
-    min: 187
-    max: 282
-    speed: 3.2
-  stats:
-    ATTACK_POWER_DEMON: 45
-    CRIT_CHANCE: 0.02
-    INTELLECT: 15
-    NATURE_RESISTANCE: 10
-    STAMINA: 26
-  source: "Quest reward. Quest chain starts with drop from Majordomo Executus in Molten Core."
 - id: 873
   name: "Staff of Jordan"
   phase: 1
@@ -41,24 +21,6 @@
     SPELL_DAMAGE: 26
     SPIRIT: 11
   source: "World drop."
-- id: 9517
-  name: "Celestial Stave"
-  phase: 1
-  slot: "2H"
-  type: "STAFF"
-  quality: "RARE"
-  req_lvl: 35
-  item_lvl: 40
-  icon: "Inv_staff_14.png"
-  class_restrictions: ["MAGE"]
-  damage:
-    min: 85
-    max: 129
-    speed: 3.0
-  stats:
-    INTELLECT: 8
-    SPELL_DAMAGE: 22
-  source: "Quest reward in Thousand Needles."
 - id: 17743
   name: "Resurgence Rod"
   phase: 1
@@ -308,122 +270,6 @@
     SPIRIT: 7
     STAMINA: 11
   source: "Drops from Tribute chest in Dire Maul."
-- id: 18873
-  name: "Grand Marshal's Stave"
-  phase: 2
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_staff_14.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 131
-    max: 225
-    speed: 3.0
-  stats:
-    INTELLECT: 23
-    SPELL_DAMAGE: 71
-    SPIRIT: 17
-    STAMINA: 41
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 18874
-  name: "High Warlord's War Staff"
-  phase: 2
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_misc_bone_elfskull_01.png"
-  faction: "HORDE"
-  damage:
-    min: 131
-    max: 225
-    speed: 3.0
-  stats:
-    INTELLECT: 23
-    SPELL_DAMAGE: 71
-    SPIRIT: 17
-    STAMINA: 41
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 19102
-  name: "Crackling Staff"
-  phase: 3
-  slot: "2H"
-  type: "STAFF"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_staff_20.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 138
-    max: 207
-    speed: 3.1
-  stats:
-    INTELLECT: 16
-    SPELL_DAMAGE: 15
-    STAMINA: 25
-  source: "Sold by Alterac Valley vendors. Requires Revered with Stormpike Guard."
-- id: 19101
-  name: "Whiteout Staff"
-  phase: 3
-  slot: "2H"
-  type: "STAFF"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_staff_30.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 3.1
-  stats:
-    INTELLECT: 16
-    SPELL_DAMAGE: 15
-    STAMINA: 25
-  source: "Sold by Alterac Valley vendors. Requires Revered with Frostwolf Clan."
-- id: 19566
-  name: "Advisor's Gnarled Staff"
-  phase: 3
-  slot: "2H"
-  type: "STAFF"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_staff_25.png"
-  faction: "HORDE"
-  damage:
-    min: 125
-    max: 188
-    speed: 2.9
-  stats:
-    INTELLECT: 13
-    MANA_PER_5: 8
-    STAMINA: 21
-  source: "Sold by Warsong Gulch vendors. Requires Revered with Warsong Outriders."
-- id: 19571
-  name: "Lorekeeper's Staff"
-  phase: 3
-  slot: "2H"
-  type: "STAFF"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_staff_28.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 125
-    max: 188
-    speed: 2.9
-  stats:
-    INTELLECT: 13
-    MANA_PER_5: 8
-    STAMINA: 21
-  source: "Sold by Warsong Gulch vendors. Requires Revered with Silverwing Sentinels."
 - id: 19355
   name: "Shadow Wing Focus Staff"
   phase: 3
@@ -463,26 +309,6 @@
     SPIRIT: 18
     STAMINA: 24
   source: "Drops from Nefarian in Blackwing Lair."
-- id: 20069
-  name: "Ironbark Staff"
-  phase: 4
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_wand_04.png"
-  damage:
-    min: 137
-    max: 243
-    speed: 3.4
-  stats:
-    ARMOR: 100
-    INTELLECT: 10
-    SPELL_CRIT_CHANCE: 0.02
-    SPELL_DAMAGE: 41
-    STAMINA: 19
-  source: "Sold by Arathi Basin vendors. Requires Exalted with Arathi Basin faction."
 - id: 20258
   name: "Zulian Ceremonial Staff"
   phase: 4
@@ -502,43 +328,6 @@
     SPELL_DAMAGE: 32
     STAMINA: 13
   source: "Drops from trash mobs in Zul'Gurub."
-- id: 19884
-  name: "Jin'do's Judgement"
-  phase: 4
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_staff_33.png"
-  damage:
-    min: 144
-    max: 227
-    speed: 3.3
-  stats:
-    INTELLECT: 10
-    MANA_PER_5: 14
-    SPELL_DAMAGE: 27
-    SPELL_HIT_CHANCE: 0.02
-    STAMINA: 10
-  source: "Drops from Jin'do the Hexxer in Zul'Gurub."
-- id: 20724
-  name: "Corrupted Blackwood Staff"
-  phase: 5
-  slot: "2H"
-  type: "STAFF"
-  quality: "UNCOMMON"
-  req_lvl: 58
-  item_lvl: 62
-  icon: "Inv_staff_07.png"
-  damage:
-    min: 131
-    max: 197
-    speed: 3.4
-  stats:
-    SPELL_DAMAGE: 26
-    STAMINA: 11
-  source: "Quest reward in Silithus."
 - id: 22458
   name: "Moonshadow Stave"
   phase: 5
@@ -668,28 +457,6 @@
         magic_hit: true
   special_equip_effects: ["Equip: Gives a chance when your harmful spells land to reduce the magical resistances of your spell targets by 50 for 8 sec."]
   source: "Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40)."
-- id: 21273
-  name: "Blessed Qiraji Acolyte Staff"
-  phase: 5
-  slot: "2H"
-  type: "STAFF"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 79
-  icon: "Inv_staff_20.png"
-  damage:
-    min: 132
-    max: 227
-    speed: 3.0
-  stats:
-    INTELLECT: 33
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 76
-    SPELL_HIT_CHANCE: 0.02
-    STAMINA: 32
-  source: "Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40)."
-  flavour_text: "\"The weapon is infused and reinforced with Elementium.\""
 - id: 23124
   name: "Staff of Balzaphon"
   phase: 6

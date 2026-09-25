@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/1hSwords.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 809
   name: "Bloodrazor"
@@ -284,24 +286,6 @@
       instant: false
   special_equip_effects: ["Chance on hit: Drains the target for 2 Shadow damage every 1 sec and transfers it to the caster. Lasts for 30 sec."]
   source: "Drops from Baron Rivendare in Stratholme Undead."
-- id: 17015
-  name: "Dark Iron Reaver"
-  phase: 5
-  slot: "MH"
-  type: "SWORD"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_sword_48.png"
-  damage:
-    min: 71
-    max: 134
-    speed: 2.4
-  stats:
-    FIRE_RESISTANCE: 6
-    STRENGTH: 10
-  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
 - id: 12939
   name: "Dal'Rend's Tribal Guardian"
   phase: 1
@@ -454,25 +438,6 @@
     INTELLECT: 8
     SPELL_DAMAGE: 12
   source: "Drops from Prince Tortheldrin in Dire Maul."
-- id: 16345
-  name: "High Warlord's Blade"
-  phase: 2
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_11.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
 - id: 12854
   name: "Grand Marshal's Longsword"
   phase: 2
@@ -487,44 +452,6 @@
     min: 138
     max: 207
     speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 23467
-  name: "High Warlord's Quickblade"
-  phase: 2
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_05.png"
-  faction: "HORDE"
-  damage:
-    min: 85
-    max: 129
-    speed: 1.8
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 23456
-  name: "Grand Marshal's Swiftblade"
-  phase: 2
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_05.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 85
-    max: 129
-    speed: 1.8
   stats:
     ATTACK_POWER: 28
     CRIT_CHANCE: 0.01
@@ -566,62 +493,6 @@
     AGILITY: 5
     STAMINA: 13
   source: "Drops from Lokholar the Ice Lord in Alterac Valley. Alliance only."
-- id: 19554
-  name: "Protector's Sword"
-  phase: 3
-  slot: "1H"
-  type: "SWORD"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_sword_27.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 78
-    max: 146
-    speed: 2.7
-  stats:
-    STAMINA: 5
-    STRENGTH: 13
-  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Alliance only."
-- id: 19550
-  name: "Legionnaire's Sword"
-  phase: 3
-  slot: "1H"
-  type: "SWORD"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_sword_31.png"
-  faction: "HORDE"
-  damage:
-    min: 78
-    max: 146
-    speed: 2.7
-  stats:
-    STAMINA: 5
-    STRENGTH: 13
-  source: "Sold by Warsong Gulch vendor Kelm Hargunth. Horde only."
-- id: 19168
-  name: "Blackguard"
-  phase: 3
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 70
-  boe: true
-  icon: "Inv_sword_39.png"
-  damage:
-    min: 65
-    max: 121
-    speed: 1.8
-  stats:
-    PARRY_CHANCE: 0.01
-    STAMINA: 9
-  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
 - id: 19352
   name: "Chromatically Tempered Sword"
   phase: 3
@@ -641,43 +512,6 @@
     STAMINA: 7
     STRENGTH: 14
   source: "Drops from Chromaggus in Blackwing Lair."
-- id: 19019
-  name: "Thunderfury, Blessed Blade of the Windseeker"
-  phase: 3
-  slot: "1H"
-  type: "SWORD"
-  quality: "LEGENDARY"
-  unique: true
-  req_lvl: 60
-  item_lvl: 80
-  icon: "Inv_sword_39.png"
-  class_restrictions: ["WARRIOR", "PALADIN", "HUNTER", "ROGUE"]
-  damage:
-    min: 44
-    max: 115
-    speed: 1.9
-  stats:
-    AGILITY: 5
-    FIRE_RESISTANCE: 8
-    NATURE_RESISTANCE: 9
-    STAMINA: 8
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 1.0
-      min: 16
-      max: 30
-      spell_dmg_coefficient: 0.0
-      instant: true
-    - name: "NATURE_ATTACK"
-      rate: 0.2
-      display_name: "Thunderfury Chain Lightning"
-      min: 300
-      max: 300
-      innate_threat: 241
-      spell_dmg_coefficient: 0.0
-      instant: true
-  special_equip_effects: ["Chance on hit: Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies. Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also consumed by a cyclone, slowing its attack speed by 20% for 12 sec."]
-  source: "Quest reward. Requires Left and Right Bindings of the Windseeker from Garr and Baron Geddon in Molten Core."
 - id: 20577
   name: "Nightmare Blade"
   phase: 4
@@ -840,25 +674,6 @@
     CRIT_CHANCE: 0.01
   source: "Drops from Hakkar in Zul'Gurub."
   flavour_text: "\"Forged in...\""
-- id: 22378
-  name: "Ravenholdt Slicer"
-  phase: 5
-  slot: "1H"
-  type: "SWORD"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_sword_38.png"
-  damage:
-    min: 83
-    max: 156
-    speed: 2.8
-  stats:
-    ATTACK_POWER: 26
-    STAMINA: 6
-  mutex: [22379, 22377, 22348, 22347, 22380]
-  source: "Quest reward. Requires killing entry bosses in both AQ20 and ZG."
 - id: 1728
   name: "Teebu's Blazing Longsword"
   phase: 5
@@ -903,126 +718,6 @@
     MANA_PER_5: 3
     SPELL_DAMAGE: 32
   source: "Rare drop from bag awarded via repeatable quest in Silithus."
-- id: 22383
-  name: "Sageblade"
-  phase: 5
-  slot: "MH"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 64
-  boe: true
-  icon: "Inv_sword_51.png"
-  damage:
-    min: 49
-    max: 100
-    speed: 1.8
-  stats:
-    INTELLECT: 6
-    SPELL_DAMAGE: 20
-    SPELL_PENETRATION: 10
-    STAMINA: 14
-  source: "Crafted by Blacksmiths (300 skill). Pattern is a rare drop of multiple bosses in different instances."
-- id: 21413
-  name: "Blade of Vaulted Secrets"
-  phase: 5
-  slot: "MH"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 70
-  icon: "Inv_sword_57.png"
-  class_restrictions: ["MAGE"]
-  damage:
-    min: 60
-    max: 131
-    speed: 2.3
-  stats:
-    INTELLECT: 16
-    SPELL_DAMAGE: 40
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 8
-  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
-- id: 21520
-  name: "Ravencrest's Legacy"
-  phase: 5
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 76
-  icon: "Inv_sword_49.png"
-  damage:
-    min: 84
-    max: 157
-    speed: 2.1
-  stats:
-    AGILITY: 9
-    STAMINA: 14
-    STRENGTH: 13
-  mutex: [21251, 21252, 21253]
-  source: "Quest reward. Last step of the Scepter of the Shifting Sands quest line."
-- id: 21521
-  name: "Runesword of the Red"
-  phase: 5
-  slot: "MH"
-  type: "SWORD"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 76
-  icon: "Inv_sword_51.png"
-  damage:
-    min: 53
-    max: 129
-    speed: 2.2
-  stats:
-    INTELLECT: 9
-    SPELL_DAMAGE: 64
-    SPIRIT: 7
-    STAMINA: 17
-  mutex: [21250, 21252, 21253]
-  source: "Quest reward. Last step of the Scepter of the Shifting Sands quest line."
-- id: 21650
-  name: "Ancient Qiraji Ripper"
-  phase: 5
-  slot: "1H"
-  type: "SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 77
-  icon: "Inv_sword_84.png"
-  damage:
-    min: 114
-    max: 213
-    speed: 2.8
-  stats:
-    ATTACK_POWER: 20
-    CRIT_CHANCE: 0.01
-    STAMINA: 11
-  source: "Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40)."
-- id: 21622
-  name: "Sharpened Silithid Femur"
-  phase: 5
-  slot: "MH"
-  type: "SWORD"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_58.png"
-  damage:
-    min: 54
-    max: 137
-    speed: 2.3
-  stats:
-    INTELLECT: 7
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 72
-    STAMINA: 14
-  source: "Drops from Viscidus in Temple of Ahn'Qiraj (AQ40)."
-  flavour_text: "\"Recently devoured\""
 - id: 22807
   name: "Wraith Blade"
   phase: 6
@@ -1119,19 +814,3 @@
     ATTACK_POWER: 40
     STAMINA: 14
   source: "Drops from Kel'Thuzad in Naxxramas."
-- id: 15219
-  name: "Dimensional Blade"
-  phase: 1
-  slot: "1H"
-  type: "SWORD"
-  quality: "UNCOMMON"
-  req_lvl: 54
-  item_lvl: 59
-  boe: true
-  icon: "Inv_sword_23.png"
-  damage:
-    min: 39
-    max: 73
-    speed: 1.6
-  random_affixes: [1557, 187, 192, 1197, 602, 687]
-  source: "World drop."

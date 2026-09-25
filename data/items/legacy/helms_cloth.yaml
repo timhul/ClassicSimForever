@@ -1,34 +1,7 @@
 # Generated from ClassicSim Items/Helms/cloth.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 10033
-  name: "Red Mageweave Headband"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 43
-  item_lvl: 48
-  boe: true
-  icon: "Inv_misc_bandana_03.png"
-  stats:
-    ARMOR: 51
-    INTELLECT: 20
-  source: "Crafted by Tailorers. Trivial to craft."
-- id: 10025
-  name: "Shadoweave Mask"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 44
-  item_lvl: 49
-  boe: true
-  icon: "Inv_helmet_27.png"
-  stats:
-    ARMOR: 52
-    INTELLECT: 10
-    SPELL_DAMAGE_SHADOW: 24
-  source: "Crafted by Tailorers. Trivial to craft."
 - id: 10504001
   name: "Green Lens of Arcane Wrath"
   phase: 1
@@ -133,38 +106,6 @@
     INTELLECT: 24
     SPELL_DAMAGE_SHADOW: 14
   source: "Drops from Shadowpriest Sezz'ziz in Zul'Farrak."
-- id: 14441
-  name: "Venomshroud Mask"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 45
-  item_lvl: 50
-  boe: true
-  icon: "Inv_helmet_32.png"
-  stats:
-    ARMOR: 53
-    INTELLECT: 16
-    NATURE_RESISTANCE: 4
-    STAMINA: 10
-  source: "World drop."
-- id: 10041
-  name: "Dreamweave Circlet"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 45
-  item_lvl: 50
-  boe: true
-  icon: "Inv_crown_01.png"
-  stats:
-    ARMOR: 58
-    INTELLECT: 10
-    SPELL_DAMAGE: 21
-    SPIRIT: 12
-  source: "Crafted by Tailorers. Requires Wildvine and Heart of the Wild."
 - id: 10630
   name: "Soulcatcher Halo"
   phase: 1
@@ -180,35 +121,6 @@
     INTELLECT: 25
     SPIRIT: 10
   source: "Drops from trash mobs in Sunken Temple."
-- id: 8254
-  name: "Imperial Red Circlet"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 48
-  item_lvl: 53
-  boe: true
-  icon: "Inv_crown_01.png"
-  stats:
-    ARMOR: 56
-    INTELLECT: 16
-    SPIRIT: 15
-  source: "World drop."
-- id: 15999
-  name: "Spellpower Goggles Xtreme Plus"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 40
-  item_lvl: 54
-  boe: true
-  icon: "Inv_helmet_47.png"
-  stats:
-    ARMOR: 57
-    SPELL_DAMAGE: 27
-  source: "Crafted by Engineers. Requires 270 Engineering to use."
 - id: 10751
   name: "Gemburst Circlet"
   phase: 1
@@ -241,20 +153,6 @@
     SPIRIT: 11
     STAMINA: 13
   source: "Drops from Princess Theradras in Maraudon."
-- id: 10782
-  name: "Hakkari Shroud"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 46
-  item_lvl: 55
-  icon: "Inv_helmet_38.png"
-  stats:
-    ARMOR: 58
-    INTELLECT: 15
-    STAMINA: 16
-  source: "Quest reward. Requires finishing the statue event in Sunken Temple."
 - id: 11839
   name: "Chief Architect's Monocle"
   phase: 1
@@ -287,83 +185,6 @@
     SPELL_DAMAGE_FIRE: 43
     SPIRIT: 10
   source: "World drop."
-- id: 14449
-  name: "Highborne Crown"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 52
-  item_lvl: 57
-  boe: true
-  icon: "Inv_crown_01.png"
-  stats:
-    ARMOR: 60
-    INTELLECT: 22
-    SPIRIT: 6
-    STRENGTH: 3
-  source: "World drop."
-- id: 16008
-  name: "Master Engineer's Goggles"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 40
-  item_lvl: 58
-  boe: true
-  icon: "Inv_helmet_47.png"
-  stats:
-    ARMOR: 61
-    SPIRIT: 17
-    STAMINA: 16
-  source: "Crafted by Engineers. Requires 280 Engineering to use."
-- id: 14111
-  name: "Felcloth Hood"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 53
-  item_lvl: 58
-  boe: true
-  icon: "Inv_helmet_34.png"
-  stats:
-    ARMOR: 61
-    INTELLECT: 10
-    SPELL_DAMAGE_SHADOW: 30
-  source: "Crafted by Tailorers. Requires Felcloth."
-- id: 8292
-  name: "Arcane Cover"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 53
-  item_lvl: 58
-  boe: true
-  icon: "Inv_helmet_11.png"
-  stats:
-    ARMOR: 61
-    INTELLECT: 17
-    SPIRIT: 10
-    STAMINA: 10
-  source: "World drop."
-- id: 13866
-  name: "Runecloth Headband"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 54
-  item_lvl: 59
-  boe: true
-  icon: "Inv_misc_bandana_03.png"
-  stats:
-    ARMOR: 68
-    INTELLECT: 20
-    SPIRIT: 13
-  source: "Crafted by Tailorers. Trivial to craft."
 - id: 18727
   name: "Crimson Felt Hat"
   phase: 1
@@ -411,22 +232,6 @@
     SPIRIT: 10
     STAMINA: 10
   source: "Drops from Postmaster Malown in Stratholme Undead."
-- id: 14140
-  name: "Mooncloth Circlet"
-  phase: 1
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 57
-  item_lvl: 62
-  boe: true
-  icon: "Inv_misc_bandana_01.png"
-  stats:
-    ARMOR: 71
-    INTELLECT: 23
-    SPIRIT: 15
-    STAMINA: 13
-  source: "Crafted by Tailorers. Pattern drops from multiple raid bosses and trash mobs. Requires Mooncloth."
 - id: 16693
   name: "Devout Crown"
   phase: 1
@@ -580,82 +385,6 @@
     SPIRIT: 11
     STAMINA: 16
   source: "Drops from King Gordok in Dire Maul."
-- id: 23318
-  name: "Lieutenant Commander's Silk Cowl"
-  phase: 2
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_helmet_06.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 141
-    INTELLECT: 18
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 6
-    STAMINA: 19
-  source: "May be purchased upon reaching Lieutenant Commander (rank 10). Alliance only."
-- id: 23263
-  name: "Champion's Silk Cowl"
-  phase: 2
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_helmet_06.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 141
-    INTELLECT: 18
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 6
-    STAMINA: 19
-  source: "May be purchased upon reaching Champion (rank 10). Horde only."
-- id: 16441
-  name: "Field Marshal's Coronet"
-  phase: 2
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_helmet_24.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 162
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPIRIT: 6
-    STAMINA: 28
-  source: "May be purchased upon reaching Field Marshal (rank 13). Alliance only."
-- id: 16533
-  name: "Warlord's Silk Cowl"
-  phase: 2
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_helmet_08.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 162
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPIRIT: 6
-    STAMINA: 28
-  source: "May be purchased upon reaching Warlord (rank 13). Horde only."
 - id: 19105
   name: "Frost Runed Headdress"
   phase: 3
@@ -688,22 +417,6 @@
     SPIRIT: 9
     STAMINA: 15
   source: "Drops from Nefarian in Blackwing Lair."
-- id: 19999
-  name: "Bloodvine Goggles"
-  phase: 4
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_helmet_47.png"
-  stats:
-    ARMOR: 75
-    MANA_PER_5: 9
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_HIT_CHANCE: 0.02
-  source: "Crafted by Engineers. Requires 300 Engineering to use."
 - id: 19886
   name: "The Hexxer's Cover"
   phase: 4
@@ -735,24 +448,6 @@
     STAMINA: 12
   special_equip_effects: ["+14-15 Random Resistance"]
   source: "Drops from Gyth in Upper Blackrock Spire (UBRS)."
-- id: 22065
-  name: "Sorcerer's Crown"
-  phase: 5
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 58
-  item_lvl: 60
-  icon: "Inv_crown_02.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 75
-    INTELLECT: 25
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 11
-    SPIRIT: 14
-    STAMINA: 16
-  source: "Quest reward. Involves a long quest chain. Requires Magister's Robes and Magister's Crown."
 - id: 22267
   name: "Spellweaver's Turban"
   phase: 5
@@ -783,76 +478,6 @@
     INTELLECT: 15
     STAMINA: 24
   source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
-- id: 21517
-  name: "Gnomish Turban of Psychic Might"
-  phase: 5
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 75
-  icon: "Inv_helmet_63.png"
-  stats:
-    ARMOR: 93
-    INTELLECT: 31
-    MANA_PER_5: 9
-    STAMINA: 17
-  special_equip_effects: ["Equip: Increases your resistance to silence effects by 10%."]
-  source: "Drops from Nefarian in Blackwing Lair."
-- id: 21347
-  name: "Enigma Circlet"
-  phase: 5
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_helmet_06.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 100
-    INTELLECT: 24
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPELL_HIT_CHANCE: 0.01
-    SPIRIT: 12
-    STAMINA: 24
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-- id: 21337
-  name: "Doomcaller's Circlet"
-  phase: 5
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_helmet_06.png"
-  class_restrictions: ["WARLOCK"]
-  stats:
-    ARMOR: 100
-    INTELLECT: 24
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPELL_HIT_CHANCE: 0.01
-    SPIRIT: 6
-    STAMINA: 27
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-- id: 22757
-  name: "Sylvan Crown"
-  phase: 6
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 70
-  boe: true
-  icon: "Inv_crown_01.png"
-  stats:
-    ARMOR: 80
-    NATURE_RESISTANCE: 30
-    SPELL_DAMAGE: 18
-    STAMINA: 10
-  source: "Crafted by Tailorers. Pattern requires Honored with Cenarion Circle. Requires Mooncloth and Living Essence."
 - id: 23035
   name: "Preceptor's Hat"
   phase: 6
@@ -868,55 +493,3 @@
     SPELL_DAMAGE: 51
     STAMINA: 18
   source: "Drops from Heigan the Unclean in Naxxramas."
-- id: 23032
-  name: "Glacial Headdress"
-  phase: 6
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 83
-  icon: "Inv_helmet_53.png"
-  stats:
-    ARMOR: 102
-    FROST_RESISTANCE: 40
-    INTELLECT: 21
-    SPELL_DAMAGE: 18
-    STAMINA: 20
-  source: "Drops from Gothik the Harvester in Naxxramas."
-- id: 22498
-  name: "Frostfire Circlet"
-  phase: 6
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_crown_01.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 108
-    INTELLECT: 23
-    SPELL_CRIT_CHANCE: 0.02
-    SPELL_DAMAGE: 35
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 22
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 22506
-  name: "Plagueheart Circlet"
-  phase: 6
-  slot: "HEAD"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_crown_01.png"
-  class_restrictions: ["WARLOCK"]
-  stats:
-    ARMOR: 108
-    INTELLECT: 25
-    SPELL_CRIT_CHANCE: 0.02
-    SPELL_DAMAGE: 33
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 28
-  source: "Quest reward. Requires boss drops from Naxxramas."

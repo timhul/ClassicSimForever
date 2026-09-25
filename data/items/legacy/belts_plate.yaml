@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Belts/plate.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 13959
   name: "Omokk's Girth Restrainer"
@@ -97,107 +99,6 @@
     STAMINA: 15
     STRENGTH: 20
   source: "Drops from Chromaggus in Blackwing Lair."
-- id: 20042
-  name: "Highlander's Lamellar Girdle"
-  phase: 4
-  slot: "BELT"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_belt_14.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 369
-    CRIT_CHANCE: 0.01
-    INTELLECT: 10
-    STAMINA: 6
-    STRENGTH: 15
-  source: "Requires Honored with League of Arathor (Arathi Basin faction)."
-- id: 20041
-  name: "Highlander's Plate Girdle"
-  phase: 4
-  slot: "BELT"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_belt_14.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR", "PALADIN"]
-  stats:
-    ARMOR: 369
-    CRIT_CHANCE: 0.01
-    STAMINA: 10
-    STRENGTH: 17
-  source: "Requires Honored with League of Arathor (Arathi Basin faction)."
-- id: 20204
-  name: "Defiler's Plate Girdle"
-  phase: 4
-  slot: "BELT"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_belt_14.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 369
-    CRIT_CHANCE: 0.01
-    STAMINA: 10
-    STRENGTH: 17
-  source: "Requires Honored with The Defilers (Arathi Basin faction)."
-- id: 20213
-  name: "Belt of Shrunken Heads"
-  phase: 4
-  slot: "BELT"
-  type: "PLATE"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 70
-  icon: "Inv_belt_13.png"
-  stats:
-    AGILITY: 7
-    ARMOR: 408
-    STAMINA: 11
-    STRENGTH: 23
-  source: "Quest reward. Requires multiple bosses in Zul'Gurub."
-- id: 19823
-  name: "Zandalar Vindicator's Belt"
-  phase: 4
-  slot: "BELT"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 58
-  item_lvl: 61
-  icon: "Inv_belt_32.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 391
-    CRIT_CHANCE: 0.01
-    STAMINA: 10
-    STRENGTH: 25
-  source: "Quest reward from Paragons of Power: The Vindicator's Belt."
-- id: 22197
-  name: "Heavy Obsidian Belt"
-  phase: 5
-  slot: "BELT"
-  type: "PLATE"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 68
-  boe: true
-  icon: "Inv_belt_16.png"
-  stats:
-    ALL_RESISTANCE: 5
-    ARMOR: 397
-    STRENGTH: 25
-  source: "Crafted by Blacksmiths (300 skill). Plans requires Friendly with Cenarion Circle."
 - id: 21692
   name: "Triad Girdle"
   phase: 5

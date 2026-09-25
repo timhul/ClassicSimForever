@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/2hMaces.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 9449
   name: "Manual Crowd Pummeler"
@@ -24,23 +26,6 @@
       duration: 30
   special_equip_effects: ["Use: Increases your attack speed by 50% for 30 sec. 3 charges."]
   source: "Drops from Crowd Pummeler 9-60 in Gnomeregan."
-- id: 17073
-  name: "Earthshaker"
-  phase: 1
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_hammer_04.png"
-  damage:
-    min: 175
-    max: 263
-    speed: 3.5
-  stats:
-    ATTACK_POWER: 22
-  special_equip_effects: ["Chance on hit: Knocks down all nearby enemies for 3 sec."]
-  source: "Drops from Magmadar in Molten Core."
 - id: 18420
   name: "Bonecrusher"
   phase: 2
@@ -78,154 +63,6 @@
     STAMINA: 25
   source: "Drops from Majordomo Executus in Molten Core."
   flavour_text: "\"Property of Finkle Einhorn, Grandmaster Adventurer\""
-- id: 17193
-  name: "Sulfuron Hammer"
-  phase: 1
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 67
-  boe: true
-  icon: "Inv_hammer_unique_sulfuras.png"
-  damage:
-    min: 176
-    max: 295
-    speed: 3.7
-  procs:
-    - name: "INSTANT_FIREBALL"
-      rate: 0.0431666667
-      min: 83
-      max: 102
-      duration: 8
-      dmg_over_duration: 16
-      instant: true
-  special_equip_effects: ["Chance on hit: Hurls a fiery ball that causes 83 to 102 Fire damage and an additional 16 damage over 8 sec."]
-  source: "Crafted by Blacksmiths (300 skill). Extremely expensive materials, and requires Molten Core drops."
-- id: 17182
-  name: "Sulfuras, Hand of Ragnaros"
-  phase: 1
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "LEGENDARY"
-  req_lvl: 60
-  item_lvl: 80
-  icon: "Inv_hammer_unique_sulfuras.png"
-  damage:
-    min: 223
-    max: 372
-    speed: 3.7
-  stats:
-    FIRE_RESISTANCE: 30
-    STAMINA: 12
-    STRENGTH: 12
-  procs:
-    - name: "INSTANT_FIREBALL"
-      rate: 0.061666667
-      min: 273
-      max: 334
-      duration: 10
-      dmg_over_duration: 75
-      instant: true
-  special_equip_effects: ["Chance on hit: Hurls a fiery ball that causes 273 to 334 Fire damage and an additional 75 damage over 10 sec.", "Equip: Deals 5 Fire damage to anyone who strikes you with a melee attack."]
-  source: "Created with rare boss drop from Ragnaros and Sulfuron Hammer."
-- id: 18867
-  name: "Grand Marshal's Battle Hammer"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_hammer_03.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 18868
-  name: "High Warlord's Pulverizer"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_hammer_10.png"
-  faction: "HORDE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 23455
-  name: "Grand Marshal's Demolisher"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_hammer_23.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    INTELLECT: 27
-    MANA_PER_5: 7
-    SPELL_DAMAGE: 27
-    STAMINA: 28
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 23465
-  name: "High Warlord's Destroyer"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_mace_09.png"
-  faction: "HORDE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    INTELLECT: 27
-    MANA_PER_5: 7
-    SPELL_DAMAGE: 27
-    STAMINA: 28
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 19323
-  name: "The Unstoppable Force"
-  phase: 3
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_hammer_13.png"
-  damage:
-    min: 175
-    max: 292
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.02
-    STAMINA: 15
-    STRENGTH: 19
-  special_equip_effects: ["Chance on hit: Stuns target for 1 sec."]
-  source: "Purchased with gold. Requires Exalted with Alterac Valley faction."
 - id: 19358
   name: "Draconic Maul"
   phase: 3
@@ -305,24 +142,6 @@
     STAMINA: 15
     STRENGTH: 15
   source: "Drops from captains spawned during General Rajaxx encounter in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21188
-  name: "Fist of Cenarius"
-  phase: 5
-  slot: "2H"
-  type: "TWOHAND_MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_hammer_23.png"
-  damage:
-    min: 175
-    max: 263
-    speed: 3.5
-  stats:
-    SPELL_CRIT_CHANCE: 0.02
-    SPELL_DAMAGE: 40
-  mutex: [21190, 21180]
-  source: "Quest reward. Requires Exalted with Cenarion Circle."
 - id: 21703
   name: "Hammer of Ji'zhi"
   phase: 5

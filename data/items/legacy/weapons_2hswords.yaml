@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/2hSwords.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 13052
   name: "Warmonger"
@@ -139,44 +141,6 @@
     STAMINA: 10
     STRENGTH: 14
   source: "Drops from Azuregos (world boss)."
-- id: 18876
-  name: "Grand Marshal's Claymore"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_39.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 18877
-  name: "High Warlord's Greatsword"
-  phase: 2
-  slot: "2H"
-  type: "TWOHAND_SWORD"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_sword_48.png"
-  faction: "HORDE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
 - id: 19334
   name: "The Untamed Blade"
   phase: 3

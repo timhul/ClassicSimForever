@@ -1,22 +1,7 @@
 # Generated from ClassicSim Items/Misc/offhands.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 11904
-  name: "Spirit of Aquementas"
-  phase: 1
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "UNCOMMON"
-  req_lvl: 47
-  item_lvl: 56
-  icon: "Inv_ore_arcanite_02.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    SPELL_DAMAGE: 20
-  mutex: [11902]
-  source: "Quest reward in Un'Goro Crater."
 - id: 19142
   name: "Fire Runed Grimoire"
   phase: 1
@@ -35,168 +20,6 @@
     SPELL_DAMAGE: 11
     STAMINA: 12
   source: "Drops from multiple bosses in Molten Core."
-- id: 18672
-  name: "Elemental Ember"
-  phase: 2
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "UNCOMMON"
-  req_lvl: 54
-  item_lvl: 59
-  icon: "Inv_misc_orb_05.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    SPELL_DAMAGE_FIRE: 13
-    STAMINA: 10
-  source: "Drops from Baron Charr, a rare mob in Un'Goro Crater."
-- id: 23452
-  name: "Grand Marshal's Tome of Power"
-  phase: 2
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_misc_book_12.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 16
-    SPELL_DAMAGE: 20
-    STAMINA: 17
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 23468
-  name: "High Warlord's Tome of Destruction"
-  phase: 2
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_misc_book_15.png"
-  faction: "HORDE"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 16
-    SPELL_DAMAGE: 20
-    STAMINA: 17
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 19366
-  name: "Master Dragonslayer's Orb"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 83
-  icon: "Inv_misc_orb_03.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 14
-    SPELL_DAMAGE: 28
-    STAMINA: 10
-  mutex: [19383, 19384]
-  source: "Quest reward. Requires Head of Nefarian from Blackwing Lair."
-- id: 19315
-  name: "Therazane's Touch"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_branch_01.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    SPELL_DAMAGE: 33
-  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
-- id: 19308
-  name: "Tome of Arcane Domination"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_book_01.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    MANA_PER_5: 3
-    SPELL_DAMAGE_ARCANE: 34
-  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
-- id: 19311
-  name: "Tome of Fiery Arcana"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_book_09.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    SPELL_DAMAGE_FIRE: 40
-  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
-- id: 19309
-  name: "Tome of Shadow Force"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_book_06.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    SPELL_DAMAGE_SHADOW: 34
-    STAMINA: 8
-  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
-- id: 19310
-  name: "Tome of the Ice Lord"
-  phase: 3
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_misc_book_11.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 9
-    SPELL_DAMAGE_FROST: 34
-  source: "Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction."
 - id: 20582
   name: "Trance Stone"
   phase: 4
@@ -237,23 +60,6 @@
     SPELL_HIT_CHANCE: 0.01
     STAMINA: 8
   source: "Drops from Jin'do the Hexxer in Zul'Gurub."
-- id: 20694
-  name: "Glowing Black Orb"
-  phase: 4
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "UNCOMMON"
-  req_lvl: 55
-  item_lvl: 60
-  icon: "Inv_misc_orb_04.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 10
-    SPELL_DAMAGE: 12
-  source: "Drops from Bag of Spoils, rewarded by repeatable group quest in Silithus."
 - id: 22253
   name: "Tome of the Lost"
   phase: 5
@@ -309,26 +115,6 @@
     SPELL_DAMAGE: 21
     STAMINA: 8
   source: "Drops from Moam in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21597
-  name: "Royal Scepter of Vek'lor"
-  phase: 5
-  slot: "OH"
-  type: "CASTER_OFFHAND"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_wand_10.png"
-  damage:
-    min: 1
-    max: 1
-    speed: 1.0
-  stats:
-    INTELLECT: 9
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 20
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 10
-  source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
 - id: 23156
   name: "Blackwood's Thigh"
   phase: 6

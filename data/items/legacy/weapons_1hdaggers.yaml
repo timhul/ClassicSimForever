@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/1hDaggers.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 19346
   name: "Dragonfang Blade"
@@ -18,24 +20,6 @@
     AGILITY: 16
     STAMINA: 13
   source: "Drops from Vaelastrasz the Corrupt in Blackwing Lair."
-- id: 12783
-  name: "Heartseeker"
-  phase: 1
-  slot: "1H"
-  type: "DAGGER"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  boe: true
-  icon: "Inv_sword_17.png"
-  damage:
-    min: 49
-    max: 92
-    speed: 1.7
-  stats:
-    CRIT_CHANCE: 0.01
-    STRENGTH: 4
-  source: "Crafted by Blacksmiths with 300 Weaponsmithing. Plans relatively low drop-rate from boss in Stratholme living."
 - id: 12582
   name: "Keris of Zul'Serak"
   phase: 1
@@ -226,31 +210,6 @@
       instant: true
   special_equip_effects: ["Chance on hit: Blasts a target for 40 to 57 Fire damage."]
   source: "Drops from Ragnaros in Molten Core."
-- id: 19324
-  name: "The Lobotomizer"
-  phase: 2
-  slot: "1H"
-  type: "DAGGER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_sword_29.png"
-  damage:
-    min: 59
-    max: 111
-    speed: 1.8
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.01
-      min: 200
-      max: 300
-      spell_dmg_coefficient: 0.0
-      instant: true
-      sources:
-        melee_weapon_side: true
-  special_equip_effects: ["Chance on hit: Wounds the target for 200 to 300 damage and lowers Intellect of target by 25 for 30 sec."]
-  source: "Purchased from Alterac Valley faction upon reaching Exalted."
 - id: 19347
   name: "Claw of Chromaggus"
   phase: 3
@@ -271,25 +230,6 @@
     SPELL_DAMAGE: 64
     STAMINA: 7
   source: "Drops from Chromaggus in Blackwing Lair."
-- id: 20214
-  name: "Mindfang"
-  phase: 3
-  slot: "1H"
-  type: "DAGGER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_sword_13.png"
-  damage:
-    min: 49
-    max: 95
-    speed: 1.7
-  stats:
-    ARMOR: 35
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 30
-    STAMINA: 8
-  source: "Requires The Defilers - Exalted"
 - id: 17070
   name: "Fang of the Mystics"
   phase: 4
@@ -366,43 +306,6 @@
     SPELL_DAMAGE: 19
     STAMINA: 6
   source: "Drops from quest reward bag that requires turning in quest items from Silithus elites."
-- id: 22379
-  name: "Shivsprocket's Shiv"
-  phase: 5
-  slot: "MH"
-  type: "DAGGER"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_sword_21.png"
-  damage:
-    min: 42
-    max: 82
-    speed: 1.5
-  stats:
-    SPELL_DAMAGE: 13
-    STAMINA: 13
-  mutex: [22378, 22377, 22348, 22347, 22380]
-  source: "Quest reward. Requires killing entry bosses in both AQ20 and ZG."
-- id: 21404
-  name: "Dagger of Veiled Shadows"
-  phase: 5
-  slot: "1H"
-  type: "DAGGER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 70
-  icon: "Inv_weapon_shortblade_27.png"
-  class_restrictions: ["ROGUE"]
-  damage:
-    min: 65
-    max: 121
-    speed: 1.8
-  stats:
-    AGILITY: 15
-    HIT_CHANCE: 0.01
-    STRENGTH: 7
-  source: "Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
 - id: 21802
   name: "The Lost Kris of Zedd"
   phase: 5
@@ -441,44 +344,6 @@
     ATTACK_POWER: 20
     STAMINA: 15
   source: "Drops from Kurinnaxx in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21244
-  name: "Blessed Qiraji Pugio"
-  phase: 5
-  slot: "1H"
-  type: "DAGGER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 79
-  icon: "Inv_weapon_shortblade_35.png"
-  damage:
-    min: 72
-    max: 134
-    speed: 1.7
-  stats:
-    ATTACK_POWER: 18
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-  flavour_text: "\"The weapon is infused and reinforced with Elementium.\""
-- id: 22688
-  name: "Verimonde's Last Resort"
-  phase: 6
-  slot: "MH"
-  type: "DAGGER"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_weapon_shortblade_03.png"
-  damage:
-    min: 39
-    max: 76
-    speed: 1.4
-  stats:
-    INTELLECT: 8
-    SPELL_DAMAGE: 19
-    STAMINA: 7
-  source: "Reputation reward. Attainable from Argent Dawn at each level of friendliness, among other rewards."
 - id: 22803
   name: "Midnight Haze"
   phase: 6
@@ -537,25 +402,6 @@
     HIT_CHANCE: 0.01
     STAMINA: 8
   source: "Drops from trash mobs in Naxxramas."
-- id: 21126
-  name: "Death's Sting"
-  phase: 5
-  slot: "1H"
-  type: "DAGGER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 84
-  icon: "Inv_weapon_shortblade_33.png"
-  damage:
-    min: 95
-    max: 144
-    speed: 1.8
-  stats:
-    ATTACK_POWER: 38
-    DAGGER_SKILL: 3
-    STAMINA: 10
-  source: "Drops from C'Thun in Temple of Ahn'Qiraj (AQ40)."
 - id: 22802
   name: "Kingsfall"
   phase: 6

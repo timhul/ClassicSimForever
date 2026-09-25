@@ -1,18 +1,7 @@
 # Generated from ClassicSim Items/Shoulders/leather.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 12082
-  name: "Wyrmhide Spaulders"
-  phase: 1
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "UNCOMMON"
-  req_lvl: 52
-  item_lvl: 58
-  icon: "Inv_shoulder_16.png"
-  stats:
-    ARMOR: 113
-    HIT_CHANCE: 0.02
-  source: "Quest reward. Requires Bael'Gar in Blackrock Depths."
 - id: 12927
   name: "Truestrike Shoulders"
   phase: 1
@@ -55,21 +44,6 @@
     ARMOR: 127
     STAMINA: 9
   source: "Drops from Cannon Master Willey in Stratholme Living."
-- id: 22008
-  name: "Darkmantle Spaulders"
-  phase: 5
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_shoulder_07.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 24
-    ARMOR: 136
-    STAMINA: 10
-  source: "Darkmantle Quest line (Shadowcraft required)."
 - id: 16823
   name: "Nightslayer Shoulder Pads"
   phase: 1
@@ -104,27 +78,6 @@
     STAMINA: 11
     STRENGTH: 12
   source: "Drops from Magister Kalendris in Dire Maul."
-- id: 16551
-  name: "Warlord's Dragonhide Epaulets"
-  phase: 2
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_shoulder_07.png"
-  faction: "HORDE"
-  class_restrictions: ["DRUID"]
-  stats:
-    AGILITY: 14
-    ARMOR: 215
-    INTELLECT: 11
-    SPELL_DAMAGE: 18
-    SPIRIT: 11
-    STAMINA: 13
-    STRENGTH: 14
-  source: "This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord."
 - id: 16832
   name: "Bloodfang Spaulders"
   phase: 3
@@ -158,23 +111,6 @@
     STAMINA: 30
   source: "Drops from Chromaggus in Blackwing Lair."
   flavour_text: "\"The hides of several different dragon flights appear to be stitched together, comprising the top of the shoulders.\""
-- id: 19835
-  name: "Zandalar Madcap's Mantle"
-  phase: 4
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 61
-  icon: "Inv_shoulder_29.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 20
-    ARMOR: 140
-    HIT_CHANCE: 0.01
-    STAMINA: 12
-    STRENGTH: 12
-  source: "Quest reward. Requires boss drop available from multiple bosses in Zul'Gurub (ZG)."
 - id: 20633
   name: "Unnatural Leather Spaulders"
   phase: 4
@@ -206,108 +142,6 @@
     STAMINA: 7
     STRENGTH: 11
   source: "Drops from Moam in Temple of Ahn'Qiraj (AQ20)."
-- id: 21665
-  name: "Mantle of Wicked Revenge"
-  phase: 5
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 77
-  icon: "Inv_shoulder_30.png"
-  stats:
-    AGILITY: 30
-    ARMOR: 170
-    STAMINA: 14
-    STRENGTH: 16
-  source: "Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40)."
-- id: 21361
-  name: "Deathdealer's Spaulders"
-  phase: 5
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_shoulder_03.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 27
-    ARMOR: 172
-    HIT_CHANCE: 0.01
-    STAMINA: 15
-    STRENGTH: 18
-  source: "Quest reward. Requires boss drops from Viscidus / Princess Huhuran in Temple of Ahn'Qiraj (AQ40)."
-- id: 22479
-  name: "Bonescythe Pauldrons"
-  phase: 6
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 86
-  icon: "Inv_shoulder_29.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 22
-    ARMOR: 186
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 15
-    STRENGTH: 22
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 15058
-  name: "Stormshroud Shoulders"
-  phase: 1
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 54
-  item_lvl: 59
-  boe: true
-  icon: "Inv_shoulder_05.png"
-  stats:
-    ARMOR: 126
-    CRIT_CHANCE: 0.01
-    DODGE_CHANCE: 0.01
-    STAMINA: 12
-  source: "Crafted by Leatherworkers."
-- id: 20194
-  name: "Defiler's Leather Shoulders"
-  phase: 4
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_shoulder_24.png"
-  faction: "HORDE"
-  class_restrictions: ["ROGUE", "DRUID"]
-  stats:
-    AGILITY: 18
-    ARMOR: 258
-    ATTACK_POWER: 30
-    STAMINA: 17
-  source: "Sold by Arathi Basin vendor Rutherford Twing."
-- id: 20059
-  name: "Highlander's Leather Shoulders"
-  phase: 4
-  slot: "SHOULDERS"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_shoulder_24.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["ROGUE", "DRUID"]
-  stats:
-    AGILITY: 18
-    ARMOR: 258
-    ATTACK_POWER: 30
-    STAMINA: 17
-  source: "Sold by Arathi Basin vendors."
 - id: 20689
   name: "Abyssal Leather Shoulders"
   phase: 4

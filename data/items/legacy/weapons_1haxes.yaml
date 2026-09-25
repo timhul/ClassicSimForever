@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/1hAxes.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 18737
   name: "Bone Slicing Hatchet"
@@ -123,24 +125,6 @@
       instant: false
   special_equip_effects: ["Chance on hit: Transfers 10 health every 5 seconds from the target to the caster for 25 sec."]
   source: "Drops from Bannok Grimaxe in Lower Blackrock Spire (LBRS)."
-- id: 17016
-  name: "Dark Iron Destroyer"
-  phase: 1
-  slot: "MH"
-  type: "AXE"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_axe_12.png"
-  damage:
-    min: 71
-    max: 134
-    speed: 2.4
-  stats:
-    FIRE_RESISTANCE: 6
-    STRENGTH: 10
-  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
 - id: 17068
   name: "Deathbringer"
   phase: 1
@@ -180,44 +164,6 @@
     STAMINA: 12
     STRENGTH: 5
   source: "Drops from Guard Slip'kik and Guard Mol'dar in Dire Maul North."
-- id: 18828
-  name: "High Warlord's Cleaver"
-  phase: 2
-  slot: "1H"
-  type: "AXE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_axe_02.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 18827
-  name: "Grand Marshal's Handaxe"
-  phase: 2
-  slot: "1H"
-  type: "AXE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_axe_24.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
 - id: 13015
   name: "Serathil"
   phase: 3
@@ -236,24 +182,6 @@
     ARMOR: 100
     STRENGTH: 9
   source: "World drop."
-- id: 19103
-  name: "Frostbite"
-  phase: 3
-  slot: "1H"
-  type: "AXE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_axe_22.png"
-  faction: "HORDE"
-  damage:
-    min: 80
-    max: 150
-    speed: 2.7
-  stats:
-    STRENGTH: 15
-  source: "Purchased for 2400 honor points. Horde only."
 - id: 19362
   name: "Doom's Edge"
   phase: 3
@@ -331,68 +259,6 @@
       instant: true
   special_equip_effects: ["Chance on hit: Steals 48 to 55 life from target enemy."]
   source: "Drops from Hakkar the Soulflayer in Zul'Gurub."
-- id: 21392
-  name: "Sickle of Unyielding Strength"
-  phase: 5
-  slot: "1H"
-  type: "AXE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 70
-  icon: "Inv_axe_15.png"
-  class_restrictions: ["WARRIOR"]
-  damage:
-    min: 75
-    max: 141
-    speed: 2.1
-  stats:
-    AGILITY: 6
-    DEFENSE: 4
-    STAMINA: 9
-    STRENGTH: 15
-  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
-- id: 21401
-  name: "Scythe of the Unseen Path"
-  phase: 5
-  slot: "1H"
-  type: "AXE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 70
-  icon: "Inv_axe_15.png"
-  class_restrictions: ["HUNTER"]
-  damage:
-    min: 86
-    max: 161
-    speed: 2.4
-  stats:
-    AGILITY: 16
-    MANA_PER_5: 3
-    STAMINA: 9
-  source: "Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold."
-- id: 21242
-  name: "Blessed Qiraji War Axe"
-  phase: 5
-  slot: "1H"
-  type: "AXE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 79
-  icon: "Inv_axe_26.png"
-  damage:
-    min: 110
-    max: 205
-    speed: 2.6
-  stats:
-    ATTACK_POWER: 14
-    CRIT_CHANCE: 0.01
-    INTELLECT: 10
-    STAMINA: 9
-  source: "Reward from quest outside of Ruins of Ahn'Qiraj. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-  flavour_text: "The weapon is infused and reinforced with Elementium."
 - id: 22816
   name: "Hatchet of Sundered Bone"
   phase: 6

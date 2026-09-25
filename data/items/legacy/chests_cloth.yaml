@@ -1,21 +1,7 @@
 # Generated from ClassicSim Items/Chests/cloth.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 20642
-  name: "Antiquated Nobleman's Tunic"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 42
-  item_lvl: 47
-  icon: "Inv_chest_cloth_47.png"
-  stats:
-    ARMOR: 61
-    INTELLECT: 10
-    SPELL_DAMAGE: 13
-    STAMINA: 10
-  mutex: [20643]
-  source: "Quest reward. Trivial quest in Hinterlands."
 - id: 17741
   name: "Nature's Embrace"
   phase: 1
@@ -30,37 +16,6 @@
     MANA_PER_5: 8
     SPELL_DAMAGE_HOLY: 29
   source: "Drops from Meshlok the Harvester."
-- id: 14042
-  name: "Cindercloth Vest"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 47
-  item_lvl: 52
-  boe: true
-  icon: "Inv_chest_cloth_07.png"
-  stats:
-    ARMOR: 68
-    SPELL_DAMAGE_FIRE: 24
-    SPIRIT: 11
-  source: "Crafted by Tailorers. Requires Heart of Fire."
-- id: 14136
-  name: "Robe of Winter Night"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 52
-  item_lvl: 57
-  boe: true
-  icon: "Inv_chest_cloth_49.png"
-  stats:
-    ARMOR: 81
-    INTELLECT: 12
-    SPELL_DAMAGE_FROST: 40
-    SPELL_DAMAGE_SHADOW: 40
-  source: "Crafted by Tailorers. Requires Felcloth and Essence of Undeath / Water."
 - id: 11924
   name: "Robes of the Royal Crown"
   phase: 1
@@ -77,21 +32,6 @@
     SPIRIT: 10
     STAMINA: 19
   source: "Drops from Emperor Daugran Thaurissan in Blackrock Depths."
-- id: 14106
-  name: "Felcloth Robe"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 56
-  item_lvl: 61
-  boe: true
-  icon: "Inv_chest_cloth_09.png"
-  stats:
-    ARMOR: 79
-    SPELL_DAMAGE_SHADOW: 36
-    STAMINA: 7
-  source: "Crafted by Tailorers. Requires Felcloth and Demonic Runes."
 - id: 14626
   name: "Necropile Robe"
   phase: 1
@@ -154,40 +94,6 @@
     SPIRIT: 20
     STAMINA: 20
   source: "Drops from Ras Frostwhisper in Scholomance."
-- id: 14152
-  name: "Robe of the Archmage"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 57
-  item_lvl: 62
-  icon: "Inv_chest_cloth_38.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 96
-    INTELLECT: 12
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 40
-  modifies: ["Robe of the Archmage"]
-  special_equip_effects: ["Use: Restores 375 to 626 mana. (cooldown 5 min)"]
-  source: "Crafted by Tailorers. Pattern drops in Lower Blackrock Spire (LBRS). Requires many Essences of multiple elements."
-- id: 14153
-  name: "Robe of the Void"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 57
-  item_lvl: 62
-  icon: "Inv_chest_cloth_51.png"
-  class_restrictions: ["WARLOCK"]
-  stats:
-    ARMOR: 96
-    SPELL_DAMAGE: 46
-    STAMINA: 14
-  special_equip_effects: ["Use: Heal your pet for 450 to 750. (10 Min Cooldown)"]
-  source: "Crafted by Tailorers. Pattern drops from Darkmaster Gandling in Scholomance. Requires many Essences of multiple elements."
 - id: 16690
   name: "Devout Robe"
   phase: 1
@@ -233,22 +139,6 @@
     SPIRIT: 8
     STAMINA: 9
   source: "Drops from General Drakkisath in Upper Blackrock Spire (UBRS)."
-- id: 19156
-  name: "Flarecore Robes"
-  phase: 1
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 66
-  boe: true
-  icon: "Inv_chest_cloth_18.png"
-  stats:
-    ARMOR: 102
-    FIRE_RESISTANCE: 15
-    SPELL_DAMAGE: 23
-    STAMINA: 35
-  source: "Crafted by Tailorers. Requires materials from Molten Core."
 - id: 19145
   name: "Robes of Volatile Power"
   phase: 1
@@ -284,36 +174,6 @@
     SPIRIT: 10
     STAMINA: 19
   source: "Drops from Golemagg the Incinerator in Molten Core."
-- id: 18450
-  name: "Robe of Combustion"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "UNCOMMON"
-  req_lvl: 55
-  item_lvl: 60
-  icon: "Inv_chest_cloth_24.png"
-  stats:
-    ARMOR: 77
-    INTELLECT: 17
-    SPELL_DAMAGE_FIRE: 26
-  source: "Drops from Guard bosses in Dire Maul."
-- id: 18486
-  name: "Mooncloth Robe"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 56
-  item_lvl: 61
-  boe: true
-  icon: "Inv_chest_cloth_04.png"
-  stats:
-    ARMOR: 87
-    INTELLECT: 25
-    SPIRIT: 12
-    STAMINA: 12
-  source: "Crafted by Tailorers. Requires Mooncloth."
 - id: 18532
   name: "Mindsurge Robe"
   phase: 2
@@ -345,82 +205,6 @@
     SPIRIT: 5
     STAMINA: 11
   source: "Drops from Immol'thar in Dire Maul."
-- id: 23305
-  name: "Knight-Captain's Silk Tunic"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_chest_cloth_28.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 156
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 5
-    STAMINA: 18
-  source: "May be purchased upon reaching Knight-Captain (rank 8). Alliance only."
-- id: 22886
-  name: "Legionnaire's Silk Tunic"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_chest_cloth_28.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 156
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 5
-    STAMINA: 18
-  source: "May be purchased upon reaching Legionnaire (rank 8). Horde only."
-- id: 16443
-  name: "Field Marshal's Silk Vestments"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_cloth_12.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 183
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPIRIT: 6
-    STAMINA: 28
-  source: "May be purchased upon reaching Field Marshal (rank 13). Alliance only."
-- id: 16535
-  name: "Warlord's Silk Raiments"
-  phase: 2
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 74
-  icon: "Inv_chest_leather_01.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 183
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 33
-    SPIRIT: 6
-    STAMINA: 28
-  source: "May be purchased upon reaching Warlord (rank 13). Horde only."
 - id: 19399
   name: "Black Ash Robe"
   phase: 3
@@ -477,22 +261,6 @@
     SPIRIT: 8
     STAMINA: 26
   source: "Drops from Nefarian in Blackwing Lair."
-- id: 19682
-  name: "Bloodvine Vest"
-  phase: 4
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_chest_cloth_07.png"
-  stats:
-    ARMOR: 92
-    INTELLECT: 13
-    SPELL_DAMAGE: 27
-    SPELL_HIT_CHANCE: 0.02
-  source: "Crafted by Tailorers. Requires drops from Zul'Gurub trash."
 - id: 20032
   name: "Flowing Ritual Robes"
   phase: 4
@@ -509,23 +277,6 @@
     SPIRIT: 24
     STAMINA: 15
   source: "Drops from High Priestess Mar'li in Zul'Gurub."
-- id: 20034
-  name: "Zandalar Illusionist's Robe"
-  phase: 4
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_chest_cloth_12.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 100
-    INTELLECT: 24
-    SPELL_DAMAGE: 27
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 23
-  source: "Quest reward. Requires boss drops from Zul'Gurub and Revered with Zandalar Tribe."
 - id: 20635
   name: "Jade Inlaid Vestments"
   phase: 4
@@ -559,24 +310,6 @@
     STAMINA: 15
   mutex: [20536]
   source: "Quest reward. Requires Sunken Temple."
-- id: 22069
-  name: "Sorcerer's Robes"
-  phase: 5
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 58
-  item_lvl: 60
-  icon: "Inv_chest_cloth_25.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 93
-    INTELLECT: 25
-    SPELL_DAMAGE: 16
-    SPELL_PENETRATION: 20
-    SPIRIT: 9
-    STAMINA: 14
-  source: "Quest reward. Involves a long quest chain. Requires Magister's Robes and Magister's Crown."
 - id: 22301
   name: "Ironweave Robe"
   phase: 5
@@ -592,22 +325,6 @@
     INTELLECT: 15
     STAMINA: 24
   source: "Drops from Sothos in Stratholme Undead during T0.5 quest line."
-- id: 21183
-  name: "Earthpower Vest"
-  phase: 5
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_chest_cloth_06.png"
-  stats:
-    ARMOR: 93
-    INTELLECT: 22
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 25
-  mutex: [21181, 21182]
-  source: "Quest reward. Requires completing repeatable quests in Silithus."
 - id: 21499
   name: "Vestments of the Shifting Sands"
   phase: 5
@@ -674,42 +391,6 @@
     SPIRIT: 8
     STAMINA: 23
   source: "Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40)."
-- id: 21527
-  name: "Darkwater Robes"
-  phase: 5
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 77
-  icon: "Inv_chest_cloth_31.png"
-  stats:
-    ARMOR: 117
-    FIRE_RESISTANCE: 30
-    INTELLECT: 17
-    SPELL_DAMAGE_FROST: 39
-    STAMINA: 17
-  mutex: [21526]
-  source: "Quest reward. Part of the Scepter of Ahn'Qiraj quest chain."
-- id: 21343
-  name: "Enigma Robes"
-  phase: 5
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_chest_cloth_11.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 133
-    INTELLECT: 23
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 39
-    SPELL_PENETRATION: 20
-    SPIRIT: 7
-    STAMINA: 19
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
 - id: 23085
   name: "Robe of Undead Cleansing"
   phase: 6
@@ -725,22 +406,6 @@
     SPELL_DAMAGE_UNDEAD: 48
     STAMINA: 12
   source: "Drops from Shadow of Doom, a rare elite spawned in various regions during the Scourge Invasion event."
-- id: 22756
-  name: "Sylvan Vest"
-  phase: 6
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 70
-  boe: true
-  icon: "Inv_chest_plate07.png"
-  stats:
-    ARMOR: 98
-    NATURE_RESISTANCE: 30
-    SPELL_DAMAGE: 12
-    STAMINA: 15
-  source: "Crafted by Tailorers. Pattern requires drops from Zul'Gurub trash."
 - id: 23069
   name: "Necro-Knight's Garb"
   phase: 6
@@ -756,22 +421,6 @@
     SPELL_DAMAGE: 37
     STAMINA: 32
   source: "Drops from trash mobs in Naxxramas."
-- id: 22652
-  name: "Glacial Vest"
-  phase: 6
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 80
-  boe: true
-  icon: "Inv_chest_cloth_08.png"
-  stats:
-    ARMOR: 121
-    FROST_RESISTANCE: 40
-    SPELL_DAMAGE: 21
-    STAMINA: 26
-  source: "Crafted by Tailorers. Requires materials from Naxxramas."
 - id: 23220
   name: "Crystal Webbed Robe"
   phase: 6
@@ -787,39 +436,3 @@
     SPELL_DAMAGE: 53
     STAMINA: 25
   source: "Drops from Maexxna in Naxxramas."
-- id: 22496
-  name: "Frostfire Robe"
-  phase: 6
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 92
-  icon: "Inv_chest_cloth_43.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 138
-    INTELLECT: 27
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 47
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 21
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 22504
-  name: "Plagueheart Robe"
-  phase: 6
-  slot: "CHEST"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 92
-  icon: "Inv_chest_cloth_43.png"
-  class_restrictions: ["WARLOCK"]
-  stats:
-    ARMOR: 138
-    INTELLECT: 22
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 51
-    SPELL_HIT_CHANCE: 0.01
-    STAMINA: 27
-  source: "Quest reward. Requires boss drops from Naxxramas."

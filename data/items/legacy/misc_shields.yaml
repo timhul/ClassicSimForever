@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Misc/Shields.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 17066
   name: "Drillborer Disk"

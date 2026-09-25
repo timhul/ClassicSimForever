@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/Polearms.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 13056
   name: "Frenzied Striker"
@@ -62,28 +64,6 @@
       instant: true
   special_equip_effects: ["Chance on hit: Steals 100 to 181 life from target enemy.", "Use: Transforms Shadowstrike into Thunderstrike. (cooldown 1 min)"]
   source: "Drops from Sulfuron Harbinger in Molten Core."
-- id: 17223
-  name: "Thunderstrike"
-  phase: 1
-  slot: "2H"
-  type: "POLEARM"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 63
-  icon: "Inv_spear_08.png"
-  damage:
-    min: 147
-    max: 221
-    speed: 3.1
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.051666667
-      min: 150
-      max: 251
-      spell_dmg_coefficient: 0.0
-      instant: true
-  special_equip_effects: ["Chance on hit: Blasts up to 3 targets for 150 to 251 Nature damage. Each target after the first takes less damage.", "Use: Transforms Thunderstrike into Shadowstrike. (cooldown 1 min)"]
-  source: "Transformed from Shadowstrike, which drops from Sulfuron Harbinger in Molten Core."
 - id: 18725
   name: "Peacemaker"
   phase: 1
@@ -101,83 +81,6 @@
     ATTACK_POWER: 54
     CRIT_CHANCE: 0.01
   source: "Drops from Magistrate Barthilas in Stratholme Undead."
-- id: 18869
-  name: "Grand Marshal's Glaive"
-  phase: 2
-  slot: "2H"
-  type: "POLEARM"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_spear_08.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
-- id: 18871
-  name: "High Warlord's Pig Sticker"
-  phase: 2
-  slot: "2H"
-  type: "POLEARM"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_spear_01.png"
-  faction: "HORDE"
-  damage:
-    min: 235
-    max: 353
-    speed: 3.8
-  stats:
-    CRIT_CHANCE: 0.01
-    STAMINA: 41
-    STRENGTH: 26
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 19167
-  name: "Blackfury"
-  phase: 3
-  slot: "2H"
-  type: "POLEARM"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 66
-  boe: true
-  icon: "Inv_spear_08.png"
-  damage:
-    min: 105
-    max: 158
-    speed: 2.1
-  stats:
-    CRIT_CHANCE: 0.01
-    FIRE_RESISTANCE: 10
-    STAMINA: 15
-    STRENGTH: 35
-  source: "Crafted by Blacksmiths (300 skill). Requires Molten Core materials."
-- id: 19106
-  name: "Ice Barbed Spear"
-  phase: 3
-  slot: "2H"
-  type: "POLEARM"
-  quality: "RARE"
-  req_lvl: 51
-  item_lvl: 63
-  icon: "Inv_spear_04.png"
-  damage:
-    min: 155
-    max: 233
-    speed: 3.6
-  stats:
-    AGILITY: 21
-    STAMINA: 20
-    STRENGTH: 13
-  mutex: [19107, 19108, 20648]
-  source: "Quest reward. Requires winning Alterac Valley."
 - id: 19963
   name: "Pitchfork of Madness"
   phase: 4

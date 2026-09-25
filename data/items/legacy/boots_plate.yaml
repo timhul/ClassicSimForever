@@ -1,20 +1,7 @@
 # Generated from ClassicSim Items/Boots/plate.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 11919
-  name: "Cragplate Greaves"
-  phase: 1
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "UNCOMMON"
-  req_lvl: 49
-  item_lvl: 55
-  icon: "Inv_boots_plate_08.png"
-  stats:
-    ARMOR: 361
-    STAMINA: 12
-    STRENGTH: 12
-  mutex: [11918]
-  source: "Quest reward. Trivial quest in Un'Goro Crater."
 - id: 12555
   name: "Battlechaser's Greaves"
   phase: 1
@@ -65,24 +52,6 @@
     STAMINA: 30
     STRENGTH: 13
   source: "Drops from Broodlord Lashlayer."
-- id: 23287
-  name: "Knight-Lieutenant's Plate Greaves"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_boots_plate_09.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 9
-    ARMOR: 472
-    STAMINA: 23
-    STRENGTH: 10
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7)."
 - id: 16862
   name: "Sabatons of Might"
   phase: 1
@@ -100,99 +69,6 @@
     STAMINA: 26
     STRENGTH: 15
   source: "Drops from Gehennas in Molten Core."
-- id: 22858
-  name: "Blood Guard's Plate Greaves"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_boots_plate_09.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 9
-    ARMOR: 472
-    STAMINA: 23
-    STRENGTH: 10
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Blood Guard (rank 7)."
-- id: 23275
-  name: "Knight-Lieutenant's Lamellar Greaves"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 66
-  icon: "Inv_boots_plate_03.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 472
-    INTELLECT: 12
-    SPELL_DAMAGE: 15
-    STAMINA: 12
-    STRENGTH: 12
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7)."
-- id: 16472
-  name: "Marshal's Lamellar Boots"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_boots_plate_09.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 552
-    INTELLECT: 15
-    MANA_PER_5: 6
-    SPELL_DAMAGE: 18
-    STAMINA: 16
-    STRENGTH: 15
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12)."
-- id: 16483
-  name: "Marshal's Plate Boots"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_boots_plate_09.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 12
-    ARMOR: 592
-    HIT_CHANCE: 0.01
-    STAMINA: 23
-    STRENGTH: 18
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12)."
-- id: 16545
-  name: "General's Plate Boots"
-  phase: 2
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_boots_plate_04.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 12
-    ARMOR: 592
-    HIT_CHANCE: 0.01
-    STAMINA: 23
-    STRENGTH: 18
-  source: "Purchased with Honor Points and Arathi Basin marks. Requires General (rank 12)."
 - id: 19387
   name: "Chromatic Boots"
   phase: 3
@@ -209,64 +85,6 @@
     STAMINA: 19
     STRENGTH: 20
   source: "Drops from Chromaggus in Blackwing Lair."
-- id: 20049
-  name: "Highlander's Lamellar Greaves"
-  phase: 4
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_boots_plate_04.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["PALADIN"]
-  stats:
-    AGILITY: 12
-    ARMOR: 452
-    INTELLECT: 8
-    STAMINA: 8
-    STRENGTH: 14
-  special_equip_effects: ["Equip: Run speed increased slightly."]
-  source: "Requires Revered with League of Arathor (Arathi Basin faction)."
-- id: 20048
-  name: "Highlander's Plate Greaves"
-  phase: 4
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_boots_plate_04.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR", "PALADIN"]
-  stats:
-    AGILITY: 12
-    ARMOR: 452
-    STAMINA: 12
-    STRENGTH: 14
-  special_equip_effects: ["Equip: Run speed increased slightly."]
-  source: "Requires Revered with League of Arathor (Arathi Basin faction)."
-- id: 20208
-  name: "Defiler's Plate Greaves"
-  phase: 4
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_boots_plate_04.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 12
-    ARMOR: 452
-    STAMINA: 12
-    STRENGTH: 14
-  special_equip_effects: ["Equip: Run speed increased slightly."]
-  source: "Requires Revered with League of Arathor (Arathi Basin faction)."
 - id: 21481
   name: "Boots of the Desert Protector"
   phase: 5
@@ -315,40 +133,3 @@
     STAMINA: 22
     STRENGTH: 20
   source: "Drops from Vem (Bug Trio) in Temple of Ahn'Qiraj (AQ40)."
-- id: 21333
-  name: "Conqueror's Greaves"
-  phase: 5
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_boots_plate_05.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 17
-    ARMOR: 604
-    DEFENSE: 4
-    STAMINA: 23
-    STRENGTH: 21
-  source: "Quest reward. Requires drops from bosses in Temple of Ahn'Qiraj (AQ40)."
-- id: 21388
-  name: "Avenger's Greaves"
-  phase: 5
-  slot: "BOOTS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_boots_chain_07.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    AGILITY: 13
-    ARMOR: 604
-    INTELLECT: 14
-    MANA_PER_5: 4
-    SPELL_DAMAGE: 14
-    SPIRIT: 6
-    STAMINA: 18
-    STRENGTH: 18
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."

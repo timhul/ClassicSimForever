@@ -354,3 +354,31 @@ fn exported_items_differ_from_classic_only_as_reviewed() {
         "differences to review:\nnew: {new:#?}\nno longer different: {gone:#?}"
     );
 }
+
+/// `data/items/legacy/` only holds Rare+ items the export does not produce (decision D1/D2).
+#[test]
+fn legacy_items_only_fill_the_gaps_of_the_export() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/items");
+    let exported: std::collections::BTreeSet<u32> = export::items::read_item_specs(&root)
+        .unwrap()
+        .iter()
+        .map(|item| item.id)
+        .collect();
+    let legacy = export::items::read_item_specs(&root.join("legacy")).unwrap();
+    assert!(!legacy.is_empty());
+    for item in &legacy {
+        assert!(
+            !exported.contains(&item.id),
+            "{} {} is exported; drop it from data/items/legacy/",
+            item.id,
+            item.name
+        );
+        assert!(
+            item.quality >= csim_engine::item::Quality::Rare,
+            "{} {} is {:?}; only Rare+ items are kept",
+            item.id,
+            item.name,
+            item.quality
+        );
+    }
+}

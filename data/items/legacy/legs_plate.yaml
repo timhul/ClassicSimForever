@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Legs/plate.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 17711
   name: "Elemental Rockridge Leggings"
@@ -15,21 +17,6 @@
     STAMINA: 18
     STRENGTH: 20
   source: "Drops from Princess Theradras in Maraudon."
-- id: 21316
-  name: "Leggings of the Ursa"
-  phase: 1
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "UNCOMMON"
-  req_lvl: 45
-  item_lvl: 55
-  icon: "Inv_pants_mail_10.png"
-  stats:
-    ARMOR: 459
-    CRIT_CHANCE: 0.01
-    STRENGTH: 17
-  mutex: [21317]
-  source: "Quest reward. Trivial quest in Winterspring."
 - id: 11802
   name: "Lavacrest Leggings"
   phase: 1
@@ -130,24 +117,6 @@
     STAMINA: 20
     STRENGTH: 15
   source: "Drops from Prince Tortheldrin in Dire Maul."
-- id: 23301
-  name: "Knight-Captain's Plate Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_pants_06.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 618
-    CRIT_CHANCE: 0.02
-    STAMINA: 17
-    STRENGTH: 12
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8)."
 - id: 16962
   name: "Legplates of Wrath"
   phase: 1
@@ -167,99 +136,6 @@
     STAMINA: 27
     STRENGTH: 19
   source: "Drops from Ragnaros in Molten Core."
-- id: 22873
-  name: "Legionnaire's Plate Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_pants_06.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 618
-    CRIT_CHANCE: 0.02
-    STAMINA: 17
-    STRENGTH: 12
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Legionnaire (rank 8)."
-- id: 23273
-  name: "Knight-Captain's Lamellar Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_pants_06.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 618
-    INTELLECT: 12
-    SPELL_DAMAGE: 25
-    STAMINA: 17
-    STRENGTH: 18
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8)."
-- id: 16475
-  name: "Marshal's Lamellar Legplates"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_pants_04.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    ARMOR: 703
-    CRIT_CHANCE: 0.01
-    INTELLECT: 17
-    SPELL_DAMAGE: 27
-    STAMINA: 20
-    STRENGTH: 20
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12)."
-- id: 16479
-  name: "Marshal's Plate Legguards"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_pants_04.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 743
-    CRIT_CHANCE: 0.02
-    HIT_CHANCE: 0.01
-    STAMINA: 28
-    STRENGTH: 20
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12)."
-- id: 16543
-  name: "General's Plate Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_pants_04.png"
-  faction: "HORDE"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    ARMOR: 743
-    CRIT_CHANCE: 0.02
-    HIT_CHANCE: 0.01
-    STAMINA: 28
-    STRENGTH: 20
-  source: "Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12)."
 - id: 19402
   name: "Legguards of the Fallen Crusader"
   phase: 3
@@ -306,74 +182,6 @@
     STAMINA: 21
     STRENGTH: 36
   source: "Drops from Hakkar in Zul'Gurub."
-- id: 22651
-  name: "Outrider's Plate Legguards"
-  phase: 4
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_pants_plate_20.png"
-  faction: "HORDE"
-  stats:
-    ARMOR: 646
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 27
-    STRENGTH: 28
-  source: "Sold by Warsong Gulch vendor Kelm Hargunth. Requires Exalted with Warsong Outriders."
-- id: 22672
-  name: "Sentinel's Plate Legguards"
-  phase: 4
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_pants_plate_20.png"
-  faction: "ALLIANCE"
-  stats:
-    ARMOR: 646
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 27
-    STRENGTH: 28
-  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels."
-- id: 22753
-  name: "Sentinel's Lamellar Legguards"
-  phase: 4
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_pants_plate_15.png"
-  faction: "ALLIANCE"
-  stats:
-    ARMOR: 646
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    SPELL_DAMAGE: 25
-    STAMINA: 21
-    STRENGTH: 21
-  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels."
-- id: 22385
-  name: "Titanic Leggings"
-  phase: 5
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 55
-  item_lvl: 60
-  boe: true
-  icon: "Inv_pants_04.png"
-  stats:
-    ARMOR: 598
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.02
-    STRENGTH: 30
-  source: "Crafted by blacksmiths. Plans mainly drop from world bosses and Nefarian, Onyxia, Ragnaros."
 - id: 21495
   name: "Legplates of the Qiraji Command"
   phase: 5
@@ -389,45 +197,6 @@
     STAMINA: 13
     STRENGTH: 20
   source: "Drops from General Rajaxx in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21332
-  name: "Conqueror's Legguards"
-  phase: 5
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_pants_plate_03.png"
-  class_restrictions: ["WARRIOR"]
-  stats:
-    AGILITY: 21
-    ARMOR: 796
-    DEFENSE: 6
-    HIT_CHANCE: 0.01
-    STAMINA: 24
-    STRENGTH: 33
-  source: "Quest reward. Requires drops from Ouro in Temple of Ahn'Qiraj (AQ40)."
-- id: 21390
-  name: "Avenger's Legguards"
-  phase: 5
-  slot: "LEGS"
-  type: "PLATE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_pants_plate_02.png"
-  class_restrictions: ["PALADIN"]
-  stats:
-    AGILITY: 12
-    ARMOR: 796
-    CRIT_CHANCE: 0.01
-    INTELLECT: 22
-    MANA_PER_5: 4
-    SPELL_DAMAGE: 16
-    SPIRIT: 9
-    STAMINA: 22
-    STRENGTH: 21
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
 - id: 23068
   name: "Legplates of Carnage"
   phase: 6

@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Legs/cloth.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 14632
   name: "Necropile Leggings"
@@ -149,44 +151,6 @@
     MANA_PER_5: 14
     STAMINA: 19
   source: "Drops from multiple bosses in Molten Core."
-- id: 23304
-  name: "Knight-Captain's Silk Legguards"
-  phase: 2
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_pants_11.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 144
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 5
-    STAMINA: 18
-  source: "May be purchased upon reaching Knight-Captain (rank 8). Alliance only."
-- id: 22883
-  name: "Legionnaire's Silk Legguards"
-  phase: 2
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 68
-  icon: "Inv_pants_11.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 144
-    INTELLECT: 17
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 21
-    SPIRIT: 5
-    STAMINA: 18
-  source: "May be purchased upon reaching Legionnaire (rank 8). Horde only."
 - id: 18545
   name: "Leggings of Arcane Supremacy"
   phase: 2
@@ -204,60 +168,6 @@
     SPELL_DAMAGE_ARCANE: 36
     SPIRIT: 14
   source: "Drops from Azuregos (world boss)."
-- id: 19165
-  name: "Flarecore Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 70
-  boe: true
-  icon: "Inv_pants_06.png"
-  stats:
-    ARMOR: 94
-    FIRE_RESISTANCE: 16
-    SPELL_DAMAGE: 43
-    STAMINA: 21
-  source: "Crafted by Tailorers. Requires materials from Molten Core."
-- id: 16534
-  name: "General's Silk Trousers"
-  phase: 2
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_pants_07.png"
-  faction: "HORDE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 155
-    INTELLECT: 20
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 30
-    SPIRIT: 10
-    STAMINA: 26
-  source: "May be purchased upon reaching General (rank 12). Horde only."
-- id: 16442
-  name: "Marshal's Silk Leggings"
-  phase: 2
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_pants_08.png"
-  faction: "ALLIANCE"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 155
-    INTELLECT: 20
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 30
-    SPIRIT: 10
-    STAMINA: 26
-  source: "May be purchased upon reaching Marshal (rank 12). Alliance only."
 - id: 19133
   name: "Fel Infused Leggings"
   phase: 2
@@ -272,22 +182,6 @@
     SPELL_DAMAGE_SHADOW: 64
     STAMINA: 21
   source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
-- id: 20538
-  name: "Runed Stygian Leggings"
-  phase: 4
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  boe: true
-  icon: "Inv_pants_cloth_05.png"
-  stats:
-    ARMOR: 78
-    MANA_PER_5: 6
-    SHADOW_RESISTANCE: 25
-    STAMINA: 13
-  source: "Crafted by Tailorers. Requires Dark Runes and Felcloth."
 - id: 19895
   name: "Bloodtinged Kilt"
   phase: 4
@@ -303,56 +197,6 @@
     SPELL_DAMAGE: 28
     STAMINA: 20
   source: "Drops from Bloodlord Mandokir in Zul'Gurub."
-- id: 19683
-  name: "Bloodvine Leggings"
-  phase: 4
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_pants_cloth_14.png"
-  stats:
-    ARMOR: 80
-    INTELLECT: 6
-    SPELL_DAMAGE: 37
-    SPELL_HIT_CHANCE: 0.01
-  source: "Crafted by Tailorers. Requires drops from Zul'Gurub trash."
-- id: 22747
-  name: "Outrider's Silk Leggings"
-  phase: 4
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_pants_cloth_05.png"
-  faction: "HORDE"
-  stats:
-    ARMOR: 188
-    INTELLECT: 19
-    SPELL_DAMAGE: 28
-    SPIRIT: 10
-    STAMINA: 23
-  source: "Sold by Warsong Gulch vendor Kelm Hargunth. Requires Exalted with Warsong Outriders."
-- id: 22752
-  name: "Sentinel's Silk Leggings"
-  phase: 4
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_pants_cloth_05.png"
-  faction: "ALLIANCE"
-  stats:
-    ARMOR: 188
-    INTELLECT: 19
-    SPELL_DAMAGE: 28
-    SPIRIT: 10
-    STAMINA: 23
-  source: "Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels."
 - id: 22342
   name: "Leggings of Torment"
   phase: 5
@@ -368,40 +212,6 @@
     SPELL_DAMAGE_SHADOW: 34
     STAMINA: 16
   source: "Drops from Lord Valthalak in Upper Blackrock Spire (UBRS)."
-- id: 20705
-  name: "Cenarion Reservist's Pants"
-  phase: 5
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 63
-  icon: "Inv_pants_cloth_06.png"
-  class_restrictions: ["MAGE", "WARLOCK"]
-  stats:
-    ARMOR: 78
-    NATURE_RESISTANCE: 25
-    SPELL_DAMAGE: 15
-    STAMINA: 13
-  mutex: [20716]
-  source: "Quest reward. Involves a quest chain that partly requires a raid."
-- id: 22067
-  name: "Sorcerer's Leggings"
-  phase: 5
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "RARE"
-  req_lvl: 58
-  item_lvl: 66
-  icon: "Inv_pants_06.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 81
-    INTELLECT: 22
-    SPELL_DAMAGE: 16
-    SPIRIT: 10
-    STAMINA: 17
-  source: "Quest reward. Requires Magister's Leggings."
 - id: 21676
   name: "Leggings of the Festering Swarm"
   phase: 5
@@ -434,40 +244,6 @@
     SPIRIT: 8
     STAMINA: 14
   source: "Drops from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20)."
-- id: 21346
-  name: "Enigma Leggings"
-  phase: 5
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_pants_cloth_08.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 107
-    INTELLECT: 26
-    MANA_PER_5: 5
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 34
-    SPIRIT: 8
-    STAMINA: 21
-  source: "Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40)."
-- id: 22700
-  name: "Glacial Leggings"
-  phase: 6
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 80
-  icon: "Inv_pants_06.png"
-  stats:
-    ARMOR: 106
-    FROST_RESISTANCE: 40
-    SPELL_DAMAGE: 18
-    STAMINA: 28
-  source: "Crafted by Argent Dawn NPC. Requires expensive materials to craft."
 - id: 23070
   name: "Leggings of Polarity"
   phase: 6
@@ -484,39 +260,3 @@
     SPELL_DAMAGE: 44
     STAMINA: 20
   source: "Drops from Thaddius in Naxxramas."
-- id: 22497
-  name: "Frostfire Leggings"
-  phase: 6
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_pants_cloth_05.png"
-  class_restrictions: ["MAGE"]
-  stats:
-    ARMOR: 116
-    INTELLECT: 26
-    SPELL_DAMAGE: 46
-    SPELL_HIT_CHANCE: 0.01
-    SPIRIT: 10
-    STAMINA: 25
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 22505
-  name: "Plagueheart Leggings"
-  phase: 6
-  slot: "LEGS"
-  type: "CLOTH"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_pants_cloth_05.png"
-  class_restrictions: ["WARLOCK"]
-  stats:
-    ARMOR: 116
-    INTELLECT: 25
-    SPELL_CRIT_CHANCE: 0.01
-    SPELL_DAMAGE: 37
-    SPELL_PENETRATION: 10
-    STAMINA: 30
-  source: "Quest reward. Requires boss drops from Naxxramas."

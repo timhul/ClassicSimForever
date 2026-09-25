@@ -1,4 +1,6 @@
 # Generated from ClassicSim Items/Weapons/1hMaces.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
 - id: 11805
   name: "Rubidium Hammer"
@@ -176,24 +178,6 @@
     SPELL_DAMAGE: 25
     STAMINA: 10
   source: "Drops from Garr in Molten Core."
-- id: 19104
-  name: "Stormstrike Hammer"
-  phase: 3
-  slot: "1H"
-  type: "MACE"
-  quality: "RARE"
-  unique: true
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_hammer_21.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 80
-    max: 150
-    speed: 2.7
-  stats:
-    STRENGTH: 15
-  source: "Purchased for 2400 honor points. Alliance only."
 - id: 13006
   name: "Mass of McGowan"
   phase: 1
@@ -236,44 +220,6 @@
         melee_weapon_side: true
   special_equip_effects: ["Chance on hit: Increases your attack speed by 20% for 10 sec."]
   source: "Drops from Lord Kazzak (world boss)."
-- id: 18866
-  name: "High Warlord's Bludgeon"
-  phase: 2
-  slot: "1H"
-  type: "MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_hammer_20.png"
-  faction: "HORDE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching High Warlord (rank 14). Horde only."
-- id: 18865
-  name: "Grand Marshal's Punisher"
-  phase: 2
-  slot: "1H"
-  type: "MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 78
-  icon: "Inv_mace_13.png"
-  faction: "ALLIANCE"
-  damage:
-    min: 138
-    max: 207
-    speed: 2.9
-  stats:
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 7
-  source: "May be purchased upon reaching Grand Marshal (rank 14). Alliance only."
 - id: 19335
   name: "Spineshatter"
   phase: 3
@@ -293,32 +239,6 @@
     STAMINA: 16
     STRENGTH: 9
   source: "Drops from Razorgore the Untamed in Blackwing Lair."
-- id: 19170
-  name: "Ebon Hand"
-  phase: 3
-  slot: "1H"
-  type: "MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 70
-  boe: true
-  icon: "Inv_hammer_19.png"
-  damage:
-    min: 90
-    max: 168
-    speed: 2.5
-  stats:
-    FIRE_RESISTANCE: 7
-    STAMINA: 9
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.038333333
-      min: 125
-      max: 275
-      spell_dmg_coefficient: 0.0
-      instant: true
-  special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 125 to 275 Shadow damage."]
-  source: "Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials."
 - id: 19908
   name: "Sceptre of Smiting"
   phase: 4
@@ -381,24 +301,6 @@
     STAMINA: 10
   source: "Drops from Nefarian in Blackwing Lair."
   flavour_text: "\"The Hand of Nefarius\""
-- id: 22384
-  name: "Persuader"
-  phase: 5
-  slot: "MH"
-  type: "MACE"
-  quality: "EPIC"
-  req_lvl: 58
-  item_lvl: 63
-  boe: true
-  icon: "Inv_hammer_08.png"
-  damage:
-    min: 86
-    max: 161
-    speed: 2.7
-  stats:
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-  source: "Created by Blacksmiths (plans are world drop/raid bosses)."
 - id: 21837
   name: "Anubisath Warhammer"
   phase: 5
@@ -479,23 +381,3 @@
       instant: true
   special_equip_effects: ["Chance to discharge electricity causing 100 to 151 Nature damage to your target."]
   source: "Drops from trash mobs in Naxxramas."
-- id: 21268
-  name: "Blessed Qiraji War Hammer"
-  phase: 5
-  slot: "1H"
-  type: "MACE"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 79
-  icon: "Inv_mace_24.png"
-  damage:
-    min: 89
-    max: 166
-    speed: 2.1
-  stats:
-    ARMOR: 70
-    DEFENSE: 8
-    FERAL_ATTACK_POWER: 280
-    STAMINA: 12
-    STRENGTH: 10
-  source: "Quest reward from turning in an Imperial Qiraji Regalia in AQ40."

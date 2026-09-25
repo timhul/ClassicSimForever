@@ -1,19 +1,7 @@
 # Generated from ClassicSim Items/Gloves/leather.xml by tools/convert_items.py.
+# Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
+# their ItemSparse row); the exported data/items/*.yaml take precedence.
 
-- id: 12114
-  name: "Nightfall Gloves"
-  phase: 1
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "UNCOMMON"
-  req_lvl: 48
-  item_lvl: 56
-  icon: "Inv_gauntlets_17.png"
-  stats:
-    AGILITY: 12
-    ARMOR: 91
-    STRENGTH: 12
-  source: "Quest reward. Requires Lord Incendius in Blackrock Depths."
 - id: 13957
   name: "Gargoyle Slashers"
   phase: 1
@@ -30,52 +18,6 @@
     STAMINA: 12
     STRENGTH: 10
   source: "Drops from Kirtonos the Herald in Scholomance."
-- id: 21319
-  name: "Gloves of the Pathfinder"
-  phase: 1
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "UNCOMMON"
-  req_lvl: 45
-  item_lvl: 58
-  icon: "Inv_gauntlets_21.png"
-  stats:
-    AGILITY: 12
-    ARMOR: 94
-    STRENGTH: 13
-  mutex: [21318, 21320, 21322]
-  source: "Quest reward. Trivial quest in Winterspring."
-- id: 15708
-  name: "Blight Leather Gloves"
-  phase: 1
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "UNCOMMON"
-  req_lvl: 48
-  item_lvl: 58
-  icon: "Inv_gauntlets_25.png"
-  stats:
-    AGILITY: 13
-    ARMOR: 94
-    STAMINA: 8
-    STRENGTH: 8
-  source: "Quest reward. Trivial quest in Felwood."
-- id: 15063
-  name: "Devilsaur Gauntlets"
-  phase: 1
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 53
-  item_lvl: 58
-  boe: true
-  icon: "Inv_gauntlets_26.png"
-  stats:
-    ARMOR: 103
-    ATTACK_POWER: 28
-    CRIT_CHANCE: 0.01
-    STAMINA: 9
-  source: "Crafted by Leatherworkers. Pattern easily obtainable (vendor) at 290 Tribal Leatherworking."
 - id: 16712
   name: "Shadowcraft Gloves"
   phase: 1
@@ -174,26 +116,6 @@
     SHADOW_RESISTANCE: 8
     STAMINA: 14
   source: "Drops from Lord Kazzak (world boss in Blasted Lands)."
-- id: 16555
-  name: "General's Dragonhide Gloves"
-  phase: 2
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "EPIC"
-  unique: true
-  req_lvl: 60
-  item_lvl: 71
-  icon: "Inv_gauntlets_25.png"
-  faction: "HORDE"
-  class_restrictions: ["DRUID"]
-  stats:
-    AGILITY: 19
-    ARMOR: 173
-    SPELL_DAMAGE: 12
-    STAMINA: 15
-    STRENGTH: 20
-  special_equip_effects: ["Equip: Slightly increases your stealth detection."]
-  source: "This item is obtainable from Lady Palanseer upon reaching Honor Rank 12/General."
 - id: 16907
   name: "Bloodfang Gloves"
   phase: 3
@@ -212,22 +134,6 @@
     STRENGTH: 19
   special_equip_effects: ["Equip: Immune to Disarm."]
   source: "Drops from Ebonroc/Flamegor/Firemaw in Blackwing Lair."
-- id: 19686
-  name: "Primal Batskin Gloves"
-  phase: 4
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 60
-  item_lvl: 65
-  boe: true
-  icon: "Inv_gauntlets_31.png"
-  stats:
-    AGILITY: 10
-    ARMOR: 113
-    HIT_CHANCE: 0.02
-    STAMINA: 9
-  source: "Crafted by Leatherworkers (300 skill). Materials include skinning Zul'Gurub bats. Pattern requires Honored with Zandalar Tribe."
 - id: 19869
   name: "Blooddrenched Grips"
   phase: 4
@@ -243,22 +149,6 @@
     CRIT_CHANCE: 0.01
     STAMINA: 16
   source: "Drops from Bloodlord Mandokir in Zul'Gurub."
-- id: 21672
-  name: "Gloves of Enforcement"
-  phase: 5
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 76
-  icon: "Inv_gauntlets_17.png"
-  stats:
-    AGILITY: 20
-    ARMOR: 140
-    HIT_CHANCE: 0.01
-    STAMINA: 6
-    STRENGTH: 28
-  source: "Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40)."
 - id: 21682
   name: "Bile-Covered Gauntlets"
   phase: 5
@@ -275,68 +165,6 @@
     STAMINA: 21
     STRENGTH: 10
   source: "Drops from Princess Yauj (bug trio) in Temple of Ahn'Qiraj (AQ40)."
-- id: 21605
-  name: "Gloves of the Hidden Temple"
-  phase: 5
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 81
-  icon: "Inv_gauntlets_19.png"
-  stats:
-    AGILITY: 21
-    ARMOR: 248
-    SHADOW_RESISTANCE: 6
-    STAMINA: 22
-    STRENGTH: 18
-  source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
-- id: 21178
-  name: "Gloves of Earthen Power"
-  phase: 5
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 54
-  item_lvl: 62
-  icon: "Inv_gauntlets_18.png"
-  stats:
-    ARMOR: 109
-    INTELLECT: 9
-    SPELL_DAMAGE: 27
-  source: "Reward from Silithus Quest: Volunteer's Battlegear"
-- id: 22481
-  name: "Bonescythe Gauntlets"
-  phase: 6
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 88
-  icon: "Inv_gauntlets_28.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    ARMOR: 158
-    ATTACK_POWER: 66
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-    STAMINA: 20
-  source: "Quest reward. Requires boss drops from Naxxramas."
-- id: 21278
-  name: "Stormshroud Gloves"
-  phase: 1
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "RARE"
-  req_lvl: 57
-  item_lvl: 62
-  boe: true
-  icon: "Inv_gauntlets_05.png"
-  stats:
-    ARMOR: 109
-    CRIT_CHANCE: 0.01
-    HIT_CHANCE: 0.01
-  source: "Crafted by Leatherworkers."
 - id: 20259
   name: "Shadow Panther Hide Gloves"
   phase: 4
@@ -353,22 +181,6 @@
     STAMINA: 10
     STRENGTH: 15
   source: "Drops from Trash in Zul'Gurub."
-- id: 22006
-  name: "Darkmantle Gloves"
-  phase: 5
-  slot: "GLOVES"
-  type: "LEATHER"
-  quality: "EPIC"
-  req_lvl: 60
-  item_lvl: 65
-  icon: "Inv_gauntlets_24.png"
-  class_restrictions: ["ROGUE"]
-  stats:
-    AGILITY: 22
-    ARMOR: 108
-    STAMINA: 9
-    STRENGTH: 12
-  source: "Darkmantle Quest line (Shadowcraft required)."
 - id: 13258
   name: "Slaghide Gauntlets"
   phase: 6
