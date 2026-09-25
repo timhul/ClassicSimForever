@@ -1,4 +1,5 @@
-//! `csim run`: simulates one character setup and prints the results.
+//! `csim run`: simulates one character setup and prints the results as text tables, YAML or
+//! HTML (`--output-format`), to stdout or a file (`--output-file`).
 
 use std::fmt::Write;
 use std::io::IsTerminal;
@@ -7,13 +8,14 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use clap::Args;
+use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::raid::RaidControl;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{run_threaded, Progress, SimMode};
 use csim_engine::sim_settings::{SimOption, SimSettings};
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
+use serde::Serialize;
 
 use crate::table::{percent, Table};
 use crate::Result;
@@ -46,6 +48,22 @@ pub struct RunArgs {
         value_name = "OPTIONS"
     )]
     scale: Option<Vec<SimOption>>,
+    /// The format of the results.
+    #[arg(long, value_enum, default_value_t = OutputFormat::Terminal)]
+    output_format: OutputFormat,
+    /// Writes the results to this file instead of stdout.
+    #[arg(long, value_name = "PATH")]
+    output_file: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum OutputFormat {
+    /// Plain text tables.
+    Terminal,
+    /// The raw numbers as YAML.
+    Yaml,
+    /// A self-contained HTML page.
+    Html,
 }
 
 /// A scaling option by its serde name with or without the `SCALE_` prefix (`hit_chance`,
@@ -150,16 +168,23 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         eprint!("\r{:<20}\r", "");
     }
 
-    print!(
-        "{}",
-        report(&Report {
-            setup: &setup,
-            settings: &settings,
-            seed,
-            elapsed,
-            cruncher: &cruncher,
-        })
-    );
+    let results = Results::collect(&Report {
+        setup: &setup,
+        settings: &settings,
+        seed,
+        elapsed,
+        cruncher: &cruncher,
+    });
+    let output = match args.output_format {
+        OutputFormat::Terminal => results.text(),
+        OutputFormat::Yaml => results.yaml()?,
+        OutputFormat::Html => crate::html::render(&results),
+    };
+    match &args.output_file {
+        None => print!("{output}"),
+        Some(path) => std::fs::write(path, output)
+            .map_err(|error| format!("cannot write {}: {error}", path.display()))?,
+    }
     Ok(())
 }
 
@@ -182,7 +207,7 @@ fn progress_bar(total: u32) -> Progress {
     })
 }
 
-/// What a run printed from.
+/// What a run's results are collected from.
 pub struct Report<'a> {
     pub setup: &'a CharacterSetup,
     pub settings: &'a SimSettings,
@@ -191,64 +216,321 @@ pub struct Report<'a> {
     pub cruncher: &'a NumberCruncher,
 }
 
-/// The results of a run as text.
-pub fn report(r: &Report) -> String {
-    let mut out = String::new();
-    let stats = r
-        .cruncher
-        .merged(None)
-        .expect("a run collects the baseline");
-    let iterations = stats.iterations();
-
-    let _ = writeln!(
-        out,
-        "{}: {} {}, rotation {:?}, {}, {} ruleset",
-        r.setup.name,
-        r.setup.race.name(),
-        r.setup.class.name(),
-        r.setup.rotation,
-        r.settings.phase.description(),
-        crate::serde_name(&r.settings.ruleset).to_lowercase(),
-    );
-    let _ = writeln!(
-        out,
-        "{iterations} iterations of {} s, {} threads, seed {}, {:.2} s ({} events)",
-        r.settings.combat_length,
-        r.settings.threads,
-        r.seed,
-        r.elapsed.as_secs_f64(),
-        stats.engine().total_events(),
-    );
-    out.push('\n');
-
-    let distribution = r.cruncher.dps_distribution();
-    let _ = writeln!(
-        out,
-        "DPS  {:.2} ± {:.2} (95% CI)  std dev {:.2}  min {:.2}  max {:.2}",
-        stats.personal_dps(),
-        distribution.confidence_interval,
-        distribution.standard_deviation,
-        distribution.min_dps,
-        distribution.max_dps,
-    );
-    let _ = writeln!(out, "TPS  {:.2}", stats.personal_tps());
-
-    section(&mut out, "Damage and threat", &spell_table(&stats));
-    section(&mut out, "Buffs and debuffs", &buff_table(&stats));
-    section(&mut out, "Procs", &proc_table(&stats));
-    section(&mut out, "Resource gains", &resource_table(&stats));
-    section(&mut out, "Rotation", &executor_table(&stats));
-    if !r.settings.options.is_empty() {
-        section(&mut out, "Stat weights", &stat_weight_table(r.cruncher));
-    }
-    out
+/// The results of a run, as printed and as written by `--output-file`. Rates and shares are
+/// fractions (0.25 for 25 %); per fight values are averages per iteration.
+#[derive(Debug, Serialize)]
+pub struct Results {
+    pub setup: SetupInfo,
+    pub run: RunInfo,
+    pub dps: DpsSummary,
+    pub tps: f64,
+    pub spells: Vec<SpellRow>,
+    pub buffs: Vec<BuffRow>,
+    pub procs: Vec<ProcRow>,
+    pub resources: Vec<ResourceRow>,
+    pub rotation: Vec<ExecutorRow>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub stat_weights: Vec<StatWeightRow>,
 }
 
-fn section(out: &mut String, title: &str, table: &Table) {
-    if table.is_empty() {
-        return;
+#[derive(Debug, Serialize)]
+pub struct SetupInfo {
+    pub name: String,
+    pub race: String,
+    pub class: String,
+    pub rotation: String,
+    pub phase: String,
+    pub ruleset: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RunInfo {
+    pub iterations: u64,
+    pub combat_length: u32,
+    pub threads: usize,
+    pub seed: u64,
+    pub elapsed_seconds: f64,
+    pub events: u64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DpsSummary {
+    pub mean: f64,
+    pub confidence_interval: f64,
+    pub standard_deviation: f64,
+    pub min: f64,
+    pub max: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SpellRow {
+    pub name: String,
+    pub dps: f64,
+    pub damage_share: f64,
+    pub tps: f64,
+    pub per_fight: f64,
+    pub hit: f64,
+    pub crit: f64,
+    pub glance: f64,
+    pub miss: f64,
+    pub dodge: f64,
+    pub parry: f64,
+    pub block: f64,
+    pub resist: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct BuffRow {
+    pub name: String,
+    pub debuff: bool,
+    pub uptime: f64,
+    pub shortest_seconds: f64,
+    pub longest_seconds: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ProcRow {
+    pub name: String,
+    pub per_fight: f64,
+    pub proc_rate: f64,
+    pub ppm: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ResourceRow {
+    pub source: String,
+    pub resource: String,
+    pub per_fight: f64,
+    pub per_5_seconds: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ExecutorRow {
+    pub name: String,
+    pub outcomes: Vec<OutcomeRow>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct OutcomeRow {
+    pub outcome: String,
+    pub per_fight: f64,
+    pub share: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StatWeightRow {
+    pub option: String,
+    pub dps: f64,
+    pub relative: f64,
+    pub confidence_interval: f64,
+    pub tps: f64,
+}
+
+impl Results {
+    pub fn collect(r: &Report) -> Results {
+        let stats = r
+            .cruncher
+            .merged(None)
+            .expect("a run collects the baseline");
+        let distribution = r.cruncher.dps_distribution();
+        Results {
+            setup: SetupInfo {
+                name: r.setup.name.clone(),
+                race: r.setup.race.name().to_string(),
+                class: r.setup.class.name().to_string(),
+                rotation: r.setup.rotation.clone(),
+                phase: r.settings.phase.description().to_string(),
+                ruleset: crate::serde_name(&r.settings.ruleset).to_lowercase(),
+            },
+            run: RunInfo {
+                iterations: stats.iterations(),
+                combat_length: r.settings.combat_length,
+                threads: r.settings.threads,
+                seed: r.seed,
+                elapsed_seconds: r.elapsed.as_secs_f64(),
+                events: stats.engine().total_events(),
+            },
+            dps: DpsSummary {
+                mean: stats.personal_dps(),
+                confidence_interval: distribution.confidence_interval,
+                standard_deviation: distribution.standard_deviation,
+                min: distribution.min_dps,
+                max: distribution.max_dps,
+            },
+            tps: stats.personal_tps(),
+            spells: spell_rows(&stats),
+            buffs: buff_rows(&stats),
+            procs: proc_rows(&stats),
+            resources: resource_rows(&stats),
+            rotation: executor_rows(&stats),
+            stat_weights: if r.settings.options.is_empty() {
+                Vec::new()
+            } else {
+                stat_weight_rows(r.cruncher)
+            },
+        }
     }
-    let _ = write!(out, "\n{title}\n{}", table.render());
+
+    /// The results as the text `csim run` prints.
+    pub fn text(&self) -> String {
+        let mut out = String::new();
+        let (setup, run) = (&self.setup, &self.run);
+        let _ = writeln!(
+            out,
+            "{}: {} {}, rotation {:?}, {}, {} ruleset",
+            setup.name, setup.race, setup.class, setup.rotation, setup.phase, setup.ruleset,
+        );
+        let _ = writeln!(
+            out,
+            "{} iterations of {} s, {} threads, seed {}, {:.2} s ({} events)",
+            run.iterations,
+            run.combat_length,
+            run.threads,
+            run.seed,
+            run.elapsed_seconds,
+            run.events,
+        );
+        out.push('\n');
+
+        let dps = &self.dps;
+        let _ = writeln!(
+            out,
+            "DPS  {:.2} ± {:.2} (95% CI)  std dev {:.2}  min {:.2}  max {:.2}",
+            dps.mean, dps.confidence_interval, dps.standard_deviation, dps.min, dps.max,
+        );
+        let _ = writeln!(out, "TPS  {:.2}", self.tps);
+
+        for (title, table) in self.tables() {
+            let _ = write!(out, "\n{title}\n{}", table.render());
+        }
+        out
+    }
+
+    /// The breakdowns as titled tables, leaving out the empty ones.
+    pub fn tables(&self) -> Vec<(&'static str, Table)> {
+        [
+            ("Damage and threat", self.spell_table()),
+            ("Buffs and debuffs", self.buff_table()),
+            ("Procs", self.proc_table()),
+            ("Resource gains", self.resource_table()),
+            ("Rotation", self.executor_table()),
+            ("Stat weights", self.stat_weight_table()),
+        ]
+        .into_iter()
+        .filter(|(_, table)| !table.is_empty())
+        .collect()
+    }
+
+    /// The results as YAML.
+    pub fn yaml(&self) -> Result<String> {
+        Ok(serde_yaml::to_string(self)?)
+    }
+
+    fn spell_table(&self) -> Table {
+        let mut table = Table::new([
+            "Spell",
+            "DPS",
+            "Damage",
+            "TPS",
+            "Per fight",
+            "Hit",
+            "Crit",
+            "Glance",
+            "Miss",
+            "Dodge",
+            "Parry",
+            "Block",
+            "Resist",
+        ]);
+        for spell in &self.spells {
+            table.row(vec![
+                spell.name.clone(),
+                format!("{:.1}", spell.dps),
+                percent(spell.damage_share),
+                format!("{:.1}", spell.tps),
+                format!("{:.1}", spell.per_fight),
+                percent(spell.hit),
+                percent(spell.crit),
+                percent(spell.glance),
+                percent(spell.miss),
+                percent(spell.dodge),
+                percent(spell.parry),
+                percent(spell.block),
+                percent(spell.resist),
+            ]);
+        }
+        table
+    }
+
+    fn buff_table(&self) -> Table {
+        let mut table = Table::new(["Buff", "Kind", "Uptime", "Shortest", "Longest"]).left(1);
+        for buff in &self.buffs {
+            table.row(vec![
+                buff.name.clone(),
+                if buff.debuff { "debuff" } else { "buff" }.to_string(),
+                percent(buff.uptime),
+                format!("{:.1} s", buff.shortest_seconds),
+                format!("{:.1} s", buff.longest_seconds),
+            ]);
+        }
+        table
+    }
+
+    fn proc_table(&self) -> Table {
+        let mut table = Table::new(["Proc", "Per fight", "Proc rate", "PPM"]);
+        for proc in &self.procs {
+            table.row(vec![
+                proc.name.clone(),
+                format!("{:.1}", proc.per_fight),
+                format!("{:.1}%", proc.proc_rate * 100.0),
+                format!("{:.2}", proc.ppm),
+            ]);
+        }
+        table
+    }
+
+    fn resource_table(&self) -> Table {
+        let mut table = Table::new(["Source", "Resource", "Per fight", "Per 5 s"]).left(1);
+        for gain in &self.resources {
+            table.row(vec![
+                gain.source.clone(),
+                gain.resource.clone(),
+                format!("{:.1}", gain.per_fight),
+                format!("{:.2}", gain.per_5_seconds),
+            ]);
+        }
+        table
+    }
+
+    fn executor_table(&self) -> Table {
+        let mut table = Table::new(["Executor", "Outcome", "Per fight", "Share"]).left(1);
+        for executor in &self.rotation {
+            let mut name = executor.name.clone();
+            for outcome in &executor.outcomes {
+                table.row(vec![
+                    std::mem::take(&mut name),
+                    outcome.outcome.clone(),
+                    format!("{:.1}", outcome.per_fight),
+                    format!("{:.1}%", outcome.share * 100.0),
+                ]);
+            }
+        }
+        table
+    }
+
+    fn stat_weight_table(&self) -> Table {
+        let mut table = Table::new(["Option", "DPS", "Relative", "± 95% CI", "TPS"]);
+        for weight in &self.stat_weights {
+            table.row(vec![
+                weight.option.clone(),
+                format!("{:+.2}", weight.dps),
+                format!("{:+.2}%", weight.relative * 100.0),
+                format!("{:.2}", weight.confidence_interval),
+                format!("{:+.2}", weight.tps),
+            ]);
+        }
+        table
+    }
 }
 
 fn per(count: u64, iterations: u64) -> f64 {
@@ -259,25 +541,10 @@ fn per(count: u64, iterations: u64) -> f64 {
     }
 }
 
-fn spell_table(stats: &ClassStatistics) -> Table {
+fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
     let iterations = stats.iterations();
     let time = stats.time_in_combat();
     let total_damage = stats.total_damage();
-    let mut table = Table::new([
-        "Spell",
-        "DPS",
-        "Damage",
-        "TPS",
-        "Per fight",
-        "Hit",
-        "Crit",
-        "Glance",
-        "Miss",
-        "Dodge",
-        "Parry",
-        "Block",
-        "Resist",
-    ]);
     let mut spells: Vec<_> = stats
         .spells()
         .filter(|(_, spell)| {
@@ -289,74 +556,73 @@ fn spell_table(stats: &ClassStatistics) -> Table {
             .cmp(&(a.total_damage(), a.total_threat()))
             .then_with(|| a_key.cmp(b_key))
     });
-    for (key, spell) in spells {
-        let attempts = spell.total_attempts();
-        let rate = |count: u64| per(count, attempts);
-        table.row(vec![
-            key.display_name(),
-            format!("{:.1}", spell.total_damage() as f64 / time),
-            percent(spell.damage_share(total_damage)),
-            format!("{:.1}", spell.total_threat() as f64 / time),
-            format!("{:.1}", per(attempts, iterations)),
-            percent(rate(spell.hits_including_partial_resists())),
-            percent(rate(spell.crits_including_partial_resists())),
-            percent(rate(spell.glances())),
-            percent(rate(spell.misses())),
-            percent(rate(spell.dodges())),
-            percent(rate(spell.parries())),
-            percent(rate(
-                spell.full_blocks() + spell.partial_blocks() + spell.partial_block_crits(),
-            )),
-            percent(rate(spell.full_resists())),
-        ]);
-    }
-    table
+    spells
+        .into_iter()
+        .map(|(key, spell)| {
+            let attempts = spell.total_attempts();
+            let rate = |count: u64| per(count, attempts);
+            SpellRow {
+                name: key.display_name(),
+                dps: spell.total_damage() as f64 / time,
+                damage_share: spell.damage_share(total_damage),
+                tps: spell.total_threat() as f64 / time,
+                per_fight: per(attempts, iterations),
+                hit: rate(spell.hits_including_partial_resists()),
+                crit: rate(spell.crits_including_partial_resists()),
+                glance: rate(spell.glances()),
+                miss: rate(spell.misses()),
+                dodge: rate(spell.dodges()),
+                parry: rate(spell.parries()),
+                block: rate(
+                    spell.full_blocks() + spell.partial_blocks() + spell.partial_block_crits(),
+                ),
+                resist: rate(spell.full_resists()),
+            }
+        })
+        .collect()
 }
 
-fn buff_table(stats: &ClassStatistics) -> Table {
-    let mut table = Table::new(["Buff", "Kind", "Uptime", "Shortest", "Longest"]).left(1);
+fn buff_rows(stats: &ClassStatistics) -> Vec<BuffRow> {
     let mut buffs: Vec<_> = stats.buffs().filter(|b| b.avg_uptime() > 0.0).collect();
     buffs.sort_by(|a, b| {
         b.avg_uptime()
             .total_cmp(&a.avg_uptime())
             .then_with(|| a.name().cmp(b.name()))
     });
-    for buff in buffs {
-        table.row(vec![
-            buff.name().to_string(),
-            if buff.is_debuff() { "debuff" } else { "buff" }.to_string(),
-            percent(buff.avg_uptime()),
-            format!("{:.1} s", buff.min_uptime()),
-            format!("{:.1} s", buff.max_uptime()),
-        ]);
-    }
-    table
+    buffs
+        .into_iter()
+        .map(|buff| BuffRow {
+            name: buff.name().to_string(),
+            debuff: buff.is_debuff(),
+            uptime: buff.avg_uptime(),
+            shortest_seconds: buff.min_uptime(),
+            longest_seconds: buff.max_uptime(),
+        })
+        .collect()
 }
 
-fn proc_table(stats: &ClassStatistics) -> Table {
+fn proc_rows(stats: &ClassStatistics) -> Vec<ProcRow> {
     let iterations = stats.iterations();
-    let mut table = Table::new(["Proc", "Per fight", "Proc rate", "PPM"]);
     let mut procs: Vec<_> = stats.procs().filter(|p| p.attempts() > 0).collect();
     procs.sort_by(|a, b| {
         b.procs()
             .cmp(&a.procs())
             .then_with(|| a.name().cmp(b.name()))
     });
-    for proc in procs {
-        table.row(vec![
-            proc.name().to_string(),
-            format!("{:.1}", per(proc.procs(), iterations)),
-            format!("{:.1}%", proc.avg_proc_rate() * 100.0),
-            format!("{:.2}", proc.effective_ppm(stats.time_in_combat())),
-        ]);
-    }
-    table
+    procs
+        .into_iter()
+        .map(|proc| ProcRow {
+            name: proc.name().to_string(),
+            per_fight: per(proc.procs(), iterations),
+            proc_rate: proc.avg_proc_rate(),
+            ppm: proc.effective_ppm(stats.time_in_combat()),
+        })
+        .collect()
 }
 
-fn resource_table(stats: &ClassStatistics) -> Table {
+fn resource_rows(stats: &ClassStatistics) -> Vec<ResourceRow> {
     let iterations = stats.iterations();
     let time = stats.time_in_combat();
-    let mut table = Table::new(["Source", "Resource", "Per fight", "Per 5 s"]).left(1);
     let mut gains: Vec<_> = stats
         .resources()
         .flat_map(|(key, resource)| {
@@ -372,64 +638,59 @@ fn resource_table(stats: &ClassStatistics) -> Table {
             .then(b.3.total_cmp(&a.3))
             .then(a.0.cmp(b.0))
     });
-    for (key, resource, kind, gain) in gains {
-        table.row(vec![
-            key.display_name(),
-            kind.name().to_string(),
-            format!(
-                "{:.1}",
-                if iterations == 0 {
-                    0.0
-                } else {
-                    gain / iterations as f64
-                }
-            ),
-            format!("{:.2}", resource.gain_per_5(kind, time)),
-        ]);
-    }
-    table
+    gains
+        .into_iter()
+        .map(|(key, resource, kind, gain)| ResourceRow {
+            source: key.display_name(),
+            resource: kind.name().to_string(),
+            per_fight: if iterations == 0 {
+                0.0
+            } else {
+                gain / iterations as f64
+            },
+            per_5_seconds: resource.gain_per_5(kind, time),
+        })
+        .collect()
 }
 
-fn executor_table(stats: &ClassStatistics) -> Table {
+fn executor_rows(stats: &ClassStatistics) -> Vec<ExecutorRow> {
     let iterations = stats.iterations();
-    let mut table = Table::new(["Executor", "Outcome", "Per fight", "Share"]).left(1);
-    for executor in stats.executors() {
-        let attempts = executor.attempts();
-        if attempts == 0 {
-            continue;
-        }
-        let mut name = executor.name().to_string();
-        for outcome in executor.outcomes() {
-            if outcome.count == 0 {
-                continue;
+    stats
+        .executors()
+        .iter()
+        .filter(|executor| executor.attempts() > 0)
+        .map(|executor| {
+            let attempts = executor.attempts();
+            ExecutorRow {
+                name: executor.name().to_string(),
+                outcomes: executor
+                    .outcomes()
+                    .into_iter()
+                    .filter(|outcome| outcome.count > 0)
+                    .map(|outcome| OutcomeRow {
+                        outcome: outcome.description().to_string(),
+                        per_fight: per(outcome.count, iterations),
+                        share: per(outcome.count, attempts),
+                    })
+                    .collect(),
             }
-            table.row(vec![
-                std::mem::take(&mut name),
-                outcome.description().to_string(),
-                format!("{:.1}", per(outcome.count, iterations)),
-                format!("{:.1}%", per(outcome.count, attempts) * 100.0),
-            ]);
-        }
-    }
-    table
+        })
+        .collect()
 }
 
-fn stat_weight_table(cruncher: &NumberCruncher) -> Table {
-    let mut table = Table::new(["Option", "DPS", "Relative", "± 95% CI", "TPS"]);
-    for (dps, tps) in cruncher
+fn stat_weight_rows(cruncher: &NumberCruncher) -> Vec<StatWeightRow> {
+    cruncher
         .stat_weights_dps()
         .into_iter()
         .zip(cruncher.stat_weights_tps())
-    {
-        table.row(vec![
-            dps.option.map_or("", SimOption::description).to_string(),
-            format!("{:+.2}", dps.absolute_value),
-            format!("{:+.2}%", dps.relative_value * 100.0),
-            format!("{:.2}", dps.confidence_interval),
-            format!("{:+.2}", tps.absolute_value),
-        ]);
-    }
-    table
+        .map(|(dps, tps)| StatWeightRow {
+            option: dps.option.map_or("", SimOption::description).to_string(),
+            dps: dps.absolute_value,
+            relative: dps.relative_value,
+            confidence_interval: dps.confidence_interval,
+            tps: tps.absolute_value,
+        })
+        .collect()
 }
 
 #[cfg(test)]

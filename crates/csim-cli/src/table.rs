@@ -34,6 +34,19 @@ impl Table {
         self.rows.is_empty()
     }
 
+    pub fn headers(&self) -> &[String] {
+        &self.headers
+    }
+
+    pub fn rows(&self) -> &[Vec<String>] {
+        &self.rows
+    }
+
+    /// Whether `column` is aligned left.
+    pub fn is_left(&self, column: usize) -> bool {
+        self.left.contains(&column)
+    }
+
     pub fn render(&self) -> String {
         let mut widths: Vec<usize> = self.headers.iter().map(|h| h.chars().count()).collect();
         for row in &self.rows {
@@ -58,7 +71,7 @@ impl Table {
             if column > 0 {
                 line.push_str("  ");
             }
-            if self.left.contains(&column) {
+            if self.is_left(column) {
                 let _ = write!(line, "{cell:<width$}");
             } else {
                 let _ = write!(line, "{cell:>width$}");
