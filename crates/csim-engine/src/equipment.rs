@@ -169,7 +169,8 @@ impl Equipment {
         self.class
     }
 
-    /// Changes the content phase and re-equips the current setup with the items of that phase.
+    /// Changes the content phase and re-equips the current setup; items not available in that
+    /// phase are dropped.
     pub fn set_phase(&mut self, phase: Phase) -> EquipChange {
         self.phase = phase;
         self.reequip_items()
@@ -526,8 +527,8 @@ impl Equipment {
         change
     }
 
-    /// Re-equips the stored setup with the item versions of the current phase. Items that are no
-    /// longer available are dropped from the setup.
+    /// Re-equips the stored setup in the current phase. Items that are not available in it are
+    /// dropped from the setup.
     pub fn reequip_items(&mut self) -> EquipChange {
         let stored = self.setups[self.setup_index].clone();
         let mut change = self.unequip_all();
@@ -903,11 +904,8 @@ mod tests {
         horde_helm.stats.insert(ItemStat::Stamina, 20.0);
         let mut naxx_helm = spec(21, ItemSlot::Head, ItemType::Plate);
         naxx_helm.phase = Phase::Naxxramas;
-        let mut helm_p1 = spec(22, ItemSlot::Head, ItemType::Plate);
-        helm_p1.stats.insert(ItemStat::Strength, 10.0);
-        let mut helm_p5 = spec(22, ItemSlot::Head, ItemType::Plate);
-        helm_p5.phase = Phase::AhnQiraj;
-        helm_p5.stats.insert(ItemStat::Strength, 20.0);
+        let mut helm = spec(22, ItemSlot::Head, ItemType::Plate);
+        helm.stats.insert(ItemStat::Strength, 10.0);
 
         let set_chest = spec(30, ItemSlot::Chest, ItemType::Plate);
         let set_legs = spec(31, ItemSlot::Legs, ItemType::Plate);
@@ -935,8 +933,7 @@ mod tests {
                     pair_c,
                     horde_helm,
                     naxx_helm,
-                    helm_p1,
-                    helm_p5,
+                    helm,
                     set_chest,
                     set_legs,
                     set_boots,
@@ -1283,7 +1280,7 @@ mod tests {
             eq.temp_enchant(EquipmentSlot::Mainhand),
             Some(EnchantName::DenseSharpeningStone)
         );
-        assert_eq!(eq.stats().get_strength(), 30);
+        assert_eq!(eq.stats().get_strength(), 20);
 
         assert_eq!(eq.change_setup(3).unwrap_err(), EquipError::InvalidSetup(3));
         assert_eq!(
@@ -1430,7 +1427,7 @@ mod tests {
     }
 
     #[test]
-    fn phase_changes_swap_item_versions() {
+    fn phase_changes_drop_unavailable_items() {
         let mut eq = Equipment::new(
             db(),
             Phase::MoltenCore,
@@ -1445,11 +1442,8 @@ mod tests {
         );
 
         eq.set_phase(Phase::AhnQiraj);
-        assert_eq!(eq.stats().get_strength(), 20);
-        assert_eq!(
-            eq.item(EquipmentSlot::Head).unwrap().phase(),
-            Phase::AhnQiraj
-        );
+        assert_eq!(eq.stats().get_strength(), 10);
+        assert_eq!(eq.item_id(EquipmentSlot::Head), Some(22));
 
         eq.equip(EquipmentSlot::Head, 21).unwrap_err();
         eq.set_phase(Phase::Naxxramas);

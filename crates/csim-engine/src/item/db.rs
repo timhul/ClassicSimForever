@@ -2,9 +2,8 @@
 //!
 //! Items are loaded from the exported YAML files of `data/items/` (each an [`ItemFile`]) and from
 //! the hand-authored files of `data/items/legacy/` (each a plain list of [`ItemSpec`]s), which
-//! only fill in the ids the export does not have. The same item id may appear in several content
-//! phases (items that were changed by a patch); lookups take the current phase and return the
-//! newest version available in it, like the C++ database did.
+//! only fill in the ids the export does not have. Every id has one version; a lookup for a phase
+//! returns it when the item is available in that phase.
 
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -39,8 +38,8 @@ pub enum EquipmentDbError {
         expected: String,
         found: String,
     },
-    #[error("item {id} ({name}) is defined twice for phase {phase:?}")]
-    DuplicateItem { id: u32, name: String, phase: Phase },
+    #[error("item {id} ({name}) is defined twice")]
+    DuplicateItem { id: u32, name: String },
     #[error(transparent)]
     SetBonus(#[from] SetBonusError),
     #[error(transparent)]
@@ -50,8 +49,7 @@ pub enum EquipmentDbError {
 /// All known items, item sets and enchants.
 #[derive(Debug, Clone, Default)]
 pub struct EquipmentDb {
-    /// Every version of an item, sorted by ascending phase.
-    items: HashMap<u32, Vec<Arc<Item>>>,
+    items: HashMap<u32, Arc<Item>>,
     /// The ids served from the legacy files.
     legacy_ids: HashSet<u32>,
     /// The client build of the exported item files.
@@ -173,22 +171,20 @@ impl EquipmentDb {
         Ok(())
     }
 
-    /// Adds one item version. Fails if the same id is already defined for its phase.
+    /// Adds one item. Fails if the id is already defined.
     pub fn add_item(&mut self, item: Item) -> Result<(), EquipmentDbError> {
-        let versions = self.items.entry(item.id()).or_default();
-        if versions
-            .iter()
-            .any(|existing| existing.phase() == item.phase())
-        {
-            return Err(EquipmentDbError::DuplicateItem {
-                id: item.id(),
-                name: item.name().to_string(),
-                phase: item.phase(),
-            });
+        match self.items.entry(item.id()) {
+            std::collections::hash_map::Entry::Occupied(_) => {
+                Err(EquipmentDbError::DuplicateItem {
+                    id: item.id(),
+                    name: item.name().to_string(),
+                })
+            }
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(Arc::new(item));
+                Ok(())
+            }
         }
-        let position = versions.partition_point(|existing| existing.phase() < item.phase());
-        versions.insert(position, Arc::new(item));
-        Ok(())
     }
 
     pub fn set_sets(&mut self, sets: SetBonusDb) {
@@ -224,30 +220,22 @@ impl EquipmentDb {
         ids
     }
 
-    /// The newest version of an item available in `phase`.
+    /// The item, when it is available in `phase`.
     pub fn get_item(&self, item_id: u32, phase: Phase) -> Option<&Arc<Item>> {
-        self.items
-            .get(&item_id)?
-            .iter()
-            .rev()
-            .find(|item| item.available_for_phase(phase))
+        self.item(item_id)
+            .filter(|item| item.available_for_phase(phase))
     }
 
-    /// The newest version of an item regardless of phase.
-    pub fn get_item_any_phase(&self, item_id: u32) -> Option<&Arc<Item>> {
-        self.items.get(&item_id)?.last()
-    }
-
-    /// Every version of an item, oldest phase first.
-    pub fn item_versions(&self, item_id: u32) -> &[Arc<Item>] {
-        self.items.get(&item_id).map(Vec::as_slice).unwrap_or(&[])
+    /// The item regardless of phase.
+    pub fn item(&self, item_id: u32) -> Option<&Arc<Item>> {
+        self.items.get(&item_id)
     }
 
     pub fn name_for_item_id(&self, item_id: u32) -> Option<&str> {
-        self.get_item_any_phase(item_id).map(|item| item.name())
+        self.item(item_id).map(|item| item.name())
     }
 
-    /// The items that fit `slot` in `phase` (one version per id), sorted by id.
+    /// The items that fit `slot` in `phase`, sorted by id.
     pub fn items_for_slot(&self, slot: EquipmentSlot, phase: Phase) -> Vec<Arc<Item>> {
         let mut ids: Vec<u32> = self.items.keys().copied().collect();
         ids.sort_unstable();
@@ -345,27 +333,18 @@ mod tests {
     }
 
     fn db() -> EquipmentDb {
-        let mut helm_p1 = spec(
+        let mut helm = spec(
             100,
             "Helm",
             Phase::MoltenCore,
             ItemSlot::Head,
             ItemType::Plate,
         );
-        helm_p1.stats.insert(ItemStat::Strength, 10.0);
-        let mut helm_p5 = spec(
-            100,
-            "Helm",
-            Phase::AhnQiraj,
-            ItemSlot::Head,
-            ItemType::Plate,
-        );
-        helm_p5.stats.insert(ItemStat::Strength, 20.0);
+        helm.stats.insert(ItemStat::Strength, 10.0);
 
         EquipmentDb::from_specs(
             vec![
-                helm_p5,
-                helm_p1,
+                helm,
                 spec(
                     101,
                     "Naxx Helm",
@@ -425,23 +404,12 @@ mod tests {
 
         let helm = db.get_item(100, Phase::MoltenCore).unwrap();
         assert_eq!(helm.stats().get_strength(), 10);
-        let helm = db.get_item(100, Phase::BlackwingLair).unwrap();
-        assert_eq!(helm.stats().get_strength(), 10);
-        let helm = db.get_item(100, Phase::AhnQiraj).unwrap();
-        assert_eq!(helm.stats().get_strength(), 20);
-        let helm = db.get_item(100, Phase::Naxxramas).unwrap();
-        assert_eq!(helm.stats().get_strength(), 20);
+        assert!(db.get_item(100, Phase::Naxxramas).is_some());
 
         assert!(db.get_item(101, Phase::AhnQiraj).is_none());
         assert!(db.get_item(101, Phase::Naxxramas).is_some());
         assert!(db.get_item(999, Phase::Naxxramas).is_none());
-
-        assert_eq!(
-            db.get_item_any_phase(100).unwrap().stats().get_strength(),
-            20
-        );
-        assert_eq!(db.item_versions(100).len(), 2);
-        assert_eq!(db.item_versions(100)[0].phase(), Phase::MoltenCore);
+        assert_eq!(db.item(101).unwrap().phase(), Phase::Naxxramas);
         assert_eq!(db.name_for_item_id(201), Some("Axe"));
         assert_eq!(db.name_for_item_id(1), None);
     }
@@ -481,11 +449,11 @@ mod tests {
     }
 
     #[test]
-    fn duplicate_phase_version_is_an_error() {
+    fn duplicate_id_is_an_error() {
         let error = EquipmentDb::from_specs(
             vec![
                 spec(1, "A", Phase::MoltenCore, ItemSlot::Head, ItemType::Plate),
-                spec(1, "A", Phase::MoltenCore, ItemSlot::Head, ItemType::Plate),
+                spec(1, "A", Phase::AhnQiraj, ItemSlot::Head, ItemType::Plate),
             ],
             Vec::new(),
         )
@@ -549,7 +517,7 @@ mod tests {
         for set in db.sets().sets() {
             for &item_id in &set.items {
                 assert!(
-                    db.get_item_any_phase(item_id).is_some(),
+                    db.item(item_id).is_some(),
                     "set {} refers to unknown item {item_id}",
                     set.name
                 );
@@ -630,7 +598,6 @@ mod tests {
         fs::write(
             legacy.join("helms.yaml"),
             "- id: 1\n  name: Legacy Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n  stats: {STAMINA: 10}\n\
-             - id: 2\n  name: Old Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n\
              - id: 2\n  name: Old Helm\n  phase: 5\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n",
         )
         .unwrap();
@@ -638,14 +605,25 @@ mod tests {
         let db = EquipmentDb::load(&dir, None, None).unwrap();
         assert_eq!(db.build(), Some("1.60.1.69893"));
         assert_eq!(db.len(), 2);
-        let helm = db.get_item_any_phase(1).unwrap();
+        let helm = db.item(1).unwrap();
         assert_eq!(helm.name(), "Exported Helm");
-        assert_eq!(db.item_versions(1).len(), 1);
         assert!(!db.is_legacy(1));
-        // Every phase version of a legacy-only id is kept.
-        assert_eq!(db.item_versions(2).len(), 2);
+        assert_eq!(db.item(2).unwrap().phase(), Phase::AhnQiraj);
         assert!(db.is_legacy(2));
         assert_eq!(db.legacy_item_ids(), [2]);
+
+        // A legacy id defined twice is an error, as in the exported files.
+        fs::write(
+            legacy.join("more_helms.yaml"),
+            "- id: 2\n  name: Old Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n",
+        )
+        .unwrap();
+        let error = EquipmentDb::load(&dir, None, None).unwrap_err();
+        assert!(matches!(
+            error,
+            EquipmentDbError::DuplicateItem { id: 2, .. }
+        ));
+        fs::remove_file(legacy.join("more_helms.yaml")).unwrap();
 
         fs::write(dir.join("legs.yaml"), "build: 9.9.9.9\nitems: []\n").unwrap();
         let error = EquipmentDb::load(&dir, None, None).unwrap_err();

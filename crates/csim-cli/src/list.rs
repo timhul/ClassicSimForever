@@ -61,7 +61,7 @@ pub fn items(data: &DataBundle, args: &ItemArgs) {
     for id in db.item_ids() {
         let item = match args.phase {
             Some(phase) => db.get_item(id, phase),
-            None => db.get_item_any_phase(id),
+            None => db.item(id),
         };
         let Some(item) = item else { continue };
         if !matches(item.name(), args.search.as_deref())

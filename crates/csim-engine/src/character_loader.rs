@@ -558,7 +558,7 @@ fn check_item(
     slot: EquipmentSlot,
     item_id: u32,
 ) -> Result<(), String> {
-    let Some(any) = data.equipment.get_item_any_phase(item_id) else {
+    let Some(any) = data.equipment.item(item_id) else {
         return Err(format!("no item {item_id}"));
     };
     let Some(item) = data.equipment.get_item(item_id, settings.phase) else {
