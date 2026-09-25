@@ -1,5 +1,5 @@
-//! `csim run`: simulates one character setup and prints the results, optionally also writing
-//! them as YAML (`--output-file`).
+//! `csim run`: simulates one character setup and prints the results as text tables, YAML or
+//! HTML (`--output-format`), to stdout or a file (`--output-file`).
 
 use std::fmt::Write;
 use std::io::IsTerminal;
@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use clap::Args;
+use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::raid::RaidControl;
 use csim_engine::resource::ResourceType;
@@ -48,9 +48,22 @@ pub struct RunArgs {
         value_name = "OPTIONS"
     )]
     scale: Option<Vec<SimOption>>,
-    /// Also writes the results as YAML to this file.
+    /// The format of the results.
+    #[arg(long, value_enum, default_value_t = OutputFormat::Terminal)]
+    output_format: OutputFormat,
+    /// Writes the results to this file instead of stdout.
     #[arg(long, value_name = "PATH")]
     output_file: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum OutputFormat {
+    /// Plain text tables.
+    Terminal,
+    /// The raw numbers as YAML.
+    Yaml,
+    /// A self-contained HTML page.
+    Html,
 }
 
 /// A scaling option by its serde name with or without the `SCALE_` prefix (`hit_chance`,
@@ -162,10 +175,15 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         elapsed,
         cruncher: &cruncher,
     });
-    print!("{}", results.text());
-    if let Some(path) = &args.output_file {
-        std::fs::write(path, results.yaml()?)
-            .map_err(|error| format!("cannot write {}: {error}", path.display()))?;
+    let output = match args.output_format {
+        OutputFormat::Terminal => results.text(),
+        OutputFormat::Yaml => results.yaml()?,
+        OutputFormat::Html => crate::html::render(&results),
+    };
+    match &args.output_file {
+        None => print!("{output}"),
+        Some(path) => std::fs::write(path, output)
+            .map_err(|error| format!("cannot write {}: {error}", path.display()))?,
     }
     Ok(())
 }
@@ -382,13 +400,25 @@ impl Results {
         );
         let _ = writeln!(out, "TPS  {:.2}", self.tps);
 
-        section(&mut out, "Damage and threat", &self.spell_table());
-        section(&mut out, "Buffs and debuffs", &self.buff_table());
-        section(&mut out, "Procs", &self.proc_table());
-        section(&mut out, "Resource gains", &self.resource_table());
-        section(&mut out, "Rotation", &self.executor_table());
-        section(&mut out, "Stat weights", &self.stat_weight_table());
+        for (title, table) in self.tables() {
+            let _ = write!(out, "\n{title}\n{}", table.render());
+        }
         out
+    }
+
+    /// The breakdowns as titled tables, leaving out the empty ones.
+    pub fn tables(&self) -> Vec<(&'static str, Table)> {
+        [
+            ("Damage and threat", self.spell_table()),
+            ("Buffs and debuffs", self.buff_table()),
+            ("Procs", self.proc_table()),
+            ("Resource gains", self.resource_table()),
+            ("Rotation", self.executor_table()),
+            ("Stat weights", self.stat_weight_table()),
+        ]
+        .into_iter()
+        .filter(|(_, table)| !table.is_empty())
+        .collect()
     }
 
     /// The results as YAML.
@@ -501,13 +531,6 @@ impl Results {
         }
         table
     }
-}
-
-fn section(out: &mut String, title: &str, table: &Table) {
-    if table.is_empty() {
-        return;
-    }
-    let _ = write!(out, "\n{title}\n{}", table.render());
 }
 
 fn per(count: u64, iterations: u64) -> f64 {

@@ -83,13 +83,13 @@ fn scale_prints_the_stat_weights() {
 }
 
 #[test]
-fn output_file_writes_the_results_as_yaml() {
+fn output_file_writes_the_chosen_format_instead_of_printing() {
     let path = std::env::temp_dir().join(format!("csim-results-{}.yaml", std::process::id()));
-    let report = stdout(&csim(
+    let printed = stdout(&csim(
         &[
             &RUN[..],
-            &["--seed", "5", "--scale=strength", "--output-file"],
-            &[path.to_str().unwrap()],
+            &["--seed", "5", "--scale=strength", "--output-format", "yaml"],
+            &["--output-file", path.to_str().unwrap()],
         ]
         .concat(),
     ));
@@ -97,10 +97,7 @@ fn output_file_writes_the_results_as_yaml() {
     std::fs::remove_file(&path).ok();
     let results: serde_yaml::Value = serde_yaml::from_str(&yaml).expect("valid YAML");
 
-    assert!(
-        report.contains("DPS  "),
-        "the report is still printed:\n{report}"
-    );
+    assert_eq!(printed, "", "nothing is printed");
     assert_eq!(results["setup"]["name"].as_str(), Some("DW Fury Orc"));
     assert_eq!(results["run"]["iterations"].as_u64(), Some(40));
     assert_eq!(results["run"]["seed"].as_u64(), Some(5));
@@ -117,6 +114,38 @@ fn output_file_writes_the_results_as_yaml() {
         results["stat_weights"][0]["option"].as_str(),
         Some("+10 Strength")
     );
+}
+
+#[test]
+fn output_format_prints_yaml_and_html() {
+    let yaml = stdout(&csim(
+        &[&RUN[..], &["--seed", "9", "--output-format", "yaml"]].concat(),
+    ));
+    let results: serde_yaml::Value = serde_yaml::from_str(&yaml).expect("valid YAML");
+    assert_eq!(results["run"]["seed"].as_u64(), Some(9));
+    assert!(results.get("stat_weights").is_none(), "{yaml}");
+
+    let html = stdout(&csim(
+        &[&RUN[..], &["--seed", "9", "--output-format", "html"]].concat(),
+    ));
+    let dps = results["dps"]["mean"].as_f64().unwrap();
+    for expected in [
+        "<!DOCTYPE html>".to_string(),
+        "<h1>DW Fury Orc</h1>".to_string(),
+        format!("<div class=\"dps\">{dps:.2}</div>"),
+        "<h2>Damage and threat</h2>".to_string(),
+        "<td class=\"left\">Mainhand Attack</td>".to_string(),
+        "</html>".to_string(),
+    ] {
+        assert!(html.contains(&expected), "{expected:?} missing:\n{html}");
+    }
+}
+
+#[test]
+fn an_unknown_output_format_fails() {
+    let output = csim(&[&RUN[..], &["--output-format", "csv"]].concat());
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("invalid value 'csv'"));
 }
 
 #[test]
