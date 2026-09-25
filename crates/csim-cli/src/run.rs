@@ -265,9 +265,14 @@ pub struct Results {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub raid: Option<RaidSummary>,
     pub spells: Vec<SpellRow>,
+    /// The sums over `spells`; absent without spells.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spell_total: Option<SpellTotal>,
     pub buffs: Vec<BuffRow>,
     pub procs: Vec<ProcRow>,
     pub resources: Vec<ResourceRow>,
+    /// The sums over `resources`, one per resource.
+    pub resource_totals: Vec<ResourceTotal>,
     pub rotation: Vec<ExecutorRow>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub stat_weights: Vec<StatWeightRow>,
@@ -364,6 +369,47 @@ pub struct ResourceRow {
 }
 
 #[derive(Debug, Serialize)]
+pub struct SpellTotal {
+    pub dps: f64,
+    pub damage_share: f64,
+    pub tps: f64,
+    pub per_fight: f64,
+}
+
+impl SpellTotal {
+    fn of(spells: &[SpellRow]) -> Option<SpellTotal> {
+        let sum = |value: fn(&SpellRow) -> f64| spells.iter().map(value).sum::<f64>();
+        (!spells.is_empty()).then(|| SpellTotal {
+            dps: sum(|s| s.dps),
+            damage_share: sum(|s| s.damage_share),
+            tps: sum(|s| s.tps),
+            per_fight: sum(|s| s.per_fight),
+        })
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ResourceTotal {
+    pub resource: String,
+    pub per_fight: f64,
+    pub per_5_seconds: f64,
+}
+
+impl ResourceTotal {
+    /// One total per resource, as rage and mana do not add up; `gains` are grouped by resource.
+    fn of(gains: &[ResourceRow]) -> Vec<ResourceTotal> {
+        gains
+            .chunk_by(|a, b| a.resource == b.resource)
+            .map(|rows| ResourceTotal {
+                resource: rows[0].resource.clone(),
+                per_fight: rows.iter().map(|r| r.per_fight).sum(),
+                per_5_seconds: rows.iter().map(|r| r.per_5_seconds).sum(),
+            })
+            .collect()
+    }
+}
+
+#[derive(Debug, Serialize)]
 pub struct ExecutorRow {
     pub name: String,
     pub outcomes: Vec<OutcomeRow>,
@@ -392,6 +438,8 @@ impl Results {
             .merged(None)
             .expect("a run collects the baseline");
         let distribution = r.cruncher.dps_distribution();
+        let spells = spell_rows(&stats);
+        let resources = resource_rows(&stats);
         Results {
             setup: SetupInfo {
                 name: r.setup.name.clone(),
@@ -418,10 +466,12 @@ impl Results {
             },
             tps: stats.personal_tps(),
             raid: r.raid.map(|roster| raid_summary(roster, r.cruncher)),
-            spells: spell_rows(&stats),
+            spell_total: SpellTotal::of(&spells),
+            spells,
             buffs: buff_rows(&stats),
             procs: proc_rows(&stats),
-            resources: resource_rows(&stats),
+            resource_totals: ResourceTotal::of(&resources),
+            resources,
             rotation: executor_rows(&stats),
             stat_weights: if r.settings.options.is_empty() {
                 Vec::new()
@@ -545,14 +595,13 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 percent(spell.resist),
             ]);
         }
-        if !self.spells.is_empty() {
-            let sum = |value: fn(&SpellRow) -> f64| self.spells.iter().map(value).sum::<f64>();
+        if let Some(sum) = &self.spell_total {
             let mut total = vec![
                 "Total".to_string(),
-                format!("{:.1}", sum(|s| s.dps)),
-                percent(sum(|s| s.damage_share)),
-                format!("{:.1}", sum(|s| s.tps)),
-                format!("{:.1}", sum(|s| s.per_fight)),
+                format!("{:.1}", sum.dps),
+                percent(sum.damage_share),
+                format!("{:.1}", sum.tps),
+                format!("{:.1}", sum.per_fight),
             ];
             total.resize(table.headers().len(), String::new());
             table.total(total);
@@ -597,13 +646,12 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.2}", gain.per_5_seconds),
             ]);
         }
-        // One total per resource, as rage and mana do not add up; the rows are grouped by it.
-        for rows in self.resources.chunk_by(|a, b| a.resource == b.resource) {
+        for sum in &self.resource_totals {
             table.total(vec![
                 "Total".to_string(),
-                rows[0].resource.clone(),
-                format!("{:.1}", rows.iter().map(|r| r.per_fight).sum::<f64>()),
-                format!("{:.2}", rows.iter().map(|r| r.per_5_seconds).sum::<f64>()),
+                sum.resource.clone(),
+                format!("{:.1}", sum.per_fight),
+                format!("{:.2}", sum.per_5_seconds),
             ]);
         }
         table

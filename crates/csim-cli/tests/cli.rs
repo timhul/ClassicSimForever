@@ -137,9 +137,32 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
         spells.iter().any(|s| s["name"] == "Mainhand Attack"),
         "{yaml}"
     );
-    for section in ["buffs", "procs", "resources", "rotation"] {
+    for section in ["buffs", "procs", "resources", "resource_totals", "rotation"] {
         assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
     }
+
+    let spell_dps: f64 = spells.iter().map(|s| s["dps"].as_f64().unwrap()).sum();
+    let total = &results["spell_total"];
+    assert!(
+        (total["dps"].as_f64().unwrap() - spell_dps).abs() < 1e-6,
+        "{yaml}"
+    );
+    assert!(
+        (total["damage_share"].as_f64().unwrap() - 1.0).abs() < 1e-6,
+        "{yaml}"
+    );
+    let rage_per_fight: f64 = results["resources"]
+        .as_sequence()
+        .unwrap()
+        .iter()
+        .map(|r| r["per_fight"].as_f64().unwrap())
+        .sum();
+    let rage = &results["resource_totals"][0];
+    assert_eq!(rage["resource"].as_str(), Some("Rage"), "{yaml}");
+    assert!(
+        (rage["per_fight"].as_f64().unwrap() - rage_per_fight).abs() < 1e-6,
+        "{yaml}"
+    );
     assert_eq!(
         results["stat_weights"][0]["option"].as_str(),
         Some("+10 Strength")
