@@ -371,8 +371,8 @@ impl Spell {
             record.id
         );
         let cannot_crit = setup.has_sim_flag(SimFlag::CannotCrit);
-        // The direct effects, plus a melee bleed's aura (Rend), which must land its roll before
-        // the buff carrying it is applied.
+        // The direct effects, plus the debuff auras of a melee spell (Rend, Sunder Armor), which
+        // must land their roll before the buff carrying them is applied.
         let mut effects: Vec<Effect> = record
             .effects
             .iter()
@@ -384,7 +384,7 @@ impl Spell {
                     cannot_crit,
                 )
             })
-            .filter(|e| !e.is_aura() || e.is_melee_bleed())
+            .filter(|e| !e.is_aura() || e.is_melee_debuff())
             .collect();
         // The first direct effect rolls the attack, whatever its table index (pruning may have
         // removed the effects before it); the rest reuse that roll.
@@ -1321,8 +1321,6 @@ impl Spell {
         // when it did something worth counting.
         let did_something = raw_damage > 0.0 || innate_threat != 0.0;
         let result = match first_roll {
-            // A landed bleed (Rend) deals its damage through the ticks: nothing to report.
-            Some(result) if result.is_success() && !did_something => return None,
             Some(result) => result,
             None if did_something => PhysicalAttackResult::Hit,
             None => return None,
@@ -1356,6 +1354,10 @@ impl Spell {
             }
             if crit {
                 proc_sources.push(ProcSource::MeleeCritical);
+            }
+            // A landed Rend deals its damage through the ticks: no attack to report.
+            if !did_something {
+                return None;
             }
         }
         let damage = match result {
@@ -1616,7 +1618,7 @@ impl Spell {
     pub fn set_effect_value(&mut self, host: &mut impl SpellHost, index: u32, value: f64) {
         if let Some(effect) = self.effects.iter_mut().find(|e| e.index() == index) {
             effect.set_value(value);
-            // A melee bleed's aura is also in the chain; its buff copy deals the damage.
+            // A melee debuff's aura is also in the chain; its buff copy does the work.
             if !effect.is_aura() {
                 return;
             }

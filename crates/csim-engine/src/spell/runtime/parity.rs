@@ -102,6 +102,7 @@ fn sunder_armor_rank_5_stacks_five_times_with_206_threat() {
     let base_armor = world.target.armor();
     for i in 0..6 {
         world.advance_to(2.0 * f64::from(i));
+        world.rolls.push_back(PhysicalAttackResult::Hit);
         let report = world.perform(SUNDER_ARMOR_5);
         assert_eq!(report.attack.unwrap().threat, 206.0);
         assert_eq!(report.resource_lost, 15.0);

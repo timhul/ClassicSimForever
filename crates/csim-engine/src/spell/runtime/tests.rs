@@ -535,6 +535,7 @@ fn periodic_damage_ticks_for_the_duration() {
     let report = world.perform(REND);
     assert_eq!(report.result, SpellResult::Success);
     assert!(report.attack.is_none(), "the damage comes from the ticks");
+    assert_eq!(report.proc_sources, vec![ProcSource::MainhandSpell]);
     assert_eq!(world.can_crits, vec![false], "a bleed cannot crit");
     assert_eq!(world.rage, 90);
     world.run(21.5);
@@ -777,27 +778,66 @@ fn threat_effects_and_debuff_stacks() {
     let mut world = World::new();
     world.learn(SUNDER_ARMOR);
     let sunder = world.spell(SUNDER_ARMOR);
-    assert_eq!(sunder.effects().len(), 1, "the THREAT effect");
+    assert_eq!(
+        sunder.effects().len(),
+        2,
+        "the rolled armor debuff, then the THREAT effect"
+    );
+    assert!(sunder.effects()[0].is_melee_debuff());
+    assert_eq!(sunder.effects()[1].kind(), SpellEffectName::Threat);
     let marker = sunder.marker_buff().unwrap();
     assert_eq!(world.buff(marker).kind(), BuffKind::SharedDebuff);
     assert_eq!(world.buff(marker).max_stacks(), 5);
     assert_eq!(world.buff(marker).priority(), crate::target::Priority::High);
     let base_armor = world.target.armor();
 
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(SUNDER_ARMOR);
     assert_eq!(report.result, SpellResult::Success);
+    assert_eq!(world.can_crits, vec![false], "an aura roll cannot crit");
     let attack = report.attack.unwrap();
+    assert_eq!(attack.result, PhysicalAttackResult::Hit);
     assert_eq!(attack.damage, 0);
     assert_eq!(attack.threat, 1013.0);
-    assert!(report.proc_sources.is_empty(), "no roll, no hit source");
+    assert_eq!(report.proc_sources, vec![ProcSource::MainhandSpell]);
     assert_eq!(world.target.armor(), base_armor - 450);
 
     for i in 1..6 {
         world.advance_to(2.0 * f64::from(i));
+        world.rolls.push_back(PhysicalAttackResult::Hit);
         world.perform(SUNDER_ARMOR);
     }
     assert_eq!(world.buff(marker).stacks(), 5);
     assert_eq!(world.target.armor(), base_armor - 2250);
+}
+
+#[test]
+fn avoided_sunder_armor_applies_no_stack_nor_threat() {
+    let mut world = World::new();
+    world.learn(SUNDER_ARMOR);
+    let marker = world.spell(SUNDER_ARMOR).marker_buff().unwrap();
+    let base_armor = world.target.armor();
+    for (i, (roll, source)) in [
+        (PhysicalAttackResult::Miss, ProcSource::MeleeMiss),
+        (PhysicalAttackResult::Dodge, ProcSource::MeleeDodge),
+        (PhysicalAttackResult::Parry, ProcSource::MeleeParry),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        world.advance_to(2.0 * i as f64);
+        world.rolls.push_back(roll);
+        let report = world.perform(SUNDER_ARMOR);
+        assert_eq!(report.result, SpellResult::Failure);
+        let attack = report.attack.unwrap();
+        assert_eq!(attack.result, roll);
+        assert_eq!(attack.threat, 0.0);
+        assert_eq!(report.proc_sources, vec![source]);
+        assert_eq!(report.resource_lost, 3.0, "80 % of the 15 rage is refunded");
+        assert!(report.buff.is_none());
+        assert!(!world.buff(marker).is_active());
+        assert_eq!(world.target.armor(), base_armor);
+    }
 }
 
 #[test]

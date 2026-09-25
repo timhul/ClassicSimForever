@@ -439,9 +439,9 @@ impl Effect {
                 EffectOutcome::plain(true)
             }
             E::Dummy => self.perform_script(host, resource_cost, extra_crit),
-            // A melee bleed (Rend) must land on the attack table before its debuff is applied;
-            // periodic damage cannot crit.
-            _ if self.is_melee_bleed() => {
+            // A melee debuff (Rend, Sunder Armor) must land on the attack table before it is
+            // applied; an aura cannot crit.
+            _ if self.is_melee_debuff() => {
                 let (hit, rolled) = self.roll_melee_with(host, extra_crit, false);
                 EffectOutcome::rolled(hit, rolled)
             }
@@ -517,11 +517,12 @@ impl Effect {
         }
     }
 
-    /// A periodic damage debuff of a melee spell (Rend), which rolls on the melee table.
-    pub fn is_melee_bleed(&self) -> bool {
+    /// A debuff of a melee spell (Rend, Sunder Armor): a hostile spell on the melee defense
+    /// table (`DmgClass` melee) rolls it whatever its effects, like the server's
+    /// `MeleeSpellHitResult`. The tables have no flag of their own for this.
+    pub fn is_melee_debuff(&self) -> bool {
         self.defense == DefenseType::Melee
             && self.record.is_apply_aura()
-            && self.record.aura == AuraType::PeriodicDamage
             && self.record.targets_enemy()
     }
 
