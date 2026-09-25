@@ -13,10 +13,14 @@
 //!
 //! The player is added first, at the first place of its party, so it is the raid's first
 //! character, whose statistics the sim reports; the members follow party by party in the order
-//! listed. The player's setup decides the raid's target, phase and ruleset, and alone brings
-//! its target debuffs (each member applying its own would stack them): the members' `target`,
-//! `phase`, `ruleset` and `debuffs` are ignored. Every member must be of the player's faction.
+//! listed. The player's setup decides the raid's target, phase and ruleset: the members'
+//! `target`, `phase` and `ruleset` are ignored. Every member must be of the player's faction.
 //! Without a player (validating a raid file) the first member takes its role.
+//!
+//! What the raid provides is up to the raid: every setup, the player's included, loses its
+//! `debuffs` and the `buffs` that `data/external_buffs.yaml` marks `raid` (Blessing of Kings,
+//! Trueshot Aura, ...). The consumables stay. The raid members' own spells (Battle Shout,
+//! Sunder Armor) are what buffs the raid and debuffs the target.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -220,12 +224,13 @@ impl RaidSetup {
         let mut raid = RaidControl::new(lead.target.target());
 
         if let Some(player) = player {
+            let player = in_raid(player, data);
             if let Err(error) = player.add_to_raid_at(&mut raid, player_party, 0, data, &settings) {
                 issues.extend(prefixed("player", error));
             }
         }
         let mut index_in_party = vec![0; self.parties.len()];
-        for (n, member) in members.iter().enumerate() {
+        for member in members {
             let index = &mut index_in_party[usize::from(member.party)];
             let context = member_context(member.party, *index, &member.reference);
             *index += 1;
@@ -248,16 +253,7 @@ impl RaidSetup {
             else {
                 unreachable!("the party sizes are checked above");
             };
-            let setup = if player.is_none() && n == 0 {
-                member.setup.clone()
-            } else {
-                CharacterSetup {
-                    phase: None,
-                    ruleset: None,
-                    debuffs: Vec::new(),
-                    ..member.setup.clone()
-                }
-            };
+            let setup = in_raid(&member.setup, data);
             if let Err(error) =
                 setup.add_to_raid_at(&mut raid, member.party, place, data, &settings)
             {
@@ -280,6 +276,29 @@ impl RaidSetup {
                 .map_or_else(|| format!("{:?}", self.name), |p| p.display().to_string()),
             issues,
         }
+    }
+}
+
+/// `setup` without what the raid provides: its debuffs and its buffs marked `raid`. Names that
+/// are not external buffs stay, for the build to report. The phase and ruleset go too, the
+/// raid's settings already hold the lead's.
+fn in_raid(setup: &CharacterSetup, data: &DataBundle) -> CharacterSetup {
+    let from_raid = |name: &String| {
+        data.external_buffs
+            .get(name)
+            .is_some_and(|(spec, debuff)| spec.provided_by_raid(debuff))
+    };
+    CharacterSetup {
+        phase: None,
+        ruleset: None,
+        buffs: setup
+            .buffs
+            .iter()
+            .filter(|n| !from_raid(n))
+            .cloned()
+            .collect(),
+        debuffs: Vec::new(),
+        ..setup.clone()
     }
 }
 

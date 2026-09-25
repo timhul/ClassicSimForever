@@ -172,7 +172,8 @@ fn raid_runs_the_player_with_the_members() {
     let raid_dps = results["raid"]["dps"].as_f64().unwrap();
     let sum: f64 = members.iter().map(|m| m["dps"].as_f64().unwrap()).sum();
     assert!((raid_dps - sum).abs() < 1e-6, "{yaml}");
-    assert_eq!(members[0]["dps"], results["dps"]["mean"]);
+    let player = members[0]["dps"].as_f64().unwrap();
+    assert!((player - results["dps"]["mean"].as_f64().unwrap()).abs() < 1e-6);
 
     let solo = stdout(&csim(&[&RUN[..], &["--output-format", "yaml"]].concat()));
     assert!(!solo.contains("raid:"), "{solo}");

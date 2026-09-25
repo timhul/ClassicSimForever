@@ -85,19 +85,35 @@ fn the_player_comes_first_and_the_members_fill_their_parties() {
 }
 
 #[test]
-fn only_the_player_brings_the_target_debuffs() {
+fn the_raid_provides_the_raid_buffs_and_debuffs() {
     let player = character("dw_fury_orc.yaml");
-    let alone = player.build_raid(data(), &settings()).unwrap();
-    let setup = raid("name: R\nparties:\n  - [dw_fury_orc, dw_fury_orc]\n");
+    let setup = raid(
+        "name: R
+parties:
+  - [dw_fury_orc]
+",
+    );
     let members = setup.resolve(&characters()).unwrap();
     let raid = setup
         .build_raid(Some(&player), &members, data(), &settings())
         .unwrap();
-    assert_eq!(raid.target().armor(), alone.target().armor());
-    assert!(raid.target().armor() < raid.target().base_armor());
-    let member = raid.character(CharId(1)).external_buffs();
-    assert!(!member.is_selected("Sunder Armor"));
-    assert!(member.is_selected("Juju Power"));
+    assert_eq!(raid.target().armor(), raid.target().base_armor());
+    for id in [CharId(0), CharId(1)] {
+        let buffs = raid.character(id).external_buffs();
+        for from_raid in ["Sunder Armor", "Strength of Earth Totem", "Trueshot Aura"] {
+            assert!(!buffs.is_selected(from_raid), "{id:?} {from_raid}");
+        }
+        for consumable in ["Juju Power", "Elixir of the Mongoose", "Grilled Squid"] {
+            assert!(buffs.is_selected(consumable), "{id:?} {consumable}");
+        }
+    }
+    // Alone, the setup keeps them.
+    let alone = player.build_raid(data(), &settings()).unwrap();
+    assert!(alone.target().armor() < alone.target().base_armor());
+    assert!(alone
+        .character(CharId(0))
+        .external_buffs()
+        .is_selected("Strength of Earth Totem"));
 }
 
 #[test]

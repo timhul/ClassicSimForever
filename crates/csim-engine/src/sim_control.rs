@@ -6,7 +6,7 @@
 //! runs every character's precombat actions, starts the encounter for each of them (and the
 //! incoming damage of the tanks), ends it after the combat length and resets the raid.
 //! [`SimControl::run_quick_sim`] runs the baseline, [`SimControl::run_full_sim`] also one run
-//! per scaling option with the option's stat added; both hand the statistics of the raid's
+//! per scaling option with the option's stat added to the first character; both hand the statistics of the raid's
 //! first character, with every member's result added, to a [`NumberCruncher`].
 //!
 //! [`run_threaded`] is the thread pool: each thread builds its own raid (the raid is not
@@ -187,8 +187,9 @@ impl SimControl {
         }
     }
 
-    /// Runs with `option`'s stat added to every character. Port of
-    /// `SimControl::run_sim_with_option`.
+    /// Runs with `option`'s stat added to the raid's first character, the player whose stat
+    /// weights are collected. Port of `SimControl::run_sim_with_option`, which added it to
+    /// every character.
     fn run_sim_with_option(
         &mut self,
         raid: &mut RaidControl,
@@ -196,13 +197,10 @@ impl SimControl {
         combat_length: u32,
         iterations: u32,
     ) {
-        for id in raid.char_ids().collect::<Vec<_>>() {
-            option.add_to(raid.character_mut(id).stats_mut());
-        }
+        let player = CharId(0);
+        option.add_to(raid.character_mut(player).stats_mut());
         self.run_sim(raid, combat_length, iterations);
-        for id in raid.char_ids().collect::<Vec<_>>() {
-            option.remove_from(raid.character_mut(id).stats_mut());
-        }
+        option.remove_from(raid.character_mut(player).stats_mut());
     }
 
     /// Fisher–Yates, the `std::shuffle` of `SimControl::run_sim`.
