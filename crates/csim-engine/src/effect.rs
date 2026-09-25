@@ -439,6 +439,12 @@ impl Effect {
                 EffectOutcome::plain(true)
             }
             E::Dummy => self.perform_script(host, resource_cost, extra_crit),
+            // A melee bleed (Rend) must land on the attack table before its debuff is applied;
+            // periodic damage cannot crit.
+            _ if self.is_melee_bleed() => {
+                let (hit, rolled) = self.roll_melee_with(host, extra_crit, false);
+                EffectOutcome::rolled(hit, rolled)
+            }
             // Aura effects act through the buff they belong to.
             _ if self.record.is_apply_aura() => EffectOutcome::plain(true),
             // Everything else (dispels, interrupts, taunts, heals, summons, ...) has no
@@ -511,11 +517,29 @@ impl Effect {
         }
     }
 
+    /// A periodic damage debuff of a melee spell (Rend), which rolls on the melee table.
+    pub fn is_melee_bleed(&self) -> bool {
+        self.defense == DefenseType::Melee
+            && self.record.is_apply_aura()
+            && self.record.aura == AuraType::PeriodicDamage
+            && self.record.targets_enemy()
+    }
+
     /// Rolls (or reuses) the mainhand ability result. Port of `Effect::roll_mh_melee_ability`.
     fn roll_melee(
         &mut self,
         host: &mut impl EffectHost,
         extra_crit: u32,
+    ) -> (bool, Option<PhysicalAttackResult>) {
+        self.roll_melee_with(host, extra_crit, self.can_crit)
+    }
+
+    /// [`Effect::roll_melee`] with an explicit `can_crit`.
+    fn roll_melee_with(
+        &mut self,
+        host: &mut impl EffectHost,
+        extra_crit: u32,
+        can_crit: bool,
     ) -> (bool, Option<PhysicalAttackResult>) {
         if !self.reroll_result {
             let hit = self
@@ -523,7 +547,7 @@ impl Effect {
                 .is_some_and(PhysicalAttackResult::is_success);
             return (hit, None);
         }
-        let result = host.roll_melee_ability(self.included, extra_crit, self.can_crit);
+        let result = host.roll_melee_ability(self.included, extra_crit, can_crit);
         self.last_result = Some(result);
         (result.is_success(), Some(result))
     }

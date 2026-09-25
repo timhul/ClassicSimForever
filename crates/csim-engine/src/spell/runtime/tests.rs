@@ -531,9 +531,11 @@ fn periodic_damage_ticks_for_the_duration() {
         })
     );
 
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(REND);
     assert_eq!(report.result, SpellResult::Success);
-    assert!(report.attack.is_none());
+    assert!(report.attack.is_none(), "the damage comes from the ticks");
+    assert_eq!(world.can_crits, vec![false], "a bleed cannot crit");
     assert_eq!(world.rage, 90);
     world.run(21.5);
     assert_eq!(world.ticks.len(), 7);
@@ -544,10 +546,12 @@ fn periodic_damage_ticks_for_the_duration() {
     // A refresh re-arms the ticks without a second chain.
     world.next_gcd = 0.0;
     world.ticks.clear();
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     world.perform(REND);
     world.run(30.0);
     assert_eq!(world.ticks.len(), 2);
     world.next_gcd = 0.0;
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(REND);
     assert!(matches!(
         report.buff,
@@ -559,6 +563,34 @@ fn periodic_damage_ticks_for_the_duration() {
         2 + 7,
         "the refresh re-arms the full tick count"
     );
+}
+
+#[test]
+fn avoided_rend_applies_no_bleed_and_refunds_the_cost() {
+    let mut world = World::new();
+    world.learn(REND);
+    let marker = world.spell(REND).marker_buff().unwrap();
+    for (i, (roll, source)) in [
+        (PhysicalAttackResult::Miss, ProcSource::MeleeMiss),
+        (PhysicalAttackResult::Dodge, ProcSource::MeleeDodge),
+        (PhysicalAttackResult::Parry, ProcSource::MeleeParry),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        world.next_gcd = 0.0;
+        world.rolls.push_back(roll);
+        let report = world.perform(REND);
+        assert_eq!(report.result, SpellResult::Failure);
+        assert_eq!(report.attack.as_ref().unwrap().result, roll);
+        assert_eq!(report.proc_sources, vec![source]);
+        assert_eq!(report.resource_lost, 2.0, "80 % of the 10 rage is refunded");
+        assert_eq!(world.rage, 100 - 2 * (i as u32 + 1));
+        assert!(report.buff.is_none());
+        assert!(!world.buff(marker).is_active());
+    }
+    world.run(30.0);
+    assert!(world.ticks.is_empty());
 }
 
 #[test]

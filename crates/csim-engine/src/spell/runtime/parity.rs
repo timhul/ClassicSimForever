@@ -85,6 +85,7 @@ fn rend_rank_7_deals_147_over_21_seconds() {
     let mut world = shipped();
     world.learn(REND_7);
     assert_eq!(world.spell(REND_7).resource_cost(&world), 10);
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     world.perform(REND_7);
     world.run(21.5);
     assert_eq!(world.ticks.len(), 7);
