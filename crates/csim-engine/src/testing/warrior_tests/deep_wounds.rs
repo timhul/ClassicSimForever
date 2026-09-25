@@ -275,3 +275,19 @@ fn damage_of_3_of_3_deep_wounds() {
 fn damage_does_not_stack_when_multiple_crits_occur() {
     assert_eq!(damage(3, 2), (60, "12.000".to_string()));
 }
+
+/// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage, times
+/// 1.2, not also to the weapon damage it is based on.
+#[test]
+fn death_wish_increases_deep_wounds_damage_once() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.enable_spell("Death Wish");
+    given_deep_wounds(&mut test, 3);
+    test.given_warrior_has_rage(100);
+    test.cast("Death Wish");
+    test.given_a_guaranteed_white_crit();
+    test.given_1000_melee_ap();
+    when_mh_attack_is_performed(&mut test);
+    assert_eq!(deep_wounds_damage(&mut test), 72);
+}
