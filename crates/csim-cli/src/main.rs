@@ -1,6 +1,7 @@
 //! Headless command line runner for ClassicSimForever.
 //!
-//! - `csim run <character.yaml>` simulates a character setup and prints the results.
+//! - `csim run <character.yaml>` simulates a character setup and prints the results
+//!   (`--output-file <path>` also writes them as YAML).
 //! - `csim validate` loads the data directory and checks every character setup against it.
 //! - `csim list-items` / `list-spells` / `list-rotations` list what setups can refer to.
 //!

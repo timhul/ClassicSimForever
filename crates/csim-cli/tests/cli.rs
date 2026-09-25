@@ -83,6 +83,43 @@ fn scale_prints_the_stat_weights() {
 }
 
 #[test]
+fn output_file_writes_the_results_as_yaml() {
+    let path = std::env::temp_dir().join(format!("csim-results-{}.yaml", std::process::id()));
+    let report = stdout(&csim(
+        &[
+            &RUN[..],
+            &["--seed", "5", "--scale=strength", "--output-file"],
+            &[path.to_str().unwrap()],
+        ]
+        .concat(),
+    ));
+    let yaml = std::fs::read_to_string(&path).expect("the results file is written");
+    std::fs::remove_file(&path).ok();
+    let results: serde_yaml::Value = serde_yaml::from_str(&yaml).expect("valid YAML");
+
+    assert!(
+        report.contains("DPS  "),
+        "the report is still printed:\n{report}"
+    );
+    assert_eq!(results["setup"]["name"].as_str(), Some("DW Fury Orc"));
+    assert_eq!(results["run"]["iterations"].as_u64(), Some(40));
+    assert_eq!(results["run"]["seed"].as_u64(), Some(5));
+    assert!(results["dps"]["mean"].as_f64().unwrap() > 0.0, "{yaml}");
+    let spells = results["spells"].as_sequence().unwrap();
+    assert!(
+        spells.iter().any(|s| s["name"] == "Mainhand Attack"),
+        "{yaml}"
+    );
+    for section in ["buffs", "procs", "resources", "rotation"] {
+        assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
+    }
+    assert_eq!(
+        results["stat_weights"][0]["option"].as_str(),
+        Some("+10 Strength")
+    );
+}
+
+#[test]
 fn a_missing_setup_fails() {
     let output = csim(&["run", "data/characters/missing.yaml"]);
     assert!(!output.status.success());
