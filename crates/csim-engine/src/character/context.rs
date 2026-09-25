@@ -1046,7 +1046,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 ScriptKind::AddComboPoints => {
                     // Validated as present and positive when the overrides were loaded.
                     let value = event.params.value.unwrap_or(0.0).round() as u32;
-                    self.character.gain_combo_points(value);
+                    let now = self.now();
+                    self.character.gain_combo_points(value, now);
                 }
                 other => unreachable!("on_event script {other:?} is refused by the overrides"),
             }
@@ -1744,7 +1745,7 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             // Ranged auto attacks are not simulated: no shot was ever fired.
             BuiltinVariable::TimeSinceAutoShot => now.max(0.0),
             BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),
-            BuiltinVariable::ComboPoints => f64::from(self.character.combo_points()),
+            BuiltinVariable::ComboPoints => f64::from(self.character.combo_points(now)),
             BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
         }
     }
@@ -1799,11 +1800,12 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
     }
 
     fn combo_points(&self) -> u32 {
-        self.character.combo_points()
+        self.character.combo_points(self.now())
     }
 
     fn gain_combo_points(&mut self, amount: u32) {
-        self.character.gain_combo_points(amount);
+        let now = self.now();
+        self.character.gain_combo_points(amount, now);
     }
 
     fn spend_combo_points(&mut self) {

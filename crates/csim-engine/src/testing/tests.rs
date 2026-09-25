@@ -181,7 +181,7 @@ fn overpower_activation() {
     test.then_overpower_is_inactive();
     test.given_overpower_is_active();
     assert_eq!(
-        test.character().combo_points(),
+        test.character().combo_points(test.now()),
         1,
         "one dodge, one combo point (the ranks react once between them)"
     );

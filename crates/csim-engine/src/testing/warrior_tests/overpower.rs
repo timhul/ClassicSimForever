@@ -1,5 +1,6 @@
 //! Port of `Test/Warrior/Spells/TestOverpower`.
 
+use crate::character::COMBO_POINT_DURATION;
 use crate::engine::EventType;
 use crate::spell::SpellStatus;
 use crate::testing::warrior::WarriorTest;
@@ -67,19 +68,29 @@ fn resource_cost() {
     test.then_warrior_has_rage(0);
 }
 
+/// Restarts the Overpower window, which the stance swaps below would otherwise outlast.
+fn given_overpower_window_refreshed(test: &mut WarriorTest) {
+    let now = test.now();
+    test.character_mut().spend_combo_points();
+    test.character_mut().gain_combo_points(1, now);
+}
+
 #[test]
 fn is_ready_conditions() {
     let mut test = test_with_overpower();
     test.given_warrior_in_berserker_stance();
     test.given_warrior_has_rage(100);
+    given_overpower_window_refreshed(&mut test);
     test.then_status_is(SPELL, SpellStatus::InBerserkerStance);
 
     test.given_warrior_in_defensive_stance();
     test.given_warrior_has_rage(100);
+    given_overpower_window_refreshed(&mut test);
     test.then_status_is(SPELL, SpellStatus::InDefensiveStance);
 
     test.given_warrior_in_battle_stance();
     test.given_warrior_has_rage(100);
+    given_overpower_window_refreshed(&mut test);
     test.then_status_is(SPELL, SpellStatus::Available);
 }
 
@@ -153,7 +164,7 @@ fn overpower_active_after(force: fn(&mut WarriorTest)) -> bool {
     test.given_overpower_is_active();
     force(&mut test);
     when_overpower_is_performed(&mut test);
-    test.character().combo_points() > 0
+    test.character().combo_points(test.now()) > 0
 }
 
 fn overpower_removes_buff(force: fn(&mut WarriorTest)) {
@@ -177,4 +188,50 @@ fn overpower_miss_keeps_buff() {
     assert!(overpower_active_after(
         |t| t.given_a_guaranteed_melee_ability_miss()
     ));
+}
+
+/// Battle Stance and full rage, then a dodged Whirlwind; returns the time of the dodge.
+fn given_overpower_dodged(test: &mut WarriorTest) -> f64 {
+    test.given_warrior_in_battle_stance();
+    test.given_warrior_has_rage(100);
+    let dodged_at = test.now();
+    test.given_overpower_is_active();
+    dodged_at
+}
+
+fn given_time_is(test: &mut WarriorTest, time: f64) {
+    let delay = time - test.now();
+    test.given_engine_priority_pushed_forward(delay);
+}
+
+#[test]
+fn overpower_window_lapses() {
+    let mut test = test();
+    let dodged_at = given_overpower_dodged(&mut test);
+
+    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION - 0.01);
+    test.then_overpower_is_active();
+    test.then_status_is(SPELL, SpellStatus::Available);
+
+    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION + 0.001);
+    test.then_overpower_is_inactive();
+    test.then_status_is(SPELL, SpellStatus::InsufficientComboPoints);
+}
+
+#[test]
+fn another_dodge_restarts_the_overpower_window() {
+    let mut test = test();
+    let dodged_at = given_overpower_dodged(&mut test);
+
+    // Whirlwind (the first dodge) is on cooldown: Bloodthirst is dodged the second time.
+    let dodged_again_at = dodged_at + 4.0;
+    given_time_is(&mut test, dodged_again_at);
+    test.given_a_guaranteed_melee_ability_dodge();
+    test.given_warrior_is_on_gcd_from("Bloodthirst");
+
+    given_time_is(&mut test, dodged_at + COMBO_POINT_DURATION + 0.001);
+    test.then_overpower_is_active();
+
+    given_time_is(&mut test, dodged_again_at + COMBO_POINT_DURATION + 0.001);
+    test.then_overpower_is_inactive();
 }

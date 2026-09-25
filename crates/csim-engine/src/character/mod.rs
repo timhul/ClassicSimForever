@@ -76,6 +76,9 @@ impl Default for SimParams {
 pub const STANCE_COOLDOWN: f64 = 1.0;
 /// How long after avoiding an incoming attack the `DEFENSIVE` aura state (Revenge) lasts.
 pub const DEFENSIVE_STATE_DURATION: f64 = 5.0;
+/// How long combo points last after the last one was gained: the Warrior's Overpower window
+/// after the target dodged (the only combo points simulated). Each dodge restarts it.
+pub const COMBO_POINT_DURATION: f64 = 5.0;
 /// Tolerance when comparing the global cooldown with the current time (C++ `action_ready`).
 const GCD_EPSILON: f64 = 0.0001;
 
@@ -120,6 +123,8 @@ pub struct Character {
     /// End of the `DEFENSIVE` aura state window.
     defensive_until: f64,
     combo_points: u32,
+    /// When the combo points lapse ([`COMBO_POINT_DURATION`] after the last gain).
+    combo_points_until: f64,
     tanking: bool,
     party: u8,
     member: u8,
@@ -207,6 +212,7 @@ impl Character {
             next_trinket_cd: -1.0,
             defensive_until: -1.0,
             combo_points: 0,
+            combo_points_until: -1.0,
             tanking: false,
             party,
             member,
@@ -646,12 +652,19 @@ impl Character {
 
     // ---------------------------------------------------------------- combat state
 
-    pub fn combo_points(&self) -> u32 {
-        self.combo_points
+    /// The combo points at `now`: none once [`COMBO_POINT_DURATION`] passed since the last gain.
+    pub fn combo_points(&self, now: f64) -> u32 {
+        if now < self.combo_points_until {
+            self.combo_points
+        } else {
+            0
+        }
     }
 
-    pub fn gain_combo_points(&mut self, amount: u32) {
-        self.combo_points = (self.combo_points + amount).min(5);
+    /// Gains `amount` combo points at `now` (at most five) and restarts their window.
+    pub fn gain_combo_points(&mut self, amount: u32, now: f64) {
+        self.combo_points = (self.combo_points(now) + amount).min(5);
+        self.combo_points_until = now + COMBO_POINT_DURATION;
     }
 
     pub fn spend_combo_points(&mut self) {
@@ -996,6 +1009,7 @@ impl Character {
         self.next_trinket_cd = -1.0;
         self.defensive_until = -1.0;
         self.combo_points = 0;
+        self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
         self.spells.reset_state();
         self.resource.reset();

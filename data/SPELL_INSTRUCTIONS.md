@@ -436,7 +436,7 @@ overrides:
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
 | `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
 | `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
-| `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker) | `value` | Overpower `on_event` |
+| `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); they lapse 5 s after the last gain (`COMBO_POINT_DURATION`) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
 | `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |

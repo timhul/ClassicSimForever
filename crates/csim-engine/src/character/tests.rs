@@ -5,7 +5,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use super::context::{CharacterContext, SwingOutcome};
-use super::{Character, ClassSpec, SimParams, STANCE_COOLDOWN};
+use super::{Character, ClassSpec, SimParams, COMBO_POINT_DURATION, STANCE_COOLDOWN};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
@@ -309,11 +309,34 @@ fn stance_and_trinket_cooldowns() {
 #[test]
 fn combo_points_cap_at_five() {
     let mut f = Fixture::orc_warrior();
-    f.character.gain_combo_points(3);
-    f.character.gain_combo_points(3);
-    assert_eq!(f.character.combo_points(), 5);
+    f.character.gain_combo_points(3, 0.0);
+    f.character.gain_combo_points(3, 0.0);
+    assert_eq!(f.character.combo_points(0.0), 5);
     f.character.spend_combo_points();
-    assert_eq!(f.character.combo_points(), 0);
+    assert_eq!(f.character.combo_points(0.0), 0);
+}
+
+#[test]
+fn combo_points_lapse_after_their_window() {
+    let mut f = Fixture::orc_warrior();
+    f.character.gain_combo_points(1, 10.0);
+    assert_eq!(
+        f.character.combo_points(10.0 + COMBO_POINT_DURATION - 0.01),
+        1
+    );
+    assert_eq!(f.character.combo_points(10.0 + COMBO_POINT_DURATION), 0);
+
+    // A gain restarts the window of the points already held.
+    f.character.gain_combo_points(1, 12.0);
+    assert_eq!(
+        f.character.combo_points(12.0 + COMBO_POINT_DURATION - 0.01),
+        2
+    );
+    assert_eq!(f.character.combo_points(12.0 + COMBO_POINT_DURATION), 0);
+
+    // Lapsed points are gone: a later gain starts from zero.
+    f.character.gain_combo_points(1, 30.0);
+    assert_eq!(f.character.combo_points(30.0), 1);
 }
 
 #[test]
@@ -734,7 +757,7 @@ fn reset_clears_the_iteration_state_and_keeps_passives() {
     let report = f.ctx().cast(bloodrage);
     assert_eq!(report.result, SpellResult::Success);
     assert!(f.ctx().aura_active(BLOODRAGE_BUFF));
-    f.character.gain_combo_points(2);
+    f.character.gain_combo_points(2, f.engine.current_time());
     f.character.start_trinket_cooldown(0.0, 30.0);
     assert!((f.character.stats().get_total_threat_mod() - 0.8).abs() < 1e-9);
 
@@ -742,7 +765,7 @@ fn reset_clears_the_iteration_state_and_keeps_passives() {
     f.ctx().reset();
     assert_eq!(f.character.stance(), Stance::Caster);
     assert_eq!(f.rage(), 0);
-    assert_eq!(f.character.combo_points(), 0);
+    assert_eq!(f.character.combo_points(-2.0), 0);
     assert!(!f.character.on_trinket_cooldown(0.0));
     assert!(!f.character.action_ready(-2.0), "the GCD is armed at -1.5");
     assert!(f.character.action_ready(-1.5));
@@ -2132,7 +2155,7 @@ mod rotation {
         f.engine
             .add_event(Event::new(50.0, EventKind::EncounterEnd));
         f.engine.next_event();
-        f.character.gain_combo_points(2);
+        f.character.gain_combo_points(2, f.engine.current_time());
         let ctx = f.ctx();
         let var = |v| ctx.variable(v);
         assert!((var(BuiltinVariable::TimeRemainingEncounter) - 150.0).abs() < 1e-9);

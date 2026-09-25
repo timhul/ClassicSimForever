@@ -242,7 +242,8 @@ fn heroic_strike(test: &mut WarriorTest) {
 }
 
 fn overpower(test: &mut WarriorTest) {
-    test.character_mut().gain_combo_points(1);
+    let now = test.now();
+    test.character_mut().gain_combo_points(1, now);
     when_performing_attack(test, "Overpower");
 }
 

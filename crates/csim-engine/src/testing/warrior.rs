@@ -205,10 +205,17 @@ impl WarriorTest {
     }
 
     pub fn then_overpower_is_active(&self) {
-        assert!(self.character().combo_points() > 0, "Overpower is inactive");
+        assert!(
+            self.character().combo_points(self.now()) > 0,
+            "Overpower is inactive"
+        );
     }
 
     pub fn then_overpower_is_inactive(&self) {
-        assert_eq!(self.character().combo_points(), 0, "Overpower is active");
+        assert_eq!(
+            self.character().combo_points(self.now()),
+            0,
+            "Overpower is active"
+        );
     }
 }
