@@ -228,6 +228,45 @@ fn offhand_strike_rolls_on_its_own() {
     assert_eq!(test.damage_dealt(), 0);
 }
 
+/// Raging Blows on a dual wielder with 1000 AP against an unarmored target.
+fn raging_blows_test() -> WarriorTest {
+    let mut test = test();
+    test.given_target_has_0_armor();
+    test.given_1000_melee_ap();
+    test.given_fury_talent_with_rank("Raging Blows", 1);
+    test.given_no_previous_damage_dealt();
+    test
+}
+
+#[test]
+fn offhand_strike_hits_when_the_mainhand_is_dodged() {
+    let mut test = raging_blows_test();
+    test.given_a_mainhand_ability_dodge_and_an_offhand_ability_hit();
+    let report = test.cast(SPELL);
+    assert_eq!(report.attack.unwrap().result, PhysicalAttackResult::Dodge);
+    let offhand = report.offhand.unwrap().attack;
+    assert_eq!(offhand.result, PhysicalAttackResult::Hit);
+    assert!(offhand.damage > 0);
+    assert_eq!(test.damage_dealt_by(SPELL), 0);
+    assert_eq!(test.damage_dealt_by(OFFHAND), u64::from(offhand.damage));
+}
+
+#[test]
+fn offhand_strike_is_dodged_when_the_mainhand_hits() {
+    let mut test = raging_blows_test();
+    test.given_a_mainhand_ability_hit_and_an_offhand_ability_dodge();
+    let report = test.cast(SPELL);
+    let mainhand = report.attack.unwrap();
+    assert_eq!(mainhand.result, PhysicalAttackResult::Hit);
+    assert!(mainhand.damage > 0);
+    assert_eq!(
+        report.offhand.unwrap().attack.result,
+        PhysicalAttackResult::Dodge
+    );
+    assert_eq!(test.damage_dealt_by(SPELL), u64::from(mainhand.damage));
+    assert_eq!(test.damage_dealt_by(OFFHAND), 0);
+}
+
 #[test]
 fn no_offhand_strike_with_a_twohander() {
     let mut test = test();

@@ -831,11 +831,54 @@ impl SpellTest {
         }
     }
 
+    /// Reshapes the special hit tables so that main-hand abilities always land on `mh` and
+    /// off-hand abilities on `oh`. The hands must use different weapon skills (the tables are
+    /// per skill); crits are impossible.
+    fn force_special_tables_per_hand(&mut self, mh: Outcome, oh: Outcome) {
+        assert!(
+            ![mh, oh].contains(&Outcome::Crit) && ![mh, oh].contains(&Outcome::Glancing),
+            "no forced crits or glancing blows per hand"
+        );
+        let (mh_skill, oh_skill) = (self.mh_weapon_skill(), self.oh_weapon_skill());
+        assert_ne!(mh_skill, oh_skill, "the hands share one special table");
+        self.force_crit(Outcome::Hit);
+        self.reshape_melee_tables_for(&[mh_skill], mh, false);
+        self.reshape_melee_tables_for(&[oh_skill], oh, false);
+        self.assert_melee_table_can_only(mh_skill, false, mh);
+        self.assert_melee_table_can_only(oh_skill, false, oh);
+    }
+
+    /// Main-hand abilities are always dodged, off-hand abilities always hit (a 315 sword
+    /// skill main hand and an axe off hand are equipped).
+    pub fn given_a_mainhand_ability_dodge_and_an_offhand_ability_hit(&mut self) {
+        self.given_mainhand_and_offhand_of_different_skills();
+        self.force_special_tables_per_hand(Outcome::Dodge, Outcome::Hit);
+    }
+
+    /// Main-hand abilities always hit, off-hand abilities are always dodged (a 315 sword
+    /// skill main hand and an axe off hand are equipped).
+    pub fn given_a_mainhand_ability_hit_and_an_offhand_ability_dodge(&mut self) {
+        self.given_mainhand_and_offhand_of_different_skills();
+        self.force_special_tables_per_hand(Outcome::Hit, Outcome::Dodge);
+    }
+
+    fn given_mainhand_and_offhand_of_different_skills(&mut self) {
+        self.given_a_mainhand_weapon_with_100_min_max_dmg();
+        self.given_an_offhand_axe();
+        self.given_315_weapon_skill_mh();
+        self.given_300_weapon_skill_oh();
+    }
+
     /// Sets the miss, dodge, parry, glancing and block ranges of the white or special tables
     /// of both hands' weapon skills to all or nothing of the roll range.
     fn reshape_melee_tables(&mut self, outcome: Outcome, white: bool) {
-        let view = self.view();
         let skills = [self.mh_weapon_skill(), self.oh_weapon_skill()];
+        self.reshape_melee_tables_for(&skills, outcome, white);
+    }
+
+    /// [`Self::reshape_melee_tables`] for the tables of weapon skills `skills`.
+    fn reshape_melee_tables_for(&mut self, skills: &[u32], outcome: Outcome, white: bool) {
+        let view = self.view();
         let character = self.character_mut();
         let ctx = character.refresh_roll_context(&view);
         let miss = if outcome == Outcome::Miss {
@@ -843,7 +886,7 @@ impl SpellTest {
         } else {
             0
         };
-        for skill in skills {
+        for &skill in skills {
             if white {
                 let table = character.roll_mut().melee_white_table_mut(&ctx, skill);
                 table.update_miss_chance(miss);
