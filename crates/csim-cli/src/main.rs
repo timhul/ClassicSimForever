@@ -7,12 +7,15 @@
 //! - `csim validate` loads the data directory and checks every character and raid setup
 //!   against it.
 //! - `csim list-items` / `list-spells` / `list-rotations` list what setups can refer to.
+//! - `csim rank-items --weights <weights.yaml>` ranks items by their stats times the stat
+//!   weights `csim run --scale --weights-file` wrote.
 //!
 //! Every command reads the data directory given by `--data`; without it, `./data` when it
 //! exists, else the repository's `data/`.
 
 mod html;
 mod list;
+mod rank;
 mod run;
 mod table;
 mod weights;
@@ -54,6 +57,8 @@ enum Command {
     ListSpells(list::SpellArgs),
     /// Lists the rotations, optionally of one class.
     ListRotations(list::RotationArgs),
+    /// Ranks items by their stats times the stat weights of `run --scale --weights-file`.
+    RankItems(rank::RankArgs),
 }
 
 fn main() -> ExitCode {
@@ -65,6 +70,7 @@ fn main() -> ExitCode {
         Command::ListItems(args) => load(&data_dir).map(|data| list::items(&data, &args)),
         Command::ListSpells(args) => load(&data_dir).map(|data| list::spells(&data, &args)),
         Command::ListRotations(args) => load(&data_dir).map(|data| list::rotations(&data, &args)),
+        Command::RankItems(args) => load(&data_dir).and_then(|data| rank::items(&data, &args)),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

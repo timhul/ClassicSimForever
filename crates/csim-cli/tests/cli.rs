@@ -127,6 +127,47 @@ fn weights_file_writes_the_weights_per_item_stat_point() {
 }
 
 #[test]
+fn rank_items_orders_by_the_weighted_stats() {
+    let path = std::env::temp_dir().join(format!("csim-rank-{}.yaml", std::process::id()));
+    std::fs::write(
+        &path,
+        "setup: Test\nclass: WARRIOR\nrotation: Fury\nphase: 3\niterations: 1\nseed: 1\n\
+         dps: 500\ntps: 400\nweights:\n  STRENGTH: { dps: 1.0, tps: 0.5 }\n",
+    )
+    .unwrap();
+    let output = csim(&[
+        "rank-items",
+        "--weights",
+        path.to_str().unwrap(),
+        "--slot",
+        "gloves",
+        "--limit",
+        "5",
+    ]);
+    std::fs::remove_file(&path).ok();
+    let report = stdout(&output);
+
+    assert!(
+        report.starts_with("Stat weights of Test (Warrior Fury, phase 3, 500.0 DPS)"),
+        "{report}"
+    );
+    let header = report.lines().nth(1).unwrap();
+    let score_column = header.find("Score").unwrap();
+    let scores: Vec<f64> = report
+        .lines()
+        .skip(3)
+        .map(|line| {
+            let end = score_column + "Score".len();
+            line[..end].rsplit(' ').next().unwrap().parse().unwrap()
+        })
+        .collect();
+    assert_eq!(scores.len(), 5, "{report}");
+    assert!(scores.windows(2).all(|w| w[0] >= w[1]), "{report}");
+    assert!(scores[0] > 0.0, "{report}");
+    assert!(report.contains("GLOVES"), "{report}");
+}
+
+#[test]
 fn weights_file_requires_scale() {
     let output = csim(&[&RUN[..], &["--weights-file", "weights.yaml"]].concat());
     assert!(!output.status.success());

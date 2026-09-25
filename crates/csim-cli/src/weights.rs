@@ -62,10 +62,21 @@ impl StatWeights {
         }
     }
 
+    pub fn read(path: &Path) -> Result<StatWeights> {
+        let text = std::fs::read_to_string(path)
+            .map_err(|error| format!("cannot read {}: {error}", path.display()))?;
+        serde_yaml::from_str(&text).map_err(|error| format!("{}: {error}", path.display()).into())
+    }
+
     pub fn write(&self, path: &Path) -> Result<()> {
         let yaml = serde_yaml::to_string(self)?;
         std::fs::write(path, yaml)
             .map_err(|error| format!("cannot write {}: {error}", path.display()).into())
+    }
+
+    /// The weight of one point of `stat`, if it was scaled.
+    pub fn get(&self, stat: ItemStat) -> Option<StatWeight> {
+        self.weights.get(&stat).copied()
     }
 }
 

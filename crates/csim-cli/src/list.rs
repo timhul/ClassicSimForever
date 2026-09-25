@@ -46,7 +46,7 @@ pub fn parse_phase(text: &str) -> Result<Phase, String> {
     Phase::try_from(number).map_err(|error| error.to_string())
 }
 
-fn matches(name: &str, search: Option<&str>) -> bool {
+pub(crate) fn matches(name: &str, search: Option<&str>) -> bool {
     search.is_none_or(|search| name.to_lowercase().contains(&search.to_lowercase()))
 }
 
@@ -143,7 +143,7 @@ pub fn rotations(data: &DataBundle, args: &RotationArgs) {
     print_or_none(&table, "rotations");
 }
 
-fn print_or_none(table: &Table, what: &str) {
+pub(crate) fn print_or_none(table: &Table, what: &str) {
     if table.is_empty() {
         println!("No {what} found");
     } else {
