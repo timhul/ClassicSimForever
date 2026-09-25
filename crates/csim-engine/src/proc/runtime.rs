@@ -12,6 +12,10 @@
 //! [`EnabledProcs`] owns the procs of one character and runs the proc checks with the C++
 //! re-entrancy guard.
 //!
+//! An item's chance-on-hit spell (`ItemEffect` trigger 2, Thunderfury) is a proc of its own
+//! kind ([`Proc::on_hit`]): the spell is the payload itself, cast at the target when the
+//! wielding hand lands a hit, at the rate the overrides give (the server's item data).
+//!
 //! Deviation from C++: the internal cooldown (`ProcCategoryRecovery`, the spell's cooldown
 //! control) is enforced — the C++ `EnabledProcs::run_proc_check` performed a proc without
 //! checking its cooldown control.
@@ -53,10 +57,21 @@ enum Payload {
     TriggerWithValue { spell: u32, effect: u32, value: f64 },
 }
 
+/// What a proc's spell is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProcKind {
+    /// A passive whose aura effects are the payloads (`PROC_TRIGGER_SPELL`, scripted `DUMMY`);
+    /// it only fires while its aura is up.
+    Aura,
+    /// An item's chance-on-hit spell: the proc casts the spell itself.
+    OnHit,
+}
+
 /// A passive spell with a proc chance. Port of `Proc` / `ProcPPM`.
 #[derive(Debug, Clone)]
 pub struct Proc {
     spell: Spell,
+    kind: ProcKind,
     rate: ProcRate,
     sources: Vec<ProcSource>,
     random: Random,
@@ -74,11 +89,22 @@ impl Proc {
     /// Panics if the spell is not passive, has no proc sources, or has neither effects nor a
     /// marker buff (the C++ constructor checks).
     pub fn new(spell: Spell, seed: u64) -> Self {
-        let mut sources = Self::record_sources(&spell);
+        let sources = Self::sources_of(&spell);
+        Self::build(spell, sources, seed)
+    }
+
+    /// The sources a passive proc spell listens to: its `ProcTypeMask` and hit mask, narrowed
+    /// to the override's hand. Empty for a proc on events the sim does not have (a killing
+    /// blow).
+    ///
+    /// # Panics
+    /// Panics if the spell is not passive.
+    pub fn sources_of(spell: &Spell) -> Vec<ProcSource> {
+        let mut sources = Self::record_sources(spell);
         if let Some(hand) = spell.setup().overrides.proc.and_then(|p| p.hand) {
             sources.retain(|source| source.hand() == hand);
         }
-        Self::build(spell, sources, seed)
+        sources
     }
 
     /// Builds the proc an equipped item or enchant grants: the record says what the proc does
@@ -94,6 +120,24 @@ impl Proc {
             return None;
         }
         Some(Self::build(spell, sources, seed))
+    }
+
+    /// Builds the proc of an item's chance-on-hit spell (`ItemEffect` trigger 2): the spell is
+    /// the payload, cast at the target when one of `allowed` (the wielding hand's landed
+    /// swings and abilities) fires. The rate is the override's chance or procs per minute, else
+    /// the record's procs per minute or a `ProcChance` of 1–100 %. Returns `None` when the rate
+    /// is unknown — the payload's `ProcChance` 101 means "handled by the effect", the server's
+    /// item data holds the real rate — or when `allowed` is empty.
+    pub fn on_hit(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
+        let record = spell.record();
+        let table_chance = (1..=100).contains(&record.aura_options.proc_chance);
+        let override_rate = spell.setup().overrides.proc.is_some_and(|p| p.has_rate());
+        if !(override_rate || record.aura_options.ppm > 0.0 || table_chance) || allowed.is_empty() {
+            return None;
+        }
+        let mut proc = Self::build(spell, allowed.to_vec(), seed);
+        proc.kind = ProcKind::OnHit;
+        Some(proc)
     }
 
     /// The sources the record's `ProcTypeMask` and hit mask name.
@@ -117,13 +161,17 @@ impl Proc {
             record.name,
             record.id
         );
-        let rate = if record.aura_options.ppm > 0.0 {
-            ProcRate::Ppm(f64::from(record.aura_options.ppm))
-        } else {
-            ProcRate::Chance
+        let override_ppm = spell.setup().overrides.proc.and_then(|p| p.ppm);
+        let rate = match override_ppm {
+            Some(ppm) => ProcRate::Ppm(ppm),
+            None if record.aura_options.ppm > 0.0 => {
+                ProcRate::Ppm(f64::from(record.aura_options.ppm))
+            }
+            None => ProcRate::Chance,
         };
         Proc {
             spell,
+            kind: ProcKind::Aura,
             rate,
             sources,
             random: Random::from_seed(0, PROC_ROLL_RANGE, seed),
@@ -148,6 +196,10 @@ impl Proc {
     /// The spell's game id.
     pub fn game_id(&self) -> u32 {
         self.spell.game_id()
+    }
+
+    pub fn kind(&self) -> ProcKind {
+        self.kind
     }
 
     pub fn rate(&self) -> ProcRate {
@@ -204,7 +256,9 @@ impl Proc {
     /// requirements of the record gate the aura) and, for a PPM proc, the triggering hand holds
     /// a weapon. Port of the `proc_specific_conditions_fulfilled` overrides.
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
-        if let Some(id) = self.spell.marker_buff() {
+        // An on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a
+        // condition.
+        if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff()) {
             if !host.buff(id).is_active() {
                 return false;
             }
@@ -278,6 +332,9 @@ impl Proc {
     /// `Proc::spell_effect`.
     pub fn perform(&mut self, host: &mut impl ProcHost) -> CastReport {
         self.procs += 1;
+        if self.kind == ProcKind::OnHit {
+            return self.spell.perform_triggered(host);
+        }
         let mut report = if self.spell.effects().is_empty() {
             self.spell.start_cooldown(host);
             CastReport {

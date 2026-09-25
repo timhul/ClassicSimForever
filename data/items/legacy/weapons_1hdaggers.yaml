@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/1hDaggers.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 19346
   name: "Dragonfang Blade"
@@ -33,6 +36,9 @@
     min: 49
     max: 93
     speed: 1.8
+  effects:
+    - trigger: ON_HIT
+      spell: 16528
   special_equip_effects: ["Chance on hit: Inflicts numbing pain that deals 10 Nature damage every 2 sec and increases time between target's attacks by 10% for 10 sec."]
   source: "Drops from War Master Voone in Lower Blackrock Spire (LBRS)."
 - id: 13218
@@ -48,6 +54,9 @@
     min: 45
     max: 84
     speed: 1.6
+  effects:
+    - trigger: ON_HIT
+      spell: 17331
   special_equip_effects: ["Chance on hit: Slows target enemy's casting speed and increases the time between melee and ranged attacks by 10% for 10 sec."]
   source: "Drops from Crystal Fang in Lower Blackrock Spire (LBRS)."
 - id: 5267
@@ -99,13 +108,9 @@
     min: 41
     max: 77
     speed: 1.3
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 0.02816667
-      min: 75
-      max: 106
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 18833
   special_equip_effects: ["Chance on hit: Blasts a target for 75 to 106 Fire damage."]
   source: "World drop. BoE in 1.9.0, BoP in patches before that."
 - id: 12590
@@ -121,11 +126,9 @@
     min: 54
     max: 101
     speed: 1.7
-  procs:
-    - name: "FELSTRIKER_PROC"
-      rate: 0.028333333
-      duration: 3
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 16551
   special_equip_effects: ["Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3 sec."]
   source: "Drops from Rend Blackhand in Upper Blackrock Spire (UBRS)."
 - id: 18878
@@ -160,13 +163,9 @@
     min: 63
     max: 119
     speed: 1.8
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.03
-      min: 75
-      max: 75
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 21151
   special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 75 Shadow damage and lowering all stats by 25 for 30 sec."]
   source: "Drops from Garr in Molten Core."
 - id: 18805
@@ -201,13 +200,9 @@
     min: 73
     max: 137
     speed: 1.8
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 0.039
-      min: 40
-      max: 57
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 23267
   special_equip_effects: ["Chance on hit: Blasts a target for 40 to 57 Fire damage."]
   source: "Drops from Ragnaros in Molten Core."
 - id: 19347

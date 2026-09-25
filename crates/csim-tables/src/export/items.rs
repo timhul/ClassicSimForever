@@ -21,7 +21,7 @@ pub use csim_engine::item::{EffectTrigger, ItemEffect, ItemSuffix, LimitCategory
 use csim_engine::magic_school::MagicSchool;
 use csim_engine::phase::Phase;
 
-use crate::tables::{ItemDamageTable, ItemRow, ItemSparseRow};
+use crate::tables::{ItemDamageTable, ItemRow, ItemSetRow, ItemSparseRow};
 use crate::Tables;
 
 /// Lowest `OverallQualityID` exported (Rare).
@@ -530,7 +530,7 @@ fn suffixes(
 }
 
 /// The item spells (§1.7). Learn-spell effects (trigger 6) are left out.
-fn effects(tables: &Tables, item_id: u32, issues: &mut Vec<ItemIssue>) -> Vec<ItemEffect> {
+pub fn item_effects(tables: &Tables, item_id: u32, issues: &mut Vec<ItemIssue>) -> Vec<ItemEffect> {
     let positive = |ms: i32| u32::try_from(ms).ok().filter(|&ms| ms > 0);
     tables
         .item_effects_of_item(item_id)
@@ -692,7 +692,7 @@ pub fn derive_item(
         class_restrictions: class_restrictions(sparse.allowable_class),
         damage,
         stats,
-        effects: effects(tables, item_id, issues),
+        effects: item_effects(tables, item_id, issues),
         set: Some(sparse.item_set).filter(|&s| s != 0),
         suffixes: suffixes(tables, item_id, budget, issues),
         flavour_text: sparse.description.clone(),
@@ -813,16 +813,27 @@ pub fn item_files(tables: &Tables, items: &[DerivedItem]) -> BTreeMap<&'static s
     files
 }
 
-/// The item sets with at least one derived member, sorted by id.
-pub fn item_set_file(tables: &Tables, items: &[DerivedItem]) -> ItemSetFile {
-    let ids: BTreeSet<u32> = items.iter().filter_map(|item| item.set).collect();
+/// The item sets with at least one derived member or one member among `legacy` (the ids the
+/// hand-authored legacy files serve), sorted by id.
+pub fn item_set_file(
+    tables: &Tables,
+    items: &[DerivedItem],
+    legacy: &BTreeSet<u32>,
+) -> ItemSetFile {
+    let mut ids: BTreeSet<u32> = items.iter().filter_map(|item| item.set).collect();
+    ids.extend(
+        tables
+            .item_sets()
+            .filter(|set| set.item_ids.iter().any(|id| legacy.contains(id)))
+            .map(|set| set.id),
+    );
     let sets = ids
         .into_iter()
         .filter_map(|id| tables.item_set(id))
         .map(|set| ItemSetSpec {
             id: set.id,
             name: set.name.clone(),
-            items: set.item_ids.iter().copied().filter(|&id| id != 0).collect(),
+            items: set_members(set, items),
             bonuses: tables
                 .item_set_spells(set.id)
                 .iter()
@@ -837,6 +848,21 @@ pub fn item_set_file(tables: &Tables, items: &[DerivedItem]) -> ItemSetFile {
         build: tables.build().to_owned(),
         sets,
     }
+}
+
+/// The members of a set: its `ItemSet.ItemID` list, then the derived items whose
+/// `ItemSparse.ItemSet` names the set without being listed (Forever variants such as
+/// Spiritcaller Mantle), by id.
+fn set_members(set: &ItemSetRow, items: &[DerivedItem]) -> Vec<u32> {
+    let mut members: Vec<u32> = set.item_ids.iter().copied().filter(|&id| id != 0).collect();
+    let mut pointing: Vec<u32> = items
+        .iter()
+        .filter(|item| item.set == Some(set.id) && !members.contains(&item.id))
+        .map(|item| item.id)
+        .collect();
+    pointing.sort_unstable();
+    members.extend(pointing);
+    members
 }
 
 /// Renders an item file with a header naming its origin.
@@ -933,6 +959,30 @@ pub fn read_item_specs(path: &Path) -> Result<Vec<ItemSpec>, ReadItemsError> {
         let file: ItemFile = serde_yaml::from_value(value).map_err(yaml)?;
         Ok(file.items)
     }
+}
+
+/// The legacy items of `items_dir/legacy/` (none when the directory is absent) whose id is not
+/// in `exported`: the ones the engine loads.
+pub fn read_legacy_items(
+    items_dir: &Path,
+    exported: &BTreeSet<u32>,
+) -> Result<Vec<ItemSpec>, ReadItemsError> {
+    let dir = items_dir.join("legacy");
+    if !dir.is_dir() {
+        return Ok(Vec::new());
+    }
+    let mut legacy = read_item_specs(&dir)?;
+    legacy.retain(|item| !exported.contains(&item.id));
+    Ok(legacy)
+}
+
+/// Every item the engine loads from `items_dir`: the exported files, then the legacy items
+/// they do not shadow.
+pub fn read_all_items(items_dir: &Path) -> Result<Vec<ItemSpec>, ReadItemsError> {
+    let mut items = read_item_specs(items_dir)?;
+    let exported: BTreeSet<u32> = items.iter().map(|item| item.id).collect();
+    items.extend(read_legacy_items(items_dir, &exported)?);
+    Ok(items)
 }
 
 /// The legacy version an exported item is compared with: the newest phase.

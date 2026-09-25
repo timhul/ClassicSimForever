@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/2hAxes.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 11931
   name: "Dreadforge Retaliator"
@@ -35,6 +38,9 @@
     speed: 3.4
   stats:
     ATTACK_POWER: 34
+  effects:
+    - trigger: EQUIP
+      spell: 21185
   special_equip_effects: ["Equip: Restores 150 mana or 20 rage when you kill a target that gives experience; this effect cannot occur more than once every 10 seconds."]
   source: "Drops from Ragnaros in Molten Core."
 - id: 19353
@@ -53,13 +59,9 @@
   stats:
     STAMINA: 17
     STRENGTH: 22
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.0566666667
-      min: 240
-      max: 240
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 21140
   special_equip_effects: ["Chance on hit: Delivers a fatal wound for 240 damage."]
   source: "Drops from Ebonroc, Flamegor, and Firemaw in Blackwing Lair."
 - id: 19354
@@ -96,13 +98,9 @@
   stats:
     STAMINA: 16
     STRENGTH: 21
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.06166667
-      min: 141
-      max: 164
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 26693
   special_equip_effects: ["Chance on hit: Steals 141 to 164 life from target enemy."]
   source: "Drops from trash mobs in Temple of Ahn'Qiraj (AQ40)."
 - id: 22815

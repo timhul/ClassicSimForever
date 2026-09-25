@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/Polearms.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 13056
   name: "Frenzied Striker"
@@ -33,13 +36,9 @@
     min: 151
     max: 227
     speed: 3.5
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.05833333
-      min: 324
-      max: 541
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 16549
   special_equip_effects: ["Chance on hit: Wounds the target for 324 to 541 damage."]
   source: "Drops from Rend Blackhand in Upper Blackrock Spire (UBRS)."
 - id: 17074
@@ -55,13 +54,13 @@
     min: 147
     max: 221
     speed: 3.1
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.051666667
-      min: 100
-      max: 181
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 21170
+    - trigger: USE
+      spell: 21180
+      category: 1150
+      category_cooldown_ms: 60000
   special_equip_effects: ["Chance on hit: Steals 100 to 181 life from target enemy.", "Use: Transforms Shadowstrike into Thunderstrike. (cooldown 1 min)"]
   source: "Drops from Sulfuron Harbinger in Molten Core."
 - id: 18725
@@ -129,13 +128,9 @@
     min: 175
     max: 263
     speed: 3.5
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.058333333
-      min: 452
-      max: 677
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: EQUIP
+      spell: 25669
   special_equip_effects: ["Equip: Chance to decapitate the target on a melee swing, causing 452 to 677 damage."]
   source: "Drops from Bloodlord Mandokir in Zul'Gurub."
 - id: 22314

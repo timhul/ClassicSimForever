@@ -2,9 +2,18 @@
 # build 1.60.1.69893 from the effects of data/items/*.yaml and the bonuses of
 # data/item_sets.yaml). See crates/csim-engine/src/spell/overrides.rs for the schema.
 #
-# The DUMMY effects the sim can use (Zandalarian trinkets, Arcanite Dragonling, weapon procs, ...)
-# are left without a script until item spells run (TASKS 7.7 / 7.8); `csim-tables check` lists
-# them. The ones below do nothing a melee sim models.
+# The DUMMY effects the sim can use (Zandalarian trinkets, Arcanite Dragonling, creature-type
+# damage bonuses, ...) are left without a script for now; `csim-tables check` lists them.
+#
+# A weapon's chance-on-hit spell (ItemEffect trigger 2) carries no rate in the tables (its
+# `ProcChance` is 101, "handled by the effect"): the server keeps it with the item. The rates
+# below are ClassicSim's hand-authored chances for the same weapons. On-hit spells without one
+# are not run: Hammer of the Northern Wind, Hammer of Expertise, Blood Talon, Phantom Blade,
+# Blazing Rapier, Masterwork Stormhammer, Frostguard, Annihilator, Glacial Blade, Electrified
+# Dagger, Black Amnesty, Dark Iron Rifle, Blight, Dark Iron Sunderer, Bleakwood Hew, Arcanite
+# Champion, Ashbringer, Windwalker's Yari, Rot-Covered Harpoon, Hedgecutter, Keris of Zul'Serak,
+# Fang of the Crystal Spider, Hurd Smasher, Venomspitter, Bloodrazor, Quel'Serrar, Corrupted
+# Ashbringer, Stoneshatter and The Lobotomizer (whose Forever spell is not ClassicSim's proc).
 
 overrides:
   # Healing, resurrection, utility and cosmetic effects.
@@ -99,3 +108,146 @@ overrides:
   - id: 1306483
     note: Lacerate Mangle Reset Chance (Idol of the Ursine Twins) is a druid relic
     sim_flags: [IGNORED]
+  # Proc chances the tooltip divides by a racial multiplier; the sim's target is never of that
+  # race.
+  - id: 15600
+    note: Hand of Justice - 3 % against Dwarves ($s2 = 3 times as likely), 1 % otherwise
+    proc: { chance: 1 }
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1301046
+    note: Fury of Forgewright (Ironfoe) - 6 % against Orcs ($s2 = 2 times as likely), 3 % otherwise
+    proc: { chance: 3 }
+    effects: [{ index: 1, script: NO_OP }]
+  # Chance-on-hit rates (see the header).
+  - id: 8191
+    note: Zeal (Sword of Zeal) - ClassicSim's 5 % chance on hit
+    proc: { chance: 5 }
+  - id: 13049
+    note: Dragon's Call (Dragon's Call) - ClassicSim's 5 % chance on hit
+    proc: { chance: 5 }
+  - id: 13442
+    note: Firebolt (Baron Charr's Sceptre) - ClassicSim's 4 % chance on hit
+    proc: { chance: 4 }
+  - id: 15602
+    note: Lord General's Sword (Lord General's Sword) - ClassicSim's 8 % chance on hit
+    proc: { chance: 8 }
+  - id: 16405
+    note: Wound (Hanzo Sword) - ClassicSim's 5.63 % chance on hit
+    proc: { chance: 5.63 }
+  - id: 16549
+    note: Fatal Wound (Blackhand Doomsaw) - ClassicSim's 5.83 % chance on hit
+    proc: { chance: 5.83 }
+  - id: 16551
+    note: Felstriker (Felstriker) - ClassicSim's 2.83 % chance on hit
+    proc: { chance: 2.83 }
+  - id: 16603
+    note: Demonfork (Demonfork) - ClassicSim's 10 % chance on hit
+    proc: { chance: 10 }
+  - id: 17315
+    note: Puncture Armor (Rivenspike, Bashguuder) - ClassicSim's 4 % chance on hit
+    proc: { chance: 4 }
+  - id: 17352
+    note: Argent Avenger (Argent Avenger) - ClassicSim's 4.17 % chance on hit
+    proc: { chance: 4.17 }
+  - id: 17483
+    note: Shadow Bolt (Demonshear) - ClassicSim's 6 % chance on hit
+    proc: { chance: 6 }
+  - id: 17484
+    note: Skullforge Brand (Skullforge Reaver) - ClassicSim's 5 % chance on hit
+    proc: { chance: 5 }
+  - id: 18104
+    note: Wrath (Axe of the Deep Woods) - ClassicSim's 4.5 % chance on hit
+    proc: { chance: 4.5 }
+  - id: 18205
+    note: Shadow Bolt (Arlokk's Grasp) - ClassicSim's 2.5 % chance on hit
+    proc: { chance: 2.5 }
+  - id: 18211
+    note: Shadow Bolt (Ebon Hand) - ClassicSim's 3.83 % chance on hit
+    proc: { chance: 3.83 }
+  - id: 18276
+    note: Frost Blast (Bonechill Hammer) - ClassicSim's 5 % chance on hit
+    proc: { chance: 5 }
+  - id: 18656
+    note: Corruption (Ebon Hilt of Marduk) - ClassicSim's 8 % chance on hit
+    proc: { chance: 8 }
+  - id: 18797
+    note: Flurry Axe (Flurry Axe) - ClassicSim's 4.62 % chance on hit
+    proc: { chance: 4.62 }
+  - id: 18833
+    note: Firebolt (Alcor's Sunrazor) - ClassicSim's 2.82 % chance on hit
+    proc: { chance: 2.82 }
+  - id: 21140
+    note: Fatal Wound (Drake Talon Cleaver) - ClassicSim's 5.67 % chance on hit
+    proc: { chance: 5.67 }
+  - id: 21151
+    note: Gutgore Ripper (Gutgore Ripper) - ClassicSim's 3 % chance on hit
+    proc: { chance: 3 }
+  - id: 21153
+    note: Bonereaver's Edge (Bonereaver's Edge) - ClassicSim's 11.33 % chance on hit
+    proc: { chance: 11.33 }
+  - id: 21159
+    note: Fireball (Sulfuron Hammer) - ClassicSim's 4.32 % chance on hit
+    proc: { chance: 4.32 }
+  - id: 21162
+    note: Fireball (Sulfuras, Hand of Ragnaros) - ClassicSim's 6.17 % chance on hit
+    proc: { chance: 6.17 }
+  - id: 21165
+    note: Haste (Empyrean Demolisher) - ClassicSim's 4.67 % chance on hit
+    proc: { chance: 4.67 }
+  - id: 21170
+    note: Drain Life (Shadowstrike) - ClassicSim's 5.17 % chance on hit
+    proc: { chance: 5.17 }
+  - id: 21179
+    note: Chain Lightning (Thunderstrike) - ClassicSim's 5.17 % chance on hit
+    proc: { chance: 5.17 }
+  - id: 21919
+    note: Thrash (Thrash Blade) - ClassicSim's 4.5 % chance on hit
+    proc: { chance: 4.5 }
+  - id: 21992
+    note: Thunderfury (Thunderfury, Blessed Blade of the Windseeker) - ClassicSim's 20 % chance on hit
+    proc: { chance: 20 }
+  - id: 22639
+    note: Eskhandar's Rake (Eskhandar's Left Claw) - ClassicSim's 5 % chance on hit
+    proc: { chance: 5 }
+  - id: 22640
+    note: Eskhandar's Rage (Eskhandar's Right Claw) - ClassicSim's 2.5 % chance on hit
+    proc: { chance: 2.5 }
+  - id: 23267
+    note: Firebolt (Perdition's Blade) - ClassicSim's 3.9 % chance on hit
+    proc: { chance: 3.9 }
+  - id: 23605
+    note: Spell Vulnerability (Nightfall) - ClassicSim's 20 % chance on hit
+    proc: { chance: 20 }
+  - id: 23719
+    note: Untamed Fury (The Untamed Blade) - ClassicSim's 5.67 % chance on hit
+    proc: { chance: 5.67 }
+  - id: 24251
+    note: Zulian Slice (Zulian Slicer) - ClassicSim's 4.17 % chance on hit
+    proc: { chance: 4.17 }
+  - id: 24254
+    note: Serpent's Hiss (Sceptre of Smiting) - ClassicSim's 4.33 % chance on hit
+    proc: { chance: 4.33 }
+  - id: 24257
+    note: Jeklik's Crushing Blow (Jeklik's Crusher) - ClassicSim's 6 % chance on hit
+    proc: { chance: 6 }
+  - id: 24585
+    note: Drain Life (Ancient Hakkari Manslayer) - ClassicSim's 6 % chance on hit
+    proc: { chance: 6 }
+  - id: 26415
+    note: Shock (Kalimdor's Revenge) - ClassicSim's 5.33 % chance on hit
+    proc: { chance: 5.33 }
+  - id: 26693
+    note: Drain Life (Neretzek, The Blood Drinker) - ClassicSim's 6.17 % chance on hit
+    proc: { chance: 6.17 }
+  - id: 29639
+    note: Flaming Cannonball (Dwarven Hand Cannon) - ClassicSim's 6 % chance on hit
+    proc: { chance: 6 }
+  - id: 1300753
+    note: Firebolt (Teebu's Blazing Longsword) - ClassicSim's 4.83 % chance on hit
+    proc: { chance: 4.83 }
+  - id: 1305394
+    note: Fatal Wound (Vis'kag the Bloodletter) - ClassicSim's 2.6 % chance on hit
+    proc: { chance: 2.6 }
+  - id: 1305398
+    note: Shadow Bolt (Deathbringer) - ClassicSim's 3.87 % chance on hit
+    proc: { chance: 3.87 }

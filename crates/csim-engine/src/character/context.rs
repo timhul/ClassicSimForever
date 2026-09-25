@@ -3,7 +3,8 @@ use std::sync::Arc;
 use crate::buff::external::ExternalBuffDb;
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{
-    AddedSpell, BuffSlot, EquipmentProcKey, PartyAuraChange, ProcGrantor, SharedBuffs, SpellHandle,
+    AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, SharedBuffs,
+    SpellHandle,
 };
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
@@ -12,7 +13,7 @@ use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
-use crate::item::EquipmentSlot;
+use crate::item::{EffectTrigger, EquipmentSlot};
 use crate::proc::{ProcHost, ProcSource};
 use crate::resource::ResourceType;
 use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
@@ -627,7 +628,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    // ---------------------------------------------------------------- equipment procs
+    // ---------------------------------------------------------------- equipment spells
 
     /// Equips `item_id` in `slot` and registers what it grants.
     pub fn equip(
@@ -637,14 +638,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         item_id: u32,
     ) -> Result<EquipChange, EquipError> {
         let change = self.character.equipment.equip(slot, item_id)?;
-        self.sync_equipment_procs(db);
+        self.sync_equipment_spells(db);
         Ok(change)
     }
 
     /// Empties `slot` and disables what its item granted.
     pub fn unequip(&mut self, db: &SpellDb, slot: EquipmentSlot) -> EquipChange {
         let change = self.character.equipment.unequip(slot);
-        self.sync_equipment_procs(db);
+        self.sync_equipment_spells(db);
         change
     }
 
@@ -657,7 +658,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         enchant: Option<EnchantName>,
     ) -> Result<(), EnchantError> {
         self.character.equipment.set_enchant(slot, enchant)?;
-        self.sync_equipment_procs(db);
+        self.sync_equipment_spells(db);
         Ok(())
     }
 
@@ -670,85 +671,163 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         enchant: Option<EnchantName>,
     ) -> Result<(), EnchantError> {
         self.character.equipment.set_temp_enchant(slot, enchant)?;
-        self.sync_equipment_procs(db);
+        self.sync_equipment_spells(db);
         Ok(())
     }
 
-    /// Brings the procs of the equipped items and enchants in line with the equipment: every
-    /// proc whose [`crate::item::ItemProcSpec::spell`] names a record in `db` is registered (once per slot,
-    /// with the payloads it casts learned) and enabled, and the procs of an item or enchant
-    /// that is no longer worn are disabled. Procs without a spell are data the engine cannot
-    /// run yet and are skipped. Port of `Item::apply_proc` and the `EnchantProc` constructor /
-    /// destructor, which created and destroyed the procs with the equipment.
-    pub fn sync_equipment_procs(&mut self, db: &SpellDb) {
-        let granted = self.granted_equipment_procs();
+    /// Brings the spells the equipment grants in line with what is worn. Each is registered
+    /// once per grantor (with the payloads it casts learned) and enabled; those of an item,
+    /// enchant or set bonus no longer worn are disabled. Port of `Item::apply_proc`, the
+    /// `EnchantProc` constructor / destructor and `SetBonusControl`, which created and destroyed
+    /// them with the equipment.
+    ///
+    /// - An enchant's or hand-authored item's `procs` entry that names a spell is a proc.
+    /// - An item's on-equip effect and a reached set bonus are passives: a proc aura (with a
+    ///   `ProcTypeMask`) becomes a proc, any other aura is up while worn (stats, spell
+    ///   modifiers).
+    /// - An item's chance-on-hit effect is a proc of the wielding hand casting the spell at the
+    ///   target ([`crate::proc::Proc::on_hit`]); one whose rate is unknown is skipped.
+    ///
+    /// Spells missing from `db` (pruned by the export: stuns, heals, immunities, ...), ignored
+    /// ones (`IGNORED`) and on-use effects (cast by the rotation) are skipped.
+    pub fn sync_equipment_spells(&mut self, db: &SpellDb) {
         let mut wanted = Vec::new();
-        for (key, spell, allowed) in granted {
-            if db.get(spell).is_none() {
+        for grant in self.granted_equipment_spells() {
+            let Some(record) = db.get(grant.spell) else {
+                continue;
+            };
+            let ignored = db
+                .overrides()
+                .get(grant.spell)
+                .is_some_and(|o| o.sim_flags.contains(&SimFlag::Ignored));
+            if ignored {
                 continue;
             }
-            for payload in payload_spells(db, spell) {
+            for payload in payload_spells(db, grant.spell) {
                 if db.get(payload).is_some() && !self.character.spells.has_game_id(payload) {
                     self.learn(db, payload);
                 }
             }
-            let setup = SpellSetup::from_db(db, spell).expect("the record is in the db");
+            let setup = SpellSetup::from_db(db, grant.spell).expect("the record is in the db");
             let party = self.character.party();
-            let proc = self.character.spells.add_equipment_proc(
-                key,
-                setup,
-                db.overrides(),
-                &allowed,
-                party,
-                self.raid,
-            );
-            if let Some(proc) = proc {
-                wanted.push(proc);
-                self.enable_proc(proc);
+            let spells = &mut self.character.spells;
+            let (key, overrides) = (grant.key, db.overrides());
+            let is_proc_aura =
+                record.is_passive() && record.aura_options.proc_type_mask.bits() != 0;
+            let handle = match grant.kind {
+                GrantKind::Proc(allowed) => spells
+                    .add_equipment_proc(key, setup, overrides, &allowed, party, self.raid)
+                    .map(SpellHandle::Proc),
+                GrantKind::Passive(allowed) if is_proc_aura => spells
+                    .add_equipment_proc(key, setup, overrides, &allowed, party, self.raid)
+                    .map(SpellHandle::Proc),
+                GrantKind::Passive(_) if record.is_passive() => Some(SpellHandle::Spell(
+                    spells.add_equipment_passive(key, setup, overrides, party, self.raid),
+                )),
+                GrantKind::Passive(_) => None,
+                GrantKind::OnHit(allowed) => spells
+                    .add_on_hit_proc(key, setup, overrides, &allowed, party, self.raid)
+                    .map(SpellHandle::Proc),
+            };
+            if let Some(handle) = handle {
+                wanted.push(handle);
+                self.enable_handle(handle);
             }
         }
-        let stale: Vec<ProcId> = self
+        let stale: Vec<SpellHandle> = self
             .character
             .spells
-            .equipment_procs()
-            .map(|(_, proc)| proc)
-            .filter(|proc| !wanted.contains(proc))
+            .equipment_spells()
+            .map(|(_, handle)| handle)
+            .filter(|handle| !wanted.contains(handle))
             .collect();
-        for proc in stale {
-            self.disable_proc(proc);
+        for handle in stale {
+            self.disable_handle(handle);
         }
     }
 
-    /// The procs the equipped items and enchants grant: their key, the spell that implements
-    /// them and the sources the slot lets them react to.
-    fn granted_equipment_procs(&self) -> Vec<(EquipmentProcKey, u32, Vec<ProcSource>)> {
+    fn enable_handle(&mut self, handle: SpellHandle) {
+        match handle {
+            SpellHandle::Spell(id) => self.enable_spell(id),
+            SpellHandle::Proc(id) => self.enable_proc(id),
+        }
+    }
+
+    fn disable_handle(&mut self, handle: SpellHandle) {
+        match handle {
+            SpellHandle::Spell(id) => self.disable_spell(id),
+            SpellHandle::Proc(id) => self.disable_proc(id),
+        }
+    }
+
+    /// The spells the equipped items, enchants and reached set bonuses grant.
+    fn granted_equipment_spells(&self) -> Vec<Grant> {
         let equipment = self.character.equipment();
-        let items = equipment
+        let mut grants = Vec::new();
+        let procs = equipment
             .equipped_items()
-            .map(|(slot, item)| (slot, ProcGrantor::Item(item.id()), item.procs()));
-        let enchants = equipment
-            .active_enchants()
-            .into_iter()
-            .map(|(slot, spec)| (slot, ProcGrantor::Enchant(spec.name), spec.procs.as_slice()))
-            .collect::<Vec<_>>();
-        items
-            .chain(enchants)
-            .flat_map(|(slot, grantor, procs)| {
-                procs.iter().enumerate().filter_map(move |(index, spec)| {
-                    let allowed = if spec.sources.is_empty() {
-                        slot.default_proc_sources()
-                    } else {
-                        spec.sources.sources(slot)
-                    };
-                    let key = EquipmentProcKey {
-                        slot,
+            .map(|(slot, item)| (slot, EquipmentGrantor::ItemProc(item.id()), item.procs()))
+            .chain(equipment.active_enchants().into_iter().map(|(slot, spec)| {
+                (
+                    slot,
+                    EquipmentGrantor::Enchant(spec.name),
+                    spec.procs.as_slice(),
+                )
+            }));
+        for (slot, grantor, specs) in procs {
+            for (index, spec) in specs.iter().enumerate() {
+                let Some(spell) = spec.spell else {
+                    continue;
+                };
+                let allowed = if spec.sources.is_empty() {
+                    slot.default_proc_sources()
+                } else {
+                    spec.sources.sources(slot)
+                };
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: Some(slot),
                         grantor,
                         index,
-                    };
-                    Some((key, spec.spell?, allowed))
-                })
-            })
-            .collect()
+                    },
+                    spell,
+                    kind: GrantKind::Proc(allowed),
+                });
+            }
+        }
+        for (slot, item) in equipment.equipped_items() {
+            for (index, effect) in item.effects().iter().enumerate() {
+                let kind = match effect.trigger {
+                    EffectTrigger::Use => continue,
+                    EffectTrigger::Equip => GrantKind::Passive(passive_proc_sources(Some(slot))),
+                    EffectTrigger::OnHit if slot.is_weapon_slot() => {
+                        GrantKind::OnHit(slot.default_proc_sources())
+                    }
+                    EffectTrigger::OnHit => continue,
+                };
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: Some(slot),
+                        grantor: EquipmentGrantor::ItemEffect(item.id()),
+                        index,
+                    },
+                    spell: effect.spell,
+                    kind,
+                });
+            }
+        }
+        for (set, index, bonus) in equipment.active_set_bonuses() {
+            grants.push(Grant {
+                key: EquipmentSpellKey {
+                    slot: None,
+                    grantor: EquipmentGrantor::SetBonus(set),
+                    index,
+                },
+                spell: bonus.spell,
+                kind: GrantKind::Passive(passive_proc_sources(None)),
+            });
+        }
+        grants
     }
 
     // ---------------------------------------------------------------- external buffs
@@ -969,6 +1048,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             procs.end_check();
         }
         fired
+    }
+
+    /// Fires proc `id` now, whatever its chance, and records it; the extra attacks it grants
+    /// stay pending.
+    #[cfg(test)]
+    pub(crate) fn perform_proc(&mut self, id: ProcId) -> CastReport {
+        let report = self.with_procs(|procs, ctx| procs.get_mut(id).perform(ctx));
+        let (name, rank) = {
+            let spell = self.character.spells.procs().get(id).spell();
+            (spell.name().to_string(), spell.rank())
+        };
+        self.record_report(&name, rank, &report);
+        report
     }
 
     /// Performs the main-hand extra attacks granted so far (Windfury, Sword Specialization),
@@ -2003,7 +2095,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         let id = self.character.spells().spell_by_game_id(spell)?;
         let report = self.with_spell(id, |s, ctx| {
             s.set_trigger_value(trigger_value);
-            s.perform(ctx)
+            s.perform_triggered(ctx)
         });
         self.record_cast(id, &report);
         Some(report)
@@ -2130,6 +2222,32 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
 
     fn is_melee_attacking(&self) -> bool {
         self.character.spells().is_melee_attacking()
+    }
+}
+
+/// One spell the equipment grants.
+struct Grant {
+    key: EquipmentSpellKey,
+    spell: u32,
+    kind: GrantKind,
+}
+
+/// How a granted spell runs; the sources are the attacks that may trigger it.
+enum GrantKind {
+    /// A proc aura (an enchant's or hand-authored item's `procs` entry).
+    Proc(Vec<ProcSource>),
+    /// An on-equip or set bonus spell: a proc when it is a proc aura, else an aura while worn.
+    Passive(Vec<ProcSource>),
+    /// A weapon's chance-on-hit spell.
+    OnHit(Vec<ProcSource>),
+}
+
+/// The attacks an on-equip or set bonus proc aura may react to: a weapon's only its own hand's
+/// (Ironfoe off the main hand), anything else whatever its `ProcTypeMask` names.
+fn passive_proc_sources(slot: Option<EquipmentSlot>) -> Vec<ProcSource> {
+    match slot {
+        Some(slot) if slot.is_weapon_slot() => slot.default_proc_sources(),
+        _ => ProcSource::ALL.to_vec(),
     }
 }
 

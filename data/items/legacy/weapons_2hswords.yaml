@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/2hSwords.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 13052
   name: "Warmonger"
@@ -55,13 +58,9 @@
     min: 163
     max: 246
     speed: 3.8
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.06
-      min: 150
-      max: 150
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 17483
   special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 40 damage every 2 sec for 6 sec."]
   source: "Drops from Grand Crusader Dathrohan and Balnazzar in Stratholme."
 - id: 18822
@@ -97,12 +96,9 @@
   stats:
     CRIT_CHANCE: 0.01
     STAMINA: 16
-  procs:
-    - name: "ARMOR_PENETRATION"
-      rate: 0.11333333
-      duration: 10
-      max_stacks: 3
-      value: 700.0
+  effects:
+    - trigger: ON_HIT
+      spell: 21153
   special_equip_effects: ["Chance on hit: Reduces target's armor by 700 for 10 seconds. This effect stacks up to 3 times."]
   source: "Drops from Ragnaros in Molten Core."
 - id: 18520
@@ -157,15 +153,9 @@
   stats:
     AGILITY: 22
     STAMINA: 16
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.056666667
-      duration: 8
-      amount: 300
-      instant: true
-      stat: "STRENGTH"
-      sources:
-        melee_weapon_side: true
+  effects:
+    - trigger: ON_HIT
+      spell: 23719
   special_equip_effects: ["Chance on hit: Increases Strength by 300 for 8 sec."]
   source: "Drops from Razorgore the Untamed in Blackwing Lair."
 - id: 19364
@@ -237,13 +227,9 @@
   stats:
     STAMINA: 18
     STRENGTH: 24
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.053333333
-      min: 239
-      max: 279
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 26415
   special_equip_effects: ["Chance on hit: Instantly lightning shocks the target for 239 to 278 Nature damage."]
   source: "Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40)."
 - id: 22813
@@ -280,13 +266,11 @@
     CRIT_CHANCE: 0.02
     HIT_CHANCE: 0.01
     STAMINA: -25
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.06
-      min: 185
-      max: 216
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 28414
+    - trigger: ON_HIT
+      spell: 29155
   special_equip_effects: ["Chance on hit: Steals 185 to 216 life from target enemy.", "Equip: Inflicts the will of the Ashbringer upon the wielder."]
   source: "Drops from Four Horsemen in Naxxramas."
   flavour_text: "\"Blade of the Scarlet Highlord.\""

@@ -1278,7 +1278,7 @@ impl SpellHost for World {
         let id = self.spells.spell_by_game_id(spell)?;
         Some(self.with_spell(id, |s, world| {
             s.set_trigger_value(trigger_value);
-            s.perform(world)
+            s.perform_triggered(world)
         }))
     }
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64) {

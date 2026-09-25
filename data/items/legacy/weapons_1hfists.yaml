@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/1hFists.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 13198
   name: "Hurd Smasher"
@@ -15,6 +18,9 @@
     min: 49
     max: 93
     speed: 1.8
+  effects:
+    - trigger: ON_HIT
+      spell: 17308
   special_equip_effects: ["Chance on hit: Knocks target silly for 2 sec."]
   source: "Drops from Ghok Bashguud in Lower Blackrock Spire (LBRS)."
 - id: 18203
@@ -33,15 +39,9 @@
     speed: 1.5
   stats:
     AGILITY: 4
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.025
-      duration: 5
-      amount: 30
-      instant: true
-      stat: "ATTACK_SPEED"
-      sources:
-        melee_weapon_side: true
+  effects:
+    - trigger: ON_HIT
+      spell: 22640
   special_equip_effects: ["Chance on hit: Increases your attack speed by 30% for 5 sec."]
   source: "Drops from Magmadar in Molten Core."
 - id: 18202
@@ -60,12 +60,9 @@
     speed: 1.5
   stats:
     AGILITY: 4
-  procs:
-    - name: "PHYSICAL_DOT"
-      rate: 0.05
-      duration: 30
-      tick_rate: 1.0
-      amount: 5
+  effects:
+    - trigger: ON_HIT
+      spell: 22639
   special_equip_effects: ["Chance on hit: Slows enemy's movement by 60% and causes them to bleed for 150 damage over 30 sec."]
   source: "Drops from Azuregos (world boss)."
 - id: 19365
@@ -101,13 +98,9 @@
     min: 41
     max: 85
     speed: 1.5
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.025
-      min: 55
-      max: 86
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 18205
   special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 55 to 86 Shadow damage."]
   source: "Drops from High Priestess Arlokk in Zul'Gurub."
 - id: 19896

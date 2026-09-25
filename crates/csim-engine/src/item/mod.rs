@@ -14,7 +14,7 @@ pub mod types;
 use std::sync::Arc;
 
 pub use db::{EquipmentDb, EquipmentDbError};
-pub use set_bonus::{SetBonusDb, SetBonusError, SetBonusSpec, SetSpec};
+pub use set_bonus::{SetBonusDb, SetBonusError};
 pub use spec::{
     EffectTrigger, ItemEffect, ItemFile, ItemProcSpec, ItemSetBonus, ItemSetFile, ItemSetSpec,
     ItemSpec, ItemSuffix, ItemUseSpec, LimitCategory, ProcSourceFlags, WeaponDamageSpec,

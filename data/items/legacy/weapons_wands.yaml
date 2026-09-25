@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/Wands.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 11748
   name: "Pyric Caduceus"
@@ -100,6 +103,9 @@
     speed: 1.6
   stats:
     MANA_PER_5: 4
+  effects:
+    - trigger: EQUIP
+      spell: 1302348
   source: "Drops from Cho'Rush the Observer in Dire Maul."
 - id: 18761
   name: "Oblivion's Touch"

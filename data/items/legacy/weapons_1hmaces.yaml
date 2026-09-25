@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/1hMaces.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 11805
   name: "Rubidium Hammer"
@@ -32,13 +35,9 @@
     min: 68
     max: 127
     speed: 2.4
-  procs:
-    - name: "FROST_ATTACK"
-      rate: 0.05
-      min: 90
-      max: 90
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 18276
   special_equip_effects: ["Chance on hit: Blasts a target for 90 Frost damage."]
   source: "Drops from Ras Frostwhisper in Scholomance."
 - id: 18044
@@ -89,13 +88,9 @@
     min: 70
     max: 132
     speed: 2.6
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 0.04
-      min: 35
-      max: 35
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 13442
   special_equip_effects: ["Chance on hit: Blasts a target for 35 Fire damage."]
   source: "Drops from Baron Charr in Un'Goro Crater."
 - id: 13204
@@ -113,12 +108,9 @@
     speed: 1.8
   stats:
     STRENGTH: 9
-  procs:
-    - name: "ARMOR_PENETRATION"
-      rate: 0.04
-      duration: 30
-      max_stacks: 3
-      value: 200.0
+  effects:
+    - trigger: ON_HIT
+      spell: 17315
   special_equip_effects: ["Chance on hit: Puncture's target's armor lowering it by 200. Can be applied up to 3 times."]
   source: "Drops from Ghok Bashguud in Lower Blackrock Spire (LBRS)."
 - id: 13183
@@ -135,6 +127,9 @@
     min: 52
     max: 98
     speed: 1.9
+  effects:
+    - trigger: ON_HIT
+      spell: 18203
   special_equip_effects: ["Chance on hit: Poisons target for 7 Nature damage every 2 sec for 30 sec."]
   source: "Drops from Mother Smolderweb in Lower Blackrock Spire (LBRS)."
 - id: 11684
@@ -151,11 +146,9 @@
     min: 73
     max: 136
     speed: 2.4
-  procs:
-    - name: "EXTRA_ATTACK"
-      rate: 0.032
-      amount: 2
-      instant: false
+  effects:
+    - trigger: EQUIP
+      spell: 1301046
   special_equip_effects: ["Chance on hit: Grants 2 extra attacks on your next swing."]
   source: "Drops from Emperor Dagran Thaurissan in Blackrock Depths."
 - id: 17105
@@ -209,15 +202,9 @@
     min: 94
     max: 175
     speed: 2.8
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.04666667
-      duration: 10
-      amount: 20
-      instant: true
-      stat: "ATTACK_SPEED"
-      sources:
-        melee_weapon_side: true
+  effects:
+    - trigger: ON_HIT
+      spell: 21165
   special_equip_effects: ["Chance on hit: Increases your attack speed by 20% for 10 sec."]
   source: "Drops from Lord Kazzak (world boss)."
 - id: 19335
@@ -255,13 +242,9 @@
     speed: 2.6
   stats:
     MACE_SKILL: 2
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.043333333
-      min: 63
-      max: 94
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 24254
   special_equip_effects: ["Chance on hit: Blasts the enemy with poison for 63 to 94 Nature damage."]
   source: "Random drop from trash in Zul'Gurub."
 - id: 19961
@@ -372,12 +355,8 @@
     min: 128
     max: 238
     speed: 2.8
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.14
-      min: 100
-      max: 151
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: EQUIP
+      spell: 29150
   special_equip_effects: ["Chance to discharge electricity causing 100 to 151 Nature damage to your target."]
   source: "Drops from trash mobs in Naxxramas."

@@ -280,6 +280,23 @@ pub struct ProcOverride {
     /// off off-hand swings). Absent, the `ProcTypeMask` decides.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hand: Option<Hand>,
+    /// The proc chance in percent where the server, not the table, decides: an item's chance
+    /// on hit (its payload's `ProcChance` is 101, "handled by the effect"), or a chance the
+    /// tooltip divides by a racial multiplier the sim's target never has (Hand of Justice:
+    /// 3 % against Dwarves, 1 % otherwise).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chance: Option<f64>,
+    /// Procs per minute (chance = ppm × the triggering weapon's speed / 60) where the server
+    /// decides, as [`ProcOverride::chance`].
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ppm: Option<f64>,
+}
+
+impl ProcOverride {
+    /// Whether the override gives the proc its rate (a chance or procs per minute).
+    pub fn has_rate(&self) -> bool {
+        self.chance.is_some() || self.ppm.is_some()
+    }
 }
 
 /// Threat the client tables do not carry (innate threat of Heroic Strike, Revenge, Shield Slam).

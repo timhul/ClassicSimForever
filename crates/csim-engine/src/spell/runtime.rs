@@ -642,7 +642,8 @@ impl Spell {
                     .find(|e| e.index() == index)
                     .map(Effect::value)
             });
-        let percent = match from_effect {
+        let from_override = self.setup.overrides.proc.and_then(|p| p.chance);
+        let percent = match from_effect.or(from_override) {
             Some(percent) => percent,
             None if chance == 0 || chance > 100 => 100.0,
             None => f64::from(chance),
@@ -995,6 +996,14 @@ impl Spell {
         self.execute(host, report)
     }
 
+    /// Casts the spell as another spell's effect (a proc's payload, an item's chance on hit):
+    /// no cost, no global cooldown, no cast time.
+    pub fn perform_triggered(&mut self, host: &mut impl SpellHost) -> CastReport {
+        self.last_result = SpellResult::Undetermined;
+        self.start_cooldown(host);
+        self.execute(host, CastReport::default())
+    }
+
     /// Starts the own and category cooldowns with their player-action events (a proc's internal
     /// cooldown when the proc fires without performing the spell).
     pub fn start_cooldown(&self, host: &mut impl SpellHost) {
@@ -1302,8 +1311,14 @@ impl Spell {
         })
     }
 
-    /// Port of `Spell::damage_after_modifiers`.
+    /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
+    /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
+    /// it is, resistances and magic damage modifiers not being ported.
     pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64) -> f64 {
+        let school = self.setup.record.school_mask;
+        if !school.is_empty() && !school.is_physical() {
+            return damage;
+        }
         let armor_reduction =
             1.0 - Mechanics::reduction_from_armor(host.target_armor(), host.caster_level());
         (damage * host.total_physical_damage_mod() + f64::from(host.flat_physical_damage_bonus()))

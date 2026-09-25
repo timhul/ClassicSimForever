@@ -1,6 +1,7 @@
 //! `csim-tables`: inspect the client table dumps and export them to the YAML data files under
 //! `data/`.
 
+use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -122,7 +123,7 @@ enum Command {
         /// The enchant data file (`--enchants`).
         #[arg(long, default_value = "data/enchants.yaml")]
         enchant_data: PathBuf,
-        /// The exported item files (`--items`).
+        /// The item data directory with its legacy files (`--items`).
         #[arg(long, default_value = "data/items")]
         item_data: PathBuf,
         /// The exported item sets (`--items`).
@@ -150,7 +151,7 @@ enum Command {
         out: Option<PathBuf>,
     },
     /// Writes the weapons and armor of quality Rare and above as engine item files (one per
-    /// slot) and the item sets they belong to.
+    /// slot) and the item sets they or the legacy items of `<items>/legacy/` belong to.
     ExportItems {
         /// The item data directory; one `<slot>.yaml` per slot is written there.
         #[arg(long, default_value = "data/items")]
@@ -237,7 +238,7 @@ fn export_spells(
             )
         }
         ExportTarget::Items { items, sets } => {
-            let specs = export::items::read_item_specs(&items)?;
+            let specs = export::items::read_all_items(&items)?;
             let sets_text = std::fs::read_to_string(&sets).map_err(|source| CliError::Read {
                 path: sets.clone(),
                 source,
@@ -366,7 +367,12 @@ fn export_items(dir: &TableDir, items_dir: &Path, sets_path: &Path) -> Result<()
         write(&path, &export::render_items(&file, "export-items")?)?;
         eprintln!("wrote {} items to {}", file.items.len(), path.display());
     }
-    let sets = export::item_set_file(&tables, &report.items);
+    let exported: BTreeSet<u32> = report.items.iter().map(|item| item.id).collect();
+    let legacy: BTreeSet<u32> = export::items::read_legacy_items(items_dir, &exported)?
+        .iter()
+        .map(|item| item.id)
+        .collect();
+    let sets = export::item_set_file(&tables, &report.items, &legacy);
     write(sets_path, &export::render_item_sets(&sets, "export-items")?)?;
     eprintln!(
         "wrote {} item sets to {}",

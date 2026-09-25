@@ -73,7 +73,7 @@ fn shipped_spell_files_match_a_fresh_export() {
         "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
     );
 
-    let items = export::items::read_item_specs(&root.join("data/items")).unwrap();
+    let items = export::items::read_all_items(&root.join("data/items")).unwrap();
     let sets: csim_engine::item::ItemSetFile =
         serde_yaml::from_str(&std::fs::read_to_string(root.join("data/item_sets.yaml")).unwrap())
             .unwrap();
@@ -305,6 +305,33 @@ fn item_tables(root: &Path) -> Option<Tables> {
     Some(Tables::load(&dir).unwrap())
 }
 
+/// The `effects` of the legacy items are the tables' `ItemEffect` rows (complete in the dump),
+/// less the on-equip stat auras the Classic `stats` already carry: see the legacy files' header.
+#[test]
+fn legacy_item_effects_are_the_table_effects() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let Some(tables) = item_tables(&root) else {
+        return;
+    };
+    let legacy = export::items::read_item_specs(&root.join("data/items/legacy")).unwrap();
+    let proc_aura = |spell: u32| {
+        tables
+            .spell_aura_options(spell)
+            .is_some_and(|options| options.proc_type_mask.iter().any(|&mask| mask != 0))
+    };
+    for item in &legacy {
+        let mut expected = export::items::item_effects(&tables, item.id, &mut Vec::new());
+        expected.retain(|effect| {
+            effect.trigger != csim_engine::item::EffectTrigger::Equip || proc_aura(effect.spell)
+        });
+        assert_eq!(
+            item.effects, expected,
+            "{} {}: re-derive the legacy effects from the tables",
+            item.id, item.name
+        );
+    }
+}
+
 /// `data/items/*.yaml` and `data/item_sets.yaml` are what `export-items` writes, and nothing
 /// else sits next to the generated item files.
 #[test]
@@ -335,7 +362,14 @@ fn shipped_item_files_match_a_fresh_export() {
             );
         }
     }
-    let sets = export::item_set_file(&tables, &report.items);
+    let exported: std::collections::BTreeSet<u32> =
+        report.items.iter().map(|item| item.id).collect();
+    let legacy = export::items::read_legacy_items(&items_dir, &exported)
+        .unwrap()
+        .iter()
+        .map(|item| item.id)
+        .collect();
+    let sets = export::item_set_file(&tables, &report.items, &legacy);
     let rendered = export::render_item_sets(&sets, "export-items").unwrap();
     let shipped = std::fs::read_to_string(root.join("data/item_sets.yaml")).unwrap();
     assert!(

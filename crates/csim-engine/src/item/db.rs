@@ -10,8 +10,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use super::set_bonus::{SetBonusDb, SetBonusError, SetSpec};
-use super::{EquipmentSlot, Item, ItemError, ItemFile, ItemSpec};
+use super::set_bonus::{SetBonusDb, SetBonusError};
+use super::{EquipmentSlot, Item, ItemError, ItemFile, ItemSetFile, ItemSetSpec, ItemSpec};
 use crate::enchant::{EnchantDb, EnchantDbError};
 use crate::phase::Phase;
 
@@ -64,7 +64,10 @@ impl EquipmentDb {
     }
 
     /// Builds a database from item specs and set definitions.
-    pub fn from_specs(items: Vec<ItemSpec>, sets: Vec<SetSpec>) -> Result<Self, EquipmentDbError> {
+    pub fn from_specs(
+        items: Vec<ItemSpec>,
+        sets: Vec<ItemSetSpec>,
+    ) -> Result<Self, EquipmentDbError> {
         let mut db = Self::new();
         for spec in items {
             db.add_item(Item::from_spec(spec)?)?;
@@ -74,11 +77,11 @@ impl EquipmentDb {
     }
 
     /// Loads every `*.yaml` item file in `items_dir` (sorted by file name), then the legacy files
-    /// of `items_dir/legacy/` for the ids not already loaded, and, when given, the set bonus and
-    /// enchant files.
+    /// of `items_dir/legacy/` for the ids not already loaded, and, when given, the item set file
+    /// (`data/item_sets.yaml`) and the enchant file.
     pub fn load(
         items_dir: &Path,
-        set_bonuses: Option<&Path>,
+        item_sets: Option<&Path>,
         enchants: Option<&Path>,
     ) -> Result<Self, EquipmentDbError> {
         let mut db = Self::new();
@@ -93,8 +96,8 @@ impl EquipmentDb {
             }
         }
 
-        if let Some(path) = set_bonuses {
-            db.load_set_bonus_file(path)?;
+        if let Some(path) = item_sets {
+            db.load_item_set_file(path)?;
         }
 
         if let Some(path) = enchants {
@@ -140,34 +143,42 @@ impl EquipmentDb {
             return serde_yaml::from_value(value).map_err(yaml_error);
         }
         let file: ItemFile = serde_yaml::from_value(value).map_err(yaml_error)?;
-        if !file.build.is_empty() {
-            match &self.build {
-                Some(build) if *build != file.build => {
-                    return Err(EquipmentDbError::BuildMismatch {
-                        path: path.to_path_buf(),
-                        expected: build.clone(),
-                        found: file.build,
-                    })
-                }
-                Some(_) => {}
-                None => self.build = Some(file.build),
-            }
-        }
+        self.check_build(path, file.build)?;
         Ok(file.items)
     }
 
-    /// Replaces the item sets with those of a YAML file (a list of set specs).
-    pub fn load_set_bonus_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
+    /// Checks that an exported file comes from the same build as the files loaded before it.
+    fn check_build(&mut self, path: &Path, build: String) -> Result<(), EquipmentDbError> {
+        if build.is_empty() {
+            return Ok(());
+        }
+        match &self.build {
+            Some(expected) if *expected != build => Err(EquipmentDbError::BuildMismatch {
+                path: path.to_path_buf(),
+                expected: expected.clone(),
+                found: build,
+            }),
+            Some(_) => Ok(()),
+            None => {
+                self.build = Some(build);
+                Ok(())
+            }
+        }
+    }
+
+    /// Replaces the item sets with those of an exported [`ItemSetFile`].
+    pub fn load_item_set_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
         let text = fs::read_to_string(path).map_err(|source| EquipmentDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;
-        let sets: Vec<SetSpec> =
+        let file: ItemSetFile =
             serde_yaml::from_str(&text).map_err(|source| EquipmentDbError::Yaml {
                 path: path.to_path_buf(),
                 source,
             })?;
-        self.set_sets(SetBonusDb::new(sets)?);
+        self.check_build(path, file.build)?;
+        self.set_sets(SetBonusDb::new(file.sets)?);
         Ok(())
     }
 
@@ -388,7 +399,8 @@ mod tests {
                     ItemType::Ring,
                 ),
             ],
-            vec![SetSpec {
+            vec![ItemSetSpec {
+                id: 1,
                 name: "Set".into(),
                 items: vec![100, 300],
                 bonuses: Vec::new(),
@@ -488,7 +500,7 @@ mod tests {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let db = EquipmentDb::load(
             &root.join("items"),
-            Some(&root.join("set_bonuses.yaml")),
+            Some(&root.join("item_sets.yaml")),
             Some(&root.join("enchants.yaml")),
         )
         .unwrap();
@@ -496,12 +508,13 @@ mod tests {
         assert!(db.len() > 1200, "only {} items loaded", db.len());
         let thrash_blade = db.get_item(17705, Phase::MoltenCore).unwrap();
         assert_eq!(thrash_blade.name(), "Thrash Blade");
-        assert_eq!(thrash_blade.procs()[0].name, "EXTRA_ATTACK");
+        assert_eq!(thrash_blade.effects()[0].spell, 21919);
         assert_eq!(thrash_blade.mutex_item_ids(), &[17743, 17753]);
         assert!(thrash_blade.is_weapon());
 
         // Sets and enchants are attached.
-        assert!(db.sets().sets().len() > 50);
+        assert!(db.sets().sets().len() > 150);
+        assert_eq!(db.build(), Some("1.60.1.69893"));
         assert!(!db.enchants().is_empty());
 
         // Every weapon slot item carries weapon data, every set item exists.
@@ -514,14 +527,14 @@ mod tests {
                 assert!(item.is_weapon(), "{} has no weapon data", item.name());
             }
         }
+        // Every set has a member the database knows (sets list Common members, and Forever
+        // variants, that are not exported).
         for set in db.sets().sets() {
-            for &item_id in &set.items {
-                assert!(
-                    db.item(item_id).is_some(),
-                    "set {} refers to unknown item {item_id}",
-                    set.name
-                );
-            }
+            assert!(
+                set.items.iter().any(|&item_id| db.item(item_id).is_some()),
+                "set {} has no known member",
+                set.name
+            );
         }
     }
 
@@ -543,7 +556,7 @@ mod tests {
         fs::write(items_dir.join("notes.txt"), "ignored").unwrap();
         fs::write(
             dir.join("sets.yaml"),
-            "- name: S\n  items: [1, 2]\n  bonuses:\n    - pieces: 2\n      stat: HIT_CHANCE\n      value: 0.01\n",
+            "sets:\n- id: 7\n  name: S\n  items: [1, 2]\n  bonuses:\n  - pieces: 2\n    spell: 15464\n",
         )
         .unwrap();
 

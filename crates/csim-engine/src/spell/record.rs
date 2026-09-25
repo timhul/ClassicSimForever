@@ -987,6 +987,28 @@ impl SpellDb {
                     });
                 }
             }
+            if let Some(proc) = spell_override.proc {
+                let invalid = |message: &str| SpellDbError::Invalid {
+                    spell: id,
+                    message: message.to_owned(),
+                };
+                if proc.chance.is_some_and(|c| !(c > 0.0 && c <= 100.0)) {
+                    return Err(invalid("the override's proc chance is not in (0, 100] %"));
+                }
+                if proc.ppm.is_some_and(|ppm| ppm <= 0.0) {
+                    return Err(invalid("the override's procs per minute are not positive"));
+                }
+                if proc.chance.is_some() && proc.ppm.is_some() {
+                    return Err(invalid(
+                        "the override gives both a proc chance and procs per minute",
+                    ));
+                }
+                if proc.chance_effect.is_some() && proc.has_rate() {
+                    return Err(invalid(
+                        "the override takes the proc chance from an effect and gives a rate",
+                    ));
+                }
+            }
             if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect) {
                 if !record
                     .effect(index)
@@ -1920,11 +1942,12 @@ spells:
         assert_eq!(
             pending,
             [
-                12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
-                403196, 1287808, 1289682, 1290261, 1295744, 1310315, 1317432, 1318325, 1318470,
-                1318514
+                12299, 13567, 14537, 16549, 17308, 18350, 21977, 23582, 24352, 24658, 24661,
+                28414, 28839, 29275, 29284, 29286, 363881, 402911, 403196, 1287808, 1289682,
+                1290261, 1295744, 1300435, 1300782, 1301123, 1302279, 1302344, 1305394, 1310315,
+                1317432, 1318325, 1318470, 1318514
             ],
-            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill, Weaponmaster, Raging              Blows, and the item spells that wait for TASKS 7.7 / 7.8 (Zandalarian trinkets,              Six Demon Bag, Arcanite Dragonling, weapon procs, ...)"
+            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill, Weaponmaster, Raging              Blows, and item spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );
     }
 }

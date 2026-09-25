@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/1hAxes.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 18737
   name: "Bone Slicing Hatchet"
@@ -33,11 +36,9 @@
     min: 37
     max: 69
     speed: 1.5
-  procs:
-    - name: "EXTRA_ATTACK"
-      rate: 0.04625
-      amount: 1
-      instant: false
+  effects:
+    - trigger: ON_HIT
+      spell: 18797
   special_equip_effects: ["Chance on hit: Grants 1 extra attack on your next swing."]
   source: "World drop."
 - id: 10837
@@ -71,13 +72,9 @@
     min: 78
     max: 146
     speed: 2.7
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.045
-      min: 90
-      max: 127
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 18104
   special_equip_effects: ["Chance on hit: Blasts a target for 90 to 127 Nature damage."]
   source: "World drop."
 - id: 13286
@@ -93,12 +90,9 @@
     min: 77
     max: 144
     speed: 2.9
-  procs:
-    - name: "ARMOR_PENETRATION"
-      rate: 0.04
-      duration: 30
-      max_stacks: 3
-      value: 200.0
+  effects:
+    - trigger: ON_HIT
+      spell: 17315
   special_equip_effects: ["Chance on hit: Puncture's target's armor lowering it by 200. Can be applied up to 3 times."]
   source: "Drops from Spirestone Butcher in Lower Blackrock Spire (LBRS)."
 - id: 12621
@@ -114,15 +108,9 @@
     min: 76
     max: 142
     speed: 2.8
-  procs:
-    - name: "SHADOW_DOT"
-      rate: 0.1
-      min: 10
-      max: 10
-      duration: 25
-      tick_rate: 5.0
-      amount: 0
-      instant: false
+  effects:
+    - trigger: ON_HIT
+      spell: 16603
   special_equip_effects: ["Chance on hit: Transfers 10 health every 5 seconds from the target to the caster for 25 sec."]
   source: "Drops from Bannok Grimaxe in Lower Blackrock Spire (LBRS)."
 - id: 17068
@@ -138,13 +126,9 @@
     min: 114
     max: 213
     speed: 2.9
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.038666667
-      min: 110
-      max: 141
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 1305398
   special_equip_effects: ["Chance on hit: Sends a shadowy bolt at the enemy causing 110 to 141 Shadow damage."]
   source: "Drops from Onyxia in Onyxia's Lair."
 - id: 18498
@@ -163,6 +147,9 @@
   stats:
     STAMINA: 12
     STRENGTH: 5
+  effects:
+    - trigger: ON_HIT
+      spell: 1302344
   source: "Drops from Guard Slip'kik and Guard Mol'dar in Dire Maul North."
 - id: 13015
   name: "Serathil"
@@ -250,13 +237,9 @@
     min: 69
     max: 130
     speed: 2.0
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.06
-      min: 48
-      max: 54
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 24585
   special_equip_effects: ["Chance on hit: Steals 48 to 55 life from target enemy."]
   source: "Drops from Hakkar the Soulflayer in Zul'Gurub."
 - id: 22816

@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Misc/trinkets.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 11832
   name: "Burst of Knowledge"
@@ -14,6 +17,12 @@
   icon: "Inv_jewelry_amulet_07.png"
   stats:
     SPELL_DAMAGE: 12
+  effects:
+    - trigger: USE
+      spell: 15646
+      cooldown_ms: 360000
+      category: 2554
+      category_cooldown_ms: 10000
   uses:
     - name: "GENERIC_STAT_BUFF"
       cooldown: 900
@@ -64,11 +73,9 @@
   icon: "Inv_jewelry_talisman_01.png"
   stats:
     ATTACK_POWER: 20
-  procs:
-    - name: "EXTRA_ATTACK"
-      rate: 0.02
-      amount: 1
-      instant: true
+  effects:
+    - trigger: EQUIP
+      spell: 15600
   special_equip_effects: ["Equip: 2% chance on melee hit to gain 1 extra attack."]
   source: "Drops from Emperor Dagran Thaurissan in Blackrock Depths."
 - id: 13965
@@ -83,6 +90,12 @@
   icon: "Inv_misc_armorkit_09.png"
   stats:
     CRIT_CHANCE: 0.02
+  effects:
+    - trigger: USE
+      spell: 1318944
+      cooldown_ms: 300000
+      category: 1141
+      category_cooldown_ms: 20000
   mutex: [13968, 13966]
   source: "Quest reward. Requires killing General Drakkisath in Upper Blackrock Spire. Prequisites requires Lower Blackrock Spire."
 - id: 13968
@@ -98,6 +111,12 @@
   class_restrictions: ["PRIEST", "SHAMAN", "MAGE", "WARLOCK", "DRUID"]
   stats:
     SPELL_CRIT_CHANCE: 0.02
+  effects:
+    - trigger: USE
+      spell: 1287840
+      cooldown_ms: 300000
+      category: 1141
+      category_cooldown_ms: 20000
   mutex: [13965, 13966]
   source: "Quest reward. Requires killing General Drakkisath in Upper Blackrock Spire. Prequisites requires Lower Blackrock Spire."
 - id: 17064
@@ -112,6 +131,9 @@
   icon: "Inv_misc_monsterscales_15.png"
   stats:
     MANA_PER_5: 16
+  effects:
+    - trigger: EQUIP
+      spell: 1305424
   source: "Drops from Onyxia in Onyxia's Lair."
 - id: 12930
   name: "Briarwood Reed"
@@ -138,6 +160,12 @@
   stats:
     ATTACK_POWER: 22
     PARRY_CHANCE: 0.01
+  effects:
+    - trigger: USE
+      spell: 1302356
+      cooldown_ms: 480000
+      category: 109
+      category_cooldown_ms: 30000
   source: "Drops from Gordok Tribute chest in Dire Maul North."
 - id: 18473
   name: "Royal Seal of Eldre'Thalas"
@@ -198,6 +226,12 @@
   icon: "Inv_battery_02.png"
   stats:
     MANA_PER_5: 11
+  effects:
+    - trigger: USE
+      spell: 1302205
+      cooldown_ms: 420000
+      category: 2554
+      category_cooldown_ms: 10000
   source: "Drops from Magister Kalendris in Dire Maul."
 - id: 20130
   name: "Diamond Flask"
@@ -210,6 +244,12 @@
   item_lvl: 52
   icon: "Inv_drink_01.png"
   class_restrictions: ["WARRIOR"]
+  effects:
+    - trigger: USE
+      spell: 363881
+      cooldown_ms: 360000
+      category: 1153
+      category_cooldown_ms: 60000
   uses:
     - name: "GENERIC_STAT_BUFF"
       cooldown: 360
@@ -231,6 +271,10 @@
   item_lvl: 52
   icon: "Inv_misc_eye_01.png"
   class_restrictions: ["HUNTER"]
+  effects:
+    - trigger: USE
+      spell: 24352
+      cooldown_ms: 300000
   uses:
     - name: "DEVILSAUR_EYE"
   mutex: [19992, 20083]
@@ -247,6 +291,10 @@
   item_lvl: 52
   icon: "Inv_misc_gem_pearl_04.png"
   class_restrictions: ["PALADIN"]
+  effects:
+    - trigger: USE
+      spell: 24865
+      cooldown_ms: 300000
   uses:
     - name: "SANCTIFIED_ORB"
   mutex: [20504, 20505]
@@ -261,6 +309,10 @@
   req_lvl: 60
   item_lvl: 68
   icon: "Inv_zulgurubtrinket.png"
+  effects:
+    - trigger: USE
+      spell: 24268
+      cooldown_ms: 180000
   uses:
     - name: "GENERIC_STAT_BUFF"
       cooldown: 180
@@ -279,6 +331,9 @@
   req_lvl: 58
   item_lvl: 63
   icon: "Inv_jewelry_talisman_09.png"
+  effects:
+    - trigger: EQUIP
+      spell: 1318931
   uses:
     - name: "GENERIC_STAT_BUFF"
       cooldown: 75

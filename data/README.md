@@ -12,10 +12,14 @@ data/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
 │   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
+│   ├── enchants.yaml     generated: the spells the enchant procs name
+│   ├── items.yaml        generated: the spells the items and set bonuses grant
 │   └── overrides/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
 │       ├── racials.yaml
 │       ├── externals.yaml
+│       ├── enchants.yaml
+│       ├── items.yaml    also the chance-on-hit rates of weapons (server data, not in the tables)
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
 ├── talents/
 │   └── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
@@ -23,9 +27,11 @@ data/
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/
 │   ├── <slot>.yaml       generated: the weapons and armor of quality Rare+ (one file per slot)
-│   └── legacy/           hand-authored Classic items, used only for ids the export lacks
-├── item_sets.yaml        generated: the item sets and their bonus spells
-├── enchants.yaml set_bonuses.yaml   hand-written enchants and (legacy) stat set bonuses
+│   └── legacy/           hand-authored Classic items, used only for ids the export lacks; their
+│                         `effects` are the tables' ItemEffect rows
+├── item_sets.yaml        generated: the item sets (of exported and legacy items) and their bonus
+│                         spells
+├── enchants.yaml         hand-written: the enchants
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
@@ -93,7 +99,9 @@ csim_engine::talent::TalentDb::load("data/talents")
    ```
    `export-spells --items` walks the spells the items and set bonuses grant into
    `data/spells/items.yaml`; run it after the other spell exports, since spells another file
-   already carries are not repeated. `export-items` also prints why items were skipped, what it could not resolve and the ids
+   already carries are not repeated. It reads the legacy items too: their `effects` seed the
+   walk like the exported items'. A weapon's chance-on-hit spell only runs with a rate in
+   `overrides/items.yaml` (`proc: { chance: … }` or `{ ppm: … }`): the tables do not have it. `export-items` also prints why items were skipped, what it could not resolve and the ids
    still served from `data/items/legacy/`.
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides

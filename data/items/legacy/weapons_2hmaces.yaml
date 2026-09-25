@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/2hMaces.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 9449
   name: "Manual Crowd Pummeler"
@@ -18,6 +21,11 @@
   stats:
     AGILITY: 5
     STRENGTH: 16
+  effects:
+    - trigger: USE
+      spell: 13494
+      cooldown_ms: 180000
+      charges: 3
   uses:
     - name: "GENERIC_STAT_BUFF"
       cooldown: 30
@@ -113,13 +121,9 @@
     min: 159
     max: 248
     speed: 3.6
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.06
-      min: 200
-      max: 221
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 24257
   special_equip_effects: ["Chance on hit: Wounds the target for 200 to 221 damage."]
   source: "Drops from High Priestess Jeklik in Zul'Gurub."
 - id: 21806

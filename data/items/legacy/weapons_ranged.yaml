@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/Ranged.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 13039
   name: "Skull Splitting Crossbow"
@@ -71,13 +74,9 @@
   stats:
     AGILITY: 9
     STAMINA: 4
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.06
-      min: 13
-      max: 20
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: EQUIP
+      spell: 29626
   special_equip_effects: ["Equip: Chance to strike your ranged target with a Shadowbolt for 13 to 20 Shadow damage."]
   source: "World drop."
 - id: 2099
@@ -94,13 +93,9 @@
     min: 66
     max: 124
     speed: 2.9
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 0.06
-      min: 33
-      max: 50
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 29639
   special_equip_effects: ["Equip: Chance to strike your ranged target with a Flaming Cannonbal for 33 to 50 Fire damage."]
   source: "World drop."
 - id: 2100
@@ -203,6 +198,9 @@
     speed: 2.9
   stats:
     CROSSBOW_SKILL: 4
+  effects:
+    - trigger: ON_HIT
+      spell: 1302279
   source: "Drops from Prince Thortheldrin in Dire Maul."
 - id: 19361
   name: "Ashjre'thul, Crossbow of Smiting"

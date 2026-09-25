@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/1hSwords.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 809
   name: "Bloodrazor"
@@ -16,6 +19,9 @@
     min: 70
     max: 130
     speed: 2.7
+  effects:
+    - trigger: ON_HIT
+      spell: 17504
   special_equip_effects: ["Chance on hit: Wounds the target causing them to bleed for 120 damage over 30 sec."]
   source: "World drop."
 - id: 17705
@@ -32,11 +38,9 @@
     min: 66
     max: 124
     speed: 2.7
-  procs:
-    - name: "EXTRA_ATTACK"
-      rate: 0.045
-      amount: 1
-      instant: false
+  effects:
+    - trigger: ON_HIT
+      spell: 21919
   mutex: [17743, 17753]
   special_equip_effects: ["Chance on hit: Grants an extra attack on your next swing."]
   source: "Quest reward. Requires killing Princess Theradras in Maraudon."
@@ -71,15 +75,9 @@
     min: 71
     max: 108
     speed: 2.2
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.041666677
-      duration: 10
-      amount: 200
-      instant: true
-      stat: "ATTACK_POWER_UNDEAD"
-      sources:
-        melee_weapon_side: true
+  effects:
+    - trigger: ON_HIT
+      spell: 17352
   special_equip_effects: ["Chance on hit: Increases Attack Power against Undead by 200 for 10 sec."]
   source: "Quest reward from The Argent Hold."
 - id: 18484
@@ -112,13 +110,9 @@
     min: 38
     max: 71
     speed: 1.5
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.05633333
-      min: 75
-      max: 75
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 16405
   special_equip_effects: ["Chance on hit: Wounds the target for 75 damage."]
   source: "World drop."
 - id: 2244
@@ -153,15 +147,9 @@
     min: 67
     max: 125
     speed: 2.6
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.08
-      duration: 30
-      amount: 50
-      instant: true
-      stat: "ATTACK_POWER"
-      sources:
-        melee_weapon_side: true
+  effects:
+    - trigger: ON_HIT
+      spell: 15602
   special_equip_effects: ["Chance on hit: Increases attack power by 50 for 30 sec."]
   source: "Drops from General Angerforge in Blackrock Depths."
 - id: 13182
@@ -212,13 +200,9 @@
     min: 73
     max: 137
     speed: 2.7
-  procs:
-    - name: "SHADOW_ATTACK"
-      rate: 0.08
-      min: 210
-      max: 210
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 18656
   special_equip_effects: ["Chance on hit: Corrupts the target, causing 210 damage over 3 sec."]
   source: "Drops from Marduk Blackpool in Scholomance."
 - id: 15806
@@ -254,12 +238,9 @@
     min: 81
     max: 151
     speed: 2.8
-  procs:
-    - name: "ADDITIONAL_DMG_BUFF"
-      rate: 0.05
-      min: 10
-      max: 10
-      duration: 15
+  effects:
+    - trigger: ON_HIT
+      spell: 8191
   special_equip_effects: ["Chance on hit: A burst of energy fills thecaster, increasing damage by 10 and armor by 150 for 15 sec."]
   source: "World drop."
 - id: 13361
@@ -275,15 +256,9 @@
     min: 72
     max: 135
     speed: 2.5
-  procs:
-    - name: "SHADOW_DOT"
-      rate: 0.05
-      min: 2
-      max: 2
-      duration: 30
-      tick_rate: 1.0
-      amount: 0
-      instant: false
+  effects:
+    - trigger: ON_HIT
+      spell: 17484
   special_equip_effects: ["Chance on hit: Drains the target for 2 Shadow damage every 1 sec and transfers it to the caster. Lasts for 30 sec."]
   source: "Drops from Baron Rivendare in Stratholme Undead."
 - id: 12939
@@ -333,11 +308,9 @@
     min: 72
     max: 135
     speed: 2.5
-  procs:
-    - name: "SUMMON_NATURE_MINION"
-      rate: 0.05
-      duration: 30
-      amount: 1
+  effects:
+    - trigger: ON_HIT
+      spell: 13049
   special_equip_effects: ["Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of time."]
   source: "Drops from Shade of Eranikus in Sunken Temple."
 - id: 17075
@@ -354,13 +327,9 @@
     min: 100
     max: 187
     speed: 2.6
-  procs:
-    - name: "PHYSICAL_ATTACK"
-      rate: 0.026
-      min: 240
-      max: 240
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 1305394
   special_equip_effects: ["Chance on hit: Delivers a fatal wound for 240 damage."]
   source: "Drops from Onyxia in Onyxia's Lair."
 - id: 18832
@@ -418,6 +387,9 @@
     speed: 2.0
   stats:
     STAMINA: 12
+  effects:
+    - trigger: ON_HIT
+      spell: 22850
   special_equip_effects: ["Chance on hit: When active, grants the wielder 13 defense and 300 armor for 10 sec."]
   source: "Quest reward. Requires rare quest item Foror's Compendium of Dragonslaying from Dire Maul and an Onyxia kill."
   flavour_text: "\"The High Blade\""
@@ -437,6 +409,9 @@
   stats:
     INTELLECT: 8
     SPELL_DAMAGE: 12
+  effects:
+    - trigger: EQUIP
+      spell: 1302341
   source: "Drops from Prince Tortheldrin in Dire Maul."
 - id: 12854
   name: "Grand Marshal's Longsword"
@@ -585,13 +560,9 @@
   stats:
     DEFENSE: 5
     STRENGTH: 7
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 1.0
-      min: 2
-      max: 2
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: EQUIP
+      spell: 7711
   special_equip_effects: ["Equip: Adds 2 fire damage to your melee attacks."]
   source: "Drops from Hazza'rah (Edge of Madness) in Zul'Gurub."
 - id: 19901
@@ -609,13 +580,9 @@
     speed: 2.5
   stats:
     ATTACK_POWER: 12
-  procs:
-    - name: "NATURE_ATTACK"
-      rate: 0.041666677
-      min: 72
-      max: 97
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 24251
   special_equip_effects: ["Chance on hit: Slices the enemy for 72 to 97 Nature damage."]
   source: "Drops from High Priest Thekal in Zul'Gurub."
 - id: 19866
@@ -689,13 +656,9 @@
     min: 96
     max: 178
     speed: 2.9
-  procs:
-    - name: "FIRE_ATTACK"
-      rate: 0.04833333
-      min: 150
-      max: 150
-      spell_dmg_coefficient: 0.0
-      instant: true
+  effects:
+    - trigger: ON_HIT
+      spell: 1300753
   special_equip_effects: ["Chance on hit: Blasts a target for 150 Fire damage."]
   source: "Drops randomly in selected dungeons and raids."
 - id: 20698

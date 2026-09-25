@@ -1,6 +1,9 @@
 # Generated from ClassicSim Items/Weapons/Staves.xml by tools/convert_items.py.
 # Trimmed to the Rare+ items `csim-tables export-items` cannot produce (the dump lacks
 # their ItemSparse row); the exported data/items/*.yaml take precedence.
+# `effects` are the tables' ItemEffect rows (the ItemEffect tables are complete): on use,
+# chance on hit and the on-equip proc auras, which replaced the name-based `procs`. On-equip
+# stat auras are left out: the Classic `stats` already carry them.
 
 - id: 873
   name: "Staff of Jordan"
@@ -132,6 +135,9 @@
     SPELL_CRIT_CHANCE: 0.01
     SPIRIT: 13
     STAMINA: 10
+  effects:
+    - trigger: EQUIP
+      spell: 1300781
   source: "Drops from Pyromancer Loregrain in Blackrock Depths."
 - id: 13161
   name: "Trindlehaven Staff"
@@ -168,6 +174,9 @@
     SPELL_DAMAGE: 18
     SPIRIT: 16
     STAMINA: 16
+  effects:
+    - trigger: EQUIP
+      spell: 1299948
   source: "Drops from Avatar of Hakkar in Sunken Temple."
 - id: 18842
   name: "Staff of Dominance"
@@ -249,6 +258,9 @@
     INTELLECT: 10
     SPELL_DAMAGE: 21
     STAMINA: 10
+  effects:
+    - trigger: EQUIP
+      spell: 1294255
   source: "Drops from Witch Doctor Zum'rah in Zul'Farrak."
 - id: 18534
   name: "Rod of the Ogre Magi"
@@ -345,6 +357,9 @@
     MANA_PER_5: 7
     SPELL_CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 18
+  effects:
+    - trigger: EQUIP
+      spell: 1300435
   source: "Quest reward. Requires Sunken Temple."
 - id: 20536
   name: "Soul Harvester"
@@ -446,15 +461,9 @@
     SPELL_DAMAGE: 56
     SPIRIT: 8
     STAMINA: 21
-  procs:
-    - name: "GENERIC_STAT_BUFF"
-      rate: 0.05
-      duration: 8
-      amount: 50
-      instant: true
-      stat: "SPELL_PENETRATION"
-      sources:
-        magic_hit: true
+  effects:
+    - trigger: EQUIP
+      spell: 25767
   special_equip_effects: ["Equip: Gives a chance when your harmful spells land to reduce the magical resistances of your spell targets by 50 for 8 sec."]
   source: "Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40)."
 - id: 23124

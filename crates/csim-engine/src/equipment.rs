@@ -2,16 +2,17 @@
 //! `Equipment/SetBonusControl.*`.
 //!
 //! The equipment owns the item slots, three saved setups, the aggregated [`Stats`] of everything
-//! worn (item stats plus active set bonus stats) and the enchant selection per slot. It does not
-//! know about the character: procs, on-use spells and spell modifications granted by items are
-//! reported through [`EquipChange`] so the owning character can create or remove them.
+//! worn (item and enchant stats), the equipped pieces of each item set and the enchant selection
+//! per slot. It does not know about the character: the spells items, enchants and set bonuses
+//! grant are applied by the character from what is worn
+//! ([`crate::character::context::CharacterContext::sync_equipment_spells`]).
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use crate::enchant::{EnchantContext, EnchantName, EnchantSpec};
 use crate::faction::{Faction, PlayerClass};
-use crate::item::{EquipmentDb, EquipmentSlot, Item, ItemStat, Weapon, WeaponType};
+use crate::item::{EquipmentDb, EquipmentSlot, Item, ItemSetBonus, Weapon, WeaponType};
 use crate::phase::Phase;
 use crate::stats::{Stats, WeaponProfile};
 
@@ -110,11 +111,11 @@ pub struct Setup {
     pub temp_enchants: [Option<EnchantName>; EquipmentSlot::COUNT],
 }
 
-/// The set bonuses currently active.
+/// The equipped pieces of the item sets.
 #[derive(Debug, Clone, Default)]
 struct SetBonusState {
-    /// Equipped item ids per set name.
-    equipped_pieces: HashMap<String, Vec<u32>>,
+    /// Equipped item ids per set id.
+    equipped_pieces: BTreeMap<u32, Vec<u32>>,
 }
 
 /// Everything a character wears.
@@ -176,7 +177,7 @@ impl Equipment {
         self.reequip_items()
     }
 
-    /// Aggregated stats of the equipped items and active set bonuses.
+    /// Aggregated stats of the equipped items and enchants.
     pub fn stats(&self) -> &Stats {
         &self.stats
     }
@@ -716,80 +717,67 @@ impl Equipment {
 
     // ---------------------------------------------------------------- set bonuses
 
-    /// Number of equipped pieces of the named set.
-    pub fn set_pieces(&self, set_name: &str) -> u32 {
+    /// Number of equipped pieces of the set with id `set_id`.
+    pub fn set_pieces(&self, set_id: u32) -> u32 {
         self.set_bonuses
             .equipped_pieces
-            .get(set_name)
+            .get(&set_id)
             .map_or(0, |pieces| pieces.len() as u32)
     }
 
-    /// `(set name, pieces)` for every set with at least one equipped piece, sorted by name.
-    pub fn active_sets(&self) -> Vec<(String, u32)> {
-        let mut sets: Vec<(String, u32)> = self
-            .set_bonuses
+    /// `(set id, pieces)` for every set with at least one equipped piece, sorted by id.
+    pub fn active_sets(&self) -> Vec<(u32, u32)> {
+        self.set_bonuses
             .equipped_pieces
             .iter()
             .filter(|(_, pieces)| !pieces.is_empty())
-            .map(|(name, pieces)| (name.clone(), pieces.len() as u32))
-            .collect();
-        sets.sort();
-        sets
+            .map(|(&id, pieces)| (id, pieces.len() as u32))
+            .collect()
     }
 
-    /// Whether the `pieces`-piece bonus of `set_name` is active.
-    pub fn set_bonus_active(&self, set_name: &str, pieces: u32) -> bool {
-        self.set_pieces(set_name) >= pieces
+    /// Whether the `pieces`-piece bonus of the set with id `set_id` is active.
+    pub fn set_bonus_active(&self, set_id: u32, pieces: u32) -> bool {
+        self.set_pieces(set_id) >= pieces
+    }
+
+    /// The bonuses whose piece count is reached, as `(set id, position in the set's bonus list,
+    /// bonus)`, sorted by set id.
+    pub fn active_set_bonuses(&self) -> Vec<(u32, usize, ItemSetBonus)> {
+        self.active_sets()
+            .into_iter()
+            .filter_map(|(id, pieces)| Some((self.db.sets().set(id)?, pieces)))
+            .flat_map(|(set, pieces)| {
+                set.bonuses
+                    .iter()
+                    .enumerate()
+                    .filter(move |(_, bonus)| bonus.pieces <= pieces)
+                    .map(move |(index, &bonus)| (set.id, index, bonus))
+            })
+            .collect()
     }
 
     fn equip_set_piece(&mut self, item_id: u32) {
         let Some(set) = self.db.sets().set_for_item(item_id) else {
             return;
         };
-        let pieces = self
-            .set_bonuses
+        self.set_bonuses
             .equipped_pieces
-            .entry(set.name.clone())
-            .or_default();
-        pieces.push(item_id);
-        let count = pieces.len() as u32;
-
-        if let Some((stat, value)) = set_bonus_stat(set.bonuses.iter(), count) {
-            self.stats
-                .apply_item_stat(stat, value)
-                .expect("set bonus stats are validated at load");
-        }
+            .entry(set.id)
+            .or_default()
+            .push(item_id);
     }
 
     fn unequip_set_piece(&mut self, item_id: u32) {
         let Some(set) = self.db.sets().set_for_item(item_id) else {
             return;
         };
-        let Some(pieces) = self.set_bonuses.equipped_pieces.get_mut(&set.name) else {
+        let Some(pieces) = self.set_bonuses.equipped_pieces.get_mut(&set.id) else {
             return;
         };
-        let count = pieces.len() as u32;
         if let Some(index) = pieces.iter().position(|&id| id == item_id) {
             pieces.remove(index);
         }
-
-        if let Some((stat, value)) = set_bonus_stat(set.bonuses.iter(), count) {
-            let mut delta = Stats::new();
-            delta
-                .apply_item_stat(stat, value)
-                .expect("set bonus stats are validated at load");
-            self.stats.remove(&delta);
-        }
     }
-}
-
-fn set_bonus_stat<'a>(
-    bonuses: impl Iterator<Item = &'a crate::item::SetBonusSpec>,
-    pieces: u32,
-) -> Option<(ItemStat, f64)> {
-    bonuses
-        .filter(|bonus| bonus.pieces == pieces)
-        .find_map(|bonus| bonus.stat_bonus())
 }
 
 fn paired_slot(slot: EquipmentSlot) -> EquipmentSlot {
@@ -806,7 +794,7 @@ fn paired_slot(slot: EquipmentSlot) -> EquipmentSlot {
 mod tests {
     use super::*;
     use crate::item::{
-        ItemSlot, ItemSpec, ItemType, LimitCategory, Quality, SetBonusSpec, SetSpec,
+        ItemSetSpec, ItemSlot, ItemSpec, ItemStat, ItemType, LimitCategory, Quality,
         WeaponDamageSpec,
     };
     use crate::magic_school::MagicSchool;
@@ -938,21 +926,18 @@ mod tests {
                     set_legs,
                     set_boots,
                 ],
-                vec![SetSpec {
+                vec![ItemSetSpec {
+                    id: 9,
                     name: "Set".into(),
                     items: vec![30, 31, 32],
                     bonuses: vec![
-                        SetBonusSpec {
+                        ItemSetBonus {
                             pieces: 2,
-                            description: String::new(),
-                            stat: Some(ItemStat::AttackPower),
-                            value: Some(40.0),
+                            spell: 902,
                         },
-                        SetBonusSpec {
+                        ItemSetBonus {
                             pieces: 3,
-                            description: String::new(),
-                            stat: Some(ItemStat::CritChance),
-                            value: Some(0.02),
+                            spell: 903,
                         },
                     ],
                 }],
@@ -1201,29 +1186,31 @@ mod tests {
     #[test]
     fn set_bonuses_follow_piece_count() {
         let mut eq = equipment();
+        let bonus = |pieces, spell| ItemSetBonus { pieces, spell };
         eq.equip(EquipmentSlot::Chest, 30).unwrap();
-        assert_eq!(eq.set_pieces("Set"), 1);
-        assert_eq!(eq.stats().get_base_melee_ap(), 0);
+        assert_eq!(eq.set_pieces(9), 1);
+        assert!(eq.active_set_bonuses().is_empty());
 
         eq.equip(EquipmentSlot::Legs, 31).unwrap();
-        assert_eq!(eq.set_pieces("Set"), 2);
-        assert!(eq.set_bonus_active("Set", 2));
-        assert!(!eq.set_bonus_active("Set", 3));
-        assert_eq!(eq.stats().get_base_melee_ap(), 40);
-        assert_eq!(eq.stats().get_melee_crit_chance(), 0);
+        assert_eq!(eq.set_pieces(9), 2);
+        assert!(eq.set_bonus_active(9, 2));
+        assert!(!eq.set_bonus_active(9, 3));
+        assert_eq!(eq.active_set_bonuses(), [(9, 0, bonus(2, 902))]);
 
         eq.equip(EquipmentSlot::Boots, 32).unwrap();
-        assert_eq!(eq.stats().get_base_melee_ap(), 40);
-        assert_eq!(eq.stats().get_melee_crit_chance(), 200);
-        assert_eq!(eq.active_sets(), vec![("Set".to_string(), 3)]);
+        assert_eq!(eq.active_sets(), [(9, 3)]);
+        assert_eq!(
+            eq.active_set_bonuses(),
+            [(9, 0, bonus(2, 902)), (9, 1, bonus(3, 903))]
+        );
 
         eq.unequip(EquipmentSlot::Legs);
-        assert_eq!(eq.set_pieces("Set"), 2);
-        assert_eq!(eq.stats().get_base_melee_ap(), 40);
-        assert_eq!(eq.stats().get_melee_crit_chance(), 0);
+        assert_eq!(eq.set_pieces(9), 2);
+        assert_eq!(eq.active_set_bonuses(), [(9, 0, bonus(2, 902))]);
 
+        // The bonuses are spells: the set adds no stats of its own.
         eq.unequip_all();
-        assert_eq!(eq.set_pieces("Set"), 0);
+        assert_eq!(eq.set_pieces(9), 0);
         assert_eq!(eq.stats(), &Stats::new());
         assert!(eq.active_sets().is_empty());
     }

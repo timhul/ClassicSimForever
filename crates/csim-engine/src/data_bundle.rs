@@ -46,13 +46,13 @@ pub struct DataBundle {
 
 impl DataBundle {
     /// Loads and cross-validates `dir` laid out as the repository's `data/`: `spells/`,
-    /// `items/`, `set_bonuses.yaml`, `enchants.yaml`, `classes/`, `races.yaml`, `talents/`,
+    /// `items/`, `item_sets.yaml`, `enchants.yaml`, `classes/`, `races.yaml`, `talents/`,
     /// `external_buffs.yaml` and `rotations/`.
     pub fn load(dir: &Path) -> Result<Self, DataBundleError> {
         let spells = SpellDb::load(&dir.join("spells"))?;
         let equipment = EquipmentDb::load(
             &dir.join("items"),
-            Some(&dir.join("set_bonuses.yaml")),
+            Some(&dir.join("item_sets.yaml")),
             Some(&dir.join("enchants.yaml")),
         )?;
         let classes = ClassDb::load(&dir.join("classes"), Some(equipment.enchants()))?;

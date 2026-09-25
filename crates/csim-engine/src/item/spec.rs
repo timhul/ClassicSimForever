@@ -8,7 +8,8 @@
 //! XML item files `Equipment/EquipmentDb/**/*.xml`) fill in the items the table dump lacks. Only
 //! they use the legacy fields (`icon`, `procs`, `uses`, `modifies`, `mutex`, `random_affixes`,
 //! `special_equip_effects`, `source`, `faction`): procs and uses there are kept as data (a generic
-//! name plus its parameters).
+//! name plus its parameters). Their `effects` are the tables' `ItemEffect` rows, which replaced
+//! the `procs` the tables cover.
 
 use std::collections::BTreeMap;
 
@@ -214,7 +215,7 @@ pub struct ItemProcSpec {
     /// The client-table spell that implements the proc: a passive whose `ProcTypeMask` and
     /// `ProcChance` describe the trigger and whose aura casts the payload (Windfury Totem's
     /// 10612). The character registers a proc per equipped item or enchant that names one
-    /// ([`crate::character::context::CharacterContext::sync_equipment_procs`]); a proc without
+    /// ([`crate::character::context::CharacterContext::sync_equipment_spells`]); a proc without
     /// a spell is data the engine cannot run yet and stays unregistered.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub spell: Option<u32>,

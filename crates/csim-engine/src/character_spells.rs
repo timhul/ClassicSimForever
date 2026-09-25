@@ -87,20 +87,28 @@ pub struct AddedSpell {
     pub enable_now: bool,
 }
 
-/// What granted an equipment proc: the item worn in the slot, or one of its enchants.
+/// What granted an equipment spell.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ProcGrantor {
-    Item(u32),
+pub enum EquipmentGrantor {
+    /// A `procs` entry of the item worn in the slot (hand-authored items).
+    ItemProc(u32),
+    /// An `effects` entry (`ItemEffect`) of the item worn in the slot.
+    ItemEffect(u32),
+    /// A proc of the permanent or temporary enchant on the item in the slot.
     Enchant(EnchantName),
+    /// A bonus of the item set with this id (no slot).
+    SetBonus(u32),
 }
 
-/// One proc of an equipped item or enchant, as [`CharacterSpells`] keys it: the slot decides
-/// which attacks trigger it, so the same enchant on both weapons is two procs.
+/// One spell granted by the equipment, as [`CharacterSpells`] keys it. Equipment spells are
+/// not keyed by game id: the same enchant on both weapons is two procs (the slot decides which
+/// attacks trigger each), and two rings with the same stat aura are two auras.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct EquipmentProcKey {
-    pub slot: EquipmentSlot,
-    pub grantor: ProcGrantor,
-    /// Position in the item's or enchant's `procs` list.
+pub struct EquipmentSpellKey {
+    /// The slot of the item or enchant; `None` for a set bonus.
+    pub slot: Option<EquipmentSlot>,
+    pub grantor: EquipmentGrantor,
+    /// Position in the grantor's list (`procs`, `effects`, the set's bonuses).
     pub index: usize,
 }
 
@@ -127,9 +135,9 @@ pub struct CharacterSpells {
     enabled_buffs: Vec<BuffId>,
     start_of_combat_buffs: Vec<BuffId>,
     procs: EnabledProcs,
-    /// The procs the equipped items and enchants granted, kept across unequips so that
-    /// re-equipping reuses the proc (and its statistics) instead of registering a second one.
-    equipment_procs: BTreeMap<EquipmentProcKey, ProcId>,
+    /// The spells and procs the equipment granted, kept across unequips so that re-equipping
+    /// reuses them (and their statistics) instead of registering a second one.
+    equipment_spells: BTreeMap<EquipmentSpellKey, SpellHandle>,
     start_of_combat_spells: Vec<SpellId>,
     /// The spells whose overrides attach event reactions (`on_event`).
     event_reactors: Vec<SpellId>,
@@ -157,7 +165,7 @@ impl CharacterSpells {
             enabled_buffs: Vec::new(),
             start_of_combat_buffs: Vec::new(),
             procs: EnabledProcs::new(),
-            equipment_procs: BTreeMap::new(),
+            equipment_spells: BTreeMap::new(),
             start_of_combat_spells: Vec::new(),
             event_reactors: Vec::new(),
             next_instance_id: 0,
@@ -228,7 +236,11 @@ impl CharacterSpells {
         let mut spell = spell;
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
 
-        if record.is_passive() && record.aura_options.proc_type_mask.bits() != 0 {
+        // A proc on events the sim does not have (a killing blow) stays a plain passive.
+        if record.is_passive()
+            && record.aura_options.proc_type_mask.bits() != 0
+            && !Proc::sources_of(&spell).is_empty()
+        {
             let seed = self.next_proc_seed;
             self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
             let proc = self.procs.add_proc(Proc::new(spell, seed));
@@ -356,44 +368,99 @@ impl CharacterSpells {
         (spell, marker)
     }
 
-    // --- Equipment procs ---
+    // --- Equipment spells ---
 
-    /// Registers the proc `key` of an equipped item or enchant: its spell is built from
-    /// `setup` and only the sources `allowed` (what the slot lets an item proc react to) can
-    /// trigger it. Unlike a learned passive the proc is not keyed by game id — the same
-    /// enchant on both weapons is two procs — so a key already registered keeps its proc and a
-    /// second call returns it unchanged. Port of the `EnchantProc` constructor and the proc
-    /// creation in `Item::apply_proc`. Returns `None` when the record and the slot have no
-    /// trigger in common.
+    /// Registers the proc `key` of the equipment: a passive proc aura (an enchant's or item's
+    /// proc, an on-equip or set bonus proc aura) built from `setup`, which only the sources
+    /// `allowed` (what the slot lets an item proc react to) can trigger. A key already
+    /// registered keeps its proc and a second call returns it unchanged. Port of the
+    /// `EnchantProc` constructor and the proc creation in `Item::apply_proc`. Returns `None`
+    /// when the record and the slot have no trigger in common.
     pub fn add_equipment_proc(
         &mut self,
-        key: EquipmentProcKey,
+        key: EquipmentSpellKey,
         setup: SpellSetup,
         overrides: &Overrides,
         allowed: &[ProcSource],
         party: u8,
         shared: &mut impl SharedBuffs,
     ) -> Option<ProcId> {
-        if let Some(&id) = self.equipment_procs.get(&key) {
-            return Some(id);
+        self.add_keyed_proc(key, setup, overrides, party, shared, |spell, seed| {
+            Proc::for_equipment(spell, allowed, seed)
+        })
+    }
+
+    /// Registers the chance-on-hit spell `key` of an equipped weapon ([`Proc::on_hit`]): the
+    /// wielding hand's landed attacks (`allowed`) cast it. Returns `None` when its rate is
+    /// unknown.
+    pub fn add_on_hit_proc(
+        &mut self,
+        key: EquipmentSpellKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        allowed: &[ProcSource],
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> Option<ProcId> {
+        self.add_keyed_proc(key, setup, overrides, party, shared, |spell, seed| {
+            Proc::on_hit(spell, allowed, seed)
+        })
+    }
+
+    fn add_keyed_proc(
+        &mut self,
+        key: EquipmentSpellKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        party: u8,
+        shared: &mut impl SharedBuffs,
+        build: impl FnOnce(Spell, u64) -> Option<Proc>,
+    ) -> Option<ProcId> {
+        match self.equipment_spells.get(&key) {
+            Some(&SpellHandle::Proc(id)) => return Some(id),
+            Some(SpellHandle::Spell(_)) => return None,
+            None => {}
         }
         let (spell, _) = self.build_spell(setup, overrides, party, shared);
-        let seed = self.next_proc_seed;
-        let proc = Proc::for_equipment(spell, allowed, seed)?;
+        let proc = build(spell, self.next_proc_seed)?;
         self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
         let id = self.procs.add_proc(proc);
-        self.equipment_procs.insert(key, id);
+        self.equipment_spells.insert(key, SpellHandle::Proc(id));
         Some(id)
     }
 
-    /// The proc registered for `key`, if any.
-    pub fn equipment_proc(&self, key: EquipmentProcKey) -> Option<ProcId> {
-        self.equipment_procs.get(&key).copied()
+    /// Registers the passive `key` of the equipment (an on-equip or set bonus aura): a spell
+    /// outside the game-id index and the rank groups, whose aura is up while it is enabled. A
+    /// key already registered keeps its spell.
+    pub fn add_equipment_passive(
+        &mut self,
+        key: EquipmentSpellKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> SpellId {
+        if let Some(&SpellHandle::Spell(id)) = self.equipment_spells.get(&key) {
+            return id;
+        }
+        let (mut spell, _) = self.build_spell(setup, overrides, party, shared);
+        let id = self.reserve_spell_id();
+        spell.set_id(id);
+        self.spells[id.index()] = Some(spell);
+        self.equipment_spells.insert(key, SpellHandle::Spell(id));
+        id
     }
 
-    /// Every registered equipment proc with the item or enchant that granted it.
-    pub fn equipment_procs(&self) -> impl Iterator<Item = (EquipmentProcKey, ProcId)> + '_ {
-        self.equipment_procs.iter().map(|(&key, &id)| (key, id))
+    /// The spell or proc registered for `key`, if any.
+    pub fn equipment_spell(&self, key: EquipmentSpellKey) -> Option<SpellHandle> {
+        self.equipment_spells.get(&key).copied()
+    }
+
+    /// Every registered equipment spell and proc with what granted it.
+    pub fn equipment_spells(&self) -> impl Iterator<Item = (EquipmentSpellKey, SpellHandle)> + '_ {
+        self.equipment_spells
+            .iter()
+            .map(|(&key, &handle)| (key, handle))
     }
 
     fn create_marker_buff(
