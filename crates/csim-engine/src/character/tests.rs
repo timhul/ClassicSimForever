@@ -327,6 +327,26 @@ fn rage_gains_and_losses_go_through_the_resource() {
     assert_eq!(f.rage(), 60);
 }
 
+/// A refund on miss keeps the tenths: a dodged 12 rage Heroic Strike costs 2.4 rage.
+#[test]
+fn rage_refunds_keep_the_tenths() {
+    let mut f = Fixture::orc_warrior();
+    f.character.gain_resource(ResourceType::Rage, 50);
+    f.character.lose_resource(ResourceType::Rage, 12, 0.0);
+    f.character.refund_resource(ResourceType::Rage, 12.0 * 0.8);
+    let tenths = |f: &mut Fixture| {
+        f.character
+            .resource_mut()
+            .as_rage_mut()
+            .unwrap()
+            .current_tenths()
+    };
+    assert_eq!(tenths(&mut f), 476);
+    assert_eq!(f.rage(), 47);
+    f.character.refund_resource(ResourceType::Mana, 10.0);
+    assert_eq!(tenths(&mut f), 476, "a resource the class does not use");
+}
+
 /// Swing rage comes from the base speed of the weapon in the hand: 3.46 per second for a
 /// one-hander, half that in the off hand (scaled by the off-hand rage percent), 4.5 for a
 /// two-hander.

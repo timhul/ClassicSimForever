@@ -575,6 +575,9 @@ mod tests {
         fn lose_resource(&mut self, _: ResourceType, amount: u32) {
             self.rage.lose(amount);
         }
+        fn refund_resource(&mut self, _: ResourceType, amount: f64) {
+            self.rage.gain_tenths(amount * 10.0);
+        }
         fn cooldown(&self, _: CooldownId) -> &CooldownControl {
             unreachable!()
         }

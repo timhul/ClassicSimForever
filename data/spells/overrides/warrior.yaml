@@ -5,7 +5,6 @@
 # Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
 
 defaults:
-  resource_miss_cost_mod: 0.25
   proc_hit_mask: [NORMAL, CRITICAL]
 
 overrides:

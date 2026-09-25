@@ -512,6 +512,25 @@ impl Resource {
         }
     }
 
+    /// Gives back a fractional `amount` of a cost already paid (a refund on miss): rage keeps
+    /// the tenths, the other resources round to whole points.
+    pub fn refund(&mut self, amount: f64) {
+        match self {
+            Resource::Rage(r) => {
+                r.gain_tenths(amount * f64::from(Rage::TENTHS));
+            }
+            Resource::Mana(r) => {
+                r.gain(amount.round() as u32);
+            }
+            Resource::Energy(r) => {
+                r.gain(amount.round() as u32);
+            }
+            Resource::Focus(r) => {
+                r.gain(amount.round() as u32);
+            }
+        }
+    }
+
     /// Spends resource at engine time `now` (only mana reads the time, for the five-second rule).
     ///
     /// # Panics

@@ -2073,6 +2073,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.lose_resource(resource, amount, now);
     }
 
+    fn refund_resource(&mut self, resource: ResourceType, amount: f64) {
+        self.character.refund_resource(resource, amount);
+    }
+
     fn cooldown(&self, id: CooldownId) -> &CooldownControl {
         self.character.spells().cooldowns().get(id)
     }

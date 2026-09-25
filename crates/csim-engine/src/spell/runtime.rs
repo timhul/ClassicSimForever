@@ -42,6 +42,10 @@ use crate::stance::Stance;
 /// Tolerance when comparing the cooldown's ready time with the current time.
 const COOLDOWN_EPSILON: f64 = 0.0001;
 
+/// Fraction of the cost refunded when a `DISCOUNT_POWER_ON_MISS` attack is missed, dodged or
+/// parried. The tables only flag the spells; the amount is Classic's.
+pub const POWER_REFUND_ON_MISS: f64 = 0.8;
+
 /// What a spell needs from the world beyond what its effects need. Port of the `Character`,
 /// `CharacterSpells`, `Engine`, `EnabledBuffs` and `SimSettings` calls made by `Spell.cpp`.
 pub trait SpellHost: EffectHost {
@@ -94,6 +98,9 @@ pub trait SpellHost: EffectHost {
     fn aura_active(&self, spell: u32) -> bool;
 
     fn lose_resource(&mut self, resource: ResourceType, amount: u32);
+    /// Gives back a fractional `amount` of a cost already paid (a refund on miss). Rage keeps
+    /// the tenths; whole-point resources round.
+    fn refund_resource(&mut self, resource: ResourceType, amount: f64);
 
     fn cooldown(&self, id: CooldownId) -> &CooldownControl;
     fn cooldown_mut(&mut self, id: CooldownId) -> &mut CooldownControl;
@@ -148,10 +155,10 @@ pub struct AttackOutcome {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CastReport {
     pub result: SpellResult,
-    /// The cost charged for this cast in displayed units (before the miss modifier).
+    /// The cost charged for this cast in displayed units (before any refund on miss).
     pub resource_cost: u32,
-    /// The resource actually taken.
-    pub resource_lost: u32,
+    /// The resource actually taken, net of a refund on miss.
+    pub resource_lost: f64,
     /// Attack outcome, if the spell rolled on the attack table.
     pub attack: Option<AttackOutcome>,
     /// Resources gained by the spell's effects.
@@ -197,8 +204,6 @@ pub struct SpellSetup {
     pub record: Arc<SpellRecord>,
     /// The spell's override (an empty one when the file has none).
     pub overrides: SpellOverride,
-    /// `resource_miss_cost_mod` after the file defaults.
-    pub resource_miss_cost_mod: f64,
     /// The proc hit mask after the file defaults.
     pub hit_mask: ProcHitMask,
     /// The record of the aura a `DEEP_WOUNDS_BLEED` script ticks with (`params.duration_spell`).
@@ -222,7 +227,6 @@ impl SpellSetup {
             .and_then(|spell| db.get(spell).map(Arc::clone));
         Some(SpellSetup {
             record,
-            resource_miss_cost_mod: db.overrides().resource_miss_cost_mod(id),
             hit_mask: db.overrides().proc_hit_mask(id),
             overrides,
             bleed_aura,
@@ -236,7 +240,6 @@ impl SpellSetup {
         SpellSetup {
             record: Arc::new(record),
             overrides: SpellOverride::new(id),
-            resource_miss_cost_mod: defaults.resource_miss_cost_mod(id),
             hit_mask: defaults.proc_hit_mask(id),
             bleed_aura: None,
         }
@@ -251,7 +254,6 @@ impl SpellSetup {
                 .get(id)
                 .cloned()
                 .unwrap_or_else(|| SpellOverride::new(id)),
-            resource_miss_cost_mod: overrides.resource_miss_cost_mod(id),
             hit_mask: overrides.proc_hit_mask(id),
             bleed_aura: None,
         }
@@ -1192,19 +1194,25 @@ impl Spell {
 
         // Resource loss and damage.
         if self.last_result == SpellResult::Failure {
-            // Misses cost the full amount; dodges and parries only a fraction (the C++ TODO in
-            // `Spell::spell_effect`, resolved). Mana is always lost in full.
-            let lost = if resource == Some(ResourceType::Mana)
-                || first_roll == Some(PhysicalAttackResult::Miss)
-            {
-                cost
-            } else {
-                (f64::from(cost) * self.setup.resource_miss_cost_mod).round() as u32
+            // The full cost is paid; `DISCOUNT_POWER_ON_MISS` spells get most of it back when
+            // the attack is missed, dodged or parried.
+            let refund = match first_roll {
+                Some(
+                    PhysicalAttackResult::Miss
+                    | PhysicalAttackResult::Dodge
+                    | PhysicalAttackResult::Parry,
+                ) if self.setup.record.refunds_power_on_miss() => {
+                    f64::from(cost) * POWER_REFUND_ON_MISS
+                }
+                _ => 0.0,
             };
             if let Some(resource) = resource {
-                host.lose_resource(resource, lost);
+                host.lose_resource(resource, cost);
+                if refund > 0.0 {
+                    host.refund_resource(resource, refund);
+                }
             }
-            report.resource_lost = lost;
+            report.resource_lost = f64::from(cost) - refund;
             if let Some(result) = first_roll {
                 report.attack = Some(AttackOutcome {
                     result,
@@ -1222,7 +1230,7 @@ impl Spell {
             if let Some(resource) = resource {
                 host.lose_resource(resource, lost);
             }
-            report.resource_lost = lost;
+            report.resource_lost = f64::from(lost);
             // Combo points (Overpower's dodge marker) are spent by a successful cast.
             if self.combo_point_cost() > 0 {
                 host.spend_combo_points();

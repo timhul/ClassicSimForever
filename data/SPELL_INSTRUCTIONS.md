@@ -204,6 +204,10 @@ Berserking 20554, Sword Specialization 20597 …); `ClassMask` −1 on a racial 
   (uses weapon/melee rules). The other 16 attribute words are retail `SpellAttr1..16`; consult
   TrinityCore `SharedDefines.h` when a specific behaviour matters (e.g. `Attributes_1 & 0x4`
   channeled).
+- `SpellMisc.Attributes_1 & 0x0800_0000` (`DISCOUNT_POWER_ON_MISS`): the cost is refunded when
+  the attack is missed, dodged or parried. The tables do not give the amount; the engine refunds
+  80 % (`POWER_REFUND_ON_MISS`). Set on the single-target warrior attacks, not on Whirlwind,
+  Cleave, Thunder Clap or the shouts. Other failed casts pay the full cost.
 - Duration: `SpellDuration[DurationIndex].Duration` ms; −1 = until cancelled (stances).
 - Cost: `SpellPower` rows (`OrderIndex` 0 primary). `PowerType` 1 (rage) values are ×10
   (Mortal Strike `ManaCost` 300 = 30 rage); mana/energy are as-is; `PowerCostPct` = % of base
@@ -399,7 +403,6 @@ data, and scripts missing their parameters.
 
 ```yaml
 defaults:
-  resource_miss_cost_mod: 0.25       # dodged / parried casts cost this fraction (misses the full cost)
   proc_hit_mask: [NORMAL, CRITICAL]  # hit results a proc fires on unless its entry says otherwise
 overrides:
   - id: 12834                        # SpellName.ID
@@ -415,7 +418,6 @@ overrides:
     sim_flags: [RESETS_SWING_TIMERS]
     stance_passive: 7381             # the hidden passive that carries a stance's numbers
     on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
-    resource_miss_cost_mod: 0.16     # per-spell default override
     debuff_priority: high            # slot priority of the spell's debuff (low / mid / high)
     debuff_shared: true              # one raid-wide instance (default: true when it stacks)
     ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)

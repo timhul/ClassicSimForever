@@ -1,6 +1,7 @@
 use super::*;
 use crate::buff::BuffKind;
-use crate::spell::test_world::World;
+use crate::spell::dbc::SpellAttr1;
+use crate::spell::test_world::{db_with, World};
 use crate::spell::MAX_RANK;
 use crate::stance::Stance;
 
@@ -171,7 +172,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     let report = world.perform(BLOODTHIRST);
     assert_eq!(report.result, SpellResult::Success);
     assert_eq!(report.resource_cost, 30);
-    assert_eq!(report.resource_lost, 30);
+    assert_eq!(report.resource_lost, 30.0);
     assert_eq!(world.rage, 70);
     let attack = report.attack.unwrap();
     assert_eq!(attack.result, PhysicalAttackResult::Hit);
@@ -211,25 +212,54 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
 }
 
 #[test]
-fn dodged_spells_pay_the_reduced_cost_and_missed_spells_the_full_cost() {
+fn avoided_attacks_refund_80_percent_of_the_cost() {
     let mut world = World::new();
     world.learn(BLOODTHIRST);
+    assert!(world.spell(BLOODTHIRST).record().refunds_power_on_miss());
     world.rolls.push_back(PhysicalAttackResult::Dodge);
     let report = world.perform(BLOODTHIRST);
     assert_eq!(report.result, SpellResult::Failure);
-    assert_eq!(report.resource_lost, 8, "30 × 0.25 rounded");
-    assert_eq!(world.rage, 92);
+    assert_eq!(report.resource_cost, 30);
+    assert_eq!(report.resource_lost, 6.0, "30 − 30 × 0.8");
+    assert_eq!(world.rage, 94);
     assert_eq!(report.attack.unwrap().damage, 0);
     assert_eq!(report.proc_sources, vec![ProcSource::MeleeDodge]);
     assert!(report.buff.is_none(), "a failed cast applies no buff");
     assert_eq!(world.spell(BLOODTHIRST).last_result(), SpellResult::Failure);
 
-    world.advance_to(6.0);
-    world.rolls.push_back(PhysicalAttackResult::Miss);
+    for (i, (roll, source)) in [
+        (PhysicalAttackResult::Miss, ProcSource::MeleeMiss),
+        (PhysicalAttackResult::Parry, ProcSource::MeleeParry),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        world.advance_to(6.0 * (i + 1) as f64);
+        world.rolls.push_back(roll);
+        let report = world.perform(BLOODTHIRST);
+        assert_eq!(report.resource_lost, 6.0);
+        assert_eq!(world.rage, 94 - 6 * (i as u32 + 1));
+        assert_eq!(report.proc_sources, vec![source]);
+    }
+}
+
+#[test]
+fn avoided_attacks_without_the_refund_flag_pay_the_full_cost() {
+    let mut world = World::with_db(db_with(|file| {
+        let bt = file
+            .spells
+            .iter_mut()
+            .find(|s| s.id == BLOODTHIRST)
+            .unwrap();
+        bt.attributes[1] &= !SpellAttr1::DISCOUNT_POWER_ON_MISS.bits();
+    }));
+    world.learn(BLOODTHIRST);
+    assert!(!world.spell(BLOODTHIRST).record().refunds_power_on_miss());
+    world.rolls.push_back(PhysicalAttackResult::Dodge);
     let report = world.perform(BLOODTHIRST);
-    assert_eq!(report.resource_lost, 30);
-    assert_eq!(world.rage, 62);
-    assert_eq!(report.proc_sources, vec![ProcSource::MeleeMiss]);
+    assert_eq!(report.result, SpellResult::Failure);
+    assert_eq!(report.resource_lost, 30.0);
+    assert_eq!(world.rage, 70);
 }
 
 #[test]
@@ -254,7 +284,7 @@ fn execute_converts_the_remaining_rage_and_triggers_its_marker() {
     let report = world.perform(EXECUTE);
     assert_eq!(report.attack.unwrap().damage, 1875);
     assert_eq!(report.resource_cost, 15);
-    assert_eq!(report.resource_lost, 100);
+    assert_eq!(report.resource_lost, 100.0);
     assert_eq!(world.rage, 0);
     assert_eq!(report.triggered.len(), 1);
     assert_eq!(report.triggered[0].0, EXECUTE_MARKER);
@@ -262,12 +292,13 @@ fn execute_converts_the_remaining_rage_and_triggers_its_marker() {
     assert_eq!(world.trigger_log, vec![(EXECUTE_MARKER, None)]);
     assert!(world.aura_active(EXECUTE_MARKER));
 
-    // A dodge pays 15 × 0.25 and triggers nothing.
+    // A dodge refunds 80 % of the 15 and triggers nothing.
     world.rage = 50;
     world.advance_to(2.0);
     world.rolls.push_back(PhysicalAttackResult::Dodge);
     let report = world.perform(EXECUTE);
-    assert_eq!(report.resource_lost, 4);
+    assert_eq!(report.resource_lost, 3.0);
+    assert_eq!(world.rage, 47);
     assert!(report.triggered.is_empty());
 }
 

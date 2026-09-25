@@ -13,9 +13,9 @@
 //! - serde accepts **either the name or the number** and serializes the name (the number for an
 //!   unknown value), so exported data files stay readable while raw table values still load.
 //!
-//! Bit-flag types ([`SpellAttr0`], [`ProcFlags`], [`SpellSchoolMask`]) serialize as the raw
-//! number and deserialize from a number, a single flag name, or a list of names / numbers, so
-//! hand-written overrides can say `proc_type_mask: [DEAL_MELEE_SWING, DEAL_MELEE_ABILITY]`.
+//! Bit-flag types ([`SpellAttr0`], [`SpellAttr1`], [`ProcFlags`], [`SpellSchoolMask`]) serialize
+//! as the raw number and deserialize from a number, a single flag name, or a list of names /
+//! numbers, so hand-written overrides can say `proc_type_mask: [DEAL_MELEE_SWING, DEAL_MELEE_ABILITY]`.
 
 mod aura;
 mod discard;
@@ -26,7 +26,7 @@ mod misc;
 pub use aura::AuraType;
 pub use discard::{DISCARDED_AURA_IDS, DISCARDED_EFFECT_IDS};
 pub use effect::SpellEffectName;
-pub use flags::{ProcFlags, SpellAttr0, SpellSchoolMask};
+pub use flags::{ProcFlags, SpellAttr0, SpellAttr1, SpellSchoolMask};
 pub use misc::{
     AuraState, DefenseType, ImplicitTarget, Mechanic, PowerType, ShapeshiftForm, SpellModOp,
 };

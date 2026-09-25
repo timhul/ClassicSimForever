@@ -716,6 +716,13 @@ impl Character {
         self.resource.gain(amount)
     }
 
+    /// Gives back a fractional `amount` of a cost already paid (a refund on miss).
+    pub fn refund_resource(&mut self, resource: ResourceType, amount: f64) {
+        if resource == self.class.resource {
+            self.resource.refund(amount);
+        }
+    }
+
     /// # Panics
     /// Panics on underflow or for a resource the class does not use.
     pub fn lose_resource(&mut self, resource: ResourceType, amount: u32, now: f64) {
