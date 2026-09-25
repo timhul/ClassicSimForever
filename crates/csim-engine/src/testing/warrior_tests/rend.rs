@@ -180,7 +180,6 @@ fn death_wish_increases_rend_damage() {
 }
 
 #[test]
-#[ignore = "Rend applies its bleed without rolling the attack table, so it cannot be dodged"]
 fn dodge_applies_overpower_buff() {
     let mut test = test();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
