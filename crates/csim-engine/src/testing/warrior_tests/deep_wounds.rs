@@ -291,3 +291,15 @@ fn death_wish_increases_deep_wounds_damage_once() {
     when_mh_attack_is_performed(&mut test);
     assert_eq!(deep_wounds_damage(&mut test), 72);
 }
+
+/// The bleed ticks never crit, whatever the crit chance: 60 % of the 100 average weapon damage.
+#[test]
+fn deep_wounds_cannot_crit() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    given_deep_wounds(&mut test, 3);
+    test.given_a_guaranteed_white_crit();
+    test.given_a_guaranteed_melee_ability_crit();
+    when_mh_attack_is_performed(&mut test);
+    assert_eq!(deep_wounds_damage(&mut test), 60);
+}

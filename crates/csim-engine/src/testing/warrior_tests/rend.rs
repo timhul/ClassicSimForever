@@ -151,6 +151,34 @@ fn damage_of_improved_rend() {
     }
 }
 
+/// Death Wish's 20 % applies to every tick, on top of Improved Rend: 7 * round(21 * 1.2) and
+/// 7 * round(21 * 1.35 * 1.2).
+#[test]
+fn death_wish_increases_rend_damage() {
+    for (improved_rend, damage) in [(0, 175), (3, 238)] {
+        let mut test = WarriorTest::unprepared(SPELL);
+        test.given_a_mainhand_weapon_with_100_min_max_dmg();
+        test.enable_spell("Death Wish");
+        if improved_rend > 0 {
+            test.given_arms_talent_with_rank("Improved Rend", improved_rend);
+        }
+        test.prepare_set_of_combat_iterations();
+        test.given_a_guaranteed_melee_ability_hit();
+        test.given_warrior_has_rage(100);
+        test.cast("Death Wish");
+        test.given_engine_priority_pushed_forward(1.5);
+        test.given_warrior_has_rage(100);
+        test.given_no_previous_damage_dealt();
+        when_rend_is_performed(&mut test);
+        test.when_running_only(EventType::DotTick);
+        assert_eq!(
+            test.damage_dealt(),
+            damage,
+            "{improved_rend} of 3 Improved Rend"
+        );
+    }
+}
+
 #[test]
 #[ignore = "Rend applies its bleed without rolling the attack table, so it cannot be dodged"]
 fn dodge_applies_overpower_buff() {

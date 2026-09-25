@@ -1445,6 +1445,17 @@ impl Spell {
         })
     }
 
+    /// The damage done multiplier of the spell's school: the physical one (Death Wish, Enrage)
+    /// for a physical spell, none otherwise (magic damage modifiers are not ported), as in
+    /// [`Spell::damage_after_modifiers`].
+    fn school_damage_mod(&self, host: &impl SpellHost) -> f64 {
+        let school = self.setup.record.school_mask;
+        if !school.is_empty() && !school.is_physical() {
+            return 1.0;
+        }
+        host.total_physical_damage_mod()
+    }
+
     /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
     /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
     /// it is, resistances and magic damage modifiers not being ported.
@@ -1560,7 +1571,9 @@ impl Spell {
         let kind = self.periodic_kind(host)?;
         let buff = host.buff(marker);
         let (active, expired_at) = (buff.is_active(), buff.expired_at());
-        let damage_mod = self.periodic_damage_mod(host);
+        // The damage done modifiers apply once, to the tick: a bleed's base (Deep Wounds'
+        // weapon damage) is taken before any of them.
+        let damage_mod = self.periodic_damage_mod(host) * self.school_damage_mod(host);
         let cost = self.resource_cost(host);
         let report = self.periodic.as_mut()?.tick(
             application_id,

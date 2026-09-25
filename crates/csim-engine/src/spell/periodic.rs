@@ -50,8 +50,7 @@ pub enum PeriodicKind {
     /// `PERIODIC_DAMAGE`: `per_tick` damage (times the spell's periodic damage modifier) on
     /// each of `ticks` ticks; a refresh re-arms the full count (Rend).
     Damage { per_tick: f64, ticks: u32 },
-    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application
-    /// (times the physical damage done modifier, applied once at tick time), dealt
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
     /// in `ticks_per_application` equal ticks; every application adds an independent stack of
     /// ticks and the rounding remainder is carried between ticks. Port of `DeepWounds`.
     WeaponDamage {
@@ -221,8 +220,8 @@ impl Periodic {
     }
 
     /// Handles a `DotTick` event. Returns `None` for stale ticks or after the buff is gone
-    /// (which also clears the state). `damage_mod` is the spell's periodic damage multiplier
-    /// (Improved Rend), `resource_cost` its cost in displayed units. Port of
+    /// (which also clears the state). `damage_mod` is every multiplier on the tick's damage
+    /// (Improved Rend, Death Wish); ticks never crit. `resource_cost` its cost in displayed units. Port of
     /// `SpellPeriodic::perform_periodic` + the `tick_effect` overrides.
     #[allow(clippy::too_many_arguments)]
     pub fn tick(
@@ -296,11 +295,7 @@ impl Periodic {
                 if self.stacks.is_empty() {
                     return None;
                 }
-                // The damage done modifiers (Death Wish, Enrage) apply once, here: the base
-                // weapon damage is taken before any of them.
-                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0
-                    * damage_mod
-                    * host.total_physical_damage_mod()
+                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod
                     / f64::from(ticks_per_application);
                 damage += self.previous_tick_rest;
                 self.previous_tick_rest = damage - damage.round();
