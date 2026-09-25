@@ -482,11 +482,11 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
         [
             ("Raid members", self.raid_table()),
             ("Damage and threat", self.spell_table()),
+            ("Stat weights", self.stat_weight_table()),
             ("Buffs and debuffs", self.buff_table()),
             ("Procs", self.proc_table()),
             ("Resource gains", self.resource_table()),
             ("Rotation", self.executor_table()),
-            ("Stat weights", self.stat_weight_table()),
         ]
         .into_iter()
         .filter(|(_, table)| !table.is_empty())
@@ -545,6 +545,18 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 percent(spell.resist),
             ]);
         }
+        if !self.spells.is_empty() {
+            let sum = |value: fn(&SpellRow) -> f64| self.spells.iter().map(value).sum::<f64>();
+            let mut total = vec![
+                "Total".to_string(),
+                format!("{:.1}", sum(|s| s.dps)),
+                percent(sum(|s| s.damage_share)),
+                format!("{:.1}", sum(|s| s.tps)),
+                format!("{:.1}", sum(|s| s.per_fight)),
+            ];
+            total.resize(table.headers().len(), String::new());
+            table.total(total);
+        }
         table
     }
 
@@ -583,6 +595,15 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 gain.resource.clone(),
                 format!("{:.1}", gain.per_fight),
                 format!("{:.2}", gain.per_5_seconds),
+            ]);
+        }
+        // One total per resource, as rage and mana do not add up; the rows are grouped by it.
+        for rows in self.resources.chunk_by(|a, b| a.resource == b.resource) {
+            table.total(vec![
+                "Total".to_string(),
+                rows[0].resource.clone(),
+                format!("{:.1}", rows.iter().map(|r| r.per_fight).sum::<f64>()),
+                format!("{:.2}", rows.iter().map(|r| r.per_5_seconds).sum::<f64>()),
             ]);
         }
         table

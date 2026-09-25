@@ -80,6 +80,36 @@ fn scale_prints_the_stat_weights() {
     assert!(report.contains("Stat weights"), "{report}");
     assert!(report.contains("+10 Strength"), "{report}");
     assert!(report.contains("+1% Hit"), "{report}");
+
+    let order = [
+        "\nDamage and threat\n",
+        "\nStat weights\n",
+        "\nBuffs and debuffs\n",
+        "\nResource gains\n",
+        "\nRotation\n",
+    ]
+    .map(|title| report.find(title).unwrap_or_else(|| panic!("{title:?}")));
+    assert!(order.is_sorted(), "sections out of order:\n{report}");
+}
+
+#[test]
+fn damage_and_resource_gains_end_in_totals() {
+    let report = stdout(&csim(&[&RUN[..], &["--seed", "7"]].concat()));
+    let section = |title: &str| {
+        let start = report.find(&format!("\n{title}\n")).unwrap();
+        let rest = &report[start + 1..];
+        rest[..rest.find("\n\n").unwrap_or(rest.len())].to_string()
+    };
+    let damage = section("Damage and threat");
+    let total = damage.lines().last().unwrap();
+    assert!(total.starts_with("Total "), "{damage}");
+    assert!(total.contains("100.0%"), "{damage}");
+    let resources = section("Resource gains");
+    let total = resources.lines().last().unwrap();
+    assert!(
+        total.starts_with("Total ") && total.contains("Rage"),
+        "{resources}"
+    );
 }
 
 #[test]
@@ -133,7 +163,9 @@ fn output_format_prints_yaml_and_html() {
         "<!DOCTYPE html>".to_string(),
         "<h1>DW Fury Orc</h1>".to_string(),
         format!("<div class=\"dps\">{dps:.2}</div>"),
-        "<h2>Damage and threat</h2>".to_string(),
+        "<details open>\n<summary><h2>Damage and threat</h2></summary>".to_string(),
+        "<details>\n<summary><h2>Rotation</h2></summary>".to_string(),
+        "<tfoot>".to_string(),
         "<td class=\"left\">Mainhand Attack</td>".to_string(),
         "</html>".to_string(),
     ] {
