@@ -6,6 +6,7 @@
 //! Where Forever's data differs from what the hand-authored C++ spells assumed, the expected
 //! values follow the Forever data and the comment next to them says what changed.
 
+mod anger_management;
 mod arms;
 mod battle_shout;
 mod berserker_rage;
