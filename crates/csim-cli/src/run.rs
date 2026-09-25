@@ -228,14 +228,14 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
     Ok(())
 }
 
-fn clock_seed() -> u64 {
+pub(crate) fn clock_seed() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0, |time| time.as_nanos() as u64)
 }
 
 /// Prints the share of `total` iterations done to stderr whenever the percentage changes.
-fn progress_bar(total: u32) -> Progress {
+pub(crate) fn progress_bar(total: u32) -> Progress {
     let done = AtomicU32::new(0);
     let shown = AtomicU32::new(0);
     Arc::new(move |iterations| {

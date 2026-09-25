@@ -9,6 +9,8 @@
 //! - `csim list-items` / `list-spells` / `list-rotations` list what setups can refer to.
 //! - `csim rank-items --weights <weights.yaml>` ranks items by their stats times the stat
 //!   weights `csim run --scale --weights-file` wrote.
+//! - `csim sweep <sweep.yaml>` simulates every variant of a base setup and variation points
+//!   (talent points, options) and ranks them by DPS.
 //!
 //! Every command reads the data directory given by `--data`; without it, `./data` when it
 //! exists, else the repository's `data/`.
@@ -17,6 +19,7 @@ mod html;
 mod list;
 mod rank;
 mod run;
+mod sweep;
 mod table;
 mod weights;
 
@@ -59,6 +62,8 @@ enum Command {
     ListRotations(list::RotationArgs),
     /// Ranks items by their stats times the stat weights of `run --scale --weights-file`.
     RankItems(rank::RankArgs),
+    /// Simulates every variant of a sweep file and ranks the variants by DPS.
+    Sweep(sweep::SweepArgs),
 }
 
 fn main() -> ExitCode {
@@ -71,6 +76,7 @@ fn main() -> ExitCode {
         Command::ListSpells(args) => load(&data_dir).map(|data| list::spells(&data, &args)),
         Command::ListRotations(args) => load(&data_dir).map(|data| list::rotations(&data, &args)),
         Command::RankItems(args) => load(&data_dir).and_then(|data| rank::items(&data, &args)),
+        Command::Sweep(args) => sweep::sweep(&data_dir, &args),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

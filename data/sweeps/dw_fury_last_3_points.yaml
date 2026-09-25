@@ -1,0 +1,37 @@
+# Where the last 3 talent points of a 48 point DW Fury build go: every way to spend exactly 3
+# points over the six candidates (46 variants), ranked by DPS.
+# Schema: crates/csim-engine/src/sweep_loader.rs. Run with
+#   cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml
+name: DW Fury last 3 points
+base: ../characters/dw_fury_orc.yaml
+iterations: 10000
+overrides:
+  talents:
+    Arms:
+      Improved Heroic Strike: 3
+      Improved Rend: 3
+      Improved Tactical Mastery: 5
+      Anger Management: 1
+      Deep Wounds: 3
+    Fury:
+      Cruelty: 5
+      Unbridled Wrath: 5
+      Improved Cleave: 3
+      Boundless Rage: 2
+      Raging Blows: 1
+      Enrage: 5
+      Death Wish: 1
+      Dual Wield Specialization: 3
+      Flurry: 5
+      Bloodthirst: 1
+      Improved Execute: 2
+variations:
+  - talent_points:
+      points: 3
+      talents:
+        Arms: [Impale, Improved Overpower]
+        Fury:
+          - Precision
+          - Dual Wield Specialization
+          - Boundless Rage             # the last point: 2/3 in the base
+          - Improved Berserker Rage

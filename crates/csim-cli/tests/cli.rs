@@ -437,3 +437,54 @@ fn lists_filter_by_class_slot_and_name() {
     assert!(items.contains("18828"), "{items}");
     assert!(items.contains("High Warlord's Cleaver"), "{items}");
 }
+
+const SWEEP: &str = "data/sweeps/dw_fury_last_3_points.yaml";
+
+#[test]
+fn sweep_dry_run_counts_and_lists_the_variants() {
+    let output = csim(&["sweep", SWEEP, "--dry-run", "--seed", "1"]);
+    let variants = stdout(&output);
+    let header = String::from_utf8(output.stderr).unwrap();
+    assert!(
+        header.contains("46 variants × 10000 iterations = 460000 iterations (300 s, seed 1)"),
+        "{header}"
+    );
+    assert!(header.contains("3 talent points over Impale"), "{header}");
+    assert_eq!(variants.lines().count(), 46, "{variants}");
+    assert!(variants.contains("Precision +3"), "{variants}");
+}
+
+#[test]
+fn sweep_ranks_every_variant_by_dps() {
+    let results = stdout(&csim(&[
+        "sweep",
+        SWEEP,
+        "--iterations",
+        "4",
+        "--length",
+        "60",
+        "--threads",
+        "2",
+        "--seed",
+        "7",
+        "--top",
+        "5",
+        "--output-format",
+        "yaml",
+    ]));
+    let results: serde_yaml::Value = serde_yaml::from_str(&results).unwrap();
+    assert_eq!(results["iterations"].as_u64(), Some(4));
+    assert_eq!(
+        results["variation_points"][0]["alternatives"].as_u64(),
+        Some(46)
+    );
+    let dps: Vec<f64> = results["variants"]
+        .as_sequence()
+        .unwrap()
+        .iter()
+        .map(|v| v["dps"].as_f64().unwrap())
+        .collect();
+    assert_eq!(dps.len(), 5, "--top 5");
+    assert!(dps.windows(2).all(|w| w[0] >= w[1]), "best first: {dps:?}");
+    assert!(dps[0] > 0.0);
+}
