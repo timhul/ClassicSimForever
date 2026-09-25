@@ -44,7 +44,10 @@ fn proc_sources_are_valid() {
     let proc = test.character().spells().procs().get(id);
     assert!(proc.procs_from_source(ProcSource::MainhandSwing));
     assert!(proc.procs_from_source(ProcSource::OffhandSwing));
+    // White swings only: not Heroic Strike or the other abilities of either hand.
     assert!(!proc.procs_from_source(ProcSource::MainhandSpell));
+    assert!(!proc.procs_from_source(ProcSource::OffhandSpell));
+    assert!(!proc.procs_from_source(ProcSource::MeleeCritical));
     assert!(!proc.procs_from_source(ProcSource::MagicSpell));
     assert!(!proc.procs_from_source(ProcSource::RangedSpell));
     assert!(!proc.procs_from_source(ProcSource::RangedAutoShot));

@@ -2414,9 +2414,14 @@ mod statistics {
 
     /// The Orc with the no-talent Fury rotation and every roll a hit, ready to pull at 0.
     fn ready_to_pull(f: &mut Fixture) {
+        ready_to_pull_with(f, FURY_NO_TALENTS);
+    }
+
+    /// As `ready_to_pull`, with the rotation given as YAML.
+    fn ready_to_pull_with(f: &mut Fixture, rotation: &str) {
         f.rig_rolls(PhysicalAttackResult::Hit);
         f.ctx()
-            .set_rotation(Arc::new(serde_yaml::from_str(FURY_NO_TALENTS).unwrap()));
+            .set_rotation(Arc::new(serde_yaml::from_str(rotation).unwrap()));
         f.ctx().prepare_set_of_combat_iterations();
         f.ctx().reset();
         f.engine.prepare_iteration(-1.5);
@@ -2663,6 +2668,43 @@ mod statistics {
         assert!(
             stats.spell_statistics("Unbridled Wrath", rank).is_none(),
             "no damage"
+        );
+    }
+
+    /// A landed Heroic Strike replaces the white swing and does not roll Unbridled Wrath.
+    #[test]
+    fn unbridled_wrath_does_not_proc_off_heroic_strike() {
+        const HEROIC_STRIKE_ONLY: &str = r#"
+class: WARRIOR
+name: Heroic Strike only
+precombat_actions: [Bloodrage, Berserker Stance]
+cast_if:
+  - name: Bloodrage
+  - name: Heroic Strike
+"#;
+        let mut f = shipped_orc_warrior();
+        let short = f
+            .ctx()
+            .spend_talent_points(&[(CRUELTY, 5), (UNBRIDLED_WRATH, 5)]);
+        assert!(short.is_empty(), "{short:?}");
+        ready_to_pull_with(&mut f, HEROIC_STRIKE_ONLY);
+        f.run(60.0);
+        f.ctx().sync_statistics();
+        let stats = f.character.statistics();
+
+        let hs_hits: u64 = stats
+            .spells()
+            .filter(|(key, _)| key.name == "Heroic Strike")
+            .map(|(_, s)| s.hits())
+            .sum();
+        assert!(hs_hits > 10, "Heroic Strike lands: {hs_hits}");
+        let mh = spell(stats, "Mainhand Attack");
+        let oh = spell(stats, "Offhand Attack");
+        let unbridled_wrath = stats.proc_statistics("Unbridled Wrath").unwrap();
+        assert_eq!(
+            unbridled_wrath.attempts(),
+            mh.hits() + oh.hits(),
+            "white swings only, not the {hs_hits} Heroic Strikes"
         );
     }
 
