@@ -240,6 +240,9 @@ pub struct SpellSetup {
     pub hit_mask: ProcHitMask,
     /// The record of the aura a `DEEP_WOUNDS_BLEED` script ticks with (`params.duration_spell`).
     pub bleed_aura: Option<Arc<SpellRecord>>,
+    /// The aura effect (spell, effect index) whose `ENABLE_PROC` script makes this hidden aura
+    /// a proc of the character, with the effect's value as the chance.
+    pub enabled_by: Option<(u32, u32)>,
 }
 
 impl SpellSetup {
@@ -262,6 +265,7 @@ impl SpellSetup {
             hit_mask: db.overrides().proc_hit_mask(id),
             overrides,
             bleed_aura,
+            enabled_by: db.overrides().proc_enabled_by(id),
         })
     }
 
@@ -274,6 +278,7 @@ impl SpellSetup {
             overrides: SpellOverride::new(id),
             hit_mask: defaults.proc_hit_mask(id),
             bleed_aura: None,
+            enabled_by: None,
         }
     }
 
@@ -288,12 +293,19 @@ impl SpellSetup {
                 .unwrap_or_else(|| SpellOverride::new(id)),
             hit_mask: overrides.proc_hit_mask(id),
             bleed_aura: None,
+            enabled_by: overrides.proc_enabled_by(id),
         }
     }
 
     pub fn with_bleed_aura(mut self, aura: SpellRecord) -> SpellSetup {
         self.bleed_aura = Some(Arc::new(aura));
         self
+    }
+
+    /// Whether the spell is a passive: the record says so, or it is a hidden aura the server
+    /// applies while the aura that enables it is up (`ENABLE_PROC`).
+    pub fn is_passive(&self) -> bool {
+        self.record.is_passive() || self.enabled_by.is_some()
     }
 
     pub fn has_sim_flag(&self, flag: SimFlag) -> bool {
@@ -353,7 +365,7 @@ impl Spell {
     ) -> Self {
         let record = &setup.record;
         assert!(
-            cooldown.is_some() || Self::own_cooldown_ms(record) == 0,
+            cooldown.is_some() || Self::own_cooldown_ms(&setup) == 0,
             "{} ({}) has a cooldown but no cooldown control was provided",
             record.name,
             record.id
@@ -466,10 +478,11 @@ impl Spell {
 
     /// The own cooldown in milliseconds: `RecoveryTime`, or the proc internal cooldown of a
     /// passive without one.
-    pub fn own_cooldown_ms(record: &SpellRecord) -> u32 {
+    pub fn own_cooldown_ms(setup: &SpellSetup) -> u32 {
+        let record = &setup.record;
         if record.cooldown.recovery_ms > 0 {
             record.cooldown.recovery_ms
-        } else if record.is_passive() {
+        } else if setup.is_passive() {
             record.aura_options.proc_category_recovery_ms
         } else {
             0
@@ -523,7 +536,7 @@ impl Spell {
     }
 
     pub fn is_passive(&self) -> bool {
-        self.setup.record.is_passive()
+        self.setup.is_passive()
     }
 
     /// Whether the sim leaves the spell unused (`IGNORED`).
@@ -664,6 +677,12 @@ impl Spell {
     /// "always"), modified by `PROC_CHANCE`, as a fraction. The aura's own value is the payload
     /// (Deep Wounds' bleed percent, Flurry's haste), never the chance.
     pub fn proc_chance(&self, host: &impl SpellHost) -> f64 {
+        self.proc_chance_with(host, None)
+    }
+
+    /// [`Self::proc_chance`] with `percent` in place of the record's chance (the value of the
+    /// aura that enables the proc, see [`SpellSetup::enabled_by`]).
+    pub fn proc_chance_with(&self, host: &impl SpellHost, percent: Option<f64>) -> f64 {
         let record = &self.setup.record;
         let chance = record.aura_options.proc_chance;
         let from_effect = self
@@ -679,7 +698,7 @@ impl Spell {
                     .map(Effect::value)
             });
         let from_override = self.setup.overrides.proc.and_then(|p| p.chance);
-        let percent = match from_effect.or(from_override) {
+        let percent = match percent.or(from_effect).or(from_override) {
             Some(percent) => percent,
             None if chance == 0 || chance > 100 => 100.0,
             None => f64::from(chance),
@@ -773,7 +792,7 @@ impl Spell {
         let ms = host.spell_modifiers().apply(
             record.class_options.as_ref(),
             SpellModOp::Cooldown,
-            f64::from(Self::own_cooldown_ms(record)),
+            f64::from(Self::own_cooldown_ms(&self.setup)),
         );
         ms.max(0.0) / 1000.0
     }

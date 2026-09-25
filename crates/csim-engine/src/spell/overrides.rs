@@ -149,6 +149,11 @@ pub enum ScriptKind {
     /// Extra attacks from `params.spell` (Sword Specialization style `ADD_EXTRA_ATTACKS` payloads
     /// with a weapon condition on the aura).
     ExtraAttack,
+    /// While the aura is up the character has the proc aura `params.spell`, a hidden aura the
+    /// server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload
+    /// come from its record), firing with this effect's value as its chance in percent
+    /// (Weaponmaster's sword extra attack).
+    EnableProc,
     /// Grants `params.value` combo points to the character.
     AddComboPoints,
     /// Resets the cooldown of `params.spell` (Bloodthrill's Overpower reset).
@@ -230,7 +235,8 @@ impl EffectScript {
             ScriptKind::ExtraAttack
             | ScriptKind::ResetCooldown
             | ScriptKind::TriggerSpell
-            | ScriptKind::OffhandCopy => need(p.spell.is_some(), "spell"),
+            | ScriptKind::OffhandCopy
+            | ScriptKind::EnableProc => need(p.spell.is_some(), "spell"),
             ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
                 need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
             }
@@ -619,6 +625,17 @@ impl Overrides {
             .unwrap_or(self.defaults.proc_hit_mask)
     }
 
+    /// The aura effect (spell, effect index) whose `ENABLE_PROC` script enables the proc aura
+    /// `id`, if any.
+    pub fn proc_enabled_by(&self, id: u32) -> Option<(u32, u32)> {
+        self.all().into_iter().find_map(|o| {
+            o.effects
+                .iter()
+                .find(|e| e.script == ScriptKind::EnableProc && e.params.spell == Some(id))
+                .map(|e| (o.id, e.index))
+        })
+    }
+
     /// The script attached to effect `index` of spell `id`, if any.
     pub fn effect_script(&self, id: u32, index: u32) -> Option<&EffectScript> {
         self.get(id).and_then(|o| o.effect_script(index))
@@ -849,6 +866,7 @@ overrides:
         assert!(script(ScriptKind::ExtraAttack, none).validate().is_err());
         assert!(script(ScriptKind::ResetCooldown, none).validate().is_err());
         assert!(script(ScriptKind::OffhandCopy, none).validate().is_err());
+        assert!(script(ScriptKind::EnableProc, none).validate().is_err());
         assert!(script(
             ScriptKind::AddComboPoints,
             ScriptParams {

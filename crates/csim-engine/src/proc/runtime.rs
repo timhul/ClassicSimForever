@@ -27,6 +27,7 @@ use crate::proc::ProcSource;
 use crate::rng::Random;
 use crate::spell::dbc::{AuraType, SpellModOp};
 use crate::spell::overrides::ScriptKind;
+use crate::spell::record::EquippedItems;
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellResult};
 
 /// Rolls are out of 10 000 (100 = 1%).
@@ -36,6 +37,14 @@ pub const PROC_ROLL_RANGE: u32 = 10_000;
 pub trait ProcHost: SpellHost {
     /// Base speed of the weapon in `hand`, without haste; `None` when the hand is empty.
     fn base_weapon_speed(&self, hand: Hand) -> Option<f64>;
+
+    /// Whether the weapon in `hand` satisfies a `SpellEquippedItems` requirement; `false` when
+    /// the hand is empty.
+    fn hand_weapon_matches(&self, hand: Hand, requirement: &EquippedItems) -> bool;
+
+    /// The current value of effect `effect` of spell `spell`'s aura (a talent's rank value),
+    /// `None` when the character does not have the spell.
+    fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64>;
 }
 
 /// How often a proc fires.
@@ -238,7 +247,13 @@ impl Proc {
     pub fn proc_range(&self, source: ProcSource, host: &impl ProcHost) -> u32 {
         match self.rate {
             ProcRate::Chance => {
-                (self.spell.proc_chance(host) * f64::from(PROC_ROLL_RANGE)).round() as u32
+                // A hidden aura enabled by another aura fires with that aura's value.
+                let enabled_value =
+                    self.spell.setup().enabled_by.map(|(spell, effect)| {
+                        host.aura_effect_value(spell, effect).unwrap_or(0.0)
+                    });
+                let chance = self.spell.proc_chance_with(host, enabled_value);
+                (chance * f64::from(PROC_ROLL_RANGE)).round() as u32
             }
             ProcRate::Ppm(ppm) => {
                 let ppm = host.spell_modifiers().apply(
@@ -253,13 +268,30 @@ impl Proc {
     }
 
     /// Whether the passive's conditions hold: its aura is up (the equipment and stance
-    /// requirements of the record gate the aura) and, for a PPM proc, the triggering hand holds
-    /// a weapon. Port of the `proc_specific_conditions_fulfilled` overrides.
+    /// requirements of the record gate the aura), a weapon requirement holds for the hand of
+    /// the triggering attack (a sword-only proc never fires off an off-hand axe) and, for a PPM
+    /// proc, the triggering hand holds a weapon. Port of the
+    /// `proc_specific_conditions_fulfilled` overrides.
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
         // An on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a
         // condition.
         if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff()) {
             if !host.buff(id).is_active() {
+                return false;
+            }
+        }
+        let hand_source = matches!(
+            source,
+            ProcSource::MainhandSwing
+                | ProcSource::OffhandSwing
+                | ProcSource::MainhandSpell
+                | ProcSource::OffhandSpell
+        );
+        if let Some(items) = &self.spell.record().equipped_items {
+            if hand_source
+                && items.class == EquippedItems::WEAPON
+                && !host.hand_weapon_matches(source.hand(), items)
+            {
                 return false;
             }
         }

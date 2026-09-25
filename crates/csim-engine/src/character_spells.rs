@@ -235,7 +235,7 @@ impl CharacterSpells {
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
 
         // A proc on events the sim does not have (a killing blow) stays a plain passive.
-        if record.is_passive()
+        if spell.is_passive()
             && record.aura_options.proc_type_mask.bits() != 0
             && !Proc::sources_of(&spell).is_empty()
         {
@@ -349,7 +349,7 @@ impl CharacterSpells {
         shared: &mut impl SharedBuffs,
     ) -> (Spell, Option<BuffId>) {
         let record = std::sync::Arc::clone(&setup.record);
-        let cooldown = match Spell::own_cooldown_ms(&record) {
+        let cooldown = match Spell::own_cooldown_ms(&setup) {
             0 => None,
             ms => Some(
                 self.cooldowns

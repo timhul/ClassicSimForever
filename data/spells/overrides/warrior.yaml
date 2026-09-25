@@ -89,6 +89,9 @@ overrides:
     effects:
       - { index: 0, script: GAIN_RESOURCE_ON_USE, params: { spell: 18499, resource: RAGE } }
       - { index: 1, script: NO_OP }
+  - id: 1290261
+    note: Weaponmaster; E2 (1-5 %) is the sword extra-attack chance of the hidden aura 12281 the server applies (E0 axe/polearm crit and E1 mace/staff armor penetration wait for a script)
+    effects: [{ index: 2, script: ENABLE_PROC, params: { spell: 12281 } }]
   - id: 402927
     note: Victory Rush; E2 is 15 % of attack power as damage, E1 (the heal) is a plain effect
     effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]

@@ -227,6 +227,8 @@ pub struct EquippedItems {
 }
 
 impl EquippedItems {
+    /// `ItemClass` of weapons.
+    pub const WEAPON: i32 = 2;
     /// `ItemClass` of armor (shields, held items, relics).
     pub const ARMOR: i32 = 4;
     /// `ItemSubClass` of a shield within the armor class.
@@ -236,6 +238,13 @@ impl EquippedItems {
     /// Bash), which makes it an off-hand attack.
     pub fn requires_shield(&self) -> bool {
         self.class == Self::ARMOR && self.subclass_mask & (1 << Self::SHIELD_SUBCLASS) != 0
+    }
+
+    /// Whether an item of `item_class` / `subclass` satisfies the requirement (an empty
+    /// subclass mask accepts the whole class).
+    pub fn accepts(&self, item_class: u32, subclass: u32) -> bool {
+        u32::try_from(self.class).is_ok_and(|class| class == item_class)
+            && (self.subclass_mask == 0 || self.subclass_mask & (1 << subclass) != 0)
     }
 }
 

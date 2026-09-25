@@ -1389,4 +1389,12 @@ impl ProcHost for World {
             Hand::Offhand => self.oh_speed,
         }
     }
+
+    fn hand_weapon_matches(&self, hand: Hand, _: &EquippedItems) -> bool {
+        self.weapon_ok && self.base_weapon_speed(hand).is_some()
+    }
+
+    fn aura_effect_value(&self, _: u32, _: u32) -> Option<f64> {
+        None
+    }
 }

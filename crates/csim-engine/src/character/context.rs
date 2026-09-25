@@ -403,29 +403,25 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Enables / disables the learned hidden payloads among `ids` (spellbook spells are
-    /// enabled by their own learning / talent, never as a payload).
+    /// enabled by their own learning / talent, never as a payload; a hidden aura enabled by
+    /// an `ENABLE_PROC` aura is one of that aura's payloads).
     fn set_payloads_enabled(&mut self, ids: &[u32], enabled: bool) {
         for &game_id in ids {
-            let is_payload = self
-                .character
-                .spells
+            let spells = &self.character.spells;
+            let spell = spells
                 .spell_by_game_id(game_id)
-                .map(|id| self.character.spells.spell(id).record().clone())
+                .map(|id| spells.spell(id))
                 .or_else(|| {
-                    self.character.spells.proc_by_game_id(game_id).map(|id| {
-                        self.character
-                            .spells
-                            .procs()
-                            .get(id)
-                            .spell()
-                            .record()
-                            .clone()
-                    })
-                })
-                .is_some_and(|record| {
-                    !record.is_in_spellbook()
-                        || (record.acquire_method == 3 && record.class_mask == 0)
+                    spells
+                        .proc_by_game_id(game_id)
+                        .map(|id| spells.procs().get(id).spell())
                 });
+            let is_payload = spell.is_some_and(|spell| {
+                let record = spell.record();
+                !record.is_in_spellbook()
+                    || (record.acquire_method == 3 && record.class_mask == 0)
+                    || spell.setup().enabled_by.is_some()
+            });
             if !is_payload {
                 continue;
             }
@@ -1624,20 +1620,24 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if requirement.class <= 0 {
             return true;
         }
-        let class = requirement.class as u32;
         [
             EquipmentSlot::Mainhand,
             EquipmentSlot::Offhand,
             EquipmentSlot::Ranged,
         ]
         .into_iter()
-        .filter_map(|slot| self.character.equipment().weapon_profile(slot))
-        .any(|weapon| {
-            let (item_class, subclass) = weapon.weapon_type.item_class_subclass();
-            item_class == class
-                && (requirement.subclass_mask == 0
-                    || requirement.subclass_mask & (1 << subclass) != 0)
-        })
+        .any(|slot| self.slot_item_matches(slot, requirement))
+    }
+
+    /// Whether the weapon / held item in `slot` satisfies a `SpellEquippedItems` requirement.
+    fn slot_item_matches(&self, slot: EquipmentSlot, requirement: &EquippedItems) -> bool {
+        self.character
+            .equipment()
+            .weapon_profile(slot)
+            .is_some_and(|weapon| {
+                let (item_class, subclass) = weapon.weapon_type.item_class_subclass();
+                requirement.accepts(item_class, subclass)
+            })
     }
 
     // ---------------------------------------------------------------- rotation
@@ -2267,6 +2267,27 @@ impl<S: SharedBuffs> ProcHost for CharacterContext<'_, S> {
             .equipment()
             .weapon_profile(slot)
             .map(|weapon| weapon.speed)
+    }
+
+    fn hand_weapon_matches(&self, hand: Hand, requirement: &EquippedItems) -> bool {
+        let slot = match hand {
+            Hand::Mainhand => EquipmentSlot::Mainhand,
+            Hand::Offhand => EquipmentSlot::Offhand,
+        };
+        self.slot_item_matches(slot, requirement)
+    }
+
+    fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {
+        let spells = self.character.spells();
+        let buff = match spells.handle(spell)? {
+            SpellHandle::Spell(id) => spells.spell(id).marker_buff(),
+            SpellHandle::Proc(id) => spells.procs().get(id).spell().marker_buff(),
+        }?;
+        self.buff(buff)
+            .effects
+            .iter()
+            .find(|e| e.index() == effect)
+            .map(Effect::value)
     }
 }
 

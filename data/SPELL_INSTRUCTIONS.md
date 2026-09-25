@@ -436,6 +436,7 @@ overrides:
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
 | `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
 | `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
+| `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 4 s, so another dodge only refreshes it) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
 | `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
