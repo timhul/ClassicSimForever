@@ -20,10 +20,10 @@ pub mod status;
 #[cfg(test)]
 pub(crate) mod test_world;
 
-pub use auto_attack::{rage_gained_from_damage, AutoAttack, AutoAttackHost, SwingReport};
+pub use auto_attack::{swing_rage, AutoAttack, AutoAttackHost, SwingReport};
 pub use dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
 };
 pub use modifiers::{SpellModifier, SpellModifiers};
 pub use overrides::{

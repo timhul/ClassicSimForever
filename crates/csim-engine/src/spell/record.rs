@@ -47,7 +47,7 @@ use serde::{Deserialize, Serialize};
 use crate::faction::PlayerClass;
 use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellEffectName, SpellModOp, SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
 };
 use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
@@ -615,6 +615,16 @@ impl SpellRecord {
     /// `Attributes_0` as flags.
     pub fn attr0(&self) -> SpellAttr0 {
         SpellAttr0::from_bits(self.attributes[0])
+    }
+
+    /// `Attributes_1` as flags.
+    pub fn attr1(&self) -> SpellAttr1 {
+        SpellAttr1::from_bits(self.attributes[1])
+    }
+
+    /// Most of the cost comes back when the attack is missed, dodged or parried.
+    pub fn refunds_power_on_miss(&self) -> bool {
+        self.attr1().contains(SpellAttr1::DISCOUNT_POWER_ON_MISS)
     }
 
     /// Passive aura (talents, stance passives, proc auras).

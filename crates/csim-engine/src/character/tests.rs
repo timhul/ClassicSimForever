@@ -325,11 +325,57 @@ fn rage_gains_and_losses_go_through_the_resource() {
     assert_eq!(f.character.max_resource_level(ResourceType::Rage), 100);
     f.character.lose_resource(ResourceType::Rage, 40, 0.0);
     assert_eq!(f.rage(), 60);
-    // Level 60 conversion: 286 damage -> 9 rage; the off-hand percent scales it.
-    assert_eq!(f.character.rage_from_damage(Hand::Mainhand, 286.0), Some(9));
+}
+
+/// A refund on miss keeps the tenths: a dodged 12 rage Heroic Strike costs 2.4 rage.
+#[test]
+fn rage_refunds_keep_the_tenths() {
+    let mut f = Fixture::orc_warrior();
+    f.character.gain_resource(ResourceType::Rage, 50);
+    f.character.lose_resource(ResourceType::Rage, 12, 0.0);
+    f.character.refund_resource(ResourceType::Rage, 12.0 * 0.8);
+    let tenths = |f: &mut Fixture| {
+        f.character
+            .resource_mut()
+            .as_rage_mut()
+            .unwrap()
+            .current_tenths()
+    };
+    assert_eq!(tenths(&mut f), 476);
+    assert_eq!(f.rage(), 47);
+    f.character.refund_resource(ResourceType::Mana, 10.0);
+    assert_eq!(tenths(&mut f), 476, "a resource the class does not use");
+}
+
+/// Swing rage comes from the base speed of the weapon in the hand: 3.46 per second for a
+/// one-hander, half that in the off hand (scaled by the off-hand rage percent), 4.5 for a
+/// two-hander.
+#[test]
+fn swing_rage_follows_the_equipped_weapons() {
+    let mut f = Fixture::orc_warrior();
+    assert_eq!(f.character.swing_rage(Hand::Mainhand), None, "no weapon");
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    let close = |rage: Option<f64>, expected: f64| (rage.unwrap() - expected).abs() < 1e-9;
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
+    assert!(close(f.character.swing_rage(Hand::Offhand), 1.73 * 1.8));
     f.character.adjust_offhand_rage_percent(50);
-    assert_eq!(f.character.rage_from_damage(Hand::Offhand, 286.0), Some(14));
-    assert_eq!(f.character.rage_from_damage(Hand::Mainhand, 286.0), Some(9));
+    assert!(close(
+        f.character.swing_rage(Hand::Offhand),
+        1.73 * 1.8 * 1.5
+    ));
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
+
+    f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 16.2));
+    assert_eq!(f.character.swing_rage(Hand::Offhand), None);
+    f.set_rage(90);
+    assert_eq!(
+        f.character.gain_swing_rage(Hand::Mainhand),
+        Some(10.0),
+        "capped"
+    );
+    assert_eq!(f.rage(), 100);
 }
 
 #[test]
@@ -564,6 +610,31 @@ fn attack_speed_changes_retime_pending_swings() {
     );
 }
 
+/// A queued Heroic Strike only lifts the dual-wield miss penalty: the off hand is still
+/// scheduled, swings and reschedules.
+#[test]
+fn the_offhand_keeps_swinging_while_heroic_strike_is_queued() {
+    let mut f = Fixture::orc_warrior();
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    f.learn(HEROIC_STRIKE);
+    f.rig_rolls(PhysicalAttackResult::Hit);
+    f.set_rage(100);
+    let hs = f.spell_id(HEROIC_STRIKE);
+    assert!(f.ctx().cast(hs).queued);
+    f.ctx().start_attack();
+    let outcome = f.ctx().oh_swing(1);
+    assert!(matches!(outcome, SwingOutcome::Swing(_)), "{outcome:?}");
+    assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
+    let now = f.engine.current_time();
+    let oh = f.character.spells().oh_attack().next_expected_use(now);
+    assert!((oh - 1.8).abs() < 1e-9, "{oh}");
+    assert!(
+        f.character.spells().oh_attack().attack_is_valid(2),
+        "rescheduled"
+    );
+}
+
 #[test]
 fn heroic_strike_replaces_the_next_swing() {
     let mut f = Fixture::orc_warrior();
@@ -572,13 +643,25 @@ fn heroic_strike_replaces_the_next_swing() {
     f.learn(HEROIC_STRIKE);
     f.rig_rolls(PhysicalAttackResult::Hit);
     f.set_rage(100);
+    let avg_oh = f.character.avg_oh_damage(&f.target.stat_view());
+    assert!(avg_oh > 0);
     let hs = f.spell_id(HEROIC_STRIKE);
     let report = f.ctx().cast(hs);
     assert!(report.queued);
     assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
     assert!(
-        !f.character.is_dual_wielding(),
+        !f.character.uses_dual_wield_hit_table(),
         "a queued swing removes the DW penalty"
+    );
+    assert!(
+        f.character.is_dual_wielding(),
+        "both weapons are still equipped"
+    );
+    let view = f.target.stat_view();
+    assert_eq!(
+        f.character.avg_oh_damage(&view),
+        avg_oh,
+        "the off hand still hits for its damage"
     );
     f.ctx().start_attack();
     let outcome = f.ctx().mh_swing(1);
@@ -592,6 +675,7 @@ fn heroic_strike_replaces_the_next_swing() {
     assert_eq!(f.rage(), 85);
     assert_eq!(f.character.spells().queued_next_swing(), None);
     assert!(f.character.is_dual_wielding());
+    assert!(f.character.uses_dual_wield_hit_table());
 
     // Queued but unaffordable: the queue is dropped and the white swing lands.
     f.set_rage(100);
@@ -2410,7 +2494,7 @@ mod statistics {
         let bloodrage = stats.resource_statistics("Bloodrage", 1).unwrap();
         let bloodrage_casts = executors[0].successful_casts() + 1;
         assert!(
-            bloodrage.gain(ResourceType::Rage) >= bloodrage_casts * 10,
+            bloodrage.gain(ResourceType::Rage) >= (bloodrage_casts * 10) as f64,
             "{bloodrage:?} for {bloodrage_casts} casts"
         );
         assert!(ticks > 0);
@@ -2420,7 +2504,7 @@ mod statistics {
         );
         // The swings generate rage.
         let mh_rage = stats.resource_statistics("Mainhand Attack", 1).unwrap();
-        assert!(mh_rage.gain(ResourceType::Rage) > 0);
+        assert!(mh_rage.gain(ResourceType::Rage) > 0.0);
         assert!(mh_rage.gain_per_5(ResourceType::Rage, stats.time_in_combat()) > 0.0);
 
         // Buffs: the precombat Battle Shout ran from -1.5 s to the reset at 60 s.
@@ -2508,8 +2592,8 @@ mod statistics {
         assert!(!bleed.dpr().is_set(), "the bleed costs nothing");
         // Anger Management: 1 rage every 3 s.
         let anger = stats.resource_statistics("Anger Management", 1).unwrap();
-        assert!(anger.gain(ResourceType::Rage) >= 9, "{anger:?}");
-        assert!(anger.gain(ResourceType::Rage) <= 11, "{anger:?}");
+        assert!(anger.gain(ResourceType::Rage) >= 9.0, "{anger:?}");
+        assert!(anger.gain(ResourceType::Rage) <= 11.0, "{anger:?}");
         assert!(stats.spell_statistics("Anger Management", 1).is_none());
 
         // Syncing again does not double the counts.
@@ -2562,9 +2646,9 @@ mod statistics {
         let rage = stats
             .resource_statistics("Unbridled Wrath", rank)
             .expect("the proc's rage is a resource source");
-        assert!(rage.gain(ResourceType::Rage) > 0, "{rage:?}");
+        assert!(rage.gain(ResourceType::Rage) > 0.0, "{rage:?}");
         assert!(
-            rage.gain(ResourceType::Rage) <= unbridled_wrath.procs(),
+            rage.gain(ResourceType::Rage) <= unbridled_wrath.procs() as f64,
             "{rage:?} for {unbridled_wrath:?}"
         );
         assert!(

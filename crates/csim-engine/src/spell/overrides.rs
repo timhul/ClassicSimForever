@@ -7,7 +7,6 @@
 //!
 //! ```yaml
 //! defaults:
-//!   resource_miss_cost_mod: 0.25         # rage kept back when an attack is dodged / parried
 //!   proc_hit_mask: [NORMAL, CRITICAL]    # what a proc reacts to unless overridden
 //! overrides:
 //!   - id: 12834                          # Deep Wounds (talent): crits only
@@ -83,24 +82,13 @@ impl ProcHitMask {
     pub const LANDED: Self = Self(0x0003);
 }
 
-/// Default multiplier of the resource cost that is still paid when an attack is dodged, parried
-/// or blocked (ClassicSim's `resource_miss_cost_mod`).
-pub const DEFAULT_RESOURCE_MISS_COST_MOD: f64 = 0.25;
-
 /// Per-file defaults that every override may leave implicit.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OverrideDefaults {
-    /// Fraction of the cost paid when the attack is avoided (misses still pay the full cost).
-    #[serde(default = "default_resource_miss_cost_mod")]
-    pub resource_miss_cost_mod: f64,
     /// Hit results a proc reacts to unless its override says otherwise.
     #[serde(default = "default_proc_hit_mask")]
     pub proc_hit_mask: ProcHitMask,
-}
-
-fn default_resource_miss_cost_mod() -> f64 {
-    DEFAULT_RESOURCE_MISS_COST_MOD
 }
 
 fn default_proc_hit_mask() -> ProcHitMask {
@@ -110,7 +98,6 @@ fn default_proc_hit_mask() -> ProcHitMask {
 impl Default for OverrideDefaults {
     fn default() -> Self {
         Self {
-            resource_miss_cost_mod: DEFAULT_RESOURCE_MISS_COST_MOD,
             proc_hit_mask: ProcHitMask::LANDED,
         }
     }
@@ -372,9 +359,6 @@ pub struct SpellOverride {
     pub stance_passive: Option<u32>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub on_event: Vec<EventScript>,
-    /// Per-spell `resource_miss_cost_mod`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub resource_miss_cost_mod: Option<f64>,
     /// Priority of the spell's debuff when the target's debuff slots are full.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub debuff_priority: Option<Priority>,
@@ -476,13 +460,6 @@ impl SpellOverride {
                 return Err(invalid("threat must not be negative".into()));
             }
         }
-        if let Some(cost_mod) = self.resource_miss_cost_mod {
-            if !(0.0..=1.0).contains(&cost_mod) {
-                return Err(invalid(
-                    "resource_miss_cost_mod must be between 0 and 1".into(),
-                ));
-            }
-        }
         let mut flags = self.sim_flags.clone();
         flags.sort();
         flags.dedup();
@@ -572,11 +549,6 @@ impl Overrides {
     /// Validates and adds one file. The last file's `defaults` win; they must agree when set in
     /// several files.
     pub fn add_file(&mut self, file: OverrideFile) -> Result<(), OverrideError> {
-        if !(0.0..=1.0).contains(&file.defaults.resource_miss_cost_mod) {
-            return Err(OverrideError::InvalidDefaults(
-                "resource_miss_cost_mod must be between 0 and 1".into(),
-            ));
-        }
         if file.defaults.proc_hit_mask.is_empty() {
             return Err(OverrideError::InvalidDefaults(
                 "proc_hit_mask must name at least one hit result".into(),
@@ -652,13 +624,6 @@ impl Overrides {
         self.get(id).and_then(|o| o.threat).unwrap_or_default()
     }
 
-    /// The fraction of the cost spell `id` pays when avoided.
-    pub fn resource_miss_cost_mod(&self, id: u32) -> f64 {
-        self.get(id)
-            .and_then(|o| o.resource_miss_cost_mod)
-            .unwrap_or(self.defaults.resource_miss_cost_mod)
-    }
-
     /// Whether spell `id` carries `flag`.
     pub fn has_sim_flag(&self, id: u32, flag: SimFlag) -> bool {
         self.get(id).is_some_and(|o| o.has_sim_flag(flag))
@@ -696,7 +661,6 @@ mod tests {
 
     const WARRIOR: &str = r#"
 defaults:
-  resource_miss_cost_mod: 0.25
   proc_hit_mask: [NORMAL, CRITICAL]
 overrides:
   - id: 12834
@@ -721,7 +685,6 @@ overrides:
     sim_flags: [IGNORED]
   - id: 11597
     debuff_priority: high
-    resource_miss_cost_mod: 0
   - id: 10612
     proc: { hand: mainhand }
 "#;
@@ -780,8 +743,6 @@ overrides:
         assert_eq!(dodge.script, ScriptKind::AddComboPoints);
         assert_eq!(dodge.params.value, Some(1.0));
         assert!(o.event_scripts(12834).is_empty());
-        assert_eq!(o.resource_miss_cost_mod(11597), 0.0);
-        assert_eq!(o.resource_miss_cost_mod(25286), 0.25);
         assert_eq!(o.debuff_priority(11597), Some(Priority::High));
         assert_eq!(o.debuff_priority(25286), None);
         assert_eq!(
@@ -800,10 +761,6 @@ overrides:
     fn missing_defaults_fall_back_to_the_constants() {
         let file: OverrideFile = serde_yaml::from_str("overrides: []").unwrap();
         assert_eq!(file.defaults, OverrideDefaults::default());
-        assert_eq!(
-            file.defaults.resource_miss_cost_mod,
-            DEFAULT_RESOURCE_MISS_COST_MOD
-        );
         assert_eq!(file.defaults.proc_hit_mask, ProcHitMask::LANDED);
         let empty: OverrideFile = serde_yaml::from_str("{}").unwrap();
         assert!(empty.overrides.is_empty());
@@ -812,10 +769,8 @@ overrides:
         assert!(o.is_empty());
         assert_eq!(o.proc_hit_mask(1), ProcHitMask::LANDED);
         o.set_defaults(OverrideDefaults {
-            resource_miss_cost_mod: 0.5,
             proc_hit_mask: ProcHitMask::NORMAL,
         });
-        assert_eq!(o.resource_miss_cost_mod(1), 0.5);
         assert_eq!(o.defaults().proc_hit_mask, ProcHitMask::NORMAL);
     }
 
@@ -953,16 +908,8 @@ overrides:
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
-            parse("overrides: [{ id: 1, resource_miss_cost_mod: 2 }]"),
-            Err(OverrideError::Invalid { spell: 1, .. })
-        ));
-        assert!(matches!(
             parse("overrides: [{ id: 1, sim_flags: [IGNORED, IGNORED] }]"),
             Err(OverrideError::Invalid { spell: 1, .. })
-        ));
-        assert!(matches!(
-            parse("defaults: { resource_miss_cost_mod: -1 }"),
-            Err(OverrideError::InvalidDefaults(_))
         ));
         assert!(matches!(
             parse("defaults: { proc_hit_mask: [] }"),

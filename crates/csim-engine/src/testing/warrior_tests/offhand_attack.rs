@@ -230,3 +230,37 @@ fn dodge_applies_overpower_buff() {
     when_oh_attack_is_performed(&mut test);
     test.then_overpower_is_active();
 }
+
+/// Rage of one landed off-hand swing of the 2.6 speed test sword with `dws` of 5 Dual Wield
+/// Specialization.
+fn swing_rage(dws: u32) -> Option<f64> {
+    let mut test = test();
+    given_a_landing_swing(&mut test);
+    if dws > 0 {
+        test.given_fury_talent_with_rank("Dual Wield Specialization", dws);
+    }
+    test.given_warrior_has_rage(0);
+    test.when_swing_is_performed(Hand::Offhand).rage_gained
+}
+
+/// The off hand generates half the one-hand rate, 1.73 × 2.6 = 4.498 rage; each rank of
+/// Dual Wield Specialization adds 20 % of it, so 5 of 5 matches the main hand's 8.996.
+#[test]
+fn rage_dual_wield_specialization() {
+    let rage: Vec<Option<f64>> = (0..=5).map(swing_rage).collect();
+    assert_eq!(
+        rage,
+        [44.0, 53.0, 62.0, 71.0, 80.0, 89.0].map(|t| Some(t / 10.0))
+    );
+}
+
+#[test]
+fn avoided_offhand_swings_give_no_rage() {
+    let mut test = test();
+    test.given_an_offhand_weapon_with_100_min_max_dmg();
+    test.given_a_guaranteed_white_dodge();
+    assert_eq!(
+        test.when_swing_is_performed(Hand::Offhand).rage_gained,
+        None
+    );
+}

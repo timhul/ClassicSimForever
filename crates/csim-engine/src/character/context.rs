@@ -1202,7 +1202,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         report
     }
 
-    /// An off-hand swing event.
+    /// An off-hand swing event. The off hand keeps swinging while a next-swing ability is
+    /// queued.
     pub fn oh_swing(&mut self, iteration: u32) -> SwingOutcome {
         if !self.character.spells.oh_attack().attack_is_valid(iteration)
             || !self.character.spells.is_melee_attacking()
@@ -1529,7 +1530,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(rage) = report.rage_gained {
             statistics
                 .resource(name, 1)
-                .add_gain(ResourceType::Rage, rage);
+                .add_fractional_gain(ResourceType::Rage, rage);
         }
     }
 
@@ -2072,6 +2073,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.lose_resource(resource, amount, now);
     }
 
+    fn refund_resource(&mut self, resource: ResourceType, amount: f64) {
+        self.character.refund_resource(resource, amount);
+    }
+
     fn cooldown(&self, id: CooldownId) -> &CooldownControl {
         self.character.spells().cooldowns().get(id)
     }
@@ -2250,16 +2255,12 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
         self.character.random_non_normalized_oh_dmg(&view)
     }
 
-    fn avg_oh_damage(&self) -> f64 {
-        f64::from(self.character.avg_oh_damage(&self.target_view()))
-    }
-
     fn melee_crit_dmg_mod(&self) -> f64 {
         2.0
     }
 
-    fn rage_from_damage(&self, hand: Hand, damage: f64) -> Option<u32> {
-        self.character.rage_from_damage(hand, damage)
+    fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64> {
+        self.character.gain_swing_rage(hand)
     }
 
     fn add_player_reaction_event(&mut self) {

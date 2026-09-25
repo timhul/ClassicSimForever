@@ -413,7 +413,7 @@ mod tests {
                 .resource_statistics("Bloodrage", 1)
                 .unwrap()
                 .gain(ResourceType::Rage),
-            11
+            11.0
         );
 
         stats.proc("Unbridled Wrath").set_counts(20, 8);
@@ -512,7 +512,7 @@ mod tests {
             a.resource_statistics("Mainhand Attack", 1)
                 .unwrap()
                 .gain(ResourceType::Rage),
-            150
+            150.0
         );
         assert_eq!(a.proc_statistics("Unbridled Wrath").unwrap().attempts(), 15);
         assert_eq!(a.executors().len(), 1);

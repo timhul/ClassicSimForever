@@ -103,7 +103,7 @@ fn sunder_armor_rank_5_stacks_five_times_with_206_threat() {
         world.advance_to(2.0 * f64::from(i));
         let report = world.perform(SUNDER_ARMOR_5);
         assert_eq!(report.attack.unwrap().threat, 206.0);
-        assert_eq!(report.resource_lost, 15);
+        assert_eq!(report.resource_lost, 15.0);
     }
     assert_eq!(world.buff(marker).stacks(), 5);
     assert_eq!(world.target.armor(), base_armor - 5 * 450);

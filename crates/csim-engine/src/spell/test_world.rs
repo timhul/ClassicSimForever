@@ -740,8 +740,6 @@ spells:
 
 /// The overrides that go with [`SPELLS_YAML`] (copied from `data/spells/overrides/warrior.yaml`).
 pub(crate) const OVERRIDES_YAML: &str = r#"
-defaults:
-  resource_miss_cost_mod: 0.25
 overrides:
   - id: 12834
     proc: { hit_mask: [CRITICAL] }
@@ -788,7 +786,13 @@ overrides:
 
 /// The test spell db: the records above with their overrides.
 pub(crate) fn db() -> SpellDb {
-    let file: SpellFile = serde_yaml::from_str(SPELLS_YAML).expect("valid spell yaml");
+    db_with(|_| {})
+}
+
+/// The test spell db with `edit` applied to the records first.
+pub(crate) fn db_with(edit: impl FnOnce(&mut SpellFile)) -> SpellDb {
+    let mut file: SpellFile = serde_yaml::from_str(SPELLS_YAML).expect("valid spell yaml");
+    edit(&mut file);
     let overrides: OverrideFile =
         serde_yaml::from_str(OVERRIDES_YAML).expect("valid override yaml");
     let mut db = SpellDb::new();
@@ -1225,6 +1229,10 @@ impl SpellHost for World {
     }
     fn lose_resource(&mut self, _: ResourceType, amount: u32) {
         self.rage -= amount;
+    }
+    /// Whole rage only: the refund rounds.
+    fn refund_resource(&mut self, _: ResourceType, amount: f64) {
+        self.rage = (self.rage + amount.round() as u32).min(100);
     }
     fn cooldown(&self, id: CooldownId) -> &CooldownControl {
         self.spells.cooldowns().get(id)

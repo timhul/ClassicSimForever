@@ -1,12 +1,12 @@
-//! Bit-flag columns: `SpellMisc.Attributes_0`, `SpellAuraOptions.ProcTypeMask_0` and
-//! `SpellMisc.SchoolMask`.
+//! Bit-flag columns: `SpellMisc.Attributes_0` / `Attributes_1`,
+//! `SpellAuraOptions.ProcTypeMask_0` and `SpellMisc.SchoolMask`.
 
 use super::dbc_flags;
 
 dbc_flags! {
     /// Retail `SpellAttr0`, the `Attributes_0` word of `SpellMisc`.
     ///
-    /// `Attributes_1..16` are the retail `SpellAttr1..16` words; the engine keeps them as raw
+    /// `Attributes_2..16` are the retail `SpellAttr2..16` words; the engine keeps them as raw
     /// numbers until a specific bit is needed.
     SpellAttr0 {
         PROC_FAILURE_BURNS_CHARGE = 0x0000_0001 => "PROC_FAILURE_BURNS_CHARGE",
@@ -47,6 +47,16 @@ dbc_flags! {
         NO_IMMUNITIES = 0x2000_0000 => "NO_IMMUNITIES",
         HEARTBEAT_RESIST = 0x4000_0000 => "HEARTBEAT_RESIST",
         NO_AURA_CANCEL = 0x8000_0000 => "NO_AURA_CANCEL",
+    }
+}
+
+dbc_flags! {
+    /// Retail `SpellAttr1`, the `Attributes_1` word of `SpellMisc`. Only the bits the engine
+    /// reads are named.
+    SpellAttr1 {
+        /// Most of the cost is refunded when the attack is missed, dodged or parried (the
+        /// single-target warrior attacks; not Whirlwind, Cleave or Thunder Clap).
+        DISCOUNT_POWER_ON_MISS = 0x0800_0000 => "DISCOUNT_POWER_ON_MISS",
     }
 }
 

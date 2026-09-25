@@ -168,8 +168,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
 - **`on_event`** — a reaction to a combat event (Overpower's combo point on a dodge).
 - **`ends_auras`** — the spells whose buffs end with this spell's buff (Jom Gabbar's attack power
   stacks, which have no duration in the tables).
-- **`resource_miss_cost_mod`**, **`debuff_priority`**, **`debuff_shared`** — per-spell values
-  where the file `defaults` do not fit.
+- **`debuff_priority`**, **`debuff_shared`** — per-spell values where the file `defaults` do
+  not fit.
 
 What does *not* go there: numbers the tables have (costs, cooldowns, damage, durations, masks),
 which spells a talent modifies (`EffectSpellClassMask`), ranks (`SupercedesSpell`), proc
