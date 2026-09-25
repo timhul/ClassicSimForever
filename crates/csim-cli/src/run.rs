@@ -1,5 +1,6 @@
-//! `csim run`: simulates one character setup and prints the results as text tables, YAML or
-//! HTML (`--output-format`), to stdout or a file (`--output-file`).
+//! `csim run`: simulates one character setup, alone or in a raid (`--raid`), and prints the
+//! results as text tables, YAML or HTML (`--output-format`), to stdout or a file
+//! (`--output-file`).
 
 use std::fmt::Write;
 use std::io::IsTerminal;
@@ -11,6 +12,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::raid::RaidControl;
+use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{run_threaded, Progress, SimMode};
 use csim_engine::sim_settings::{SimOption, SimSettings};
@@ -24,6 +26,10 @@ use crate::Result;
 pub struct RunArgs {
     /// The character setup (see data/characters/).
     setup: PathBuf,
+    /// Simulates the character in this raid (see data/raids/); its members are setups of
+    /// <data>/characters/.
+    #[arg(long, value_name = "PATH")]
+    raid: Option<PathBuf>,
     /// Iterations (default: 1000, or 10000 per run with --scale).
     #[arg(long, short = 'n')]
     iterations: Option<u32>,
@@ -124,8 +130,33 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
     if let Some(threads) = args.threads {
         settings.set_threads(threads)?;
     }
+    let raid_setup = match &args.raid {
+        None => None,
+        Some(path) => {
+            let raid = RaidSetup::load(path)?;
+            let members = raid.resolve(&data_dir.join("characters"))?;
+            Some((raid, members))
+        }
+    };
+    let build = |settings: &SimSettings| -> std::result::Result<RaidControl, String> {
+        match &raid_setup {
+            None => setup.build_raid(&data, settings).map_err(|e| e.to_string()),
+            Some((raid, members)) => raid
+                .build_raid(Some(&setup), members, &data, settings)
+                .map_err(|e| e.to_string()),
+        }
+    };
     // Builds the raid once up front so that an invalid setup fails before the threads start.
-    let raid = setup.build_raid(&data, &settings)?;
+    let raid = build(&settings)?;
+    let roster = raid_setup.as_ref().map(|(raid_setup, members)| RaidRoster {
+        name: raid_setup.name.clone(),
+        members: raid
+            .characters()
+            .iter()
+            .zip(std::iter::once(&setup).chain(members.iter().map(|m| &m.setup)))
+            .map(|(character, setup)| (character.party() + 1, setup.name.clone()))
+            .collect(),
+    });
     let mode = match &args.scale {
         None => SimMode::Quick,
         Some(options) => {
@@ -160,9 +191,7 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         .then(|| progress_bar(iterations.saturating_mul(runs)));
 
     let start = Instant::now();
-    let cruncher = run_threaded(&settings, mode, seed, progress.clone(), || {
-        setup.build_raid(&data, &settings)
-    })?;
+    let cruncher = run_threaded(&settings, mode, seed, progress.clone(), || build(&settings))?;
     let elapsed = start.elapsed();
     if progress.is_some() {
         eprint!("\r{:<20}\r", "");
@@ -174,6 +203,7 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         seed,
         elapsed,
         cruncher: &cruncher,
+        raid: roster.as_ref(),
     });
     let output = match args.output_format {
         OutputFormat::Terminal => results.text(),
@@ -214,6 +244,14 @@ pub struct Report<'a> {
     pub seed: u64,
     pub elapsed: Duration,
     pub cruncher: &'a NumberCruncher,
+    /// With `--raid`.
+    pub raid: Option<&'a RaidRoster>,
+}
+
+/// The raid's name and, in `CharId` order, each member's party (1-based) and setup name.
+pub struct RaidRoster {
+    pub name: String,
+    pub members: Vec<(u8, String)>,
 }
 
 /// The results of a run, as printed and as written by `--output-file`. Rates and shares are
@@ -224,6 +262,8 @@ pub struct Results {
     pub run: RunInfo,
     pub dps: DpsSummary,
     pub tps: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub raid: Option<RaidSummary>,
     pub spells: Vec<SpellRow>,
     pub buffs: Vec<BuffRow>,
     pub procs: Vec<ProcRow>,
@@ -260,6 +300,25 @@ pub struct DpsSummary {
     pub standard_deviation: f64,
     pub min: f64,
     pub max: f64,
+}
+
+/// The raid's results; the player is the first member.
+#[derive(Debug, Serialize)]
+pub struct RaidSummary {
+    pub name: String,
+    pub dps: f64,
+    pub tps: f64,
+    pub members: Vec<RaidMemberRow>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RaidMemberRow {
+    /// 1-based.
+    pub party: u8,
+    pub name: String,
+    pub dps: f64,
+    pub dps_share: f64,
+    pub tps: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -358,6 +417,7 @@ impl Results {
                 max: distribution.max_dps,
             },
             tps: stats.personal_tps(),
+            raid: r.raid.map(|roster| raid_summary(roster, r.cruncher)),
             spells: spell_rows(&stats),
             buffs: buff_rows(&stats),
             procs: proc_rows(&stats),
@@ -399,6 +459,17 @@ impl Results {
             dps.mean, dps.confidence_interval, dps.standard_deviation, dps.min, dps.max,
         );
         let _ = writeln!(out, "TPS  {:.2}", self.tps);
+        if let Some(raid) = &self.raid {
+            let _ = writeln!(
+                out,
+                "
+Raid {}: {} players, DPS {:.2}, TPS {:.2}",
+                raid.name,
+                raid.members.len(),
+                raid.dps,
+                raid.tps,
+            );
+        }
 
         for (title, table) in self.tables() {
             let _ = write!(out, "\n{title}\n{}", table.render());
@@ -409,6 +480,7 @@ impl Results {
     /// The breakdowns as titled tables, leaving out the empty ones.
     pub fn tables(&self) -> Vec<(&'static str, Table)> {
         [
+            ("Raid members", self.raid_table()),
             ("Damage and threat", self.spell_table()),
             ("Buffs and debuffs", self.buff_table()),
             ("Procs", self.proc_table()),
@@ -424,6 +496,20 @@ impl Results {
     /// The results as YAML.
     pub fn yaml(&self) -> Result<String> {
         Ok(serde_yaml::to_string(self)?)
+    }
+
+    fn raid_table(&self) -> Table {
+        let mut table = Table::new(["Party", "Member", "DPS", "Damage", "TPS"]).left(1);
+        for member in self.raid.iter().flat_map(|raid| &raid.members) {
+            table.row(vec![
+                member.party.to_string(),
+                member.name.clone(),
+                format!("{:.2}", member.dps),
+                percent(member.dps_share),
+                format!("{:.2}", member.tps),
+            ]);
+        }
+        table
     }
 
     fn spell_table(&self) -> Table {
@@ -538,6 +624,33 @@ fn per(count: u64, iterations: u64) -> f64 {
         0.0
     } else {
         count as f64 / iterations as f64
+    }
+}
+
+fn raid_summary(roster: &RaidRoster, cruncher: &NumberCruncher) -> RaidSummary {
+    let raid_dps = cruncher.raid_dps();
+    let results = cruncher.player_results();
+    assert_eq!(results.len(), roster.members.len(), "a result per member");
+    RaidSummary {
+        name: roster.name.clone(),
+        dps: raid_dps,
+        tps: cruncher.raid_tps(),
+        members: roster
+            .members
+            .iter()
+            .zip(results)
+            .map(|((party, name), result)| RaidMemberRow {
+                party: *party,
+                name: name.clone(),
+                dps: result.dps,
+                dps_share: if raid_dps > 0.0 {
+                    result.dps / raid_dps
+                } else {
+                    0.0
+                },
+                tps: result.tps,
+            })
+            .collect(),
     }
 }
 
