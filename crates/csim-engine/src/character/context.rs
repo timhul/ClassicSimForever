@@ -1530,7 +1530,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(rage) = report.rage_gained {
             statistics
                 .resource(name, 1)
-                .add_gain(ResourceType::Rage, rage);
+                .add_fractional_gain(ResourceType::Rage, rage);
         }
     }
 
@@ -2251,16 +2251,12 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
         self.character.random_non_normalized_oh_dmg(&view)
     }
 
-    fn avg_oh_damage(&self) -> f64 {
-        f64::from(self.character.avg_oh_damage(&self.target_view()))
-    }
-
     fn melee_crit_dmg_mod(&self) -> f64 {
         2.0
     }
 
-    fn rage_from_damage(&self, hand: Hand, damage: f64) -> Option<u32> {
-        self.character.rage_from_damage(hand, damage)
+    fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64> {
+        self.character.gain_swing_rage(hand)
     }
 
     fn add_player_reaction_event(&mut self) {

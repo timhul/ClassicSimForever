@@ -325,11 +325,37 @@ fn rage_gains_and_losses_go_through_the_resource() {
     assert_eq!(f.character.max_resource_level(ResourceType::Rage), 100);
     f.character.lose_resource(ResourceType::Rage, 40, 0.0);
     assert_eq!(f.rage(), 60);
-    // Level 60 conversion: 286 damage -> 9 rage; the off-hand percent scales it.
-    assert_eq!(f.character.rage_from_damage(Hand::Mainhand, 286.0), Some(9));
+}
+
+/// Swing rage comes from the base speed of the weapon in the hand: 3.46 per second for a
+/// one-hander, half that in the off hand (scaled by the off-hand rage percent), 4.5 for a
+/// two-hander.
+#[test]
+fn swing_rage_follows_the_equipped_weapons() {
+    let mut f = Fixture::orc_warrior();
+    assert_eq!(f.character.swing_rage(Hand::Mainhand), None, "no weapon");
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    let close = |rage: Option<f64>, expected: f64| (rage.unwrap() - expected).abs() < 1e-9;
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
+    assert!(close(f.character.swing_rage(Hand::Offhand), 1.73 * 1.8));
     f.character.adjust_offhand_rage_percent(50);
-    assert_eq!(f.character.rage_from_damage(Hand::Offhand, 286.0), Some(14));
-    assert_eq!(f.character.rage_from_damage(Hand::Mainhand, 286.0), Some(9));
+    assert!(close(
+        f.character.swing_rage(Hand::Offhand),
+        1.73 * 1.8 * 1.5
+    ));
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
+
+    f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+    assert!(close(f.character.swing_rage(Hand::Mainhand), 16.2));
+    assert_eq!(f.character.swing_rage(Hand::Offhand), None);
+    f.set_rage(90);
+    assert_eq!(
+        f.character.gain_swing_rage(Hand::Mainhand),
+        Some(10.0),
+        "capped"
+    );
+    assert_eq!(f.rage(), 100);
 }
 
 #[test]

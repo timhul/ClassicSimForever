@@ -641,21 +641,12 @@ fn a_swing_proc_uses_both_charges_and_only_the_extra_attack_gets_the_attack_powe
         mh_hit_damage(&f, ap),
         "the swing that proc'd Windfury does not get the attack power"
     );
-    // Rage: the normal swing without the attack power, the extra attack with it.
-    let expected_rage = f
-        .character
-        .rage_from_damage(Hand::Mainhand, f64::from(mh_hit_damage(&f, ap)))
-        .unwrap()
-        + f.character
-            .rage_from_damage(
-                Hand::Mainhand,
-                f64::from(mh_hit_damage(&f, ap + WINDFURY_AP)),
-            )
-            .unwrap();
+    // Rage: both swings land, each 3.46 × 2.6 = 8.996 rage (89 + 90 tenths); the attack power
+    // does not change swing rage.
     assert_eq!(
         f.rage(),
-        expected_rage,
-        "the extra attack benefits from the attack power"
+        17,
+        "the normal swing and the extra attack both give rage"
     );
     assert!(
         !buff_active(&mut f, buff),
