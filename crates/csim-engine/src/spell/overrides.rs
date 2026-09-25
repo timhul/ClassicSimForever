@@ -160,6 +160,9 @@ pub enum ScriptKind {
     WeaponTypeCritPercent,
     /// Ability `spell` also strikes with the off-hand weapon (Raging Blows: Whirlwind).
     OffhandCopy,
+    /// An `ENERGIZE` effect gives `params.value` times its amount while a two-hand weapon is
+    /// equipped (Unbridled Wrath: 1 rage, 2 with a two-hander).
+    TwoHandEnergizeMultiplier,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -228,7 +231,9 @@ impl EffectScript {
             | ScriptKind::ResetCooldown
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy => need(p.spell.is_some(), "spell"),
-            ScriptKind::AddComboPoints => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
+            ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
+                need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
+            }
             ScriptKind::AttackPowerPercentDamage
             | ScriptKind::Execute
             | ScriptKind::StanceRageRetained

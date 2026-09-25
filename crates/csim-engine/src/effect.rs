@@ -77,6 +77,10 @@ pub trait EffectHost {
     /// Replaces spell `replaced` by `replacement` on the action bar while `apply` is true
     /// (`OVERRIDE_ACTIONBAR_SPELLS`: Improved Slam, Vanguard).
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool);
+    /// Whether the main hand holds a two-hand weapon (`TWO_HAND_ENERGIZE_MULTIPLIER`).
+    fn has_two_hand_weapon(&self) -> bool {
+        false
+    }
 }
 
 /// How an effect relates to the effects before it in the chain. Port of `Dependency`.
@@ -397,7 +401,17 @@ impl Effect {
                 let Some(resource) = ResourceType::from_power_type(self.record.power_type()) else {
                     return EffectOutcome::plain(true);
                 };
-                let gained = host.gain_resource(resource, self.resource_amount(host, resource));
+                let mut amount = self.resource_amount(host, resource);
+                if let Some(script) = self.script {
+                    if script.script == ScriptKind::TwoHandEnergizeMultiplier
+                        && host.has_two_hand_weapon()
+                    {
+                        // Validated as present and positive when the overrides were loaded.
+                        let multiplier = script.params.value.unwrap_or(1.0);
+                        amount = (f64::from(amount) * multiplier).round() as u32;
+                    }
+                }
+                let gained = host.gain_resource(resource, amount);
                 EffectOutcome {
                     resource_gained: (gained > 0).then_some((resource, gained)),
                     ..EffectOutcome::plain(true)
@@ -834,6 +848,7 @@ mod tests {
         offhand_rage: i32,
         offhand_copies: Vec<(u32, bool)>,
         overrides: Vec<(u32, u32, bool)>,
+        two_hand: bool,
     }
 
     impl MockHost {
@@ -858,6 +873,7 @@ mod tests {
                 offhand_rage: 0,
                 offhand_copies: Vec::new(),
                 overrides: Vec::new(),
+                two_hand: false,
             }
         }
 
@@ -953,6 +969,9 @@ mod tests {
         }
         fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
             self.overrides.push((replaced, replacement, apply));
+        }
+        fn has_two_hand_weapon(&self) -> bool {
+            self.two_hand
         }
     }
 
@@ -1264,6 +1283,27 @@ mod tests {
                 .resource_gained,
             None
         );
+        // TWO_HAND_ENERGIZE_MULTIPLIER: 1 rage, 2 with a two-hander.
+        let mut uw = effect_record(0, SpellEffectName::Energize, 10.0);
+        uw.misc_value = [PowerType::Rage.id(), 0];
+        let script = EffectScript {
+            index: 0,
+            script: ScriptKind::TwoHandEnergizeMultiplier,
+            params: ScriptParams {
+                value: Some(2.0),
+                ..ScriptParams::default()
+            },
+        };
+        let mut uw = Effect::new(&uw, &melee_spell(), Some(script), false);
+        host.rage = 0;
+        let gained = |uw: &mut Effect, host: &mut MockHost| {
+            uw.perform_independent(host, 0, 0).resource_gained
+        };
+        assert_eq!(gained(&mut uw, &mut host), Some((ResourceType::Rage, 1)));
+        host.two_hand = true;
+        assert_eq!(gained(&mut uw, &mut host), Some((ResourceType::Rage, 2)));
+        host.rage = 95;
+
         let mut combo = effect_record(0, SpellEffectName::Energize, 1.0);
         combo.misc_value = [PowerType::ComboPoints.id(), 0];
         let mut combo = Effect::new(&combo, &melee_spell(), None, false);

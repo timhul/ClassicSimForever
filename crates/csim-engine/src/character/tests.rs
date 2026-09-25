@@ -1664,6 +1664,35 @@ mod talents {
         assert!(!f.character.spells().procs().is_enabled(proc));
     }
 
+    /// Unbridled Wrath gives 1 rage per proc with a one-hander, 2 with a two-hander.
+    #[test]
+    fn unbridled_wrath_gives_double_rage_with_a_two_hander() {
+        let mut f = fixture();
+        assert!(inc_n(&mut f, CRUELTY, 5));
+        assert!(inc_n(&mut f, UNBRIDLED_WRATH, 5));
+        // The rage of every swing that procs, over enough swings to proc at 60 %.
+        let rage_per_proc = |f: &mut Fixture| {
+            let mut gains = Vec::new();
+            for _ in 0..20 {
+                f.set_rage(0);
+                if !f
+                    .ctx()
+                    .run_proc_checks(&[ProcSource::MainhandSwing])
+                    .is_empty()
+                {
+                    gains.push(f.rage());
+                }
+            }
+            assert!(!gains.is_empty(), "no proc in 20 swings");
+            gains
+        };
+        assert!(!f.character.equipment().has_two_hand_weapon());
+        assert!(rage_per_proc(&mut f).iter().all(|&r| r == 1), "one-hander");
+        f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+        assert!(f.character.equipment().has_two_hand_weapon());
+        assert!(rage_per_proc(&mut f).iter().all(|&r| r == 2), "two-hander");
+    }
+
     /// Flurry's rank value travels through the proc's `TRIGGER_WITH_VALUE` script into the
     /// haste buff: 15 % at rank 3, 25 % at rank 5.
     #[test]

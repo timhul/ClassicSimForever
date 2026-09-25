@@ -1913,6 +1913,10 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character.adjust_offhand_rage_percent(percent);
     }
 
+    fn has_two_hand_weapon(&self) -> bool {
+        self.character.equipment().has_two_hand_weapon()
+    }
+
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
         self.character.adjust_offhand_copy(spell, apply);
     }

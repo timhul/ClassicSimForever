@@ -440,6 +440,7 @@ overrides:
 | `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
 | `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
+| `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
 | `NO_OP` | nothing; keeps the dummy out of `csim-tables check` | — | markers, unmodelled halves |
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
