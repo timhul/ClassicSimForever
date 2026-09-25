@@ -335,7 +335,7 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
   talent from the Trait tables, not from `ClassMask`. Ranks 2–4 are 21551–21553 via `SupercedesSpell`.
 - **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total.
 - **Sunder Armor r5 11597**: E0 aura 22 MOD_RESISTANCE −450 misc 1 (armor), `CumulativeAura` 5,
-  30 s; E1 effect 63 THREAT 1013.
+  30 s; E1 effect 63 THREAT 206 (1013 before build 1.60.1.70009).
 - **Flurry 12319** (talent, 5 ranks): aura 4 DUMMY, `ProcTypeMask` 0x15554 (crits), triggers the
   buff **12966**: aura 319 haste 30, 15 s, `ProcCharges` 3 consumed on `ProcTypeMask` 0x4 (melee
   auto-attacks). Rank scaling of the 30 needs the curve.

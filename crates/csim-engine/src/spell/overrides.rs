@@ -19,7 +19,7 @@
 //!   - id: 12319                          # Flurry (talent DUMMY)
 //!     proc: { hit_mask: [CRITICAL] }
 //!     effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12966, effect: 0 } }]
-//!   - id: 10612                          # Windfury Totem passive: the server-side DUMMY
+//!   - id: 10612                          # Windfury Totem passive: payload id in base points
 //!     effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 10610 } }]
 //!   - id: 23881                          # Bloodthirst: 35 % of attack power
 //!     effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
@@ -146,7 +146,8 @@ pub enum ScriptKind {
     /// (Flurry's talent value into its haste buff, Enrage's into its damage buff).
     TriggerWithValue,
     /// Casts `params.spell` when the proc fires, forwarding nothing: what a server-side
-    /// `DUMMY` proc aura does (Windfury Totem's party aura casting its payload).
+    /// `DUMMY` proc aura, or a `PROC_TRIGGER_SPELL` aura without a trigger spell, does
+    /// (Windfury Totem's party aura casting its payload).
     TriggerSpell,
     /// Rage retained when changing stance is raised by `base_points` (Tactical Mastery).
     StanceRageRetained,
@@ -276,7 +277,7 @@ pub struct ProcOverride {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub chance_effect: Option<u32>,
     /// The weapon a scripted proc is bound to: only that hand's swings and abilities trigger
-    /// it (Windfury Totem's `DUMMY` script procs off the main-hand weapon it enchants, never
+    /// it (Windfury Totem's scripted proc fires off the main-hand weapon it enchants, never
     /// off off-hand swings). Absent, the `ProcTypeMask` decides.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hand: Option<Hand>,

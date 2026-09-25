@@ -47,7 +47,7 @@ fn mortal_strike_and_the_spells_sharing_its_category() {
     let ms = world.spell(MORTAL_STRIKE);
     assert_eq!(ms.rank(), 1);
     assert_eq!(ms.resource_cost(&world), 30);
-    assert_eq!(ms.category_cooldown_seconds(), 6.0);
+    assert_eq!(ms.category_cooldown_seconds(&world), 6.0);
     assert!(ms.triggers_gcd());
     assert!(ms.marker_buff().is_none(), "the healing debuff is pruned");
     assert_eq!(
@@ -92,7 +92,7 @@ fn rend_rank_7_deals_147_over_21_seconds() {
 }
 
 #[test]
-fn sunder_armor_rank_5_stacks_five_times_with_1013_threat() {
+fn sunder_armor_rank_5_stacks_five_times_with_206_threat() {
     let mut world = shipped();
     world.learn(SUNDER_ARMOR_5);
     let marker = world.spell(SUNDER_ARMOR_5).marker_buff().unwrap();
@@ -102,7 +102,7 @@ fn sunder_armor_rank_5_stacks_five_times_with_1013_threat() {
     for i in 0..6 {
         world.advance_to(2.0 * f64::from(i));
         let report = world.perform(SUNDER_ARMOR_5);
-        assert_eq!(report.attack.unwrap().threat, 1013.0);
+        assert_eq!(report.attack.unwrap().threat, 206.0);
         assert_eq!(report.resource_lost, 15);
     }
     assert_eq!(world.buff(marker).stacks(), 5);
@@ -235,7 +235,10 @@ fn revenge_rank_6_and_whirlwind_and_overpower_use_their_table_values() {
     let report = world.perform(WHIRLWIND);
     assert_eq!(report.attack.unwrap().damage, 300);
     assert_eq!(world.rage, 70);
-    assert_eq!(world.spell(WHIRLWIND).category_cooldown_seconds(), 10.0);
+    assert_eq!(
+        world.spell(WHIRLWIND).category_cooldown_seconds(&world),
+        10.0
+    );
 
     // Overpower r4: normalized + 35 (Classic too), cannot be dodged / parried / blocked.
     world.stance = Stance::Battle;

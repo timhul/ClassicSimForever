@@ -742,9 +742,16 @@ impl Spell {
         ms.max(0.0) / 1000.0
     }
 
-    /// The category cooldown length in seconds.
-    pub fn category_cooldown_seconds(&self) -> f64 {
-        f64::from(self.setup.record.cooldown.category_recovery_ms) / 1000.0
+    /// The category cooldown length in seconds after `COOLDOWN` modifiers, which the server
+    /// applies to both cooldowns (Improved Slam shortens Slam's category cooldown).
+    pub fn category_cooldown_seconds(&self, host: &impl SpellHost) -> f64 {
+        let record = &self.setup.record;
+        let ms = host.spell_modifiers().apply(
+            record.class_options.as_ref(),
+            SpellModOp::Cooldown,
+            f64::from(record.cooldown.category_recovery_ms),
+        );
+        ms.max(0.0) / 1000.0
     }
 
     pub fn last_used(&self, host: &impl SpellHost) -> f64 {
@@ -1018,7 +1025,7 @@ impl Spell {
             }
         }
         if let Some(id) = self.category_cooldown {
-            let duration = self.category_cooldown_seconds();
+            let duration = self.category_cooldown_seconds(host);
             if duration > 0.0 {
                 host.cooldown_mut(id).start_for(now, duration);
                 host.engine_mut()

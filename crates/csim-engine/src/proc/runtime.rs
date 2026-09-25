@@ -303,7 +303,9 @@ impl Proc {
                         value: Some(effect.effective_value(host)),
                     });
                 }
-                if effect.aura() != AuraType::Dummy {
+                // A `PROC_TRIGGER_SPELL` without a trigger spell (Windfury Totem's party aura
+                // keeps the payload id in its base points) is scripted like a `DUMMY` aura.
+                if effect.aura() != AuraType::Dummy && !record.is_proc_trigger() {
                     return None;
                 }
                 match effect.script_kind()? {

@@ -5,7 +5,7 @@
 overrides:
   - id: 10612
     note: >-
-      Windfury Totem Passive: the party aura is a server-side DUMMY script that casts the
-      payload 10610 on a main-hand hit. The hand the enchant sits in decides the proc sources,
+      Windfury Totem: the party PROC_TRIGGER_SPELL aura has no trigger spell; its base
+      points hold the payload 10610, cast on a main-hand hit. The hand the enchant sits in decides the proc sources,
       so the override only names the payload.
     effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 10610 } }]

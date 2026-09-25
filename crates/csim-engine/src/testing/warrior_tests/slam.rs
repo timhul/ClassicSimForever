@@ -41,8 +41,17 @@ fn name_correct() {
 fn spell_cooldown() {
     let mut test = test();
     test.given_a_guaranteed_melee_ability_hit();
-    // Forever's Slam has a 15 s category cooldown (the C++ none).
-    assert_eq!(test.base_cooldown(SPELL), "15.000");
+    // Forever's Slam has an 18 s category cooldown (the C++ none).
+    assert_eq!(test.base_cooldown(SPELL), "18.000");
+}
+
+#[test]
+fn improved_slam_reduces_the_cooldown() {
+    for (rank, cooldown) in [(1, "16.500"), (2, "15.000")] {
+        let mut test = test();
+        given_improved_slam(&mut test, rank);
+        assert_eq!(test.base_cooldown(SPELL), cooldown);
+    }
 }
 
 #[test]
@@ -54,7 +63,8 @@ fn whether_spell_causes_global_cooldown() {
     // Improved Slam shortens the GCD along with the cast (the C++ kept the 1.5 s GCD).
     test.then_next_event_is(EventType::PlayerAction, "1.250", false);
     test.then_next_event_is(EventType::CastComplete, "1.250", false);
-    test.then_next_event_is(EventType::PlayerAction, "15.000", false);
+    // The category cooldown, 1.5 s shorter with Improved Slam.
+    test.then_next_event_is(EventType::PlayerAction, "16.500", false);
 }
 
 #[test]

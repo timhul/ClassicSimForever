@@ -7,9 +7,10 @@
 //! `ADD_EXTRA_ATTACKS`, 1000 ms, two charges used by melee swings). The wiki documents the
 //! Classic numbers — 315 attack power, a 1.5 s aura and a 1.5 s internal cooldown; the tests
 //! follow the tables for those three values and the wiki for every mechanic. The passive's
-//! party `DUMMY` aura (the server-side script) is written as a `PROC_TRIGGER_SPELL` aura so the
-//! engine's proc runtime can cast the payload, and the script's main-hand restriction (the
-//! `ProcTypeMask` alone names both hands) as the `proc: { hand: mainhand }` override.
+//! party `PROC_TRIGGER_SPELL` aura keeps the payload id in its base points rather than its
+//! `EffectTriggerSpell`; the always-procs copy below names it as its trigger spell instead,
+//! and writes the main-hand restriction (the `ProcTypeMask` alone names both hands) as the
+//! `proc: { hand: mainhand }` override.
 //!
 //! The wiki's batching timings (400–800 ms uptimes, charges removed a tick later) describe the
 //! Classic client's 400 ms spell batching, which the simulator does not model; the charge

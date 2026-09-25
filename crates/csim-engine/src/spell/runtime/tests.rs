@@ -49,7 +49,7 @@ fn construction_reads_the_record_and_validates_handles() {
         "Bloodthirst has a category cooldown only"
     );
     assert!(bt.category_cooldown_id().is_some());
-    assert_eq!(bt.category_cooldown_seconds(), 6.0);
+    assert_eq!(bt.category_cooldown_seconds(&world), 6.0);
     assert_eq!(bt.effects().len(), 2);
     assert!(bt.marker_buff().is_none(), "the run-speed aura is pruned");
     assert!(!bt.is_periodic());
@@ -591,7 +591,7 @@ fn cast_time_spells_complete_after_the_cast_time() {
     let slam = world.spell(SLAM);
     assert!(slam.has_cast_time());
     assert_eq!(slam.cast_time(&world), 1.5);
-    assert_eq!(slam.category_cooldown_seconds(), 15.0);
+    assert_eq!(slam.category_cooldown_seconds(&world), 15.0);
 
     let report = world.perform(SLAM);
     assert!(report.cast_started);

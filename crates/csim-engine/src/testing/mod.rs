@@ -397,7 +397,7 @@ impl SpellTest {
             ctx.with_spell(id, |spell, ctx| {
                 spell
                     .cooldown_seconds(ctx)
-                    .max(spell.category_cooldown_seconds())
+                    .max(spell.category_cooldown_seconds(ctx))
             })
         });
         format!("{seconds:.3}")
