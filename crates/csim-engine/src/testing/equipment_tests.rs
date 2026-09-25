@@ -13,30 +13,31 @@ use crate::proc::ProcSource;
 use crate::rotation::{RotationHost, RotationSpec};
 use crate::spell::{SpellStatus, MAX_RANK};
 
-/// Hand of Justice (legacy trinket): on-equip proc aura 15600.
-const HAND_OF_JUSTICE: u32 = 11815;
+/// Blazefury Medallion: on-equip proc aura 7711, Fire Strike (7712) on every melee hit.
+const BLAZEFURY_MEDALLION: u32 = 17111;
+const BLAZEFURY_PROC: &str = "Add Fire Dam - Weap 02";
 /// Thunderfury, Blessed Blade of the Windseeker: chance on hit 21992.
 const THUNDERFURY: u32 = 19019;
-/// Vis'kag the Bloodletter (legacy one-hander): chance on hit 1305394 (Fatal Wound).
-const VISKAG: u32 = 17075;
+/// Ebon Hand: chance on hit 18211 (Shadow Bolt).
+const EBON_HAND: u32 = 19170;
 /// General's Plate Gauntlets: on-equip 22778, Hamstring costs 3 rage less.
 const GENERALS_GAUNTLETS: u32 = 16548;
 /// Mace of Unending Life: on-equip 26153, +140 attack power in Cat and Bear forms only.
 const MACE_OF_UNENDING_LIFE: u32 = 21407;
-/// Dal'Rend's Arms (set 41): the two swords, +50 attack power with both.
-const DAL_REND_MH: u32 = 12940;
-const DAL_REND_OH: u32 = 12939;
-/// Battlegear of Wrath (set 218) by slot: (3) Enhanced Battle Shout, (5) Warrior's Wrath,
-/// (8) Parry.
-const WRATH: [(EquipmentSlot, u32); 8] = [
-    (EquipmentSlot::Wrist, 16959),
-    (EquipmentSlot::Belt, 16960),
-    (EquipmentSlot::Shoulders, 16961),
-    (EquipmentSlot::Legs, 16962),
-    (EquipmentSlot::Head, 16963),
-    (EquipmentSlot::Gloves, 16964),
-    (EquipmentSlot::Boots, 16965),
-    (EquipmentSlot::Chest, 16966),
+/// Lieutenant Commander's Battlegear (set 282): (2) +40 attack power.
+const PREMIER_PLATE_GAUNTLETS: u32 = 272717;
+const PREMIER_PLATE_BOOTS: u32 = 272716;
+/// Battlegear of Heroism (set 511) by slot: (2) Increased All Resist 08, (4) Warrior's Resolve,
+/// (6) Attack Power 40, (8) Increased Armor 200.
+const HEROISM: [(EquipmentSlot, u32); 8] = [
+    (EquipmentSlot::Belt, 21994),
+    (EquipmentSlot::Boots, 21995),
+    (EquipmentSlot::Wrist, 21996),
+    (EquipmentSlot::Chest, 21997),
+    (EquipmentSlot::Gloves, 21998),
+    (EquipmentSlot::Head, 21999),
+    (EquipmentSlot::Legs, 22000),
+    (EquipmentSlot::Shoulders, 22001),
 ];
 
 fn test(label: &str) -> WarriorTest {
@@ -56,6 +57,14 @@ fn proc_enabled(test: &SpellTest, name: &str) -> bool {
     find_proc(test, name).is_some_and(|id| test.character().spells().procs().is_enabled(id))
 }
 
+/// Whether the character's aura `name` is up.
+fn aura_active(test: &mut SpellTest, name: &str) -> bool {
+    test.character()
+        .spells()
+        .owned_buff_by_name(name)
+        .is_some_and(|id| test.with_buff_id(id, crate::buff::Buff::is_active))
+}
+
 fn melee_ap(test: &SpellTest) -> u32 {
     let view = test.target().stat_view();
     test.character().melee_ap(&view)
@@ -67,31 +76,26 @@ fn hamstring_cost(test: &mut SpellTest) -> u32 {
 }
 
 #[test]
-fn hand_of_justice_grants_an_extra_attack() {
-    let mut test = test("Hand of Justice");
+fn an_on_equip_proc_aura_strikes_on_melee_hits() {
+    let mut test = test("Blazefury Medallion");
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
-    test.equip(EquipmentSlot::Trinket1, HAND_OF_JUSTICE);
+    test.equip(EquipmentSlot::Neck, BLAZEFURY_MEDALLION);
 
-    let proc = test.proc("Hand of Justice");
+    let proc = test.proc(BLAZEFURY_PROC);
     assert!(test.character().spells().procs().is_enabled(proc));
-    // 1 % against anything but a Dwarf (the table's 3 % is the Dwarf chance).
+    // Every melee hit.
     for source in [
         ProcSource::MainhandSwing,
         ProcSource::MainhandSpell,
         ProcSource::OffhandSwing,
     ] {
-        assert_eq!(
-            test.proc_range("Hand of Justice", source),
-            PROC_ROLL_RANGE / 100
-        );
+        assert_eq!(test.proc_range(BLAZEFURY_PROC, source), PROC_ROLL_RANGE);
     }
-    assert!(!test.proc_conditions_fulfilled("Hand of Justice", ProcSource::RangedAutoShot));
+    assert!(!test.proc_conditions_fulfilled(BLAZEFURY_PROC, ProcSource::RangedAutoShot));
 
+    test.given_no_previous_damage_dealt();
     test.with_ctx(|ctx| ctx.perform_proc(proc));
-    assert_eq!(test.character().pending_extra_attacks(), 1);
-    let swings = test.with_ctx(|ctx| ctx.perform_extra_attacks());
-    assert_eq!(swings.len(), 1);
-    assert_eq!(test.character().pending_extra_attacks(), 0);
+    assert_eq!(test.damage_dealt_by("Fire Strike"), 2);
 }
 
 #[test]
@@ -120,16 +124,16 @@ fn thunderfury_strikes_the_target_on_a_main_hand_hit() {
 
 #[test]
 fn an_off_hand_on_hit_spell_procs_off_the_off_hand() {
-    let mut test = test("Vis'kag");
+    let mut test = test("Ebon Hand");
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
-    test.equip(EquipmentSlot::Offhand, VISKAG);
+    test.equip(EquipmentSlot::Offhand, EBON_HAND);
     assert_eq!(
-        test.proc_range("Fatal Wound", ProcSource::OffhandSwing),
-        260,
-        "ClassicSim's 2.6 %"
+        test.proc_range("Shadow Bolt", ProcSource::OffhandSwing),
+        383,
+        "ClassicSim's 3.83 %"
     );
-    assert!(test.proc_conditions_fulfilled("Fatal Wound", ProcSource::OffhandSwing));
-    assert!(!test.proc_conditions_fulfilled("Fatal Wound", ProcSource::MainhandSwing));
+    assert!(test.proc_conditions_fulfilled("Shadow Bolt", ProcSource::OffhandSwing));
+    assert!(!test.proc_conditions_fulfilled("Shadow Bolt", ProcSource::MainhandSwing));
 }
 
 #[test]
@@ -158,52 +162,53 @@ fn feral_attack_power_needs_a_druid_form() {
 
 #[test]
 fn a_set_bonus_aura_adds_attack_power() {
-    let mut test = test("Dal'Rend's Arms");
+    let mut test = test("Lieutenant Commander's Battlegear");
     let none = melee_ap(&test);
-    test.equip(EquipmentSlot::Mainhand, DAL_REND_MH);
-    let mainhand = melee_ap(&test);
-    test.equip(EquipmentSlot::Offhand, DAL_REND_OH);
+    test.equip(EquipmentSlot::Gloves, PREMIER_PLATE_GAUNTLETS);
+    let gloves = melee_ap(&test);
+    test.equip(EquipmentSlot::Boots, PREMIER_PLATE_BOOTS);
     let both = melee_ap(&test);
-    test.unequip(EquipmentSlot::Mainhand);
-    let offhand = melee_ap(&test);
-    // Each sword's own stats count once; the pair adds the bonus.
-    assert_eq!(both + none - mainhand - offhand, 50);
+    test.unequip(EquipmentSlot::Gloves);
+    let boots = melee_ap(&test);
+    // Each piece's own stats count once; the pair adds the bonus.
+    assert_eq!(both + none - gloves - boots, 40);
 }
 
 #[test]
 fn set_bonuses_follow_the_pieces_worn() {
-    let mut test = test("Battlegear of Wrath");
-    // (3) Enhanced Battle Shout, (5) Warrior's Wrath, (8) Parry.
+    let mut test = test("Battlegear of Heroism");
+    // (2) Increased All Resist 08, (4) Warrior's Resolve, (6) Attack Power 40,
+    // (8) Increased Armor 200.
     let bonuses = |test: &mut SpellTest| {
-        let shout = test
-            .character()
-            .spells()
-            .owned_buff_by_name("Enhanced Battle Shout")
-            .is_some_and(|id| test.with_buff_id(id, crate::buff::Buff::is_active));
         (
-            shout,
-            proc_enabled(test, "Warrior's Wrath"),
-            proc_enabled(test, "Parry"),
+            aura_active(test, "Increased All Resist 08"),
+            proc_enabled(test, "Warrior's Resolve"),
+            aura_active(test, "Attack Power 40"),
+            aura_active(test, "Increased Armor 200"),
         )
     };
-    for (worn, &(slot, item)) in WRATH.iter().enumerate() {
+    for (worn, &(slot, item)) in HEROISM.iter().enumerate() {
         test.equip(slot, item);
         let pieces = worn as u32 + 1;
-        assert_eq!(test.character().equipment().set_pieces(218), pieces);
+        assert_eq!(test.character().equipment().set_pieces(511), pieces);
         assert_eq!(
             bonuses(&mut test),
-            (pieces >= 3, pieces >= 5, pieces >= 8),
+            (pieces >= 2, pieces >= 4, pieces >= 6, pieces >= 8),
             "{pieces} pieces"
         );
     }
-    for &(slot, _) in &WRATH[4..] {
+    for &(slot, _) in &HEROISM[4..] {
         test.unequip(slot);
     }
-    assert_eq!(bonuses(&mut test), (true, false, false), "4 pieces");
-    for &(slot, _) in &WRATH[..4] {
+    assert_eq!(bonuses(&mut test), (true, true, false, false), "4 pieces");
+    for &(slot, _) in &HEROISM[..4] {
         test.unequip(slot);
     }
-    assert_eq!(bonuses(&mut test), (false, false, false), "no pieces");
+    assert_eq!(
+        bonuses(&mut test),
+        (false, false, false, false),
+        "no pieces"
+    );
 }
 
 /// The equipment spells and procs that are enabled.
@@ -221,14 +226,14 @@ fn enabled_equipment_spells(test: &SpellTest) -> usize {
 #[test]
 fn unequipping_disables_everything_the_equipment_granted() {
     let mut test = test("unequip");
-    test.equip(EquipmentSlot::Trinket1, HAND_OF_JUSTICE);
+    test.equip(EquipmentSlot::Neck, BLAZEFURY_MEDALLION);
     test.equip(EquipmentSlot::Mainhand, THUNDERFURY);
     test.equip(EquipmentSlot::Gloves, GENERALS_GAUNTLETS);
     assert_eq!(enabled_equipment_spells(&test), 3);
     let registered = test.character().spells().equipment_spells().count();
 
     for slot in [
-        EquipmentSlot::Trinket1,
+        EquipmentSlot::Neck,
         EquipmentSlot::Mainhand,
         EquipmentSlot::Gloves,
     ] {
@@ -238,8 +243,8 @@ fn unequipping_disables_everything_the_equipment_granted() {
     assert_eq!(hamstring_cost(&mut test), 10);
 
     // Equipping again reuses the registration.
-    test.equip(EquipmentSlot::Trinket1, HAND_OF_JUSTICE);
-    assert!(proc_enabled(&test, "Hand of Justice"));
+    test.equip(EquipmentSlot::Neck, BLAZEFURY_MEDALLION);
+    assert!(proc_enabled(&test, BLAZEFURY_PROC));
     assert_eq!(
         test.character().spells().equipment_spells().count(),
         registered

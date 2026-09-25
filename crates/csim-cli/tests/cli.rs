@@ -294,8 +294,8 @@ fn lists_filter_by_class_slot_and_name() {
         "--slot",
         "mainhand",
         "--search",
-        "brutality",
+        "cleaver",
     ]));
-    assert!(items.contains("18832"), "{items}");
-    assert!(items.contains("Brutality Blade"), "{items}");
+    assert!(items.contains("18828"), "{items}");
+    assert!(items.contains("High Warlord's Cleaver"), "{items}");
 }

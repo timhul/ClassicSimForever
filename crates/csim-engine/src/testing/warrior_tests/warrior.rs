@@ -27,15 +27,15 @@ fn values_after_initialization() {
     );
 
     // Shadow Oil on both hands.
-    test.equip(EquipmentSlot::Mainhand, 19352);
+    test.equip(EquipmentSlot::Mainhand, 12584);
     assert_eq!(
         test.character().equipment().mainhand().unwrap().name(),
-        "Chromatically Tempered Sword"
+        "Grand Marshal's Longsword"
     );
-    test.equip(EquipmentSlot::Offhand, 13036);
+    test.equip(EquipmentSlot::Offhand, 12783);
     assert_eq!(
         test.character().equipment().offhand().unwrap().name(),
-        "Assassination Blade"
+        "Heartseeker"
     );
     let db = &data().spells;
     for slot in [EquipmentSlot::Mainhand, EquipmentSlot::Offhand] {

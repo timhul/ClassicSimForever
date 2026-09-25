@@ -4,12 +4,10 @@
 //! [`ItemFile`] (`build:` header plus `items:`). Their items name the spells they grant
 //! ([`ItemEffect`]), their set, unique-equipped group and random-suffix pool.
 //!
-//! The hand-authored files of `data/items/legacy/` (a plain list of items, converted from the C++
-//! XML item files `Equipment/EquipmentDb/**/*.xml`) fill in the items the table dump lacks. Only
-//! they use the legacy fields (`icon`, `procs`, `uses`, `modifies`, `mutex`, `random_affixes`,
-//! `special_equip_effects`, `source`, `faction`): procs and uses there are kept as data (a generic
-//! name plus its parameters). Their `effects` are the tables' `ItemEffect` rows, which replaced
-//! the `procs` the tables cover.
+//! A plain list of items is read too. The fields the export does not write (`icon`, `procs`,
+//! `uses`, `modifies`, `mutex`, `random_affixes`, `special_equip_effects`, `source`, `faction`)
+//! come from the C++ XML item files and are only used by hand-written test items: procs and uses
+//! there are kept as data (a generic name plus its parameters).
 
 use std::collections::BTreeMap;
 

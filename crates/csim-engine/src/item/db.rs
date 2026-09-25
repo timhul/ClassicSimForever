@@ -1,11 +1,9 @@
 //! The item database. Port of `Equipment/EquipmentDb/EquipmentDb.*` and the item file readers.
 //!
-//! Items are loaded from the exported YAML files of `data/items/` (each an [`ItemFile`]) and from
-//! the hand-authored files of `data/items/legacy/` (each a plain list of [`ItemSpec`]s), which
-//! only fill in the ids the export does not have. Every id has one version; a lookup for a phase
-//! returns it when the item is available in that phase.
+//! Items are loaded from the exported YAML files of `data/items/` (each an [`ItemFile`]). Every
+//! id has one version; a lookup for a phase returns it when the item is available in that phase.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -50,8 +48,6 @@ pub enum EquipmentDbError {
 #[derive(Debug, Clone, Default)]
 pub struct EquipmentDb {
     items: HashMap<u32, Arc<Item>>,
-    /// The ids served from the legacy files.
-    legacy_ids: HashSet<u32>,
     /// The client build of the exported item files.
     build: Option<String>,
     sets: SetBonusDb,
@@ -76,9 +72,8 @@ impl EquipmentDb {
         Ok(db)
     }
 
-    /// Loads every `*.yaml` item file in `items_dir` (sorted by file name), then the legacy files
-    /// of `items_dir/legacy/` for the ids not already loaded, and, when given, the item set file
-    /// (`data/item_sets.yaml`) and the enchant file.
+    /// Loads every `*.yaml` item file in `items_dir` (sorted by file name) and, when given, the
+    /// item set file (`data/item_sets.yaml`) and the enchant file.
     pub fn load(
         items_dir: &Path,
         item_sets: Option<&Path>,
@@ -88,12 +83,6 @@ impl EquipmentDb {
 
         for path in yaml_files(items_dir)? {
             db.load_item_file(&path)?;
-        }
-        let legacy_dir = items_dir.join("legacy");
-        if legacy_dir.is_dir() {
-            for path in yaml_files(&legacy_dir)? {
-                db.load_legacy_item_file(&path)?;
-            }
         }
 
         if let Some(path) = item_sets {
@@ -107,23 +96,9 @@ impl EquipmentDb {
         Ok(db)
     }
 
-    /// Adds the items of one item file: an exported [`ItemFile`], or a plain list of item specs
-    /// (the legacy format).
+    /// Adds the items of one item file: an exported [`ItemFile`], or a plain list of item specs.
     pub fn load_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
         for spec in self.read_item_file(path)? {
-            self.add_item(Item::from_spec(spec)?)?;
-        }
-        Ok(())
-    }
-
-    /// Adds the items of one legacy file whose ids are not already in the database: the
-    /// exported items take precedence over the hand-authored ones.
-    pub fn load_legacy_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
-        for spec in self.read_item_file(path)? {
-            if self.items.contains_key(&spec.id) && !self.legacy_ids.contains(&spec.id) {
-                continue;
-            }
-            self.legacy_ids.insert(spec.id);
             self.add_item(Item::from_spec(spec)?)?;
         }
         Ok(())
@@ -217,18 +192,6 @@ impl EquipmentDb {
     /// The client build of the exported item files.
     pub fn build(&self) -> Option<&str> {
         self.build.as_deref()
-    }
-
-    /// Whether the item comes from a hand-authored legacy file.
-    pub fn is_legacy(&self, item_id: u32) -> bool {
-        self.legacy_ids.contains(&item_id)
-    }
-
-    /// The ids served from the legacy files, sorted.
-    pub fn legacy_item_ids(&self) -> Vec<u32> {
-        let mut ids: Vec<u32> = self.legacy_ids.iter().copied().collect();
-        ids.sort_unstable();
-        ids
     }
 
     /// The item, when it is available in `phase`.
@@ -506,14 +469,13 @@ mod tests {
         .unwrap();
 
         assert!(db.len() > 1200, "only {} items loaded", db.len());
-        let thrash_blade = db.get_item(17705, Phase::MoltenCore).unwrap();
-        assert_eq!(thrash_blade.name(), "Thrash Blade");
-        assert_eq!(thrash_blade.effects()[0].spell, 21919);
-        assert_eq!(thrash_blade.mutex_item_ids(), &[17743, 17753]);
-        assert!(thrash_blade.is_weapon());
+        let ebon_hand = db.get_item(19170, Phase::MoltenCore).unwrap();
+        assert_eq!(ebon_hand.name(), "Ebon Hand");
+        assert_eq!(ebon_hand.effects()[0].spell, 18211);
+        assert!(ebon_hand.is_weapon());
 
         // Sets and enchants are attached.
-        assert!(db.sets().sets().len() > 150);
+        assert!(db.sets().sets().len() > 100);
         assert_eq!(db.build(), Some("1.60.1.70009"));
         assert!(!db.enchants().is_empty());
 
@@ -599,44 +561,28 @@ mod tests {
     }
 
     #[test]
-    fn exported_items_take_precedence_over_legacy_items() {
-        let dir = std::env::temp_dir().join(format!("csim-db-legacy-{}", std::process::id()));
-        let legacy = dir.join("legacy");
-        fs::create_dir_all(&legacy).unwrap();
+    fn exported_files_share_one_build() {
+        let dir = std::env::temp_dir().join(format!("csim-db-build-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
         fs::write(
             dir.join("head.yaml"),
-            "build: 1.60.1.70009\nitems:\n  - id: 1\n    name: Exported Helm\n    phase: 1\n    slot: HEAD\n    type: PLATE\n    quality: EPIC\n    stats: {STAMINA: 20}\n",
-        )
-        .unwrap();
-        fs::write(
-            legacy.join("helms.yaml"),
-            "- id: 1\n  name: Legacy Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n  stats: {STAMINA: 10}\n\
-             - id: 2\n  name: Old Helm\n  phase: 5\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n",
+            "build: 1.60.1.70009
+items:
+  - id: 1
+    name: Exported Helm
+    phase: 1
+    slot: HEAD
+    type: PLATE
+    quality: EPIC
+    stats: {STAMINA: 20}
+",
         )
         .unwrap();
 
         let db = EquipmentDb::load(&dir, None, None).unwrap();
         assert_eq!(db.build(), Some("1.60.1.70009"));
-        assert_eq!(db.len(), 2);
-        let helm = db.item(1).unwrap();
-        assert_eq!(helm.name(), "Exported Helm");
-        assert!(!db.is_legacy(1));
-        assert_eq!(db.item(2).unwrap().phase(), Phase::AhnQiraj);
-        assert!(db.is_legacy(2));
-        assert_eq!(db.legacy_item_ids(), [2]);
-
-        // A legacy id defined twice is an error, as in the exported files.
-        fs::write(
-            legacy.join("more_helms.yaml"),
-            "- id: 2\n  name: Old Helm\n  phase: 1\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n",
-        )
-        .unwrap();
-        let error = EquipmentDb::load(&dir, None, None).unwrap_err();
-        assert!(matches!(
-            error,
-            EquipmentDbError::DuplicateItem { id: 2, .. }
-        ));
-        fs::remove_file(legacy.join("more_helms.yaml")).unwrap();
+        assert_eq!(db.len(), 1);
+        assert_eq!(db.item(1).unwrap().name(), "Exported Helm");
 
         fs::write(dir.join("legs.yaml"), "build: 9.9.9.9\nitems: []\n").unwrap();
         let error = EquipmentDb::load(&dir, None, None).unwrap_err();

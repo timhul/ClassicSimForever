@@ -1,4 +1,4 @@
-# Dual-wield Fury Orc Warrior in Blackwing Lair gear with the usual Horde raid buffs.
+# Dual-wield Fury Orc Warrior in rank-14 PvP gear with the usual Horde raid buffs.
 # Schema: crates/csim-engine/src/character_loader.rs.
 name: DW Fury Orc
 class: WARRIOR
@@ -25,23 +25,23 @@ talents:
     Flurry: 5
     Bloodthirst: 1
 equipment:
-  MAINHAND: { item: 18832, enchant: Crusader, temp_enchant: WindfuryTotem }  # Brutality Blade
-  OFFHAND: { item: 17075, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Vis'kag the Bloodletter
-  RANGED: { item: 17072 }                                          # Blastershot Launcher
+  MAINHAND: { item: 18828, enchant: Crusader, temp_enchant: WindfuryTotem }  # High Warlord's Cleaver
+  OFFHAND: { item: 18828, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # High Warlord's Cleaver
+  RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
-  SHOULDERS: { item: 12927, enchant: MightOfTheScourge }           # Truestrike Shoulders
-  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
-  CHEST: { item: 11726, enchant: EnchantChestGreaterStats }        # Savage Gladiator Chain
-  WRIST: { item: 19146, enchant: EnchantBracerSuperiorStrength }   # Wristguards of Stability
-  GLOVES: { item: 19143, enchant: EnchantGlovesGreaterStrength }   # Flameguard Gauntlets
-  BELT: { item: 19137 }                                            # Onslaught Girdle
-  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
-  BOOTS: { item: 19387, enchant: EnchantBootsGreaterAgility }      # Chromatic Boots
+  SHOULDERS: { item: 16544, enchant: MightOfTheScourge }           # Warlord's Plate Shoulders
+  BACK: { item: 20068, enchant: EnchantCloakLesserAgility }        # Deathguard's Cloak
+  CHEST: { item: 16541, enchant: EnchantChestGreaterStats }        # Warlord's Plate Armor
+  WRIST: { item: 19578, enchant: EnchantBracerSuperiorStrength }   # Berserker Bracers
+  GLOVES: { item: 16548, enchant: EnchantGlovesGreaterStrength }   # General's Plate Gauntlets
+  BELT: { item: 16547 }                                            # General's Plate Girdle
+  LEGS: { item: 16543, enchant: LesserArcanumOfVoracityStrength }  # General's Plate Leggings
+  BOOTS: { item: 16545, enchant: EnchantBootsGreaterAgility }      # General's Plate Boots
   RING1: { item: 19325 }                                           # Don Julio's Band
   RING2: { item: 18821 }                                           # Quick Strike Ring
-  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
-  TRINKET2: { item: 11815 }                                        # Hand of Justice
+  TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
   - Strength of Earth Totem
   - Trueshot Aura

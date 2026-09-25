@@ -362,7 +362,7 @@ fn item_files_render_by_slot_and_load_through_the_engine() {
 fn item_sets_list_members_and_bonus_spells() {
     let t = tables();
     let report = derive_items(&t);
-    let sets = export::item_set_file(&t, &report.items, &Default::default());
+    let sets = export::item_set_file(&t, &report.items);
     let conqueror = sets.sets.iter().find(|s| s.id == 496).unwrap();
     assert_eq!(conqueror.name, "Conqueror's Battlegear");
     for member in [21329, 21330, 21331, 21332, 21333] {

@@ -1957,10 +1957,8 @@ spells:
         assert_eq!(
             pending,
             [
-                12299, 13567, 14537, 16549, 17308, 18350, 21977, 23582, 24352, 24658, 24661,
-                28414, 28839, 29275, 29284, 29286, 363881, 402911, 403196, 1282733, 1287808,
-                1290261, 1295744, 1300435, 1300782, 1301123, 1302279, 1302344, 1305394, 1317432,
-                1318325, 1318470, 1318514
+                12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
+                403196, 1282733, 1287808, 1290261, 1295744, 1317432, 1318325, 1318470, 1318514
             ],
             "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill's Overpower (aura 560), Weaponmaster, and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );

@@ -26,22 +26,22 @@ talents:
     Boundless Rage: 3
     Enrage: 4
 equipment:
-  MAINHAND: { item: 17076, enchant: Crusader, temp_enchant: DenseSharpeningStone }  # Bonereaver's Edge
-  RANGED: { item: 17072 }                                          # Blastershot Launcher
+  MAINHAND: { item: 18876, enchant: Crusader, temp_enchant: DenseSharpeningStone }  # Grand Marshal's Claymore
+  RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
-  SHOULDERS: { item: 12927, enchant: MightOfTheScourge }           # Truestrike Shoulders
-  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
-  CHEST: { item: 11726, enchant: EnchantChestGreaterStats }        # Savage Gladiator Chain
-  WRIST: { item: 19146, enchant: EnchantBracerSuperiorStrength }   # Wristguards of Stability
-  GLOVES: { item: 19143, enchant: EnchantGlovesGreaterStrength }   # Flameguard Gauntlets
-  BELT: { item: 19137 }                                            # Onslaught Girdle
-  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
-  BOOTS: { item: 19387, enchant: EnchantBootsGreaterAgility }      # Chromatic Boots
+  SHOULDERS: { item: 16480, enchant: MightOfTheScourge }           # Field Marshal's Plate Shoulderguards
+  BACK: { item: 20073, enchant: EnchantCloakLesserAgility }        # Cloak of the Honor Guard
+  CHEST: { item: 16477, enchant: EnchantChestGreaterStats }        # Field Marshal's Plate Armor
+  WRIST: { item: 19578, enchant: EnchantBracerSuperiorStrength }   # Berserker Bracers
+  GLOVES: { item: 16484, enchant: EnchantGlovesGreaterStrength }   # Marshal's Plate Gauntlets
+  BELT: { item: 16482 }                                            # Marshal's Plate Girdle
+  LEGS: { item: 16479, enchant: LesserArcanumOfVoracityStrength }  # Marshal's Plate Legguards
+  BOOTS: { item: 16483, enchant: EnchantBootsGreaterAgility }      # Marshal's Plate Boots
   RING1: { item: 19325 }                                           # Don Julio's Band
   RING2: { item: 18821 }                                           # Quick Strike Ring
-  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
-  TRINKET2: { item: 11815 }                                        # Hand of Justice
+  TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
   - Greater Blessing of Kings
   - Greater Blessing of Might

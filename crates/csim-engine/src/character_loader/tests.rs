@@ -191,12 +191,11 @@ talents:
   Holy:
     Anything: 1
 equipment:
-  MAINHAND: { item: 18832, enchant: EnchantBootsGreaterAgility }
-  OFFHAND: { item: 17076 }
+  MAINHAND: { item: 18828, enchant: EnchantBootsGreaterAgility }
+  OFFHAND: { item: 18877 }
   HEAD: { item: 18404 }
-  LEGS: { item: 23068 }
   RING1: { item: 999999 }
-  BACK: { item: 13340, temp_enchant: WindfuryTotem }
+  BACK: { item: 20068, temp_enchant: WindfuryTotem }
 buffs: [Sunder Armor, Juju Power, Elixir of Giants, Greater Blessing of Kings, Nothing]
 target:
   level: 70
@@ -219,7 +218,6 @@ target:
         "equipment.MAINHAND.enchant",
         "equipment.OFFHAND",
         "equipment.HEAD",
-        "equipment.LEGS",
         "equipment.RING1",
         "equipment.BACK.temp_enchant",
         "buffs.Sunder Armor",
@@ -232,7 +230,7 @@ target:
             "{expected} missing from {issues:#?}"
         );
     }
-    assert_eq!(found.len(), 17, "{issues:#?}");
+    assert_eq!(found.len(), 16, "{issues:#?}");
 
     let message = setup
         .build_raid(data(), &settings())
@@ -242,8 +240,10 @@ target:
         message.starts_with("character setup \"Minimal\" is invalid:\n  "),
         "{message}"
     );
-    assert!(message
-        .contains("equipment.LEGS: Legplates of Carnage (23068) is not available in phase 3"));
+    assert!(
+        message.contains("equipment.RING1: no item 999999"),
+        "{message}"
+    );
 }
 
 #[test]
@@ -252,7 +252,7 @@ fn a_two_hander_taking_the_offhand_away_is_reported() {
     setup.equipment.insert(
         EquipmentSlot::Mainhand,
         EquippedSetup {
-            item: 17076,
+            item: 18877,
             enchant: None,
             temp_enchant: None,
         },
@@ -260,7 +260,7 @@ fn a_two_hander_taking_the_offhand_away_is_reported() {
     setup.equipment.insert(
         EquipmentSlot::Offhand,
         EquippedSetup {
-            item: 17075,
+            item: 18828,
             enchant: None,
             temp_enchant: None,
         },

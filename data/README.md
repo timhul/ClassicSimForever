@@ -26,11 +26,8 @@ data/
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/
-│   ├── <slot>.yaml       generated: the weapons and armor of quality Rare+ (one file per slot)
-│   └── legacy/           hand-authored Classic items, used only for ids the export lacks; their
-│                         `effects` are the tables' ItemEffect rows
-├── item_sets.yaml        generated: the item sets (of exported and legacy items) and their bonus
-│                         spells
+│   └── <slot>.yaml       generated: the weapons and armor of quality Rare+ (one file per slot)
+├── item_sets.yaml        generated: the item sets of the exported items and their bonus spells
 ├── enchants.yaml         hand-written: the enchants
 ├── races.yaml            hand-written: ids/factions from ChrRaces, base attributes (racials are spells)
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
@@ -112,10 +109,8 @@ csim_engine::talent::TalentDb::load("data/talents")
    ```
    `export-spells --items` walks the spells the items and set bonuses grant into
    `data/spells/items.yaml`; run it after the other spell exports, since spells another file
-   already carries are not repeated. It reads the legacy items too: their `effects` seed the
-   walk like the exported items'. A weapon's chance-on-hit spell only runs with a rate in
-   `overrides/items.yaml` (`proc: { chance: … }` or `{ ppm: … }`): the tables do not have it. `export-items` also prints why items were skipped, what it could not resolve and the ids
-   still served from `data/items/legacy/`.
+   already carries are not repeated. A weapon's chance-on-hit spell only runs with a rate in
+   `overrides/items.yaml` (`proc: { chance: … }` or `{ ppm: … }`): the tables do not have it. `export-items` also prints why items were skipped and what it could not resolve.
    The exporter prints what it pruned and warns when an override mentions a spell that no
    longer exists; `check` lists the effects that need a script (or `IGNORED`) in the overrides
    and fails with `--strict` if there are any. `export-talents` warns when a node's `TraitCond`
@@ -128,8 +123,7 @@ csim_engine::talent::TalentDb::load("data/talents")
    item files match a fresh export when `data/tables/` is present, and that the items differ
    from their hand-authored Classic version only as reviewed in
    `crates/csim-tables/tests/fixtures/classic_item_differences.txt` (regenerate with
-   `csim-tables compare-items --legacy crates/csim-tables/tests/fixtures/classic_items.yaml`
-   after reviewing the change). The parity tests in
+   `csim-tables compare-items` after reviewing the change). The parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
 5. Regenerate the test fixtures if the spells they use changed:
    `python crates/csim-tables/tests/fixtures/make_fixtures.py`.

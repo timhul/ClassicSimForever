@@ -1,7 +1,6 @@
 //! `csim-tables`: inspect the client table dumps and export them to the YAML data files under
 //! `data/`.
 
-use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -125,7 +124,7 @@ enum Command {
         /// The enchant data file (`--enchants`).
         #[arg(long, default_value = "data/enchants.yaml")]
         enchant_data: PathBuf,
-        /// The item data directory with its legacy files (`--items`).
+        /// The item data directory (`--items`).
         #[arg(long, default_value = "data/items")]
         item_data: PathBuf,
         /// The exported item sets (`--items`).
@@ -153,7 +152,7 @@ enum Command {
         out: Option<PathBuf>,
     },
     /// Writes the weapons and armor of quality Rare and above as engine item files (one per
-    /// slot) and the item sets they or the legacy items of `<items>/legacy/` belong to.
+    /// slot) and the item sets they belong to.
     ExportItems {
         /// The item data directory; one `<slot>.yaml` per slot is written there.
         #[arg(long, default_value = "data/items")]
@@ -172,7 +171,7 @@ enum Command {
         /// The talent data directory.
         #[arg(long, default_value = "data/talents")]
         talents: PathBuf,
-        /// The item data directory with its legacy files.
+        /// The item data directory.
         #[arg(long, default_value = "data/items")]
         items: PathBuf,
         /// The item set file.
@@ -191,8 +190,11 @@ enum Command {
     /// Compares the exported items with hand-authored Classic items of the same id and prints
     /// the differences (ratings through the interim level-60 factors).
     CompareItems {
-        /// The hand-authored item files (a directory or one file).
-        #[arg(long, default_value = "data/items/legacy")]
+        /// The hand-authored Classic item files (a directory or one file).
+        #[arg(
+            long,
+            default_value = "crates/csim-tables/tests/fixtures/classic_items.yaml"
+        )]
         legacy: PathBuf,
         /// Also write the compared legacy items (their newest phase) to this file.
         #[arg(long)]
@@ -265,7 +267,7 @@ fn export_spells(
             )
         }
         ExportTarget::Items { items, sets } => {
-            let specs = export::items::read_all_items(&items)?;
+            let specs = export::items::read_item_specs(&items)?;
             let sets_text = std::fs::read_to_string(&sets).map_err(|source| CliError::Read {
                 path: sets.clone(),
                 source,
@@ -392,12 +394,7 @@ fn export_items(tables: &Tables, items_dir: &Path, sets_path: &Path) -> Result<(
         write(&path, &export::render_items(&file, "export-items")?)?;
         eprintln!("wrote {} items to {}", file.items.len(), path.display());
     }
-    let exported: BTreeSet<u32> = report.items.iter().map(|item| item.id).collect();
-    let legacy: BTreeSet<u32> = export::items::read_legacy_items(items_dir, &exported)?
-        .iter()
-        .map(|item| item.id)
-        .collect();
-    let sets = export::item_set_file(tables, &report.items, &legacy);
+    let sets = export::item_set_file(tables, &report.items);
     write(sets_path, &export::render_item_sets(&sets, "export-items")?)?;
     eprintln!(
         "wrote {} item sets to {}",
@@ -411,14 +408,9 @@ fn export_items(tables: &Tables, items_dir: &Path, sets_path: &Path) -> Result<(
     for issue in &report.issues {
         eprintln!("warning: item {}: {}", issue.item_id, issue.message);
     }
+    // The written files must load.
     let db = csim_engine::item::EquipmentDb::load(items_dir, None, None)?;
-    let legacy = db.legacy_item_ids();
-    eprintln!(
-        "{} items exported, {} still served from {}: {legacy:?}",
-        report.items.len(),
-        legacy.len(),
-        items_dir.join("legacy").display()
-    );
+    eprintln!("{} items exported", db.len());
     Ok(())
 }
 

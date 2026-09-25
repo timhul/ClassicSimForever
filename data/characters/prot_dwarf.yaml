@@ -25,23 +25,23 @@ talents:
     Boundless Rage: 3
     Enrage: 4
 equipment:
-  MAINHAND: { item: 18832, enchant: Crusader }                     # Brutality Blade
-  OFFHAND: { item: 19349 }                                         # Elementium Reinforced Bulwark
-  RANGED: { item: 17072 }                                          # Blastershot Launcher
-  HEAD: { item: 16963, enchant: LesserArcanumOfVoracityStrength }  # Helm of Wrath
-  NECK: { item: 17065 }                                            # Medallion of Steadfast Might
-  SHOULDERS: { item: 16961, enchant: MightOfTheScourge }           # Pauldrons of Wrath
-  BACK: { item: 13340, enchant: EnchantCloakLesserAgility }        # Cape of the Black Baron
-  CHEST: { item: 16966, enchant: EnchantChestGreaterStats }        # Breastplate of Wrath
-  WRIST: { item: 16959, enchant: EnchantBracerSuperiorStrength }   # Bracelets of Wrath
-  GLOVES: { item: 16964, enchant: EnchantGlovesGreaterStrength }   # Gauntlets of Wrath
-  BELT: { item: 16960 }                                            # Waistband of Wrath
-  LEGS: { item: 16962, enchant: LesserArcanumOfVoracityStrength }  # Legplates of Wrath
-  BOOTS: { item: 16965, enchant: EnchantBootsGreaterAgility }      # Sabatons of Wrath
-  RING1: { item: 17063 }                                           # Band of Accuria
+  MAINHAND: { item: 18865, enchant: Crusader }                     # Grand Marshal's Punisher
+  OFFHAND: { item: 19321 }                                         # The Immovable Object
+  RANGED: { item: 18282 }                                          # Core Marksman Rifle
+  HEAD: { item: 16478, enchant: LesserArcanumOfVoracityStrength }  # Field Marshal's Plate Helm
+  NECK: { item: 19383 }                                            # Master Dragonslayer's Medallion
+  SHOULDERS: { item: 16480, enchant: MightOfTheScourge }           # Field Marshal's Plate Shoulderguards
+  BACK: { item: 18511, enchant: EnchantCloakLesserAgility }        # Shifting Cloak
+  CHEST: { item: 16477, enchant: EnchantChestGreaterStats }        # Field Marshal's Plate Armor
+  WRIST: { item: 16481, enchant: EnchantBracerSuperiorStrength }   # Marshal's Plate Bracers
+  GLOVES: { item: 16484, enchant: EnchantGlovesGreaterStrength }   # Marshal's Plate Gauntlets
+  BELT: { item: 16482 }                                            # Marshal's Plate Girdle
+  LEGS: { item: 16479, enchant: LesserArcanumOfVoracityStrength }  # Marshal's Plate Legguards
+  BOOTS: { item: 16483, enchant: EnchantBootsGreaterAgility }      # Marshal's Plate Boots
+  RING1: { item: 19376 }                                           # Archimtiros' Ring of Reckoning
   RING2: { item: 18879 }                                           # Heavy Dark Iron Ring
-  TRINKET1: { item: 13965 }                                        # Blackhand's Breadth
-  TRINKET2: { item: 11815 }                                        # Hand of Justice
+  TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
   - Greater Blessing of Kings
   - Greater Blessing of Might

@@ -509,9 +509,9 @@ impl SpellTest {
         assert_eq!(self.character().equipment().item_id(slot), None);
     }
 
-    /// A shield (Drillborer Disk) in the off hand.
+    /// A shield (The Immovable Object) in the off hand.
     pub fn given_a_shield_equipped(&mut self) {
-        self.equip(EquipmentSlot::Offhand, 17066);
+        self.equip(EquipmentSlot::Offhand, 19321);
     }
 
     fn equip_weapon(&mut self, slot: EquipmentSlot, item: u32, min_max: Option<u32>, speed: f64) {
@@ -612,8 +612,8 @@ impl SpellTest {
     pub fn given_1h_axe_equipped_in_mainhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            19921,
-            "Zulian Hacker",
+            18828,
+            "High Warlord's Cleaver",
             WeaponType::Axe,
         );
     }
@@ -621,8 +621,8 @@ impl SpellTest {
     pub fn given_1h_mace_equipped_in_mainhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            21837,
-            "Anubisath Warhammer",
+            18866,
+            "High Warlord's Bludgeon",
             WeaponType::Mace,
         );
     }
@@ -630,8 +630,8 @@ impl SpellTest {
     pub fn given_1h_sword_equipped_in_mainhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            13361,
-            "Skullforge Reaver",
+            12584,
+            "Grand Marshal's Longsword",
             WeaponType::Sword,
         );
     }
@@ -639,8 +639,8 @@ impl SpellTest {
     pub fn given_fist_weapon_equipped_in_mainhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            19365,
-            "Claw of the Black Drake",
+            18844,
+            "High Warlord's Right Claw",
             WeaponType::Fist,
         );
     }
@@ -657,8 +657,8 @@ impl SpellTest {
     pub fn given_1h_axe_equipped_in_offhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Offhand,
-            19921,
-            "Zulian Hacker",
+            18828,
+            "High Warlord's Cleaver",
             WeaponType::Axe,
         );
     }
@@ -666,8 +666,8 @@ impl SpellTest {
     pub fn given_1h_mace_equipped_in_offhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Offhand,
-            21837,
-            "Anubisath Warhammer",
+            18866,
+            "High Warlord's Bludgeon",
             WeaponType::Mace,
         );
     }
@@ -675,8 +675,8 @@ impl SpellTest {
     pub fn given_1h_sword_equipped_in_offhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Offhand,
-            13361,
-            "Skullforge Reaver",
+            12584,
+            "Grand Marshal's Longsword",
             WeaponType::Sword,
         );
     }
@@ -684,8 +684,8 @@ impl SpellTest {
     pub fn given_fist_weapon_equipped_in_offhand(&mut self) {
         self.equip_named(
             EquipmentSlot::Offhand,
-            19910,
-            "Arlokk's Grasp",
+            18848,
+            "High Warlord's Left Claw",
             WeaponType::Fist,
         );
     }
@@ -720,8 +720,8 @@ impl SpellTest {
     pub fn given_2h_sword_equipped(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            19364,
-            "Ashkandi, Greatsword of the Brotherhood",
+            18876,
+            "Grand Marshal's Claymore",
             WeaponType::TwohandSword,
         );
     }
@@ -729,8 +729,8 @@ impl SpellTest {
     pub fn given_polearm_equipped(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            21635,
-            "Barb of the Sand Reaver",
+            18869,
+            "Grand Marshal's Glaive",
             WeaponType::Polearm,
         );
     }
@@ -738,8 +738,8 @@ impl SpellTest {
     pub fn given_staff_equipped(&mut self) {
         self.equip_named(
             EquipmentSlot::Mainhand,
-            17743,
-            "Resurgence Rod",
+            18873,
+            "Grand Marshal's Stave",
             WeaponType::Staff,
         );
     }

@@ -16,7 +16,7 @@
 //!   Fury:
 //!     Cruelty: 5
 //! equipment:                   # slot → item id and enchants; default nothing
-//!   MAINHAND: { item: 18832, enchant: Crusader, temp_enchant: WindfuryTotem }
+//!   MAINHAND: { item: 18828, enchant: Crusader, temp_enchant: WindfuryTotem }
 //!   HEAD: { item: 12640 }
 //! buffs: [Battle Squawk]       # data/external_buffs.yaml `buffs`, by name
 //! debuffs: [Sunder Armor]      # data/external_buffs.yaml `debuffs`, by name
