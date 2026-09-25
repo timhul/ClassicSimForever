@@ -1202,11 +1202,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         report
     }
 
-    /// An off-hand swing event.
+    /// An off-hand swing event. The off hand keeps swinging while a next-swing ability is
+    /// queued ([`Character::is_dual_wielding`] is false then only for the attack table).
     pub fn oh_swing(&mut self, iteration: u32) -> SwingOutcome {
         if !self.character.spells.oh_attack().attack_is_valid(iteration)
             || !self.character.spells.is_melee_attacking()
-            || !self.character.is_dual_wielding()
+            || !self.character.equipment().is_dual_wielding()
         {
             return SwingOutcome::Skipped;
         }
@@ -1223,7 +1224,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             return;
         }
         self.with_auto_attack(Hand::Mainhand, |attack, ctx| attack.schedule_next(ctx));
-        if self.character.is_dual_wielding() {
+        if self.character.equipment().is_dual_wielding() {
             self.with_auto_attack(Hand::Offhand, |attack, ctx| attack.schedule_next(ctx));
         }
     }
@@ -2008,7 +2009,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.with_auto_attack(Hand::Mainhand, |attack, ctx| {
             attack.reset_swing_timer_and_schedule(ctx)
         });
-        if self.character.is_dual_wielding() {
+        if self.character.equipment().is_dual_wielding() {
             self.with_auto_attack(Hand::Offhand, |attack, ctx| {
                 attack.reset_swing_timer_and_schedule(ctx)
             });

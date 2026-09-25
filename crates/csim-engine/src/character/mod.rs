@@ -663,8 +663,9 @@ impl Character {
         now < self.defensive_until
     }
 
-    /// Whether both hands swing: an off-hand weapon is equipped and no on-next-swing spell is
-    /// queued (a queued Heroic Strike removes the dual-wield miss penalty). Port of
+    /// Whether the attack table applies the dual-wield miss penalty: an off-hand weapon is
+    /// equipped and no on-next-swing spell is queued (a queued Heroic Strike removes the
+    /// penalty). Whether the off hand swings is `Equipment::is_dual_wielding`. Port of
     /// `Warrior::is_dual_wielding`.
     pub fn is_dual_wielding(&self) -> bool {
         self.spells.queued_next_swing().is_none() && self.equipment.is_dual_wielding()
