@@ -253,26 +253,25 @@ fn damage(rank: u32, crits: u32) -> (u64, String) {
     (damage, format!("{:.3}", test.now()))
 }
 
-// total_deep_wounds_damage = (avg_mh_wpn_dmg + (mh_wpn_speed * melee_ap / 14)) * deep_wounds_percent
-// [57 / 114 / 171] = (100 + (2.6 * 1000 / 14)) * [0.2 / 0.4 / 0.6], over four ticks
+// total_deep_wounds_damage = avg_mh_wpn_dmg * deep_wounds_percent, attack power ignored
+// [20 / 40 / 60] = 100 * [0.2 / 0.4 / 0.6], over four ticks
 
 #[test]
 fn damage_of_1_of_3_deep_wounds() {
-    assert_eq!(damage(1, 1), (57, "12.000".to_string()));
+    assert_eq!(damage(1, 1), (20, "12.000".to_string()));
 }
 
 #[test]
 fn damage_of_2_of_3_deep_wounds() {
-    assert_eq!(damage(2, 1), (114, "12.000".to_string()));
+    assert_eq!(damage(2, 1), (40, "12.000".to_string()));
 }
 
 #[test]
 fn damage_of_3_of_3_deep_wounds() {
-    // Each of the four ticks rounds 42.86 up: 172, as in the C++.
-    assert_eq!(damage(3, 1), (172, "12.000".to_string()));
+    assert_eq!(damage(3, 1), (60, "12.000".to_string()));
 }
 
 #[test]
 fn damage_does_not_stack_when_multiple_crits_occur() {
-    assert_eq!(damage(3, 2), (172, "12.000".to_string()));
+    assert_eq!(damage(3, 2), (60, "12.000".to_string()));
 }

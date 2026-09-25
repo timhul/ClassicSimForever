@@ -389,6 +389,7 @@ fn weapon_damage_formulas() {
         (1.0 + 2.0 * ap / 14.0).round() as u32
     );
     assert_eq!(f.character.avg_oh_damage(&view), 0);
+    assert_eq!(f.character.avg_mh_weapon_damage(&view), 1.0);
     assert!((f.character.random_normalized_mh_dmg(&view) - (1.0 + 2.0 * ap / 14.0)).abs() < 1e-9);
 
     f.equip(EquipmentSlot::Mainhand, SWORD);
@@ -402,6 +403,8 @@ fn weapon_damage_formulas() {
         f.character.avg_oh_damage(&view),
         (50.0 + 1.8 * ap / 14.0).round() as u32
     );
+    // Attack power left out.
+    assert_eq!(f.character.avg_mh_weapon_damage(&view), 100.0);
     for _ in 0..50 {
         let normalized = f.character.random_normalized_mh_dmg(&view);
         let min = 80.0 + 2.4 * ap / 14.0;

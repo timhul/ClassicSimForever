@@ -50,7 +50,7 @@ pub enum PeriodicKind {
     /// `PERIODIC_DAMAGE`: `per_tick` damage (times the spell's periodic damage modifier) on
     /// each of `ticks` ticks; a refresh re-arms the full count (Rend).
     Damage { per_tick: f64, ticks: u32 },
-    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average main-hand damage per application, dealt
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
     /// in `ticks_per_application` equal ticks; every application adds an independent stack of
     /// ticks and the rounding remainder is carried between ticks. Port of `DeepWounds`.
     WeaponDamage {
@@ -102,7 +102,7 @@ impl PeriodicKind {
         Some((kind, period))
     }
 
-    /// The Deep Wounds bleed: `percent` of the average main-hand damage over `duration` seconds
+    /// The Deep Wounds bleed: `percent` of the average base main-hand damage over `duration` seconds
     /// in ticks every `period` seconds.
     pub fn weapon_damage(percent: f64, duration: f64, period: f64) -> (PeriodicKind, f64) {
         let ticks = (duration / period).round().max(1.0) as u32;
@@ -295,7 +295,7 @@ impl Periodic {
                 if self.stacks.is_empty() {
                     return None;
                 }
-                let mut damage = host.avg_mh_damage() * percent / 100.0 * damage_mod
+                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod
                     / f64::from(ticks_per_application);
                 damage += self.previous_tick_rest;
                 self.previous_tick_rest = damage - damage.round();

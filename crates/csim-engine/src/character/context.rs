@@ -2194,8 +2194,8 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.stats().get_total_threat_mod()
     }
 
-    fn avg_mh_damage(&self) -> f64 {
-        f64::from(self.character.avg_mh_damage(&self.target_view()))
+    fn avg_mh_weapon_damage(&self) -> f64 {
+        self.character.avg_mh_weapon_damage(&self.target_view())
     }
 
     fn offhand_copy_active(&self, spell: u32) -> bool {

@@ -134,8 +134,8 @@ pub trait SpellHost: EffectHost {
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
     fn total_threat_mod(&self) -> f64;
-    /// Average mainhand damage including attack power (bleeds are based on it).
-    fn avg_mh_damage(&self) -> f64;
+    /// Average base mainhand damage, without attack power (Deep Wounds bleeds for a share of it).
+    fn avg_mh_weapon_damage(&self) -> f64;
 
     /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
     /// names it and the character is dual wielding.
