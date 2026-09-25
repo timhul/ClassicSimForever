@@ -96,7 +96,7 @@ impl EquipmentDb {
         Ok(db)
     }
 
-    /// Adds the items of one item file: an exported [`ItemFile`], or a plain list of item specs.
+    /// Adds the items of one exported item file ([`ItemFile`]).
     pub fn load_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
         for spec in self.read_item_file(path)? {
             self.add_item(Item::from_spec(spec)?)?;
@@ -113,11 +113,7 @@ impl EquipmentDb {
             path: path.to_path_buf(),
             source,
         })?;
-        let value: serde_yaml::Value = serde_yaml::from_str(&text).map_err(yaml_error)?;
-        if value.is_sequence() {
-            return serde_yaml::from_value(value).map_err(yaml_error);
-        }
-        let file: ItemFile = serde_yaml::from_value(value).map_err(yaml_error)?;
+        let file: ItemFile = serde_yaml::from_str(&text).map_err(yaml_error)?;
         self.check_build(path, file.build)?;
         Ok(file.items)
     }
@@ -275,7 +271,6 @@ mod tests {
             req_lvl: 60,
             item_lvl: 60,
             boe: false,
-            icon: String::new(),
             faction: None,
             class_restrictions: Vec::new(),
             damage: None,
@@ -284,13 +279,6 @@ mod tests {
             set: None,
             limit_category: None,
             suffixes: Vec::new(),
-            procs: Vec::new(),
-            uses: Vec::new(),
-            modifies: Vec::new(),
-            mutex: Vec::new(),
-            random_affixes: Vec::new(),
-            special_equip_effects: Vec::new(),
-            source: String::new(),
             flavour_text: String::new(),
         }
     }
@@ -507,12 +495,12 @@ mod tests {
         fs::create_dir_all(&items_dir).unwrap();
         fs::write(
             items_dir.join("weapons.yaml"),
-            "- id: 1\n  name: Sword\n  phase: 1\n  slot: 1H\n  type: SWORD\n  quality: EPIC\n  damage: {min: 1, max: 2, speed: 2.0}\n",
+            "items:\n- id: 1\n  name: Sword\n  phase: 1\n  slot: 1H\n  type: SWORD\n  quality: EPIC\n  damage: {min: 1, max: 2, speed: 2.0}\n",
         )
         .unwrap();
         fs::write(
             items_dir.join("armor.yml"),
-            "- id: 2\n  name: Helm\n  phase: 2\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n  stats: {STAMINA: 10}\n",
+            "items:\n- id: 2\n  name: Helm\n  phase: 2\n  slot: HEAD\n  type: PLATE\n  quality: EPIC\n  stats: {STAMINA: 10}\n",
         )
         .unwrap();
         fs::write(items_dir.join("notes.txt"), "ignored").unwrap();

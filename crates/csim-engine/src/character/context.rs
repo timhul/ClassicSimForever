@@ -701,7 +701,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// `EnchantProc` constructor / destructor and `SetBonusControl`, which created and destroyed
     /// them with the equipment.
     ///
-    /// - An enchant's or hand-authored item's `procs` entry that names a spell is a proc.
+    /// - An enchant's `procs` entry that names a spell is a proc of the enchanted slot.
     /// - An item's on-equip effect and a reached set bonus are passives: a proc aura (with a
     ///   `ProcTypeMask`) becomes a proc, any other aura is up while worn (stats, spell
     ///   modifiers).
@@ -810,34 +810,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     fn granted_equipment_spells(&self) -> Vec<Grant> {
         let equipment = self.character.equipment();
         let mut grants = Vec::new();
-        let procs = equipment
-            .equipped_items()
-            .map(|(slot, item)| (slot, EquipmentGrantor::ItemProc(item.id()), item.procs()))
-            .chain(equipment.active_enchants().into_iter().map(|(slot, spec)| {
-                (
-                    slot,
-                    EquipmentGrantor::Enchant(spec.name),
-                    spec.procs.as_slice(),
-                )
-            }));
-        for (slot, grantor, specs) in procs {
-            for (index, spec) in specs.iter().enumerate() {
-                let Some(spell) = spec.spell else {
+        for (slot, spec) in equipment.active_enchants() {
+            for (index, proc) in spec.procs.iter().enumerate() {
+                let Some(spell) = proc.spell else {
                     continue;
-                };
-                let allowed = if spec.sources.is_empty() {
-                    slot.default_proc_sources()
-                } else {
-                    spec.sources.sources(slot)
                 };
                 grants.push(Grant {
                     key: EquipmentSpellKey {
                         slot: Some(slot),
-                        grantor,
+                        grantor: EquipmentGrantor::Enchant(spec.name),
                         index,
                     },
                     spell,
-                    kind: GrantKind::Proc(allowed),
+                    kind: GrantKind::Proc(slot.default_proc_sources()),
                 });
             }
         }

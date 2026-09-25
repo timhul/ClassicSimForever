@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::PlayerClass;
-use csim_engine::item::ItemSetFile;
+use csim_engine::item::{ItemFile, ItemSetFile};
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
 use csim_tables::export::{self, ExportError};
@@ -504,18 +504,18 @@ fn compare_items(
         differing.len()
     );
     if let Some(path) = snapshot {
+        let count = compared.len();
         let text = format!(
             "# The hand-authored Classic version (newest phase) of every item `csim-tables\n\
              # export-items` produces, written by `csim-tables compare-items --snapshot`. Frozen\n\
              # reference data for the comparison test; not loaded by the engine.\n{}",
-            serde_yaml::to_string(&compared)?
+            serde_yaml::to_string(&ItemFile {
+                build: String::new(),
+                items: compared,
+            })?
         );
         write(path, &text)?;
-        eprintln!(
-            "wrote {} legacy items to {}",
-            compared.len(),
-            path.display()
-        );
+        eprintln!("wrote {count} legacy items to {}", path.display());
     }
     Ok(())
 }

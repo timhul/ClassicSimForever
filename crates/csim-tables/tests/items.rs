@@ -398,7 +398,7 @@ fn comparison_converts_ratings_and_names_each_difference() {
     classic.stats.remove(&ItemStat::CritRating);
     classic.stats.insert(ItemStat::HitChance, 0.02);
     classic.stats.insert(ItemStat::CritChance, 0.02);
-    classic.icon = "Inv_helmet_36.png".into();
+    classic.flavour_text = "Not compared.".into();
     classic.class_restrictions = vec![PlayerClass::Paladin, PlayerClass::Warrior];
     let mut exported = helm.clone();
     exported.class_restrictions = vec![PlayerClass::Warrior, PlayerClass::Paladin];

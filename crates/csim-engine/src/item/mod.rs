@@ -16,8 +16,8 @@ use std::sync::Arc;
 pub use db::{EquipmentDb, EquipmentDbError};
 pub use set_bonus::{SetBonusDb, SetBonusError};
 pub use spec::{
-    EffectTrigger, ItemEffect, ItemFile, ItemProcSpec, ItemSetBonus, ItemSetFile, ItemSetSpec,
-    ItemSpec, ItemSuffix, ItemUseSpec, LimitCategory, ProcSourceFlags, WeaponDamageSpec,
+    EffectTrigger, ItemEffect, ItemFile, ItemSetBonus, ItemSetFile, ItemSetSpec, ItemSpec,
+    ItemSuffix, LimitCategory, WeaponDamageSpec,
 };
 pub use types::{
     ArmorType, EquipmentSlot, ItemSlot, ItemStat, ItemType, Quality, WeaponSlot, WeaponType,
@@ -176,10 +176,6 @@ impl Item {
         self.spec.quality
     }
 
-    pub fn icon(&self) -> &str {
-        &self.spec.icon
-    }
-
     pub fn is_unique(&self) -> bool {
         self.spec.unique
     }
@@ -208,22 +204,6 @@ impl Item {
 
     pub fn is_two_hand(&self) -> bool {
         self.weapon.is_some_and(|weapon| weapon.is_two_hand())
-    }
-
-    pub fn procs(&self) -> &[ItemProcSpec] {
-        &self.spec.procs
-    }
-
-    pub fn uses(&self) -> &[ItemUseSpec] {
-        &self.spec.uses
-    }
-
-    pub fn modifies(&self) -> &[String] {
-        &self.spec.modifies
-    }
-
-    pub fn mutex_item_ids(&self) -> &[u32] {
-        &self.spec.mutex
     }
 
     /// The spells the item grants.
@@ -373,7 +353,6 @@ mod tests {
             req_lvl: 60,
             item_lvl: 60,
             boe: false,
-            icon: String::new(),
             faction: None,
             class_restrictions: Vec::new(),
             damage: None,
@@ -382,13 +361,6 @@ mod tests {
             set: None,
             limit_category: None,
             suffixes: Vec::new(),
-            procs: Vec::new(),
-            uses: Vec::new(),
-            modifies: Vec::new(),
-            mutex: Vec::new(),
-            random_affixes: Vec::new(),
-            special_equip_effects: Vec::new(),
-            source: String::new(),
             flavour_text: String::new(),
         }
     }

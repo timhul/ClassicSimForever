@@ -4,7 +4,7 @@
 //! `EnchantProc` for Crusader / Fiery Weapon / Windfury / Shadow Oil) plus per-class availability
 //! lists. Here every enchant is a data record (`data/enchants.yaml`): the slots and weapons it
 //! applies to, its static stats, the flat damage it adds to the enchanted weapon and its procs
-//! (using the same generic proc schema as items). Per-class availability lists live in the class
+//! ([`EnchantProcSpec`]). Per-class availability lists live in the class
 //! data (Phase 4).
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::faction::{Faction, PlayerClass};
-use crate::item::{EquipmentSlot, ItemProcSpec, ItemStat, WeaponData, WeaponSlot, WeaponType};
+use crate::item::{EquipmentSlot, ItemStat, WeaponData, WeaponSlot, WeaponType};
 use crate::stats::{Stats, UnsupportedItemStat};
 
 /// Identifier of a permanent or temporary enchant.
@@ -177,7 +177,45 @@ pub struct EnchantSpec {
     #[serde(default)]
     pub mana: u32,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub procs: Vec<ItemProcSpec>,
+    pub procs: Vec<EnchantProcSpec>,
+}
+
+/// A proc of an enchant. `name` selects the generic proc (`GENERIC_STAT_BUFF`, `FIRE_ATTACK`,
+/// ...); the remaining fields are its parameters. The proc triggers from the attacks of the
+/// enchanted slot ([`EquipmentSlot::default_proc_sources`]).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EnchantProcSpec {
+    pub name: String,
+    /// The client-table spell that implements the proc: a passive whose `ProcTypeMask` and
+    /// `ProcChance` describe the trigger and whose aura casts the payload (Windfury Totem's
+    /// 10612). The character registers a proc per active enchant that names one
+    /// ([`crate::character::context::CharacterContext::sync_equipment_spells`]); a proc without
+    /// a spell is data the engine cannot run yet and stays unregistered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spell: Option<u32>,
+    /// Proc chance as a fraction, or procs per minute when `ppm` is set. The record of `spell`
+    /// decides for a proc that names one.
+    pub rate: f64,
+    #[serde(default)]
+    pub ppm: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<f64>,
+    /// The stat a `GENERIC_STAT_BUFF` proc changes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stat: Option<ItemStat>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spell_dmg_coefficient: Option<f64>,
 }
 
 /// Where an enchant is about to be applied.

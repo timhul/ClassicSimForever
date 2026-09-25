@@ -745,7 +745,6 @@ impl DerivedItem {
             req_lvl: self.required_level,
             item_lvl: self.item_level,
             boe: self.boe,
-            icon: String::new(),
             faction: None,
             class_restrictions: self.class_restrictions.clone(),
             damage: self.damage.map(|damage| WeaponDamageSpec {
@@ -759,13 +758,6 @@ impl DerivedItem {
             set: self.set,
             limit_category: self.limit_category.clone(),
             suffixes: self.suffixes.clone(),
-            procs: Vec::new(),
-            uses: Vec::new(),
-            modifies: Vec::new(),
-            mutex: Vec::new(),
-            random_affixes: Vec::new(),
-            special_equip_effects: Vec::new(),
-            source: String::new(),
             flavour_text: self.flavour_text.clone(),
         }
     }
@@ -912,8 +904,8 @@ pub enum ReadItemsError {
     },
 }
 
-/// The item specs of one item file (an [`ItemFile`] or a plain list), or of every `*.yaml` file
-/// directly in a directory.
+/// The item specs of one item file ([`ItemFile`]), or of every `*.yaml` file directly in a
+/// directory.
 pub fn read_item_specs(path: &Path) -> Result<Vec<ItemSpec>, ReadItemsError> {
     let io = |source| ReadItemsError::Io {
         path: path.to_path_buf(),
@@ -938,13 +930,8 @@ pub fn read_item_specs(path: &Path) -> Result<Vec<ItemSpec>, ReadItemsError> {
         source,
     };
     let text = std::fs::read_to_string(path).map_err(io)?;
-    let value: serde_yaml::Value = serde_yaml::from_str(&text).map_err(yaml)?;
-    if value.is_sequence() {
-        serde_yaml::from_value(value).map_err(yaml)
-    } else {
-        let file: ItemFile = serde_yaml::from_value(value).map_err(yaml)?;
-        Ok(file.items)
-    }
+    let file: ItemFile = serde_yaml::from_str(&text).map_err(yaml)?;
+    Ok(file.items)
 }
 
 /// The legacy version an exported item is compared with: the newest phase.

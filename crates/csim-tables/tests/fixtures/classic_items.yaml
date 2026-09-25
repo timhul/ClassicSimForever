@@ -1,6 +1,7 @@
 # The hand-authored Classic version (newest phase) of every item `csim-tables
 # export-items` produces, written by `csim-tables compare-items --snapshot`. Frozen
 # reference data for the comparison test; not loaded by the engine.
+items:
 - id: 8345
   name: Wolfshead Helm
   phase: 1
@@ -10,17 +11,11 @@
   req_lvl: 40
   item_lvl: 45
   boe: true
-  icon: Inv_helmet_04.png
   class_restrictions:
   - DRUID
   stats:
     SPIRIT: 10.0
     ARMOR: 109.0
-  modifies:
-  - Cat Form
-  special_equip_effects:
-  - 'Equip: When shapeshifting into Cat form the Druid gains 20 energy, when shapeshifting into Bear form the Druid gains 5 rage.'
-  source: Crafted by Leatherworkers.
 - id: 9517
   name: Celestial Stave
   phase: 1
@@ -29,7 +24,6 @@
   quality: RARE
   req_lvl: 35
   item_lvl: 40
-  icon: Inv_staff_14.png
   class_restrictions:
   - MAGE
   damage:
@@ -39,7 +33,6 @@
   stats:
     INTELLECT: 8.0
     SPELL_DAMAGE: 22.0
-  source: Quest reward in Thousand Needles.
 - id: 10041
   name: Dreamweave Circlet
   phase: 1
@@ -49,13 +42,11 @@
   req_lvl: 45
   item_lvl: 50
   boe: true
-  icon: Inv_crown_01.png
   stats:
     INTELLECT: 10.0
     SPIRIT: 12.0
     ARMOR: 58.0
     SPELL_DAMAGE: 21.0
-  source: Crafted by Tailorers. Requires Wildvine and Heart of the Wild.
 - id: 12639
   name: Stronghold Gauntlets
   phase: 2
@@ -64,15 +55,11 @@
   quality: EPIC
   req_lvl: 57
   item_lvl: 62
-  icon: Inv_gauntlets_30.png
   stats:
     STAMINA: 12.0
     ARMOR: 441.0
     PARRY_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  special_equip_effects:
-  - 'Equip: Immune to Disarm.'
-  source: Blacksmith crafted.
 - id: 12640
   name: Lionheart Helm
   phase: 1
@@ -82,13 +69,11 @@
   req_lvl: 56
   item_lvl: 61
   boe: true
-  icon: Inv_helmet_36.png
   stats:
     STRENGTH: 18.0
     ARMOR: 565.0
     HIT_CHANCE: 0.02
     CRIT_CHANCE: 0.02
-  source: Crafted by blacksmiths. Plans drop from world bosses and Ragnaros, Nefarian, Onyxia.
 - id: 12783
   name: Heartseeker
   phase: 1
@@ -98,7 +83,6 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_sword_17.png
   damage:
     min: 49
     max: 92
@@ -106,7 +90,6 @@
   stats:
     STRENGTH: 4.0
     CRIT_CHANCE: 0.01
-  source: Crafted by Blacksmiths with 300 Weaponsmithing. Plans relatively low drop-rate from boss in Stratholme living.
 - id: 12784
   name: Arcanite Reaper
   phase: 1
@@ -116,7 +99,6 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_axe_09.png
   damage:
     min: 153
     max: 256
@@ -124,7 +106,6 @@
   stats:
     STAMINA: 13.0
     ATTACK_POWER: 62.0
-  source: Crafted by Blacksmiths.
 - id: 14136
   name: Robe of Winter Night
   phase: 1
@@ -134,13 +115,11 @@
   req_lvl: 52
   item_lvl: 57
   boe: true
-  icon: Inv_chest_cloth_49.png
   stats:
     INTELLECT: 12.0
     ARMOR: 81.0
     SPELL_DAMAGE_FROST: 40.0
     SPELL_DAMAGE_SHADOW: 40.0
-  source: Crafted by Tailorers. Requires Felcloth and Essence of Undeath / Water.
 - id: 14139
   name: Mooncloth Shoulders
   phase: 1
@@ -150,13 +129,11 @@
   req_lvl: 56
   item_lvl: 61
   boe: true
-  icon: Inv_shoulder_02.png
   stats:
     INTELLECT: 17.0
     SPIRIT: 11.0
     STAMINA: 9.0
     ARMOR: 65.0
-  source: Crafted by Tailorers. Requires Mooncloth.
 - id: 14140
   name: Mooncloth Circlet
   phase: 1
@@ -166,13 +143,11 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_misc_bandana_01.png
   stats:
     INTELLECT: 23.0
     SPIRIT: 15.0
     STAMINA: 13.0
     ARMOR: 71.0
-  source: Crafted by Tailorers. Pattern drops from multiple raid bosses and trash mobs. Requires Mooncloth.
 - id: 14146
   name: Gloves of Spell Mastery
   phase: 1
@@ -182,7 +157,6 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_gauntlets_06.png
   class_restrictions:
   - MAGE
   - PRIEST
@@ -192,7 +166,6 @@
     SPIRIT: 8.0
     ARMOR: 60.0
     SPELL_CRIT_CHANCE: 0.02
-  source: Crafted by Tailorers. Requires Mooncloth, Enchanted Leather, and gems.
 - id: 14152
   name: Robe of the Archmage
   phase: 1
@@ -201,7 +174,6 @@
   quality: EPIC
   req_lvl: 57
   item_lvl: 62
-  icon: Inv_chest_cloth_38.png
   class_restrictions:
   - MAGE
   stats:
@@ -209,11 +181,6 @@
     ARMOR: 96.0
     SPELL_DAMAGE: 40.0
     SPELL_CRIT_CHANCE: 0.01
-  modifies:
-  - Robe of the Archmage
-  special_equip_effects:
-  - 'Use: Restores 375 to 626 mana. (cooldown 5 min)'
-  source: Crafted by Tailorers. Pattern drops in Lower Blackrock Spire (LBRS). Requires many Essences of multiple elements.
 - id: 14153
   name: Robe of the Void
   phase: 1
@@ -222,16 +189,12 @@
   quality: EPIC
   req_lvl: 57
   item_lvl: 62
-  icon: Inv_chest_cloth_51.png
   class_restrictions:
   - WARLOCK
   stats:
     STAMINA: 14.0
     ARMOR: 96.0
     SPELL_DAMAGE: 46.0
-  special_equip_effects:
-  - 'Use: Heal your pet for 450 to 750. (10 Min Cooldown)'
-  source: Crafted by Tailorers. Pattern drops from Darkmaster Gandling in Scholomance. Requires many Essences of multiple elements.
 - id: 15050
   name: Black Dragonscale Breastplate
   phase: 1
@@ -241,13 +204,11 @@
   req_lvl: 53
   item_lvl: 58
   boe: true
-  icon: Inv_chest_plate06.png
   stats:
     STAMINA: 8.0
     ARMOR: 344.0
     FIRE_RESISTANCE: 12.0
     ATTACK_POWER: 50.0
-  source: Crafted by Leatherworkers. Pattern sold by Plugger Spazzring in Blackrock Depths.
 - id: 15051
   name: Black Dragonscale Shoulders
   phase: 1
@@ -257,13 +218,11 @@
   req_lvl: 55
   item_lvl: 60
   boe: true
-  icon: Inv_shoulder_01.png
   stats:
     STAMINA: 9.0
     ARMOR: 266.0
     FIRE_RESISTANCE: 6.0
     ATTACK_POWER: 40.0
-  source: Crafted by Leatherworkers. Pattern drops in Blackrock Depths.
 - id: 15052
   name: Black Dragonscale Leggings
   phase: 1
@@ -273,13 +232,11 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_pants_03.png
   stats:
     STAMINA: 8.0
     ARMOR: 320.0
     FIRE_RESISTANCE: 13.0
     ATTACK_POWER: 54.0
-  source: Crafted by Leatherworkers. Pattern drops from Anvilrage Captains in Blackrock Depths.
 - id: 15056
   name: Stormshroud Armor
   phase: 1
@@ -289,12 +246,10 @@
   req_lvl: 52
   item_lvl: 57
   boe: true
-  icon: Inv_chest_leather_08.png
   stats:
     ARMOR: 163.0
     DODGE_CHANCE: 0.01
     CRIT_CHANCE: 0.02
-  source: Crafted by Leatherworkers.
 - id: 15057
   name: Stormshroud Pants
   phase: 1
@@ -304,12 +259,10 @@
   req_lvl: 50
   item_lvl: 55
   boe: true
-  icon: Inv_pants_09.png
   stats:
     ARMOR: 138.0
     DODGE_CHANCE: 0.01
     CRIT_CHANCE: 0.02
-  source: Crafted by Leatherworkers.
 - id: 15058
   name: Stormshroud Shoulders
   phase: 1
@@ -319,13 +272,11 @@
   req_lvl: 54
   item_lvl: 59
   boe: true
-  icon: Inv_shoulder_05.png
   stats:
     STAMINA: 12.0
     ARMOR: 126.0
     DODGE_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Crafted by Leatherworkers.
 - id: 15062
   name: Devilsaur Leggings
   phase: 1
@@ -335,13 +286,11 @@
   req_lvl: 55
   item_lvl: 60
   boe: true
-  icon: Inv_pants_wolf.png
   stats:
     STAMINA: 12.0
     ARMOR: 148.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 46.0
-  source: Crafted by leatherworkers. Pattern drops off regular mobs in Un'Goro Crater.
 - id: 15063
   name: Devilsaur Gauntlets
   phase: 1
@@ -351,13 +300,11 @@
   req_lvl: 53
   item_lvl: 58
   boe: true
-  icon: Inv_gauntlets_26.png
   stats:
     STAMINA: 9.0
     ARMOR: 103.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: Crafted by Leatherworkers. Pattern easily obtainable (vendor) at 290 Tribal Leatherworking.
 - id: 15138
   name: Onyxia Scale Cloak
   phase: 1
@@ -367,13 +314,9 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_misc_cape_05.png
   stats:
     STAMINA: 7.0
     FIRE_RESISTANCE: 16.0
-  special_equip_effects:
-  - 'Equip: Protects the wearer from being fully engulfed by Shadow Flame.'
-  source: Crafted by leatherworkers.
 - id: 16007
   name: Flawless Arcanite Rifle
   phase: 1
@@ -383,7 +326,6 @@
   req_lvl: 56
   item_lvl: 61
   boe: true
-  icon: Inv_weapon_rifle_03.png
   damage:
     min: 65
     max: 122
@@ -391,7 +333,6 @@
   stats:
     GUN_SKILL: 4.0
     RANGED_ATTACK_POWER: 10.0
-  source: Crafted by Engineers. Schematic drops from specific non-elite trolls in Eastern Plaguelands.
 - id: 16345
   name: High Warlord's Blade
   phase: 2
@@ -400,7 +341,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_11.png
   faction: HORDE
   damage:
     min: 138
@@ -410,7 +350,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 16437
   name: Marshal's Silk Footwraps
   phase: 2
@@ -419,7 +358,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_cloth_03.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -430,7 +368,6 @@
     ARMOR: 115.0
     SPELL_DAMAGE: 21.0
     SPELL_HIT_CHANCE: 0.01
-  source: May be purchased upon reaching Marshal (rank 12). Alliance only.
 - id: 16440
   name: Marshal's Silk Handguards
   phase: 2
@@ -439,7 +376,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_14.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -449,9 +385,6 @@
     STAMINA: 22.0
     ARMOR: 108.0
     SPELL_DAMAGE: 27.0
-  special_equip_effects:
-  - 'Equip: Increases the damage absorbed by your Mana Shield by 285.'
-  source: May be purchased upon reaching Marshal (rank 12). Alliance only.
 - id: 16441
   name: Field Marshal's Coronet
   phase: 2
@@ -460,7 +393,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_24.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -471,7 +403,6 @@
     ARMOR: 162.0
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Field Marshal (rank 13). Alliance only.
 - id: 16442
   name: Marshal's Silk Leggings
   phase: 2
@@ -480,7 +411,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_08.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -491,7 +421,6 @@
     ARMOR: 155.0
     SPELL_DAMAGE: 30.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Marshal (rank 12). Alliance only.
 - id: 16443
   name: Field Marshal's Silk Vestments
   phase: 2
@@ -500,7 +429,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_cloth_12.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -511,7 +439,6 @@
     ARMOR: 183.0
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Field Marshal (rank 13). Alliance only.
 - id: 16444
   name: Field Marshal's Silk Spaulders
   phase: 2
@@ -520,7 +447,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_23.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -531,7 +457,6 @@
     ARMOR: 135.0
     SPELL_DAMAGE: 25.0
     SPELL_PENETRATION: 10.0
-  source: May be purchased upon reaching Field Marshal (rank 13). Alliance only.
 - id: 16462
   name: Marshal's Chain Boots
   phase: 2
@@ -541,7 +466,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_plate_07.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -551,7 +475,6 @@
     STAMINA: 20.0
     ARMOR: 361.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12).
 - id: 16463
   name: Marshal's Chain Grips
   phase: 2
@@ -561,7 +484,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_10.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -571,11 +493,6 @@
     STAMINA: 20.0
     ARMOR: 323.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Multi-Shot
-  special_equip_effects:
-  - 'Equip: Increases the damage done by your Multi-Shot by 4%.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12).
 - id: 16465
   name: Field Marshal's Chain Helm
   phase: 2
@@ -585,7 +502,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_05.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -595,7 +511,6 @@
     STAMINA: 28.0
     ARMOR: 432.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Field Marshal (rank 13).
 - id: 16466
   name: Field Marshal's Chain Breastplate
   phase: 2
@@ -605,7 +520,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_chain_03.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -615,7 +529,6 @@
     STAMINA: 28.0
     ARMOR: 520.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16467
   name: Marshal's Chain Legguards
   phase: 2
@@ -625,7 +538,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_mail_17.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -635,7 +547,6 @@
     STAMINA: 27.0
     ARMOR: 446.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12).
 - id: 16468
   name: Field Marshal's Chain Spaulders
   phase: 2
@@ -645,7 +556,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_10.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -655,7 +565,6 @@
     STAMINA: 21.0
     ARMOR: 403.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16471
   name: Marshal's Lamellar Gloves
   phase: 2
@@ -665,7 +574,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_29.png
   class_restrictions:
   - PALADIN
   stats:
@@ -674,11 +582,6 @@
     STRENGTH: 18.0
     ARMOR: 502.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Judgement of the Crusader
-  special_equip_effects:
-  - 'Equip: Increases the Holy damage bonus of your Judgement of the Crusader by 20.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12).
 - id: 16472
   name: Marshal's Lamellar Boots
   phase: 2
@@ -688,7 +591,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_plate_09.png
   class_restrictions:
   - PALADIN
   stats:
@@ -698,7 +600,6 @@
     ARMOR: 552.0
     MANA_PER_5: 6.0
     SPELL_DAMAGE: 18.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12).
 - id: 16473
   name: Field Marshal's Lamellar Breastplate
   phase: 2
@@ -708,7 +609,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_plate03.png
   class_restrictions:
   - PALADIN
   stats:
@@ -719,7 +619,6 @@
     CRIT_CHANCE: 0.01
     MANA_PER_5: 5.0
     SPELL_DAMAGE: 25.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16474
   name: Field Marshal's Lamellar Headguard
   phase: 2
@@ -729,7 +628,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_05.png
   class_restrictions:
   - PALADIN
   stats:
@@ -740,7 +638,6 @@
     CRIT_CHANCE: 0.01
     MANA_PER_5: 5.0
     SPELL_DAMAGE: 25.0
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Field Marshal (rank 13).
 - id: 16475
   name: Marshal's Lamellar Legplates
   phase: 2
@@ -750,7 +647,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_04.png
   class_restrictions:
   - PALADIN
   stats:
@@ -760,7 +656,6 @@
     ARMOR: 703.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 27.0
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12).
 - id: 16476
   name: Field Marshal's Lamellar Shoulders
   phase: 2
@@ -770,7 +665,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_20.png
   class_restrictions:
   - PALADIN
   stats:
@@ -780,7 +674,6 @@
     ARMOR: 626.0
     MANA_PER_5: 6.0
     SPELL_DAMAGE: 19.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16477
   name: Field Marshal's Plate Armor
   phase: 2
@@ -790,7 +683,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_plate03.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -800,7 +692,6 @@
     STRENGTH: 16.0
     ARMOR: 875.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16478
   name: Field Marshal's Plate Helm
   phase: 2
@@ -810,7 +701,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_05.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -819,7 +709,6 @@
     STRENGTH: 21.0
     ARMOR: 598.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Field Marshal (rank 13). Alliance only.
 - id: 16479
   name: Marshal's Plate Legguards
   phase: 2
@@ -829,7 +718,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_04.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -839,7 +727,6 @@
     ARMOR: 743.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12).
 - id: 16480
   name: Field Marshal's Plate Shoulderguards
   phase: 2
@@ -849,7 +736,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_20.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -859,7 +745,6 @@
     STRENGTH: 18.0
     ARMOR: 626.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Field Marshal (rank 13).
 - id: 16483
   name: Marshal's Plate Boots
   phase: 2
@@ -869,7 +754,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_plate_09.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -879,7 +763,6 @@
     STRENGTH: 18.0
     ARMOR: 592.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Marshal (rank 12).
 - id: 16484
   name: Marshal's Plate Gauntlets
   phase: 2
@@ -889,7 +772,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_29.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -898,11 +780,6 @@
     STRENGTH: 20.0
     ARMOR: 532.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Hamstring
-  special_equip_effects:
-  - 'Equip: Hamstring Rage cost reduced by 3.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Marshal (rank 12).
 - id: 16486
   name: First Sergeant's Silk Cuffs
   phase: 2
@@ -911,7 +788,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_bracer_07.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -921,7 +797,6 @@
     INTELLECT: 7.0
     STAMINA: 17.0
     ARMOR: 39.0
-  source: May be purchased upon reaching First Sergeant (rank 5). Horde only.
 - id: 16533
   name: Warlord's Silk Cowl
   phase: 2
@@ -930,7 +805,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_08.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -941,7 +815,6 @@
     ARMOR: 162.0
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Warlord (rank 13). Horde only.
 - id: 16534
   name: General's Silk Trousers
   phase: 2
@@ -950,7 +823,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_07.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -961,7 +833,6 @@
     ARMOR: 155.0
     SPELL_DAMAGE: 30.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching General (rank 12). Horde only.
 - id: 16535
   name: Warlord's Silk Raiments
   phase: 2
@@ -970,7 +841,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_leather_01.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -981,7 +851,6 @@
     ARMOR: 183.0
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Warlord (rank 13). Horde only.
 - id: 16536
   name: Warlord's Silk Amice
   phase: 2
@@ -990,7 +859,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_19.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -1001,7 +869,6 @@
     ARMOR: 135.0
     SPELL_DAMAGE: 25.0
     SPELL_PENETRATION: 10.0
-  source: May be purchased upon reaching Warlord (rank 13). Horde only.
 - id: 16539
   name: General's Silk Boots
   phase: 2
@@ -1010,7 +877,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_05.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -1021,7 +887,6 @@
     ARMOR: 115.0
     SPELL_DAMAGE: 21.0
     SPELL_HIT_CHANCE: 0.01
-  source: May be purchased upon reaching General (rank 12). Horde only.
 - id: 16540
   name: General's Silk Handguards
   phase: 2
@@ -1030,7 +895,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_19.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -1040,9 +904,6 @@
     STAMINA: 22.0
     ARMOR: 108.0
     SPELL_DAMAGE: 27.0
-  special_equip_effects:
-  - 'Equip: Increases the damage absorbed by your Mana Shield by 285.'
-  source: May be purchased upon reaching General (rank 12). Horde only.
 - id: 16541
   name: Warlord's Plate Armor
   phase: 2
@@ -1052,7 +913,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_plate16.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1062,7 +922,6 @@
     STRENGTH: 16.0
     ARMOR: 875.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13).
 - id: 16542
   name: Warlord's Plate Headpiece
   phase: 2
@@ -1072,7 +931,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_09.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1081,7 +939,6 @@
     STRENGTH: 28.0
     ARMOR: 719.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Warlord (rank 13). Horde only.
 - id: 16543
   name: General's Plate Leggings
   phase: 2
@@ -1091,7 +948,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_04.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1101,7 +957,6 @@
     ARMOR: 743.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Marshal (rank 12).
 - id: 16544
   name: Warlord's Plate Shoulders
   phase: 2
@@ -1111,7 +966,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_11.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1121,7 +975,6 @@
     STRENGTH: 18.0
     ARMOR: 626.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13).
 - id: 16545
   name: General's Plate Boots
   phase: 2
@@ -1131,7 +984,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_plate_04.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1141,7 +993,6 @@
     STRENGTH: 18.0
     ARMOR: 592.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires General (rank 12).
 - id: 16548
   name: General's Plate Gauntlets
   phase: 2
@@ -1151,7 +1002,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_10.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -1160,11 +1010,6 @@
     STRENGTH: 20.0
     ARMOR: 532.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Hamstring
-  special_equip_effects:
-  - 'Equip: Hamstring Rage cost reduced by 3.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires General (rank 12).
 - id: 16549
   name: Warlord's Dragonhide Hauberk
   phase: 2
@@ -1174,7 +1019,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_chain_16.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1186,7 +1030,6 @@
     ARMOR: 260.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 21.0
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord.
 - id: 16550
   name: Warlord's Dragonhide Helmet
   phase: 2
@@ -1196,7 +1039,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_09.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1209,7 +1051,6 @@
     ARMOR: 209.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 18.0
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord.
 - id: 16551
   name: Warlord's Dragonhide Epaulets
   phase: 2
@@ -1219,7 +1060,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_07.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1231,7 +1071,6 @@
     STRENGTH: 14.0
     ARMOR: 215.0
     SPELL_DAMAGE: 18.0
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 13/Warlord.
 - id: 16552
   name: General's Dragonhide Leggings
   phase: 2
@@ -1241,7 +1080,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_06.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1253,7 +1091,6 @@
     STRENGTH: 24.0
     ARMOR: 216.0
     CRIT_CHANCE: 0.01
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 12/General.
 - id: 16554
   name: General's Dragonhide Boots
   phase: 2
@@ -1263,7 +1100,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_08.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1275,7 +1111,6 @@
     STRENGTH: 18.0
     ARMOR: 176.0
     SPELL_DAMAGE: 16.0
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 12/General.
 - id: 16555
   name: General's Dragonhide Gloves
   phase: 2
@@ -1285,7 +1120,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_25.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -1295,9 +1129,6 @@
     STRENGTH: 20.0
     ARMOR: 173.0
     SPELL_DAMAGE: 12.0
-  special_equip_effects:
-  - 'Equip: Slightly increases your stealth detection.'
-  source: This item is obtainable from Lady Palanseer upon reaching Honor Rank 12/General.
 - id: 16565
   name: Warlord's Chain Chestpiece
   phase: 2
@@ -1307,7 +1138,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_chest_chain_11.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1317,7 +1147,6 @@
     STAMINA: 28.0
     ARMOR: 520.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13).
 - id: 16566
   name: Warlord's Chain Helmet
   phase: 2
@@ -1327,7 +1156,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_helmet_09.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1337,7 +1165,6 @@
     STAMINA: 28.0
     ARMOR: 432.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Warlord (rank 13).
 - id: 16567
   name: General's Chain Legguards
   phase: 2
@@ -1347,7 +1174,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_pants_mail_16.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1357,7 +1183,6 @@
     STAMINA: 27.0
     ARMOR: 446.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires General (rank 12).
 - id: 16568
   name: Warlord's Chain Shoulders
   phase: 2
@@ -1367,7 +1192,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_shoulder_29.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1377,7 +1201,6 @@
     STAMINA: 21.0
     ARMOR: 403.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Warlord (rank 13).
 - id: 16569
   name: General's Chain Boots
   phase: 2
@@ -1387,7 +1210,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_boots_plate_06.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1397,7 +1219,6 @@
     STAMINA: 20.0
     ARMOR: 361.0
     HIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires General (rank 12).
 - id: 16571
   name: General's Chain Gloves
   phase: 2
@@ -1407,7 +1228,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_11.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -1417,11 +1237,6 @@
     STAMINA: 20.0
     ARMOR: 323.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Multi-Shot
-  special_equip_effects:
-  - 'Equip: Increases the damage done by your Multi-Shot by 4%.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires General (rank 12).
 - id: 16979
   name: Flarecore Gloves
   phase: 1
@@ -1431,7 +1246,6 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_gauntlets_26.png
   class_restrictions:
   - MAGE
   - PRIEST
@@ -1441,7 +1255,6 @@
     STAMINA: 10.0
     ARMOR: 60.0
     FIRE_RESISTANCE: 25.0
-  source: Crafted by Tailorers. Requires materials from Molten Core.
 - id: 16984
   name: Black Dragonscale Boots
   phase: 1
@@ -1450,13 +1263,11 @@
   quality: EPIC
   req_lvl: 56
   item_lvl: 61
-  icon: Inv_boots_plate_09.png
   stats:
     STAMINA: 10.0
     ARMOR: 270.0
     FIRE_RESISTANCE: 24.0
     ATTACK_POWER: 28.0
-  source: Crafted by Leatherworkers. Pattern requires Honored with Thorium Brotherhood.
 - id: 16996
   name: Gorewood Bow
   phase: 1
@@ -1465,7 +1276,6 @@
   quality: RARE
   req_lvl: 56
   item_lvl: 62
-  icon: Inv_weapon_bow_04.png
   damage:
     min: 55
     max: 104
@@ -1474,9 +1284,6 @@
     AGILITY: 3.0
     STAMINA: 9.0
     STRENGTH: 2.0
-  mutex:
-  - 16998
-  source: Quest reward from Order Must Be Restored (Alliance) or The Scarlet Oracle, Demetria (Horde).
 - id: 16997
   name: Stormrager
   phase: 1
@@ -1485,7 +1292,6 @@
   quality: RARE
   req_lvl: 56
   item_lvl: 62
-  icon: Inv_wand_05.png
   damage:
     min: 57
     max: 106
@@ -1493,7 +1299,6 @@
   stats:
     INTELLECT: 5.0
     STAMINA: 8.0
-  source: Quest reward. Requires killing an elite mob in Eastern Plaguelands.
 - id: 17015
   name: Dark Iron Reaver
   phase: 5
@@ -1503,7 +1308,6 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_sword_48.png
   damage:
     min: 71
     max: 134
@@ -1511,7 +1315,6 @@
   stats:
     STRENGTH: 10.0
     FIRE_RESISTANCE: 6.0
-  source: Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 17016
   name: Dark Iron Destroyer
   phase: 1
@@ -1521,7 +1324,6 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_axe_12.png
   damage:
     min: 71
     max: 134
@@ -1529,7 +1331,6 @@
   stats:
     STRENGTH: 10.0
     FIRE_RESISTANCE: 6.0
-  source: Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 17073
   name: Earthshaker
   phase: 1
@@ -1538,16 +1339,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_hammer_04.png
   damage:
     min: 175
     max: 263
     speed: 3.5
   stats:
     ATTACK_POWER: 22.0
-  special_equip_effects:
-  - 'Chance on hit: Knocks down all nearby enemies for 3 sec.'
-  source: Drops from Magmadar in Molten Core.
 - id: 17111
   name: Blazefury Medallion
   phase: 2
@@ -1556,23 +1353,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_jewelry_talisman_01.png
   stats:
     AGILITY: 13.0
     STAMINA: 14.0
     FIRE_RESISTANCE: 12.0
-  procs:
-  - name: FIRE_ATTACK
-    rate: 1.0
-    ppm: false
-    internal_cd: 0.0
-    min: 2
-    max: 2
-    instant: true
-    spell_dmg_coefficient: 0.0
-  special_equip_effects:
-  - 'Equip: Adds 2 fire damage to your melee attacks.'
-  source: Drops from Lord Kazzak (world boss in Blasted Lands).
 - id: 17182
   name: Sulfuras, Hand of Ragnaros
   phase: 1
@@ -1581,7 +1365,6 @@
   quality: LEGENDARY
   req_lvl: 60
   item_lvl: 80
-  icon: Inv_hammer_unique_sulfuras.png
   damage:
     min: 223
     max: 372
@@ -1590,20 +1373,6 @@
     STAMINA: 12.0
     STRENGTH: 12.0
     FIRE_RESISTANCE: 30.0
-  procs:
-  - name: INSTANT_FIREBALL
-    rate: 0.061666667
-    ppm: false
-    internal_cd: 0.0
-    min: 273
-    max: 334
-    instant: true
-    duration: 10
-    dmg_over_duration: 75
-  special_equip_effects:
-  - 'Chance on hit: Hurls a fiery ball that causes 273 to 334 Fire damage and an additional 75 damage over 10 sec.'
-  - 'Equip: Deals 5 Fire damage to anyone who strikes you with a melee attack.'
-  source: Created with rare boss drop from Ragnaros and Sulfuron Hammer.
 - id: 17193
   name: Sulfuron Hammer
   phase: 1
@@ -1613,24 +1382,10 @@
   req_lvl: 60
   item_lvl: 67
   boe: true
-  icon: Inv_hammer_unique_sulfuras.png
   damage:
     min: 176
     max: 295
     speed: 3.7
-  procs:
-  - name: INSTANT_FIREBALL
-    rate: 0.0431666667
-    ppm: false
-    internal_cd: 0.0
-    min: 83
-    max: 102
-    instant: true
-    duration: 8
-    dmg_over_duration: 16
-  special_equip_effects:
-  - 'Chance on hit: Hurls a fiery ball that causes 83 to 102 Fire damage and an additional 16 damage over 8 sec.'
-  source: Crafted by Blacksmiths (300 skill). Extremely expensive materials, and requires Molten Core drops.
 - id: 17223
   name: Thunderstrike
   phase: 1
@@ -1639,24 +1394,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_spear_08.png
   damage:
     min: 147
     max: 221
     speed: 3.1
-  procs:
-  - name: NATURE_ATTACK
-    rate: 0.051666667
-    ppm: false
-    internal_cd: 0.0
-    min: 150
-    max: 251
-    instant: true
-    spell_dmg_coefficient: 0.0
-  special_equip_effects:
-  - 'Chance on hit: Blasts up to 3 targets for 150 to 251 Nature damage. Each target after the first takes less damage.'
-  - 'Use: Transforms Thunderstrike into Shadowstrike. (cooldown 1 min)'
-  source: Transformed from Shadowstrike, which drops from Sulfuron Harbinger in Molten Core.
 - id: 18263
   name: Flarecore Wraps
   phase: 1
@@ -1666,13 +1407,11 @@
   req_lvl: 60
   item_lvl: 64
   boe: true
-  icon: Inv_bracer_09.png
   stats:
     INTELLECT: 8.0
     ARMOR: 43.0
     FIRE_RESISTANCE: 7.0
     MANA_PER_5: 9.0
-  source: Crafted by Tailorers. Requires materials from Molten Core.
 - id: 18282
   name: Core Marksman Rifle
   phase: 2
@@ -1682,7 +1421,6 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_weapon_rifle_05.png
   damage:
     min: 64
     max: 120
@@ -1690,7 +1428,6 @@
   stats:
     HIT_CHANCE: 0.01
     RANGED_ATTACK_POWER: 22.0
-  source: Crafted by Engineers. Schematic drops in Molten Core. Requires Molten Core materials.
 - id: 18399
   name: Ocean's Breeze
   phase: 1
@@ -1700,15 +1437,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_jewelry_ring_28.png
   stats:
     AGILITY: 7.0
     STAMINA: 4.0
     STRENGTH: 4.0
     FIRE_RESISTANCE: 15.0
-  mutex:
-  - 18398
-  source: Quest reward. Requires killing multiple bosses in Molten Core.
 - id: 18403
   name: Dragonslayer's Signet
   phase: 1
@@ -1718,17 +1451,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_jewelry_ring_27.png
   stats:
     INTELLECT: 12.0
     SPIRIT: 6.0
     STAMINA: 12.0
     FIRE_RESISTANCE: 10.0
     SPELL_CRIT_CHANCE: 0.01
-  mutex:
-  - 18404
-  - 18406
-  source: Quest reward from turning in Head of Onyxia.
 - id: 18404
   name: Onyxia Tooth Pendant
   phase: 1
@@ -1737,17 +1465,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_jewelry_necklace_09.png
   stats:
     AGILITY: 12.0
     STAMINA: 9.0
     FIRE_RESISTANCE: 10.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  mutex:
-  - 18403
-  - 18406
-  source: Quest reward from turning in Head of Onyxia.
 - id: 18405
   name: Belt of the Archmage
   phase: 2
@@ -1757,13 +1480,11 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_belt_31.png
   stats:
     INTELLECT: 25.0
     STAMINA: 10.0
     ARMOR: 54.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Crafted by Tailorers. Requires expensive materials to craft.
 - id: 18407
   name: Felcloth Gloves
   phase: 2
@@ -1773,12 +1494,10 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_gauntlets_19.png
   stats:
     STAMINA: 9.0
     ARMOR: 55.0
     SPELL_DAMAGE_SHADOW: 33.0
-  source: Crafted by Tailorers. Requires Felcloth, Demonic Runes, and Essences of Undeath.
 - id: 18409
   name: Mooncloth Gloves
   phase: 2
@@ -1788,13 +1507,11 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_gauntlets_17.png
   stats:
     INTELLECT: 16.0
     SPIRIT: 15.0
     STAMINA: 9.0
     ARMOR: 55.0
-  source: Crafted by Tailorers. Requires Mooncloth and Golden Pearls.
 - id: 18456
   name: Sergeant Major's Silk Cuffs
   phase: 2
@@ -1803,7 +1520,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_bracer_07.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -1813,7 +1529,6 @@
     INTELLECT: 7.0
     STAMINA: 17.0
     ARMOR: 39.0
-  source: May be purchased upon reaching Sergeant Major (rank 5). Alliance only.
 - id: 18486
   name: Mooncloth Robe
   phase: 2
@@ -1823,13 +1538,11 @@
   req_lvl: 56
   item_lvl: 61
   boe: true
-  icon: Inv_chest_cloth_04.png
   stats:
     INTELLECT: 25.0
     SPIRIT: 12.0
     STAMINA: 12.0
     ARMOR: 87.0
-  source: Crafted by Tailorers. Requires Mooncloth.
 - id: 18509
   name: Chromatic Cloak
   phase: 2
@@ -1839,13 +1552,11 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_misc_cape_02.png
   stats:
     STAMINA: 10.0
     FIRE_RESISTANCE: 9.0
     SHADOW_RESISTANCE: 9.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Crafted by leatherworkers.
 - id: 18543
   name: Ring of Entropy
   phase: 2
@@ -1855,13 +1566,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_jewelry_ring_20.png
   stats:
     INTELLECT: 13.0
     SPIRIT: 8.0
     STAMINA: 11.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Lord Kazzak (world boss in Blasted Lands).
 - id: 18713
   name: Rhok'delar, Longbow of the Ancient Keepers
   phase: 1
@@ -1871,7 +1580,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_weapon_bow_01.png
   class_restrictions:
   - HUNTER
   damage:
@@ -1881,7 +1589,6 @@
   stats:
     CRIT_CHANCE: 0.01
     RANGED_ATTACK_POWER: 17.0
-  source: Quest reward. Quest chain starts with drop from Majordomo Executus in Molten Core.
 - id: 18715
   name: Lok'delar, Stave of the Ancient Keepers
   phase: 1
@@ -1891,7 +1598,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_staff_21.png
   class_restrictions:
   - HUNTER
   damage:
@@ -1904,7 +1610,6 @@
     NATURE_RESISTANCE: 10.0
     CRIT_CHANCE: 0.02
     ATTACK_POWER_DEMON: 45.0
-  source: Quest reward. Quest chain starts with drop from Majordomo Executus in Molten Core.
 - id: 18814
   name: Choker of the Fire Lord
   phase: 1
@@ -1913,12 +1618,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_jewelry_amulet_05.png
   stats:
     INTELLECT: 7.0
     STAMINA: 7.0
     SPELL_DAMAGE: 34.0
-  source: Drops from Ragnaros in Molten Core.
 - id: 18820
   name: Talisman of Ephemeral Power
   phase: 1
@@ -1928,16 +1631,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_misc_stonetablet_11.png
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 90
-    stat: SPELL_DAMAGE
-    value: 175.0
-    duration: 15
-  special_equip_effects:
-  - 'Use: Increases damage and healing done by magical spells and effects by up to 175 for 15 sec. (cooldown 1.5 min)'
-  source: Drops from multiple bosses in Molten Core.
 - id: 18821
   name: Quick Strike Ring
   phase: 1
@@ -1947,13 +1640,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_jewelry_ring_07.png
   stats:
     STAMINA: 8.0
     STRENGTH: 5.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 30.0
-  source: Drops from multiple bosses in Molten Core.
 - id: 18827
   name: Grand Marshal's Handaxe
   phase: 2
@@ -1962,7 +1653,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_axe_24.png
   faction: ALLIANCE
   damage:
     min: 138
@@ -1972,7 +1662,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18828
   name: High Warlord's Cleaver
   phase: 2
@@ -1981,7 +1670,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_axe_02.png
   faction: HORDE
   damage:
     min: 138
@@ -1991,7 +1679,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18830
   name: Grand Marshal's Sunderer
   phase: 2
@@ -2000,7 +1687,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_axe_10.png
   faction: ALLIANCE
   damage:
     min: 235
@@ -2010,7 +1696,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18831
   name: High Warlord's Battle Axe
   phase: 2
@@ -2019,7 +1704,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_axe_21.png
   faction: HORDE
   damage:
     min: 235
@@ -2029,7 +1713,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18833
   name: Grand Marshal's Bullseye
   phase: 2
@@ -2038,7 +1721,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_bow_12.png
   faction: ALLIANCE
   damage:
     min: 66
@@ -2047,7 +1729,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18835
   name: High Warlord's Recurve
   phase: 2
@@ -2056,7 +1737,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_bow_08.png
   faction: HORDE
   damage:
     min: 66
@@ -2065,7 +1745,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18836
   name: Grand Marshal's Repeater
   phase: 2
@@ -2074,7 +1753,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_crossbow_04.png
   faction: ALLIANCE
   damage:
     min: 107
@@ -2083,7 +1761,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18837
   name: High Warlord's Crossbow
   phase: 2
@@ -2092,7 +1769,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_crossbow_10.png
   faction: HORDE
   damage:
     min: 107
@@ -2101,7 +1777,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18843
   name: Grand Marshal's Right Hand Blade
   phase: 2
@@ -2110,7 +1785,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_shortblade_07.png
   faction: ALLIANCE
   damage:
     min: 138
@@ -2120,7 +1794,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18844
   name: High Warlord's Right Claw
   phase: 2
@@ -2129,7 +1802,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_misc_monsterclaw_03.png
   faction: HORDE
   damage:
     min: 138
@@ -2139,7 +1811,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18847
   name: Grand Marshal's Razor Hand Blade
   phase: 2
@@ -2148,7 +1819,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Ability_rogue_rupture.png
   faction: ALLIANCE
   damage:
     min: 138
@@ -2158,7 +1828,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18848
   name: High Warlord's Razor Claw
   phase: 2
@@ -2167,7 +1836,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_misc_monsterclaw_04.png
   faction: HORDE
   damage:
     min: 138
@@ -2177,7 +1845,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18855
   name: Grand Marshal's Hand Cannon
   phase: 2
@@ -2186,7 +1853,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_rifle_08.png
   faction: ALLIANCE
   damage:
     min: 107
@@ -2195,7 +1861,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18860
   name: High Warlord's Street Sweeper
   phase: 2
@@ -2204,7 +1869,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_rifle_06.png
   faction: HORDE
   damage:
     min: 107
@@ -2213,7 +1877,6 @@
   stats:
     STAMINA: 7.0
     RANGED_ATTACK_POWER: 36.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18865
   name: Grand Marshal's Punisher
   phase: 2
@@ -2222,7 +1885,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_mace_13.png
   faction: ALLIANCE
   damage:
     min: 138
@@ -2232,7 +1894,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18866
   name: High Warlord's Bludgeon
   phase: 2
@@ -2241,7 +1902,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_hammer_20.png
   faction: HORDE
   damage:
     min: 138
@@ -2251,7 +1911,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18867
   name: Grand Marshal's Battle Hammer
   phase: 2
@@ -2260,7 +1919,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_hammer_03.png
   faction: ALLIANCE
   damage:
     min: 235
@@ -2270,7 +1928,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18868
   name: High Warlord's Pulverizer
   phase: 2
@@ -2279,7 +1936,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_hammer_10.png
   faction: HORDE
   damage:
     min: 235
@@ -2289,7 +1945,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18869
   name: Grand Marshal's Glaive
   phase: 2
@@ -2298,7 +1953,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_spear_08.png
   faction: ALLIANCE
   damage:
     min: 235
@@ -2308,7 +1962,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18871
   name: High Warlord's Pig Sticker
   phase: 2
@@ -2317,7 +1970,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_spear_01.png
   faction: HORDE
   damage:
     min: 235
@@ -2327,7 +1979,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18873
   name: Grand Marshal's Stave
   phase: 2
@@ -2336,7 +1987,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_staff_14.png
   faction: ALLIANCE
   damage:
     min: 131
@@ -2347,7 +1997,6 @@
     SPIRIT: 17.0
     STAMINA: 41.0
     SPELL_DAMAGE: 71.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18874
   name: High Warlord's War Staff
   phase: 2
@@ -2356,7 +2005,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_misc_bone_elfskull_01.png
   faction: HORDE
   damage:
     min: 131
@@ -2367,7 +2015,6 @@
     SPIRIT: 17.0
     STAMINA: 41.0
     SPELL_DAMAGE: 71.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18876
   name: Grand Marshal's Claymore
   phase: 2
@@ -2376,7 +2023,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_39.png
   faction: ALLIANCE
   damage:
     min: 235
@@ -2386,7 +2032,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 18877
   name: High Warlord's Greatsword
   phase: 2
@@ -2395,7 +2040,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_48.png
   faction: HORDE
   damage:
     min: 235
@@ -2405,7 +2049,6 @@
     STAMINA: 41.0
     STRENGTH: 26.0
     CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 18879
   name: Heavy Dark Iron Ring
   phase: 1
@@ -2415,12 +2058,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_jewelry_ring_14.png
   stats:
     STAMINA: 20.0
     ARMOR: 110.0
     DEFENSE: 5.0
-  source: Drops from multiple bosses in Molten Core.
 - id: 19019
   name: Thunderfury, Blessed Blade of the Windseeker
   phase: 3
@@ -2430,7 +2071,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 80
-  icon: Inv_sword_39.png
   class_restrictions:
   - WARRIOR
   - PALADIN
@@ -2445,28 +2085,6 @@
     STAMINA: 8.0
     FIRE_RESISTANCE: 8.0
     NATURE_RESISTANCE: 9.0
-  procs:
-  - name: NATURE_ATTACK
-    rate: 1.0
-    ppm: false
-    internal_cd: 0.0
-    min: 16
-    max: 30
-    instant: true
-    spell_dmg_coefficient: 0.0
-  - name: NATURE_ATTACK
-    rate: 0.2
-    ppm: false
-    internal_cd: 0.0
-    display_name: Thunderfury Chain Lightning
-    min: 300
-    max: 300
-    innate_threat: 241
-    instant: true
-    spell_dmg_coefficient: 0.0
-  special_equip_effects:
-  - 'Chance on hit: Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies. Each jump reduces that victim''s Nature resistance by 25. Affects 5 targets. Your primary target is also consumed by a cyclone, slowing its attack speed by 20% for 12 sec.'
-  source: Quest reward. Requires Left and Right Bindings of the Windseeker from Garr and Baron Geddon in Molten Core.
 - id: 19050
   name: Mantle of the Timbermaw
   phase: 3
@@ -2476,12 +2094,10 @@
   req_lvl: 59
   item_lvl: 64
   boe: true
-  icon: Inv_shoulder_19.png
   stats:
     INTELLECT: 21.0
     ARMOR: 68.0
     MANA_PER_5: 6.0
-  source: Crafted by Tailorers. Requires Mooncloth and Essences (Living and Earth).
 - id: 19059
   name: Argent Shoulders
   phase: 3
@@ -2491,13 +2107,11 @@
   req_lvl: 59
   item_lvl: 64
   boe: true
-  icon: Inv_shoulder_13.png
   stats:
     SPIRIT: 8.0
     STAMINA: 23.0
     ARMOR: 68.0
     SHADOW_RESISTANCE: 5.0
-  source: Crafted by Tailorers. Requires Mooncloth and Guardian Stones.
 - id: 19083
   name: Frostwolf Legionnaire's Cloak
   phase: 2
@@ -2506,13 +2120,11 @@
   quality: RARE
   req_lvl: 55
   item_lvl: 60
-  icon: Inv_misc_cape_16.png
   stats:
     STAMINA: 11.0
     ARMOR: 43.0
     FROST_RESISTANCE: 5.0
     ATTACK_POWER: 24.0
-  source: Grunnda Wolfheart. Requires Honored with Alterac Valley.
 - id: 19090
   name: Frostwolf Cloth Belt
   phase: 3
@@ -2521,7 +2133,6 @@
   quality: RARE
   req_lvl: 55
   item_lvl: 60
-  icon: Inv_belt_04.png
   faction: HORDE
   stats:
     INTELLECT: 10.0
@@ -2529,7 +2140,6 @@
     ARMOR: 48.0
     FROST_RESISTANCE: 5.0
     SPELL_DAMAGE: 18.0
-  source: Sold by Frostwolf Clan vendors. Requires Honored with Frostwolf Clan.
 - id: 19094
   name: Stormpike Cloth Girdle
   phase: 3
@@ -2538,7 +2148,6 @@
   quality: RARE
   req_lvl: 55
   item_lvl: 60
-  icon: Inv_belt_04.png
   faction: ALLIANCE
   stats:
     INTELLECT: 10.0
@@ -2546,7 +2155,6 @@
     ARMOR: 48.0
     FROST_RESISTANCE: 5.0
     SPELL_DAMAGE: 18.0
-  source: Sold by Stormpike Guard vendors. Requires Honored with Stormpike Guard.
 - id: 19101
   name: Whiteout Staff
   phase: 3
@@ -2555,7 +2163,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_staff_30.png
   faction: HORDE
   damage:
     min: 138
@@ -2565,7 +2172,6 @@
     INTELLECT: 16.0
     STAMINA: 25.0
     SPELL_DAMAGE: 15.0
-  source: Sold by Alterac Valley vendors. Requires Revered with Frostwolf Clan.
 - id: 19102
   name: Crackling Staff
   phase: 3
@@ -2574,7 +2180,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_staff_20.png
   faction: ALLIANCE
   damage:
     min: 138
@@ -2584,7 +2189,6 @@
     INTELLECT: 16.0
     STAMINA: 25.0
     SPELL_DAMAGE: 15.0
-  source: Sold by Alterac Valley vendors. Requires Revered with Stormpike Guard.
 - id: 19103
   name: Frostbite
   phase: 3
@@ -2594,7 +2198,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_axe_22.png
   faction: HORDE
   damage:
     min: 80
@@ -2602,7 +2205,6 @@
     speed: 2.7
   stats:
     STRENGTH: 15.0
-  source: Purchased for 2400 honor points. Horde only.
 - id: 19104
   name: Stormstrike Hammer
   phase: 3
@@ -2612,7 +2214,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_hammer_21.png
   faction: ALLIANCE
   damage:
     min: 80
@@ -2620,7 +2221,6 @@
     speed: 2.7
   stats:
     STRENGTH: 15.0
-  source: Purchased for 2400 honor points. Alliance only.
 - id: 19106
   name: Ice Barbed Spear
   phase: 3
@@ -2629,7 +2229,6 @@
   quality: RARE
   req_lvl: 51
   item_lvl: 63
-  icon: Inv_spear_04.png
   damage:
     min: 155
     max: 233
@@ -2638,11 +2237,6 @@
     AGILITY: 21.0
     STAMINA: 20.0
     STRENGTH: 13.0
-  mutex:
-  - 19107
-  - 19108
-  - 20648
-  source: Quest reward. Requires winning Alterac Valley.
 - id: 19107
   name: Bloodseeker
   phase: 3
@@ -2651,7 +2245,6 @@
   quality: RARE
   req_lvl: 51
   item_lvl: 63
-  icon: Inv_weapon_crossbow_07.png
   damage:
     min: 85
     max: 128
@@ -2659,11 +2252,6 @@
   stats:
     AGILITY: 7.0
     STRENGTH: 8.0
-  mutex:
-  - 19106
-  - 19108
-  - 20648
-  source: Quest reward. Requires winning Alterac Valley.
 - id: 19108
   name: Wand of Biting Cold
   phase: 3
@@ -2672,18 +2260,12 @@
   quality: RARE
   req_lvl: 51
   item_lvl: 63
-  icon: Inv_wand_01.png
   damage:
     min: 67
     max: 125
     speed: 1.5
   stats:
     SPELL_DAMAGE_FROST: 16.0
-  mutex:
-  - 19106
-  - 19107
-  - 20648
-  source: Quest reward. Requires winning Alterac Valley.
 - id: 19147
   name: Ring of Spell Power
   phase: 1
@@ -2692,10 +2274,8 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_jewelry_ring_38.png
   stats:
     SPELL_DAMAGE: 33.0
-  source: Drops from multiple bosses in Molten Core.
 - id: 19148
   name: Dark Iron Helm
   phase: 2
@@ -2704,12 +2284,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_helmet_22.png
   stats:
     STAMINA: 20.0
     ARMOR: 758.0
     FIRE_RESISTANCE: 35.0
-  source: Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 19156
   name: Flarecore Robes
   phase: 1
@@ -2719,13 +2297,11 @@
   req_lvl: 60
   item_lvl: 66
   boe: true
-  icon: Inv_chest_cloth_18.png
   stats:
     STAMINA: 35.0
     ARMOR: 102.0
     FIRE_RESISTANCE: 15.0
     SPELL_DAMAGE: 23.0
-  source: Crafted by Tailorers. Requires materials from Molten Core.
 - id: 19157
   name: Chromatic Gauntlets
   phase: 3
@@ -2735,7 +2311,6 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_gauntlets_22.png
   stats:
     ARMOR: 279.0
     FIRE_RESISTANCE: 5.0
@@ -2745,7 +2320,6 @@
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 44.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Crafted by Leatherworking (300 Dragonscale skill). Pattern requires Revered with Thorium Brotherhood.
 - id: 19163
   name: Molten Belt
   phase: 3
@@ -2754,13 +2328,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_belt_13.png
   stats:
     AGILITY: 28.0
     STAMINA: 16.0
     ARMOR: 118.0
     FIRE_RESISTANCE: 12.0
-  source: Crafted by Leatherworkers with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 19165
   name: Flarecore Leggings
   phase: 2
@@ -2770,13 +2342,11 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_pants_06.png
   stats:
     STAMINA: 21.0
     ARMOR: 94.0
     FIRE_RESISTANCE: 16.0
     SPELL_DAMAGE: 43.0
-  source: Crafted by Tailorers. Requires materials from Molten Core.
 - id: 19167
   name: Blackfury
   phase: 3
@@ -2786,7 +2356,6 @@
   req_lvl: 60
   item_lvl: 66
   boe: true
-  icon: Inv_spear_08.png
   damage:
     min: 105
     max: 158
@@ -2796,7 +2365,6 @@
     STRENGTH: 35.0
     FIRE_RESISTANCE: 10.0
     CRIT_CHANCE: 0.01
-  source: Crafted by Blacksmiths (300 skill). Requires Molten Core materials.
 - id: 19168
   name: Blackguard
   phase: 3
@@ -2806,7 +2374,6 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_sword_39.png
   damage:
     min: 65
     max: 121
@@ -2814,7 +2381,6 @@
   stats:
     STAMINA: 9.0
     PARRY_CHANCE: 0.01
-  source: Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 19169
   name: Nightfall
   phase: 3
@@ -2824,22 +2390,10 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_axe_12.png
   damage:
     min: 187
     max: 282
     speed: 3.5
-  procs:
-  - name: NIGHTFALL
-    rate: 0.2
-    ppm: false
-    internal_cd: 0.0
-    min: 0
-    max: 0
-    instant: true
-  special_equip_effects:
-  - 'Chance on hit: Spell damage taken by target increased by 15% for 5 sec.'
-  source: Crafted by Blacksmiths (300 skill). Requires materials from Molten Core.
 - id: 19170
   name: Ebon Hand
   phase: 3
@@ -2849,7 +2403,6 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_hammer_19.png
   damage:
     min: 90
     max: 168
@@ -2857,18 +2410,6 @@
   stats:
     STAMINA: 9.0
     FIRE_RESISTANCE: 7.0
-  procs:
-  - name: SHADOW_ATTACK
-    rate: 0.038333333
-    ppm: false
-    internal_cd: 0.0
-    min: 125
-    max: 275
-    instant: true
-    spell_dmg_coefficient: 0.0
-  special_equip_effects:
-  - 'Chance on hit: Sends a shadowy bolt at the enemy causing 125 to 275 Shadow damage.'
-  source: Crafted by Blacksmiths with Thorium Brotherhood reputation. Requires Molten Core materials.
 - id: 19289
   name: 'Darkmoon Card: Maelstrom'
   phase: 3
@@ -2878,19 +2419,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_misc_ticket_tarot_maelstrom_01.png
-  procs:
-  - name: NATURE_ATTACK
-    rate: 0.02
-    ppm: false
-    internal_cd: 0.0
-    min: 200
-    max: 300
-    instant: true
-    spell_dmg_coefficient: 0.0
-  special_equip_effects:
-  - 'Equip: Chance to strike your melee target with lightning for 200 to 300 Nature damage.'
-  source: Reward from Darkmoon Elementals Deck.
 - id: 19308
   name: Tome of Arcane Domination
   phase: 3
@@ -2900,7 +2428,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_book_01.png
   damage:
     min: 1
     max: 1
@@ -2908,7 +2435,6 @@
   stats:
     MANA_PER_5: 3.0
     SPELL_DAMAGE_ARCANE: 34.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19309
   name: Tome of Shadow Force
   phase: 3
@@ -2918,7 +2444,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_book_06.png
   damage:
     min: 1
     max: 1
@@ -2926,7 +2451,6 @@
   stats:
     STAMINA: 8.0
     SPELL_DAMAGE_SHADOW: 34.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19310
   name: Tome of the Ice Lord
   phase: 3
@@ -2936,7 +2460,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_book_11.png
   damage:
     min: 1
     max: 1
@@ -2944,7 +2467,6 @@
   stats:
     INTELLECT: 9.0
     SPELL_DAMAGE_FROST: 34.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19311
   name: Tome of Fiery Arcana
   phase: 3
@@ -2954,14 +2476,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_book_09.png
   damage:
     min: 1
     max: 1
     speed: 1.0
   stats:
     SPELL_DAMAGE_FIRE: 40.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19315
   name: Therazane's Touch
   phase: 3
@@ -2971,14 +2491,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_branch_01.png
   damage:
     min: 1
     max: 1
     speed: 1.0
   stats:
     SPELL_DAMAGE: 33.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19323
   name: The Unstoppable Force
   phase: 3
@@ -2987,7 +2505,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_hammer_13.png
   damage:
     min: 175
     max: 292
@@ -2996,9 +2513,6 @@
     STAMINA: 15.0
     STRENGTH: 19.0
     CRIT_CHANCE: 0.02
-  special_equip_effects:
-  - 'Chance on hit: Stuns target for 1 sec.'
-  source: Purchased with gold. Requires Exalted with Alterac Valley faction.
 - id: 19324
   name: The Lobotomizer
   phase: 2
@@ -3008,30 +2522,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_sword_29.png
   damage:
     min: 59
     max: 111
     speed: 1.8
-  procs:
-  - name: PHYSICAL_ATTACK
-    rate: 0.01
-    ppm: false
-    internal_cd: 0.0
-    min: 200
-    max: 300
-    instant: true
-    spell_dmg_coefficient: 0.0
-    sources:
-      magic_hit: false
-      melee_auto: false
-      melee_skill: false
-      melee_weapon_side: true
-      ranged_auto: false
-      ranged_skill: false
-  special_equip_effects:
-  - 'Chance on hit: Wounds the target for 200 to 300 damage and lowers Intellect of target by 25 for 30 sec.'
-  source: Purchased from Alterac Valley faction upon reaching Exalted.
 - id: 19325
   name: Don Julio's Band
   phase: 3
@@ -3041,13 +2535,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_35.png
   stats:
     STAMINA: 11.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 16.0
-  source: Sold by Alterac Valley vendors. Requires Exalted with Alterac Valley faction.
 - id: 19339
   name: Mind Quickening Gem
   phase: 3
@@ -3057,18 +2549,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 76
-  icon: Spell_nature_wispheal.png
   class_restrictions:
   - MAGE
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 300
-    stat: CASTING_SPEED
-    value: 33.0
-    duration: 20
-  special_equip_effects:
-  - 'Use: Quickens the mind, increasing the Mage''s casting speed by 33% for 20 sec. (cooldown 5 min)'
-  source: Drops from Vaelastrasz the Corrupt in Blackwing Lair.
 - id: 19343
   name: Scrolls of Blinding Light
   phase: 3
@@ -3078,18 +2560,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_scroll_08.png
   class_restrictions:
   - PALADIN
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 300
-    stat: MELEE_ATTACK_SPEED
-    value: 25.0
-    duration: 20
-  special_equip_effects:
-  - 'Use: Energizes a Paladin with light, increasing melee attack speed by 25% and spell casting speed by 33% for 20 sec. (cooldown 5 min)'
-  source: Drops from Firemaw in Blackwing Lair.
 - id: 19366
   name: Master Dragonslayer's Orb
   phase: 3
@@ -3098,7 +2570,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_misc_orb_03.png
   damage:
     min: 1
     max: 1
@@ -3107,10 +2578,6 @@
     INTELLECT: 14.0
     STAMINA: 10.0
     SPELL_DAMAGE: 28.0
-  mutex:
-  - 19383
-  - 19384
-  source: Quest reward. Requires Head of Nefarian from Blackwing Lair.
 - id: 19371
   name: Pendant of the Fallen Dragon
   phase: 3
@@ -3119,12 +2586,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_jewelry_necklace_12.png
   stats:
     INTELLECT: 12.0
     STAMINA: 9.0
     MANA_PER_5: 9.0
-  source: Drops from Vaelastrasz the Corrupt in Blackwing Lair.
 - id: 19376
   name: Archimtiros' Ring of Reckoning
   phase: 3
@@ -3134,11 +2599,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_ring_40.png
   stats:
     AGILITY: 14.0
     STAMINA: 28.0
-  source: Drops from Nefarian in Blackwing Lair.
 - id: 19377
   name: Prestor's Talisman of Connivery
   phase: 3
@@ -3147,11 +2610,9 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_necklace_17.png
   stats:
     AGILITY: 30.0
     HIT_CHANCE: 0.01
-  source: Drops from Nefarian in Blackwing Lair.
 - id: 19379
   name: Neltharion's Tear
   phase: 3
@@ -3161,11 +2622,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_stone_15.png
   stats:
     SPELL_DAMAGE: 44.0
     SPELL_HIT_CHANCE: 0.02
-  source: Drops from Nefarian in Blackwing Lair.
   flavour_text: '"A silver liquid flows within the impenetrable ebony shell. The item feels pure. It radiates an essence of extreme power."'
 - id: 19384
   name: Master Dragonslayer's Ring
@@ -3176,15 +2635,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_jewelry_ring_41.png
   stats:
     STAMINA: 14.0
     HIT_CHANCE: 0.01
     ATTACK_POWER: 48.0
-  mutex:
-  - 19366
-  - 19383
-  source: Quest reward. Requires Head of Nefarian from Blackwing Lair.
 - id: 19397
   name: Ring of Blackrock
   phase: 3
@@ -3194,11 +2648,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_jewelry_ring_43.png
   stats:
     MANA_PER_5: 9.0
     SPELL_DAMAGE: 19.0
-  source: Drops from Firemaw, Flamegor, and Ebonroc in Blackwing Lair.
 - id: 19403
   name: Band of Forced Concentration
   phase: 3
@@ -3208,13 +2660,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_jewelry_ring_34.png
   stats:
     INTELLECT: 12.0
     STAMINA: 9.0
     SPELL_DAMAGE: 21.0
     SPELL_HIT_CHANCE: 0.01
-  source: Drops from Ebonroc in Blackwing Lair.
 - id: 19406
   name: Drake Fang Talisman
   phase: 3
@@ -3224,12 +2674,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_misc_bone_06.png
   stats:
     DODGE_CHANCE: 0.01
     HIT_CHANCE: 0.02
     ATTACK_POWER: 56.0
-  source: Drops from Ebonroc in Blackwing Lair.
 - id: 19426
   name: Orb of the Darkmoon
   phase: 3
@@ -3238,12 +2686,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_16.png
   stats:
     SPIRIT: 8.0
     STAMINA: 11.0
     SPELL_DAMAGE: 22.0
-  source: Quest reward. Requires Darkmoon Faire and Darkmoon Faire Prize Tickets.
 - id: 19432
   name: Circle of Applied Force
   phase: 3
@@ -3253,12 +2699,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_jewelry_ring_37.png
   stats:
     AGILITY: 22.0
     STAMINA: 9.0
     STRENGTH: 12.0
-  source: Drops from Flamegor in Blackwing Lair.
 - id: 19434
   name: Band of Dark Dominion
   phase: 3
@@ -3268,12 +2712,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 70
-  icon: inv_jewelry_ring_24.png
   stats:
     INTELLECT: 6.0
     STAMINA: 12.0
     SPELL_DAMAGE_SHADOW: 33.0
-  source: Drops from trash mobs in Blackwing Lair.
 - id: 19491
   name: Amulet of the Darkmoon
   phase: 3
@@ -3282,12 +2724,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_14.png
   stats:
     AGILITY: 19.0
     STAMINA: 10.0
     STRENGTH: 10.0
-  source: Quest reward. Requires Darkmoon Faire and Darkmoon Faire Prize Tickets.
 - id: 19510
   name: Legionnaire's Band
   phase: 3
@@ -3297,13 +2737,11 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_jewelry_ring_21.png
   faction: HORDE
   stats:
     AGILITY: 11.0
     STAMINA: 8.0
     STRENGTH: 12.0
-  source: Sold by Warsong Gulch vendor Kelm Hargunth. Requires Honored with Warsong Outriders.
 - id: 19514
   name: Protector's Band
   phase: 3
@@ -3313,13 +2751,11 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_jewelry_ring_10.png
   faction: ALLIANCE
   stats:
     AGILITY: 11.0
     STAMINA: 8.0
     STRENGTH: 12.0
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Honored with Silverwing Sentinels.
 - id: 19534
   name: Scout's Medallion
   phase: 3
@@ -3328,12 +2764,10 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_jewelry_necklace_14.png
   faction: HORDE
   stats:
     AGILITY: 15.0
     STAMINA: 10.0
-  source: Sold by Warsong Gulch vendor Kelm Hargunth. Horde only.
 - id: 19538
   name: Sentinel's Medallion
   phase: 3
@@ -3342,12 +2776,10 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_jewelry_necklace_13.png
   faction: ALLIANCE
   stats:
     AGILITY: 15.0
     STAMINA: 10.0
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Alliance only.
 - id: 19550
   name: Legionnaire's Sword
   phase: 3
@@ -3357,7 +2789,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_sword_31.png
   faction: HORDE
   damage:
     min: 78
@@ -3366,7 +2797,6 @@
   stats:
     STAMINA: 5.0
     STRENGTH: 13.0
-  source: Sold by Warsong Gulch vendor Kelm Hargunth. Horde only.
 - id: 19554
   name: Protector's Sword
   phase: 3
@@ -3376,7 +2806,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_sword_27.png
   faction: ALLIANCE
   damage:
     min: 78
@@ -3385,7 +2814,6 @@
   stats:
     STAMINA: 5.0
     STRENGTH: 13.0
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Alliance only.
 - id: 19566
   name: Advisor's Gnarled Staff
   phase: 3
@@ -3394,7 +2822,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_staff_25.png
   faction: HORDE
   damage:
     min: 125
@@ -3404,7 +2831,6 @@
     INTELLECT: 13.0
     STAMINA: 21.0
     MANA_PER_5: 8.0
-  source: Sold by Warsong Gulch vendors. Requires Revered with Warsong Outriders.
 - id: 19571
   name: Lorekeeper's Staff
   phase: 3
@@ -3413,7 +2839,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_staff_28.png
   faction: ALLIANCE
   damage:
     min: 125
@@ -3423,7 +2848,6 @@
     INTELLECT: 13.0
     STAMINA: 21.0
     MANA_PER_5: 8.0
-  source: Sold by Warsong Gulch vendors. Requires Revered with Silverwing Sentinels.
 - id: 19578
   name: Berserker Bracers
   phase: 3
@@ -3432,13 +2856,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_bracer_06.png
   stats:
     AGILITY: 8.0
     STAMINA: 11.0
     STRENGTH: 19.0
     ARMOR: 323.0
-  source: Sold by Warsong Gulch vendors. Requires Exalted with Warsong Gulch faction.
 - id: 19582
   name: Windtalker's Wristguards
   phase: 3
@@ -3447,14 +2869,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_bracer_03.png
   stats:
     INTELLECT: 8.0
     SPIRIT: 7.0
     STAMINA: 8.0
     ARMOR: 182.0
     ATTACK_POWER: 38.0
-  source: Sold by Warsong Gulch quartermasters. Requires Exalted with Warsong Gulch faction.
 - id: 19587
   name: Forest Stalker's Bracers
   phase: 3
@@ -3463,13 +2883,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_bracer_12.png
   stats:
     AGILITY: 19.0
     STAMINA: 8.0
     STRENGTH: 11.0
     ARMOR: 86.0
-  source: Sold by Warsong Gulch vendors (Illiyana Moonblaze for Alliance, Kelm Hargunth for Horde).
 - id: 19595
   name: Dryad's Wrist Bindings
   phase: 3
@@ -3478,14 +2896,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_bracer_13.png
   stats:
     INTELLECT: 8.0
     SPIRIT: 7.0
     STAMINA: 8.0
     ARMOR: 44.0
     SPELL_DAMAGE: 22.0
-  source: Sold by Warsong Gulch vendors. Requires Exalted with Warsong Gulch faction.
 - id: 19600
   name: Pebble of Kajaro
   phase: 4
@@ -3494,7 +2910,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_jewelry_necklace_25.png
   class_restrictions:
   - MAGE
   stats:
@@ -3502,7 +2917,6 @@
     SPIRIT: 8.0
     STAMINA: 8.0
     SPELL_DAMAGE: 9.0
-  source: Reputation reward. Requires Revered with Zandalar Tribe.
 - id: 19601
   name: Jewel of Kajaro
   phase: 4
@@ -3511,7 +2925,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_26.png
   class_restrictions:
   - MAGE
   stats:
@@ -3519,9 +2932,6 @@
     SPIRIT: 8.0
     STAMINA: 8.0
     SPELL_DAMAGE: 9.0
-  special_equip_effects:
-  - 'Equip: Reduces the cooldown of Counterspell by 2 sec.'
-  source: Reputation reward. Requires Revered with Zandalar Tribe.
 - id: 19617
   name: Zandalarian Shadow Mastery Talisman
   phase: 4
@@ -3531,16 +2941,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_26.png
   class_restrictions:
   - ROGUE
   stats:
     AGILITY: 15.0
     STAMINA: 9.0
     STRENGTH: 6.0
-  special_equip_effects:
-  - 'Equip: Decreases the cooldown of Kick by 0.5 sec.'
-  source: Reputation reward. Requires Exalted with Zandalar Tribe.
 - id: 19621
   name: Maelstrom's Wrath
   phase: 4
@@ -3550,16 +2956,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_26.png
   class_restrictions:
   - HUNTER
   stats:
     AGILITY: 15.0
     INTELLECT: 6.0
     STAMINA: 9.0
-  special_equip_effects:
-  - 'Equip: Decreases the cooldown of Feign Death by 2 sec.'
-  source: Reputation reward. Requires Exalted with Zandalar Tribe.
 - id: 19682
   name: Bloodvine Vest
   phase: 4
@@ -3569,13 +2971,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_chest_cloth_07.png
   stats:
     INTELLECT: 13.0
     ARMOR: 92.0
     SPELL_DAMAGE: 27.0
     SPELL_HIT_CHANCE: 0.02
-  source: Crafted by Tailorers. Requires drops from Zul'Gurub trash.
 - id: 19683
   name: Bloodvine Leggings
   phase: 4
@@ -3585,13 +2985,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_pants_cloth_14.png
   stats:
     INTELLECT: 6.0
     ARMOR: 80.0
     SPELL_DAMAGE: 37.0
     SPELL_HIT_CHANCE: 0.01
-  source: Crafted by Tailorers. Requires drops from Zul'Gurub trash.
 - id: 19684
   name: Bloodvine Boots
   phase: 4
@@ -3601,13 +2999,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_boots_cloth_02.png
   stats:
     INTELLECT: 16.0
     ARMOR: 63.0
     SPELL_DAMAGE: 19.0
     SPELL_HIT_CHANCE: 0.01
-  source: Crafted by Tailorers. Requires drops from Zul'Gurub trash.
 - id: 19685
   name: Primal Batskin Jerkin
   phase: 4
@@ -3617,13 +3013,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_chest_leather_03.png
   stats:
     AGILITY: 32.0
     STAMINA: 6.0
     ARMOR: 181.0
     HIT_CHANCE: 0.01
-  source: Crafted by Leatherworkers (300 skill). Pattern requires Revered with Zandalar Tribe.
 - id: 19686
   name: Primal Batskin Gloves
   phase: 4
@@ -3633,13 +3027,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_gauntlets_31.png
   stats:
     AGILITY: 10.0
     STAMINA: 9.0
     ARMOR: 113.0
     HIT_CHANCE: 0.02
-  source: Crafted by Leatherworkers (300 skill). Materials include skinning Zul'Gurub bats. Pattern requires Honored with Zandalar Tribe.
 - id: 19687
   name: Primal Batskin Bracers
   phase: 4
@@ -3649,13 +3041,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_bracer_07.png
   stats:
     AGILITY: 14.0
     STAMINA: 7.0
     ARMOR: 79.0
     HIT_CHANCE: 0.01
-  source: Crafted by Leatherworkers (300 skill). Pattern requires Friendly with Zandalar Tribe.
 - id: 19690
   name: Bloodsoul Breastplate
   phase: 4
@@ -3664,13 +3054,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_chest_chain_14.png
   stats:
     AGILITY: 9.0
     STAMINA: 13.0
     ARMOR: 381.0
     CRIT_CHANCE: 0.02
-  source: Crafted by Blacksmiths (300 skill). Pattern requires Revered with Zandalar Tribe.
 - id: 19691
   name: Bloodsoul Shoulders
   phase: 4
@@ -3680,12 +3068,10 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_shoulder_15.png
   stats:
     AGILITY: 24.0
     STAMINA: 10.0
     ARMOR: 286.0
-  source: Crafted by Blacksmiths (300 skill). Pattern requires Honored with Zandalar Tribe.
 - id: 19692
   name: Bloodsoul Gauntlets
   phase: 4
@@ -3695,13 +3081,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_gauntlets_31.png
   stats:
     AGILITY: 10.0
     STAMINA: 17.0
     ARMOR: 238.0
     CRIT_CHANCE: 0.01
-  source: Crafted by Blacksmiths (300 skill). Pattern requires Friendly with Zandalar Tribe.
 - id: 19822
   name: Zandalar Vindicator's Breastplate
   phase: 4
@@ -3710,7 +3094,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_chest_plate07.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -3719,7 +3102,6 @@
     STRENGTH: 23.0
     ARMOR: 828.0
     DEFENSE: 4.0
-  source: Reward for turning in the Primal Hakari Kossak dropped in Zul'Gurub.
 - id: 19823
   name: Zandalar Vindicator's Belt
   phase: 4
@@ -3728,7 +3110,6 @@
   quality: EPIC
   req_lvl: 58
   item_lvl: 61
-  icon: Inv_belt_32.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -3736,7 +3117,6 @@
     STRENGTH: 25.0
     ARMOR: 391.0
     CRIT_CHANCE: 0.01
-  source: 'Quest reward from Paragons of Power: The Vindicator''s Belt.'
 - id: 19824
   name: Zandalar Vindicator's Armguards
   phase: 4
@@ -3745,7 +3125,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_bracer_14.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -3753,7 +3132,6 @@
     STAMINA: 13.0
     STRENGTH: 13.0
     ARMOR: 304.0
-  source: Reward from turning in the Primal Hakkari Armsplit that drops in Zul'Gurub.
 - id: 19825
   name: Zandalar Freethinker's Breastplate
   phase: 4
@@ -3762,7 +3140,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_chest_plate07.png
   class_restrictions:
   - PALADIN
   stats:
@@ -3772,7 +3149,6 @@
     STRENGTH: 19.0
     ARMOR: 738.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Zul'Gurub and Revered with Zandalar Tribe.
 - id: 19831
   name: Zandalar Predator's Mantle
   phase: 4
@@ -3781,7 +3157,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_shoulder_22.png
   class_restrictions:
   - HUNTER
   stats:
@@ -3790,7 +3165,6 @@
     STAMINA: 15.0
     ARMOR: 326.0
     MANA_PER_5: 4.0
-  source: Quest reward. Requires boss drop from Zul'Gurub and Revered with Zandalar Tribe.
 - id: 19832
   name: Zandalar Predator's Belt
   phase: 4
@@ -3799,7 +3173,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_belt_19.png
   class_restrictions:
   - HUNTER
   stats:
@@ -3809,7 +3182,6 @@
     STAMINA: 12.0
     ARMOR: 221.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drop from Zul'Gurub and Honored with Zandalar Tribe.
 - id: 19833
   name: Zandalar Predator's Bracers
   phase: 4
@@ -3818,7 +3190,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_bracer_18.png
   class_restrictions:
   - HUNTER
   stats:
@@ -3827,7 +3198,6 @@
     ARMOR: 172.0
     RANGED_ATTACK_POWER: 34.0
     MANA_PER_5: 4.0
-  source: Quest reward. Requires boss drop from Zul'Gurub and Friendly with Zandalar Tribe.
 - id: 19834
   name: Zandalar Madcap's Tunic
   phase: 4
@@ -3836,7 +3206,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_chest_leather_10.png
   class_restrictions:
   - ROGUE
   stats:
@@ -3844,7 +3213,6 @@
     ARMOR: 197.0
     CRIT_CHANCE: 0.02
     ATTACK_POWER: 44.0
-  source: Quest reward. Requires boss drop from Zul'Gurub and Revered with Zandalar Tribe.
 - id: 19835
   name: Zandalar Madcap's Mantle
   phase: 4
@@ -3853,7 +3221,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_shoulder_29.png
   class_restrictions:
   - ROGUE
   stats:
@@ -3862,7 +3229,6 @@
     STRENGTH: 12.0
     ARMOR: 140.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drop available from multiple bosses in Zul'Gurub (ZG).
 - id: 19836
   name: Zandalar Madcap's Bracers
   phase: 4
@@ -3872,7 +3238,6 @@
   req_lvl: 58
   item_lvl: 61
   boe: true
-  icon: Inv_bracer_14.png
   class_restrictions:
   - ROGUE
   stats:
@@ -3880,7 +3245,6 @@
     STAMINA: 14.0
     STRENGTH: 9.0
     ARMOR: 82.0
-  source: 'Reward from Paragons of Power: The Madcap''s Bracers.'
 - id: 19845
   name: Zandalar Illusionist's Mantle
   phase: 4
@@ -3889,7 +3253,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_shoulder_17.png
   class_restrictions:
   - MAGE
   stats:
@@ -3898,7 +3261,6 @@
     STAMINA: 13.0
     ARMOR: 71.0
     SPELL_DAMAGE: 12.0
-  source: Quest reward. Requires boss drops from Zul'Gurub and Honored with Zandalar Tribe.
 - id: 19846
   name: Zandalar Illusionist's Wraps
   phase: 5
@@ -3907,7 +3269,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 61
-  icon: Inv_bracer_07.png
   class_restrictions:
   - MAGE
   stats:
@@ -3916,7 +3277,6 @@
     STAMINA: 11.0
     ARMOR: 41.0
     SPELL_DAMAGE: 14.0
-  source: Quest reward. Requires boss drop from Zul'Gurub and Friendly with Zandalar Tribe.
 - id: 19884
   name: Jin'do's Judgement
   phase: 4
@@ -3925,7 +3285,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_staff_33.png
   damage:
     min: 144
     max: 227
@@ -3936,7 +3295,6 @@
     MANA_PER_5: 14.0
     SPELL_DAMAGE: 27.0
     SPELL_HIT_CHANCE: 0.02
-  source: Drops from Jin'do the Hexxer in Zul'Gurub.
 - id: 19949
   name: Zandalarian Hero Medallion
   phase: 4
@@ -3946,16 +3304,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_jewelry_necklace_13.png
-  uses:
-  - name: ZANDALARIAN_HERO_MEDALLION
-    cooldown: 0
-  mutex:
-  - 19948
-  - 19950
-  special_equip_effects:
-  - 'Use: Increases your melee and ranged damage by 40 for 20 sec. Every time you hit a target, this bonus is reduced by 2. (cooldown 2 min)'
-  source: Quest reward. Requires boss drop from Hakkar in Zul'Gurub.
 - id: 19950
   name: Zandalarian Hero Charm
   phase: 4
@@ -3965,16 +3313,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_jewelry_necklace_13.png
-  uses:
-  - name: ZANDALARIAN_HERO_CHARM
-    cooldown: 0
-  mutex:
-  - 19948
-  - 19949
-  special_equip_effects:
-  - 'Use: Increases your spell damage by up to 204 and your healing for up to 408 for 20 sec. Every time you cast a spell, the bonus is reduced by 17 spell damage and 34 healing. (cooldown 2 min)'
-  source: Quest reward. Requires boss drop from Hakkar in Zul'Gurub.
 - id: 19953
   name: Renataki's Charm of Beasts
   phase: 4
@@ -3984,12 +3322,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_19.png
   class_restrictions:
   - HUNTER
-  special_equip_effects:
-  - 'Use: Instantly clears the cooldowns of Aimed Shot, Multi-Shot, Volley, and Arcane Shot. (cooldown 3 min)'
-  source: Drops from Edge of Madness bosses in Zul'Gurub.
 - id: 19954
   name: Renataki's Charm of Trickery
   phase: 4
@@ -3999,15 +3333,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_necklace_19.png
   class_restrictions:
   - ROGUE
-  uses:
-  - name: CHARM_OF_TRICKERY
-    cooldown: 0
-  special_equip_effects:
-  - 'Use: Instantly increases your energy by 60. (3 Min Cooldown)'
-  source: Drops from Edge of Madness bosses in Zul'Gurub.
 - id: 19999
   name: Bloodvine Goggles
   phase: 4
@@ -4017,13 +3344,11 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_helmet_47.png
   stats:
     ARMOR: 75.0
     MANA_PER_5: 9.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.02
-  source: Crafted by Engineers. Requires 300 Engineering to use.
 - id: 20034
   name: Zandalar Illusionist's Robe
   phase: 4
@@ -4032,7 +3357,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_chest_cloth_12.png
   class_restrictions:
   - MAGE
   stats:
@@ -4041,7 +3365,6 @@
     ARMOR: 100.0
     SPELL_DAMAGE: 27.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Zul'Gurub and Revered with Zandalar Tribe.
 - id: 20041
   name: Highlander's Plate Girdle
   phase: 4
@@ -4051,7 +3374,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_14.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -4061,7 +3383,6 @@
     STRENGTH: 17.0
     ARMOR: 369.0
     CRIT_CHANCE: 0.01
-  source: Requires Honored with League of Arathor (Arathi Basin faction).
 - id: 20042
   name: Highlander's Lamellar Girdle
   phase: 4
@@ -4071,7 +3392,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_14.png
   faction: ALLIANCE
   class_restrictions:
   - PALADIN
@@ -4081,7 +3401,6 @@
     STRENGTH: 15.0
     ARMOR: 369.0
     CRIT_CHANCE: 0.01
-  source: Requires Honored with League of Arathor (Arathi Basin faction).
 - id: 20043
   name: Highlander's Chain Girdle
   phase: 4
@@ -4091,7 +3410,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_20.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -4100,7 +3418,6 @@
     ARMOR: 208.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 34.0
-  source: Requires Honored with The League of Arathor (Arathi Basin).
 - id: 20045
   name: Highlander's Leather Girdle
   phase: 4
@@ -4109,7 +3426,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_belt_17.png
   faction: ALLIANCE
   class_restrictions:
   - DRUID
@@ -4119,7 +3435,6 @@
     ARMOR: 159.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 34.0
-  source: Sold by Arathi Basin vendors.
 - id: 20047
   name: Highlander's Cloth Girdle
   phase: 4
@@ -4129,7 +3444,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_17.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -4141,7 +3455,6 @@
     ARMOR: 150.0
     SPELL_DAMAGE: 14.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Requires Honored with The League of Arathor (Arathi Basin).
 - id: 20048
   name: Highlander's Plate Greaves
   phase: 4
@@ -4151,7 +3464,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_plate_04.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -4161,9 +3473,6 @@
     STAMINA: 12.0
     STRENGTH: 14.0
     ARMOR: 452.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Requires Revered with League of Arathor (Arathi Basin faction).
 - id: 20049
   name: Highlander's Lamellar Greaves
   phase: 4
@@ -4173,7 +3482,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_plate_04.png
   faction: ALLIANCE
   class_restrictions:
   - PALADIN
@@ -4183,9 +3491,6 @@
     STAMINA: 8.0
     STRENGTH: 14.0
     ARMOR: 452.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Requires Revered with League of Arathor (Arathi Basin faction).
 - id: 20050
   name: Highlander's Chain Greaves
   phase: 4
@@ -4195,16 +3500,12 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_chain_02.png
   faction: ALLIANCE
   stats:
     AGILITY: 15.0
     INTELLECT: 8.0
     STAMINA: 16.0
     ARMOR: 255.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Requires Exalted with The League of Arathor (Arathi Basin).
 - id: 20052
   name: Highlander's Leather Boots
   phase: 4
@@ -4213,7 +3514,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_cloth_05.png
   faction: ALLIANCE
   class_restrictions:
   - ROGUE
@@ -4223,7 +3523,6 @@
     STAMINA: 16.0
     ARMOR: 181.0
     ATTACK_POWER: 16.0
-  source: Sold by Arathi Basin vendors.
 - id: 20054
   name: Highlander's Cloth Boots
   phase: 4
@@ -4232,7 +3531,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_cloth_07.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -4243,9 +3541,6 @@
     STAMINA: 16.0
     ARMOR: 161.0
     SPELL_DAMAGE: 12.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Sold by Arathi Basin faction. Requires Revered with The League of Arathor.
 - id: 20055
   name: Highlander's Chain Pauldrons
   phase: 4
@@ -4255,7 +3550,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_01.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -4264,7 +3558,6 @@
     INTELLECT: 17.0
     STAMINA: 18.0
     ARMOR: 312.0
-  source: Requires Exalted with The League of Arathor (Arathi Basin).
 - id: 20057
   name: Highlander's Plate Spaulders
   phase: 4
@@ -4274,7 +3567,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_01.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -4284,7 +3576,6 @@
     STAMINA: 20.0
     STRENGTH: 18.0
     ARMOR: 553.0
-  source: Requires Exalted with League of Arathor (Arathi Basin faction).
 - id: 20058
   name: Highlander's Lamellar Spaulders
   phase: 4
@@ -4294,7 +3585,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_01.png
   faction: ALLIANCE
   class_restrictions:
   - PALADIN
@@ -4304,7 +3594,6 @@
     STAMINA: 15.0
     STRENGTH: 18.0
     ARMOR: 553.0
-  source: Requires Exalted with League of Arathor (Arathi Basin faction).
 - id: 20059
   name: Highlander's Leather Shoulders
   phase: 4
@@ -4314,7 +3603,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_24.png
   faction: ALLIANCE
   class_restrictions:
   - ROGUE
@@ -4324,7 +3612,6 @@
     STAMINA: 17.0
     ARMOR: 258.0
     ATTACK_POWER: 30.0
-  source: Sold by Arathi Basin vendors.
 - id: 20061
   name: Highlander's Epaulets
   phase: 4
@@ -4333,7 +3620,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_24.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -4345,7 +3631,6 @@
     ARMOR: 185.0
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 12.0
-  source: Requires Exalted with The League of Arathor (Arathi Basin).
 - id: 20068
   name: Deathguard's Cloak
   phase: 4
@@ -4354,14 +3639,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_cape_02.png
   faction: HORDE
   stats:
     AGILITY: 5.0
     STAMINA: 11.0
     ARMOR: 50.0
     ATTACK_POWER: 34.0
-  source: Requires Exalted with The Defilers (Arathi Basin).
 - id: 20069
   name: Ironbark Staff
   phase: 4
@@ -4370,7 +3653,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_wand_04.png
   damage:
     min: 137
     max: 243
@@ -4381,7 +3663,6 @@
     ARMOR: 100.0
     SPELL_DAMAGE: 41.0
     SPELL_CRIT_CHANCE: 0.02
-  source: Sold by Arathi Basin vendors. Requires Exalted with Arathi Basin faction.
 - id: 20073
   name: Cloak of the Honor Guard
   phase: 4
@@ -4390,14 +3671,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_misc_cape_02.png
   faction: ALLIANCE
   stats:
     AGILITY: 5.0
     STAMINA: 11.0
     ARMOR: 50.0
     ATTACK_POWER: 34.0
-  source: Requires Exalted with The League of Arathor (Arathi Basin).
 - id: 20150
   name: Defiler's Chain Girdle
   phase: 4
@@ -4407,7 +3686,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_20.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -4417,7 +3695,6 @@
     ARMOR: 208.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 34.0
-  source: Requires Honored with The Defilers (Arathi Basin).
 - id: 20154
   name: Defiler's Chain Greaves
   phase: 4
@@ -4427,7 +3704,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_chain_02.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -4437,9 +3713,6 @@
     INTELLECT: 8.0
     STAMINA: 16.0
     ARMOR: 255.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Requires Exalted with The Defilers (Arathi Basin).
 - id: 20158
   name: Defiler's Chain Pauldrons
   phase: 4
@@ -4449,7 +3722,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_01.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -4459,7 +3731,6 @@
     INTELLECT: 17.0
     STAMINA: 18.0
     ARMOR: 312.0
-  source: Requires Exalted with The Defilers (Arathi Basin).
 - id: 20159
   name: Defiler's Cloth Boots
   phase: 4
@@ -4468,7 +3739,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_cloth_07.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -4479,9 +3749,6 @@
     STAMINA: 16.0
     ARMOR: 161.0
     SPELL_DAMAGE: 12.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Sold by Arathi Basin faction. Requires Revered with The Defilers.
 - id: 20163
   name: Defiler's Cloth Girdle
   phase: 4
@@ -4491,7 +3758,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_17.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -4503,7 +3769,6 @@
     ARMOR: 150.0
     SPELL_DAMAGE: 14.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Requires Honored with The Defilers (Arathi Basin).
 - id: 20176
   name: Defiler's Epaulets
   phase: 4
@@ -4512,7 +3777,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_24.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -4524,7 +3788,6 @@
     ARMOR: 185.0
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 12.0
-  source: Requires Exalted with The Defilers (Arathi Basin).
 - id: 20186
   name: Defiler's Leather Boots
   phase: 4
@@ -4533,7 +3796,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_cloth_05.png
   faction: HORDE
   class_restrictions:
   - ROGUE
@@ -4543,7 +3805,6 @@
     STAMINA: 16.0
     ARMOR: 181.0
     ATTACK_POWER: 16.0
-  source: Sold by Arathi Basin vendor Rutherford Twing.
 - id: 20190
   name: Defiler's Leather Girdle
   phase: 4
@@ -4552,7 +3813,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_belt_17.png
   faction: HORDE
   class_restrictions:
   - DRUID
@@ -4562,7 +3822,6 @@
     ARMOR: 159.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 34.0
-  source: Sold by Arathi Basin vendor Rutherford Twing.
 - id: 20194
   name: Defiler's Leather Shoulders
   phase: 4
@@ -4572,7 +3831,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_24.png
   faction: HORDE
   class_restrictions:
   - ROGUE
@@ -4582,7 +3840,6 @@
     STAMINA: 17.0
     ARMOR: 258.0
     ATTACK_POWER: 30.0
-  source: Sold by Arathi Basin vendor Rutherford Twing.
 - id: 20204
   name: Defiler's Plate Girdle
   phase: 4
@@ -4592,7 +3849,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_belt_14.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -4601,7 +3857,6 @@
     STRENGTH: 17.0
     ARMOR: 369.0
     CRIT_CHANCE: 0.01
-  source: Requires Honored with The Defilers (Arathi Basin faction).
 - id: 20208
   name: Defiler's Plate Greaves
   phase: 4
@@ -4611,7 +3866,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_boots_plate_04.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -4620,9 +3874,6 @@
     STAMINA: 12.0
     STRENGTH: 14.0
     ARMOR: 452.0
-  special_equip_effects:
-  - 'Equip: Run speed increased slightly.'
-  source: Requires Revered with League of Arathor (Arathi Basin faction).
 - id: 20212
   name: Defiler's Plate Spaulders
   phase: 4
@@ -4632,7 +3883,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_01.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -4641,7 +3891,6 @@
     STAMINA: 20.0
     STRENGTH: 18.0
     ARMOR: 553.0
-  source: Requires Exalted with The Defilers (Arathi Basin faction).
 - id: 20213
   name: Belt of Shrunken Heads
   phase: 4
@@ -4650,13 +3899,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_belt_13.png
   stats:
     AGILITY: 7.0
     STAMINA: 11.0
     STRENGTH: 23.0
     ARMOR: 408.0
-  source: Quest reward. Requires multiple bosses in Zul'Gurub.
 - id: 20214
   name: Mindfang
   phase: 3
@@ -4665,7 +3912,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_sword_13.png
   damage:
     min: 49
     max: 95
@@ -4675,7 +3921,6 @@
     ARMOR: 35.0
     SPELL_DAMAGE: 30.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Requires The Defilers - Exalted
 - id: 20216
   name: Belt of Preserved Heads
   phase: 4
@@ -4684,14 +3929,12 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_belt_14.png
   stats:
     AGILITY: 15.0
     STAMINA: 11.0
     STRENGTH: 14.0
     ARMOR: 108.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires killing multiple bosses in Zul'Gurub.
 - id: 20217
   name: Belt of Tiny Heads
   phase: 4
@@ -4700,13 +3943,11 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 70
-  icon: Inv_belt_13.png
   stats:
     INTELLECT: 17.0
     STAMINA: 13.0
     ARMOR: 55.0
     MANA_PER_5: 7.0
-  source: Quest reward. Requires killing multiple bosses in Zul'Gurub.
 - id: 20537
   name: Runed Stygian Boots
   phase: 4
@@ -4716,13 +3957,11 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_boots_05.png
   stats:
     STAMINA: 8.0
     ARMOR: 61.0
     SHADOW_RESISTANCE: 20.0
     MANA_PER_5: 5.0
-  source: Drops from Balnazzar in Stratholme Living.
 - id: 20538
   name: Runed Stygian Leggings
   phase: 4
@@ -4732,13 +3971,11 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_pants_cloth_05.png
   stats:
     STAMINA: 13.0
     ARMOR: 78.0
     SHADOW_RESISTANCE: 25.0
     MANA_PER_5: 6.0
-  source: Crafted by Tailorers. Requires Dark Runes and Felcloth.
 - id: 20539
   name: Runed Stygian Belt
   phase: 4
@@ -4748,13 +3985,11 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_belt_14.png
   stats:
     STAMINA: 10.0
     ARMOR: 50.0
     SHADOW_RESISTANCE: 20.0
     MANA_PER_5: 3.0
-  source: Crafted by Tailorers. Requires Dark Runes and Felcloth.
 - id: 20551
   name: Darkrune Helm
   phase: 5
@@ -4763,13 +3998,11 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_helmet_10.png
   stats:
     STAMINA: 13.0
     ARMOR: 584.0
     SHADOW_RESISTANCE: 25.0
     CRIT_CHANCE: 0.01
-  source: Crafted by blacksmiths. Drops from bag awarded via repeatable quest in Silithus.
 - id: 20624
   name: Ring of the Unliving
   phase: 4
@@ -4779,11 +4012,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 72
-  icon: Inv_jewelry_ring_38.png
   stats:
     AGILITY: 21.0
     STAMINA: 16.0
-  source: Drops from Emeriss (world boss).
 - id: 20632
   name: Mindtear Band
   phase: 4
@@ -4793,13 +4024,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_jewelry_ring_04.png
   stats:
     INTELLECT: 6.0
     STAMINA: 6.0
     SPELL_DAMAGE: 22.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Taerar (dragon world boss in Duskwood).
 - id: 20682
   name: Elemental Focus Band
   phase: 4
@@ -4809,12 +4038,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_23.png
   stats:
     INTELLECT: 11.0
     STAMINA: 8.0
     SPELL_DAMAGE: 22.0
-  source: Dropped by Prince Skaldrenox in Silithus.
 - id: 20705
   name: Cenarion Reservist's Pants
   phase: 5
@@ -4823,7 +4050,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 63
-  icon: Inv_pants_cloth_06.png
   class_restrictions:
   - MAGE
   - WARLOCK
@@ -4832,9 +4058,6 @@
     ARMOR: 78.0
     NATURE_RESISTANCE: 25.0
     SPELL_DAMAGE: 15.0
-  mutex:
-  - 20716
-  source: Quest reward. Involves a quest chain that partly requires a raid.
 - id: 20716
   name: Sandworm Skin Gloves
   phase: 5
@@ -4843,7 +4066,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_gauntlets_17.png
   class_restrictions:
   - MAGE
   - WARLOCK
@@ -4852,9 +4074,6 @@
     STAMINA: 8.0
     ARMOR: 56.0
     SPELL_DAMAGE: 27.0
-  mutex:
-  - 20705
-  source: Quest reward. Involves a quest chain that partly requires a raid.
 - id: 20721
   name: Band of the Cultist
   phase: 5
@@ -4865,12 +4084,10 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_jewelry_ring_27.png
   stats:
     AGILITY: 12.0
     STAMINA: 12.0
     STRENGTH: 7.0
-  source: Drops from Chest of Spoils, a quest reward for killing Silithus raid bosses.
 - id: 21126
   name: Death's Sting
   phase: 5
@@ -4880,7 +4097,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 84
-  icon: Inv_weapon_shortblade_33.png
   damage:
     min: 95
     max: 144
@@ -4889,7 +4105,6 @@
     STAMINA: 10.0
     DAGGER_SKILL: 3.0
     ATTACK_POWER: 38.0
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21134
   name: Dark Edge of Insanity
   phase: 5
@@ -4898,7 +4113,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 84
-  icon: Inv_axe_24.png
   damage:
     min: 242
     max: 364
@@ -4907,9 +4121,6 @@
     AGILITY: 19.0
     STAMINA: 25.0
     STRENGTH: 35.0
-  special_equip_effects:
-  - 'Chance on hit: Disorients the target, causing it to wander aimlessly for up to 3 sec.'
-  source: Drops from C'Thun in Temple of Ahn'Qiraj.
 - id: 21178
   name: Gloves of Earthen Power
   phase: 5
@@ -4918,12 +4129,10 @@
   quality: RARE
   req_lvl: 54
   item_lvl: 62
-  icon: Inv_gauntlets_18.png
   stats:
     INTELLECT: 9.0
     ARMOR: 109.0
     SPELL_DAMAGE: 27.0
-  source: 'Reward from Silithus Quest: Volunteer''s Battlegear'
 - id: 21180
   name: Earthstrike
   phase: 5
@@ -4933,19 +4142,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Spell_nature_abolishmagic.png
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 120
-    stat: ATTACK_POWER
-    value: 280.0
-    duration: 20
-  mutex:
-  - 21188
-  - 21190
-  special_equip_effects:
-  - 'Use: Increases your melee and ranged attack power by 280. Effect lasts for 20 sec. (cooldown 2 min)'
-  source: Quest reward. Requires exalted with Cenarion Circle.
 - id: 21182
   name: Band of Earthen Might
   phase: 5
@@ -4955,15 +4151,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_jewelry_ring_19.png
   stats:
     STRENGTH: 6.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  mutex:
-  - 21181
-  - 21183
-  source: Quest reward. Requires quest grinding in Silithus and Honored with Cenarion Circle.
 - id: 21183
   name: Earthpower Vest
   phase: 5
@@ -4972,16 +4163,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_chest_cloth_06.png
   stats:
     INTELLECT: 22.0
     ARMOR: 93.0
     SPELL_DAMAGE: 25.0
     SPELL_CRIT_CHANCE: 0.01
-  mutex:
-  - 21181
-  - 21182
-  source: Quest reward. Requires completing repeatable quests in Silithus.
 - id: 21184
   name: Deeprock Bracers
   phase: 5
@@ -4990,17 +4176,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 62
-  icon: Inv_bracer_07.png
   stats:
     AGILITY: 10.0
     STAMINA: 8.0
     STRENGTH: 19.0
     ARMOR: 309.0
-  mutex:
-  - 21185
-  - 21186
-  - 21189
-  source: Quest reward. Requires quest grinding in Silithus.
 - id: 21186
   name: Rockfury Bracers
   phase: 5
@@ -5009,17 +4189,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 62
-  icon: Inv_bracer_12.png
   stats:
     STAMINA: 7.0
     ARMOR: 42.0
     SPELL_DAMAGE: 27.0
     SPELL_HIT_CHANCE: 0.01
-  mutex:
-  - 21184
-  - 21185
-  - 21189
-  source: Quest reward. Requires quest grinding in Silithus and Revered with Cenarion Circle.
 - id: 21188
   name: Fist of Cenarius
   phase: 5
@@ -5028,7 +4202,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_hammer_23.png
   damage:
     min: 175
     max: 263
@@ -5036,10 +4209,6 @@
   stats:
     SPELL_DAMAGE: 40.0
     SPELL_CRIT_CHANCE: 0.02
-  mutex:
-  - 21190
-  - 21180
-  source: Quest reward. Requires Exalted with Cenarion Circle.
 - id: 21189
   name: Might of Cenarius
   phase: 5
@@ -5049,16 +4218,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 62
-  icon: Inv_jewelry_ring_41.png
   stats:
     STAMINA: 8.0
     HIT_CHANCE: 0.01
     WEAPON_DAMAGE: 4.0
-  mutex:
-  - 21184
-  - 21185
-  - 21186
-  source: Quest reward. Requires quest grinding in Silithus and Revered with Cenarion Circle.
 - id: 21205
   name: Signet Ring of the Bronze Dragonflight
   phase: 5
@@ -5068,27 +4231,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 80
-  icon: Inv_jewelry_ring_40.png
   stats:
     AGILITY: 24.0
     STAMINA: 13.0
     HIT_CHANCE: 0.01
-  mutex:
-  - 21196
-  - 21201
-  - 21206
-  - 21197
-  - 21198
-  - 21199
-  - 21200
-  - 21202
-  - 21203
-  - 21204
-  - 21207
-  - 21208
-  - 21209
-  - 21210
-  source: Quest reward. Requires Exalted with Brood of Nozdormu (requires AQ40).
   flavour_text: '"The Path of the Conqueror"'
 - id: 21210
   name: Signet Ring of the Bronze Dragonflight
@@ -5099,28 +4245,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 80
-  icon: Inv_jewelry_ring_40.png
   stats:
     INTELLECT: 9.0
     STAMINA: 8.0
     MANA_PER_5: 5.0
     SPELL_DAMAGE: 28.0
-  mutex:
-  - 21196
-  - 21201
-  - 21206
-  - 21197
-  - 21198
-  - 21199
-  - 21200
-  - 21202
-  - 21203
-  - 21204
-  - 21205
-  - 21207
-  - 21208
-  - 21209
-  source: Quest reward. Requires Exalted with Brood of Nozdormu (requires AQ40).
   flavour_text: '"The Path of the Invoker"'
 - id: 21242
   name: Blessed Qiraji War Axe
@@ -5131,7 +4260,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 79
-  icon: Inv_axe_26.png
   damage:
     min: 110
     max: 205
@@ -5141,7 +4269,6 @@
     STAMINA: 9.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 14.0
-  source: Reward from quest outside of Ruins of Ahn'Qiraj. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
   flavour_text: The weapon is infused and reinforced with Elementium.
 - id: 21244
   name: Blessed Qiraji Pugio
@@ -5151,7 +4278,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 79
-  icon: Inv_weapon_shortblade_35.png
   damage:
     min: 72
     max: 134
@@ -5161,7 +4287,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 18.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
   flavour_text: '"The weapon is infused and reinforced with Elementium."'
 - id: 21268
   name: Blessed Qiraji War Hammer
@@ -5171,7 +4296,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 79
-  icon: Inv_mace_24.png
   damage:
     min: 89
     max: 166
@@ -5182,7 +4306,6 @@
     ARMOR: 70.0
     DEFENSE: 8.0
     FERAL_ATTACK_POWER: 280.0
-  source: Quest reward from turning in an Imperial Qiraji Regalia in AQ40.
 - id: 21272
   name: Blessed Qiraji Musket
   phase: 5
@@ -5191,7 +4314,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 79
-  icon: Inv_weapon_rifle_11.png
   damage:
     min: 86
     max: 160
@@ -5199,7 +4321,6 @@
   stats:
     STAMINA: 10.0
     RANGED_ATTACK_POWER: 31.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
   flavour_text: The weapon is infused and reinforced with Elementium.
 - id: 21273
   name: Blessed Qiraji Acolyte Staff
@@ -5210,7 +4331,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 79
-  icon: Inv_staff_20.png
   damage:
     min: 132
     max: 227
@@ -5221,7 +4341,6 @@
     SPELL_DAMAGE: 76.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.02
-  source: Quest reward. Requires expensive materials and boss drop from Temple of Ahn'Qiraj (AQ40).
   flavour_text: '"The weapon is infused and reinforced with Elementium."'
 - id: 21278
   name: Stormshroud Gloves
@@ -5232,12 +4351,10 @@
   req_lvl: 57
   item_lvl: 62
   boe: true
-  icon: Inv_gauntlets_05.png
   stats:
     ARMOR: 109.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Crafted by Leatherworkers.
 - id: 21329
   name: Conqueror's Crown
   phase: 5
@@ -5246,7 +4363,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_72.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5255,7 +4371,6 @@
     STRENGTH: 29.0
     ARMOR: 739.0
     DEFENSE: 6.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21330
   name: Conqueror's Spaulders
   phase: 5
@@ -5264,7 +4379,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_shoulder_35.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5274,7 +4388,6 @@
     ARMOR: 659.0
     DEFENSE: 4.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21331
   name: Conqueror's Breastplate
   phase: 5
@@ -5283,7 +4396,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_chest_plate12.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5292,7 +4404,6 @@
     STRENGTH: 34.0
     ARMOR: 985.0
     DEFENSE: 6.0
-  source: Quest reward. Requires drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21332
   name: Conqueror's Legguards
   phase: 5
@@ -5301,7 +4412,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_pants_plate_03.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5311,7 +4421,6 @@
     ARMOR: 796.0
     DEFENSE: 6.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires drops from Ouro in Temple of Ahn'Qiraj (AQ40).
 - id: 21333
   name: Conqueror's Greaves
   phase: 5
@@ -5320,7 +4429,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_boots_plate_05.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5329,7 +4437,6 @@
     STRENGTH: 21.0
     ARMOR: 604.0
     DEFENSE: 4.0
-  source: Quest reward. Requires drops from bosses in Temple of Ahn'Qiraj (AQ40).
 - id: 21335
   name: Doomcaller's Mantle
   phase: 5
@@ -5338,7 +4445,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_shoulder_03.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -5349,7 +4455,6 @@
     SPELL_DAMAGE: 28.0
     SPELL_HIT_CHANCE: 0.01
     SPELL_PENETRATION: 10.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21337
   name: Doomcaller's Circlet
   phase: 5
@@ -5358,7 +4463,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_06.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -5369,7 +4473,6 @@
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21343
   name: Enigma Robes
   phase: 5
@@ -5378,7 +4481,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_chest_cloth_11.png
   class_restrictions:
   - MAGE
   stats:
@@ -5389,7 +4491,6 @@
     SPELL_DAMAGE: 39.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_PENETRATION: 20.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21344
   name: Enigma Boots
   phase: 5
@@ -5398,7 +4499,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_boots_cloth_03.png
   class_restrictions:
   - MAGE
   stats:
@@ -5409,7 +4509,6 @@
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 28.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21345
   name: Enigma Shoulderpads
   phase: 5
@@ -5418,7 +4517,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_shoulder_03.png
   class_restrictions:
   - MAGE
   stats:
@@ -5429,7 +4527,6 @@
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 30.0
     SPELL_PENETRATION: 10.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21346
   name: Enigma Leggings
   phase: 5
@@ -5438,7 +4535,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_pants_cloth_08.png
   class_restrictions:
   - MAGE
   stats:
@@ -5449,7 +4545,6 @@
     MANA_PER_5: 5.0
     SPELL_DAMAGE: 34.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21347
   name: Enigma Circlet
   phase: 5
@@ -5458,7 +4553,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_06.png
   class_restrictions:
   - MAGE
   stats:
@@ -5469,7 +4563,6 @@
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21359
   name: Deathdealer's Boots
   phase: 5
@@ -5478,7 +4571,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_boots_08.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5487,7 +4579,6 @@
     STRENGTH: 14.0
     ARMOR: 158.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21360
   name: Deathdealer's Helm
   phase: 5
@@ -5496,7 +4587,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_04.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5506,7 +4596,6 @@
     ARMOR: 192.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drop from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21361
   name: Deathdealer's Spaulders
   phase: 5
@@ -5515,7 +4604,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_shoulder_03.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5524,7 +4612,6 @@
     STRENGTH: 18.0
     ARMOR: 172.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Viscidus / Princess Huhuran in Temple of Ahn'Qiraj (AQ40).
 - id: 21362
   name: Deathdealer's Leggings
   phase: 5
@@ -5533,7 +4620,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_pants_leather_07.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5542,7 +4628,6 @@
     STRENGTH: 18.0
     ARMOR: 207.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drop from Ouro in Temple of Ahn'Qiraj (AQ40).
 - id: 21364
   name: Deathdealer's Vest
   phase: 5
@@ -5551,7 +4636,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_chest_leather_08.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5561,7 +4645,6 @@
     ARMOR: 253.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops Temple of Ahn'Qiraj (AQ40).
 - id: 21365
   name: Striker's Footguards
   phase: 5
@@ -5570,7 +4653,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_boots_chain_08.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5580,7 +4662,6 @@
     STAMINA: 16.0
     ARMOR: 340.0
     SPELL_DAMAGE: 6.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21366
   name: Striker's Diadem
   phase: 5
@@ -5589,7 +4670,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_73.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5600,7 +4680,6 @@
     ARMOR: 416.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 12.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21367
   name: Striker's Pauldrons
   phase: 5
@@ -5609,7 +4688,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_shoulder_36.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5619,7 +4697,6 @@
     STAMINA: 24.0
     ARMOR: 384.0
     SPELL_DAMAGE: 6.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21368
   name: Striker's Leggings
   phase: 5
@@ -5628,7 +4705,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_pants_mail_11.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5639,7 +4715,6 @@
     ARMOR: 448.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 9.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21370
   name: Striker's Hauberk
   phase: 5
@@ -5648,7 +4723,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_chest_chain_04.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5659,7 +4733,6 @@
     ARMOR: 553.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 9.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21387
   name: Avenger's Crown
   phase: 5
@@ -5668,7 +4741,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_helmet_72.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5680,7 +4752,6 @@
     ARMOR: 739.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 23.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21388
   name: Avenger's Greaves
   phase: 5
@@ -5689,7 +4760,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_boots_chain_07.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5701,7 +4771,6 @@
     ARMOR: 604.0
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 14.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21389
   name: Avenger's Breastplate
   phase: 5
@@ -5710,7 +4779,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_chest_plate03.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5723,7 +4791,6 @@
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 18.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21390
   name: Avenger's Legguards
   phase: 5
@@ -5732,7 +4799,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_pants_plate_02.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5745,7 +4811,6 @@
     CRIT_CHANCE: 0.01
     MANA_PER_5: 4.0
     SPELL_DAMAGE: 16.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21391
   name: Avenger's Pauldrons
   phase: 5
@@ -5754,7 +4819,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_shoulder_35.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5766,7 +4830,6 @@
     ARMOR: 659.0
     MANA_PER_5: 3.0
     SPELL_DAMAGE: 14.0
-  source: Quest reward. Requires boss drops from Temple of Ahn'Qiraj (AQ40).
 - id: 21392
   name: Sickle of Unyielding Strength
   phase: 5
@@ -5776,7 +4839,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_axe_15.png
   class_restrictions:
   - WARRIOR
   damage:
@@ -5788,7 +4850,6 @@
     STAMINA: 9.0
     STRENGTH: 15.0
     DEFENSE: 4.0
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold.
 - id: 21393
   name: Signet of Unyielding Strength
   phase: 5
@@ -5798,14 +4859,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_ahnqiraj_03.png
   class_restrictions:
   - WARRIOR
   stats:
     STAMINA: 14.0
     STRENGTH: 11.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold.
 - id: 21394
   name: Drape of Unyielding Strength
   phase: 5
@@ -5814,7 +4873,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_misc_cape_20.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -5823,7 +4881,6 @@
     STRENGTH: 15.0
     ARMOR: 52.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold.
 - id: 21397
   name: Cape of Eternal Justice
   phase: 5
@@ -5832,7 +4889,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_misc_cape_14.png
   class_restrictions:
   - PALADIN
   stats:
@@ -5841,7 +4897,6 @@
     STRENGTH: 11.0
     ARMOR: 52.0
     MANA_PER_5: 5.0
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold.
 - id: 21401
   name: Scythe of the Unseen Path
   phase: 5
@@ -5851,7 +4906,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_axe_15.png
   class_restrictions:
   - HUNTER
   damage:
@@ -5862,7 +4916,6 @@
     AGILITY: 16.0
     STAMINA: 9.0
     MANA_PER_5: 3.0
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold.
 - id: 21402
   name: Signet of the Unseen Path
   phase: 5
@@ -5872,14 +4925,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_ahnqiraj_03.png
   class_restrictions:
   - HUNTER
   stats:
     AGILITY: 19.0
     INTELLECT: 8.0
     STAMINA: 11.0
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold.
 - id: 21403
   name: Cloak of the Unseen Path
   phase: 5
@@ -5888,7 +4939,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_misc_cape_15.png
   class_restrictions:
   - HUNTER
   stats:
@@ -5896,7 +4946,6 @@
     STAMINA: 13.0
     ARMOR: 52.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold.
 - id: 21404
   name: Dagger of Veiled Shadows
   phase: 5
@@ -5905,7 +4954,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_weapon_shortblade_27.png
   class_restrictions:
   - ROGUE
   damage:
@@ -5916,7 +4964,6 @@
     AGILITY: 15.0
     STRENGTH: 7.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold.
 - id: 21405
   name: Band of Veiled Shadows
   phase: 5
@@ -5926,14 +4973,12 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_ahnqiraj_03.png
   class_restrictions:
   - ROGUE
   stats:
     AGILITY: 18.0
     STAMINA: 8.0
     STRENGTH: 11.0
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Honored with Cenarion Hold.
 - id: 21406
   name: Cloak of Veiled Shadows
   phase: 5
@@ -5942,7 +4987,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_misc_cape_19.png
   class_restrictions:
   - ROGUE
   stats:
@@ -5950,7 +4994,6 @@
     STAMINA: 11.0
     ARMOR: 52.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold.
 - id: 21413
   name: Blade of Vaulted Secrets
   phase: 5
@@ -5959,7 +5002,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_sword_57.png
   class_restrictions:
   - MAGE
   damage:
@@ -5971,7 +5013,6 @@
     STAMINA: 8.0
     SPELL_DAMAGE: 40.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires drops from Ruins of Ahn'Qiraj (AQ20) and Exalted with Cenarion Hold.
 - id: 21415
   name: Drape of Vaulted Secrets
   phase: 5
@@ -5980,7 +5021,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 67
-  icon: Inv_misc_cape_19.png
   class_restrictions:
   - MAGE
   stats:
@@ -5989,7 +5029,6 @@
     STAMINA: 14.0
     ARMOR: 52.0
     SPELL_DAMAGE: 18.0
-  source: Quest reward. Requires boss drops from Ruins of Ahn'Qiraj (AQ20) and Revered with Cenarion Hold.
 - id: 21417
   name: Ring of Unspoken Names
   phase: 5
@@ -5999,7 +5038,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_jewelry_ring_ahnqiraj_03.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -6007,7 +5045,6 @@
     SPELL_DAMAGE: 14.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires Qiraji Ceremonial Ring from Bosses in Ruins of Ahn'Qiraj (AQ20).
 - id: 21473
   name: Eye of Moam
   phase: 5
@@ -6017,13 +5054,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_misc_eye_01.png
-  uses:
-  - name: EYE_OF_MOAM
-    cooldown: 0
-  special_equip_effects:
-  - 'Use: Increases damage done by magical spells and effects by up to 50, and decreases the magical resistances of your spell targets by 100 for 30 sec. (cooldown 3 min)'
-  source: Drops from Moam in Ruins of Ahn'Qiraj (AQ20).
 - id: 21477
   name: Ring of Fury
   phase: 5
@@ -6033,12 +5063,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 74
-  icon: Inv_jewelry_ring_ahnqiraj_04.png
   stats:
     STAMINA: 9.0
     HIT_CHANCE: 0.01
     ATTACK_POWER: 30.0
-  source: Drops from Moam in Ruins of Ahn'Qiraj (AQ20).
 - id: 21483
   name: Ring of the Desert Winds
   phase: 5
@@ -6048,13 +5076,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 73
-  icon: Inv_jewelry_ring_ahnqiraj_05.png
   stats:
     INTELLECT: 9.0
     MANA_PER_5: 3.0
     SPELL_DAMAGE: 9.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Ayamiss the Hunter in Ruins of Ahn'Qiraj (AQ20).
 - id: 21504
   name: Charm of the Shifting Sands
   phase: 5
@@ -6063,12 +5089,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_jewelry_necklace_ahnqiraj_03.png
   stats:
     INTELLECT: 12.0
     STAMINA: 9.0
     SPELL_DAMAGE: 25.0
-  source: Quest reward. Requires Head of Ossirian from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20).
 - id: 21505
   name: Choker of the Shifting Sands
   phase: 5
@@ -6077,11 +5101,9 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 70
-  icon: Inv_jewelry_necklace_ahnqiraj_03.png
   stats:
     STAMINA: 16.0
     ATTACK_POWER: 42.0
-  source: Quest reward. Requires Head of Ossirian from Ossirian the Unscarred in Ruins of Ahn'Qiraj (AQ20).
 - id: 21517
   name: Gnomish Turban of Psychic Might
   phase: 5
@@ -6090,15 +5112,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_helmet_63.png
   stats:
     INTELLECT: 31.0
     STAMINA: 17.0
     ARMOR: 93.0
     MANA_PER_5: 9.0
-  special_equip_effects:
-  - 'Equip: Increases your resistance to silence effects by 10%.'
-  source: Drops from Nefarian in Blackwing Lair.
 - id: 21520
   name: Ravencrest's Legacy
   phase: 5
@@ -6108,7 +5126,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_sword_49.png
   damage:
     min: 84
     max: 157
@@ -6117,11 +5134,6 @@
     AGILITY: 9.0
     STAMINA: 14.0
     STRENGTH: 13.0
-  mutex:
-  - 21251
-  - 21252
-  - 21253
-  source: Quest reward. Last step of the Scepter of the Shifting Sands quest line.
 - id: 21521
   name: Runesword of the Red
   phase: 5
@@ -6131,7 +5143,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_sword_51.png
   damage:
     min: 53
     max: 129
@@ -6141,11 +5152,6 @@
     SPIRIT: 7.0
     STAMINA: 17.0
     SPELL_DAMAGE: 64.0
-  mutex:
-  - 21250
-  - 21252
-  - 21253
-  source: Quest reward. Last step of the Scepter of the Shifting Sands quest line.
 - id: 21527
   name: Darkwater Robes
   phase: 5
@@ -6154,16 +5160,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_chest_cloth_31.png
   stats:
     INTELLECT: 17.0
     STAMINA: 17.0
     ARMOR: 117.0
     FIRE_RESISTANCE: 30.0
     SPELL_DAMAGE_FROST: 39.0
-  mutex:
-  - 21526
-  source: Quest reward. Part of the Scepter of Ahn'Qiraj quest chain.
 - id: 21532
   name: Drudge Boots
   phase: 5
@@ -6172,16 +5174,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_boots_08.png
   stats:
     AGILITY: 17.0
     STAMINA: 20.0
     STRENGTH: 13.0
     ARMOR: 156.0
     NATURE_RESISTANCE: 20.0
-  mutex:
-  - 21531
-  source: Quest reward. Part of the Scarab Lord quest chain.
 - id: 21565
   name: Rune of Perfection
   phase: 3
@@ -6191,7 +5189,6 @@
   unique: true
   req_lvl: 40
   item_lvl: 45
-  icon: Inv_misc_rune_05.png
   class_restrictions:
   - PRIEST
   - SHAMAN
@@ -6201,7 +5198,6 @@
   stats:
     STAMINA: 7.0
     SPELL_PENETRATION: 20.0
-  source: Sold by Warsong Gulch vendor.
 - id: 21581
   name: Gauntlets of Annihilation
   phase: 5
@@ -6210,14 +5206,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_31.png
   stats:
     STAMINA: 15.0
     STRENGTH: 35.0
     ARMOR: 615.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21585
   name: Darkstorm Gauntlets
   phase: 5
@@ -6226,14 +5220,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_17.png
   stats:
     INTELLECT: 15.0
     STAMINA: 19.0
     ARMOR: 83.0
     SPELL_DAMAGE: 37.0
     SPELL_HIT_CHANCE: 0.01
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21586
   name: Belt of Never-ending Agony
   phase: 5
@@ -6242,14 +5234,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_belt_26.png
   stats:
     STAMINA: 20.0
     ARMOR: 142.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 64.0
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21596
   name: Ring of the Godslayer
   phase: 5
@@ -6259,11 +5249,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_jewelry_ring_ahnqiraj_06.png
   stats:
     AGILITY: 27.0
     STAMINA: 17.0
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21597
   name: Royal Scepter of Vek'lor
   phase: 5
@@ -6272,7 +5260,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_wand_10.png
   damage:
     min: 1
     max: 1
@@ -6283,7 +5270,6 @@
     SPELL_DAMAGE: 20.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21600
   name: Boots of Epiphany
   phase: 5
@@ -6292,13 +5278,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_boots_cloth_05.png
   stats:
     INTELLECT: 19.0
     STAMINA: 18.0
     ARMOR: 84.0
     SPELL_DAMAGE: 34.0
-  source: Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21602
   name: Qiraji Execution Bracers
   phase: 5
@@ -6307,14 +5291,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_bracer_13.png
   stats:
     AGILITY: 16.0
     STAMINA: 14.0
     STRENGTH: 15.0
     ARMOR: 103.0
     HIT_CHANCE: 0.01
-  source: Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21605
   name: Gloves of the Hidden Temple
   phase: 5
@@ -6323,14 +5305,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_gauntlets_19.png
   stats:
     AGILITY: 21.0
     STAMINA: 22.0
     STRENGTH: 18.0
     ARMOR: 248.0
     SHADOW_RESISTANCE: 6.0
-  source: Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21608
   name: Amulet of Vek'nilash
   phase: 5
@@ -6339,13 +5319,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_jewelry_necklace_ahnqiraj_01.png
   stats:
     INTELLECT: 5.0
     STAMINA: 9.0
     SPELL_DAMAGE: 27.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Twin Emperors in Temple of Ahn'Qiraj (AQ40).
 - id: 21611
   name: Burrower Bracers
   phase: 5
@@ -6354,13 +5332,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_bracer_13.png
   stats:
     INTELLECT: 13.0
     STAMINA: 10.0
     ARMOR: 54.0
     SPELL_DAMAGE: 28.0
-  source: Drops from Ouro in Temple of Ahn'Qiraj (AQ40).
 - id: 21616
   name: Huhuran's Stinger
   phase: 5
@@ -6369,14 +5345,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_weapon_bow_14.png
   damage:
     min: 87
     max: 163
     speed: 2.7
   stats:
     AGILITY: 18.0
-  source: Drops from Princess Huhuran in Temple of Ahn'Qiraj (AQ40).
 - id: 21618
   name: Hive Defiler's Wristguards
   phase: 5
@@ -6385,12 +5359,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_bracer_02.png
   stats:
     AGILITY: 18.0
     STRENGTH: 23.0
     ARMOR: 384.0
-  source: Drops from Princess Huhuran in Temple of Ahn'Qiraj.
 - id: 21622
   name: Sharpened Silithid Femur
   phase: 5
@@ -6400,7 +5372,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_58.png
   damage:
     min: 54
     max: 137
@@ -6410,7 +5381,6 @@
     STAMINA: 14.0
     SPELL_DAMAGE: 72.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Viscidus in Temple of Ahn'Qiraj (AQ40).
   flavour_text: '"Recently devoured"'
 - id: 21623
   name: Gauntlets of the Righteous Champion
@@ -6420,7 +5390,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_gauntlets_26.png
   stats:
     INTELLECT: 13.0
     STAMINA: 17.0
@@ -6428,7 +5397,6 @@
     ARMOR: 549.0
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 16.0
-  source: Drops from Viscidus in Temple of Ahn'Qiraj (AQ40).
 - id: 21645
   name: Hive Tunneler's Boots
   phase: 5
@@ -6437,13 +5405,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_boots_04.png
   stats:
     AGILITY: 17.0
     STAMINA: 30.0
     STRENGTH: 10.0
     ARMOR: 216.0
-  source: Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40).
 - id: 21648
   name: Recomposed Boots
   phase: 5
@@ -6452,14 +5418,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_boots_cloth_07.png
   stats:
     INTELLECT: 13.0
     STAMINA: 21.0
     ARMOR: 80.0
     NATURE_RESISTANCE: 20.0
     SPELL_DAMAGE: 20.0
-  source: Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40).
 - id: 21650
   name: Ancient Qiraji Ripper
   phase: 5
@@ -6468,7 +5432,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_sword_84.png
   damage:
     min: 114
     max: 213
@@ -6477,7 +5440,6 @@
     STAMINA: 11.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 20.0
-  source: Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40).
 - id: 21664
   name: Barbed Choker
   phase: 5
@@ -6486,12 +5448,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_jewelry_necklace_ahnqiraj_02.png
   stats:
     STAMINA: 10.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 44.0
-  source: Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40).
 - id: 21665
   name: Mantle of Wicked Revenge
   phase: 5
@@ -6500,13 +5460,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 77
-  icon: Inv_shoulder_30.png
   stats:
     AGILITY: 30.0
     STAMINA: 14.0
     STRENGTH: 16.0
     ARMOR: 170.0
-  source: Drops from Fankriss the Unyielding in Temple of Ahn'Qiraj (AQ40).
 - id: 21670
   name: Badge of the Swarmguard
   phase: 5
@@ -6516,14 +5474,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_misc_ahnqirajtrinket_04.png
-  uses:
-  - name: BADGE_OF_THE_SWARMGUARD
-    cooldown: 0
-    value: 0.8
-  special_equip_effects:
-  - 'Use: Gives a chance on melee or ranged attack to apply an armor penetration effect on you for 30 sec, lowering the target''s physical armor by 200 to your own attacks. The armor penetration effect can be applied up to 6 rimes. (cooldown 3 min)'
-  source: Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40).
 - id: 21672
   name: Gloves of Enforcement
   phase: 5
@@ -6532,14 +5482,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_gauntlets_17.png
   stats:
     AGILITY: 20.0
     STAMINA: 6.0
     STRENGTH: 28.0
     ARMOR: 140.0
     HIT_CHANCE: 0.01
-  source: Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40).
 - id: 21674
   name: Gauntlets of Steadfast Determination
   phase: 5
@@ -6548,14 +5496,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_gauntlets_31.png
   stats:
     AGILITY: 18.0
     STAMINA: 20.0
     STRENGTH: 19.0
     ARMOR: 535.0
     DEFENSE: 9.0
-  source: Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40).
 - id: 21677
   name: Ring of the Qiraji Fury
   phase: 5
@@ -6565,12 +5511,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_jewelry_ring_ahnqiraj_01.png
   stats:
     STAMINA: 12.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 40.0
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21678
   name: Necklace of Purity
   phase: 5
@@ -6579,13 +5523,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 76
-  icon: Inv_jewelry_necklace_ahnqiraj_04.png
   stats:
     INTELLECT: 13.0
     STAMINA: 9.0
     NATURE_RESISTANCE: 20.0
     SPELL_DAMAGE: 8.0
-  source: Drops from Battleguard Sartura in Temple of Ahn'Qiraj (AQ40).
 - id: 21693
   name: Guise of the Devourer
   phase: 5
@@ -6594,14 +5536,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 75
-  icon: Inv_helmet_06.png
   stats:
     AGILITY: 19.0
     STAMINA: 36.0
     STRENGTH: 17.0
     ARMOR: 250.0
     DODGE_CHANCE: 0.01
-  source: Drops from bug trio in Temple of Ahn'Qiraj (AQ40).
 - id: 21700
   name: Pendant of the Qiraji Guardian
   phase: 5
@@ -6610,13 +5550,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 73
-  icon: Inv_jewelry_necklace_ahnqiraj_01.png
   stats:
     AGILITY: 11.0
     STAMINA: 17.0
     STRENGTH: 12.0
     DEFENSE: 6.0
-  source: Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40).
 - id: 21707
   name: Ring of Swarming Thought
   phase: 5
@@ -6626,11 +5564,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 73
-  icon: Inv_jewelry_ring_ahnqiraj_04.png
   stats:
     SPELL_DAMAGE: 26.0
     SPELL_PENETRATION: 20.0
-  source: Drops from The Prophet Skeram in Temple of Ahn'Qiraj (AQ40).
 - id: 21709
   name: Ring of the Fallen God
   phase: 5
@@ -6640,16 +5576,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_jewelry_ring_ahnqiraj_02.png
   stats:
     INTELLECT: 6.0
     STAMINA: 5.0
     SPELL_DAMAGE: 37.0
     SPELL_HIT_CHANCE: 0.01
-  mutex:
-  - 21712
-  - 21710
-  source: Quest reward. Requires Eye of C'Thun from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21710
   name: Cloak of the Fallen God
   phase: 5
@@ -6658,16 +5589,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_misc_cape_10.png
   stats:
     AGILITY: 26.0
     STAMINA: 15.0
     STRENGTH: 11.0
     ARMOR: 66.0
-  mutex:
-  - 21712
-  - 21709
-  source: Quest reward. Requires Eye of C'Thun from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 21809
   name: Fury of the Forgotten Swarm
   phase: 5
@@ -6676,12 +5602,10 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_jewelry_necklace_14.png
   stats:
     STRENGTH: 8.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Drops from captains spawned during General Rajaxx encounter in Ruins of Ahn'Qiraj (AQ20).
 - id: 21836
   name: Ritssyn's Ring of Chaos
   phase: 5
@@ -6691,12 +5615,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_jewelry_ring_34.png
   stats:
     STAMINA: 6.0
     SPELL_DAMAGE: 25.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from trash mobs in Temple of Ahn'Qiraj (AQ40).
 - id: 21888
   name: Gloves of the Immortal
   phase: 5
@@ -6705,12 +5627,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_gauntlets_14.png
   stats:
     INTELLECT: 16.0
     STAMINA: 28.0
     ARMOR: 188.0
-  source: Drops from trash mobs in Temple of Ahn'Qiraj (AQ40).
 - id: 22002
   name: Darkmantle Belt
   phase: 5
@@ -6719,7 +5639,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_belt_03.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6727,7 +5646,6 @@
     STAMINA: 13.0
     STRENGTH: 10.0
     ARMOR: 102.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22003
   name: Darkmantle Boots
   phase: 5
@@ -6736,14 +5654,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_boots_08.png
   class_restrictions:
   - ROGUE
   stats:
     AGILITY: 24.0
     STAMINA: 10.0
     ARMOR: 127.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22004
   name: Darkmantle Bracers
   phase: 5
@@ -6752,7 +5668,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_bracer_07.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6760,7 +5675,6 @@
     STAMINA: 7.0
     STRENGTH: 7.0
     ARMOR: 79.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22005
   name: Darkmantle Cap
   phase: 5
@@ -6769,7 +5683,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_helmet_41.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6778,7 +5691,6 @@
     STRENGTH: 13.0
     ARMOR: 150.0
     CRIT_CHANCE: 0.01
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22006
   name: Darkmantle Gloves
   phase: 5
@@ -6787,7 +5699,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_gauntlets_24.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6795,7 +5706,6 @@
     STAMINA: 9.0
     STRENGTH: 12.0
     ARMOR: 108.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22007
   name: Darkmantle Pants
   phase: 5
@@ -6804,7 +5714,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_pants_02.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6812,7 +5721,6 @@
     STAMINA: 15.0
     STRENGTH: 15.0
     ARMOR: 160.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22008
   name: Darkmantle Spaulders
   phase: 5
@@ -6821,14 +5729,12 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_07.png
   class_restrictions:
   - ROGUE
   stats:
     AGILITY: 24.0
     STAMINA: 10.0
     ARMOR: 136.0
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22009
   name: Darkmantle Tunic
   phase: 5
@@ -6837,7 +5743,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_chest_leather_07.png
   class_restrictions:
   - ROGUE
   stats:
@@ -6845,7 +5750,6 @@
     STAMINA: 15.0
     ARMOR: 185.0
     HIT_CHANCE: 0.02
-  source: Darkmantle Quest line (Shadowcraft required).
 - id: 22010
   name: Beastmaster's Belt
   phase: 5
@@ -6854,13 +5758,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_belt_28.png
   stats:
     AGILITY: 16.0
     INTELLECT: 10.0
     STAMINA: 16.0
     ARMOR: 214.0
-  source: Quest reward. Requires Beaststalker's Belt and Beaststalker's Gloves.
 - id: 22011
   name: Beastmaster's Bindings
   phase: 5
@@ -6869,13 +5771,11 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 65
-  icon: Inv_bracer_17.png
   stats:
     AGILITY: 16.0
     INTELLECT: 5.0
     STAMINA: 7.0
     ARMOR: 167.0
-  source: Quest reward. Requires Beaststalker's Bindings, gold, drops from Winterspring beasts.
 - id: 22013
   name: Beastmaster's Cap
   phase: 5
@@ -6884,16 +5784,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_helmet_24.png
   stats:
     AGILITY: 22.0
     INTELLECT: 12.0
     STAMINA: 21.0
     ARMOR: 314.0
     HIT_CHANCE: 0.01
-  special_equip_effects:
-  - 'Equip: Increases your pet''s maximum health by 3%.'
-  source: Quest reward. Requires Beaststalker's Cap and Beaststalker's Tunic.
 - id: 22015
   name: Beastmaster's Gloves
   phase: 5
@@ -6902,17 +5798,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 55
-  icon: Inv_gauntlets_10.png
   stats:
     AGILITY: 14.0
     INTELLECT: 10.0
     STAMINA: 12.0
     ARMOR: 223.0
-  modifies:
-  - BEASTMASTER_HUNTER_PET
-  special_equip_effects:
-  - 'Equip: Increases your pet''s critical strike chance by 2%.'
-  source: Quest reward. Requires Beaststalker's Belt, Beaststalker's Gloves.
 - id: 22016
   name: Beastmaster's Mantle
   phase: 5
@@ -6921,13 +5811,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_10.png
   stats:
     AGILITY: 12.0
     INTELLECT: 10.0
     STAMINA: 18.0
     ARMOR: 286.0
-  source: Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle.
 - id: 22017
   name: Beastmaster's Pants
   phase: 5
@@ -6936,13 +5824,11 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_pants_03.png
   stats:
     AGILITY: 28.0
     INTELLECT: 9.0
     STAMINA: 14.0
     ARMOR: 339.0
-  source: Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle.
 - id: 22060
   name: Beastmaster's Tunic
   phase: 5
@@ -6951,16 +5837,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_chest_chain_03.png
   stats:
     AGILITY: 25.0
     INTELLECT: 13.0
     STAMINA: 16.0
     ARMOR: 387.0
     CRIT_CHANCE: 0.01
-  special_equip_effects:
-  - 'Equip: Increases your pet''s armor by 10%.'
-  source: Drops from General Drakkisath in Upper Blackrock Spire (UBRS).
 - id: 22061
   name: Beastmaster's Boots
   phase: 5
@@ -6969,16 +5851,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_boots_plate_07.png
   stats:
     AGILITY: 24.0
     STAMINA: 9.0
     ARMOR: 266.0
-  modifies:
-  - BEASTMASTER_HUNTER_PET
-  special_equip_effects:
-  - 'Equip: Increases damage dealt by your pet by 3%.'
-  source: Quest reward. Requires Beaststalker's Boots, Beaststalker's Pants, and Beaststalker's Mantle.
 - id: 22062
   name: Sorcerer's Belt
   phase: 5
@@ -6987,7 +5863,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_belt_08.png
   class_restrictions:
   - MAGE
   stats:
@@ -6996,7 +5871,6 @@
     STAMINA: 12.0
     ARMOR: 52.0
     SPELL_DAMAGE: 14.0
-  source: Quest reward. Requires Magister's Belt.
 - id: 22063
   name: Sorcerer's Bindings
   phase: 5
@@ -7005,7 +5879,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 65
-  icon: Inv_jewelry_ring_23.png
   class_restrictions:
   - MAGE
   stats:
@@ -7014,7 +5887,6 @@
     STAMINA: 8.0
     ARMOR: 40.0
     SPELL_DAMAGE: 8.0
-  source: Quest reward. Requires Magister's Bindings.
 - id: 22064
   name: Sorcerer's Boots
   phase: 5
@@ -7023,7 +5895,6 @@
   quality: EPIC
   req_lvl: 58
   item_lvl: 60
-  icon: Inv_boots_02.png
   class_restrictions:
   - MAGE
   stats:
@@ -7032,7 +5903,6 @@
     STAMINA: 14.0
     ARMOR: 64.0
     SPELL_DAMAGE: 21.0
-  source: Quest reward. Requires Magister's Boots.
 - id: 22065
   name: Sorcerer's Crown
   phase: 5
@@ -7041,7 +5911,6 @@
   quality: EPIC
   req_lvl: 58
   item_lvl: 60
-  icon: Inv_crown_02.png
   class_restrictions:
   - MAGE
   stats:
@@ -7051,7 +5920,6 @@
     ARMOR: 75.0
     SPELL_DAMAGE: 11.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Involves a long quest chain. Requires Magister's Robes and Magister's Crown.
 - id: 22066
   name: Sorcerer's Gloves
   phase: 5
@@ -7060,7 +5928,6 @@
   quality: EPIC
   req_lvl: 58
   item_lvl: 55
-  icon: Inv_gauntlets_17.png
   class_restrictions:
   - MAGE
   stats:
@@ -7070,7 +5937,6 @@
     ARMOR: 54.0
     SPELL_DAMAGE: 12.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires Magister's Gloves.
 - id: 22067
   name: Sorcerer's Leggings
   phase: 5
@@ -7079,7 +5945,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 66
-  icon: Inv_pants_06.png
   class_restrictions:
   - MAGE
   stats:
@@ -7088,7 +5953,6 @@
     STAMINA: 17.0
     ARMOR: 81.0
     SPELL_DAMAGE: 16.0
-  source: Quest reward. Requires Magister's Leggings.
 - id: 22068
   name: Sorcerer's Mantle
   phase: 5
@@ -7097,7 +5961,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_shoulder_23.png
   class_restrictions:
   - MAGE
   stats:
@@ -7106,7 +5969,6 @@
     STAMINA: 11.0
     ARMOR: 69.0
     SPELL_DAMAGE: 9.0
-  source: Quest reward. Requires Magister's Boots, Magister's Leggings, Magister's Mantle.
 - id: 22069
   name: Sorcerer's Robes
   phase: 5
@@ -7115,7 +5977,6 @@
   quality: EPIC
   req_lvl: 58
   item_lvl: 60
-  icon: Inv_chest_cloth_25.png
   class_restrictions:
   - MAGE
   stats:
@@ -7125,7 +5986,6 @@
     ARMOR: 93.0
     SPELL_DAMAGE: 16.0
     SPELL_PENETRATION: 20.0
-  source: Quest reward. Involves a long quest chain. Requires Magister's Robes and Magister's Crown.
 - id: 22070
   name: Deathmist Belt
   phase: 5
@@ -7134,7 +5994,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_belt_12.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7142,7 +6001,6 @@
     STAMINA: 16.0
     ARMOR: 52.0
     SPELL_DAMAGE: 12.0
-  source: Quest reward. Requires Dreadmist Belt.
 - id: 22071
   name: Deathmist Bracers
   phase: 5
@@ -7151,7 +6009,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 65
-  icon: Inv_bracer_13.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7159,7 +6016,6 @@
     STAMINA: 12.0
     ARMOR: 40.0
     SPELL_DAMAGE: 8.0
-  source: Quest reward. Requires Dreadmist Bracers.
 - id: 22079
   name: Virtuous Bracers
   phase: 5
@@ -7168,7 +6024,6 @@
   quality: RARE
   req_lvl: 58
   item_lvl: 65
-  icon: Inv_belt_31.png
   class_restrictions:
   - PRIEST
   stats:
@@ -7178,7 +6033,6 @@
     ARMOR: 40.0
     MANA_PER_5: 2.0
     SPELL_DAMAGE: 9.0
-  source: Quest reward. Requires Devout Bracers.
 - id: 22149
   name: Beads of Ogre Mojo
   phase: 2
@@ -7187,14 +6041,10 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_jewelry_amulet_05.png
   stats:
     INTELLECT: 12.0
     STAMINA: 7.0
     SPELL_DAMAGE: 13.0
-  mutex:
-  - 22150
-  source: Quest reward. Requires Dire Maul.
 - id: 22150
   name: Beads of Ogre Might
   phase: 2
@@ -7203,14 +6053,10 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 63
-  icon: Inv_jewelry_amulet_05.png
   stats:
     STAMINA: 7.0
     HIT_CHANCE: 0.01
     ATTACK_POWER: 24.0
-  mutex:
-  - 22149
-  source: Quest reward. Requires Dire Maul.
 - id: 22191
   name: Obsidian Mail Tunic
   phase: 5
@@ -7220,14 +6066,10 @@
   req_lvl: 60
   item_lvl: 72
   boe: true
-  icon: Inv_chest_chain_17.png
   stats:
     ARMOR: 458.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 76.0
-  special_equip_effects:
-  - 'Equip: Spell Damage received is reduced by 10.'
-  source: Crafted by Blacksmiths (300 skill). Requires drops/ores from Ruins of Ahn'Qiraj (AQ20).
 - id: 22194
   name: Black Grasp of the Destroyer
   phase: 5
@@ -7237,22 +6079,10 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_gauntlets_31.png
   stats:
     ARMOR: 279.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  procs:
-  - name: BLACK_GRASP_OF_THE_DESTROYER
-    rate: 1.0
-    ppm: false
-    internal_cd: 0.0
-    min: 8
-    max: 8
-    instant: true
-  special_equip_effects:
-  - 'Equip: On successful melee or ranged attack gain 8 mana and if possible drain 8 mana from the target.'
-  source: Crafted by Blacksmiths. Recipe from Moam in AQ20 and requires material from AQ20/AQ40.
 - id: 22195
   name: Light Obsidian Belt
   phase: 5
@@ -7262,13 +6092,11 @@
   req_lvl: 60
   item_lvl: 68
   boe: true
-  icon: Inv_belt_16.png
   stats:
     ARMOR: 224.0
     ALL_RESISTANCE: 5.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 32.0
-  source: Crafted by Blacksmiths (300 skill). Pattern requires Honored with Cenarion Circle.
 - id: 22197
   name: Heavy Obsidian Belt
   phase: 5
@@ -7278,12 +6106,10 @@
   req_lvl: 60
   item_lvl: 68
   boe: true
-  icon: Inv_belt_16.png
   stats:
     STRENGTH: 25.0
     ARMOR: 397.0
     ALL_RESISTANCE: 5.0
-  source: Crafted by Blacksmiths (300 skill). Plans requires Friendly with Cenarion Circle.
 - id: 22378
   name: Ravenholdt Slicer
   phase: 5
@@ -7293,7 +6119,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_sword_38.png
   damage:
     min: 83
     max: 156
@@ -7301,13 +6126,6 @@
   stats:
     STAMINA: 6.0
     ATTACK_POWER: 26.0
-  mutex:
-  - 22379
-  - 22377
-  - 22348
-  - 22347
-  - 22380
-  source: Quest reward. Requires killing entry bosses in both AQ20 and ZG.
 - id: 22379
   name: Shivsprocket's Shiv
   phase: 5
@@ -7316,7 +6134,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_sword_21.png
   damage:
     min: 42
     max: 82
@@ -7324,13 +6141,6 @@
   stats:
     STAMINA: 13.0
     SPELL_DAMAGE: 13.0
-  mutex:
-  - 22378
-  - 22377
-  - 22348
-  - 22347
-  - 22380
-  source: Quest reward. Requires killing entry bosses in both AQ20 and ZG.
 - id: 22383
   name: Sageblade
   phase: 5
@@ -7340,7 +6150,6 @@
   req_lvl: 60
   item_lvl: 64
   boe: true
-  icon: Inv_sword_51.png
   damage:
     min: 49
     max: 100
@@ -7350,7 +6159,6 @@
     STAMINA: 14.0
     SPELL_DAMAGE: 20.0
     SPELL_PENETRATION: 10.0
-  source: Crafted by Blacksmiths (300 skill). Pattern is a rare drop of multiple bosses in different instances.
 - id: 22384
   name: Persuader
   phase: 5
@@ -7360,7 +6168,6 @@
   req_lvl: 58
   item_lvl: 63
   boe: true
-  icon: Inv_hammer_08.png
   damage:
     min: 86
     max: 161
@@ -7368,7 +6175,6 @@
   stats:
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Created by Blacksmiths (plans are world drop/raid bosses).
 - id: 22385
   name: Titanic Leggings
   phase: 5
@@ -7378,13 +6184,11 @@
   req_lvl: 55
   item_lvl: 60
   boe: true
-  icon: Inv_pants_04.png
   stats:
     STRENGTH: 30.0
     ARMOR: 598.0
     HIT_CHANCE: 0.02
     CRIT_CHANCE: 0.01
-  source: Crafted by blacksmiths. Plans mainly drop from world bosses and Nefarian, Onyxia, Ragnaros.
 - id: 22418
   name: Dreadnaught Helmet
   phase: 6
@@ -7393,7 +6197,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_helmet_58.png
   class_restrictions:
   - WARRIOR
   stats:
@@ -7402,7 +6205,6 @@
     ARMOR: 800.0
     DEFENSE: 14.0
     DODGE_CHANCE: 0.01
-  source: Quest reward. Requires boss drop from Thaddius in Naxxramas.
 - id: 22436
   name: Crypstalker Tunic
   phase: 6
@@ -7411,7 +6213,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_chest_chain_15.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7422,7 +6223,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     MANA_PER_5: 4.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22437
   name: Crypstalker Legguards
   phase: 6
@@ -7431,7 +6231,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_pants_mail_15.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7441,7 +6240,6 @@
     ARMOR: 484.0
     CRIT_CHANCE: 0.01
     MANA_PER_5: 6.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22438
   name: Crypstalker Headpiece
   phase: 6
@@ -7450,7 +6248,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_helmet_15.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7460,7 +6257,6 @@
     ARMOR: 449.0
     CRIT_CHANCE: 0.02
     MANA_PER_5: 3.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22439
   name: Crypstalker Spaulders
   phase: 6
@@ -7469,7 +6265,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_shoulder_14.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7478,7 +6273,6 @@
     STAMINA: 23.0
     ARMOR: 406.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22440
   name: Crypstalker Boots
   phase: 6
@@ -7487,7 +6281,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_boots_chain_05.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7496,7 +6289,6 @@
     STAMINA: 19.0
     ARMOR: 372.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22441
   name: Crypstalker Handguards
   phase: 6
@@ -7505,7 +6297,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_25.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7515,7 +6306,6 @@
     ARMOR: 346.0
     CRIT_CHANCE: 0.01
     MANA_PER_5: 4.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22442
   name: Crypstalker Girdle
   phase: 6
@@ -7524,7 +6314,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_belt_22.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7535,7 +6324,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     MANA_PER_5: 3.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22443
   name: Crypstalker Wristguards
   phase: 6
@@ -7544,7 +6332,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_bracer_02.png
   class_restrictions:
   - HUNTER
   stats:
@@ -7552,7 +6339,6 @@
     STAMINA: 16.0
     ARMOR: 242.0
     HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22476
   name: Bonescythe Breastplate
   phase: 6
@@ -7561,7 +6347,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_chest_plate02.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7570,7 +6355,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.02
     ATTACK_POWER: 80.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22477
   name: Bonescythe Legplates
   phase: 6
@@ -7579,7 +6363,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_pants_plate_05.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7589,7 +6372,6 @@
     ARMOR: 221.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22478
   name: Bonescythe Helmet
   phase: 6
@@ -7598,7 +6380,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_helmet_58.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7608,7 +6389,6 @@
     ARMOR: 205.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.02
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22479
   name: Bonescythe Pauldrons
   phase: 6
@@ -7617,7 +6397,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_shoulder_29.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7627,7 +6406,6 @@
     ARMOR: 186.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22480
   name: Bonescythe Sabatons
   phase: 6
@@ -7636,7 +6414,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_boots_plate_06.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7645,7 +6422,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 64.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22481
   name: Bonescythe Gauntlets
   phase: 6
@@ -7654,7 +6430,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_28.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7663,7 +6438,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 66.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22482
   name: Bonescythe Waistguard
   phase: 6
@@ -7672,7 +6446,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_belt_27.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7681,7 +6454,6 @@
     STRENGTH: 23.0
     ARMOR: 142.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22483
   name: Bonescythe Bracers
   phase: 6
@@ -7690,7 +6462,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_bracer_15.png
   class_restrictions:
   - ROGUE
   stats:
@@ -7698,7 +6469,6 @@
     STAMINA: 14.0
     ARMOR: 111.0
     CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22496
   name: Frostfire Robe
   phase: 6
@@ -7707,7 +6477,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_chest_cloth_43.png
   class_restrictions:
   - MAGE
   stats:
@@ -7717,7 +6486,6 @@
     SPELL_DAMAGE: 47.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22497
   name: Frostfire Leggings
   phase: 6
@@ -7726,7 +6494,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_pants_cloth_05.png
   class_restrictions:
   - MAGE
   stats:
@@ -7736,7 +6503,6 @@
     ARMOR: 116.0
     SPELL_DAMAGE: 46.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22498
   name: Frostfire Circlet
   phase: 6
@@ -7745,7 +6511,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_crown_01.png
   class_restrictions:
   - MAGE
   stats:
@@ -7755,7 +6520,6 @@
     SPELL_DAMAGE: 35.0
     SPELL_CRIT_CHANCE: 0.02
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22499
   name: Frostfire Shoulderpads
   phase: 6
@@ -7764,7 +6528,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_shoulder_25.png
   class_restrictions:
   - MAGE
   stats:
@@ -7773,7 +6536,6 @@
     STAMINA: 17.0
     ARMOR: 97.0
     SPELL_DAMAGE: 36.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22500
   name: Frostfire Sandals
   phase: 6
@@ -7782,7 +6544,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_boots_fabric_01.png
   class_restrictions:
   - MAGE
   stats:
@@ -7792,7 +6553,6 @@
     ARMOR: 89.0
     SPELL_DAMAGE: 28.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22501
   name: Frostfire Gloves
   phase: 6
@@ -7801,7 +6561,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_17.png
   class_restrictions:
   - MAGE
   stats:
@@ -7810,7 +6569,6 @@
     STAMINA: 17.0
     ARMOR: 83.0
     SPELL_DAMAGE: 36.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22502
   name: Frostfire Belt
   phase: 6
@@ -7819,7 +6577,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_belt_03.png
   class_restrictions:
   - MAGE
   stats:
@@ -7829,7 +6586,6 @@
     ARMOR: 75.0
     SPELL_DAMAGE: 28.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22503
   name: Frostfire Bindings
   phase: 6
@@ -7838,7 +6594,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_bracer_13.png
   class_restrictions:
   - MAGE
   stats:
@@ -7847,7 +6602,6 @@
     ARMOR: 58.0
     SPELL_DAMAGE: 27.0
     SPELL_PENETRATION: 10.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22504
   name: Plagueheart Robe
   phase: 6
@@ -7856,7 +6610,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_chest_cloth_43.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7866,7 +6619,6 @@
     SPELL_DAMAGE: 51.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22505
   name: Plagueheart Leggings
   phase: 6
@@ -7875,7 +6627,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_pants_cloth_05.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7885,7 +6636,6 @@
     SPELL_DAMAGE: 37.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_PENETRATION: 10.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22506
   name: Plagueheart Circlet
   phase: 6
@@ -7894,7 +6644,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_crown_01.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7904,7 +6653,6 @@
     SPELL_DAMAGE: 33.0
     SPELL_CRIT_CHANCE: 0.02
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22507
   name: Plagueheart Shoulderpads
   phase: 6
@@ -7913,7 +6661,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_shoulder_25.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7922,7 +6669,6 @@
     ARMOR: 97.0
     SPELL_DAMAGE: 36.0
     SPELL_HIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22508
   name: Plagueheart Sandals
   phase: 6
@@ -7931,7 +6677,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 86
-  icon: Inv_boots_fabric_01.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7940,7 +6685,6 @@
     ARMOR: 89.0
     SPELL_DAMAGE: 32.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22509
   name: Plagueheart Gloves
   phase: 6
@@ -7949,7 +6693,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_gauntlets_17.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7958,7 +6701,6 @@
     ARMOR: 83.0
     SPELL_DAMAGE: 26.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22510
   name: Plagueheart Belt
   phase: 6
@@ -7967,7 +6709,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_belt_03.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7976,7 +6717,6 @@
     ARMOR: 75.0
     SPELL_DAMAGE: 34.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22511
   name: Plagueheart Bindings
   phase: 6
@@ -7985,7 +6725,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_bracer_13.png
   class_restrictions:
   - WARLOCK
   stats:
@@ -7993,7 +6732,6 @@
     STAMINA: 23.0
     ARMOR: 58.0
     SPELL_DAMAGE: 23.0
-  source: Quest reward. Requires boss drops from Naxxramas.
 - id: 22651
   name: Outrider's Plate Legguards
   phase: 4
@@ -8002,7 +6740,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_pants_plate_20.png
   faction: HORDE
   stats:
     STAMINA: 27.0
@@ -8010,7 +6747,6 @@
     ARMOR: 646.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Sold by Warsong Gulch vendor Kelm Hargunth. Requires Exalted with Warsong Outriders.
 - id: 22652
   name: Glacial Vest
   phase: 6
@@ -8020,13 +6756,11 @@
   req_lvl: 60
   item_lvl: 80
   boe: true
-  icon: Inv_chest_cloth_08.png
   stats:
     STAMINA: 26.0
     ARMOR: 121.0
     FROST_RESISTANCE: 40.0
     SPELL_DAMAGE: 21.0
-  source: Crafted by Tailorers. Requires materials from Naxxramas.
 - id: 22654
   name: Glacial Gloves
   phase: 6
@@ -8036,13 +6770,11 @@
   req_lvl: 60
   item_lvl: 80
   boe: true
-  icon: Inv_gauntlets_06.png
   stats:
     STAMINA: 22.0
     ARMOR: 76.0
     FROST_RESISTANCE: 30.0
     SPELL_DAMAGE: 15.0
-  source: Crafted by Argent Dawn NPC. Requires expensive materials to craft.
 - id: 22655
   name: Glacial Wrists
   phase: 6
@@ -8052,13 +6784,11 @@
   req_lvl: 60
   item_lvl: 80
   boe: true
-  icon: Inv_bracer_07.png
   stats:
     STAMINA: 20.0
     ARMOR: 53.0
     FROST_RESISTANCE: 20.0
     SPELL_DAMAGE: 12.0
-  source: Crafted by Argent Dawn NPC. Requires expensive materials to craft.
 - id: 22657
   name: Amulet of the Dawn
   phase: 6
@@ -8067,17 +6797,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_jewelry_amulet_04.png
   stats:
     INTELLECT: 13.0
     STAMINA: 13.0
     SPELL_DAMAGE: 15.0
-  mutex:
-  - 22667
-  - 22668
-  - 22678
-  - 22656
-  source: Quest reward. Requires Exalted with Argent Dawn.
 - id: 22659
   name: Medallion of the Dawn
   phase: 6
@@ -8086,17 +6809,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 60
-  icon: Inv_jewelry_amulet_04.png
   stats:
     STAMINA: 12.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 24.0
-  mutex:
-  - 22667
-  - 22668
-  - 22678
-  - 22656
-  source: Quest reward. Requires Exalted with Argent Dawn.
 - id: 22672
   name: Sentinel's Plate Legguards
   phase: 4
@@ -8105,7 +6821,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_pants_plate_20.png
   faction: ALLIANCE
   stats:
     STAMINA: 27.0
@@ -8113,7 +6828,6 @@
     ARMOR: 646.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels.
 - id: 22688
   name: Verimonde's Last Resort
   phase: 6
@@ -8122,7 +6836,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_weapon_shortblade_03.png
   damage:
     min: 39
     max: 76
@@ -8131,7 +6844,6 @@
     INTELLECT: 8.0
     STAMINA: 7.0
     SPELL_DAMAGE: 19.0
-  source: Reputation reward. Attainable from Argent Dawn at each level of friendliness, among other rewards.
 - id: 22700
   name: Glacial Leggings
   phase: 6
@@ -8140,13 +6852,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 80
-  icon: Inv_pants_06.png
   stats:
     STAMINA: 28.0
     ARMOR: 106.0
     FROST_RESISTANCE: 40.0
     SPELL_DAMAGE: 18.0
-  source: Crafted by Argent Dawn NPC. Requires expensive materials to craft.
 - id: 22732
   name: Mark of C'Thun
   phase: 5
@@ -8155,13 +6865,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 88
-  icon: Inv_jewelry_necklace_ahnqiraj_04.png
   stats:
     STAMINA: 24.0
     DEFENSE: 10.0
     DODGE_CHANCE: 0.01
     HIT_CHANCE: 0.01
-  source: Drops from C'Thun in Temple of Ahn'Qiraj (AQ40).
 - id: 22747
   name: Outrider's Silk Leggings
   phase: 4
@@ -8170,7 +6878,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_pants_cloth_05.png
   faction: HORDE
   stats:
     INTELLECT: 19.0
@@ -8178,7 +6885,6 @@
     STAMINA: 23.0
     ARMOR: 188.0
     SPELL_DAMAGE: 28.0
-  source: Sold by Warsong Gulch vendor Kelm Hargunth. Requires Exalted with Warsong Outriders.
 - id: 22752
   name: Sentinel's Silk Leggings
   phase: 4
@@ -8187,7 +6893,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_pants_cloth_05.png
   faction: ALLIANCE
   stats:
     INTELLECT: 19.0
@@ -8195,7 +6900,6 @@
     STAMINA: 23.0
     ARMOR: 188.0
     SPELL_DAMAGE: 28.0
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels.
 - id: 22753
   name: Sentinel's Lamellar Legguards
   phase: 4
@@ -8204,7 +6908,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 65
-  icon: Inv_pants_plate_15.png
   faction: ALLIANCE
   stats:
     STAMINA: 21.0
@@ -8213,7 +6916,6 @@
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     SPELL_DAMAGE: 25.0
-  source: Sold by Warsong Gulch vendor Illiyana Moonblaze. Requires Exalted with Silverwing Sentinels.
 - id: 22756
   name: Sylvan Vest
   phase: 6
@@ -8223,13 +6925,11 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_chest_plate07.png
   stats:
     STAMINA: 15.0
     ARMOR: 98.0
     NATURE_RESISTANCE: 30.0
     SPELL_DAMAGE: 12.0
-  source: Crafted by Tailorers. Pattern requires drops from Zul'Gurub trash.
 - id: 22757
   name: Sylvan Crown
   phase: 6
@@ -8239,13 +6939,11 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_crown_01.png
   stats:
     STAMINA: 10.0
     ARMOR: 80.0
     NATURE_RESISTANCE: 30.0
     SPELL_DAMAGE: 18.0
-  source: Crafted by Tailorers. Pattern requires Honored with Cenarion Circle. Requires Mooncloth and Living Essence.
 - id: 22758
   name: Sylvan Shoulders
   phase: 6
@@ -8255,13 +6953,11 @@
   req_lvl: 60
   item_lvl: 70
   boe: true
-  icon: Inv_shoulder_18.png
   stats:
     STAMINA: 18.0
     ARMOR: 74.0
     NATURE_RESISTANCE: 20.0
     SPELL_DAMAGE: 7.0
-  source: Crafted by Tailorers. Requires Living Essences.
 - id: 22843
   name: Blood Guard's Chain Greaves
   phase: 2
@@ -8271,7 +6967,6 @@
   unique: true
   req_lvl: 58
   item_lvl: 66
-  icon: Inv_boots_05.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -8279,7 +6974,6 @@
     AGILITY: 20.0
     STAMINA: 19.0
     ARMOR: 266.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Blood Guard (rank 7).
 - id: 22858
   name: Blood Guard's Plate Greaves
   phase: 2
@@ -8289,7 +6983,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_plate_09.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -8298,7 +6991,6 @@
     STAMINA: 23.0
     STRENGTH: 10.0
     ARMOR: 472.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Blood Guard (rank 7).
 - id: 22860
   name: Blood Guard's Silk Walkers
   phase: 2
@@ -8307,7 +6999,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_05.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -8317,7 +7008,6 @@
     ARMOR: 104.0
     SPELL_DAMAGE: 15.0
     SPELL_HIT_CHANCE: 0.01
-  source: May be purchased upon reaching Blood Guard (rank 7). Horde only.
 - id: 22862
   name: Blood Guard's Chain Vices
   phase: 2
@@ -8327,7 +7017,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_17.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -8335,11 +7024,6 @@
     AGILITY: 18.0
     STAMINA: 16.0
     ARMOR: 242.0
-  modifies:
-  - Multi-Shot
-  special_equip_effects:
-  - 'Equip: Increases the damage done by your Multi-Shot by 4%.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Blood Guard (rank 7).
 - id: 22868
   name: Blood Guard's Plate Gauntlets
   phase: 2
@@ -8349,7 +7033,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_26.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -8357,11 +7040,6 @@
     STAMINA: 17.0
     STRENGTH: 17.0
     ARMOR: 429.0
-  modifies:
-  - Hamstring
-  special_equip_effects:
-  - 'Equip: Hamstring Rage cost reduced by 3.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Blood Guard (rank 7).
 - id: 22870
   name: Blood Guard's Silk Handguards
   phase: 2
@@ -8370,7 +7048,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_06.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -8379,9 +7056,6 @@
     STAMINA: 12.0
     ARMOR: 98.0
     SPELL_DAMAGE: 18.0
-  special_equip_effects:
-  - 'Equip: Increases the damage absorbed by your Mana Shield by 285.'
-  source: May be purchased upon reaching Blood Guard (rank 7). Horde only.
 - id: 22872
   name: Legionnaire's Plate Hauberk
   phase: 2
@@ -8391,7 +7065,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_plate16.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -8400,7 +7073,6 @@
     STRENGTH: 21.0
     ARMOR: 706.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Legionnaire (rank 8).
 - id: 22873
   name: Legionnaire's Plate Leggings
   phase: 2
@@ -8410,7 +7082,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_06.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -8419,7 +7090,6 @@
     STRENGTH: 12.0
     ARMOR: 618.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Legionnaire (rank 8).
 - id: 22874
   name: Legionnaire's Chain Hauberk
   phase: 2
@@ -8429,7 +7099,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_chain_04.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -8439,7 +7108,6 @@
     STAMINA: 13.0
     ARMOR: 398.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Legionnaire (rank 8).
 - id: 22875
   name: Legionnaire's Chain Legguards
   phase: 2
@@ -8449,7 +7117,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_03.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -8459,7 +7126,6 @@
     STAMINA: 13.0
     ARMOR: 348.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Legionnaire (rank 8).
 - id: 22883
   name: Legionnaire's Silk Legguards
   phase: 2
@@ -8468,7 +7134,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_11.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -8479,7 +7144,6 @@
     ARMOR: 144.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Legionnaire (rank 8). Horde only.
 - id: 22886
   name: Legionnaire's Silk Tunic
   phase: 2
@@ -8488,7 +7152,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_cloth_28.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -8499,7 +7162,6 @@
     ARMOR: 156.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Legionnaire (rank 8). Horde only.
 - id: 22943
   name: Malice Stone Pendant
   phase: 6
@@ -8508,13 +7170,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_necklace_29naxxramas.png
   stats:
     INTELLECT: 8.0
     STAMINA: 9.0
     SPELL_DAMAGE: 28.0
     SPELL_PENETRATION: 13.0
-  source: Drops from Grand Widow Faerlina in Naxxramas.
 - id: 22954
   name: Kiss of the Spider
   phase: 6
@@ -8524,19 +7184,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 85
-  icon: Inv_trinket_naxxramas04.png
   stats:
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 120
-    stat: ATTACK_SPEED
-    value: 20.0
-    duration: 15
-  special_equip_effects:
-  - 'Use: Increases your attack speed by 20% for 15 sec. (cooldown 2 min)'
-  source: Drops from Maexxna in Naxxramas.
 - id: 22961
   name: Band of Reanimation
   phase: 6
@@ -8546,10 +7196,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_ring_49naxxramas.png
   stats:
     AGILITY: 34.0
-  source: Drops from Patchwerk in Naxxramas.
 - id: 22968
   name: Glacial Mantle
   phase: 6
@@ -8558,13 +7206,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_shoulder_14.png
   stats:
     STAMINA: 18.0
     ARMOR: 94.0
     FROST_RESISTANCE: 33.0
     SPELL_DAMAGE: 16.0
-  source: Drops from Grobbulus in Naxxramas.
 - id: 23001
   name: Eye of Dimunition
   phase: 6
@@ -8574,12 +7220,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 85
-  icon: Inv_trinket_naxxramas02.png
   stats:
     SPELL_CRIT_CHANCE: 0.02
-  special_equip_effects:
-  - 'Use: Reduces the threat you generate by 35% for 20 sec. (cooldown 2 min)'
-  source: Drops from Thaddius in Naxxramas.
 - id: 23019
   name: Icebane Helmet
   phase: 6
@@ -8588,14 +7230,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_helmet_06.png
   stats:
     STAMINA: 24.0
     STRENGTH: 12.0
     ARMOR: 757.0
     DEFENSE: 8.0
     FROST_RESISTANCE: 44.0
-  source: Drops from Heigan the Unclean in Naxxramas.
 - id: 23020
   name: Polar Helmet
   phase: 6
@@ -8604,13 +7244,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_helmet_04.png
   stats:
     AGILITY: 18.0
     STAMINA: 24.0
     ARMOR: 196.0
     FROST_RESISTANCE: 44.0
-  source: Drops from Gothik the Harvester in Naxxramas.
 - id: 23023
   name: Sadist's Collar
   phase: 6
@@ -8619,12 +7257,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_necklace_29naxxramas.png
   stats:
     STAMINA: 24.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 20.0
-  source: Drops from Gothik the Harvester in Naxxramas.
 - id: 23025
   name: Seal of the Damned
   phase: 6
@@ -8634,13 +7270,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 85
-  icon: Inv_jewelry_ring_48naxxramas.png
   stats:
     STAMINA: 17.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
     SPELL_HIT_CHANCE: 0.01
-  source: Drops from The Four Horsemen in Naxxramas.
 - id: 23031
   name: Band of the Inevitable
   phase: 6
@@ -8650,11 +7284,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_ring_53naxxramas.png
   stats:
     SPELL_DAMAGE: 36.0
     SPELL_HIT_CHANCE: 0.01
-  source: Dropped from Noth the Plaguebringer in Naxxramas.
 - id: 23032
   name: Glacial Headdress
   phase: 6
@@ -8663,14 +7295,12 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_helmet_53.png
   stats:
     INTELLECT: 21.0
     STAMINA: 20.0
     ARMOR: 102.0
     FROST_RESISTANCE: 40.0
     SPELL_DAMAGE: 18.0
-  source: Drops from Gothik the Harvester in Naxxramas.
 - id: 23037
   name: Ring of Spiritual Fervor
   phase: 6
@@ -8680,12 +7310,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 85
-  icon: Inv_jewelry_ring_52naxxramas.png
   stats:
     INTELLECT: 14.0
     STAMINA: 11.0
     MANA_PER_5: 10.0
-  source: Drops from Loatheb in Naxxramas.
 - id: 23038
   name: Band of Unnatural Forces
   phase: 6
@@ -8695,12 +7323,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 85
-  icon: Inv_jewelry_ring_48naxxramas.png
   stats:
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 52.0
-  source: Drops from Loatheb in Naxxramas.
 - id: 23041
   name: Slayer's Crest
   phase: 6
@@ -8710,18 +7336,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 90
-  icon: Inv_trinket_naxxramas03.png
   stats:
     ATTACK_POWER: 64.0
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 120
-    stat: ATTACK_POWER
-    value: 260.0
-    duration: 20
-  special_equip_effects:
-  - 'Use: Increases Attack Power by 260 for 20 sec. (cooldown 2 min)'
-  source: Drops from Sapphiron in Naxxramas.
 - id: 23046
   name: The Restrained Essence of Sapphiron
   phase: 6
@@ -8731,18 +7347,8 @@
   unique: true
   req_lvl: 60
   item_lvl: 90
-  icon: Inv_trinket_naxxramas06.png
   stats:
     SPELL_DAMAGE: 40.0
-  uses:
-  - name: GENERIC_STAT_BUFF
-    cooldown: 120
-    stat: SPELL_DAMAGE
-    value: 130.0
-    duration: 20
-  special_equip_effects:
-  - 'Use: Increases damage and healing done by magical spells and effects by up to 130 for 20 sec. (cooldown 2 min)'
-  source: Drops from Sapphiron in Naxxramas.
 - id: 23053
   name: Stormrage's Talisman of Seething
   phase: 6
@@ -8751,12 +7357,10 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_necklace_28naxxramas.png
   stats:
     STAMINA: 12.0
     CRIT_CHANCE: 0.02
     ATTACK_POWER: 26.0
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23057
   name: Gem of Trapped Innocents
   phase: 6
@@ -8765,13 +7369,11 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_necklace_29naxxramas.png
   stats:
     INTELLECT: 7.0
     STAMINA: 9.0
     SPELL_DAMAGE: 15.0
     SPELL_CRIT_CHANCE: 0.02
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23060
   name: Bonescythe Ring
   phase: 6
@@ -8781,7 +7383,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_ring_51naxxramas.png
   class_restrictions:
   - ROGUE
   stats:
@@ -8789,7 +7390,6 @@
     STAMINA: 10.0
     STRENGTH: 20.0
     HIT_CHANCE: 0.01
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23062
   name: Frostfire Ring
   phase: 6
@@ -8799,7 +7399,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_ring_51naxxramas.png
   class_restrictions:
   - MAGE
   stats:
@@ -8807,7 +7406,6 @@
     STAMINA: 10.0
     SPELL_DAMAGE: 30.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23063
   name: Plagueheart Ring
   phase: 6
@@ -8817,13 +7415,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_ring_51naxxramas.png
   class_restrictions:
   - WARLOCK
   stats:
     STAMINA: 24.0
     SPELL_DAMAGE: 29.0
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23067
   name: Ring of the Crypstalker
   phase: 6
@@ -8833,13 +7429,11 @@
   unique: true
   req_lvl: 60
   item_lvl: 92
-  icon: Inv_jewelry_ring_51naxxramas.png
   class_restrictions:
   - HUNTER
   stats:
     AGILITY: 30.0
     MANA_PER_5: 6.0
-  source: Drops from Kel'Thuzad in Naxxramas.
 - id: 23084
   name: Gloves of Undead Cleansing
   phase: 6
@@ -8848,13 +7442,11 @@
   quality: RARE
   req_lvl: 50
   item_lvl: 63
-  icon: Inv_gauntlets_16.png
   stats:
     INTELLECT: 10.0
     STAMINA: 10.0
     ARMOR: 56.0
     SPELL_DAMAGE_UNDEAD: 35.0
-  source: Drops from elites spawned during the Scourge Invasion event.
 - id: 23125
   name: Chains of the Lich
   phase: 6
@@ -8863,10 +7455,8 @@
   quality: RARE
   req_lvl: 55
   item_lvl: 60
-  icon: Inv_belt_18.png
   stats:
     SPELL_DAMAGE: 22.0
-  source: Drops from Balzaphon during Scourge Invasion event.
 - id: 23197
   name: Idol of the Moon
   phase: 6
@@ -8877,14 +7467,8 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_relics_idolofrejuvenation.png
   class_restrictions:
   - DRUID
-  modifies:
-  - Moonfire
-  special_equip_effects:
-  - 'Equip: Increases the damage of your Moonfire spell by up to 17% (HAS NO EFFECT CURRENTLY).'
-  source: World drop.
 - id: 23199
   name: Totem of the Storm
   phase: 6
@@ -8895,15 +7479,8 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_relics_totemofrage.png
   class_restrictions:
   - SHAMAN
-  modifies:
-  - Lightning Bolt
-  - Chain Lightning
-  special_equip_effects:
-  - 'Equip: Increases damage done by Chain Lightning and Lightning Bolt by up to 33.'
-  source: World drop.
 - id: 23203
   name: Libram of Fervor
   phase: 6
@@ -8914,15 +7491,8 @@
   req_lvl: 60
   item_lvl: 65
   boe: true
-  icon: Inv_relics_libramoftruth.png
   class_restrictions:
   - PALADIN
-  modifies:
-  - Seal of the Crusader
-  - Judgement of the Crusader
-  special_equip_effects:
-  - 'Equip: Increases the melee attack power bonus of your Seal of the Crusader by 48 and the Holy damage increase of your Judgement of the Crusader by 33.'
-  source: World drop.
 - id: 23206
   name: Mark of the Champion
   phase: 6
@@ -8932,13 +7502,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 90
-  icon: Inv_misc_token_argentdawn2.png
   stats:
     ATTACK_POWER_DEMON: 150.0
     ATTACK_POWER_UNDEAD: 150.0
-  mutex:
-  - 23207
-  source: Quest reward. Requires boss drop from Kel'Thuzad in Naxxramas.
 - id: 23207
   name: Mark of the Champion
   phase: 6
@@ -8948,13 +7514,9 @@
   unique: true
   req_lvl: 60
   item_lvl: 90
-  icon: Inv_misc_token_argentdawn3.png
   stats:
     SPELL_DAMAGE_DEMON: 85.0
     SPELL_DAMAGE_UNDEAD: 85.0
-  mutex:
-  - 23206
-  source: Quest reward. Requires boss drop from Kel'Thuzad in Naxxramas.
 - id: 23237
   name: Ring of the Eternal Flame
   phase: 6
@@ -8964,12 +7526,10 @@
   unique: true
   req_lvl: 60
   item_lvl: 83
-  icon: Inv_jewelry_ring_48naxxramas.png
   stats:
     INTELLECT: 10.0
     SPELL_DAMAGE_FIRE: 34.0
     SPELL_CRIT_CHANCE: 0.01
-  source: Drops from trash mobs in Naxxramas.
 - id: 23243
   name: Champion's Plate Shoulders
   phase: 2
@@ -8979,7 +7539,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_11.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -8988,7 +7547,6 @@
     STRENGTH: 17.0
     ARMOR: 552.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Champion (rank 10).
 - id: 23244
   name: Champion's Plate Helm
   phase: 2
@@ -8998,7 +7556,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_09.png
   faction: HORDE
   class_restrictions:
   - WARRIOR
@@ -9008,7 +7565,6 @@
     ARMOR: 598.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and marks of honor. Requires Champion (rank 10).
 - id: 23251
   name: Champion's Chain Helm
   phase: 2
@@ -9018,7 +7574,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_03.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -9028,7 +7583,6 @@
     STAMINA: 14.0
     ARMOR: 337.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Champion (rank 10).
 - id: 23252
   name: Champion's Chain Shoulders
   phase: 2
@@ -9038,7 +7592,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_01.png
   faction: HORDE
   class_restrictions:
   - HUNTER
@@ -9047,7 +7600,6 @@
     STAMINA: 13.0
     ARMOR: 311.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Champion (rank 10).
 - id: 23263
   name: Champion's Silk Cowl
   phase: 2
@@ -9056,7 +7608,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_06.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -9067,7 +7618,6 @@
     ARMOR: 141.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Champion (rank 10). Horde only.
 - id: 23264
   name: Champion's Silk Mantle
   phase: 2
@@ -9076,7 +7626,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_02.png
   faction: HORDE
   class_restrictions:
   - MAGE
@@ -9087,7 +7636,6 @@
     ARMOR: 135.0
     SPELL_DAMAGE: 15.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Champion (rank 10). Horde only.
 - id: 23272
   name: Knight-Captain's Lamellar Breastplate
   phase: 2
@@ -9097,7 +7645,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_plate03.png
   class_restrictions:
   - PALADIN
   stats:
@@ -9106,7 +7653,6 @@
     STRENGTH: 17.0
     ARMOR: 706.0
     SPELL_DAMAGE: 25.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8).
 - id: 23273
   name: Knight-Captain's Lamellar Leggings
   phase: 2
@@ -9116,7 +7662,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_06.png
   class_restrictions:
   - PALADIN
   stats:
@@ -9125,7 +7670,6 @@
     STRENGTH: 18.0
     ARMOR: 618.0
     SPELL_DAMAGE: 25.0
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8).
 - id: 23274
   name: Knight-Lieutenant's Lamellar Gauntlets
   phase: 2
@@ -9135,7 +7679,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_29.png
   faction: ALLIANCE
   class_restrictions:
   - PALADIN
@@ -9144,11 +7687,6 @@
     STRENGTH: 12.0
     ARMOR: 429.0
     CRIT_CHANCE: 0.01
-  modifies:
-  - Judgement of the Crusader
-  special_equip_effects:
-  - 'Equip: Increases the Holy damage bonus of your Judgement of the Crusader by 20.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7).
 - id: 23275
   name: Knight-Lieutenant's Lamellar Greaves
   phase: 2
@@ -9158,7 +7696,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_plate_03.png
   class_restrictions:
   - PALADIN
   stats:
@@ -9167,7 +7704,6 @@
     STRENGTH: 12.0
     ARMOR: 472.0
     SPELL_DAMAGE: 15.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7).
 - id: 23276
   name: Lieutenant Commander's Lamellar Headguard
   phase: 2
@@ -9177,7 +7713,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_05.png
   class_restrictions:
   - PALADIN
   stats:
@@ -9186,7 +7721,6 @@
     STRENGTH: 18.0
     ARMOR: 598.0
     SPELL_DAMAGE: 26.0
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Lieutenant Commander (rank 10).
 - id: 23277
   name: Lieutenant Commander's Lamellar Shoulders
   phase: 2
@@ -9196,7 +7730,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_28.png
   class_restrictions:
   - PALADIN
   stats:
@@ -9205,7 +7738,6 @@
     STRENGTH: 14.0
     ARMOR: 552.0
     SPELL_DAMAGE: 20.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Lieutenant Commander (rank 10).
 - id: 23278
   name: Knight-Lieutenant's Chain Greaves
   phase: 2
@@ -9215,7 +7747,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_05.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9223,7 +7754,6 @@
     AGILITY: 20.0
     STAMINA: 19.0
     ARMOR: 266.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7).
 - id: 23279
   name: Knight-Lieutenant's Chain Vices
   phase: 2
@@ -9233,7 +7763,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_17.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9241,11 +7770,6 @@
     AGILITY: 18.0
     STAMINA: 16.0
     ARMOR: 242.0
-  modifies:
-  - Multi-Shot
-  special_equip_effects:
-  - 'Equip: Increases the damage done by your Multi-Shot by 4%.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7).
 - id: 23286
   name: Knight-Lieutenant's Plate Gauntlets
   phase: 2
@@ -9255,7 +7779,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_26.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9263,11 +7786,6 @@
     STAMINA: 17.0
     STRENGTH: 17.0
     ARMOR: 429.0
-  modifies:
-  - Hamstring
-  special_equip_effects:
-  - 'Equip: Hamstring Rage cost reduced by 3.'
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Knight-Lieutenant (rank 7).
 - id: 23287
   name: Knight-Lieutenant's Plate Greaves
   phase: 2
@@ -9277,7 +7795,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_plate_09.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9286,7 +7803,6 @@
     STAMINA: 23.0
     STRENGTH: 10.0
     ARMOR: 472.0
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Lieutenant (rank 7).
 - id: 23290
   name: Knight-Lieutenant's Silk Handguards
   phase: 2
@@ -9295,7 +7811,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_gauntlets_06.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9304,9 +7819,6 @@
     STAMINA: 12.0
     ARMOR: 98.0
     SPELL_DAMAGE: 18.0
-  special_equip_effects:
-  - 'Equip: Increases the damage absorbed by your Mana Shield by 285.'
-  source: May be purchased upon reaching Knight-Lieutenant (rank 7). Alliance only.
 - id: 23291
   name: Knight-Lieutenant's Silk Walkers
   phase: 2
@@ -9315,7 +7827,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 66
-  icon: Inv_boots_05.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9325,7 +7836,6 @@
     ARMOR: 104.0
     SPELL_DAMAGE: 15.0
     SPELL_HIT_CHANCE: 0.01
-  source: May be purchased upon reaching Knight-Lieutenant (rank 7). Alliance only.
 - id: 23292
   name: Knight-Captain's Chain Hauberk
   phase: 2
@@ -9335,7 +7845,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_chain_04.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9345,7 +7854,6 @@
     STAMINA: 13.0
     ARMOR: 398.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8).
 - id: 23293
   name: Knight-Captain's Chain Legguards
   phase: 2
@@ -9355,7 +7863,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_03.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9365,7 +7872,6 @@
     STAMINA: 13.0
     ARMOR: 348.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8).
 - id: 23300
   name: Knight-Captain's Plate Hauberk
   phase: 2
@@ -9375,7 +7881,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_plate16.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9384,7 +7889,6 @@
     STRENGTH: 21.0
     ARMOR: 706.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Knight-Captain (rank 8).
 - id: 23301
   name: Knight-Captain's Plate Leggings
   phase: 2
@@ -9394,7 +7898,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_06.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9403,7 +7906,6 @@
     STRENGTH: 12.0
     ARMOR: 618.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Warsong Gulch marks. Requires Knight-Captain (rank 8).
 - id: 23304
   name: Knight-Captain's Silk Legguards
   phase: 2
@@ -9412,7 +7914,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_pants_11.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9423,7 +7924,6 @@
     ARMOR: 144.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Knight-Captain (rank 8). Alliance only.
 - id: 23305
   name: Knight-Captain's Silk Tunic
   phase: 2
@@ -9432,7 +7932,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 68
-  icon: Inv_chest_cloth_28.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9443,7 +7942,6 @@
     ARMOR: 156.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Knight-Captain (rank 8). Alliance only.
 - id: 23306
   name: Lieutenant Commander's Chain Helm
   phase: 2
@@ -9453,7 +7951,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_21.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9463,7 +7960,6 @@
     STAMINA: 14.0
     ARMOR: 337.0
     CRIT_CHANCE: 0.02
-  source: Purchased with Honor Points and Alterac Valley marks. Requires Lieutenant Commander (rank 10).
 - id: 23307
   name: Lieutenant Commander's Chain Shoulders
   phase: 2
@@ -9473,7 +7969,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_16.png
   faction: ALLIANCE
   class_restrictions:
   - HUNTER
@@ -9482,7 +7977,6 @@
     STAMINA: 13.0
     ARMOR: 311.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Lieutenant Commander (rank 10).
 - id: 23314
   name: Lieutenant Commander's Plate Helm
   phase: 2
@@ -9492,7 +7986,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_09.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9502,7 +7995,6 @@
     ARMOR: 598.0
     HIT_CHANCE: 0.01
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and marks of honor. Requires Lieutenant Commander (rank 10).
 - id: 23315
   name: Lieutenant Commander's Plate Shoulders
   phase: 2
@@ -9512,7 +8004,6 @@
   unique: true
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_11.png
   faction: ALLIANCE
   class_restrictions:
   - WARRIOR
@@ -9521,7 +8012,6 @@
     STRENGTH: 17.0
     ARMOR: 552.0
     CRIT_CHANCE: 0.01
-  source: Purchased with Honor Points and Arathi Basin marks. Requires Lieutenant Commander (rank 10).
 - id: 23318
   name: Lieutenant Commander's Silk Cowl
   phase: 2
@@ -9530,7 +8020,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_helmet_06.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9541,7 +8030,6 @@
     ARMOR: 141.0
     SPELL_DAMAGE: 21.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Lieutenant Commander (rank 10). Alliance only.
 - id: 23319
   name: Lieutenant Commander's Silk Mantle
   phase: 2
@@ -9550,7 +8038,6 @@
   quality: RARE
   req_lvl: 60
   item_lvl: 71
-  icon: Inv_shoulder_02.png
   faction: ALLIANCE
   class_restrictions:
   - MAGE
@@ -9561,7 +8048,6 @@
     ARMOR: 135.0
     SPELL_DAMAGE: 15.0
     SPELL_CRIT_CHANCE: 0.01
-  source: May be purchased upon reaching Lieutenant Commander (rank 10). Alliance only.
 - id: 23452
   name: Grand Marshal's Tome of Power
   phase: 2
@@ -9570,7 +8056,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_misc_book_12.png
   faction: ALLIANCE
   damage:
     min: 1
@@ -9580,7 +8065,6 @@
     INTELLECT: 16.0
     STAMINA: 17.0
     SPELL_DAMAGE: 20.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 23455
   name: Grand Marshal's Demolisher
   phase: 2
@@ -9589,7 +8073,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_hammer_23.png
   faction: ALLIANCE
   damage:
     min: 235
@@ -9600,7 +8083,6 @@
     STAMINA: 28.0
     MANA_PER_5: 7.0
     SPELL_DAMAGE: 27.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 23456
   name: Grand Marshal's Swiftblade
   phase: 2
@@ -9609,7 +8091,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_05.png
   faction: ALLIANCE
   damage:
     min: 85
@@ -9619,7 +8100,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching Grand Marshal (rank 14). Alliance only.
 - id: 23465
   name: High Warlord's Destroyer
   phase: 2
@@ -9628,7 +8108,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_mace_09.png
   faction: HORDE
   damage:
     min: 235
@@ -9639,7 +8118,6 @@
     STAMINA: 28.0
     MANA_PER_5: 7.0
     SPELL_DAMAGE: 27.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 23467
   name: High Warlord's Quickblade
   phase: 2
@@ -9648,7 +8126,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_sword_05.png
   faction: HORDE
   damage:
     min: 85
@@ -9658,7 +8135,6 @@
     STAMINA: 7.0
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 28.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 23468
   name: High Warlord's Tome of Destruction
   phase: 2
@@ -9667,7 +8143,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 78
-  icon: Inv_misc_book_15.png
   faction: HORDE
   damage:
     min: 1
@@ -9677,7 +8152,6 @@
     INTELLECT: 16.0
     STAMINA: 17.0
     SPELL_DAMAGE: 20.0
-  source: May be purchased upon reaching High Warlord (rank 14). Horde only.
 - id: 23557
   name: Larvae of the Great Worm
   phase: 5
@@ -9686,7 +8160,6 @@
   quality: EPIC
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_weapon_rifle_10.png
   damage:
     min: 103
     max: 192
@@ -9694,7 +8167,6 @@
   stats:
     CRIT_CHANCE: 0.01
     ATTACK_POWER: 18.0
-  source: Drops from Ouro in Temple of Ahn'Qiraj (AQ40).
 - id: 23570
   name: Jom Gabbar
   phase: 5
@@ -9704,10 +8176,3 @@
   unique: true
   req_lvl: 60
   item_lvl: 81
-  icon: Inv_misc_enggizmos_19.png
-  uses:
-  - name: JOM_GABBAR
-    cooldown: 0
-  special_equip_effects:
-  - 'Use: Increases attack power by 65 and an additional 65 every 2 sec. Lasts 20 sec. (cooldown 2 min)'
-  source: Drops from Ouro in Temple of Ahn'Qiraj (AQ40).

@@ -90,8 +90,6 @@ pub struct AddedSpell {
 /// What granted an equipment spell.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EquipmentGrantor {
-    /// A `procs` entry of the item worn in the slot (hand-authored items).
-    ItemProc(u32),
     /// An `effects` entry (`ItemEffect`) of the item worn in the slot.
     ItemEffect(u32),
     /// A proc of the permanent or temporary enchant on the item in the slot.

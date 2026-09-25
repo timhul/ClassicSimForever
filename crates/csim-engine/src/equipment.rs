@@ -60,7 +60,7 @@ pub enum EnchantError {
     EmptySlot(EquipmentSlot),
 }
 
-/// What an equipment operation changed, so the owner can update item procs/uses/modifications.
+/// What an equipment operation changed, so the owner can update the spells the equipment grants.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct EquipChange {
     /// Items removed from their slots.
@@ -372,10 +372,6 @@ impl Equipment {
             _ => {}
         }
 
-        for &mutex_id in item.mutex_item_ids() {
-            change.merge(self.unequip_item_id(mutex_id));
-        }
-
         let previous = self.slots[slot.index()].take();
         let (enchant, temp_enchant) = previous
             .as_ref()
@@ -444,13 +440,6 @@ impl Equipment {
             }
             _ => vacated.push(slot),
         }
-        for &mutex_id in item.mutex_item_ids() {
-            vacated.extend(
-                EquipmentSlot::ALL
-                    .into_iter()
-                    .filter(|&other| self.item_id(other) == Some(mutex_id)),
-            );
-        }
         vacated
     }
 
@@ -493,17 +482,6 @@ impl Equipment {
             unequipped: vec![(slot, equipped.item)],
             equipped: Vec::new(),
         }
-    }
-
-    /// Removes `item_id` from every slot it is equipped in.
-    pub fn unequip_item_id(&mut self, item_id: u32) -> EquipChange {
-        let mut change = EquipChange::default();
-        for slot in EquipmentSlot::ALL {
-            if self.item_id(slot) == Some(item_id) {
-                change.merge(self.unequip(slot));
-            }
-        }
-        change
     }
 
     pub fn unequip_all(&mut self) -> EquipChange {
@@ -811,7 +789,6 @@ mod tests {
             req_lvl: 60,
             item_lvl: 60,
             boe: false,
-            icon: String::new(),
             faction: None,
             class_restrictions: Vec::new(),
             damage: None,
@@ -820,13 +797,6 @@ mod tests {
             set: None,
             limit_category: None,
             suffixes: Vec::new(),
-            procs: Vec::new(),
-            uses: Vec::new(),
-            modifies: Vec::new(),
-            mutex: Vec::new(),
-            random_affixes: Vec::new(),
-            special_equip_effects: Vec::new(),
-            source: String::new(),
             flavour_text: String::new(),
         }
     }
@@ -861,10 +831,6 @@ mod tests {
         ring2.stats.insert(ItemStat::Agility, 7.0);
         let mut trinket = spec(12, ItemSlot::Trinket, ItemType::Trinket);
         trinket.unique = true;
-        let mut mutex_a = spec(13, ItemSlot::Trinket, ItemType::Trinket);
-        mutex_a.mutex = vec![14];
-        let mut mutex_b = spec(14, ItemSlot::Trinket, ItemType::Trinket);
-        mutex_b.mutex = vec![13];
         let arena = |id| {
             let mut trinket = spec(id, ItemSlot::Trinket, ItemType::Trinket);
             trinket.limit_category = Some(LimitCategory {
@@ -912,8 +878,6 @@ mod tests {
                     ring,
                     ring2,
                     trinket,
-                    mutex_a,
-                    mutex_b,
                     arena_a,
                     arena_b,
                     pair_a,
@@ -1129,16 +1093,6 @@ mod tests {
         eq.equip(EquipmentSlot::Trinket2, 12).unwrap();
         assert!(eq.item(EquipmentSlot::Trinket1).is_none());
         assert_eq!(eq.item_id(EquipmentSlot::Trinket2), Some(12));
-    }
-
-    #[test]
-    fn mutex_items_are_removed() {
-        let mut eq = equipment();
-        eq.equip(EquipmentSlot::Trinket1, 13).unwrap();
-        let change = eq.equip(EquipmentSlot::Trinket2, 14).unwrap();
-        assert_eq!(ids(&change.unequipped), vec![(EquipmentSlot::Trinket1, 13)]);
-        assert!(eq.item(EquipmentSlot::Trinket1).is_none());
-        assert_eq!(eq.item_id(EquipmentSlot::Trinket2), Some(14));
     }
 
     #[test]
