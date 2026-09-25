@@ -134,6 +134,9 @@ pub struct Character {
     offhand_rage_percent: i32,
     /// Abilities that also strike with the off hand (`OFFHAND_COPY`), once per active aura.
     offhand_copies: Vec<u32>,
+    /// Resources gained when an ability is used (`GAIN_RESOURCE_ON_USE`), as
+    /// `(spell, resource, amount)`, once per active aura.
+    resources_on_use: Vec<(u32, ResourceType, u32)>,
     /// Extra main-hand attacks granted by `ADD_EXTRA_ATTACKS` and not yet performed.
     pending_extra_attacks: u32,
     /// Cached roll context, to refresh the attack tables only when it changes.
@@ -217,6 +220,7 @@ impl Character {
             offhand_damage_percent: 0,
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
+            resources_on_use: Vec::new(),
             pending_extra_attacks: 0,
             last_roll_context: None,
             rotation: None,
@@ -628,6 +632,30 @@ impl Character {
             self.offhand_copies.push(spell);
         } else if let Some(index) = self.offhand_copies.iter().position(|&s| s == spell) {
             self.offhand_copies.swap_remove(index);
+        }
+    }
+
+    /// The resources gained when ability `spell` is used (Improved Berserker Rage's rage).
+    pub fn resources_on_use(&self, spell: u32) -> impl Iterator<Item = (ResourceType, u32)> + '_ {
+        self.resources_on_use
+            .iter()
+            .filter(move |&&(s, _, _)| s == spell)
+            .map(|&(_, resource, amount)| (resource, amount))
+    }
+
+    /// Adds (`apply`) or removes a gain of `amount` of `resource` when ability `spell` is used.
+    pub fn adjust_resource_on_use(
+        &mut self,
+        spell: u32,
+        resource: ResourceType,
+        amount: u32,
+        apply: bool,
+    ) {
+        let entry = (spell, resource, amount);
+        if apply {
+            self.resources_on_use.push(entry);
+        } else if let Some(index) = self.resources_on_use.iter().position(|&e| e == entry) {
+            self.resources_on_use.swap_remove(index);
         }
     }
 

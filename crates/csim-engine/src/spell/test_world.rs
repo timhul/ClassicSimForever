@@ -846,6 +846,8 @@ pub(crate) struct World {
     pub offhand_rage_percent: i32,
     /// `OFFHAND_COPY` abilities, once per active aura.
     pub offhand_copies: Vec<u32>,
+    /// `(spell, resource, amount)` gains on use (`GAIN_RESOURCE_ON_USE`).
+    pub resources_on_use: Vec<(u32, ResourceType, u32)>,
     pub actionbar_log: Vec<(u32, u32, bool)>,
 }
 
@@ -894,6 +896,7 @@ impl World {
             offhand_damage_percent: 0,
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
+            resources_on_use: Vec::new(),
             actionbar_log: Vec::new(),
         }
     }
@@ -1143,6 +1146,20 @@ impl EffectHost for World {
             self.offhand_copies.remove(i);
         }
     }
+    fn adjust_resource_on_use(
+        &mut self,
+        spell: u32,
+        resource: ResourceType,
+        amount: u32,
+        apply: bool,
+    ) {
+        let entry = (spell, resource, amount);
+        if apply {
+            self.resources_on_use.push(entry);
+        } else if let Some(i) = self.resources_on_use.iter().position(|&e| e == entry) {
+            self.resources_on_use.remove(i);
+        }
+    }
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
         self.actionbar_log.push((replaced, replacement, apply));
         self.spells
@@ -1334,6 +1351,13 @@ impl SpellHost for World {
     }
     fn offhand_copy_active(&self, spell: u32) -> bool {
         self.offhand_copies.contains(&spell) && self.oh_speed.is_some()
+    }
+    fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)> {
+        self.resources_on_use
+            .iter()
+            .filter(|&&(s, _, _)| s == spell)
+            .map(|&(_, resource, amount)| (resource, amount))
+            .collect()
     }
     fn roll_offhand_melee_ability(
         &mut self,

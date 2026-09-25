@@ -74,6 +74,15 @@ pub trait EffectHost {
     /// Adds (`apply`) or removes an off-hand copy of ability `spell` (`OFFHAND_COPY`: Raging
     /// Blows makes Whirlwind also strike with the off hand).
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool);
+    /// Adds (`apply`) or removes a gain of `amount` of `resource` when ability `spell` is used
+    /// (`GAIN_RESOURCE_ON_USE`: Improved Berserker Rage).
+    fn adjust_resource_on_use(
+        &mut self,
+        spell: u32,
+        resource: ResourceType,
+        amount: u32,
+        apply: bool,
+    );
     /// Replaces spell `replaced` by `replacement` on the action bar while `apply` is true
     /// (`OVERRIDE_ACTIONBAR_SPELLS`: Improved Slam, Vanguard).
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool);
@@ -751,6 +760,18 @@ impl Effect {
                         host.adjust_offhand_copy(spell, apply);
                     }
                 }
+                Some(ScriptKind::GainResourceOnUse) => {
+                    // Validated as present when the overrides were loaded.
+                    let params = self.script().map(|s| &s.params);
+                    let spell = params.and_then(|p| p.spell);
+                    let resource = params
+                        .and_then(|p| p.resource)
+                        .and_then(ResourceType::from_power_type);
+                    if let (Some(spell), Some(resource)) = (spell, resource) {
+                        let amount = resource.from_stored_amount(value);
+                        host.adjust_resource_on_use(spell, resource, amount, apply);
+                    }
+                }
                 // Proc payloads (`TRIGGER_WITH_VALUE`), periodic gains and the talent scripts
                 // without a runtime yet act through the proc / periodic systems.
                 _ => {}
@@ -847,6 +868,7 @@ mod tests {
         offhand_damage: i32,
         offhand_rage: i32,
         offhand_copies: Vec<(u32, bool)>,
+        resources_on_use: Vec<(u32, ResourceType, u32, bool)>,
         overrides: Vec<(u32, u32, bool)>,
         two_hand: bool,
     }
@@ -872,6 +894,7 @@ mod tests {
                 offhand_damage: 0,
                 offhand_rage: 0,
                 offhand_copies: Vec::new(),
+                resources_on_use: Vec::new(),
                 overrides: Vec::new(),
                 two_hand: false,
             }
@@ -966,6 +989,15 @@ mod tests {
         }
         fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
             self.offhand_copies.push((spell, apply));
+        }
+        fn adjust_resource_on_use(
+            &mut self,
+            spell: u32,
+            resource: ResourceType,
+            amount: u32,
+            apply: bool,
+        ) {
+            self.resources_on_use.push((spell, resource, amount, apply));
         }
         fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
             self.overrides.push((replaced, replacement, apply));

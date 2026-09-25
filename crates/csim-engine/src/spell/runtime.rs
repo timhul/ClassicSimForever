@@ -140,6 +140,8 @@ pub trait SpellHost: EffectHost {
     /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
     /// names it and the character is dual wielding.
     fn offhand_copy_active(&self, spell: u32) -> bool;
+    /// The resources gained when ability `spell` is used (`GAIN_RESOURCE_ON_USE`).
+    fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)>;
     /// Rolls an off-hand melee ability on the special attack table (off-hand weapon skill and
     /// crit chance), like [`EffectHost::roll_melee_ability`] for the main hand.
     fn roll_offhand_melee_ability(
@@ -1267,6 +1269,15 @@ impl Spell {
             }
             report.attack =
                 self.collect_damage(host, first_roll, innate_threat, &mut report.proc_sources);
+        }
+
+        if self.last_result != SpellResult::Failure {
+            for (resource, amount) in host.resources_on_use(self.game_id()) {
+                let gained = host.gain_resource(resource, amount);
+                if gained > 0 {
+                    report.resource_gained.push((resource, gained));
+                }
+            }
         }
 
         if host.offhand_copy_active(self.game_id()) {

@@ -1921,6 +1921,17 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character.adjust_offhand_copy(spell, apply);
     }
 
+    fn adjust_resource_on_use(
+        &mut self,
+        spell: u32,
+        resource: ResourceType,
+        amount: u32,
+        apply: bool,
+    ) {
+        self.character
+            .adjust_resource_on_use(spell, resource, amount, apply);
+    }
+
     fn override_actionbar_spell(&mut self, replaced: u32, replacement: u32, apply: bool) {
         self.character
             .spells_mut()
@@ -2206,6 +2217,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn offhand_copy_active(&self, spell: u32) -> bool {
         self.character.has_offhand_copy(spell) && self.character.is_dual_wielding()
+    }
+
+    fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)> {
+        self.character.resources_on_use(spell).collect()
     }
 
     fn roll_offhand_melee_ability(

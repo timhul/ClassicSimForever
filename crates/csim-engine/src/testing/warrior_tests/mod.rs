@@ -8,6 +8,7 @@
 
 mod arms;
 mod battle_shout;
+mod berserker_rage;
 mod berserker_stance;
 mod bloodrage;
 mod bloodthirst;

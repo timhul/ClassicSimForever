@@ -503,6 +503,7 @@ mod tests {
         fn adjust_offhand_damage_percent(&mut self, _: i32) {}
         fn adjust_offhand_rage_percent(&mut self, _: i32) {}
         fn adjust_offhand_copy(&mut self, _: u32, _: bool) {}
+        fn adjust_resource_on_use(&mut self, _: u32, _: ResourceType, _: u32, _: bool) {}
         fn override_actionbar_spell(&mut self, _: u32, _: u32, _: bool) {}
     }
 
@@ -626,6 +627,9 @@ mod tests {
         }
         fn offhand_copy_active(&self, _: u32) -> bool {
             false
+        }
+        fn resources_on_use(&self, _: u32) -> Vec<(ResourceType, u32)> {
+            Vec::new()
         }
         fn roll_offhand_melee_ability(
             &mut self,
