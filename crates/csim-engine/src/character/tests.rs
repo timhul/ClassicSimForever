@@ -1288,11 +1288,17 @@ debuffs:
         assert!(selected.contains(&"Strength of Earth Totem"));
         assert!(selected.contains(&"Blessed Sunfruit"), "the last food wins");
         assert!(!selected.contains(&"Grilled Squid"));
+        let selected_debuffs = f.character.external_buffs().selected_debuffs();
+        assert!(selected_debuffs.contains(&"Curse of Recklessness"));
+        assert!(
+            !selected_debuffs.contains(&"Faerie Fire"),
+            "Faerie Fire and Curse of Recklessness do not stack"
+        );
         assert!(strength(&f) > base_strength + 53 + 30 + 17 + 10);
         assert_eq!(
             f.target.armor(),
-            base_armor - 5 * 450 - 505 - 505 - 3 * 165,
-            "Sunder x5, Faerie Fire, Curse of Recklessness, Armor Shatter x3"
+            base_armor - 5 * 450 - 505 - 3 * 165,
+            "Sunder x5, Curse of Recklessness, Armor Shatter x3"
         );
         f.ctx().clear_external_buffs();
         assert_eq!(strength(&f), base_strength);

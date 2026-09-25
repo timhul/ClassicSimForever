@@ -89,9 +89,12 @@ buffs:
 debuffs:
   - name: Sunder Armor
     spell: 11597
+  # Faerie Fire and Curse of Recklessness do not stack in Forever.
   - name: Faerie Fire
     spell: 9907
+    mutex: armor_debuff
   - name: Curse of Recklessness
     spell: 11717
+    mutex: armor_debuff
   - name: Annihilator
     spell: 16928
