@@ -162,6 +162,23 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
+    /// The active external debuff standing in for the character's own debuff `id` (the raid's
+    /// Sunder Armor for the Warrior's): a target debuff is one aura whoever keeps it up, so
+    /// while the external one is selected the own one is not applied, and conditions on it read
+    /// the external one.
+    fn external_stand_in(&self, id: BuffId) -> Option<BuffId> {
+        let buff = self.buff_ref(id);
+        if !buff.kind().is_debuff() {
+            return None;
+        }
+        self.character
+            .general_buffs
+            .entries()
+            .iter()
+            .find(|e| e.debuff && e.spec.name == buff.name() && self.buff_ref(e.buff).is_active())
+            .map(|e| e.buff)
+    }
+
     fn buff_ctx(&mut self, id: BuffId) -> (&mut Buff, BuffContext<'_>) {
         let character = self.character.id();
         let buff = match self.character.spells.buff_slot_mut(id) {
@@ -924,7 +941,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 faction.name(),
             ));
         }
-        let (buff, stacks) = (entry.buff, entry.stacks);
+        let (buff, stacks, debuff) = (entry.buff, entry.stacks, entry.debuff);
         if selected {
             let peers: Vec<String> = self
                 .character
@@ -936,6 +953,21 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 .collect();
             for peer in peers {
                 self.set_external_buff_selected(&peer, false)?;
+            }
+            if debuff {
+                // The external debuff replaces the character's own of the same name.
+                let own: Vec<BuffId> = self
+                    .character
+                    .spells
+                    .buff_ids()
+                    .filter(|&id| {
+                        let own = self.buff_ref(id);
+                        own.kind().is_debuff() && own.name() == name
+                    })
+                    .collect();
+                for id in own {
+                    self.cancel_buff(id);
+                }
             }
             self.apply_external(buff, stacks);
         } else {
@@ -1732,15 +1764,18 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 /// The values rotation conditions compare.
 impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, S> {
     fn buff_time_left(&self, buff: &BuffId) -> f64 {
-        self.buff_ref(*buff).time_left(self.now())
+        let buff = self.external_stand_in(*buff).unwrap_or(*buff);
+        self.buff_ref(buff).time_left(self.now())
     }
 
     fn buff_is_active(&self, buff: &BuffId) -> bool {
-        self.buff_ref(*buff).is_active()
+        let buff = self.external_stand_in(*buff).unwrap_or(*buff);
+        self.buff_ref(buff).is_active()
     }
 
     fn buff_stacks(&self, buff: &BuffId) -> u32 {
-        self.buff_ref(*buff).stacks()
+        let buff = self.external_stand_in(*buff).unwrap_or(*buff);
+        self.buff_ref(buff).stacks()
     }
 
     fn spell_cooldown_remaining(&self, spell: &SpellId) -> f64 {
@@ -2133,6 +2168,9 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     /// Aura effects are applied once per stack (Sunder Armor's armor reduction × 5).
     fn apply_buff(&mut self, id: BuffId) -> BuffApplication {
+        if self.external_stand_in(id).is_some() {
+            return BuffApplication::NotApplied;
+        }
         let before = self.buff_ref(id).stacks();
         let (buff, mut ctx) = self.buff_ctx(id);
         let application = buff.apply(&mut ctx);

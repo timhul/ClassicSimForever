@@ -27,6 +27,10 @@ cast_if:
       or variable "time_remaining_execute" less 10
       and variable "time_remaining_execute" greater 0
       and buff_duration "Battle Shout" less 45
+  - name: Sunder Armor
+    condition: |
+      buff_stacks "Sunder Armor" less 5
+      or buff_duration "Sunder Armor" less 4
   # General heroic strike usage
   - name: Heroic Strike
     condition: |

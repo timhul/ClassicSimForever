@@ -14,6 +14,10 @@ cast_if:
     condition: |
       buff_duration "Battle Shout" less 3
       and buff_duration "Battle Shout" less 45
+  - name: Sunder Armor
+    condition: |
+      buff_stacks "Sunder Armor" less 5
+      or buff_duration "Sunder Armor" less 4
   # General heroic strike usage
   - name: Heroic Strike
     condition: resource "Rage" greater 50

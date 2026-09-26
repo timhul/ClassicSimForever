@@ -1215,6 +1215,47 @@ debuffs:
     }
 
     #[test]
+    fn a_selected_external_debuff_stands_in_for_the_own_one() {
+        use crate::rotation::ConditionContext;
+        let (mut f, _) = fixture();
+        f.rig_rolls(PhysicalAttackResult::Hit);
+        let sunder = f.learn(SUNDER);
+        let own = f
+            .character
+            .spells()
+            .buff_by_name("Sunder Armor", 0, &f.raid, |_| true)
+            .unwrap();
+        let base_armor = f.target.armor();
+
+        // The own debuff is replaced when the external one is selected.
+        f.set_rage(100);
+        assert_eq!(f.ctx().cast(sunder).result, SpellResult::Success);
+        assert_eq!(f.ctx().buff_stacks(&own), 1);
+        f.ctx().toggle_external_buff("Sunder Armor").unwrap();
+        assert!(!f.ctx().buff_ref(own).is_active());
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+
+        // Conditions on the own debuff read the external one, and casting adds nothing.
+        assert_eq!(f.ctx().buff_stacks(&own), 5);
+        assert!(f.ctx().buff_is_active(&own));
+        assert_eq!(f.ctx().buff_time_left(&own), f64::MAX);
+        f.advance_to(2.0);
+        f.set_rage(100);
+        f.ctx().cast(sunder);
+        assert!(!f.ctx().buff_ref(own).is_active());
+        assert_eq!(f.target.armor(), base_armor - 5 * 450);
+
+        // Deselected, the own debuff is back.
+        f.ctx().toggle_external_buff("Sunder Armor").unwrap();
+        assert_eq!(f.ctx().buff_stacks(&own), 0);
+        f.advance_to(4.0);
+        f.set_rage(100);
+        f.ctx().cast(sunder);
+        assert_eq!(f.ctx().buff_stacks(&own), 1);
+        assert_eq!(f.target.armor(), base_armor - 450);
+    }
+
+    #[test]
     fn mutex_peers_are_deselected() {
         let (mut f, _) = fixture();
         f.ctx().toggle_external_buff("Juju Power").unwrap();
@@ -1963,6 +2004,7 @@ mod rotation {
                 "Bloodrage",
                 "Berserker Rage",
                 "Battle Shout",
+                "Sunder Armor",
                 "Heroic Strike",
                 "Haste",
                 "Kiss of the Spider",
@@ -1999,6 +2041,7 @@ mod rotation {
                 "Bloodrage",
                 "Berserker Rage",
                 "Battle Shout",
+                "Sunder Armor",
                 "Heroic Strike",
                 "Recklessness",
                 "Blood Fury",
@@ -2283,6 +2326,7 @@ cast_if:
                     "Bloodrage",
                     "Berserker Rage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Heroic Strike",
                     "Recklessness",
                     "Blood Fury",
@@ -2300,6 +2344,7 @@ cast_if:
                     "Bloodrage",
                     "Berserker Rage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Heroic Strike",
                     "Heroic Strike",
                     "Recklessness",
@@ -2318,6 +2363,7 @@ cast_if:
                     "Bloodrage",
                     "Berserker Rage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Heroic Strike",
                     "Heroic Strike",
                     "Recklessness",
@@ -2336,6 +2382,7 @@ cast_if:
                     "Bloodrage",
                     "Berserker Rage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Heroic Strike",
                     "Recklessness",
                     "Blood Fury",
@@ -2352,6 +2399,7 @@ cast_if:
                 &[
                     "Bloodrage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Recklessness",
                     "Blood Fury",
                     "Overpower",
@@ -2369,6 +2417,7 @@ cast_if:
                 &[
                     "Berserker Rage",
                     "Battle Shout",
+                    "Sunder Armor",
                     "Heroic Strike",
                     "Blood Fury",
                     "Revenge",

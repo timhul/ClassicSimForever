@@ -118,6 +118,11 @@ one that is cast counts a successful cast. Those counts are the executor statist
 - The rage dump before stancing (`spell "Mainhand Attack" less 1.5`) reads the swing timer;
   auto attacks are not spells here, so it is `variable "time_remaining_swing" less 1.5`.
 
+Every Warrior rotation keeps Sunder Armor up (`buff_stacks "Sunder Armor" less 5` or under 4 s left).
+A selected external debuff (`debuffs:` in a character setup) stands in for the character's own
+debuff of the same name: conditions on the own one read the external one (5 stacks, permanent),
+and the own one is not applied while it is up, so the raid's Sunder Armor is never sundered over.
+
 The trinket and item-use lines are kept: they link only when the item is equipped and are
 skipped otherwise. An item's use is named after its *spell*, not the item, so four lines were
 renamed (the item is in a comment): Manual Crowd Pummeler → `Haste`, Zandalarian Hero
