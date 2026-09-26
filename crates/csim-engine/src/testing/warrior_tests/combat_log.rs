@@ -191,6 +191,32 @@ fn bloodrage_logs_its_rage_and_its_aura_until_it_fades() {
 }
 
 #[test]
+fn a_proc_logs_its_effects_but_no_cast() {
+    let mut test = test();
+    test.given_fury_talent_with_rank("Enrage", 5);
+    test.given_fury_talent_with_rank("Flurry", 5);
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_a_guaranteed_white_crit();
+    test.when_swing_is_performed(Hand::Mainhand);
+
+    let events = events(&mut test);
+    assert!(
+        events.iter().any(|event| matches!(
+            event,
+            CombatLogEvent::SpellAura { spell, change: AuraChange::Applied, debuff: false }
+                if spell.name == "Flurry"
+        )),
+        "{events:?}"
+    );
+    assert!(
+        !events
+            .iter()
+            .any(|event| matches!(event, CombatLogEvent::SpellCastSuccess { .. })),
+        "{events:?}"
+    );
+}
+
+#[test]
 fn nothing_is_logged_unless_enabled() {
     let mut test = WarriorTest::new("CombatLog");
     test.given_a_mainhand_weapon_with_100_min_max_dmg();

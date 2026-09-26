@@ -263,6 +263,9 @@ pub struct Engine {
     started_at: Instant,
     /// The combat log being recorded, if enabled.
     combat_log: Option<CombatLog>,
+    /// The encounter has ended: nothing is logged until the next iteration starts (the reset
+    /// of the characters is not part of the fight).
+    combat_over: bool,
 }
 
 impl Default for Engine {
@@ -279,6 +282,7 @@ impl Engine {
             event_counts: EventCounts::default(),
             started_at: Instant::now(),
             combat_log: None,
+            combat_over: false,
         }
     }
 
@@ -315,9 +319,10 @@ impl Engine {
         self.combat_log.get_or_insert_with(CombatLog::new);
     }
 
-    /// Whether a combat log is being recorded.
+    /// Whether a combat log is being recorded now (not between the end of an encounter and the
+    /// next iteration).
     pub fn is_logging(&self) -> bool {
-        self.combat_log.is_some()
+        self.combat_log.is_some() && !self.combat_over
     }
 
     /// The combat log recorded so far, if enabled.
@@ -333,6 +338,9 @@ impl Engine {
     /// Logs `event` at the current time, if the combat log is enabled.
     pub fn log(&mut self, source: LogUnit, dest: LogUnit, event: CombatLogEvent) {
         let time = self.current_time;
+        if self.combat_over {
+            return;
+        }
         if let Some(log) = &mut self.combat_log {
             log.push(CombatLogEntry {
                 time,
@@ -346,6 +354,9 @@ impl Engine {
     /// Logs `event` at the current time before the entries from `index` on.
     pub fn log_at(&mut self, index: usize, source: LogUnit, dest: LogUnit, event: CombatLogEvent) {
         let time = self.current_time;
+        if self.combat_over {
+            return;
+        }
         if let Some(log) = &mut self.combat_log {
             log.insert(
                 index,
@@ -392,11 +403,14 @@ impl Engine {
     pub fn prepare_iteration(&mut self, start_at: f64) {
         self.queue.clear();
         self.current_time = start_at;
+        self.combat_over = false;
     }
 
-    /// Ends combat by dropping every pending event.
+    /// Ends combat by dropping every pending event; the combat log pauses until the next
+    /// iteration.
     pub fn end_combat(&mut self) {
         self.queue.clear();
+        self.combat_over = true;
     }
 
     /// Moves the clock forward to `time`, leaving the queue alone. For tests that start an

@@ -486,6 +486,21 @@ mod tests {
     }
 
     #[test]
+    fn nothing_is_logged_from_the_end_of_the_encounter_to_the_next_iteration() {
+        let mut engine = Engine::new();
+        engine.enable_combat_log();
+        let me = LogUnit::Character(CharId(0));
+        engine.end_combat();
+        assert!(!engine.is_logging());
+        engine.log(me, LogUnit::Target, cast(1));
+        engine.log_at(0, me, LogUnit::Target, cast(2));
+        engine.prepare_iteration(0.0);
+        assert!(engine.is_logging());
+        engine.log(me, LogUnit::Target, cast(3));
+        assert_eq!(engine.take_combat_log().unwrap().len(), 1);
+    }
+
+    #[test]
     fn total_damage_sums_the_damage_events() {
         let mut log = CombatLog::new();
         let damage = |amount| Damage {

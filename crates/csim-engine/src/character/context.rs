@@ -1112,7 +1112,6 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// twice in one chain of extra attacks.
     pub fn run_proc_checks(&mut self, sources: &[ProcSource]) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
-        let mark = self.log_mark();
         self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
         for &source in sources {
@@ -1121,13 +1120,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, ctx)));
         }
-        for (i, (id, report)) in fired.iter().enumerate() {
+        for (id, report) in &fired {
             let (name, rank, spell) = {
                 let spell = self.character.spells.procs().get(*id).spell();
                 (spell.name().to_string(), spell.rank(), log_spell(spell))
             };
             self.record_report(&name, rank, report);
-            self.log_report(spell, report, mark.map(|mark| mark + i));
+            self.log_report(spell, report, None);
         }
         let granted_extra_attacks = self.character.pending_extra_attacks() > before;
         let procs = self.character.spells.procs_mut();
@@ -1549,7 +1548,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Records the attack outcome and resource gains of a cast of `id` (not of the spells it
     /// triggered: those were recorded when they were cast through [`SpellHost::trigger_spell`]).
-    /// Also logs it, its `SPELL_CAST_SUCCESS` at `mark` (before what the cast caused).
+    /// Also logs it; a cast of the character's own (`mark`, see [`Self::log_report`]) with its
+    /// `SPELL_CAST_SUCCESS`.
     fn record_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
         let (name, rank, spell) = {
             let spell = self.character.spells.spell(id);
@@ -1674,9 +1674,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Logs a cast: `SPELL_CAST_SUCCESS` (at `mark`, before the entries performing it logged),
-    /// then its damage or miss, its off-hand strike and its power gains. A cast that only
-    /// started (a cast time, an on-next-swing queue) is logged when it completes.
+    /// Logs a cast: its damage or miss, its off-hand strike and its power gains. A spell the
+    /// character cast itself also logs `SPELL_CAST_SUCCESS` at `mark`, where the log stood before
+    /// it was performed (so before what the cast caused); a proc or a triggered spell (`None`)
+    /// only logs its effects, like the client. A cast that only started (a cast time, an
+    /// on-next-swing queue) is logged when it completes.
     fn log_report(&mut self, spell: LogSpell, report: &CastReport, mark: Option<usize>) {
         if !self.engine.is_logging()
             || report.queued
@@ -1686,18 +1688,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             return;
         }
         let me = self.log_me();
-        let dest = if report.attack.is_some() {
-            LogUnit::Target
-        } else {
-            me
-        };
-        let cast = CombatLogEvent::SpellCastSuccess {
-            spell: spell.clone(),
-            info: self.own_log_info(),
-        };
-        match mark {
-            Some(mark) => self.engine.log_at(mark, me, dest, cast),
-            None => self.engine.log(me, dest, cast),
+        if let Some(mark) = mark {
+            let dest = if report.attack.is_some() {
+                LogUnit::Target
+            } else {
+                me
+            };
+            let cast = CombatLogEvent::SpellCastSuccess {
+                spell: spell.clone(),
+                info: self.own_log_info(),
+            };
+            self.engine.log_at(mark, me, dest, cast);
         }
         let strikes: Vec<(AttackOutcome, bool)> = report
             .attack
@@ -2414,12 +2415,11 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn trigger_spell(&mut self, spell: u32, trigger_value: Option<f64>) -> Option<CastReport> {
         let id = self.character.spells().spell_by_game_id(spell)?;
-        let mark = self.log_mark();
         let report = self.with_spell(id, |s, ctx| {
             s.set_trigger_value(trigger_value);
             s.perform_triggered(ctx)
         });
-        self.record_cast(id, &report, mark);
+        self.record_cast(id, &report, None);
         Some(report)
     }
 
