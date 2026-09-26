@@ -5,6 +5,10 @@
 # `variable "combo_points" eq 0` / `greater 0`. The rage dump before stancing read the swing
 # timer through `spell "Mainhand Attack" less 1.5`; auto attacks are not spells here, so it is
 # `variable "time_remaining_swing" less 1.5`.
+#
+# Not in ClassicSim: Rend (Battle Stance only) is refreshed in the Battle Stance window the
+# Overpower swap opens, and the swap back to Berserker Stance waits for it (unless there is no
+# rage for it or the execute phase is near). Rend on the target lets Bloodthrill proc.
 class: WARRIOR
 name: Mortal Strike
 attack_mode: melee
@@ -70,6 +74,10 @@ cast_if:
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
   - name: Overpower
+  - name: Rend
+    condition: |
+      buff_duration "Rend" less 1.5
+      and variable "time_remaining_execute" greater 3
   - name: Mortal Strike
     condition: variable "time_remaining_execute" greater 0
   - name: Execute
@@ -94,5 +102,10 @@ cast_if:
       and resource "Rage" less 50
   - name: Berserker Stance
     condition: |
-      variable "time_remaining_execute" less 0
+      variable "time_remaining_execute" less 3
+      and variable "combo_points" eq 0
+      or variable "time_remaining_execute" less 0
       or variable "combo_points" eq 0
+      and buff_duration "Rend" greater 1.5
+      or variable "combo_points" eq 0
+      and resource "Rage" less 10

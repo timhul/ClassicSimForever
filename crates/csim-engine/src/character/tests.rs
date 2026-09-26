@@ -2354,6 +2354,7 @@ cast_if:
                     "Recklessness",
                     "Blood Fury",
                     "Overpower",
+                    "Rend",
                     "Execute",
                     "Whirlwind",
                     "Heroic Strike",
