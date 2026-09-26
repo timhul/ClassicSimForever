@@ -78,14 +78,23 @@ overrides:
   - id: 28775
     note: Judgement of Light (Redemption Armor 2) is a paladin set bonus
     sim_flags: [IGNORED]
+  - id: 28787
+    note: Cleanse (Redemption Armor 8) is a paladin set bonus
+    sim_flags: [IGNORED]
   - id: 28789
     note: Holy Power (Redemption Armor 6) is a paladin set bonus
     sim_flags: [IGNORED]
   - id: 28809
     note: Greater Heal (Vestments of Faith 4) is a priest set bonus
     sim_flags: [IGNORED]
+  - id: 28821
+    note: Lightning Shield (The Earthshatterer 8) is a shaman set bonus
+    sim_flags: [IGNORED]
   - id: 28823
     note: Totemic Power (The Earthshatterer 6) is a shaman set bonus
+    sim_flags: [IGNORED]
+  - id: 28831
+    note: Vampirism (Plagueheart Raiment 2) is a warlock set bonus
     sim_flags: [IGNORED]
   - id: 28847
     note: Healing Touch Refund (Idol of Longevity) is a druid relic
@@ -127,6 +136,10 @@ overrides:
   - id: 23605
     note: Spell Vulnerability (Nightfall) - ClassicSim's 20 % chance on hit
     proc: { chance: 20 }
+  # Rogue set bonuses (TASKS RG.7).
+  - id: 28814
+    note: Revealed Flaw (Bonescythe Armor 8); a chance per combo point of an Eviscerate to trigger 28815 (FINISHER_CHANCE_PER_COMBO_POINT, RG.7)
+    effects: [{ index: 0, script: NO_OP }]
   # On-use auras.
   - id: 29602
     note: >-

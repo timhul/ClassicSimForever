@@ -1000,6 +1000,75 @@ fn shipped_warrior_data_learns_and_runs() {
     assert!(f.ctx().aura_active(BLOODRAGE_BUFF));
 }
 
+/// The shipped Rogue data end to end: the class loads, only Rogue and Orc spells are learned,
+/// the abilities resolve to their highest ranks, and an iteration of auto attacks runs.
+#[test]
+fn shipped_rogue_data_learns_and_runs() {
+    let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let classes = super::ClassDb::load(&data.join("classes"), None).unwrap();
+    let rogue = Arc::clone(classes.get(crate::faction::PlayerClass::Rogue).unwrap());
+    let mut f = Fixture::orc(rogue);
+    f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
+    let talents = crate::talent::TalentDb::load(&data.join("talents")).unwrap();
+    let tree = Arc::clone(talents.get(crate::faction::PlayerClass::Rogue).unwrap());
+    f.ctx()
+        .set_talents(crate::talent::CharacterTalents::new(tree));
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    let db = std::mem::take(&mut f.db);
+    let added = f.ctx().learn_all(&db);
+    f.db = db;
+    assert!(added.len() > 100, "{} spells", added.len());
+    let spells = f.character.spells();
+    assert!(
+        spells.spell_by_game_id(12294).is_none(),
+        "Mortal Strike is a Warrior spell"
+    );
+    assert!(spells.spell(f.spell_id(20572)).is_enabled(), "Blood Fury");
+    for (ability, rank, game_id) in [
+        ("Sinister Strike", 8, 11294),
+        ("Backstab", 9, 25300),
+        ("Eviscerate", 9, 31016),
+        ("Slice and Dice", 2, 6774),
+    ] {
+        let group = spells
+            .rank_group(ability)
+            .unwrap_or_else(|| panic!("{ability}"));
+        assert_eq!(group.max_rank(), rank, "{ability}");
+        let highest = group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap_or_else(|| panic!("{ability} has an enabled rank"));
+        assert_eq!(spells.spell(highest).game_id(), game_id, "{ability}");
+    }
+    let mutilate = f.spell_id(1310707);
+    assert!(
+        !f.character.spells().spell(mutilate).is_enabled(),
+        "Mutilate is a talent"
+    );
+
+    f.rig_rolls(PhysicalAttackResult::Hit);
+    f.ctx().reset();
+    f.engine.prepare_iteration(0.0);
+    f.engine.add_event(Event::new(
+        0.0,
+        EventKind::EncounterStart {
+            character: CharId(0),
+        },
+    ));
+    let handled = f.run(10.0);
+    let swings = handled
+        .iter()
+        .filter(|kind| {
+            matches!(
+                kind,
+                EventKind::MainhandMeleeHit { .. } | EventKind::OffhandMeleeHit { .. }
+            )
+        })
+        .count();
+    assert!(swings >= 9, "10 s of 2.6 / 1.8 swings: {swings}");
+    assert_eq!(f.character.resource_type(), ResourceType::Energy);
+}
+
 // ---------------------------------------------------------------- external buffs
 
 mod external_buffs {

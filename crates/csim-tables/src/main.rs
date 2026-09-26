@@ -60,7 +60,7 @@ const ENCHANTS_FILE: &str = "enchants.yaml";
 /// The file `export-spells --items` writes under the spell data directory.
 const ITEMS_FILE: &str = "items.yaml";
 /// The classes whose spells and talents `export-all` writes.
-const EXPORTED_CLASSES: &[&str] = &["warrior"];
+const EXPORTED_CLASSES: &[&str] = &["warrior", "rogue"];
 
 #[derive(Parser)]
 #[command(name = "csim-tables", version, about)]
@@ -161,7 +161,7 @@ enum Command {
         #[arg(long, default_value = "data/item_sets.yaml")]
         sets: PathBuf,
     },
-    /// Runs every export in dependency order: the class spells (`warrior`), the racials, the
+    /// Runs every export in dependency order: the class spells (`warrior`, `rogue`), the racials, the
     /// external buff and enchant spells, the class talents, the items and item sets, then the
     /// item spells, and finally `check`.
     ExportAll {

@@ -4759,6 +4759,24 @@ spells:
     base_points: 130.0
     misc_value: [126, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 28787
+  name: Cleanse
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 10
+  description: Your Cleanse spell also heals the target for 200.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: ADD_TARGET_TRIGGER
+    base_points: 100.0
+    trigger_spell: 28788
+    spell_class_mask: [4096, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28788
   name: Cleanse
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -4940,6 +4958,25 @@ spells:
     bonus_coefficient: 1.0
     misc_value: [3, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 28814
+  name: Revealed Flaw
+  attributes: [464, 1048576, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 8
+  description: Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100% critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: ADD_TARGET_TRIGGER
+    points_per_resource: 5.0
+    trigger_spell: 28815
+    bonus_coefficient: 1.0
+    spell_class_mask: [131072, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28815
   name: Revealed Flaw
   attributes: [33882128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -5045,6 +5082,24 @@ spells:
     aura_period_ms: 5000
     trigger_spell: 18350
     implicit_target: [UNIT_CASTER, NONE]
+- id: 28821
+  name: Lightning Shield
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 11
+  description: Your Lightning Shield spell also grants you $28820s1 mana per 5 sec. while active.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: ADD_TARGET_TRIGGER
+    base_points: 100.0
+    trigger_spell: 28820
+    spell_class_mask: [1024, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28823
   name: Totemic Power
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -5094,6 +5149,21 @@ spells:
     base_points: -12.0
     misc_value: [14, 0]
     spell_class_mask: [262144, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 28831
+  name: Vampirism
+  attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  class_options:
+    set: 5
+  description: Your Shadow Bolts now have a chance to heal you for $28839s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: ADD_TARGET_TRIGGER
+    base_points: 100.0
+    trigger_spell: 28839
+    spell_class_mask: [1, 0, 131072, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 28839
   name: Vampirism

@@ -529,12 +529,7 @@ mod tests {
     fn shipped_warrior_file_loads_and_matches_the_enchant_db() {
         let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
         let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
-        assert_eq!(db.len(), 1);
         let warrior = db.get(PlayerClass::Warrior).unwrap();
-        assert!(matches!(
-            db.get(PlayerClass::Rogue),
-            Err(ClassSpecError::Missing(PlayerClass::Rogue))
-        ));
         assert_eq!(warrior.resource, ResourceType::Rage);
         assert_eq!(warrior.default_stance, Stance::Battle);
         assert_eq!(warrior.highest_armor_type, ArmorType::Plate);
@@ -563,6 +558,38 @@ mod tests {
             warrior
                 .enchants_for_slot(EquipmentSlot::Head, true)
                 .is_empty()
+        );
+    }
+
+    #[test]
+    fn shipped_rogue_file_loads_and_matches_the_enchant_db() {
+        let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
+        let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
+        let rogue = db.get(PlayerClass::Rogue).unwrap();
+        assert_eq!(rogue.resource, ResourceType::Energy);
+        assert_eq!(rogue.default_stance, Stance::Caster);
+        assert_eq!(rogue.highest_armor_type, ArmorType::Leather);
+        assert_eq!(rogue.global_cooldown, 1.0);
+        assert_eq!(rogue.max_combo_points, 5);
+        assert_eq!(rogue.combo_point_duration, None);
+        assert_eq!(rogue.base_stats.agility, 110);
+        assert_eq!(rogue.base_stats.melee_ap, 100);
+        assert_eq!(rogue.base_stats.melee_crit, 100);
+        assert_eq!(rogue.base_stats.health, 1523);
+        let rules = rogue.stat_rules.rules();
+        assert_eq!(rules.melee_ap_per_strength, 1);
+        assert_eq!(rules.melee_ap_per_agility, 1);
+        assert_eq!(rules.ranged_ap_per_agility, 2);
+        assert!((rules.agility_per_percent_crit - 28.99).abs() < 0.01);
+        assert_eq!(rogue.available_races.len(), 7);
+        assert!(!rogue.available_races.contains(&Race::Tauren));
+        assert!(rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::Dagger));
+        assert!(rogue.can_wield(EquipmentSlot::Offhand, WeaponType::Axe));
+        assert!(!rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::TwohandSword));
+        assert!(
+            rogue
+                .enchants_for_slot(EquipmentSlot::Offhand, true)
+                .contains(&EnchantName::InstantPoison)
         );
     }
 

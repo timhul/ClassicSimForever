@@ -417,11 +417,15 @@ impl EffectRecord {
             )
     }
 
-    /// Whether the effect needs hand-written logic (`DUMMY` effects and auras, class scripts).
+    /// Whether the effect needs hand-written logic (`DUMMY` effects and auras, class scripts,
+    /// `ADD_TARGET_TRIGGER` whose chance rule the server keeps).
     pub fn is_scripted(&self) -> bool {
         matches!(self.effect, SpellEffectName::Dummy)
             || (self.is_apply_aura()
-                && matches!(self.aura, AuraType::Dummy | AuraType::PeriodicDummy))
+                && matches!(
+                    self.aura,
+                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::AddTargetTrigger
+                ))
     }
 
     /// Whether the first implicit target is the caster.
@@ -550,6 +554,14 @@ pub struct SpellRecord {
     /// `SpellDuration.Duration`; −1 = until cancelled, absent = no duration.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<i32>,
+    /// `SpellDuration.DurationPerResource`: the extra duration per combo point spent
+    /// (finishers: Slice and Dice 3 s, Rupture 2 s); 0 for everything else.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub duration_per_resource_ms: i32,
+    /// `SpellDuration.MaxDuration`, the cap of a per-combo-point duration; exported only with a
+    /// `duration_per_resource_ms` (elsewhere it is a level-scaling cap the sim does not use).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub max_duration_ms: i32,
     /// `SpellRange.RangeMax_0`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub range_yd: f32,
@@ -603,6 +615,8 @@ impl SpellRecord {
             school_mask: SpellSchoolMask::PHYSICAL,
             cast_time_ms: 0,
             duration_ms: None,
+            duration_per_resource_ms: 0,
+            max_duration_ms: 0,
             range_yd: 0.0,
             power: Vec::new(),
             cooldown: Cooldown::default(),
@@ -691,6 +705,21 @@ impl SpellRecord {
     /// The finite duration in milliseconds, if any.
     pub fn finite_duration_ms(&self) -> Option<u32> {
         self.duration_ms.and_then(|d| u32::try_from(d).ok())
+    }
+
+    /// The finite duration in milliseconds after spending `combo_points`:
+    /// `duration + duration_per_resource × combo_points`, capped at `max_duration_ms` when
+    /// there is one (Slice and Dice 6 s + 3 s per point, 21 s at 5).
+    pub fn finite_duration_ms_with_combo_points(&self, combo_points: u32) -> Option<u32> {
+        let base = self.finite_duration_ms()?;
+        let Ok(per_point) = u32::try_from(self.duration_per_resource_ms) else {
+            return Some(base);
+        };
+        let duration = base + per_point * combo_points;
+        Some(match u32::try_from(self.max_duration_ms) {
+            Ok(max) if max > 0 => duration.min(max),
+            _ => duration,
+        })
     }
 
     /// Whether the spell is on the global cooldown, and that cooldown's length.
@@ -1555,6 +1584,25 @@ overrides:
     }
 
     #[test]
+    fn finisher_durations_grow_per_combo_point_up_to_the_cap() {
+        // Slice and Dice (SpellDuration 185: 6 s + 3 s per point, max 21 s).
+        let mut slice = SpellRecord::new(5171, "Slice and Dice");
+        slice.duration_ms = Some(6_000);
+        slice.duration_per_resource_ms = 3_000;
+        slice.max_duration_ms = 21_000;
+        assert_eq!(slice.finite_duration_ms_with_combo_points(0), Some(6_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(1), Some(9_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(5), Some(21_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(6), Some(21_000));
+        // Without a per-point duration the combo points change nothing.
+        let mut rend = SpellRecord::new(772, "Rend");
+        rend.duration_ms = Some(9_000);
+        assert_eq!(rend.finite_duration_ms_with_combo_points(5), Some(9_000));
+        rend.duration_ms = Some(-1);
+        assert_eq!(rend.finite_duration_ms_with_combo_points(5), None);
+    }
+
+    #[test]
     fn record_helpers_decode_the_table_columns() {
         let db = db();
         let hs = db.get(78).unwrap();
@@ -1961,6 +2009,31 @@ spells:
         let blood_fury = db.get(20572).unwrap();
         assert_eq!(blood_fury.race_mask, 2);
         assert_eq!(db.class_of(20572), Some(None));
+
+        // The Rogue: finisher durations per combo point, Relentless Strikes kept by its
+        // ADD_TARGET_TRIGGER aura, the Season of Discovery runes ignored.
+        assert!(db.ids_of_class(Some(PlayerClass::Rogue)).len() > 150);
+        let slice = db.get(6774).unwrap();
+        assert_eq!(slice.name, "Slice and Dice");
+        assert_eq!(slice.finite_duration_ms_with_combo_points(1), Some(9_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(5), Some(21_000));
+        let rupture = db.get(11275).unwrap();
+        assert_eq!(
+            rupture.finite_duration_ms_with_combo_points(5),
+            Some(16_000)
+        );
+        let relentless = db.get(14179).unwrap();
+        assert_eq!(relentless.effects[0].aura, AuraType::AddTargetTrigger);
+        assert_eq!(relentless.effects[0].trigger_spell, 14181);
+        assert!(
+            db.overrides().has_sim_flag(424785, SimFlag::Ignored),
+            "Saber Slash"
+        );
+        assert_eq!(
+            db.get(31016).unwrap().rank_number(),
+            Some(9),
+            "Eviscerate r9"
+        );
 
         // The effects the sim cannot interpret yet; extend the overrides rather than this list.
         let mut pending: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();

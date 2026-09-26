@@ -1,0 +1,237 @@
+# Hand-written Rogue spell overrides: what the client tables (data/spells/rogue.yaml, exported
+# from build 1.60.1.70009) do not contain. See crates/csim-engine/src/spell/overrides.rs for the
+# schema and data/SPELL_INSTRUCTIONS.md §1.7-1.11 for the table side.
+#
+# Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
+#
+# Scripts the Rogue work has not implemented yet are NO_OP with the task (TASKS.md RG.n) that
+# replaces them in the note, so `csim-tables check` lists nothing of the Rogue at every step.
+
+overrides:
+  # ----- Finishers: per-combo-point dummies -------------------------------------------------
+  # The per-combo-point duration is SpellDuration.DurationPerResource (`duration_per_resource_ms`)
+  # and the per-point damage / armor is EffectPointsPerResource; the DUMMY carries no number.
+  - id: 5171
+    note: Slice and Dice r1; E0 is the per-combo-point duration (duration_per_resource_ms)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 6774
+    note: Slice and Dice r2; E0 is the per-combo-point duration (duration_per_resource_ms)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 1943
+    note: Rupture r1; E1 is the per-combo-point duration (duration_per_resource_ms), E2 has no number. The attack power share of the ticks comes with RG.3
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 8639
+    note: Rupture r2, see r1 (RG.3)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 8640
+    note: Rupture r3, see r1 (RG.3)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 11273
+    note: Rupture r4, see r1 (RG.3)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 11274
+    note: Rupture r5, see r1 (RG.3)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 11275
+    note: Rupture r6, see r1 (RG.3)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 2098
+    note: Eviscerate r1; E1 is "increased by Attack Power" with no number (COMBO_POINT_AP_DAMAGE, RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 6760
+    note: Eviscerate r2, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 6761
+    note: Eviscerate r3, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 6762
+    note: Eviscerate r4, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8623
+    note: Eviscerate r5, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8624
+    note: Eviscerate r6, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 11299
+    note: Eviscerate r7, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 11300
+    note: Eviscerate r8, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 31016
+    note: Eviscerate r9, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8647
+    note: Expose Armor r1; E0's points_per_resource is the armor per combo point, the E1 DUMMY has no number (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8649
+    note: Expose Armor r2, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8650
+    note: Expose Armor r3, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 11197
+    note: Expose Armor r4, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 11198
+    note: Expose Armor r5, see r1 (RG.3)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1310703
+    note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms), the poison modifiers are RG.4 / RG.5
+    effects: [{ index: 0, script: NO_OP }]
+
+  # ----- Builders -----------------------------------------------------------------------------
+  - id: 14278
+    note: Ghostly Strike; E3 is the weapon damage with a main-hand dagger, 180 % (WEAPON_TYPE_VALUE, RG.3)
+    effects: [{ index: 3, script: NO_OP }]
+  - id: 16511
+    note: Hemorrhage; E4 is the weapon damage with a dagger, 145 % (WEAPON_TYPE_VALUE, RG.3)
+    effects: [{ index: 4, script: NO_OP }]
+  - id: 1310707
+    note: Mutilate r1 (talent); E3 is +20 % damage against a poisoned target (DAMAGE_PERCENT_VS_POISONED, RG.3 / RG.5)
+    effects: [{ index: 3, script: NO_OP }]
+  - id: 399956
+    note: Mutilate r2, see r1 (RG.3 / RG.5)
+    effects: [{ index: 3, script: NO_OP }]
+  - id: 1241582
+    note: Mutilate r3, see r1 (RG.3 / RG.5)
+    effects: [{ index: 3, script: NO_OP }]
+  - id: 1241584
+    note: Mutilate r4, see r1 (RG.3 / RG.5)
+    effects: [{ index: 3, script: NO_OP }]
+
+  # ----- Talents ------------------------------------------------------------------------------
+  # The combo point payloads (E0 ENERGIZE misc 4) carry a DUMMY without a number next to the
+  # combo point; the ENERGIZE is what the sim needs.
+  - id: 13977
+    note: Initiative payload; E0 gives the combo point, E1 has no number. The Ambush / Garrote / Cheap Shot filter is RG.4
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 14157
+    note: Ruthlessness payload; E0 gives the combo point, E1 has no number. The finisher filter is RG.4
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 15250
+    note: Setup payload (a combo point when the rogue dodges, not simulated); E1 has no number
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1310710
+    note: Improved Backstab payload (Puncturing Wounds' extra combo point); E0 gives the combo point, E1 has no number. The Backstab filter is RG.4
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1310697
+    note: Improved Expose Armor payload (combo point refund); E0 gives the combo point, E1 has no number. The 5 combo point rule is RG.4
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 14168
+    note: Improved Expose Armor (talent); E2 is the combo point count (5) the refund needs (RG.4)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 14179
+    note: Relentless Strikes (talent); the rank value is the chance per combo point spent on a finisher, the Forever payload is 1314102 (25 energy) (FINISHER_CHANCE_PER_COMBO_POINT, RG.4)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 14181
+    note: Relentless Strikes Effect; the DUMMY names the 25 energy, Forever restores it with 1314102 (RG.4)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 14186
+    note: Seal Fate (talent); the rank value is the chance of an extra combo point on a builder crit (EXTRA_COMBO_POINT_ON_CRIT, RG.4)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 13960
+    note: Hack and Slash (talent); E0 dagger/fist crit (13706), E1 mace armor penetration (13709), E2 sword/axe extra attack (1290312), as Weaponmaster (ENABLE_AURA / ENABLE_PROC, RG.4)
+    effects:
+      - { index: 0, script: NO_OP }
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 1310728
+    note: Quietus (talent); E0 is the damage bonus, E1 the health threshold 35 % (DAMAGE_PERCENT_BELOW_HEALTH, RG.4)
+    effects:
+      - { index: 0, script: NO_OP }
+      - { index: 1, script: NO_OP }
+  - id: 14113
+    note: Improved Poisons (talent); E1 is the chance not to consume a poison charge, and charges are not simulated
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 14144
+    note: Remorseless Attacks (talent) needs a kill, nothing to simulate against one boss
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 14183
+    note: Premeditation; E0 gives the combo points, E1 (aura 560, unknown) and the E2 DUMMY have nothing the sim models (the opener is RG.6)
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 14185
+    note: Preparation finishes the cooldown of the other Rogue abilities (RESET_COOLDOWN, RG.6)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 462708
+    note: Cutthroat (talent); the rank value is the chance a Backstab lets the next Ambush skip Stealth (RG.6)
+    effects: [{ index: 0, script: NO_OP }]
+
+  # ----- Not simulated ------------------------------------------------------------------------
+  - id: 408
+    note: Kidney Shot r1 stuns, and bosses are immune to stuns (TASKS decision 4)
+    sim_flags: [IGNORED]
+  - id: 8643
+    note: Kidney Shot r2 stuns, and bosses are immune to stuns (TASKS decision 4)
+    sim_flags: [IGNORED]
+  - id: 14251
+    note: Riposte needs a parry by the rogue, not modelled
+    sim_flags: [IGNORED]
+  - id: 1776
+    note: Gouge r1 incapacitates, which the boss does not suffer for long; not a DPS ability
+    sim_flags: [IGNORED]
+  - id: 1777
+    note: Gouge r2, see r1
+    sim_flags: [IGNORED]
+  - id: 8629
+    note: Gouge r3, see r1
+    sim_flags: [IGNORED]
+  - id: 11285
+    note: Gouge r4, see r1
+    sim_flags: [IGNORED]
+  - id: 11286
+    note: Gouge r5, see r1
+    sim_flags: [IGNORED]
+  - id: 438040
+    note: Redirect moves combo points to a new target, one target here
+    sim_flags: [IGNORED]
+
+  # ----- Season of Discovery runes: not in Forever (TASKS decision 1) -------------------------
+  - id: 398196
+    note: Quick Draw (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 399985
+    note: Shadowstrike (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 450811
+    note: Disallow Shadowstrike (SoD rune marker)
+    sim_flags: [IGNORED]
+  - id: 399986
+    note: Shuriken Toss (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 400009
+    note: Between the Eyes (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 400012
+    note: Blade Dance (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 424785
+    note: Saber Slash (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 424799
+    note: Shiv (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 424919
+    note: Main Gauche (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 425012
+    note: Poisoned Knife (SoD rune)
+    sim_flags: [IGNORED]
+  - id: 425013
+    note: Poisoned Knife (SoD rune), the second spell
+    sim_flags: [IGNORED]

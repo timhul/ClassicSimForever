@@ -74,6 +74,9 @@ dbc_enum! {
         AddFlatModifier = 107 => "ADD_FLAT_MODIFIER",
         /// Percent spell modifier: misc = `SpellModOp`, `EffectSpellClassMask` = affected spells.
         AddPctModifier = 108 => "ADD_PCT_MODIFIER",
+        /// Casts `EffectTriggerSpell` on the target of the spells in `EffectSpellClassMask`
+        /// (Relentless Strikes on finishers). Scripted: the chance rule is in the overrides.
+        AddTargetTrigger = 109 => "ADD_TARGET_TRIGGER",
         ModPowerRegenPercent = 110 => "MOD_POWER_REGEN_PERCENT",
         ModRangedDamageTaken = 113 => "MOD_RANGED_DAMAGE_TAKEN",
         ModRangedDamageTakenPct = 114 => "MOD_RANGED_DAMAGE_TAKEN_PCT",

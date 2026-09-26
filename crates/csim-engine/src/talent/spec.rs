@@ -549,4 +549,44 @@ talents:
             .unwrap();
         assert_eq!(dual_wield.values_at(5), [(0, 25.0), (1, 100.0), (2, 10.0)]);
     }
+
+    #[test]
+    fn the_shipped_rogue_tree_loads_with_its_prerequisites() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/talents/rogue.yaml");
+        let file = TalentFile::load(&path).expect("shipped talent data loads");
+        assert_eq!(file.class, PlayerClass::Rogue);
+        assert_eq!(file.tree, 1111);
+        assert_eq!(file.points, 51);
+        assert_eq!(file.points_per_tier, 5);
+        assert_eq!(
+            file.tabs
+                .iter()
+                .map(|t| t.name.as_str())
+                .collect::<Vec<_>>(),
+            ["Assassination", "Combat", "Subtlety"]
+        );
+        assert_eq!(file.talents.len(), 53);
+        let named = |name: &str| {
+            file.talent_by_name(name, None)
+                .unwrap_or_else(|| panic!("{name}"))
+        };
+        for (talent, parent) in [
+            ("Lethality", "Malice"),
+            ("Venom", "Mutilate"),
+            ("Riposte", "Deflection"),
+            ("Dual Wield Specialization", "Precision"),
+            ("Weapon Expertise", "Blade Flurry"),
+            ("Hemorrhage", "Serrated Blades"),
+            ("Quietus", "Dirty Deeds"),
+            ("Thousand Cuts", "Preparation"),
+        ] {
+            assert_eq!(named(talent).requires, Some(named(parent).node), "{talent}");
+        }
+        let with_prerequisite = file.talents.iter().filter(|t| t.requires.is_some());
+        assert_eq!(with_prerequisite.count(), 8);
+        assert_eq!(named("Mutilate").spell, 1310707);
+        // Forever values: Lethality 4-20 %, Improved Eviscerate 7/13/20 %.
+        assert_eq!(named("Lethality").values_at(5), [(0, 20.0)]);
+        assert_eq!(named("Improved Eviscerate").values_at(3), [(0, 20.0)]);
+    }
 }

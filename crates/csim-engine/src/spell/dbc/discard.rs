@@ -12,7 +12,8 @@
 //!
 //! Kept although `discard.txt` lists them as candidates: `MOD_THREAT` and `MOD_TOTAL_THREAT`
 //! (the simulator tracks threat: stance passives, Defiance) and `OVERRIDE_ACTIONBAR_SPELLS`
-//! (Improved Slam's and the runes' rank replacement).
+//! (Improved Slam's and the runes' rank replacement), `ADD_TARGET_TRIGGER` (Relentless
+//! Strikes' energy on finishers).
 
 use super::{AuraType, SpellEffectName};
 
@@ -74,7 +75,6 @@ pub const DISCARDED_AURA_IDS: &[u32] = &[
     104, // WATER_WALK
     105, // FEATHER_FALL
     106, // HOVER
-    109, // ADD_TARGET_TRIGGER
     111, // INTERCEPT_MELEE_RANGED_ATTACKS
     112, // OVERRIDE_CLASS_SCRIPTS
     115, // MOD_HEALING
@@ -254,6 +254,7 @@ mod tests {
         assert!(!AuraType::ModThreat.is_discarded());
         assert!(!AuraType::ModTotalThreat.is_discarded());
         assert!(!AuraType::OverrideActionbarSpells.is_discarded());
+        assert!(!AuraType::AddTargetTrigger.is_discarded());
         assert!(!AuraType::ModAttackPower.is_discarded());
         assert!(!AuraType::PeriodicDamage.is_discarded());
         assert!(!AuraType::Dummy.is_discarded());

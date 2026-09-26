@@ -405,10 +405,14 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
         record.cast_time_ms = tables
             .spell_cast_times(misc.casting_time_index)
             .map_or(0, |c| c.base.max(0) as u32);
-        record.duration_ms = (misc.duration_index != 0)
+        let duration = (misc.duration_index != 0)
             .then(|| tables.spell_duration(misc.duration_index))
-            .flatten()
-            .map(|d| d.duration);
+            .flatten();
+        record.duration_ms = duration.map(|d| d.duration);
+        if let Some(d) = duration.filter(|d| d.duration_per_resource != 0) {
+            record.duration_per_resource_ms = d.duration_per_resource;
+            record.max_duration_ms = d.max_duration;
+        }
         record.range_yd = tables
             .spell_range(misc.range_index)
             .map_or(0.0, |r| r.range_max[0]);

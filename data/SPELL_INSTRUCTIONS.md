@@ -209,6 +209,10 @@ Berserking 20554, Sword Specialization 20597 …); `ClassMask` −1 on a racial 
   80 % (`POWER_REFUND_ON_MISS`). Set on the single-target warrior attacks, not on Whirlwind,
   Cleave, Thunder Clap or the shouts. Other failed casts pay the full cost.
 - Duration: `SpellDuration[DurationIndex].Duration` ms; −1 = until cancelled (stances).
+  Finishers add `DurationPerResource` ms per combo point spent, capped at `MaxDuration`
+  (Slice and Dice 6000 + 3000 × CP, max 21000); both are exported (`duration_per_resource_ms`,
+  `max_duration_ms`) only when `DurationPerResource` is set, since elsewhere `MaxDuration` is a
+  level-scaling cap the simulator does not use.
 - Cost: `SpellPower` rows (`OrderIndex` 0 primary). `PowerType` 1 (rage) values are ×10
   (Mortal Strike `ManaCost` 300 = 30 rage); mana/energy are as-is; `PowerCostPct` = % of base
   mana; `ManaPerSecond` for channels.
@@ -379,7 +383,8 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
    exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
-   simulated) and `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes).
+   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes) and `ADD_TARGET_TRIGGER`
+   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
    `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it

@@ -248,6 +248,34 @@ target:
     );
 }
 
+/// A Rogue setup passes every check but the rotation (none shipped yet): class, race, talents,
+/// weapons, enchants and poisons.
+#[test]
+fn a_rogue_setup_lacks_only_its_rotation() {
+    let text = r#"
+name: Rogue
+class: ROGUE
+race: UNDEAD
+rotation: Combat
+phase: 3
+talents:
+  Combat:
+    Improved Eviscerate: 3
+    Improved Sinister Strike: 2
+    Precision: 3
+equipment:
+  MAINHAND: { item: 18866, enchant: Crusader, temp_enchants: [InstantPoison] }
+  OFFHAND: { item: 18866, temp_enchants: [InstantPoison] }
+"#;
+    let setup: CharacterSetup = serde_yaml::from_str(text).unwrap();
+    let found = issues(&setup);
+    assert_eq!(contexts(&found), ["rotation"], "{found:#?}");
+
+    let mut tauren = setup.clone();
+    tauren.race = Race::Tauren;
+    assert!(contexts(&issues(&tauren)).contains(&"race"));
+}
+
 #[test]
 fn a_two_hander_taking_the_offhand_away_is_reported() {
     let mut setup = minimal();

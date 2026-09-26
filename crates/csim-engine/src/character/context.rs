@@ -319,15 +319,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         })
     }
 
-    /// Learns every spell of `db` that the character's class or race can have: class spells
-    /// (any `class_mask`, including the talent-granted ones which stay disabled) and the
-    /// racials whose `race_mask` names the race. The external buff auras
+    /// Learns every spell of `db` that the character's class or race can have: the spells of
+    /// its class file (any `class_mask`, including the talent-granted ones which stay disabled)
+    /// and of the class-independent files, where the racials must name the race in their
+    /// `race_mask`. Other classes' files are skipped, and the external buff auras
     /// (`SpellDb::is_learnable`) are not spells of the character.
     pub fn learn_all(&mut self, db: &SpellDb) -> Vec<AddedSpell> {
         let race = self.character.race();
+        let class = self.character.class().class;
         let mut ids: Vec<u32> = db
-            .records()
-            .into_iter()
+            .ids_of_class(Some(class))
+            .iter()
+            .chain(db.ids_of_class(None))
+            .filter_map(|&id| db.get(id))
             .filter(|record| db.is_learnable(record.id))
             .filter(|record| record.race_mask == 0 || race.in_mask(record.race_mask))
             .map(|record| record.id)
