@@ -14,6 +14,7 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::time::Instant;
 
+use crate::combat_log::{CombatLog, CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::ids::{BuffId, CharId, SpellId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -260,6 +261,8 @@ pub struct Engine {
     current_time: f64,
     event_counts: EventCounts,
     started_at: Instant,
+    /// The combat log being recorded, if enabled.
+    combat_log: Option<CombatLog>,
 }
 
 impl Default for Engine {
@@ -275,6 +278,7 @@ impl Engine {
             current_time: 0.0,
             event_counts: EventCounts::default(),
             started_at: Instant::now(),
+            combat_log: None,
         }
     }
 
@@ -304,6 +308,55 @@ impl Engine {
         self.set_current_time(&event);
         self.event_counts.increment(event.kind.event_type());
         Some(event)
+    }
+
+    /// Starts recording a combat log (kept across iterations until taken).
+    pub fn enable_combat_log(&mut self) {
+        self.combat_log.get_or_insert_with(CombatLog::new);
+    }
+
+    /// Whether a combat log is being recorded.
+    pub fn is_logging(&self) -> bool {
+        self.combat_log.is_some()
+    }
+
+    /// The combat log recorded so far, if enabled.
+    pub fn combat_log(&self) -> Option<&CombatLog> {
+        self.combat_log.as_ref()
+    }
+
+    /// Stops recording and returns the combat log, if it was enabled.
+    pub fn take_combat_log(&mut self) -> Option<CombatLog> {
+        self.combat_log.take()
+    }
+
+    /// Logs `event` at the current time, if the combat log is enabled.
+    pub fn log(&mut self, source: LogUnit, dest: LogUnit, event: CombatLogEvent) {
+        let time = self.current_time;
+        if let Some(log) = &mut self.combat_log {
+            log.push(CombatLogEntry {
+                time,
+                source,
+                dest,
+                event,
+            });
+        }
+    }
+
+    /// Logs `event` at the current time before the entries from `index` on.
+    pub fn log_at(&mut self, index: usize, source: LogUnit, dest: LogUnit, event: CombatLogEvent) {
+        let time = self.current_time;
+        if let Some(log) = &mut self.combat_log {
+            log.insert(
+                index,
+                CombatLogEntry {
+                    time,
+                    source,
+                    dest,
+                    event,
+                },
+            );
+        }
     }
 
     /// Returns the next event without popping it.
