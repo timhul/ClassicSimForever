@@ -98,6 +98,15 @@ pub trait SpellHost: EffectHost {
     fn attacking_from_behind(&self) -> bool {
         true
     }
+    /// The target's health as a fraction, from the encounter's progress (the boss dies at its
+    /// end, as the execute range assumes).
+    fn target_health(&self) -> f64 {
+        let length = self.combat_length();
+        if length <= 0.0 {
+            return 1.0;
+        }
+        ((length - self.engine().current_time()) / length).clamp(0.0, 1.0)
+    }
     /// Whether the character is in `state` (`SpellAuraRestrictions.CasterAuraState`:
     /// `DEFENSIVE` after a dodge / parry / block, `ENRAGED` while an enrage is active, ...).
     fn caster_aura_state(&self, state: AuraState) -> bool;
@@ -836,13 +845,15 @@ impl Spell {
     }
 
     /// Multiplier on all damage from `HEALING_AND_DAMAGE` modifiers (Improved Revenge), the
-    /// caster's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs (Hemorrhage) and a strike's own
-    /// multiplier (Mutilate against a poisoned target).
+    /// caster's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs (Hemorrhage), the modifiers below a
+    /// target health (Quietus) and a strike's own multiplier (Mutilate against a poisoned
+    /// target).
     pub fn damage_mod(&self, host: &impl SpellHost) -> f64 {
         let class = self.setup.record.class_options.as_ref();
         let modifiers = host.spell_modifiers();
         modifiers.multiplier(class, SpellModOp::HealingAndDamage)
             * modifiers.damage_from_caster_multiplier(class)
+            * modifiers.below_health_multiplier(class, host.target_health())
             * self.strike.unwrap_or(1.0)
     }
 

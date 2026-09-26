@@ -206,9 +206,9 @@ overrides:
     note: Hack and Slash's hidden crit aura; the crit only counts for attacks with daggers and fist weapons
     effects: [{ index: 0, script: WEAPON_TYPE_CRIT_PERCENT }]
   - id: 1310728
-    note: Quietus (talent); E0 is the damage bonus, E1 the health threshold 35 % (DAMAGE_PERCENT_BELOW_HEALTH, RG.4)
+    note: Quietus (talent); E0's rank value (2-10 %) is extra damage of Sinister Strike (2), Hemorrhage (33554432) and Ghostly Strike (67108864) while the target's health, from the encounter's progress, is below E1's 35 %
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: DAMAGE_PERCENT_BELOW_HEALTH, params: { effect: 1, family_mask: [100663298, 0, 0, 0] } }
       - { index: 1, script: NO_OP }
   - id: 14113
     note: Improved Poisons (talent); E1 is the chance not to consume a poison charge, and charges are not simulated

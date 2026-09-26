@@ -3,7 +3,8 @@
 
 use super::energy::{NOTHING, pull, rogue};
 use super::rogue::{
-    BACKSTAB, EVISCERATE, RUPTURE, SINISTER_STRIKE, cast_at, damage_mod, highest_rank, pulled,
+    BACKSTAB, EVISCERATE, GHOSTLY_STRIKE, HEMORRHAGE, RUPTURE, SINISTER_STRIKE, cast_at,
+    damage_mod, highest_rank, pulled,
 };
 use super::*;
 use crate::magic_school::MagicSchool;
@@ -446,4 +447,22 @@ fn weapon_expertise_lowers_dodge_and_parry() {
         (special - 400, white - 400),
         "in front"
     );
+}
+
+const QUIETUS: u32 = 110867;
+
+/// Quietus 5/5: Sinister Strike, Ghostly Strike and Hemorrhage deal 10 % more once the target
+/// is below 35 % health (the encounter's last 35 %); other abilities do not.
+#[test]
+fn quietus_raises_the_damage_below_35_percent() {
+    let mut f = with_talents(&[(DIRTY_DEEDS, 2), (QUIETUS, 5)]);
+    let length = f.character.sim().combat_length;
+    for spell in [SINISTER_STRIKE, GHOSTLY_STRIKE, HEMORRHAGE, BACKSTAB] {
+        assert!(close(damage_mod(&mut f, spell), 1.0), "{spell}");
+    }
+    f.advance_to(length * 0.66);
+    for spell in [SINISTER_STRIKE, GHOSTLY_STRIKE, HEMORRHAGE] {
+        assert!(close(damage_mod(&mut f, spell), 1.1), "{spell}");
+    }
+    assert!(close(damage_mod(&mut f, BACKSTAB), 1.0));
 }

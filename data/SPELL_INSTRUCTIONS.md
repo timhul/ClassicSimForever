@@ -485,6 +485,7 @@ overrides:
 | `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %) |
 | `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
+| `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
 | `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 

@@ -209,6 +209,9 @@ pub struct Effect {
     /// The value that replaces the base points while the main-hand weapon's subclass is in
     /// the mask (`WEAPON_TYPE_VALUE`: Ghostly Strike's 180 % with a dagger).
     weapon_type_value: Option<(u32, f64)>,
+    /// The target health fraction below which a `DAMAGE_PERCENT_BELOW_HEALTH` aura applies:
+    /// the table value of the effect its script names (Quietus' 35 %).
+    health_threshold: Option<f64>,
     dependency: Dependency,
     included: IncludedOutcomes,
     can_crit: bool,
@@ -250,11 +253,16 @@ impl Effect {
                         | SpellEffectName::WeaponDamageNoschool
                 )
             });
+        let health_threshold = script
+            .filter(|s| s.script == ScriptKind::DamagePercentBelowHealth)
+            .and_then(|s| spell.effect(s.params.effect?))
+            .map(|threshold| f64::from(threshold.base_points) / 100.0);
         Effect {
             value: record.base_points as f64,
             base_value: record.base_points as f64,
             cast_bonus: 0.0,
             weapon_type_value: None,
+            health_threshold,
             record: record.clone(),
             script,
             spell: spell.id,
@@ -1110,6 +1118,27 @@ impl Effect {
                     // Validated as present when the overrides were loaded.
                     if let Some(spell) = self.script().and_then(|s| s.params.spell) {
                         host.adjust_offhand_copy(spell, apply);
+                    }
+                }
+                // Damage of the spells in the family mask below the target health threshold
+                // (Quietus); kept with the owner's modifiers.
+                Some(ScriptKind::DamagePercentBelowHealth) => {
+                    let mask = self.script().and_then(|s| s.params.family_mask);
+                    if let (Some(class_mask), Some(threshold)) = (mask, self.health_threshold) {
+                        let modifier = SpellModifier {
+                            set: self.class_options.map_or(0, |c| c.set),
+                            class_mask,
+                            op: SpellModOp::HealingAndDamage,
+                            pct: true,
+                            amount: value,
+                            source: self.spell,
+                        };
+                        let modifiers = host.spell_modifiers_mut();
+                        if apply {
+                            modifiers.add_below_health(modifier, threshold);
+                        } else {
+                            modifiers.remove_below_health(&modifier, threshold);
+                        }
                     }
                 }
                 Some(ScriptKind::GainResourceOnUse) => {

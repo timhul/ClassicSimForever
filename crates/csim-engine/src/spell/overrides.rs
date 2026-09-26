@@ -199,6 +199,9 @@ pub enum ScriptKind {
     /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
     /// the `MOD_RESISTANCE` aura effect itself.
     ExclusiveArmorReduction,
+    /// The spells of `params.family_mask` deal `base_points` % more damage while the target's
+    /// health is below effect `params.effect`'s value in percent (Quietus: 2-10 % below 35 %).
+    DamagePercentBelowHealth,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -235,6 +238,9 @@ pub struct ScriptParams {
     /// Weapon subclasses, as a `SpellEquippedItems` subclass mask (32768 = dagger).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weapon_subclass_mask: Option<u32>,
+    /// The spells the script applies to, as a class mask of the spell's family.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask: Option<[u32; 4]>,
 }
 
 impl ScriptParams {
@@ -322,6 +328,13 @@ impl EffectScript {
                 "value or per_combo_point (one of them)",
             ),
             ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
+            ScriptKind::DamagePercentBelowHealth => {
+                need(p.effect.is_some(), "effect")?;
+                need(
+                    p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                    "family_mask (not 0)",
+                )
+            }
             ScriptKind::WeaponTypeValue => {
                 need(p.effect.is_some(), "effect")?;
                 need(

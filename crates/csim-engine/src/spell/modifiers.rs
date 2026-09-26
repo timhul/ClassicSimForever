@@ -55,6 +55,10 @@ pub struct SpellModifiers {
     /// spells in their class mask (`MOD_SPELL_DAMAGE_FROM_CASTER`: Hemorrhage on Rupture). The
     /// `op` is [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
     damage_from_caster: Vec<SpellModifier>,
+    /// Damage modifiers that apply while the target's health is below a fraction
+    /// (`DAMAGE_PERCENT_BELOW_HEALTH`: Quietus below 35 %). The `op` is
+    /// [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
+    below_health: Vec<(SpellModifier, f64)>,
 }
 
 impl SpellModifiers {
@@ -89,6 +93,36 @@ impl SpellModifiers {
             .iter()
             .filter(|m| m.applies_to(class))
             .map(|m| 1.0 + m.amount / 100.0)
+            .product()
+    }
+
+    /// Adds a modifier that applies while the target's health is below `threshold`, a fraction.
+    pub fn add_below_health(&mut self, modifier: SpellModifier, threshold: f64) {
+        self.below_health.push((modifier, threshold));
+    }
+
+    /// Removes one below-health modifier equal to `modifier` at `threshold`.
+    pub fn remove_below_health(&mut self, modifier: &SpellModifier, threshold: f64) -> bool {
+        let found = self
+            .below_health
+            .iter()
+            .position(|(m, t)| m == modifier && *t == threshold);
+        match found {
+            Some(index) => {
+                self.below_health.remove(index);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// The damage multiplier the below-health modifiers give a spell with `class` options
+    /// against a target at `health` (a fraction): the product of those that apply.
+    pub fn below_health_multiplier(&self, class: Option<&ClassOptions>, health: f64) -> f64 {
+        self.below_health
+            .iter()
+            .filter(|(m, threshold)| health < *threshold && m.applies_to(class))
+            .map(|(m, _)| 1.0 + m.amount / 100.0)
             .product()
     }
 
