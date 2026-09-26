@@ -326,6 +326,8 @@ pub struct RunInfo {
     pub threads: usize,
     pub seed: u64,
     pub elapsed_seconds: f64,
+    /// Engine events handled per second of wall-clock time.
+    pub events_per_second: f64,
     pub events: u64,
 }
 
@@ -461,6 +463,8 @@ pub struct EngineRow {
     pub event: String,
     pub count: u64,
     pub per_fight: f64,
+    /// Handled per second of wall-clock time.
+    pub per_second: f64,
     pub share: f64,
 }
 
@@ -497,6 +501,7 @@ impl Results {
                 threads: r.settings.threads,
                 seed: r.seed,
                 elapsed_seconds: r.elapsed.as_secs_f64(),
+                events_per_second: per_second(stats.engine().total_events(), r.elapsed),
                 events: stats.engine().total_events(),
             },
             dps: DpsSummary {
@@ -520,7 +525,7 @@ impl Results {
             } else {
                 stat_weight_rows(r.cruncher)
             },
-            engine: engine_rows(&stats),
+            engine: engine_rows(&stats, r.elapsed),
         }
     }
 
@@ -709,12 +714,13 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
     }
 
     fn engine_table(&self) -> Table {
-        let mut table = Table::new(["Event", "Count", "Per fight", "Share"]);
+        let mut table = Table::new(["Event", "Count", "Per fight", "Handled/s", "Share"]);
         for row in &self.engine {
             table.row(vec![
                 row.event.clone(),
                 row.count.to_string(),
                 format!("{:.1}", row.per_fight),
+                format!("{:.0}", row.per_second),
                 percent(row.share),
             ]);
         }
@@ -723,6 +729,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 "Total".to_string(),
                 self.run.events.to_string(),
                 format!("{:.1}", per(self.run.events, self.run.iterations)),
+                format!("{:.0}", self.run.events_per_second),
                 percent(1.0),
             ]);
         }
@@ -924,7 +931,16 @@ fn executor_rows(stats: &ClassStatistics) -> Vec<ExecutorRow> {
         .collect()
 }
 
-fn engine_rows(stats: &ClassStatistics) -> Vec<EngineRow> {
+fn per_second(count: u64, elapsed: Duration) -> f64 {
+    let seconds = elapsed.as_secs_f64();
+    if seconds > 0.0 {
+        count as f64 / seconds
+    } else {
+        0.0
+    }
+}
+
+fn engine_rows(stats: &ClassStatistics, elapsed: Duration) -> Vec<EngineRow> {
     let engine = stats.engine();
     let mut events = engine.non_zero();
     events.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
@@ -934,6 +950,7 @@ fn engine_rows(stats: &ClassStatistics) -> Vec<EngineRow> {
             event: event.name().to_string(),
             count,
             per_fight: per(count, stats.iterations()),
+            per_second: per_second(count, elapsed),
             share: per(count, engine.total_events()),
         })
         .collect()

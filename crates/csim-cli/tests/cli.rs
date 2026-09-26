@@ -300,6 +300,14 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
     ] {
         assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
     }
+    assert!(
+        results["run"]["events_per_second"].as_f64().unwrap() > 0.0,
+        "{yaml}"
+    );
+    assert!(
+        results["engine"][0]["per_second"].as_f64().unwrap() > 0.0,
+        "{yaml}"
+    );
 
     let spell_dps: f64 = spells.iter().map(|s| s["dps"].as_f64().unwrap()).sum();
     let total = &results["spell_total"];
