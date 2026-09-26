@@ -714,13 +714,13 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
     }
 
     fn engine_table(&self) -> Table {
-        let mut table = Table::new(["Event", "Count", "Per fight", "Handled/s", "Share"]);
+        let mut table = Table::new(["Event", "Count", "Per fight", "Handled k/s", "Share"]);
         for row in &self.engine {
             table.row(vec![
                 row.event.clone(),
                 row.count.to_string(),
                 format!("{:.1}", row.per_fight),
-                format!("{:.0}", row.per_second),
+                format!("{:.0}", row.per_second / 1000.0),
                 percent(row.share),
             ]);
         }
@@ -729,7 +729,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 "Total".to_string(),
                 self.run.events.to_string(),
                 format!("{:.1}", per(self.run.events, self.run.iterations)),
-                format!("{:.0}", self.run.events_per_second),
+                format!("{:.0}", self.run.events_per_second / 1000.0),
                 percent(1.0),
             ]);
         }
