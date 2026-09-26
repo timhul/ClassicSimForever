@@ -436,6 +436,14 @@ overrides:
                                      # hand: MAINHAND — only that hand's attacks trigger it
                                      # target_aura: 772 — only while the character's aura of
                                      #   that spell (any rank) is up (Bloodthrill: your Rend)
+                                     # finisher: true — fires when a finisher spends its combo
+                                     #   points (source FINISHER), not on its ProcTypeMask
+                                     #   (Ruthlessness, Improved Expose Armor)
+                                     # family_mask: [4, 0, 0, 0] — only events of the spells
+                                     #   of this class mask (spell_proc.SpellFamilyMask:
+                                     #   Puncturing Wounds on Backstab)
+                                     # combo_points_effect: 2 — the finisher spent at least
+                                     #   aura effect 2's value (Improved Expose Armor: 5)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -484,7 +492,18 @@ the client tables do not carry the enrage mechanic).
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `OFFHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
 `MELEE_FULL_BLOCK`, `SPELL_HIT`, `SPELL_CRITICAL`, `SPELL_FULL_RESIST`, `RANGED_AUTO_SHOT`,
-`RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`.
+`RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`, `PERIODIC_DAMAGE` (a damaging tick,
+`DEAL_HARMFUL_PERIODIC`), `FINISHER` (a finisher spent its combo points).
+
+**Proc events and the spell behind them.** A cast's events carry the spell that raised them
+(a triggered strike's own class mask, the cast's combo points), which `family_mask`,
+`combo_points_effect` and the charged spell modifier auras read: Cold Blood is used by
+Mutilate's strikes, not by Mutilate. A passive becomes a proc only when it has a payload (a
+direct effect, a proc trigger with a trigger spell, a `TRIGGER_SPELL` / `TRIGGER_WITH_VALUE`
+script); `PROC_TRIGGER_SPELL_WITH_VALUE` casts its trigger spell with the aura's value as
+the payload's first effect value. A passive's buff is its owner's even when its effect names
+an enemy target (who the payload hits). A spell modifier aura with a `ProcTypeMask` but no
+charges is used up whole, every stack, by the first spell it modifies (Thousand Cuts).
 
 Not overridable on purpose: costs, cooldowns, damage, durations, class masks, ranks and proc
 sources — they come from the tables. Spells the overrides mention are never pruned (§1.10).

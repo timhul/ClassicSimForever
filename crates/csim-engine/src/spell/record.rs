@@ -810,6 +810,13 @@ impl SpellRecord {
             .collect()
     }
 
+    /// Whether the spell awards combo points (an `ENERGIZE` of combo points: a builder).
+    pub fn awards_combo_points(&self) -> bool {
+        self.effects.iter().any(|e| {
+            e.effect == SpellEffectName::Energize && e.power_type() == PowerType::ComboPoints
+        })
+    }
+
     /// Whether the spell has an apply-aura effect at all.
     pub fn applies_aura(&self) -> bool {
         self.effects.iter().any(EffectRecord::is_apply_aura)

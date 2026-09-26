@@ -360,6 +360,25 @@ impl SpellSetup {
         self.record.is_passive() || self.enabled_by.is_some()
     }
 
+    /// Whether the spell is a proc: a passive that reacts to events (its `ProcTypeMask`, or
+    /// the finishers for a `proc.finisher` override) and does something when it fires, with a
+    /// direct effect or an aura that has a payload. A passive whose auras only enable others
+    /// (Hack and Slash) or modify spells (Improved Revenge) stays a plain passive.
+    pub fn is_proc(&self) -> bool {
+        let reacts = !self.record.aura_options.proc_type_mask.is_empty()
+            || self.overrides.proc.is_some_and(|p| p.finisher);
+        let has_payload = self.record.effects.iter().any(|effect| {
+            if !effect.is_apply_aura() {
+                return true;
+            }
+            match self.overrides.effect_script(effect.index).map(|s| s.script) {
+                Some(ScriptKind::TriggerSpell | ScriptKind::TriggerWithValue) => true,
+                _ => effect.is_proc_trigger() && effect.trigger_spell != 0,
+            }
+        });
+        self.is_passive() && reacts && has_payload
+    }
+
     pub fn has_sim_flag(&self, flag: SimFlag) -> bool {
         self.overrides.has_sim_flag(flag)
     }

@@ -17,7 +17,7 @@ use crate::engine::{Engine, Event, EventKind, PLAYER_REACTION_DELAY};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect, WeaponType};
-use crate::proc::{ProcHost, ProcSource};
+use crate::proc::{ProcHost, ProcSource, ProcTrigger};
 use crate::resource::ResourceType;
 use crate::rotation::{
     BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec, Watched,
@@ -27,7 +27,7 @@ use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{EventScript, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
-use crate::spell::record::{ClassOptions, EquippedItems, SpellDb};
+use crate::spell::record::{EquippedItems, SpellDb};
 use crate::spell::{
     AttackOutcome, AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellResult,
     SpellSetup, SpellStatus, SwingReport,
@@ -1074,31 +1074,80 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// performed.
     fn after_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
         self.record_cast(id, report, mark);
-        let class = self.character.spells.spell(id).record().class_options;
-        self.run_sources(&report.all_proc_sources(), class.as_ref());
+        let sources = self.cast_sources(id, report);
+        self.run_sources(&sources);
         if let Some(offhand) = &report.offhand {
-            self.run_sources(&offhand.proc_sources, None);
+            self.run_sources(&untriggered(&offhand.proc_sources));
+        }
+    }
+
+    /// The proc sources of a cast of `id` with the spell behind each: the cast's own, those of
+    /// the spells it triggered (Mutilate's strikes, with their own class options but the
+    /// cast's combo points) and, when a finisher spent its combo points, the finisher event.
+    fn cast_sources(&self, id: SpellId, report: &CastReport) -> Vec<(ProcSource, ProcTrigger)> {
+        let record = self.character.spells.spell(id).record();
+        let cast = ProcTrigger {
+            class_options: record.class_options,
+            combo_points_spent: report.combo_points_spent,
+            awards_combo_points: record.awards_combo_points(),
+        };
+        let mut sources = Vec::new();
+        self.collect_sources(report, cast, &mut sources);
+        if report.combo_points_spent > 0 {
+            sources.push((ProcSource::Finisher, cast));
+        }
+        sources
+    }
+
+    /// Adds the proc sources of `report` and of the spells it triggered to `sources`.
+    fn collect_sources(
+        &self,
+        report: &CastReport,
+        trigger: ProcTrigger,
+        sources: &mut Vec<(ProcSource, ProcTrigger)>,
+    ) {
+        sources.extend(report.proc_sources.iter().map(|&source| (source, trigger)));
+        for (game_id, triggered) in &report.triggered {
+            let spells = &self.character.spells;
+            let class_options = match spells.handle(*game_id) {
+                Some(SpellHandle::Spell(id)) => spells.spell(id).record().class_options,
+                Some(SpellHandle::Proc(id)) => {
+                    spells.procs().get(id).spell().record().class_options
+                }
+                None => None,
+            };
+            let trigger = ProcTrigger {
+                class_options,
+                ..trigger
+            };
+            self.collect_sources(triggered, trigger, sources);
         }
     }
 
     /// Records the statistics of a swing and runs its proc sources.
     fn after_swing(&mut self, report: &SwingReport) {
         self.record_swing(report);
-        self.run_sources(&report.proc_sources, None);
+        self.run_sources(&untriggered(&report.proc_sources));
     }
 
     /// Runs the proc checks for `sources`, then uses the charges of the buffs that react to
     /// them. The charges go after the procs: a landed swing consumes a charge when its damage
     /// lands, one batch after the procs it triggered (the `classic-warrior` wiki on Windfury
     /// Totem), so the swing that proc'd Windfury uses a charge of the aura it just applied.
-    /// `class` are the class options of the spell cast (`None` for a swing); a spell modifier
-    /// aura loses at most one charge to it.
-    fn run_sources(&mut self, sources: &[ProcSource], class: Option<&ClassOptions>) {
-        self.run_proc_checks(sources);
-        self.run_event_scripts(sources);
+    /// A charged spell modifier aura reacts to the spells it modifies only, and loses at most
+    /// one charge to one event.
+    fn run_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
+        self.run_proc_checks_for(sources);
+        let plain: Vec<ProcSource> = sources.iter().map(|&(source, _)| source).collect();
+        self.run_event_scripts(&plain);
         let mut charged = Vec::new();
-        for &source in sources {
-            for id in self.character.spells.charge_consumers_for(source, class) {
+        for (source, trigger) in sources {
+            let class = trigger.class_options;
+            for id in self
+                .character
+                .spells
+                .charge_consumers_for(*source, class.as_ref())
+            {
                 let spell_modifier = self
                     .character
                     .spells
@@ -1150,19 +1199,28 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Runs the proc check for each source and returns the reports of the procs that fired.
-    /// The sources of one event form one check: a proc fires at most once per event. Extra
-    /// attacks the procs granted stay pending so that no proc re-fires off its own extra attack or
-    /// twice in one chain of extra attacks.
+    /// Runs the proc check for each source without a spell behind it (a swing's) and returns
+    /// the reports of the procs that fired; see [`Self::run_proc_checks_for`].
     pub fn run_proc_checks(&mut self, sources: &[ProcSource]) -> Vec<(ProcId, CastReport)> {
+        self.run_proc_checks_for(&untriggered(sources))
+    }
+
+    /// Runs the proc check for each source with the spell behind it and returns the reports of
+    /// the procs that fired. The sources of one event form one check: a proc fires at most once
+    /// per event. Extra attacks the procs granted stay pending so that no proc re-fires off its
+    /// own extra attack or twice in one chain of extra attacks.
+    pub fn run_proc_checks_for(
+        &mut self,
+        sources: &[(ProcSource, ProcTrigger)],
+    ) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
         self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
-        for &source in sources {
+        for &(source, trigger) in sources {
             if source == ProcSource::Manual {
                 continue;
             }
-            fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, ctx)));
+            fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
         for (id, report) in &fired {
             let (name, rank, spell) = {
@@ -1648,10 +1706,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// A periodic tick of `spell`; returns the tick report if the application is current.
+    /// A periodic tick of `spell`; returns the tick report if the application is current. A
+    /// tick that deals damage is a proc event of its spell (Thousand Cuts on Rupture's ticks).
     pub fn dot_tick(&mut self, spell: SpellId, application_id: u32) -> Option<TickReport> {
         let report = self.with_spell(spell, |s, ctx| s.perform_periodic(application_id, ctx))?;
         self.record_tick(spell, &report);
+        if report.damage > 0 {
+            let trigger = ProcTrigger {
+                class_options: self.character.spells.spell(spell).record().class_options,
+                ..ProcTrigger::default()
+            };
+            self.run_sources(&[(ProcSource::PeriodicDamage, trigger)]);
+            self.perform_extra_attacks();
+        }
         Some(report)
     }
 
@@ -1662,11 +1729,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Uses a charge of buff `id`, removing it when that was the last one.
+    /// Uses a charge of buff `id`, removing it (every stack) when that was the last one.
     fn use_charge(&mut self, id: BuffId) {
+        let stacks = self.buff_ref(id).stacks();
         let (buff, mut ctx) = self.buff_ctx(id);
         if buff.use_charge(&mut ctx) == ChargeUse::Removed {
-            self.remove_auras(id);
+            for _ in 0..stacks.max(1) {
+                self.remove_auras(id);
+            }
             self.record_buff_removed(id);
         }
     }
@@ -2975,6 +3045,14 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
         }
     }
     ids
+}
+
+/// `sources` with no spell behind them (a swing's).
+fn untriggered(sources: &[ProcSource]) -> Vec<(ProcSource, ProcTrigger)> {
+    sources
+        .iter()
+        .map(|&source| (source, ProcTrigger::default()))
+        .collect()
 }
 
 /// The combat log's name for `spell`.

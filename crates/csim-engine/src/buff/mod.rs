@@ -64,6 +64,11 @@ impl BuffKind {
         if auras.iter().any(|e| e.targets_group()) {
             return Some(BuffKind::PartyBuff { party });
         }
+        // A passive's auras are on its owner; an enemy target names who the proc's payload
+        // hits (Ruthlessness, Seal Fate).
+        if record.is_passive() {
+            return Some(BuffKind::SelfBuff);
+        }
         if auras.iter().any(|e| e.targets_enemy()) {
             let shared = debuff_shared.unwrap_or(record.aura_options.max_stacks > 1);
             return Some(if shared {
@@ -169,6 +174,9 @@ pub struct Buff {
     /// is only used by an event of a spell the modifiers apply to (TrinityCore
     /// `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
     charge_spell_masks: Vec<(u32, [u32; 4])>,
+    /// A spell modifier aura without charges that its `charge_sources` use up whole (Thousand
+    /// Cuts: the next Backstab or Hemorrhage takes every stack).
+    consumed_whole: bool,
     /// The spells whose buffs end with this one (the overrides' `ends_auras`).
     ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
@@ -219,6 +227,7 @@ impl Buff {
             passive: false,
             charge_sources: Vec::new(),
             charge_spell_masks: Vec::new(),
+            consumed_whole: false,
             ends_auras: Vec::new(),
             effects: Vec::new(),
             instance_id: None,
@@ -263,7 +272,13 @@ impl Buff {
                     .unwrap_or(Priority::Mid),
             );
         }
-        if record.aura_options.proc_charges > 0 {
+        // A spell modifier aura without charges that still reacts to events is used up whole
+        // by the first spell it modifies (Thousand Cuts, every stack at once).
+        buff.consumed_whole = record.aura_options.proc_charges == 0
+            && !record.is_passive()
+            && !record.aura_options.proc_type_mask.is_empty()
+            && record.effects.iter().any(|e| e.is_spell_modifier());
+        if record.aura_options.proc_charges > 0 || buff.consumed_whole {
             buff.charge_sources =
                 ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
             let set = record.class_options.map_or(0, |c| c.set);
@@ -616,13 +631,18 @@ impl Buff {
         true
     }
 
-    /// Uses one charge, removing the buff when the last one is used. Port of `Buff::use_charge`.
+    /// Uses one charge, removing the buff when the last one is used; a buff used up whole
+    /// goes at once, whatever its stacks. Port of `Buff::use_charge`.
     ///
     /// # Panics
-    /// Panics if the buff is active without charges.
+    /// Panics if the buff is active without charges (and not used up whole).
     pub fn use_charge(&mut self, ctx: &mut BuffContext) -> ChargeUse {
         if !self.active {
             return ChargeUse::Inactive;
+        }
+        if self.consumed_whole {
+            self.force_remove(ctx);
+            return ChargeUse::Removed;
         }
         assert!(
             self.current_charges > 0,

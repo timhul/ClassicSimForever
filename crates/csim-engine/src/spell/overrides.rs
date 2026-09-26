@@ -385,6 +385,20 @@ pub struct ProcOverride {
     /// fire (Bloodthrill: main-hand attacks against enemies afflicted by your Rend).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub target_aura: Option<u32>,
+    /// The proc fires on finishing moves ([`ProcSource::Finisher`]: a finisher spent its
+    /// combo points) instead of the events its `ProcTypeMask` names (Ruthlessness, Relentless
+    /// Strikes, Improved Expose Armor).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub finisher: bool,
+    /// The spells whose events trigger the proc, as a `SpellClassMask` of the proc's class
+    /// family (the server's `spell_proc.SpellFamilyMask`: Puncturing Wounds on Backstab,
+    /// Thousand Cuts on Rupture's ticks).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask: Option<[u32; 4]>,
+    /// The aura effect whose value is the least number of combo points the finisher must have
+    /// spent (Improved Expose Armor's `$m3`: 5).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub combo_points_effect: Option<u32>,
 }
 
 impl ProcOverride {
@@ -1211,5 +1225,10 @@ overrides:
         assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
         assert!(!o.has_sim_flag(1310200, SimFlag::ResetsSwingTimers));
         assert_eq!(o.event_scripts(11585)[0].script, ScriptKind::AddComboPoints);
+        let ruthlessness = o.get(14156).and_then(|r| r.proc).unwrap();
+        assert!(ruthlessness.finisher);
+        let expose = o.get(14168).and_then(|r| r.proc).unwrap();
+        assert_eq!(expose.family_mask, Some([524288, 0, 0, 0]));
+        assert_eq!(expose.combo_points_effect, Some(2));
     }
 }

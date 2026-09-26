@@ -274,3 +274,24 @@ fn cold_blood_makes_the_next_strike_crit() {
     let report = cast_at(&mut f, SINISTER_STRIKE, 1.0);
     assert_eq!(report.attack.unwrap().result, PhysicalAttackResult::Hit);
 }
+
+/// Cold Blood with Mutilate: both strikes crit (the modifier selects the strikes, not
+/// Mutilate itself) and the cast uses the buff up once.
+#[test]
+fn cold_blood_is_used_by_mutilates_strikes() {
+    let mut f = with_talents(&[(COLD_BLOOD, 1), (MUTILATE, 1)]);
+    f.equip(EquipmentSlot::Mainhand, DAGGER);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    let mutilate = highest_rank(&f, "Mutilate");
+    let mutilate = f.character.spells().spell(mutilate).game_id();
+    cast_at(&mut f, COLD_BLOOD_SPELL, 0.0);
+    let report = cast_at(&mut f, mutilate, 0.0);
+    assert_eq!(report.triggered.len(), 2);
+    for (_, strike) in &report.triggered {
+        assert_eq!(
+            strike.attack.unwrap().result,
+            PhysicalAttackResult::Critical
+        );
+    }
+    assert!(!f.ctx().aura_active(COLD_BLOOD_SPELL));
+}

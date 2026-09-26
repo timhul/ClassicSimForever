@@ -236,10 +236,7 @@ impl CharacterSpells {
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
 
         // A proc on events the sim does not have (a killing blow) stays a plain passive.
-        if spell.is_passive()
-            && record.aura_options.proc_type_mask.bits() != 0
-            && !Proc::sources_of(&spell).is_empty()
-        {
+        if spell.setup().is_proc() && !Proc::sources_of(&spell).is_empty() {
             let seed = self.next_proc_seed;
             self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
             let proc = self.procs.add_proc(Proc::new(spell, seed));

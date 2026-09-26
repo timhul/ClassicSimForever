@@ -145,26 +145,43 @@ overrides:
     effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
 
   # ----- Talents ------------------------------------------------------------------------------
+  # Which spells a talent proc reacts to is server data (spell_proc.SpellFamilyMask and the
+  # finisher scripts): `family_mask` is a class mask of the Rogue family (Backstab 4, Garrote
+  # 256, Ambush 512, Cheap Shot 1024, Expose Armor 524288, Rupture 1048576); `finisher: true`
+  # makes the proc fire when a finisher spends its combo points instead of on its ProcTypeMask.
+  - id: 14156
+    note: Ruthlessness (talent); the rank value (20/40/60 %) is the chance on every finisher that spends its combo points, the combo point comes after the spend
+    proc: { finisher: true, chance_effect: 0 }
+  - id: 1224716
+    note: Puncturing Wounds (talent); E1's rank value (15/30/45 %) is the chance of an extra combo point on a landed Backstab
+    proc: { chance_effect: 1, family_mask: [4, 0, 0, 0] }
+  - id: 13976
+    note: Initiative (talent); the rank value (33/67/100 %) is the chance of an extra combo point on a landed Ambush, Garrote or Cheap Shot
+    proc: { chance_effect: 0, family_mask: [1792, 0, 0, 0] }
+  - id: 14168
+    note: Improved Expose Armor (talent); an Expose Armor that spends at least E2's 5 combo points gets E1's 1/2 back (PROC_TRIGGER_SPELL_WITH_VALUE into the payload's combo point effect); E2 is read by the proc filter
+    proc: { finisher: true, family_mask: [524288, 0, 0, 0], combo_points_effect: 2 }
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 1310721
+    note: Thousand Cuts (talent); Rupture's damaging ticks stack the energy discount 1310723 (1.9 s internal cooldown against the 2 s ticks), which the next Backstab or Hemorrhage uses up whole
+    proc: { family_mask: [1048576, 0, 0, 0] }
   # The combo point payloads (E0 ENERGIZE misc 4) carry a DUMMY without a number next to the
   # combo point; the ENERGIZE is what the sim needs.
   - id: 13977
-    note: Initiative payload; E0 gives the combo point, E1 has no number. The Ambush / Garrote / Cheap Shot filter is RG.4
+    note: Initiative payload; E0 gives the combo point, E1 has no number
     effects: [{ index: 1, script: NO_OP }]
   - id: 14157
-    note: Ruthlessness payload; E0 gives the combo point, E1 has no number. The finisher filter is RG.4
+    note: Ruthlessness payload; E0 gives the combo point, E1 has no number
     effects: [{ index: 1, script: NO_OP }]
   - id: 15250
     note: Setup payload (a combo point when the rogue dodges, not simulated); E1 has no number
     effects: [{ index: 1, script: NO_OP }]
   - id: 1310710
-    note: Improved Backstab payload (Puncturing Wounds' extra combo point); E0 gives the combo point, E1 has no number. The Backstab filter is RG.4
+    note: Improved Backstab payload (Puncturing Wounds' extra combo point); E0 gives the combo point, E1 has no number
     effects: [{ index: 1, script: NO_OP }]
   - id: 1310697
-    note: Improved Expose Armor payload (combo point refund); E0 gives the combo point, E1 has no number. The 5 combo point rule is RG.4
+    note: Improved Expose Armor payload (combo point refund); E0 gives the combo points (the talent's value), E1 has no number
     effects: [{ index: 1, script: NO_OP }]
-  - id: 14168
-    note: Improved Expose Armor (talent); E2 is the combo point count (5) the refund needs (RG.4)
-    effects: [{ index: 2, script: NO_OP }]
   - id: 14179
     note: Relentless Strikes (talent); the rank value is the chance per combo point spent on a finisher, the Forever payload is 1314102 (25 energy) (FINISHER_CHANCE_PER_COMBO_POINT, RG.4)
     effects: [{ index: 0, script: NO_OP }]

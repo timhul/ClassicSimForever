@@ -952,7 +952,7 @@ impl World {
 
     pub fn run_proc_check(&mut self, source: ProcSource) -> Vec<(crate::ids::ProcId, CastReport)> {
         let mut procs = self.spells.take_procs();
-        let reports = procs.run_proc_check(source, self);
+        let reports = procs.run_proc_check(source, crate::proc::ProcTrigger::default(), self);
         self.spells.put_procs(procs);
         reports
     }
