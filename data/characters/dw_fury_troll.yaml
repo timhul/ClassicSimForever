@@ -1,4 +1,4 @@
-# Dual-wield Fury Troll Warrior in rank-14 PvP gear with the usual Horde raid buffs.
+# Dual-wield Fury Troll Warrior in rank-14 PvP gear with the usual raid buffs (both factions' totems and blessings).
 # Schema: crates/csim-engine/src/character_loader.rs.
 name: DW Fury Troll
 class: WARRIOR
@@ -47,6 +47,8 @@ equipment:
   TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
   - Strength of Earth Totem
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
   - Trueshot Aura
   - Gift of the Wild
   - Elixir of the Mongoose

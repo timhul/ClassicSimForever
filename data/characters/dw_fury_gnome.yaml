@@ -1,4 +1,4 @@
-# Dual-wield Fury Gnome Warrior in rank-14 PvP gear with the usual Alliance raid buffs.
+# Dual-wield Fury Gnome Warrior in rank-14 PvP gear with the usual raid buffs (both factions' totems and blessings).
 # Schema: crates/csim-engine/src/character_loader.rs.
 name: DW Fury Gnome
 class: WARRIOR
@@ -28,7 +28,7 @@ talents:
     Flurry: 5
     Bloodthirst: 1
 equipment:
-  MAINHAND: { item: 18827, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Grand Marshal's Handaxe
+  MAINHAND: { item: 18827, enchant: Crusader, temp_enchant: WindfuryTotem }  # Grand Marshal's Handaxe
   OFFHAND: { item: 18827, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Grand Marshal's Handaxe
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
@@ -46,6 +46,7 @@ equipment:
   TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
+  - Strength of Earth Totem
   - Greater Blessing of Kings
   - Greater Blessing of Might
   - Trueshot Aura
