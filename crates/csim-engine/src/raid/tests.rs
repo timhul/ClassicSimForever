@@ -73,6 +73,8 @@ impl Fixture {
         });
         let character = self.raid.character_mut(id);
         character.gain_resource(ResourceType::Rage, 100);
+        // Sunder Armor rolls on the attack table: rig every roll to a hit so casts always land.
+        character.roll_mut().random_mut().set_new_range(9999, 10000);
     }
 
     fn spell(&self, id: CharId, game_id: u32) -> SpellId {
