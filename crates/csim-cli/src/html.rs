@@ -94,6 +94,36 @@ tbody tr:hover { background: #221d00; }
 td:first-child { color: #fff; }
 tfoot tr { border-top: 2px solid var(--yellow); }
 tfoot td, tfoot td:first-child { color: var(--yellow); font-weight: 700; }
+th { cursor: pointer; user-select: none; }
+th:hover { background: #ffe066; }
+th[aria-sort="ascending"]::after { content: " \25B4"; }
+th[aria-sort="descending"]::after { content: " \25BE"; }
+"#;
+
+/// Sorts a table's body rows on the clicked header: numbers largest first and text A to Z, a second
+/// click reverses. Empty cells stay last, the totals in `tfoot` stay put.
+const SCRIPT: &str = r#"
+document.querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
+  const table = th.closest("table"), body = table.tBodies[0], column = th.cellIndex;
+  if (!body) return;
+  const text = th.classList.contains("left");
+  const descending = th.getAttribute("aria-sort") ? th.getAttribute("aria-sort") === "ascending" : !text;
+  table.querySelectorAll("th").forEach((other) => other.removeAttribute("aria-sort"));
+  th.setAttribute("aria-sort", descending ? "descending" : "ascending");
+  const key = (row) => {
+    const cell = row.cells[column].textContent.trim();
+    if (text) return cell === "" ? null : cell;
+    const number = parseFloat(cell.replace(/,/g, ""));
+    return Number.isNaN(number) ? null : number;
+  };
+  const rows = [...body.rows].sort((a, b) => {
+    const x = key(a), y = key(b);
+    if (x === null || y === null) return (x === null) - (y === null);
+    const order = text ? x.localeCompare(y) : x - y;
+    return descending ? -order : order;
+  });
+  body.append(...rows);
+}));
 "#;
 
 /// Sections that start collapsed.
@@ -173,7 +203,10 @@ pub fn render(results: &Results) -> String {
         table_html(&mut out, &table);
         out.push_str("</details>\n");
     }
-    out.push_str("</main>\n</body>\n</html>\n");
+    let _ = write!(
+        out,
+        "</main>\n<script>{SCRIPT}</script>\n</body>\n</html>\n"
+    );
     out
 }
 
