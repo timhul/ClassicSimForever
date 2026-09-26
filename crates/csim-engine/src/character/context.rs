@@ -31,7 +31,9 @@ use crate::spell::{
     SpellSetup, SpellStatus, SwingReport,
 };
 use crate::stance::Stance;
-use crate::statistics::{ClassStatistics, EngineStatistics, RotationExecutorStatistics};
+use crate::statistics::{
+    ClassStatistics, EngineStatistics, RotationExecutorStatistics, SkippedExecutor,
+};
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
@@ -1836,11 +1838,23 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     .collect()
             })
             .unwrap_or_default();
+        let skipped: Vec<SkippedExecutor> = self
+            .character
+            .rotation
+            .as_ref()
+            .map(|rotation| {
+                rotation
+                    .skipped_executors()
+                    .map(|(line, executor)| SkippedExecutor::from_executor(line, executor))
+                    .collect()
+            })
+            .unwrap_or_default();
         let statistics = &mut self.character.statistics;
         for (name, attempts, procs) in counts {
             statistics.proc(&name).set_counts(attempts, procs);
         }
         statistics.set_executors(executors);
+        statistics.set_skipped_executors(skipped);
         statistics.set_engine(EngineStatistics::from_engine(self.engine));
     }
 
@@ -2015,6 +2029,24 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
 
     fn spell_is_enabled(&self, spell: SpellId) -> bool {
         self.character.spells.spell(spell).is_enabled()
+    }
+
+    fn missing_talent(&self, spell: SpellId) -> Option<String> {
+        let talents = self.character.talents()?;
+        let spells = &self.character.spells;
+        let ranks: Vec<SpellId> = match spells.rank_group_of(spell) {
+            Some(group) => group.spells().collect(),
+            None => vec![spell],
+        };
+        ranks.into_iter().find_map(|id| {
+            let node = talents.node_of_spell(spells.spell(id).game_id())?;
+            (talents.rank(node) == 0).then(|| {
+                talents.spec(node).map_or_else(
+                    || spells.spell(id).name().to_string(),
+                    |spec| spec.name.clone(),
+                )
+            })
+        })
     }
 
     fn spell_has_cast_time(&self, spell: SpellId) -> bool {

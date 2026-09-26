@@ -47,6 +47,30 @@ impl ExecutorOutcome {
     }
 }
 
+/// A `cast_if` line that was not linked, so it never ran. Not in C++, which dropped them
+/// silently.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkippedExecutor {
+    /// 1-based position among the rotation's `cast_if` lines.
+    pub line: usize,
+    pub spell_name: String,
+    pub reason: String,
+}
+
+impl SkippedExecutor {
+    /// The skipped `executor` at `line`; an active executor has an empty reason.
+    pub fn from_executor(line: usize, executor: &RotationExecutor) -> Self {
+        SkippedExecutor {
+            line,
+            spell_name: executor.spell_name().to_string(),
+            reason: executor
+                .skip_reason()
+                .map(ToString::to_string)
+                .unwrap_or_default(),
+        }
+    }
+}
+
 /// The statistics of one active executor of a rotation. Port of `StatisticsRotationExecutor`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RotationExecutorStatistics {

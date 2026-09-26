@@ -6,7 +6,8 @@
 //! conditions) and linked to a character whenever the character's spells may have changed
 //! ([`Rotation::link`]): every executor whose spell the character has (at the requested rank,
 //! enabled) and whose condition names only buffs and spells the character knows becomes
-//! *active*; the others are skipped, the way C++ `link_spells` skipped them. The linked
+//! *active*; the others are skipped, the way C++ `link_spells` skipped them, and keep the
+//! [`SkipReason`] for the report. The linked
 //! condition holds `BuffId` / `SpellId` handles, so evaluating it costs no name lookups.
 //!
 //! The character owns its rotation (`Character::rotation`); the context takes it out to run
@@ -14,10 +15,11 @@
 //! needs the whole context to check statuses and cast.
 
 use std::collections::BTreeMap;
+use std::fmt;
 use std::sync::Arc;
 
 use crate::ids::{BuffId, SpellId};
-use crate::rotation::condition::{Condition, ConditionContext};
+use crate::rotation::condition::{Condition, ConditionContext, Measure};
 use crate::rotation::spec::RotationSpec;
 use crate::spell::SpellStatus;
 
@@ -64,6 +66,41 @@ pub struct LinkedExecutor {
     pub condition: Option<Condition<BuffId, SpellId>>,
 }
 
+/// Why an executor was not linked, so it never runs.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SkipReason {
+    /// The character has no spell of that name: an item that is not equipped, a racial of
+    /// another race, a spell the sim does not give the character, or a typo.
+    UnknownSpell,
+    /// The spell is known, but not at the requested rank.
+    RankNotLearned(u32),
+    /// The spell comes from this talent, which the character has not taken.
+    TalentNotTaken(String),
+    /// The spell is known but not enabled, for another reason than a talent.
+    NotEnabled,
+    /// The condition names this spell, which the character does not have.
+    UnknownConditionSpell(String),
+    /// Every condition group needs a buff the character can never have.
+    ConditionNeverHolds,
+}
+
+impl fmt::Display for SkipReason {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SkipReason::UnknownSpell => f.write_str("no spell of this name"),
+            SkipReason::RankNotLearned(rank) => write!(f, "rank {rank} not learned"),
+            SkipReason::TalentNotTaken(talent) => write!(f, "talent {talent} not taken"),
+            SkipReason::NotEnabled => f.write_str("spell not enabled"),
+            SkipReason::UnknownConditionSpell(spell) => {
+                write!(f, "condition names unknown spell {spell}")
+            }
+            SkipReason::ConditionNeverHolds => {
+                f.write_str("condition can never hold (it needs buffs the character cannot have)")
+            }
+        }
+    }
+}
+
 /// One `cast_if` of the rotation. Port of `RotationExecutor`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RotationExecutor {
@@ -72,6 +109,8 @@ pub struct RotationExecutor {
     /// The condition as written (names), or `None` for an unconditional executor.
     condition: Option<Condition>,
     linked: Option<LinkedExecutor>,
+    /// Why the last link left the executor inactive.
+    skipped: Option<SkipReason>,
     statistics: ExecutorStatistics,
 }
 
@@ -109,6 +148,11 @@ impl RotationExecutor {
         self.linked.is_some()
     }
 
+    /// Why the executor is inactive; `None` when it is active or not linked yet.
+    pub fn skip_reason(&self) -> Option<&SkipReason> {
+        self.skipped.as_ref()
+    }
+
     pub fn statistics(&self) -> &ExecutorStatistics {
         &self.statistics
     }
@@ -123,6 +167,9 @@ pub trait RotationHost: ConditionContext<BuffId, SpellId> {
     /// The buff `name` the way rotations refer to buffs. Port of `get_buff_by_name`.
     fn buff_by_name(&self, name: &str) -> Option<BuffId>;
     fn spell_is_enabled(&self, spell: SpellId) -> bool;
+    /// The name of the talent that grants `spell` (any rank of it) when the character has not
+    /// taken it.
+    fn missing_talent(&self, spell: SpellId) -> Option<String>;
     fn spell_has_cast_time(&self, spell: SpellId) -> bool;
     /// The spell's cast time now (for the precast).
     fn spell_cast_time(&self, spell: SpellId) -> f64;
@@ -166,6 +213,7 @@ impl Rotation {
                     )
                 }),
                 linked: None,
+                skipped: None,
                 statistics: ExecutorStatistics::default(),
             })
             .collect();
@@ -191,6 +239,16 @@ impl Rotation {
         &self.executors
     }
 
+    /// The inactive executors with their 1-based position among the `cast_if` lines and why
+    /// they were skipped, in file order.
+    pub fn skipped_executors(&self) -> impl Iterator<Item = (usize, &RotationExecutor)> {
+        self.executors
+            .iter()
+            .enumerate()
+            .filter(|(_, executor)| executor.skipped.is_some())
+            .map(|(index, executor)| (index + 1, executor))
+    }
+
     /// The active executors in priority order.
     pub fn active_executors(&self) -> impl Iterator<Item = &RotationExecutor> {
         self.active.iter().map(|&index| &self.executors[index])
@@ -212,28 +270,17 @@ impl Rotation {
     pub fn link(&mut self, host: &impl RotationHost) {
         self.active.clear();
         for (index, executor) in self.executors.iter_mut().enumerate() {
-            executor.linked = None;
-            let Some(spell) = host.spell_by_name(&executor.spell_name, executor.spell_rank) else {
-                continue;
-            };
-            if !host.spell_is_enabled(spell) {
-                continue;
-            }
-            let condition = match &executor.condition {
-                None => None,
-                Some(condition) => {
-                    let mapped = condition.clone().map(
-                        |name| host.buff_by_name(&name),
-                        |name| host.spell_by_name(&name, crate::spell::MAX_RANK),
-                    );
-                    match mapped {
-                        Some(mapped) => Some(mapped),
-                        None => continue,
-                    }
+            match Self::link_executor(executor, host) {
+                Ok(linked) => {
+                    executor.linked = Some(linked);
+                    executor.skipped = None;
+                    self.active.push(index);
                 }
-            };
-            executor.linked = Some(LinkedExecutor { spell, condition });
-            self.active.push(index);
+                Err(reason) => {
+                    executor.linked = None;
+                    executor.skipped = Some(reason);
+                }
+            }
         }
 
         self.precombat_spells = self
@@ -250,6 +297,57 @@ impl Rotation {
             .as_deref()
             .and_then(|name| host.spell_by_name(name, crate::spell::MAX_RANK))
             .filter(|&spell| host.spell_has_cast_time(spell));
+    }
+
+    fn link_executor(
+        executor: &RotationExecutor,
+        host: &impl RotationHost,
+    ) -> Result<LinkedExecutor, SkipReason> {
+        use crate::spell::MAX_RANK;
+
+        let name = &executor.spell_name;
+        let Some(spell) = host.spell_by_name(name, executor.spell_rank) else {
+            let other_rank =
+                executor.spell_rank != MAX_RANK && host.spell_by_name(name, MAX_RANK).is_some();
+            return Err(if other_rank {
+                SkipReason::RankNotLearned(executor.spell_rank)
+            } else {
+                SkipReason::UnknownSpell
+            });
+        };
+        if !host.spell_is_enabled(spell) {
+            return Err(host
+                .missing_talent(spell)
+                .map_or(SkipReason::NotEnabled, SkipReason::TalentNotTaken));
+        }
+        let Some(condition) = &executor.condition else {
+            return Ok(LinkedExecutor {
+                spell,
+                condition: None,
+            });
+        };
+        let unknown_spell = condition
+            .sentences()
+            .find_map(|sentence| match &sentence.measure {
+                Measure::SpellCooldown(name) if host.spell_by_name(name, MAX_RANK).is_none() => {
+                    Some(name.clone())
+                }
+                _ => None,
+            });
+        if let Some(name) = unknown_spell {
+            return Err(SkipReason::UnknownConditionSpell(name));
+        }
+        let condition = condition
+            .clone()
+            .map(
+                |name| host.buff_by_name(&name),
+                |name| host.spell_by_name(&name, MAX_RANK),
+            )
+            .ok_or(SkipReason::ConditionNeverHolds)?;
+        Ok(LinkedExecutor {
+            spell,
+            condition: Some(condition),
+        })
     }
 
     /// Seconds before the pull the iteration has to start at so the precombat actions fit:
@@ -359,6 +457,7 @@ mod tests {
         variables: HashMap<BuiltinVariable, f64>,
         casting: bool,
         casts: Vec<SpellId>,
+        talents: HashMap<SpellId, String>,
     }
 
     impl Mock {
@@ -418,6 +517,9 @@ mod tests {
         fn spell_is_enabled(&self, spell: SpellId) -> bool {
             self.enabled.get(&spell).copied().unwrap_or(false)
         }
+        fn missing_talent(&self, spell: SpellId) -> Option<String> {
+            self.talents.get(&spell).cloned()
+        }
         fn spell_has_cast_time(&self, spell: SpellId) -> bool {
             self.cast_times.contains_key(&spell)
         }
@@ -468,6 +570,10 @@ mod tests {
         let overpower = host.spell("Overpower", 1, 5);
         let bloodthirst = host.spell("Bloodthirst", 1, 6);
         let dw_buff = host.buff("Death Wish", 10);
+        let spearing_strike = host.spell("Spearing Strike", 1, 7);
+        host.enabled.insert(spearing_strike, false);
+        host.talents
+            .insert(spearing_strike, "Spearing Strike".to_string());
 
         let mut rotation = Rotation::new(spec(vec![
             CastIfSpec::when("Bloodrage", "resource \"Rage\" less 70"),
@@ -488,9 +594,15 @@ mod tests {
                 ..CastIfSpec::always("Heroic Strike")
             },
             CastIfSpec::when("Heroic Strike", "spell \"Bloodthirst\" less 1"),
+            CastIfSpec::always("Spearing Strike"),
+            CastIfSpec::when("Bloodrage", "spell \"Rampage\" less 1"),
         ]));
-        assert_eq!(rotation.executors().len(), 9);
+        assert_eq!(rotation.executors().len(), 11);
         assert!(rotation.active_executors().next().is_none());
+        assert!(
+            rotation.skipped_executors().next().is_none(),
+            "not linked yet"
+        );
 
         rotation.link(&host);
         assert_eq!(
@@ -516,6 +628,38 @@ mod tests {
         assert!(
             !executors[7].is_active(),
             "Heroic Strike rank 7 is not known"
+        );
+        let skipped: Vec<(usize, &str, Option<SkipReason>)> = rotation
+            .skipped_executors()
+            .map(|(line, e)| (line, e.spell_name(), e.skip_reason().cloned()))
+            .collect();
+        assert_eq!(
+            skipped,
+            [
+                (2, "Kiss of the Spider", Some(SkipReason::UnknownSpell)),
+                (3, "Death Wish", Some(SkipReason::NotEnabled)),
+                (4, "Whirlwind", Some(SkipReason::UnknownSpell)),
+                (5, "Overpower", Some(SkipReason::ConditionNeverHolds)),
+                (8, "Heroic Strike", Some(SkipReason::RankNotLearned(7))),
+                (
+                    10,
+                    "Spearing Strike",
+                    Some(SkipReason::TalentNotTaken("Spearing Strike".to_string()))
+                ),
+                (
+                    11,
+                    "Bloodrage",
+                    Some(SkipReason::UnknownConditionSpell("Rampage".to_string()))
+                ),
+            ]
+        );
+        assert_eq!(
+            SkipReason::TalentNotTaken("Spearing Strike".to_string()).to_string(),
+            "talent Spearing Strike not taken"
+        );
+        assert_eq!(
+            SkipReason::RankNotLearned(7).to_string(),
+            "rank 7 not learned"
         );
         assert_eq!(rotation.precombat_spells(), [bloodrage]);
         assert_eq!(rotation.precast_spell(), None);

@@ -27,7 +27,7 @@ use std::collections::BTreeMap;
 
 pub use buff::BuffStatistics;
 pub use engine::EngineStatistics;
-pub use executor::{ExecutorOutcome, ExecutorResult, RotationExecutorStatistics};
+pub use executor::{ExecutorOutcome, ExecutorResult, RotationExecutorStatistics, SkippedExecutor};
 pub use number_cruncher::{NumberCruncher, ScaleResult};
 pub use proc::ProcStatistics;
 pub use resource::ResourceStatistics;
@@ -77,6 +77,8 @@ pub struct ClassStatistics {
     resources: BTreeMap<SpellKey, ResourceStatistics>,
     procs: BTreeMap<String, ProcStatistics>,
     executors: Vec<RotationExecutorStatistics>,
+    /// The rotation lines that were not linked.
+    skipped_executors: Vec<SkippedExecutor>,
     engine: EngineStatistics,
     dps_per_iteration: Vec<f64>,
     damage_previous_iterations: u64,
@@ -94,6 +96,7 @@ impl ClassStatistics {
             resources: BTreeMap::new(),
             procs: BTreeMap::new(),
             executors: Vec::new(),
+            skipped_executors: Vec::new(),
             engine: EngineStatistics::new(),
             dps_per_iteration: Vec::new(),
             damage_previous_iterations: 0,
@@ -150,6 +153,11 @@ impl ClassStatistics {
     /// Replaces the rotation executor statistics with a fresh snapshot.
     pub fn set_executors(&mut self, executors: Vec<RotationExecutorStatistics>) {
         self.executors = executors;
+    }
+
+    /// Replaces the skipped rotation lines with a fresh snapshot.
+    pub fn set_skipped_executors(&mut self, skipped: Vec<SkippedExecutor>) {
+        self.skipped_executors = skipped;
     }
 
     /// Replaces the engine statistics with a fresh snapshot.
@@ -212,6 +220,10 @@ impl ClassStatistics {
 
     pub fn executors(&self) -> &[RotationExecutorStatistics] {
         &self.executors
+    }
+
+    pub fn skipped_executors(&self) -> &[SkippedExecutor] {
+        &self.skipped_executors
     }
 
     pub fn engine(&self) -> &EngineStatistics {
@@ -335,6 +347,10 @@ impl ClassStatistics {
             for (mine, theirs) in self.executors.iter_mut().zip(&other.executors) {
                 mine.add(theirs);
             }
+        }
+        // Every thread links the same rotation to the same setup.
+        if self.skipped_executors.is_empty() {
+            self.skipped_executors = other.skipped_executors.clone();
         }
         self.engine.add(&other.engine);
         self.dps_per_iteration

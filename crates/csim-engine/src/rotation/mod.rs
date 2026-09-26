@@ -16,5 +16,7 @@ pub use condition::{
     BuiltinVariable, Comparator, Condition, ConditionContext, ConditionParseError, Measure,
     Sentence, Test,
 };
-pub use executor::{ExecutorStatistics, LinkedExecutor, Rotation, RotationExecutor, RotationHost};
+pub use executor::{
+    ExecutorStatistics, LinkedExecutor, Rotation, RotationExecutor, RotationHost, SkipReason,
+};
 pub use spec::{CastIfSpec, RotationDb, RotationSpec, RotationSpecError};

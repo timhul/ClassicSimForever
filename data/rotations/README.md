@@ -109,6 +109,22 @@ drops its group, and an executor left with no group is skipped. The rest are ski
 attempted. `spell "<name>"` in a condition resolves to the highest learned rank
 whether or not it is enabled (a disabled Bloodthirst has a cooldown of 0).
 
+The report lists the skipped executors under "Skipped rotation lines", by their position among
+the `cast_if` lines, with the reason:
+
+| reason                                   | meaning                                                                 |
+|------------------------------------------|-------------------------------------------------------------------------|
+| no spell of this name                    | an item that is not equipped, another race's racial, a spell the sim does not give the character (see below), or a typo |
+| rank N not learned                       | the spell is known, but not at the `rank` asked for                     |
+| talent T not taken                       | the spell comes from talent T, which the setup has no points in         |
+| spell not enabled                        | the spell is known but disabled for another reason                      |
+| condition names unknown spell S          | a `spell "S"` sentence names a spell the character does not have        |
+| condition can never hold                 | every `or` group needs a buff the character can never have              |
+
+A spell's other requirements (stance, weapon type, resources) are checked when the executor
+runs, not when it is linked: they show up as failure outcomes in the Rotation section
+(`FAIL: Incorrect weapon type` for Spearing Strike with a one-hander).
+
 Before the pull (at negative time) the precombat actions are cast in order when their spell is
 available or merely on cooldown (every cooldown reads as "ready at 0" then), followed by the
 precast. The rotation itself never runs before the pull; the first pass is the encounter start,

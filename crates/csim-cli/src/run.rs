@@ -303,6 +303,9 @@ pub struct Results {
     /// The sums over `resources`, one per resource.
     pub resource_totals: Vec<ResourceTotal>,
     pub rotation: Vec<ExecutorRow>,
+    /// The rotation lines that never run, and why.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub skipped_rotation_lines: Vec<SkippedRow>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub stat_weights: Vec<StatWeightRow>,
     /// Engine events by type, most frequent first.
@@ -454,6 +457,15 @@ pub struct ExecutorRow {
     pub outcomes: Vec<OutcomeRow>,
 }
 
+/// A `cast_if` line that was not linked to the character.
+#[derive(Debug, Serialize)]
+pub struct SkippedRow {
+    /// 1-based position among the rotation's `cast_if` lines.
+    pub line: usize,
+    pub spell: String,
+    pub reason: String,
+}
+
 #[derive(Debug, Serialize)]
 pub struct OutcomeRow {
     pub outcome: String,
@@ -523,6 +535,7 @@ impl Results {
             resource_totals: ResourceTotal::of(&resources),
             resources,
             rotation: executor_rows(&stats),
+            skipped_rotation_lines: skipped_rows(&stats),
             stat_weights: if r.settings.options.is_empty() {
                 Vec::new()
             } else {
@@ -588,6 +601,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             ("Procs", self.proc_table()),
             ("Resource gains", self.resource_table()),
             ("Rotation", self.executor_table()),
+            ("Skipped rotation lines", self.skipped_table()),
             ("Engine", self.engine_table()),
         ]
         .into_iter()
@@ -715,6 +729,18 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                     format!("{:.1}%", outcome.share * 100.0),
                 ]);
             }
+        }
+        table
+    }
+
+    fn skipped_table(&self) -> Table {
+        let mut table = Table::new(["Line", "Spell", "Reason"]).left(1).left(2);
+        for row in &self.skipped_rotation_lines {
+            table.row(vec![
+                row.line.to_string(),
+                row.spell.clone(),
+                row.reason.clone(),
+            ]);
         }
         table
     }
@@ -934,6 +960,18 @@ fn executor_rows(stats: &ClassStatistics) -> Vec<ExecutorRow> {
                     })
                     .collect(),
             }
+        })
+        .collect()
+}
+
+fn skipped_rows(stats: &ClassStatistics) -> Vec<SkippedRow> {
+    stats
+        .skipped_executors()
+        .iter()
+        .map(|skipped| SkippedRow {
+            line: skipped.line,
+            spell: skipped.spell_name.clone(),
+            reason: skipped.reason.clone(),
         })
         .collect()
 }

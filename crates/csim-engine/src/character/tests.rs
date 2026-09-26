@@ -2022,6 +2022,7 @@ mod rotation {
                 "Eureka!",
                 "Execute",
                 "Bloodthirst",
+                "Spearing Strike",
                 "Whirlwind",
                 "Overpower",
                 "Hamstring",
@@ -2062,6 +2063,37 @@ mod rotation {
             ]
         );
         assert_eq!(rotation.precast_spell(), None);
+
+        // The skipped lines say why.
+        let skipped: Vec<(usize, &str, String)> = rotation
+            .skipped_executors()
+            .map(|(line, e)| (line, e.spell_name(), e.skip_reason().unwrap().to_string()))
+            .collect();
+        let unknown = "no spell of this name";
+        // Lines 6 - 14: the item uses, none equipped.
+        assert!(skipped[..9]
+            .iter()
+            .zip(6..)
+            .all(|((line, _, reason), expected)| *line == expected && reason == unknown));
+        assert_eq!(skipped[0].1, "Haste");
+        assert_eq!(
+            skipped[9..],
+            [
+                (15, "Death Wish", "talent Death Wish not taken".to_string()),
+                (18, "Berserking", unknown.to_string()),
+                (19, "Eureka!", unknown.to_string()),
+                (
+                    21,
+                    "Bloodthirst",
+                    "talent Bloodthirst not taken".to_string()
+                ),
+                (
+                    22,
+                    "Spearing Strike",
+                    "talent Spearing Strike not taken".to_string()
+                ),
+            ]
+        );
 
         // Berserker Rage: one group of one resource sentence.
         let executors = rotation.executors();
@@ -2126,7 +2158,7 @@ mod rotation {
         );
         // Whirlwind's `spell "Bloodthirst"` resolved to the highest rank of the (disabled)
         // Bloodthirst.
-        let groups = executors[21].linked().unwrap().condition.as_ref().unwrap();
+        let groups = executors[22].linked().unwrap().condition.as_ref().unwrap();
         let Measure::SpellCooldown(bloodthirst) = groups.groups()[0][0].measure else {
             panic!("{:?}", groups.groups()[0][0]);
         };

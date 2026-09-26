@@ -70,6 +70,36 @@ fn run_prints_the_breakdowns() {
 }
 
 #[test]
+fn run_lists_the_rotation_lines_that_never_run() {
+    let report = stdout(&csim(&[&RUN[..], &["--seed", "7"]].concat()));
+    let section = report
+        .split("\nSkipped rotation lines\n")
+        .nth(1)
+        .unwrap_or_else(|| panic!("no skipped lines section:\n{report}"));
+    let section = section.split("\n\n").next().unwrap();
+    // DW Fury has no Spearing Strike talent and no Manual Crowd Pummeler.
+    let line = |spell: &str| {
+        section
+            .lines()
+            .find(|line| line.contains(&format!(" {spell} ")))
+            .unwrap_or_else(|| panic!("{spell} missing:\n{section}"))
+            .to_string()
+    };
+    assert!(
+        line("Spearing Strike").contains("talent Spearing Strike not taken"),
+        "{section}"
+    );
+    assert!(
+        line("Haste").ends_with("no spell of this name"),
+        "{section}"
+    );
+    assert!(
+        !section.contains("Bloodthirst"),
+        "an active line:\n{section}"
+    );
+}
+
+#[test]
 fn a_seed_reproduces_the_run() {
     let args = [&RUN[..], &["--seed", "11"]].concat();
     let first = stdout(&csim(&args));

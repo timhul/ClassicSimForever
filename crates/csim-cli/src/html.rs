@@ -127,7 +127,7 @@ document.querySelectorAll("th").forEach((th) => th.addEventListener("click", () 
 "#;
 
 /// Sections that start collapsed.
-const COLLAPSED: [&str; 2] = ["Rotation", "Engine"];
+const COLLAPSED: [&str; 3] = ["Rotation", "Skipped rotation lines", "Engine"];
 
 /// The results as an HTML page.
 pub fn render(results: &Results) -> String {
