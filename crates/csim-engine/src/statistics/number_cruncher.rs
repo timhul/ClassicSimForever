@@ -273,7 +273,7 @@ mod tests {
                 },
                 0.0,
             );
-            statistics.finish_combat_iteration();
+            statistics.finish_combat_iteration(10.0);
         }
         let result = statistics.personal_result();
         statistics.add_player_result(result);

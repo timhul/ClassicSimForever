@@ -440,6 +440,13 @@ impl RaidControl {
         self.target.check_clean();
     }
 
+    /// Sets every character's length of the coming encounter.
+    pub fn set_combat_length(&mut self, combat_length: f64) {
+        for character in &mut self.characters {
+            character.set_combat_length(combat_length);
+        }
+    }
+
     /// Closes an iteration for every character's statistics (its DPS). Port of the
     /// `finish_combat_iteration` loop of `SimControl::run_sim`.
     pub fn finish_combat_iteration(&mut self) {

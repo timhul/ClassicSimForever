@@ -81,12 +81,15 @@ pub struct ClassStatistics {
     skipped_executors: Vec<SkippedExecutor>,
     engine: EngineStatistics,
     dps_per_iteration: Vec<f64>,
+    /// Seconds of combat over the finished iterations (their lengths vary with the length
+    /// variance).
+    time_in_combat: f64,
     damage_previous_iterations: u64,
     player_results: Vec<PlayerResult>,
 }
 
 impl ClassStatistics {
-    /// Empty statistics for `player_name` and encounters of `combat_length` seconds.
+    /// Empty statistics for `player_name` and encounters of nominally `combat_length` seconds.
     pub fn new(player_name: impl Into<String>, combat_length: f64) -> Self {
         ClassStatistics {
             player_name: player_name.into(),
@@ -99,6 +102,7 @@ impl ClassStatistics {
             skipped_executors: Vec::new(),
             engine: EngineStatistics::new(),
             dps_per_iteration: Vec::new(),
+            time_in_combat: 0.0,
             damage_previous_iterations: 0,
             player_results: Vec::new(),
         }
@@ -169,12 +173,14 @@ impl ClassStatistics {
         &mut self.engine
     }
 
-    /// Closes an iteration: records its DPS. Port of `finish_combat_iteration`.
-    pub fn finish_combat_iteration(&mut self) {
+    /// Closes an iteration of `combat_length` seconds: records its DPS. Port of
+    /// `finish_combat_iteration`.
+    pub fn finish_combat_iteration(&mut self, combat_length: f64) {
         let total = self.total_damage();
         let this_iteration = total - self.damage_previous_iterations;
         self.dps_per_iteration
-            .push(this_iteration as f64 / self.combat_length);
+            .push(this_iteration as f64 / combat_length);
+        self.time_in_combat += combat_length;
         self.damage_previous_iterations = total;
     }
 
@@ -267,9 +273,9 @@ impl ClassStatistics {
         self.dps_per_iteration.len() as u64
     }
 
-    /// Seconds of combat simulated: iterations × encounter length.
+    /// Seconds of combat simulated: the sum of the finished iterations' lengths.
     pub fn time_in_combat(&self) -> f64 {
-        self.iterations() as f64 * self.combat_length
+        self.time_in_combat
     }
 
     /// The DPS of each finished iteration, in order.
@@ -277,13 +283,13 @@ impl ClassStatistics {
         &self.dps_per_iteration
     }
 
-    /// Mean damage per second over the finished iterations, 0 without any.
+    /// Mean of the finished iterations' DPS, 0 without any. With iterations of different
+    /// lengths this weighs each iteration equally, as the spread around it does.
     pub fn personal_dps(&self) -> f64 {
-        let time = self.time_in_combat();
-        if time <= 0.0 {
+        if self.dps_per_iteration.is_empty() {
             0.0
         } else {
-            self.total_damage() as f64 / time
+            self.dps_per_iteration.iter().sum::<f64>() / self.dps_per_iteration.len() as f64
         }
     }
 
@@ -355,6 +361,7 @@ impl ClassStatistics {
         self.engine.add(&other.engine);
         self.dps_per_iteration
             .extend_from_slice(&other.dps_per_iteration);
+        self.time_in_combat += other.time_in_combat;
         self.damage_previous_iterations += other.damage_previous_iterations;
         self.player_results
             .extend(other.player_results.iter().cloned());
@@ -445,12 +452,12 @@ mod tests {
         stats
             .spell("Bloodthirst", 4)
             .record_attack(&hit(1000), 30.0);
-        stats.finish_combat_iteration();
+        stats.finish_combat_iteration(100.0);
         stats
             .spell("Bloodthirst", 4)
             .record_attack(&hit(3000), 30.0);
-        stats.finish_combat_iteration();
-        stats.finish_combat_iteration();
+        stats.finish_combat_iteration(100.0);
+        stats.finish_combat_iteration(100.0);
 
         assert_eq!(stats.iterations(), 3);
         assert_eq!(stats.time_in_combat(), 300.0);
@@ -473,12 +480,36 @@ mod tests {
     }
 
     #[test]
+    fn dps_and_time_follow_each_iterations_length() {
+        let mut stats = ClassStatistics::new("You", 100.0);
+        stats.spell("Bloodthirst", 4).record_attack(&hit(900), 30.0);
+        stats.finish_combat_iteration(90.0);
+        stats
+            .spell("Bloodthirst", 4)
+            .record_attack(&hit(1100), 30.0);
+        stats.finish_combat_iteration(110.0);
+
+        assert_eq!(stats.dps_per_iteration(), &[10.0, 10.0]);
+        assert_eq!(stats.time_in_combat(), 200.0);
+        assert!((stats.personal_dps() - 10.0).abs() < 1e-9);
+
+        // Each iteration weighs the same, whatever its length.
+        stats.finish_combat_iteration(50.0);
+        assert!((stats.personal_dps() - 20.0 / 3.0).abs() < 1e-9);
+        assert!((stats.personal_tps() - 4000.0 / 250.0).abs() < 1e-9);
+
+        let mut merged = ClassStatistics::new("You", 100.0);
+        merged.add(&stats);
+        assert_eq!(merged.time_in_combat(), 250.0);
+    }
+
+    #[test]
     fn prepare_clears_everything_but_the_name() {
         let mut stats = ClassStatistics::new("You", 100.0);
         stats
             .spell("Bloodthirst", 4)
             .record_attack(&hit(1000), 30.0);
-        stats.finish_combat_iteration();
+        stats.finish_combat_iteration(100.0);
         stats.prepare(200.0);
         assert_eq!(stats, ClassStatistics::new("You", 200.0));
     }
@@ -496,7 +527,7 @@ mod tests {
             "Bloodthirst",
         )]);
         a.engine_mut().increment_event(EventType::PlayerAction);
-        a.finish_combat_iteration();
+        a.finish_combat_iteration(100.0);
 
         let mut b = ClassStatistics::new("You", 100.0);
         b.spell("Bloodthirst", 4).record_attack(&hit(2000), 30.0);
@@ -512,8 +543,8 @@ mod tests {
         )]);
         b.engine_mut().increment_event(EventType::PlayerAction);
         b.engine_mut().increment_event(EventType::DotTick);
-        b.finish_combat_iteration();
-        b.finish_combat_iteration();
+        b.finish_combat_iteration(100.0);
+        b.finish_combat_iteration(100.0);
 
         a.add(&b);
         assert_eq!(a.iterations(), 3);

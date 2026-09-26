@@ -19,7 +19,7 @@ use csim_engine::sweep_loader::{Expansion, SweepSetup};
 use serde::Serialize;
 
 use crate::Result;
-use crate::run::{clock_seed, progress_bar};
+use crate::run::{clock_seed, parse_length_variance, progress_bar};
 use crate::table::Table;
 
 /// Iterations per variant without `--iterations` or the sweep's `iterations`.
@@ -38,6 +38,15 @@ pub struct SweepArgs {
     /// Encounter length in seconds (default: the sweep's, else the sim settings').
     #[arg(long, short = 'l')]
     length: Option<u32>,
+    /// Encounter length variance in percent: each iteration lasts a uniformly distributed
+    /// `length × [1 - v/100, 1 + v/100]` seconds. 0 fixes the length.
+    #[arg(
+        long,
+        default_value_t = SimSettings::default().length_variance,
+        value_parser = parse_length_variance,
+        value_name = "PERCENT"
+    )]
+    length_variance: f64,
     /// Seed every variant runs with (default: from the clock; printed).
     #[arg(long)]
     seed: Option<u64>,
@@ -72,6 +81,8 @@ pub struct SweepResults {
     pub base: Option<String>,
     pub iterations: u32,
     pub combat_length: u32,
+    /// Percent.
+    pub length_variance: f64,
     pub seed: u64,
     /// Per variation point, its description and number of alternatives.
     pub variation_points: Vec<VariationPointRow>,
@@ -111,6 +122,7 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
     if let Some(length) = args.length.or(sweep.length) {
         settings.combat_length = length;
     }
+    settings.length_variance = args.length_variance;
     if let Some(threads) = args.threads {
         settings.set_threads(threads)?;
     }
@@ -127,6 +139,7 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
         base: sweep.base.as_ref().map(|base| base.display().to_string()),
         iterations,
         combat_length: settings.combat_length,
+        length_variance: settings.length_variance,
         seed,
         variation_points: expansion
             .points
@@ -214,7 +227,11 @@ fn header(results: &SweepResults, expansion: &Expansion) -> String {
         results.iterations,
         variants as u64 * u64::from(results.iterations)
     );
-    let _ = writeln!(out, " ({} s, seed {})", results.combat_length, results.seed);
+    let _ = writeln!(
+        out,
+        " ({} s ± {}%, seed {})",
+        results.combat_length, results.length_variance, results.seed
+    );
     if !expansion.invalid.is_empty() {
         let _ = writeln!(
             out,

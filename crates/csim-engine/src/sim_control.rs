@@ -4,7 +4,8 @@
 //! [`SimControl::run_sim`] runs a set of iterations of a raid: each iteration starts early
 //! enough for the slowest precombat actions, shuffles the raid (who acts first at a tie),
 //! runs every character's precombat actions, starts the encounter for each of them (and the
-//! incoming damage of the tanks), ends it after the combat length and resets the raid.
+//! incoming damage of the tanks), ends it after the combat length (drawn per iteration within
+//! the length variance) and resets the raid.
 //! [`SimControl::run_quick_sim`] runs the baseline, [`SimControl::run_full_sim`] also one run
 //! per scaling option with the option's stat added to the first character; both hand the statistics of the raid's
 //! first character, with every member's result added, to a [`NumberCruncher`].
@@ -14,7 +15,8 @@
 //! cruncher; the crunchers are merged in thread order. With the same seed and thread count
 //! a run is reproducible.
 //!
-//! Differences from the C++: the iterations are split so that every requested iteration runs
+//! Differences from the C++: the encounter length varies per iteration
+//! ([`SimSettings::length_variance`]), the iterations are split so that every requested iteration runs
 //! (the C++ dropped the remainder of `iterations / threads`), a seed fixes every random roll
 //! of the run including the raid shuffle, and the progress callback also reports the last
 //! iterations that do not fill a group of ten.
@@ -123,8 +125,9 @@ impl SimControl {
         }
     }
 
-    /// Runs `iterations` encounters of `combat_length` seconds. The characters' statistics
-    /// hold the result afterwards. Port of `SimControl::run_sim`.
+    /// Runs `iterations` encounters of `combat_length` seconds, each varied by the settings'
+    /// length variance. The characters' statistics hold the result afterwards. Port of
+    /// `SimControl::run_sim`.
     ///
     /// # Panics
     /// Panics if a character was set up for another combat length (its DPS would be wrong).
@@ -169,8 +172,10 @@ impl SimControl {
                     .add_event(Event::new(0.0, EventKind::EncounterStart { character: id }));
             }
 
+            let iteration_length = self.draw_combat_length(combat_length);
+            raid.set_combat_length(iteration_length);
             raid.engine_mut()
-                .add_event(Event::new(combat_length, EventKind::EncounterEnd));
+                .add_event(Event::new(iteration_length, EventKind::EncounterEnd));
             raid.run();
 
             // Resets every character and checks that the target is clean.
@@ -186,6 +191,19 @@ impl SimControl {
         if reported > 0 {
             self.report(reported);
         }
+        raid.set_combat_length(combat_length);
+    }
+
+    /// `combat_length` scaled by a uniform draw from `[1 - v, 1 + v]`, `v` the length
+    /// variance. Without variance nothing is drawn, so the raid shuffles stay as they were.
+    fn draw_combat_length(&mut self, combat_length: f64) -> f64 {
+        let variance = self.settings.length_variance / 100.0;
+        if variance == 0.0 {
+            return combat_length;
+        }
+        // 53 random bits: uniform in [0, 1).
+        let unit = (self.shuffle.next() >> 11) as f64 / (1u64 << 53) as f64;
+        combat_length * (1.0 + variance * (2.0 * unit - 1.0))
     }
 
     /// Runs with `option`'s stat added to the raid's first character, the player whose stat

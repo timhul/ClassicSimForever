@@ -337,9 +337,45 @@ fn a_logged_iteration_is_the_one_thread_iteration_of_its_seed() {
         let unit = crate::combat_log::LogUnit::Character(id);
         assert!(log.entries().iter().any(|e| e.source == unit));
     }
-    // From the precombat actions to the end of the encounter.
+    // From the precombat actions to the end of the encounter, at most 10 % past the length.
     assert!(log.entries()[0].time < 0.0, "{:#?}", log.entries()[0]);
-    let end = f64::from(settings.combat_length);
+    let end = f64::from(settings.combat_length) * 1.1;
     assert!(log.entries().iter().all(|e| e.time <= end));
     assert!(!raid.engine().is_logging());
+}
+
+#[test]
+fn the_encounter_length_varies_within_the_length_variance() {
+    let data = Data::load();
+    let settings = settings(40);
+    let mut raid = data.raid(&settings, 1, false);
+    let mut control = SimControl::new(settings, 1);
+    let mut lengths = Vec::new();
+    for _ in 0..40 {
+        control.run_sim(&mut raid, 60, 1);
+        lengths.push(raid.take_statistics().remove(0).time_in_combat());
+    }
+    assert!(
+        lengths.iter().all(|l| (54.0..=66.0).contains(l)),
+        "{lengths:?}"
+    );
+    let (min, max) = lengths
+        .iter()
+        .fold((f64::MAX, f64::MIN), |(lo, hi), &l| (lo.min(l), hi.max(l)));
+    assert!(min < 57.0 && max > 63.0, "{lengths:?}");
+    // The character is set up for the nominal length again.
+    assert_eq!(raid.character(CharId(0)).sim().combat_length, 60.0);
+}
+
+#[test]
+fn without_length_variance_every_encounter_lasts_the_combat_length() {
+    let data = Data::load();
+    let settings = SimSettings {
+        length_variance: 0.0,
+        ..settings(10)
+    };
+    let mut raid = data.raid(&settings, 1, false);
+    let mut cruncher = NumberCruncher::new();
+    SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
+    assert_eq!(baseline(&cruncher).time_in_combat(), 600.0);
 }

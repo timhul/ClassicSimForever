@@ -356,10 +356,17 @@ impl Character {
         &mut self.statistics
     }
 
-    /// Closes an iteration for the statistics (its DPS). Port of
-    /// `ClassStatistics::finish_combat_iteration` as called from `SimControl::run_sim`.
+    /// Closes an iteration for the statistics (its DPS over the iteration's combat length).
+    /// Port of `ClassStatistics::finish_combat_iteration` as called from `SimControl::run_sim`.
     pub fn finish_combat_iteration(&mut self) {
-        self.statistics.finish_combat_iteration();
+        self.statistics
+            .finish_combat_iteration(self.sim.combat_length);
+    }
+
+    /// Sets the length of the coming encounter (it varies per iteration with the length
+    /// variance).
+    pub fn set_combat_length(&mut self, combat_length: f64) {
+        self.sim.combat_length = combat_length;
     }
 
     /// Replaces the simulation settings, moving the ruleset's stat change from the old ruleset

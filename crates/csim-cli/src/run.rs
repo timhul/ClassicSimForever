@@ -44,6 +44,15 @@ pub struct RunArgs {
     /// Encounter length in seconds.
     #[arg(long, short = 'l', default_value_t = SimSettings::default().combat_length)]
     length: u32,
+    /// Encounter length variance in percent: each iteration lasts a uniformly distributed
+    /// `length × [1 - v/100, 1 + v/100]` seconds. 0 fixes the length.
+    #[arg(
+        long,
+        default_value_t = SimSettings::default().length_variance,
+        value_parser = parse_length_variance,
+        value_name = "PERCENT"
+    )]
+    length_variance: f64,
     /// Seed fixing every random roll of the run (default: from the clock; printed).
     #[arg(long)]
     seed: Option<u64>,
@@ -86,6 +95,19 @@ pub enum OutputFormat {
     Yaml,
     /// A self-contained HTML page.
     Html,
+}
+
+/// A length variance: a percentage of at least 0 and below 100.
+pub fn parse_length_variance(text: &str) -> std::result::Result<f64, String> {
+    let variance: f64 = text
+        .trim()
+        .parse()
+        .map_err(|_| format!("{text:?} is not a number"))?;
+    if (0.0..100.0).contains(&variance) {
+        Ok(variance)
+    } else {
+        Err(format!("must be at least 0 and below 100, got {variance}"))
+    }
 }
 
 /// A scaling option by its serde name with or without the `SCALE_` prefix (`hit_chance`,
@@ -141,6 +163,7 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
 
     let mut settings = setup.sim_settings(&SimSettings {
         combat_length: args.length,
+        length_variance: args.length_variance,
         ..SimSettings::default()
     });
     if let Some(threads) = args.threads {
@@ -326,6 +349,8 @@ pub struct SetupInfo {
 pub struct RunInfo {
     pub iterations: u64,
     pub combat_length: u32,
+    /// Percent.
+    pub length_variance: f64,
     pub threads: usize,
     pub seed: u64,
     pub elapsed_seconds: f64,
@@ -513,6 +538,7 @@ impl Results {
             run: RunInfo {
                 iterations: stats.iterations(),
                 combat_length: r.settings.combat_length,
+                length_variance: r.settings.length_variance,
                 threads: r.settings.threads,
                 seed: r.seed,
                 elapsed_seconds: r.elapsed.as_secs_f64(),
@@ -556,9 +582,10 @@ impl Results {
         );
         let _ = writeln!(
             out,
-            "{} iterations of {} s, {} threads, seed {}, {:.2} s ({} events)",
+            "{} iterations of {} s ± {}%, {} threads, seed {}, {:.2} s ({} events)",
             run.iterations,
             run.combat_length,
+            run.length_variance,
             run.threads,
             run.seed,
             run.elapsed_seconds,

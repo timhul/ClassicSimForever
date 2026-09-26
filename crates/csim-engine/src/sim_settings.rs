@@ -231,6 +231,8 @@ pub enum SimSettingsError {
     Threads { threads: usize, max: usize },
     #[error("the execute threshold must be between 0 and 1, got {0}")]
     ExecuteThreshold(f64),
+    #[error("the length variance must be at least 0 and below 100 %, got {0}")]
+    LengthVariance(f64),
 }
 
 /// The settings of a run. Port of `SimSettings`.
@@ -241,6 +243,9 @@ pub struct SimSettings {
     pub phase: Phase,
     /// Encounter length in seconds.
     pub combat_length: u32,
+    /// Variance of the encounter length in percent: each iteration lasts a uniformly
+    /// distributed `combat_length × [1 - v/100, 1 + v/100]` seconds. 0 fixes it.
+    pub length_variance: f64,
     /// Iterations of a quick sim (no scaling).
     pub iterations_quick_sim: u32,
     /// Iterations of a full sim, per scaling option.
@@ -257,11 +262,13 @@ pub struct SimSettings {
 
 impl Default for SimSettings {
     /// The C++ defaults: Naxxramas, 300 s, 1 000 quick / 10 000 full iterations, every
-    /// available thread, execute below 20 %, the standard ruleset and no scaling.
+    /// available thread, execute below 20 %, the standard ruleset and no scaling. Unlike the
+    /// C++, the encounter length varies by 10 %.
     fn default() -> Self {
         Self {
             phase: Phase::Naxxramas,
             combat_length: 300,
+            length_variance: 10.0,
             iterations_quick_sim: 1000,
             iterations_full_sim: 10_000,
             threads: Self::max_threads(),
@@ -323,6 +330,9 @@ impl SimSettings {
         if self.combat_length == 0 {
             return Err(SimSettingsError::CombatLength);
         }
+        if !(0.0..100.0).contains(&self.length_variance) {
+            return Err(SimSettingsError::LengthVariance(self.length_variance));
+        }
         if self.iterations_quick_sim == 0 || self.iterations_full_sim == 0 {
             return Err(SimSettingsError::Iterations);
         }
@@ -348,6 +358,7 @@ mod tests {
         let settings = SimSettings::default();
         assert_eq!(settings.phase, Phase::Naxxramas);
         assert_eq!(settings.combat_length, 300);
+        assert_eq!(settings.length_variance, 10.0);
         assert_eq!(settings.iterations_quick_sim, 1000);
         assert_eq!(settings.iterations_full_sim, 10_000);
         assert_eq!(settings.threads, SimSettings::max_threads());
@@ -436,6 +447,20 @@ mod tests {
                     ..valid.clone()
                 },
                 SimSettingsError::CombatLength,
+            ),
+            (
+                SimSettings {
+                    length_variance: -1.0,
+                    ..valid.clone()
+                },
+                SimSettingsError::LengthVariance(-1.0),
+            ),
+            (
+                SimSettings {
+                    length_variance: 100.0,
+                    ..valid.clone()
+                },
+                SimSettingsError::LengthVariance(100.0),
             ),
             (
                 SimSettings {

@@ -52,7 +52,7 @@ fn run_prints_the_breakdowns() {
     let report = stdout(&csim(&[&RUN[..], &["--seed", "7"]].concat()));
     for expected in [
         "DW Fury Orc: Orc Warrior",
-        "40 iterations of 120 s, 2 threads, seed 7",
+        "40 iterations of 120 s ± 10%, 2 threads, seed 7",
         "DPS  ",
         "TPS  ",
         "Damage and threat",
@@ -524,7 +524,7 @@ fn sweep_dry_run_counts_and_lists_the_variants() {
     let variants = stdout(&output);
     let header = String::from_utf8(output.stderr).unwrap();
     assert!(
-        header.contains("46 variants × 10000 iterations = 460000 iterations (300 s, seed 1)"),
+        header.contains("46 variants × 10000 iterations = 460000 iterations (300 s ± 10%, seed 1)"),
         "{header}"
     );
     assert!(header.contains("3 talent points over Impale"), "{header}");
@@ -625,7 +625,10 @@ fn combat_log_prints_one_iteration_as_combat_log_lines() {
 
 #[test]
 fn combat_log_damage_is_the_damage_of_the_same_seeds_iteration() {
-    let log = stdout(&csim(&[&COMBAT_LOG[..], &["--seed", "8"]].concat()));
+    // A fixed length, so that the DPS times 60 s is the damage.
+    let log = stdout(&csim(
+        &[&COMBAT_LOG[..], &["--seed", "8", "--length-variance", "0"]].concat(),
+    ));
     let logged: u64 = log
         .lines()
         .skip(1)
@@ -642,6 +645,8 @@ fn combat_log_damage_is_the_damage_of_the_same_seeds_iteration() {
         "data/characters/dw_fury_orc.yaml",
         "--length",
         "60",
+        "--length-variance",
+        "0",
         "-n",
         "1",
         "-t",
@@ -682,4 +687,12 @@ fn combat_log_refuses_the_options_of_a_results_run() {
             "{option:?}"
         );
     }
+}
+
+#[test]
+fn a_negative_length_variance_is_rejected() {
+    let output = csim(&[&RUN[..], &["--length-variance=-1"]].concat());
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).unwrap();
+    assert!(error.contains("must be at least 0"), "{error}");
 }

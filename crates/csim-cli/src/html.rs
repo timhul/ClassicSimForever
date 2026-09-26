@@ -148,7 +148,7 @@ pub fn render(results: &Results) -> String {
     let _ = write!(
         out,
         "<header>\n<h1>{}</h1>\n<p class=\"subtitle\">{} {} · rotation {} · {} · {} ruleset</p>\n\
-         <p class=\"meta\">{} iterations of {} s · {} threads · seed {} · {:.2} s ({} events)</p>\n\
+         <p class=\"meta\">{} iterations of {} s ± {}% · {} threads · seed {} · {:.2} s ({} events)</p>\n\
          </header>\n",
         escape(&setup.name),
         escape(&setup.race),
@@ -158,6 +158,7 @@ pub fn render(results: &Results) -> String {
         escape(&setup.ruleset),
         run.iterations,
         run.combat_length,
+        run.length_variance,
         run.threads,
         run.seed,
         run.elapsed_seconds,
