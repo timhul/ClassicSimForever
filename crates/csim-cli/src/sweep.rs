@@ -13,14 +13,14 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use clap::{Args, ValueEnum};
-use csim_engine::sim_control::{run_threaded, SimMode};
+use csim_engine::sim_control::{SimMode, run_threaded};
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::sweep_loader::{Expansion, SweepSetup};
 use serde::Serialize;
 
+use crate::Result;
 use crate::run::{clock_seed, progress_bar};
 use crate::table::Table;
-use crate::Result;
 
 /// Iterations per variant without `--iterations` or the sweep's `iterations`.
 const DEFAULT_ITERATIONS: u32 = 1000;

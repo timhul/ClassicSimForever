@@ -7,8 +7,8 @@
 
 use crate::proc::ProcSource;
 use crate::spell::Hand;
-use crate::testing::warrior::WarriorTest;
 use crate::testing::SpellTest;
+use crate::testing::warrior::WarriorTest;
 
 const TALENT: &str = "Weaponmaster";
 

@@ -20,7 +20,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use crate::character::context::SwingOutcome;
-use crate::character::tests::{race, warrior_class, Fixture};
+use crate::character::tests::{Fixture, race, warrior_class};
 use crate::character::{Character, SimParams};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::enchant::{EnchantDb, EnchantName};
@@ -28,8 +28,8 @@ use crate::ids::{BuffId, CharId, ProcId, SpellId};
 use crate::item::{EquipmentDb, EquipmentSlot, ItemSpec};
 use crate::mechanics::Mechanics;
 use crate::phase::Phase;
-use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::proc::ProcSource;
+use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::race::Race;
 use crate::rng::Random;
 use crate::spell::overrides::OverrideFile;
@@ -481,9 +481,11 @@ fn slam_procs_windfury_when_the_cast_completes() {
     assert!(report.cast_started);
     assert_eq!(proc_count(&f, proc), 0, "nothing procs on the cast start");
     let handled = f.run(3.0);
-    assert!(handled
-        .iter()
-        .any(|kind| matches!(kind, crate::engine::EventKind::CastComplete { .. })));
+    assert!(
+        handled
+            .iter()
+            .any(|kind| matches!(kind, crate::engine::EventKind::CastComplete { .. }))
+    );
     assert_eq!(proc_count(&f, proc), 1, "Slam procs Windfury when it lands");
 }
 

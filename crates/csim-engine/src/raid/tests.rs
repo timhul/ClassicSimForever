@@ -3,8 +3,8 @@
 
 use super::*;
 use crate::buff::BuffKind;
-use crate::character::tests::{equipment_db, race, warrior_class};
 use crate::character::SimParams;
+use crate::character::tests::{equipment_db, race, warrior_class};
 use crate::character_spells::BuffSlot;
 use crate::ids::{BuffId, SpellId};
 use crate::item::EquipmentSlot;
@@ -317,11 +317,12 @@ fn a_member_added_after_the_shout_is_not_buffed_until_the_next_cast() {
     f.raid.run();
     assert_eq!(f.ap(a), base);
     assert_eq!(f.ap(b), base, "the removal only reaches the holders");
-    assert!(f
-        .raid
-        .shared_buffs()
-        .holders(f.shared_handle(a, BATTLE_SHOUT_6))
-        .is_empty());
+    assert!(
+        f.raid
+            .shared_buffs()
+            .holders(f.shared_handle(a, BATTLE_SHOUT_6))
+            .is_empty()
+    );
     f.cast(b, BATTLE_SHOUT_6);
     assert_eq!(f.ap(a), base + SHOUT_AP);
     assert_eq!(f.ap(b), base + SHOUT_AP);
@@ -410,9 +411,10 @@ fn dispatch_routes_events_to_their_characters() {
     f.raid
         .engine_mut()
         .add_event_in(10.0, EventKind::EncounterEnd);
-    assert!(!f
-        .raid
-        .dispatch(&Event::new(0.0, EventKind::IncomingDamage { character: a })));
+    assert!(
+        !f.raid
+            .dispatch(&Event::new(0.0, EventKind::IncomingDamage { character: a }))
+    );
     f.raid.run();
     assert!(f.raid.engine().queue().is_empty());
     assert!((f.raid.engine().current_time() - 10.0).abs() < f64::EPSILON);

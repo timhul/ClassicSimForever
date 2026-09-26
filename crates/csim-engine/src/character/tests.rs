@@ -5,7 +5,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use super::context::{CharacterContext, SwingOutcome};
-use super::{Character, ClassSpec, SimParams, STANCE_COOLDOWN};
+use super::{Character, ClassSpec, STANCE_COOLDOWN, SimParams};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind};
@@ -546,11 +546,12 @@ fn stance_swap_moves_the_passives_and_clamps_rage() {
     f.set_rage(100);
     // The stance swap lag pushed the GCD to 0.5 and scheduled the player action there.
     assert_eq!(f.status(BLOODTHIRST), SpellStatus::OnGcd);
-    assert!(f
-        .engine
-        .queue()
-        .peek()
-        .is_some_and(|e| matches!(e.kind, EventKind::PlayerAction { .. }) && e.time == 0.5));
+    assert!(
+        f.engine
+            .queue()
+            .peek()
+            .is_some_and(|e| matches!(e.kind, EventKind::PlayerAction { .. }) && e.time == 0.5)
+    );
     f.advance_to(0.6);
     assert_eq!(f.status(BLOODTHIRST), SpellStatus::OnStanceCooldown);
     f.advance_to(1.0);
@@ -718,9 +719,11 @@ fn heroic_strike_replaces_the_next_swing() {
     f.set_rage(0);
     let now = f.engine.current_time();
     let handled = f.run(now + 2.61);
-    assert!(handled
-        .iter()
-        .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. })));
+    assert!(
+        handled
+            .iter()
+            .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. }))
+    );
     assert_eq!(f.character.spells().queued_next_swing(), None);
     assert!(f.rage() > 0, "the white swing landed and generated rage");
 }
@@ -740,9 +743,11 @@ fn slam_stops_attacks_while_casting_and_resets_the_swings() {
     assert!(!f.character.spells().is_melee_attacking());
     assert!(f.ctx().cast_in_progress());
     let handled = f.run(3.0);
-    assert!(handled
-        .iter()
-        .any(|kind| matches!(kind, EventKind::CastComplete { .. })));
+    assert!(
+        handled
+            .iter()
+            .any(|kind| matches!(kind, EventKind::CastComplete { .. }))
+    );
     assert!(!f.ctx().cast_in_progress());
     assert!(f.character.spells().is_melee_attacking(), "attacks resume");
 }
@@ -816,9 +821,11 @@ fn encounter_start_begins_attacking() {
         character: CharId(0)
     }));
     assert!(f.character.spells().is_melee_attacking());
-    assert!(handled
-        .iter()
-        .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. })));
+    assert!(
+        handled
+            .iter()
+            .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. }))
+    );
     // A player action is the rotation's; without one it is handled and does nothing.
     assert!(f.ctx().handle_event(&Event::new(
         0.0,
@@ -997,8 +1004,8 @@ fn shipped_warrior_data_learns_and_runs() {
 
 mod external_buffs {
     use super::*;
-    use crate::buff::external::{ExternalBuffDb, ExternalBuffFile};
     use crate::buff::BuffKind;
+    use crate::buff::external::{ExternalBuffDb, ExternalBuffFile};
     use crate::character::context::ExternalBuffToggleError;
     use crate::faction::{Faction, PlayerClass};
     use crate::spell::dbc::{AuraType, ImplicitTarget, SpellEffectName};
@@ -1147,11 +1154,12 @@ debuffs:
             !f.character.spells().is_buff_enabled(sunder.buff),
             "not among the enabled buffs (never found by name, never consumes charges)"
         );
-        assert!(f
-            .character
-            .spells()
-            .owned_buff_by_name("Sunder Armor")
-            .is_none());
+        assert!(
+            f.character
+                .spells()
+                .owned_buff_by_name("Sunder Armor")
+                .is_none()
+        );
         let giants = general.get("Elixir of Giants").unwrap();
         assert_eq!(giants.stacks, 1);
         let buff = f.character.spells().owned_buff(giants.buff).unwrap();
@@ -2556,7 +2564,7 @@ cast_if:
 }
 
 mod statistics {
-    use super::rotation::{shipped_orc_warrior, FURY_NO_TALENTS};
+    use super::rotation::{FURY_NO_TALENTS, shipped_orc_warrior};
     use super::*;
     use crate::statistics::{ClassStatistics, Outcome, SpellStatistics};
 
@@ -2888,7 +2896,7 @@ cast_if:
 mod rulesets {
     use super::rotation::shipped_orc_warrior;
     use super::*;
-    use crate::rulesets::{Ruleset, ESSENCE_OF_THE_RED};
+    use crate::rulesets::{ESSENCE_OF_THE_RED, Ruleset};
     use crate::stats::TargetStatView;
 
     fn mh_crit(f: &Fixture) -> u32 {
@@ -2947,11 +2955,12 @@ mod rulesets {
         set_ruleset(&mut f, Ruleset::Vaelastrasz);
         let essence = f.spell_id(ESSENCE_OF_THE_RED);
         assert!(f.character.spells().spell(essence).is_enabled());
-        assert!(f
-            .character
-            .spells()
-            .start_of_combat_spells()
-            .contains(&essence));
+        assert!(
+            f.character
+                .spells()
+                .start_of_combat_spells()
+                .contains(&essence)
+        );
 
         f.set_rage(0);
         f.ctx().encounter_start();

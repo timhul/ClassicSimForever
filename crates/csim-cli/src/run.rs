@@ -7,8 +7,8 @@
 use std::fmt::Write;
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use clap::{Args, ValueEnum};
@@ -17,15 +17,15 @@ use csim_engine::combat_log::UnitNames;
 use csim_engine::raid::RaidControl;
 use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
-use csim_engine::sim_control::{run_logged_iteration, run_threaded, Progress, SimMode};
+use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
 use csim_engine::statistics::spell::Outcome;
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
-use crate::table::{percent, Table};
-use crate::weights::StatWeights;
 use crate::Result;
+use crate::table::{Table, percent};
+use crate::weights::StatWeights;
 
 #[derive(Debug, Args)]
 pub struct RunArgs {

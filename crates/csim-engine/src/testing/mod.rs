@@ -21,8 +21,8 @@ use std::sync::{Arc, OnceLock};
 
 use crate::attack_mode::AttackMode;
 use crate::buff::Buff;
-use crate::character::context::CharacterContext;
 use crate::character::Character;
+use crate::character::context::CharacterContext;
 use crate::character_loader::{MAX_LEVEL, MAX_TARGET_LEVEL};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult, ROLL_RANGE};
 use crate::data_bundle::DataBundle;
@@ -38,7 +38,7 @@ use crate::resource::ResourceType;
 use crate::rng::Random;
 use crate::rotation::RotationHost;
 use crate::sim_settings::SimSettings;
-use crate::spell::{CastReport, Hand, SpellHost, SpellStatus, SwingReport, MAX_RANK};
+use crate::spell::{CastReport, Hand, MAX_RANK, SpellHost, SpellStatus, SwingReport};
 use crate::stats::{CharacterStats, StatContext, TargetStatView};
 use crate::talent::CharacterTalents;
 use crate::target::{CreatureType, Target};
@@ -146,11 +146,7 @@ impl Outcome {
     }
 
     fn chance(self, outcome: Outcome) -> f64 {
-        if self == outcome {
-            1.0
-        } else {
-            0.0
-        }
+        if self == outcome { 1.0 } else { 0.0 }
     }
 }
 

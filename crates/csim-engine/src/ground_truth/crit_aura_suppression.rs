@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use crate::character::tests::{race, warrior_class, Fixture};
+use crate::character::tests::{Fixture, race, warrior_class};
 use crate::character::{Character, SimParams};
 use crate::combat_roll::CombatRoll;
 use crate::ids::CharId;
@@ -14,9 +14,9 @@ use crate::item::{EquipmentDb, EquipmentSlot, ItemSpec};
 use crate::mechanics::Mechanics;
 use crate::phase::Phase;
 use crate::race::Race;
+use crate::spell::SpellResult;
 use crate::spell::dbc::{AuraType, ImplicitTarget, SpellAttr0, SpellEffectName};
 use crate::spell::record::{EffectRecord, SpellRecord};
-use crate::spell::SpellResult;
 
 /// The 3 % from `(300 − 315) × 0.2 %`.
 const SKILL_SUPPRESSION: u32 = 300;

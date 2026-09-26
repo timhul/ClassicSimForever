@@ -425,51 +425,69 @@ talents:
         };
         let one = "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 2 }\n";
         assert!(invalid(&base(&format!("{one}{one}"))).contains("node appears twice"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
              - { node: 2, spell: 10, tab: 26, tier: 0, column: 1, max_ranks: 1 }\n"
-        ))
-        .contains("belongs to another talent"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 27, tier: 0, column: 0, max_ranks: 1 }\n"
-        ))
-        .contains("unknown tab"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
+            ))
+            .contains("belongs to another talent")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 27, tier: 0, column: 0, max_ranks: 1 }\n"
+            ))
+            .contains("unknown tab")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
              - { node: 2, spell: 11, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n"
-        ))
-        .contains("is taken"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, name: A, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
+            ))
+            .contains("is taken")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, name: A, tab: 26, tier: 0, column: 0, max_ranks: 1 }\n\
              - { node: 2, spell: 11, name: A, tab: 26, tier: 0, column: 1, max_ranks: 1 }\n"
-        ))
-        .contains("name appears twice"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 0 }\n"
-        ))
-        .contains("max_ranks"));
+            ))
+            .contains("name appears twice")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 0 }\n"
+            ))
+            .contains("max_ranks")
+        );
         assert!(invalid(&base(
             "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 2, rank_values: { 0: [1] } }\n"
         ))
         .contains("rank values"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 1 }\n"
-        ))
-        .contains("requires itself"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 9 }\n"
-        ))
-        .contains("unknown node"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 2 }\n\
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 1 }\n"
+            ))
+            .contains("requires itself")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 9 }\n"
+            ))
+            .contains("unknown node")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 2 }\n\
              - { node: 2, spell: 11, tab: 26, tier: 1, column: 0, max_ranks: 1 }\n"
-        ))
-        .contains("later tier"));
-        assert!(invalid(&base(
-            "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 2 }\n\
+            ))
+            .contains("later tier")
+        );
+        assert!(
+            invalid(&base(
+                "- { node: 1, spell: 10, tab: 26, tier: 0, column: 0, max_ranks: 1, requires: 2 }\n\
              - { node: 2, spell: 11, tab: 26, tier: 0, column: 1, max_ranks: 1, requires: 1 }\n"
-        ))
-        .contains("cycle"));
+            ))
+            .contains("cycle")
+        );
         assert!(invalid("class: WARRIOR\ntabs: []\n").contains("no tabs"));
         assert!(invalid(
             "class: WARRIOR\ntabs: [{ skill_line: 26, name: Arms }, { skill_line: 26, name: Arms }]\n"

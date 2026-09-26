@@ -10,10 +10,10 @@ use csim_engine::enchant::EnchantDb;
 use csim_engine::faction::PlayerClass;
 use csim_engine::item::{ItemFile, ItemSetFile};
 use csim_engine::spell::overrides::Overrides;
-use csim_engine::spell::record::{SpellDb, OVERRIDES_DIR};
+use csim_engine::spell::record::{OVERRIDES_DIR, SpellDb};
 use csim_tables::export::{self, ExportError};
 use csim_tables::tables::ALL_TABLES;
-use csim_tables::{dir::missing_tables, TableDir, TableError, Tables};
+use csim_tables::{TableDir, TableError, Tables, dir::missing_tables};
 
 #[derive(Debug, thiserror::Error)]
 enum CliError {
@@ -661,10 +661,10 @@ fn describe_spell(tables: &Tables, id: u32, depth: usize, seen: &mut Vec<u32>) {
             aura.caster_aura_state, aura.target_aura_state, aura.caster_aura_spell
         );
     }
-    if let Some(target) = tables.spell_target_restrictions(id) {
-        if target.max_targets > 0 {
-            println!("{indent}  max targets {}", target.max_targets);
-        }
+    if let Some(target) = tables.spell_target_restrictions(id)
+        && target.max_targets > 0
+    {
+        println!("{indent}  max targets {}", target.max_targets);
     }
     for ability in tables.skill_line_abilities_of_spell(id) {
         println!(
@@ -676,13 +676,13 @@ fn describe_spell(tables: &Tables, id: u32, depth: usize, seen: &mut Vec<u32>) {
             ability.acquire_method
         );
     }
-    if let Some(spell) = tables.spell(id) {
-        if !spell.description.is_empty() {
-            println!(
-                "{indent}  description: {}",
-                spell.description.replace('\n', " ")
-            );
-        }
+    if let Some(spell) = tables.spell(id)
+        && !spell.description.is_empty()
+    {
+        println!(
+            "{indent}  description: {}",
+            spell.description.replace('\n', " ")
+        );
     }
     let mut triggered = Vec::new();
     for effect in tables.spell_effects(id) {

@@ -2,8 +2,8 @@
 
 use crate::engine::EventType;
 use crate::spell::SpellStatus;
-use crate::testing::warrior::WarriorTest;
 use crate::testing::RUN_EVENT;
+use crate::testing::warrior::WarriorTest;
 
 const SPELL: &str = "Slam";
 

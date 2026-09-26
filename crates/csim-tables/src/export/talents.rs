@@ -14,7 +14,7 @@ use csim_engine::faction::PlayerClass;
 use csim_engine::talent::{TalentFile, TalentSpec, TalentTab};
 
 use crate::db::Tables;
-use crate::export::spells::{class_skill_lines, ExportError};
+use crate::export::spells::{ExportError, class_skill_lines};
 use crate::tables::TraitNodeRow;
 
 /// `TraitEdge.Type` of a prerequisite edge.

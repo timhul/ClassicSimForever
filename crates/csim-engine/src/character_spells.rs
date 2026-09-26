@@ -21,14 +21,14 @@ use std::collections::BTreeMap;
 
 use crate::attack_mode::AttackMode;
 use crate::buff::{Buff, BuffKind};
-use crate::cooldown::{category_cooldown_name, CooldownRegistry};
+use crate::cooldown::{CooldownRegistry, category_cooldown_name};
 use crate::enchant::EnchantName;
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, ProcId, SharedBuffId, SpellId};
 use crate::item::EquipmentSlot;
 use crate::proc::{EnabledProcs, Proc, ProcSource};
 use crate::spell::overrides::{Overrides, SimFlag};
 use crate::spell::record::{ClassOptions, SpellDb};
-use crate::spell::{AutoAttack, Hand, Spell, SpellRankGroup, SpellSetup, MAX_RANK};
+use crate::spell::{AutoAttack, Hand, MAX_RANK, Spell, SpellRankGroup, SpellSetup};
 
 /// Where a buff in a character's buff list lives.
 #[derive(Debug, Clone)]
@@ -765,7 +765,7 @@ impl CharacterSpells {
         }
     }
 
-    pub fn buff_ids(&self) -> impl Iterator<Item = BuffId> {
+    pub fn buff_ids(&self) -> impl Iterator<Item = BuffId> + use<> {
         (0..self.buffs.len()).map(|index| BuffId(index as u32))
     }
 

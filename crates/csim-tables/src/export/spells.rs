@@ -27,7 +27,7 @@ use csim_engine::spell::record::{
 };
 
 use crate::db::Tables;
-use crate::export::prune::{prune, PruneReport};
+use crate::export::prune::{PruneReport, prune};
 use crate::tables::SkillLineAbilityRow;
 
 /// `SkillLine.CategoryID` of class skill lines.
@@ -470,14 +470,14 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
             mask: class.spell_class_mask,
         });
     }
-    if let Some(equip) = tables.spell_equipped_items(id) {
-        if equip.equipped_item_class >= 0 {
-            record.equipped_items = Some(EquippedItems {
-                class: equip.equipped_item_class,
-                subclass_mask: equip.equipped_item_subclass,
-                inv_type_mask: equip.equipped_item_inv_types,
-            });
-        }
+    if let Some(equip) = tables.spell_equipped_items(id)
+        && equip.equipped_item_class >= 0
+    {
+        record.equipped_items = Some(EquippedItems {
+            class: equip.equipped_item_class,
+            subclass_mask: equip.equipped_item_subclass,
+            inv_type_mask: equip.equipped_item_inv_types,
+        });
     }
     if let Some(aura) = tables.spell_aura_restrictions(id) {
         record.aura_restrictions = AuraRestrictions {

@@ -46,8 +46,8 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::proc::ProcSource;
-use crate::spell::dbc::{dbc_flags, PowerType};
 use crate::spell::Hand;
+use crate::spell::dbc::{PowerType, dbc_flags};
 use crate::target::{CreatureTypes, Priority};
 
 fn is_default<T: Default + PartialEq>(value: &T) -> bool {
@@ -445,10 +445,11 @@ impl SpellOverride {
     pub fn referenced_spells(&self) -> Vec<u32> {
         let mut ids = Vec::new();
         let mut push = |id: Option<u32>| {
-            if let Some(id) = id {
-                if id != 0 && !ids.contains(&id) {
-                    ids.push(id);
-                }
+            if let Some(id) = id
+                && id != 0
+                && !ids.contains(&id)
+            {
+                ids.push(id);
             }
         };
         push(self.stance_passive);
@@ -503,10 +504,10 @@ impl SpellOverride {
             .validate()
             .map_err(invalid)?;
         }
-        if let Some(threat) = &self.threat {
-            if threat.flat < 0.0 || threat.modifier < 0.0 {
-                return Err(invalid("threat must not be negative".into()));
-            }
+        if let Some(threat) = &self.threat
+            && (threat.flat < 0.0 || threat.modifier < 0.0)
+        {
+            return Err(invalid("threat must not be negative".into()));
         }
         let mut flags = self.sim_flags.clone();
         flags.sort();
@@ -858,108 +859,136 @@ overrides:
             params,
         };
         let none = ScriptParams::default();
-        assert!(script(ScriptKind::TriggerWithValue, none)
+        assert!(
+            script(ScriptKind::TriggerWithValue, none)
+                .validate()
+                .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::TriggerWithValue,
+                ScriptParams {
+                    spell: Some(1),
+                    ..none
+                }
+            )
             .validate()
-            .is_err());
-        assert!(script(
-            ScriptKind::TriggerWithValue,
-            ScriptParams {
-                spell: Some(1),
-                ..none
-            }
-        )
-        .validate()
-        .is_err());
-        assert!(script(
-            ScriptKind::TriggerWithValue,
-            ScriptParams {
-                spell: Some(1),
-                effect: Some(0),
-                ..none
-            }
-        )
-        .validate()
-        .is_ok());
-        assert!(script(ScriptKind::DeepWoundsBleed, none)
+            .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::TriggerWithValue,
+                ScriptParams {
+                    spell: Some(1),
+                    effect: Some(0),
+                    ..none
+                }
+            )
             .validate()
-            .is_err());
-        assert!(script(ScriptKind::PeriodicResourceGain, none)
+            .is_ok()
+        );
+        assert!(
+            script(ScriptKind::DeepWoundsBleed, none)
+                .validate()
+                .is_err()
+        );
+        assert!(
+            script(ScriptKind::PeriodicResourceGain, none)
+                .validate()
+                .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::PeriodicResourceGain,
+                ScriptParams {
+                    period_ms: Some(0),
+                    ..none
+                }
+            )
             .validate()
-            .is_err());
-        assert!(script(
-            ScriptKind::PeriodicResourceGain,
-            ScriptParams {
-                period_ms: Some(0),
-                ..none
-            }
-        )
-        .validate()
-        .is_err());
-        assert!(script(
-            ScriptKind::PeriodicResourceGain,
-            ScriptParams {
-                period_ms: Some(3000),
-                ..none
-            }
-        )
-        .validate()
-        .is_ok());
-        assert!(script(ScriptKind::GainResourceOnUse, none)
+            .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::PeriodicResourceGain,
+                ScriptParams {
+                    period_ms: Some(3000),
+                    ..none
+                }
+            )
             .validate()
-            .is_err());
-        assert!(script(
-            ScriptKind::GainResourceOnUse,
-            ScriptParams {
-                spell: Some(18499),
-                resource: Some(PowerType::Rage),
-                ..none
-            }
-        )
-        .validate()
-        .is_ok());
+            .is_ok()
+        );
+        assert!(
+            script(ScriptKind::GainResourceOnUse, none)
+                .validate()
+                .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::GainResourceOnUse,
+                ScriptParams {
+                    spell: Some(18499),
+                    resource: Some(PowerType::Rage),
+                    ..none
+                }
+            )
+            .validate()
+            .is_ok()
+        );
         assert!(script(ScriptKind::ExtraAttack, none).validate().is_err());
         assert!(script(ScriptKind::ResetCooldown, none).validate().is_err());
         assert!(script(ScriptKind::OffhandCopy, none).validate().is_err());
         assert!(script(ScriptKind::EnableProc, none).validate().is_err());
-        assert!(script(ScriptKind::ExtraWeaponDamageVsCreatureTypes, none)
+        assert!(
+            script(ScriptKind::ExtraWeaponDamageVsCreatureTypes, none)
+                .validate()
+                .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::ExtraWeaponDamageVsCreatureTypes,
+                ScriptParams {
+                    creature_types: Some(CreatureTypes::default()),
+                    ..none
+                }
+            )
             .validate()
-            .is_err());
-        assert!(script(
-            ScriptKind::ExtraWeaponDamageVsCreatureTypes,
-            ScriptParams {
-                creature_types: Some(CreatureTypes::default()),
-                ..none
-            }
-        )
-        .validate()
-        .is_err());
-        assert!(script(
-            ScriptKind::ExtraWeaponDamageVsCreatureTypes,
-            ScriptParams {
-                creature_types: Some([CreatureType::Giant].into_iter().collect()),
-                ..none
-            }
-        )
-        .validate()
-        .is_ok());
-        assert!(script(
-            ScriptKind::EnableAura,
-            ScriptParams {
-                spell: Some(1),
-                ..none
-            }
-        )
-        .validate()
-        .is_err());
-        assert!(script(
-            ScriptKind::AddComboPoints,
-            ScriptParams {
-                value: Some(0.0),
-                ..none
-            }
-        )
-        .validate()
-        .is_err());
+            .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::ExtraWeaponDamageVsCreatureTypes,
+                ScriptParams {
+                    creature_types: Some([CreatureType::Giant].into_iter().collect()),
+                    ..none
+                }
+            )
+            .validate()
+            .is_ok()
+        );
+        assert!(
+            script(
+                ScriptKind::EnableAura,
+                ScriptParams {
+                    spell: Some(1),
+                    ..none
+                }
+            )
+            .validate()
+            .is_err()
+        );
+        assert!(
+            script(
+                ScriptKind::AddComboPoints,
+                ScriptParams {
+                    value: Some(0.0),
+                    ..none
+                }
+            )
+            .validate()
+            .is_err()
+        );
         let err = script(ScriptKind::AddComboPoints, none)
             .validate()
             .unwrap_err();
@@ -991,7 +1020,9 @@ overrides:
             Err(OverrideError::Invalid { spell: 0, .. })
         ));
         assert!(matches!(
-            parse("overrides: [{ id: 1, effects: [{ index: 0, script: NO_OP }, { index: 0, script: NO_OP }] }]"),
+            parse(
+                "overrides: [{ id: 1, effects: [{ index: 0, script: NO_OP }, { index: 0, script: NO_OP }] }]"
+            ),
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
@@ -999,15 +1030,21 @@ overrides:
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
-            parse("overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: ADD_COMBO_POINTS }] }]"),
+            parse(
+                "overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: ADD_COMBO_POINTS }] }]"
+            ),
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
-            parse("overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: RESET_COOLDOWN, params: { spell: 2 } }] }]"),
+            parse(
+                "overrides: [{ id: 1, on_event: [{ source: MELEE_HIT, script: RESET_COOLDOWN, params: { spell: 2 } }] }]"
+            ),
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
-            parse("overrides: [{ id: 1, on_event: [{ source: MANUAL, script: ADD_COMBO_POINTS, params: { value: 1 } }] }]"),
+            parse(
+                "overrides: [{ id: 1, on_event: [{ source: MANUAL, script: ADD_COMBO_POINTS, params: { value: 1 } }] }]"
+            ),
             Err(OverrideError::Invalid { spell: 1, .. })
         ));
         assert!(matches!(
@@ -1026,10 +1063,12 @@ overrides:
         assert!(
             serde_yaml::from_str::<OverrideFile>("overrides: [{ id: 1, scritp: NO_OP }]").is_err()
         );
-        assert!(serde_yaml::from_str::<OverrideFile>(
-            "overrides: [{ id: 1, effects: [{ index: 0, script: FROBNICATE }] }]"
-        )
-        .is_err());
+        assert!(
+            serde_yaml::from_str::<OverrideFile>(
+                "overrides: [{ id: 1, effects: [{ index: 0, script: FROBNICATE }] }]"
+            )
+            .is_err()
+        );
         assert!(serde_yaml::from_str::<OverrideFile>(
             "overrides: [{ id: 1, effects: [{ index: 0, script: NO_OP, params: { bogus: 1 } }] }]"
         )

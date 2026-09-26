@@ -2,8 +2,8 @@
 //!
 //! Forever's talent has 3 ranks of 1 % physical damage with a two-hander (the C++ 5).
 
-use crate::testing::warrior::WarriorTest;
 use crate::testing::SpellTest;
+use crate::testing::warrior::WarriorTest;
 
 const TALENT: &str = "Two-Handed Weapon Specialization";
 

@@ -31,8 +31,8 @@ use csim_engine::character_loader::CharacterSetup;
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::raid_loader::RaidSetup;
 use csim_engine::sweep_loader::SweepSetup;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

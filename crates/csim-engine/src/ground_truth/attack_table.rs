@@ -7,7 +7,7 @@
 use approx::assert_abs_diff_eq;
 
 use crate::combat_roll::{
-    chance_to_range, CombatRoll, IncludedOutcomes, PhysicalAttackResult, RollContext, ROLL_RANGE,
+    CombatRoll, IncludedOutcomes, PhysicalAttackResult, ROLL_RANGE, RollContext, chance_to_range,
 };
 use crate::mechanics::Mechanics;
 use crate::rng::Random;

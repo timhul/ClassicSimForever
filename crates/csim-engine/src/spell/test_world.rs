@@ -1374,11 +1374,7 @@ impl SpellHost for World {
     }
     /// Half the main-hand values, so an off-hand strike is told apart.
     fn random_oh_weapon_dmg(&mut self, normalized: bool) -> f64 {
-        if normalized {
-            150.0
-        } else {
-            200.0
-        }
+        if normalized { 150.0 } else { 200.0 }
     }
     fn offhand_penalty(&self) -> f64 {
         0.5

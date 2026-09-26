@@ -685,9 +685,11 @@ mod tests {
             target.charge_debuffs_for_school_mod(MagicSchool::Fire),
             &[InstanceId(2)]
         );
-        assert!(target
-            .charge_debuffs_for_school_mod(MagicSchool::Frost)
-            .is_empty());
+        assert!(
+            target
+                .charge_debuffs_for_school_mod(MagicSchool::Frost)
+                .is_empty()
+        );
 
         target.remove_charge_debuff(InstanceId(1), ConsumedWhen::OnSpellDamageFlat);
         target.remove_charge_debuff_for_school(

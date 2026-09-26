@@ -153,7 +153,7 @@ fn parse_int(
 }
 
 macro_rules! int_field {
-    ($($ty:ty => ($bits:expr, $signed:expr)),* $(,)?) => {
+    ($($ty:ty => ($bits:expr_2021, $signed:expr_2021)),* $(,)?) => {
         $(
             impl Field for $ty {
                 fn parse_field(row: &Row<'_>, column: &str) -> Result<Self> {

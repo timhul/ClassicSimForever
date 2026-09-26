@@ -365,10 +365,10 @@ mod tests {
     use crate::engine::Engine;
     use crate::ids::{BuffId, CharId, CooldownId, SpellId};
     use crate::resource::{Rage, ResourceType};
+    use crate::spell::CastReport;
     use crate::spell::dbc::AuraState;
     use crate::spell::modifiers::SpellModifiers;
     use crate::spell::record::EquippedItems;
-    use crate::spell::CastReport;
     use crate::stance::Stance;
     use crate::stats::CharacterStats;
     use crate::target::{CreatureType, Target};

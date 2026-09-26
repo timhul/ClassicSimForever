@@ -8,9 +8,9 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::spell::Hand;
 use crate::spell::dbc::ProcFlags;
 use crate::spell::overrides::ProcHitMask;
-use crate::spell::Hand;
 
 /// The events a proc can trigger on. Port of `ProcInfo::Source`.
 ///
@@ -211,4 +211,4 @@ mod tests {
 
 pub mod runtime;
 
-pub use runtime::{EnabledProcs, Proc, ProcHost, ProcKind, ProcRate, PROC_ROLL_RANGE};
+pub use runtime::{EnabledProcs, PROC_ROLL_RANGE, Proc, ProcHost, ProcKind, ProcRate};

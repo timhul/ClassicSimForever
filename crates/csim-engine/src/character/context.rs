@@ -274,10 +274,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 self.enable_spell(spell);
             }
         }
-        if let Some(proc) = added.proc {
-            if added.enable_now {
-                self.enable_proc(proc);
-            }
+        if let Some(proc) = added.proc
+            && added.enable_now
+        {
+            self.enable_proc(proc);
         }
         // A payload learned after the spell that casts it.
         if self.enabled_source_of(id) {
@@ -642,15 +642,15 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             return Vec::new();
         };
         let mut handles = vec![handle];
-        if let SpellHandle::Spell(id) = handle {
-            if let Some(group) = spells.rank_group_of(id) {
-                handles.extend(
-                    group
-                        .spells()
-                        .filter(|&other| other != id)
-                        .map(SpellHandle::Spell),
-                );
-            }
+        if let SpellHandle::Spell(id) = handle
+            && let Some(group) = spells.rank_group_of(id)
+        {
+            handles.extend(
+                group
+                    .spells()
+                    .filter(|&other| other != id)
+                    .map(SpellHandle::Spell),
+            );
         }
         handles
     }
@@ -2493,10 +2493,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             None
         };
         // The hidden aura an `ENABLE_AURA` effect enables carries its value (a talent's rank).
-        if let Some(script) = script.filter(|s| s.script == ScriptKind::EnableAura) {
-            if let (Some(target), Some(effect)) = (script.params.spell, script.params.effect) {
-                self.set_spell_effect_value(target, effect, value);
-            }
+        if let Some(script) = script.filter(|s| s.script == ScriptKind::EnableAura)
+            && let (Some(target), Some(effect)) = (script.params.spell, script.params.effect)
+        {
+            self.set_spell_effect_value(target, effect, value);
         }
     }
 
@@ -2766,7 +2766,7 @@ fn attack_damage(attack: &AttackOutcome) -> Result<Damage, Option<MissType>> {
                 amount: attack.damage,
                 critical: matches!(result, R::Critical | R::BlockCritical),
                 glancing: result == R::Glancing,
-            })
+            });
         }
     };
     Err(Some(miss))

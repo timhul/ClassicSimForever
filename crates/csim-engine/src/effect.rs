@@ -16,11 +16,11 @@
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::item::{ItemStat, WeaponType};
 use crate::resource::ResourceType;
+use crate::spell::SpellResult;
 use crate::spell::dbc::{AuraType, DefenseType, PowerType, SpellEffectName, SpellSchoolMask};
 use crate::spell::modifiers::{SpellModifier, SpellModifiers};
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
-use crate::spell::SpellResult;
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
 use crate::target::{CreatureType, Target};
@@ -477,14 +477,13 @@ impl Effect {
                     return EffectOutcome::plain(true);
                 };
                 let mut amount = self.resource_amount(host, resource);
-                if let Some(script) = self.script {
-                    if script.script == ScriptKind::TwoHandEnergizeMultiplier
-                        && host.has_two_hand_weapon()
-                    {
-                        // Validated as present and positive when the overrides were loaded.
-                        let multiplier = script.params.value.unwrap_or(1.0);
-                        amount = (f64::from(amount) * multiplier).round() as u32;
-                    }
+                if let Some(script) = self.script
+                    && script.script == ScriptKind::TwoHandEnergizeMultiplier
+                    && host.has_two_hand_weapon()
+                {
+                    // Validated as present and positive when the overrides were loaded.
+                    let multiplier = script.params.value.unwrap_or(1.0);
+                    amount = (f64::from(amount) * multiplier).round() as u32;
                 }
                 let gained = host.gain_resource(resource, amount);
                 EffectOutcome {
@@ -851,10 +850,8 @@ impl Effect {
                 }
             }
             A::ModShapeshift => {
-                if apply {
-                    if let Some(stance) = Stance::from_form(self.record.shapeshift_form()) {
-                        host.swap_stance(stance);
-                    }
+                if apply && let Some(stance) = Stance::from_form(self.record.shapeshift_form()) {
+                    host.swap_stance(stance);
                 }
             }
             A::AddFlatModifier | A::AddPctModifier => {
@@ -916,11 +913,7 @@ impl Effect {
 }
 
 fn signed_of(value: i32, apply: bool) -> i32 {
-    if apply {
-        value
-    } else {
-        -value
-    }
+    if apply { value } else { -value }
 }
 
 /// Applies `signed` to the stats: positive through `inc`, negative through `dec`.

@@ -551,12 +551,16 @@ mod tests {
                 EnchantName::ZandalarSignetOfMight
             ]
         );
-        assert!(warrior
-            .enchants_for_slot(EquipmentSlot::Ranged, false)
-            .is_empty());
-        assert!(warrior
-            .enchants_for_slot(EquipmentSlot::Head, true)
-            .is_empty());
+        assert!(
+            warrior
+                .enchants_for_slot(EquipmentSlot::Ranged, false)
+                .is_empty()
+        );
+        assert!(
+            warrior
+                .enchants_for_slot(EquipmentSlot::Head, true)
+                .is_empty()
+        );
     }
 
     #[test]
@@ -627,9 +631,11 @@ mod tests {
             faction: crate::faction::Faction::Horde,
             class: PlayerClass::Warrior,
         };
-        assert!(warrior
-            .available_enchants(&enchants, &ctx, false)
-            .is_empty());
+        assert!(
+            warrior
+                .available_enchants(&enchants, &ctx, false)
+                .is_empty()
+        );
     }
 
     #[test]

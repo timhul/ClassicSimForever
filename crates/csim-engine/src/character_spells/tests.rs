@@ -89,10 +89,12 @@ fn spells_get_ids_cooldowns_buffs_and_rank_groups() {
     assert!(bt_spell.cooldown_id().is_none());
     assert!(bt_spell.category_cooldown_id().is_some());
     let bloodrage = spells.add_spell(&db, BLOODRAGE, 0, &mut raid);
-    assert!(spells
-        .spell(bloodrage.spell.unwrap())
-        .cooldown_id()
-        .is_some());
+    assert!(
+        spells
+            .spell(bloodrage.spell.unwrap())
+            .cooldown_id()
+            .is_some()
+    );
     assert_eq!(bloodrage.buff, None);
     assert_eq!(spells.cooldowns().len(), 2);
     assert_eq!(spells.spell_ids().count(), 5);
@@ -170,10 +172,12 @@ fn spells_of_one_category_share_one_control() {
             .category_cooldown_id()
     );
     assert_eq!(spells.cooldowns().len(), 1);
-    assert!(spells
-        .cooldowns()
-        .id_by_name(&category_cooldown_name(47))
-        .is_some());
+    assert!(
+        spells
+            .cooldowns()
+            .id_by_name(&category_cooldown_name(47))
+            .is_some()
+    );
 }
 
 #[test]
@@ -363,9 +367,11 @@ fn charge_consumers_are_active_owned_buffs_listening_to_the_source() {
         .add_spell(&db, FLURRY_BUFF, 0, &mut raid)
         .buff
         .unwrap();
-    assert!(spells
-        .charge_consumers(ProcSource::MainhandSwing)
-        .is_empty());
+    assert!(
+        spells
+            .charge_consumers(ProcSource::MainhandSwing)
+            .is_empty()
+    );
     spells.enable_buff(flurry);
     assert!(
         spells

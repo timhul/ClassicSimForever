@@ -21,8 +21,8 @@
 use std::collections::BTreeMap;
 
 use crate::buff::Buff;
-use crate::character::context::CharacterContext;
 use crate::character::Character;
+use crate::character::context::CharacterContext;
 use crate::character_spells::{PartyAuraChange, SharedBuffs};
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{CharId, InstanceId, SharedBuffId};
@@ -295,7 +295,7 @@ impl RaidControl {
         self.characters.is_empty()
     }
 
-    pub fn char_ids(&self) -> impl Iterator<Item = CharId> {
+    pub fn char_ids(&self) -> impl Iterator<Item = CharId> + use<> {
         (0..self.characters.len()).map(|i| CharId(i as u8))
     }
 

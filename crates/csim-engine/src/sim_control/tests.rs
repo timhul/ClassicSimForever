@@ -2,8 +2,8 @@
 //! data with a sword and a dagger and a Fury rotation.
 
 use std::path::Path;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use super::*;
 use crate::character::tests::{equipment_db, race};

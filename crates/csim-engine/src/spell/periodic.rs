@@ -15,10 +15,10 @@ use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
 use crate::resource::ResourceType;
+use crate::spell::SpellHost;
 use crate::spell::dbc::AuraType;
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::EffectRecord;
-use crate::spell::SpellHost;
 
 /// The tick period of an aura effect in milliseconds, if it ticks: a periodic aura's
 /// `EffectAuraPeriod`, or the `period_ms` of a `PERIODIC_RESOURCE_GAIN` script on a `DUMMY`

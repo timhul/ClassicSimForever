@@ -22,9 +22,9 @@ pub struct Xoroshiro128Plus {
 impl Xoroshiro128Plus {
     /// Creates a generator with its state fully derived from `seed`.
     pub fn from_seed(seed: u64) -> Self {
-        let mut gen = Self { state: [0, 0] };
-        gen.set_state(seed);
-        gen
+        let mut r#gen = Self { state: [0, 0] };
+        r#gen.set_state(seed);
+        r#gen
     }
 
     /// Creates a generator seeded from the system clock.
@@ -81,7 +81,7 @@ fn splitmix64(state: &mut u64) -> u64 {
 pub struct Random {
     min: u64,
     modulo: u64,
-    gen: Xoroshiro128Plus,
+    r#gen: Xoroshiro128Plus,
 }
 
 impl Random {
@@ -101,12 +101,12 @@ impl Random {
         Self::with_generator(min, max, Xoroshiro128Plus::from_seed(seed))
     }
 
-    fn with_generator(min: u32, max: u32, gen: Xoroshiro128Plus) -> Self {
+    fn with_generator(min: u32, max: u32, r#gen: Xoroshiro128Plus) -> Self {
         assert!(min <= max, "Random: min ({min}) must be <= max ({max})");
         Self {
             min: u64::from(min),
             modulo: u64::from(max - min),
-            gen,
+            r#gen,
         }
     }
 
@@ -122,7 +122,7 @@ impl Random {
 
     /// Re-seeds the underlying generator.
     pub fn set_gen_from_seed(&mut self, seed: u64) {
-        self.gen.set_state(seed);
+        self.r#gen.set_state(seed);
     }
 
     /// Lower bound (inclusive) of the roll range.
@@ -140,7 +140,7 @@ impl Random {
         if self.modulo == 0 {
             return self.min as u32;
         }
-        (self.gen.next() % self.modulo + self.min) as u32
+        (self.r#gen.next() % self.modulo + self.min) as u32
     }
 }
 
@@ -152,12 +152,12 @@ mod tests {
     /// reference algorithm) for the raw state `[1, 2]` (no seeding/warm-up involved).
     #[test]
     fn xoroshiro_matches_reference_sequence() {
-        let mut gen = Xoroshiro128Plus { state: [1, 2] };
-        assert_eq!(gen.next(), 3);
-        assert_eq!(gen.next(), 412_333_834_243);
-        assert_eq!(gen.next(), 2_360_170_716_294_286_339);
-        assert_eq!(gen.next(), 9_295_852_285_959_843_169);
-        assert_eq!(gen.next(), 2_797_080_929_874_688_578);
+        let mut r#gen = Xoroshiro128Plus { state: [1, 2] };
+        assert_eq!(r#gen.next(), 3);
+        assert_eq!(r#gen.next(), 412_333_834_243);
+        assert_eq!(r#gen.next(), 2_360_170_716_294_286_339);
+        assert_eq!(r#gen.next(), 9_295_852_285_959_843_169);
+        assert_eq!(r#gen.next(), 2_797_080_929_874_688_578);
     }
 
     #[test]
@@ -179,17 +179,17 @@ mod tests {
 
     #[test]
     fn set_state_resets_sequence() {
-        let mut gen = Xoroshiro128Plus::from_seed(7);
-        let first: Vec<u64> = (0..10).map(|_| gen.next()).collect();
-        gen.set_state(7);
-        let second: Vec<u64> = (0..10).map(|_| gen.next()).collect();
+        let mut r#gen = Xoroshiro128Plus::from_seed(7);
+        let first: Vec<u64> = (0..10).map(|_| r#gen.next()).collect();
+        r#gen.set_state(7);
+        let second: Vec<u64> = (0..10).map(|_| r#gen.next()).collect();
         assert_eq!(first, second);
     }
 
     #[test]
     fn zero_seed_does_not_produce_zero_state() {
-        let gen = Xoroshiro128Plus::from_seed(0);
-        assert_ne!(gen.state, [0, 0]);
+        let r#gen = Xoroshiro128Plus::from_seed(0);
+        assert_ne!(r#gen.state, [0, 0]);
     }
 
     #[test]
@@ -203,7 +203,9 @@ mod tests {
         }
         assert_eq!(
             seen,
-            [false, false, false, false, false, true, true, true, true, true]
+            [
+                false, false, false, false, false, true, true, true, true, true
+            ]
         );
     }
 

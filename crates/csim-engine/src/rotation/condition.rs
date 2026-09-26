@@ -368,7 +368,7 @@ impl<B: fmt::Display, S: fmt::Display> fmt::Display for Sentence<B, S> {
                         )
                     }
                     _ => unreachable!("`is` tests are only parsed for buff measures"),
-                }
+                };
             }
         };
         let symbol = cmp.symbol();
@@ -558,20 +558,20 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
             return Err(format!(
                 "expected `and` or `or` before `{type_word}` (every line but the first starts \
                  with a logical connective)"
-            ))
+            ));
         }
         (Some("and"), Some(type_word), None) if !first => (Connective::And, type_word),
         (Some("or"), Some(type_word), None) if !first => (Connective::Or, type_word),
         (Some(word), Some(_), None) if first => {
             return Err(format!(
                 "unexpected `{word}` (the first line carries no logical connective)"
-            ))
+            ));
         }
         (Some(word), Some(_), None) => return Err(format!("expected `and` or `or`, got `{word}`")),
         _ => {
             return Err(format!(
                 "expected `[and|or] <type>` before the quoted value, got `{head}`"
-            ))
+            ));
         }
     };
 
@@ -608,7 +608,7 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
             return Err(format!(
                 "unknown condition type `{other}` (expected one of {})",
                 TYPES.join(", ")
-            ))
+            ));
         }
     };
     if matches!(test, Test::Is(_))
@@ -1245,18 +1245,22 @@ mod tests {
             ]
         );
         // An unknown spell cannot be linked.
-        assert!(condition
-            .clone()
-            .map(|name: String| Some(name), |_| None::<u32>)
-            .is_none());
+        assert!(
+            condition
+                .clone()
+                .map(|name: String| Some(name), |_| None::<u32>)
+                .is_none()
+        );
         // An unknown buff is never up: `is true` fails its group, the other group remains.
         let no_buffs = |_: String| None::<u32>;
         let rage_only = condition.map(no_buffs, |name: String| Some(name)).unwrap();
         assert_eq!(rage_only.to_string(), "Rage < 50");
-        assert!(Condition::parse("buff_duration \"Eureka!\" is true")
-            .unwrap()
-            .map(no_buffs, |name: String| Some(name))
-            .is_none());
+        assert!(
+            Condition::parse("buff_duration \"Eureka!\" is true")
+                .unwrap()
+                .map(no_buffs, |name: String| Some(name))
+                .is_none()
+        );
         // ... while `is false` always holds and drops out of its group.
         let condition = Condition::parse(
             "spell \"Bloodthirst\" greater 1.5\n\

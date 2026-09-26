@@ -254,7 +254,7 @@ fn item_tables_of_the_dump_join() {
 #[test]
 fn items_of_the_dump_derive() {
     use csim_engine::item::{ItemSlot, ItemStat};
-    use csim_tables::export::items::{derive_items, Skip};
+    use csim_tables::export::items::{Skip, derive_items};
 
     let tables_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/tables");
     let Ok(dir) = TableDir::open(&tables_dir) else {

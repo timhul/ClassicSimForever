@@ -86,9 +86,11 @@ fn the_last_3_points_of_the_48_point_build_have_46_variants() {
     assert_eq!(expansion.combinations(), 46);
     assert_eq!(expansion.variants.len(), 46, "{:?}", expansion.invalid);
     assert_eq!(expansion.points.len(), 1);
-    assert!(expansion.points[0]
-        .0
-        .starts_with("3 talent points over Impale"));
+    assert!(
+        expansion.points[0]
+            .0
+            .starts_with("3 talent points over Impale")
+    );
 
     let base_points: u32 = expansion
         .base
@@ -283,15 +285,19 @@ fn characters_replace_the_whole_setup() {
         12584,
         "Grand Marshal's Longsword"
     );
-    assert!(human
-        .path
-        .as_ref()
-        .unwrap()
-        .ends_with("../characters/dw_fury_human.yaml"));
+    assert!(
+        human
+            .path
+            .as_ref()
+            .unwrap()
+            .ends_with("../characters/dw_fury_human.yaml")
+    );
     let two_hander = &expansion.variants[2].setup;
-    assert!(!two_hander
-        .equipment
-        .contains_key(&crate::item::EquipmentSlot::Offhand));
+    assert!(
+        !two_hander
+            .equipment
+            .contains_key(&crate::item::EquipmentSlot::Offhand)
+    );
 }
 
 #[test]
@@ -308,23 +314,29 @@ fn overrides_and_options_apply_to_every_character() {
     .unwrap();
     assert_eq!(expansion.combinations(), 6);
     assert_eq!(expansion.variants.len(), 6, "{:?}", expansion.invalid);
-    assert!(expansion
-        .variants
-        .iter()
-        .all(|v| v.setup.race == Race::Tauren));
+    assert!(
+        expansion
+            .variants
+            .iter()
+            .all(|v| v.setup.race == Race::Tauren)
+    );
     let one_hand = expansion
         .variants
         .iter()
         .find(|v| v.label == "Human swords | one hand")
         .unwrap();
-    assert!(!one_hand
-        .setup
-        .equipment
-        .contains_key(&crate::item::EquipmentSlot::Offhand));
-    assert!(one_hand
-        .setup
-        .equipment
-        .contains_key(&crate::item::EquipmentSlot::Mainhand));
+    assert!(
+        !one_hand
+            .setup
+            .equipment
+            .contains_key(&crate::item::EquipmentSlot::Offhand)
+    );
+    assert!(
+        one_hand
+            .setup
+            .equipment
+            .contains_key(&crate::item::EquipmentSlot::Mainhand)
+    );
 }
 
 #[test]

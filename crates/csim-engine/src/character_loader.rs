@@ -481,17 +481,17 @@ impl CharacterSetup {
                 None
             }
         };
-        if let Some(class) = &class {
-            if !class.race_available(self.race) {
-                issues.push(
-                    "race",
-                    format!(
-                        "{} is not available to the {:?}",
-                        self.race.name(),
-                        self.class
-                    ),
-                );
-            }
+        if let Some(class) = &class
+            && !class.race_available(self.race)
+        {
+            issues.push(
+                "race",
+                format!(
+                    "{} is not available to the {:?}",
+                    self.race.name(),
+                    self.class
+                ),
+            );
         }
         let talent_file = data.talents.get(self.class);
         if talent_file.is_none() && !self.talents.is_empty() {
@@ -653,12 +653,11 @@ impl CharacterSetup {
                         );
                         continue;
                     }
-                    if let Some(mutex) = spec.mutex.as_deref() {
-                        if let Some(other) = mutexes.insert(mutex, name) {
-                            issues
-                                .push(context, format!("excludes {other:?} (both are {mutex:?})"));
-                            continue;
-                        }
+                    if let Some(mutex) = spec.mutex.as_deref()
+                        && let Some(other) = mutexes.insert(mutex, name)
+                    {
+                        issues.push(context, format!("excludes {other:?} (both are {mutex:?})"));
+                        continue;
                     }
                     if let Err(error) = ctx.set_external_buff_selected(name, true) {
                         issues.push(context, error.to_string());

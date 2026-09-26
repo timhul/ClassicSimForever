@@ -20,7 +20,7 @@ pub mod status;
 #[cfg(test)]
 pub(crate) mod test_world;
 
-pub use auto_attack::{swing_rage, AutoAttack, AutoAttackHost, SwingReport};
+pub use auto_attack::{AutoAttack, AutoAttackHost, SwingReport, swing_rage};
 pub use dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
     ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
@@ -34,11 +34,11 @@ pub use periodic::{Periodic, PeriodicKind, TickReport};
 pub use rank_group::SpellRankGroup;
 pub use record::{
     AuraOptions, AuraRestrictions, Categories, ClassOptions, Cooldown, EffectRecord, EquippedItems,
-    Levels, PowerCost, SpellDb, SpellDbError, SpellFile, SpellRecord, Unsupported,
-    GLOBAL_COOLDOWN_CATEGORY,
+    GLOBAL_COOLDOWN_CATEGORY, Levels, PowerCost, SpellDb, SpellDbError, SpellFile, SpellRecord,
+    Unsupported,
 };
 pub use runtime::{
-    spell_coefficient_from_casting_time, AttackOutcome, CastReport, Spell, SpellHost, SpellSetup,
+    AttackOutcome, CastReport, Spell, SpellHost, SpellSetup, spell_coefficient_from_casting_time,
 };
 pub use status::{SpellResult, SpellStatus};
 

@@ -13,16 +13,16 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
 use csim_engine::faction::PlayerClass;
-use csim_engine::item::{
-    rating, ItemFile, ItemSetBonus, ItemSetFile, ItemSetSpec, ItemSlot, ItemSpec, ItemStat,
-    ItemType, Quality, WeaponDamageSpec,
-};
 pub use csim_engine::item::{EffectTrigger, ItemEffect, ItemSuffix, LimitCategory};
+use csim_engine::item::{
+    ItemFile, ItemSetBonus, ItemSetFile, ItemSetSpec, ItemSlot, ItemSpec, ItemStat, ItemType,
+    Quality, WeaponDamageSpec, rating,
+};
 use csim_engine::magic_school::MagicSchool;
 use csim_engine::phase::Phase;
 
-use crate::tables::{ItemDamageTable, ItemRow, ItemSetRow, ItemSparseRow};
 use crate::Tables;
+use crate::tables::{ItemDamageTable, ItemRow, ItemSetRow, ItemSparseRow};
 
 /// Lowest `OverallQualityID` exported (Rare).
 pub const MIN_QUALITY: u32 = 3;

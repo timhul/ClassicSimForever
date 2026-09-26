@@ -16,7 +16,7 @@ use csim_engine::phase::Phase;
 use crate::list::{matches, parse_phase, print_or_none};
 use crate::table::Table;
 use crate::weights::StatWeights;
-use crate::{parse_serde_name, serde_name, Result};
+use crate::{Result, parse_serde_name, serde_name};
 
 #[derive(Debug, Args)]
 pub struct RankArgs {

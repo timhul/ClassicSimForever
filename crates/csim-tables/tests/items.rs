@@ -10,13 +10,13 @@ use csim_engine::item::{
 };
 use csim_engine::magic_school::MagicSchool;
 use csim_engine::phase::Phase;
+use csim_tables::Tables;
 use csim_tables::export;
 use csim_tables::export::items::{
+    DerivedItem, EffectTrigger, ItemEffect, LimitCategory, Skip, StatKind, WeaponDamage,
     class_restrictions, damage_school, derive_item, derive_items, newest_versions, stat_kind,
-    stat_value, DerivedItem, EffectTrigger, ItemEffect, LimitCategory, Skip, StatKind,
-    WeaponDamage,
+    stat_value,
 };
-use csim_tables::Tables;
 
 fn tables() -> Tables {
     Tables::load_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tables")).unwrap()
@@ -168,10 +168,12 @@ fn armor_shields_and_bonus_armor() {
         })
     );
     assert_eq!(shield.effects.len(), 2);
-    assert!(shield
-        .effects
-        .iter()
-        .all(|e| e.trigger == EffectTrigger::Equip));
+    assert!(
+        shield
+            .effects
+            .iter()
+            .all(|e| e.trigger == EffectTrigger::Equip)
+    );
 
     let cloak = derive(&t, 18509);
     assert_eq!(
@@ -327,9 +329,11 @@ fn item_files_render_by_slot_and_load_through_the_engine() {
         [19019]
     );
     assert!(files.values().all(|f| f.build == t.build()));
-    assert!(files
-        .values()
-        .all(|f| f.items.iter().all(|i| i.phase == Phase::MoltenCore)));
+    assert!(
+        files
+            .values()
+            .all(|f| f.items.iter().all(|i| i.phase == Phase::MoltenCore))
+    );
 
     let dir = std::env::temp_dir().join(format!("csim-export-items-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
@@ -369,10 +373,12 @@ fn item_sets_list_members_and_bonus_spells() {
         assert!(conqueror.items.contains(&member), "{member}");
     }
     assert!(!conqueror.bonuses.is_empty());
-    assert!(conqueror
-        .bonuses
-        .windows(2)
-        .all(|w| w[0].pieces <= w[1].pieces));
+    assert!(
+        conqueror
+            .bonuses
+            .windows(2)
+            .all(|w| w[0].pieces <= w[1].pieces)
+    );
     assert!(sets.sets.windows(2).all(|w| w[0].id < w[1].id));
 
     let text = export::render_item_sets(&sets, "export-items").unwrap();

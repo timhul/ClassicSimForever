@@ -53,7 +53,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use serde_yaml::{Mapping, Value};
 
-use crate::character_loader::{merge, CharacterSetup, CharacterSetupError, SetupIssue};
+use crate::character_loader::{CharacterSetup, CharacterSetupError, SetupIssue, merge};
 use crate::data_bundle::DataBundle;
 
 /// A `data/sweeps/*.yaml` file. See the module documentation.
@@ -635,7 +635,7 @@ fn talent_alternatives(
             let added: Vec<(String, String, u32)> = talents
                 .iter()
                 .zip(&counts)
-                .filter(|(_, &count)| count > 0)
+                .filter(|&(_, &count)| count > 0)
                 .map(|((tab, name, _), &count)| (tab.clone(), name.clone(), count))
                 .collect();
             let label = added

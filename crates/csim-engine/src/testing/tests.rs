@@ -1,7 +1,7 @@
 //! Tests of the harness itself.
 
 use super::warrior::WarriorTest;
-use super::{items, SpellTest, RUN_EVENT};
+use super::{RUN_EVENT, SpellTest, items};
 use crate::combat_roll::PhysicalAttackResult;
 use crate::engine::EventType;
 use crate::item::EquipmentSlot;
@@ -256,9 +256,11 @@ fn engine_helpers() {
     let queued = test.queued_events();
     assert_eq!(queued[0].kind.event_type(), EventType::MainhandMeleeHit);
     assert_eq!(queued[0].time, 0.0);
-    assert!(queued
-        .iter()
-        .any(|e| e.kind.event_type() == EventType::PlayerAction && e.time == 1.5));
+    assert!(
+        queued
+            .iter()
+            .any(|e| e.kind.event_type() == EventType::PlayerAction && e.time == 1.5)
+    );
     // The swing at 0 is dropped: no white damage.
     test.when_running_queued_events_until(1.5);
     test.then_damage_dealt_is(damage);

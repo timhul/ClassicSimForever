@@ -29,7 +29,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::character_loader::{CharacterSetup, CharacterSetupError, SetupIssue};
 use crate::data_bundle::DataBundle;
-use crate::raid::{RaidControl, PARTIES, PARTY_SIZE};
+use crate::raid::{PARTIES, PARTY_SIZE, RaidControl};
 use crate::sim_settings::SimSettings;
 
 fn default_player_party() -> u8 {

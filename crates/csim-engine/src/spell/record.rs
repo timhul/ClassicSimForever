@@ -1028,18 +1028,17 @@ impl SpellDb {
                     ));
                 }
             }
-            if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect) {
-                if !record
+            if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect)
+                && !record
                     .effect(index)
                     .is_some_and(EffectRecord::is_apply_aura)
-                {
-                    return Err(SpellDbError::Invalid {
-                        spell: id,
-                        message: format!(
-                            "the override takes the proc chance from effect {index}, which is not an aura effect of the spell"
-                        ),
-                    });
-                }
+            {
+                return Err(SpellDbError::Invalid {
+                    spell: id,
+                    message: format!(
+                        "the override takes the proc chance from effect {index}, which is not an aura effect of the spell"
+                    ),
+                });
             }
             for target in spell_override.referenced_spells() {
                 if !self.spells.contains_key(&target) {
@@ -1671,10 +1670,11 @@ overrides:
             spellbook,
             [78, 284, 2458, 5242, 12282, 12294, 12834, 20572, 25288]
         );
-        assert!(db
-            .spellbook(PlayerClass::Rogue)
-            .iter()
-            .all(|r| r.id == 20572));
+        assert!(
+            db.spellbook(PlayerClass::Rogue)
+                .iter()
+                .all(|r| r.id == 20572)
+        );
 
         assert_eq!(db.next_rank(78), Some(284));
         assert_eq!(db.next_rank(284), None);
@@ -1942,19 +1942,21 @@ spells:
         assert!(db.get(7381).is_some(), "stance passive");
         assert_eq!(db.overrides().stance_passive(2458), Some(7381));
         // Shield Slam strikes with the shield, Heroic Strike with the main-hand weapon.
-        assert!(db
-            .get(23925)
-            .unwrap()
-            .equipped_items
-            .unwrap()
-            .requires_shield());
+        assert!(
+            db.get(23925)
+                .unwrap()
+                .equipped_items
+                .unwrap()
+                .requires_shield()
+        );
         assert!(!ms.equipped_items.unwrap().requires_shield());
-        assert!(!db
-            .get(78)
-            .unwrap()
-            .equipped_items
-            .unwrap()
-            .requires_shield());
+        assert!(
+            !db.get(78)
+                .unwrap()
+                .equipped_items
+                .unwrap()
+                .requires_shield()
+        );
 
         let blood_fury = db.get(20572).unwrap();
         assert_eq!(blood_fury.race_mask, 2);

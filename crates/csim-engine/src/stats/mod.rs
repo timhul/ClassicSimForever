@@ -15,7 +15,7 @@ pub use character_stats::{
     WeaponProfile,
 };
 
-use crate::item::{rating, ItemStat, WeaponType};
+use crate::item::{ItemStat, WeaponType, rating};
 use crate::magic_school::MagicSchool;
 use crate::target::CreatureType;
 

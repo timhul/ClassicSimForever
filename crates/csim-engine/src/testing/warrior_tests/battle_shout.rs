@@ -5,7 +5,7 @@ use crate::ids::CharId;
 use crate::race::Race;
 use crate::resource::ResourceType;
 use crate::rotation::RotationHost;
-use crate::spell::{SpellStatus, MAX_RANK};
+use crate::spell::{MAX_RANK, SpellStatus};
 use crate::testing::warrior::WarriorTest;
 
 const SPELL: &str = "Battle Shout";

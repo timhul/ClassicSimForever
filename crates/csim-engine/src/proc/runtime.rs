@@ -278,10 +278,10 @@ impl Proc {
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
         // An on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a
         // condition.
-        if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff()) {
-            if !host.buff(id).is_active() {
-                return false;
-            }
+        if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff())
+            && !host.buff(id).is_active()
+        {
+            return false;
         }
         let hand_source = matches!(
             source,
@@ -290,22 +290,21 @@ impl Proc {
                 | ProcSource::MainhandSpell
                 | ProcSource::OffhandSpell
         );
-        if let Some(items) = &self.spell.record().equipped_items {
-            if hand_source
-                && items.class == EquippedItems::WEAPON
-                && !host.hand_weapon_matches(source.hand(), items)
-            {
-                return false;
-            }
+        if let Some(items) = &self.spell.record().equipped_items
+            && hand_source
+            && items.class == EquippedItems::WEAPON
+            && !host.hand_weapon_matches(source.hand(), items)
+        {
+            return false;
         }
         let target_auras = &self.spell.setup().target_aura_ranks;
         if !target_auras.is_empty() && !target_auras.iter().any(|&id| host.aura_active(id)) {
             return false;
         }
-        if let ProcRate::Ppm(_) = self.rate {
-            if host.base_weapon_speed(source.hand()).is_none() {
-                return false;
-            }
+        if let ProcRate::Ppm(_) = self.rate
+            && host.base_weapon_speed(source.hand()).is_none()
+        {
+            return false;
         }
         true
     }
@@ -454,7 +453,7 @@ impl EnabledProcs {
         &self.procs
     }
 
-    pub fn ids(&self) -> impl Iterator<Item = ProcId> {
+    pub fn ids(&self) -> impl Iterator<Item = ProcId> + use<> {
         (0..self.procs.len()).map(|index| ProcId(index as u32))
     }
 

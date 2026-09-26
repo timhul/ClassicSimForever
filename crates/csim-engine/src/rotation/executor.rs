@@ -372,10 +372,10 @@ impl Rotation {
                 host.cast_spell(spell);
             }
         }
-        if let Some(spell) = self.precast_spell {
-            if host.spell_is_enabled(spell) {
-                host.cast_spell(spell);
-            }
+        if let Some(spell) = self.precast_spell
+            && host.spell_is_enabled(spell)
+        {
+            host.cast_spell(spell);
         }
     }
 
@@ -735,10 +735,12 @@ mod tests {
         assert_eq!(stats["Overpower"].attempts(), 2);
 
         rotation.prepare_set_of_combat_iterations();
-        assert!(rotation
-            .statistics_by_spell()
-            .values()
-            .all(|s| *s == ExecutorStatistics::default()));
+        assert!(
+            rotation
+                .statistics_by_spell()
+                .values()
+                .all(|s| *s == ExecutorStatistics::default())
+        );
     }
 
     #[test]

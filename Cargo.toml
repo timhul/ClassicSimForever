@@ -4,7 +4,7 @@ members = ["crates/csim-engine", "crates/csim-cli", "crates/csim-tables"]
 
 [workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 license = "LGPL-3.0"
 repository = "https://github.com/timhul/ClassicSimForever"
 

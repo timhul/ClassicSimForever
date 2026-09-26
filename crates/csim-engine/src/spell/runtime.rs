@@ -23,7 +23,7 @@ use std::sync::Arc;
 
 use crate::buff::{Buff, BuffApplication};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
-use crate::cooldown::{add_gcd_event, CooldownControl};
+use crate::cooldown::{CooldownControl, add_gcd_event};
 use crate::effect::{ChainState, Dependency, Effect, EffectHost};
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
@@ -975,10 +975,10 @@ impl Spell {
         if self.next_use(host) - now > COOLDOWN_EPSILON {
             return SpellStatus::OnCooldown;
         }
-        if let Some(resource) = self.resource_type() {
-            if host.resource_level(resource) < self.resource_cost(host) {
-                return SpellStatus::InsufficientResources;
-            }
+        if let Some(resource) = self.resource_type()
+            && host.resource_level(resource) < self.resource_cost(host)
+        {
+            return SpellStatus::InsufficientResources;
         }
         if host.combo_points() < self.combo_point_cost() {
             return SpellStatus::InsufficientComboPoints;
@@ -1030,10 +1030,10 @@ impl Spell {
         {
             return SpellStatus::BuffInactive;
         }
-        if let Some(items) = &record.equipped_items {
-            if !host.equipped_item_matches(items) {
-                return SpellStatus::IncorrectWeaponType;
-            }
+        if let Some(items) = &record.equipped_items
+            && !host.equipped_item_matches(items)
+        {
+            return SpellStatus::IncorrectWeaponType;
         }
         SpellStatus::Available
     }
@@ -1273,12 +1273,12 @@ impl Spell {
 
         // The marker buff of an on-next-swing spell only marks it as queued.
         let marker = self.marker_buff.filter(|_| !self.is_on_next_swing());
-        if let Some(id) = marker {
-            if self.last_result.applies_buff() {
-                let application = host.apply_buff(id);
-                report.buff = Some(application);
-                self.on_buff_applied(application, host);
-            }
+        if let Some(id) = marker
+            && self.last_result.applies_buff()
+        {
+            let application = host.apply_buff(id);
+            report.buff = Some(application);
+            self.on_buff_applied(application, host);
         }
 
         // Resource loss and damage.

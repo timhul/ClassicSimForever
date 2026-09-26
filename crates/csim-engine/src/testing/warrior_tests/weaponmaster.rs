@@ -6,8 +6,8 @@
 //! Both only count for attacks with a weapon of those types.
 
 use crate::spell::{Hand, SpellHost};
-use crate::testing::warrior::WarriorTest;
 use crate::testing::SpellTest;
+use crate::testing::warrior::WarriorTest;
 
 const TALENT: &str = "Weaponmaster";
 

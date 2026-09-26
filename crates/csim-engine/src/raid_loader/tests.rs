@@ -110,10 +110,12 @@ parties:
     // Alone, the setup keeps them.
     let alone = player.build_raid(data(), &settings()).unwrap();
     assert!(alone.target().armor() < alone.target().base_armor());
-    assert!(alone
-        .character(CharId(0))
-        .external_buffs()
-        .is_selected("Strength of Earth Totem"));
+    assert!(
+        alone
+            .character(CharId(0))
+            .external_buffs()
+            .is_selected("Strength of Earth Totem")
+    );
 }
 
 #[test]
@@ -148,9 +150,11 @@ fn party_and_raid_sizes_are_checked() {
     );
     // Without a player five fit.
     let members = raid(full).resolve(&characters()).unwrap();
-    assert!(raid(full)
-        .build_raid(None, &members, data(), &settings())
-        .is_ok());
+    assert!(
+        raid(full)
+            .build_raid(None, &members, data(), &settings())
+            .is_ok()
+    );
 
     let nine = format!("name: R\nparties:\n{}", "  - []\n".repeat(9));
     assert_eq!(contexts(&issues(&raid(&nine), Some(&player))), ["parties"]);

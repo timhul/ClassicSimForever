@@ -1,6 +1,6 @@
 use super::*;
-use crate::spell::test_world::World;
 use crate::spell::SpellResult;
+use crate::spell::test_world::World;
 
 const FLURRY: u32 = 12319;
 const FLURRY_BUFF: u32 = 12966;
@@ -105,11 +105,13 @@ fn conditions_follow_the_passive_aura() {
     procs.enable(proc, &mut world);
     world.spells.put_procs(procs);
     assert!(world.spells.procs().is_enabled(proc));
-    assert!(world
-        .spells
-        .procs()
-        .get(proc)
-        .conditions_fulfilled(ProcSource::MeleeCritical, &world));
+    assert!(
+        world
+            .spells
+            .procs()
+            .get(proc)
+            .conditions_fulfilled(ProcSource::MeleeCritical, &world)
+    );
 
     // Deep Wounds needs a melee weapon (SpellEquippedItems): unequipping drops the aura.
     world.weapon_ok = false;
@@ -119,11 +121,13 @@ fn conditions_follow_the_passive_aura() {
         .spell_mut()
         .reevaluate_passive(&mut world);
     world.spells.put_procs(procs);
-    assert!(!world
-        .spells
-        .procs()
-        .get(proc)
-        .conditions_fulfilled(ProcSource::MeleeCritical, &world));
+    assert!(
+        !world
+            .spells
+            .procs()
+            .get(proc)
+            .conditions_fulfilled(ProcSource::MeleeCritical, &world)
+    );
 }
 
 #[test]
@@ -190,10 +194,12 @@ fn flurry_hands_its_rank_value_to_the_haste_buff_and_loses_charges_on_swings() {
         world.spells.charge_consumers(ProcSource::MainhandSwing),
         vec![buff]
     );
-    assert!(world
-        .spells
-        .charge_consumers(ProcSource::MeleeHit)
-        .is_empty());
+    assert!(
+        world
+            .spells
+            .charge_consumers(ProcSource::MeleeHit)
+            .is_empty()
+    );
     world.consume_charges(ProcSource::MainhandSwing);
     world.consume_charges(ProcSource::OffhandSwing);
     assert_eq!(world.buff(buff).charges(), 1);
@@ -201,10 +207,12 @@ fn flurry_hands_its_rank_value_to_the_haste_buff_and_loses_charges_on_swings() {
     world.consume_charges(ProcSource::MainhandSwing);
     assert!(!world.buff(buff).is_active());
     assert!((world.stats.get_melee_attack_speed_mod() - 1.0).abs() < 1e-9);
-    assert!(world
-        .spells
-        .charge_consumers(ProcSource::MainhandSwing)
-        .is_empty());
+    assert!(
+        world
+            .spells
+            .charge_consumers(ProcSource::MainhandSwing)
+            .is_empty()
+    );
 }
 
 #[test]
@@ -229,9 +237,11 @@ fn chance_procs_roll_and_nested_sources_are_checked() {
     assert_eq!(procs.get(proc).attempts(), 0);
     procs.disable(proc, &mut world);
     assert!(!procs.is_enabled(proc));
-    assert!(procs
-        .run_proc_check(ProcSource::MainhandSwing, &mut world)
-        .is_empty());
+    assert!(
+        procs
+            .run_proc_check(ProcSource::MainhandSwing, &mut world)
+            .is_empty()
+    );
     procs.enable(proc, &mut world);
     procs.clear_all(&mut world);
     assert!(procs.enabled().is_empty());
@@ -250,13 +260,15 @@ fn internal_cooldowns_are_enforced() {
         .spells
         .add_spell_with(setup, db.overrides(), 0, &mut world.raid);
     let proc = added.proc.unwrap();
-    assert!(world
-        .spells
-        .procs()
-        .get(proc)
-        .spell()
-        .cooldown_id()
-        .is_some());
+    assert!(
+        world
+            .spells
+            .procs()
+            .get(proc)
+            .spell()
+            .cooldown_id()
+            .is_some()
+    );
     let mut procs = world.spells.take_procs();
     procs.enable(proc, &mut world);
     world.spells.put_procs(procs);
@@ -282,9 +294,11 @@ fn procs_do_not_retrigger_themselves_within_one_check() {
     let proc = world.learn(DEEP_WOUNDS).proc.unwrap();
     let mut procs = world.spells.take_procs();
     procs.ignore_in_next_check(proc);
-    assert!(procs
-        .run_proc_check(ProcSource::MeleeCritical, &mut world)
-        .is_empty());
+    assert!(
+        procs
+            .run_proc_check(ProcSource::MeleeCritical, &mut world)
+            .is_empty()
+    );
     assert_eq!(
         procs
             .run_proc_check(ProcSource::MeleeCritical, &mut world)

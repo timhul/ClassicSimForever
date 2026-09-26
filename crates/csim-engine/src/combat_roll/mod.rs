@@ -20,8 +20,8 @@ use crate::mechanics::Mechanics;
 use crate::rng::Random;
 
 pub use tables::{
-    chance_to_range, IncludedOutcomes, MagicAttackTable, MeleeSpecialTable, MeleeWhiteHitTable,
-    ROLL_RANGE,
+    IncludedOutcomes, MagicAttackTable, MeleeSpecialTable, MeleeWhiteHitTable, ROLL_RANGE,
+    chance_to_range,
 };
 
 /// Outcome of a physical attack.

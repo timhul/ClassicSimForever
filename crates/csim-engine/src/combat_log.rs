@@ -381,11 +381,7 @@ fn guid(unit: LogUnit) -> String {
 
 /// `1` or `nil`.
 fn flag(set: bool) -> &'static str {
-    if set {
-        "1"
-    } else {
-        "nil"
-    }
+    if set { "1" } else { "nil" }
 }
 
 /// The client's `Enum.PowerType` (0 for a unit without power).

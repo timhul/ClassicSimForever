@@ -7,8 +7,8 @@
 use crate::engine::EventType;
 use crate::ids::BuffId;
 use crate::spell::Hand;
-use crate::testing::warrior::WarriorTest;
 use crate::testing::RUN_EVENT;
+use crate::testing::warrior::WarriorTest;
 
 fn test() -> WarriorTest {
     WarriorTest::new("FlurryWarrior")

@@ -279,7 +279,7 @@ impl EnchantSpec {
     pub fn dynamic_stats(&self) -> impl Iterator<Item = (ItemStat, f64)> + '_ {
         self.stats
             .iter()
-            .filter(|(&stat, _)| is_dynamic(stat))
+            .filter(|&(&stat, _)| is_dynamic(stat))
             .map(|(&stat, &value)| (stat, value))
     }
 }

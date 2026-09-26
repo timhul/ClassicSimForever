@@ -5,7 +5,7 @@
 
 use std::path::{Path, PathBuf};
 
-use csim_tables::tables::{ItemDamageTable, SpellEffectRow, SpellNameRow, ALL_TABLES};
+use csim_tables::tables::{ALL_TABLES, ItemDamageTable, SpellEffectRow, SpellNameRow};
 use csim_tables::{TableDir, TableError, Tables};
 
 const BUILD: &str = "1.60.1.70009";
@@ -52,10 +52,11 @@ fn directory_detects_the_build_and_lists_every_table() {
     assert_eq!(names.len(), ALL_TABLES.len());
     for table in ALL_TABLES {
         assert!(dir.has(table), "{table} missing from fixtures");
-        assert!(dir
-            .path(table)
-            .unwrap()
-            .ends_with(format!("{table}.{BUILD}.csv")));
+        assert!(
+            dir.path(table)
+                .unwrap()
+                .ends_with(format!("{table}.{BUILD}.csv"))
+        );
     }
     assert!(csim_tables::dir::missing_tables(&dir, ALL_TABLES.iter().copied()).is_empty());
     assert_eq!(dir.row_count("SpellShapeshiftForm").unwrap(), 3);
@@ -694,13 +695,13 @@ fn item_effects_sets_limits_and_suffixes_are_joined() {
 }
 
 mod export {
-    use super::{fixtures, BUILD};
+    use super::{BUILD, fixtures};
     use csim_engine::faction::PlayerClass;
     use csim_engine::spell::dbc::{AuraType, PowerType, SpellEffectName};
     use csim_engine::spell::overrides::{Overrides, SpellOverride};
     use csim_engine::spell::record::SpellDb;
-    use csim_tables::export::{self, spells};
     use csim_tables::Tables;
+    use csim_tables::export::{self, spells};
 
     fn tables() -> Tables {
         Tables::load_dir(fixtures()).unwrap()
@@ -755,10 +756,12 @@ mod export {
                 "Intimidating Shout (20511)"
             ]
         );
-        assert!(report
-            .effects
-            .iter()
-            .any(|e| e.spell == 694 && e.what == "aura UNKNOWN_11"));
+        assert!(
+            report
+                .effects
+                .iter()
+                .any(|e| e.spell == 694 && e.what == "aura UNKNOWN_11")
+        );
 
         let mut overrides = Overrides::new();
         let mut stance = SpellOverride::new(2458);

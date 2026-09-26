@@ -1,8 +1,8 @@
 use super::*;
 use crate::buff::BuffKind;
-use crate::spell::dbc::SpellAttr1;
-use crate::spell::test_world::{db_with, World};
 use crate::spell::MAX_RANK;
+use crate::spell::dbc::SpellAttr1;
+use crate::spell::test_world::{World, db_with};
 use crate::stance::Stance;
 
 const HEROIC_STRIKE: u32 = 78;

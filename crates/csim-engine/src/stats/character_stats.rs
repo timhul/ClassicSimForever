@@ -11,7 +11,7 @@
 
 use crate::attack_mode::AttackMode;
 use crate::ids::BuffId;
-use crate::item::{rating, ItemStat, WeaponType};
+use crate::item::{ItemStat, WeaponType, rating};
 use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::target::CreatureType;

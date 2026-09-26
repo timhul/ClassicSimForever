@@ -694,10 +694,11 @@ impl Buff {
     }
 
     fn force_remove(&mut self, ctx: &mut BuffContext) {
-        if self.active && self.kind.is_debuff() {
-            if let Some(id) = self.instance_id {
-                ctx.target.remove_debuff(id);
-            }
+        if self.active
+            && self.kind.is_debuff()
+            && let Some(id) = self.instance_id
+        {
+            ctx.target.remove_debuff(id);
         }
         self.expired = ctx.now();
         self.active = false;
@@ -1212,9 +1213,11 @@ mod tests {
         assert_eq!(world.pending_removals(), vec![(132.0, 1)]);
         buff.decrease_duration_percent(10);
         assert_eq!(buff.duration(), Some(120.0));
-        assert!(Buff::new("x", None, BuffKind::SelfBuff, None, 0)
-            .duration()
-            .is_none());
+        assert!(
+            Buff::new("x", None, BuffKind::SelfBuff, None, 0)
+                .duration()
+                .is_none()
+        );
     }
 
     #[test]

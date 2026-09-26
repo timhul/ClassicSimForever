@@ -13,8 +13,8 @@ use csim_engine::sim_settings::SimOption;
 use csim_engine::statistics::NumberCruncher;
 use serde::{Deserialize, Serialize};
 
-use crate::run::Report;
 use crate::Result;
+use crate::run::Report;
 
 /// The stat weights of one setup.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

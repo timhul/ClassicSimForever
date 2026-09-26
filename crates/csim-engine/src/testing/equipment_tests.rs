@@ -3,15 +3,15 @@
 
 use std::sync::Arc;
 
-use super::warrior::WarriorTest;
 use super::SpellTest;
+use super::warrior::WarriorTest;
 use crate::character_spells::SpellHandle;
 use crate::ids::ProcId;
 use crate::item::EquipmentSlot;
-use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::proc::ProcSource;
+use crate::proc::runtime::PROC_ROLL_RANGE;
 use crate::rotation::{RotationHost, RotationSpec};
-use crate::spell::{SpellStatus, MAX_RANK};
+use crate::spell::{MAX_RANK, SpellStatus};
 
 /// Blazefury Medallion: on-equip proc aura 7711, Fire Strike (7712) on every melee hit.
 const BLAZEFURY_MEDALLION: u32 = 17111;
@@ -310,9 +310,10 @@ fn on_use_trinkets_have_their_own_and_the_shared_trinket_cooldown() {
 #[test]
 fn an_on_use_spell_comes_and_goes_with_its_item() {
     let mut test = test("on-use unequip");
-    assert!(test
-        .with_ctx(|ctx| ctx.spell_by_name("Earthstrike", MAX_RANK))
-        .is_none());
+    assert!(
+        test.with_ctx(|ctx| ctx.spell_by_name("Earthstrike", MAX_RANK))
+            .is_none()
+    );
     test.equip(EquipmentSlot::Trinket1, EARTHSTRIKE);
     test.then_status_is("Earthstrike", SpellStatus::Available);
     test.unequip(EquipmentSlot::Trinket1);

@@ -4,8 +4,8 @@ use crate::engine::EventType;
 use crate::rotation::condition::ConditionContext;
 use crate::rotation::executor::RotationHost;
 use crate::spell::SpellStatus;
-use crate::testing::warrior::WarriorTest;
 use crate::testing::RUN_EVENT;
+use crate::testing::warrior::WarriorTest;
 
 const SPELL: &str = "Rend";
 
