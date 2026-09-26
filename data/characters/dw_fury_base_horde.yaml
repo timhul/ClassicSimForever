@@ -1,32 +1,6 @@
-# Schema: crates/csim-engine/src/character_loader.rs.
-include: target_base.yaml
-include: base_buffs.yaml
-name: 2H Fury Orc
-class: WARRIOR
-race: ORC
-phase: 3
-rotation: 2h Fury
-talents:
-  Arms:
-    Improved Heroic Strike: 3
-    Improved Rend: 3
-    Improved Tactical Mastery: 5
-    Anger Management: 1
-    Deep Wounds: 3
-    Two-Handed Weapon Specialization: 3
-  Fury:
-    Cruelty: 5
-    Unbridled Wrath: 5
-    Blood Craze: 3
-    Boundless Rage: 3
-    Enrage: 5
-    Improved Execute: 2
-    Precision: 3
-    Death Wish: 1
-    Flurry: 5
-    Bloodthirst: 1
 equipment:
-  MAINHAND: { item: 18877, enchant: Crusader, temp_enchant: WindfuryTotem }  # High Warlord's Greatsword
+  MAINHAND: { item: 18866, enchant: Crusader, temp_enchant: WindfuryTotem }  # High Warlord's Bludgeon
+  OFFHAND: { item: 18866, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # High Warlord's Bludgeon
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant

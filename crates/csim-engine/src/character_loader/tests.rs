@@ -280,3 +280,140 @@ fn load_reports_the_file() {
     let message = setup.validate(data()).unwrap_err().to_string();
     assert!(message.contains("dw_fury_orc.yaml"), "{message}");
 }
+
+/// A fresh directory holding `files` (relative path → contents).
+fn setup_dir(tag: &str, files: &[(&str, &str)]) -> PathBuf {
+    use std::sync::atomic::{AtomicU32, Ordering};
+    static COUNTER: AtomicU32 = AtomicU32::new(0);
+    let dir = std::env::temp_dir().join(format!(
+        "csim-character-{tag}-{}-{}",
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    for (file, text) in files {
+        let path = dir.join(file);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, text).unwrap();
+    }
+    dir
+}
+
+const BASE: &str = r#"
+name: Base
+class: WARRIOR
+race: ORC
+level: 58
+rotation: DW Fury High Rage
+equipment:
+  MAINHAND: { item: 18828 }
+  OFFHAND: { item: 18828 }
+buffs: [Battle Squawk]
+"#;
+
+#[test]
+fn include_is_applied_in_place() {
+    let dir = setup_dir(
+        "in-place",
+        &[
+            ("common/base.yaml", BASE),
+            (
+                "troll.yaml",
+                "level: 50\nname: Early\ninclude: common/base.yaml\nname: Troll\nrace: TROLL\n",
+            ),
+        ],
+    );
+    let setup = CharacterSetup::load(&dir.join("troll.yaml")).unwrap();
+    // Keys before the include are overwritten by it, keys after it overwrite it.
+    assert_eq!(setup.level, 58);
+    assert_eq!(setup.name, "Troll");
+    assert_eq!(setup.race, Race::Troll);
+    assert_eq!(setup.buffs, ["Battle Squawk"]);
+    assert_eq!(
+        setup.path.as_deref(),
+        Some(dir.join("troll.yaml").as_path())
+    );
+}
+
+#[test]
+fn include_merges_equipment_by_slot_and_null_removes() {
+    let dir = setup_dir(
+        "equipment",
+        &[
+            ("base.yaml", BASE),
+            (
+                "swap.yaml",
+                "include: base.yaml\nequipment:\n  MAINHAND: { item: 17075 }\n  OFFHAND: null\n  HEAD: { item: 12640 }\nbuffs: null\n",
+            ),
+        ],
+    );
+    let setup = CharacterSetup::load(&dir.join("swap.yaml")).unwrap();
+    let items: Vec<(EquipmentSlot, u32)> = setup
+        .equipment
+        .iter()
+        .map(|(slot, equipped)| (*slot, equipped.item))
+        .collect();
+    assert_eq!(
+        items,
+        [
+            (EquipmentSlot::Mainhand, 17075),
+            (EquipmentSlot::Head, 12640)
+        ]
+    );
+    assert!(setup.buffs.is_empty());
+}
+
+#[test]
+fn include_may_repeat_list_and_nest() {
+    let dir = setup_dir(
+        "multiple",
+        &[
+            ("parts/base.yaml", BASE),
+            ("parts/level.yaml", "level: 55\n"),
+            ("parts/nested.yaml", "include: level.yaml\nrace: TAUREN\n"),
+            (
+                "list.yaml",
+                "include: [parts/base.yaml, parts/nested.yaml]\nname: List\n",
+            ),
+            (
+                "repeated.yaml",
+                "include: parts/base.yaml\nlevel: 40\ninclude: parts/nested.yaml\nrace: DWARF\n",
+            ),
+        ],
+    );
+    let list = CharacterSetup::load(&dir.join("list.yaml")).unwrap();
+    assert_eq!((list.name.as_str(), list.level), ("List", 55));
+    assert_eq!(list.race, Race::Tauren);
+
+    let repeated = CharacterSetup::load(&dir.join("repeated.yaml")).unwrap();
+    assert_eq!((repeated.name.as_str(), repeated.level), ("Base", 55));
+    assert_eq!(repeated.race, Race::Dwarf);
+}
+
+#[test]
+fn include_errors_are_reported() {
+    let dir = setup_dir(
+        "errors",
+        &[
+            ("a.yaml", "include: b.yaml\n"),
+            ("b.yaml", "include: a.yaml\n"),
+            ("number.yaml", "include: 3\n"),
+            ("missing.yaml", "include: nowhere.yaml\n"),
+            ("partial.yaml", "include: b.yaml\nrace: ORC\n"),
+            ("unknown.yaml", "include: base.yaml\nnot_a_key: 1\n"),
+            ("base.yaml", BASE),
+        ],
+    );
+    let load = |file: &str| CharacterSetup::load(&dir.join(file)).unwrap_err();
+    assert!(
+        matches!(load("a.yaml"), CharacterSetupError::Include { ref path, .. } if path.ends_with("a.yaml")),
+    );
+    assert!(matches!(
+        load("number.yaml"),
+        CharacterSetupError::Include { .. }
+    ));
+    assert!(
+        matches!(load("missing.yaml"), CharacterSetupError::Io { ref path, .. } if path.ends_with("nowhere.yaml"))
+    );
+    let message = load("unknown.yaml").to_string();
+    assert!(message.contains("not_a_key"), "{message}");
+}

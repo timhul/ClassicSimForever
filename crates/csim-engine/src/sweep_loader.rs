@@ -53,7 +53,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use serde_yaml::{Mapping, Value};
 
-use crate::character_loader::{CharacterSetup, SetupIssue};
+use crate::character_loader::{merge, CharacterSetup, CharacterSetupError, SetupIssue};
 use crate::data_bundle::DataBundle;
 
 /// A `data/sweeps/*.yaml` file. See the module documentation.
@@ -406,19 +406,16 @@ impl SweepSetup {
         issues
     }
 
-    /// Reads the character setup at `path` and applies the overrides; `context` names the
-    /// file in errors.
+    /// Reads the character setup at `path` (its includes resolved) and applies the
+    /// overrides; `context` names the file in errors.
     fn load_setup(&self, path: &Path, context: &str) -> Result<CharacterSetup, SweepError> {
-        let text = read(path)?;
-        let mut value: Value = serde_yaml::from_str(&text).map_err(|source| SweepError::Yaml {
-            path: path.to_path_buf(),
-            source,
+        let mut mapping = CharacterSetup::load_mapping(path).map_err(|error| match error {
+            CharacterSetupError::Io { path, source } => SweepError::Io { path, source },
+            CharacterSetupError::Yaml { path, source } => SweepError::Yaml { path, source },
+            error => self.invalid(vec![issue(context, error.to_string())]),
         })?;
-        if !value.is_mapping() {
-            return Err(self.invalid(vec![issue(context, "is not a character setup")]));
-        }
-        merge(&mut value, &self.overrides);
-        match serde_yaml::from_value::<CharacterSetup>(value) {
+        merge(&mut mapping, self.overrides.clone());
+        match serde_yaml::from_value::<CharacterSetup>(Value::Mapping(mapping)) {
             Ok(mut setup) => {
                 setup.path = Some(path.to_path_buf());
                 Ok(setup)
@@ -499,35 +496,6 @@ fn issue(context: impl Into<String>, message: impl Into<String>) -> SetupIssue {
     }
 }
 
-/// Merges the override `changes` into the setup `target`: keys replace, `equipment` replaces
-/// by slot, `null` removes.
-fn merge(target: &mut Value, changes: &Mapping) {
-    let Some(target) = target.as_mapping_mut() else {
-        return;
-    };
-    for (key, value) in changes {
-        if key.as_str() == Some("equipment") {
-            if let (Some(Value::Mapping(slots)), Value::Mapping(changed)) =
-                (target.get_mut(key), value)
-            {
-                for (slot, item) in changed {
-                    if item.is_null() {
-                        slots.remove(slot);
-                    } else {
-                        slots.insert(slot.clone(), item.clone());
-                    }
-                }
-                continue;
-            }
-        }
-        if value.is_null() {
-            target.remove(key);
-        } else {
-            target.insert(key.clone(), value.clone());
-        }
-    }
-}
-
 /// `base` with the changes of `combination` applied in order; without a base, the first
 /// change (a `characters` alternative) provides the setup.
 fn apply(
@@ -541,7 +509,9 @@ fn apply(
             Change::Override(changes) => {
                 let current = setup.as_mut().ok_or(NO_SETUP)?;
                 let mut value = serde_yaml::to_value(&*current).map_err(|e| e.to_string())?;
-                merge(&mut value, changes);
+                if let Value::Mapping(mapping) = &mut value {
+                    merge(mapping, changes.clone());
+                }
                 let path = current.path.take();
                 *current = serde_yaml::from_value(value).map_err(|e| e.to_string())?;
                 current.path = path;

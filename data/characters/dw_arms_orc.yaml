@@ -1,5 +1,7 @@
 # Dual-wield Arms Orc Warrior (Mortal Strike) in rank-14 PvP gear with the usual raid buffs (both factions' totems and blessings).
 # Schema: crates/csim-engine/src/character_loader.rs.
+include: base_target.yaml
+include: base_buffs.yaml
 name: DW Arms Orc
 class: WARRIOR
 race: ORC
@@ -45,22 +47,3 @@ equipment:
   RING2: { item: 18821 }                                           # Quick Strike Ring
   TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                        # Earthstrike
-buffs:
-  - Strength of Earth Totem
-  - Greater Blessing of Kings
-  - Greater Blessing of Might
-  - Trueshot Aura
-  - Gift of the Wild
-  - Elixir of the Mongoose
-  - Juju Power
-  - Juju Might
-  - R.O.I.D.S.
-  - Battle Squawk
-  - Grilled Squid
-debuffs:
-  - Sunder Armor
-  - Faerie Fire
-target:
-  level: 63
-  armor: 3731
-  creature_type: Dragonkin

@@ -26,6 +26,20 @@
 //!   creature_type: Dragonkin
 //! ```
 //!
+//! `include` (a path relative to the file, or a list of them) reads other setup files, which
+//! may be partial and may include further files, in place: the keys before it are overwritten by
+//! the included ones, and the keys after it overwrite them. A key replaces the earlier value,
+//! except `equipment`, which replaces the slots it names (a slot set to `null` is emptied); a
+//! top-level key set to `null` returns to its default. `include` may appear several times.
+//!
+//! ```yaml
+//! include: common/dw_fury.yaml  # everything but the race
+//! name: DW Fury Troll
+//! race: TROLL
+//! equipment:
+//!   MAINHAND: { item: 17075, enchant: Crusader, temp_enchant: WindfuryTotem }
+//! ```
+//!
 //! Loading only parses the file; everything that needs the data (does the talent exist, may
 //! the class use the enchant, does the item fit the slot in that phase, ...) is checked while
 //! building, and every problem found is reported together, each with the field it came from.
@@ -36,7 +50,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
+use serde::de::{MapAccess, Visitor};
+use serde::{Deserialize, Deserializer, Serialize};
+use serde_yaml::{Mapping, Value};
 
 use crate::character::{Character, ClassSpec};
 use crate::data_bundle::DataBundle;
@@ -190,6 +206,8 @@ pub enum CharacterSetupError {
         #[source]
         source: serde_yaml::Error,
     },
+    #[error("invalid include in {path}: {message}")]
+    Include { path: PathBuf, message: String },
     #[error("character setup {setup} is invalid:{}", issues.iter().map(|i| format!("\n  {i}")).collect::<String>())]
     Invalid {
         /// The file, or the setup name when it was not loaded from a file.
@@ -211,6 +229,133 @@ impl Issues {
     }
 }
 
+/// The key that includes other setup files.
+const INCLUDE: &str = "include";
+
+fn read(path: &Path) -> Result<String, CharacterSetupError> {
+    fs::read_to_string(path).map_err(|source| CharacterSetupError::Io {
+        path: path.to_path_buf(),
+        source,
+    })
+}
+
+/// The top-level entries of a setup file in file order, repeated keys (`include`) kept.
+struct Entries(Vec<(Value, Value)>);
+
+impl<'de> Deserialize<'de> for Entries {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct EntriesVisitor;
+
+        impl<'de> Visitor<'de> for EntriesVisitor {
+            type Value = Entries;
+
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str("a character setup mapping")
+            }
+
+            fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Entries, A::Error> {
+                let mut entries = Vec::new();
+                while let Some(entry) = map.next_entry()? {
+                    entries.push(entry);
+                }
+                Ok(Entries(entries))
+            }
+        }
+
+        deserializer.deserialize_map(EntriesVisitor)
+    }
+}
+
+/// The setup file at `path` (with contents `text`) as a mapping, its includes merged in
+/// place, and whether it had any. `stack` holds the files being included, to catch cycles.
+fn resolve(
+    path: &Path,
+    text: &str,
+    stack: &mut Vec<PathBuf>,
+) -> Result<(Mapping, bool), CharacterSetupError> {
+    let include_error = |message: String| CharacterSetupError::Include {
+        path: path.to_path_buf(),
+        message,
+    };
+    let canonical = fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    if stack.contains(&canonical) {
+        return Err(include_error("the file includes itself".to_string()));
+    }
+    let Entries(entries) =
+        serde_yaml::from_str(text).map_err(|source| CharacterSetupError::Yaml {
+            path: path.to_path_buf(),
+            source,
+        })?;
+    stack.push(canonical);
+    let mut mapping = Mapping::new();
+    let mut included = false;
+    for (key, value) in entries {
+        if key.as_str() != Some(INCLUDE) {
+            merge_entry(&mut mapping, key, value);
+            continue;
+        }
+        included = true;
+        let files = match value {
+            Value::String(file) => vec![file],
+            Value::Sequence(files) => files
+                .into_iter()
+                .map(|file| match file {
+                    Value::String(file) => Ok(file),
+                    _ => Err(include_error("expected a path".to_string())),
+                })
+                .collect::<Result<_, _>>()?,
+            _ => {
+                return Err(include_error(
+                    "expected a path or a list of paths".to_string(),
+                ));
+            }
+        };
+        let dir = path.parent().unwrap_or(Path::new(""));
+        for file in files {
+            let file = dir.join(file);
+            let (other, _) = resolve(&file, &read(&file)?, stack)?;
+            merge(&mut mapping, other);
+        }
+    }
+    stack.pop();
+    Ok((mapping, included))
+}
+
+/// Merges the (partial) setup `changes` into the setup `target`: keys replace, `equipment`
+/// replaces by slot, `null` removes.
+pub(crate) fn merge(target: &mut Mapping, changes: Mapping) {
+    for (key, value) in changes {
+        merge_entry(target, key, value);
+    }
+}
+
+fn merge_entry(target: &mut Mapping, key: Value, value: Value) {
+    match value {
+        Value::Mapping(changed) if key.as_str() == Some("equipment") => {
+            let slots = target
+                .entry(key)
+                .or_insert_with(|| Value::Mapping(Mapping::new()));
+            if !slots.is_mapping() {
+                *slots = Value::Mapping(Mapping::new());
+            }
+            let slots = slots.as_mapping_mut().expect("a mapping");
+            for (slot, item) in changed {
+                if item.is_null() {
+                    slots.remove(&slot);
+                } else {
+                    slots.insert(slot, item);
+                }
+            }
+        }
+        Value::Null => {
+            target.remove(&key);
+        }
+        value => {
+            target.insert(key, value);
+        }
+    }
+}
+
 fn slot_name(slot: EquipmentSlot) -> String {
     serde_yaml::to_string(&slot)
         .map(|s| s.trim().to_string())
@@ -221,17 +366,27 @@ impl CharacterSetup {
     /// Parses a setup file. Checking it against the data is left to
     /// [`build_raid`](Self::build_raid) / [`validate`](Self::validate).
     pub fn load(path: &Path) -> Result<Self, CharacterSetupError> {
-        let text = fs::read_to_string(path).map_err(|source| CharacterSetupError::Io {
+        let text = read(path)?;
+        let (mapping, included) = resolve(path, &text, &mut Vec::new())?;
+        // Without includes the text is parsed directly, so errors keep their line numbers.
+        let parsed = if included {
+            serde_yaml::from_value(Value::Mapping(mapping))
+        } else {
+            serde_yaml::from_str(&text)
+        };
+        let mut setup: CharacterSetup = parsed.map_err(|source| CharacterSetupError::Yaml {
             path: path.to_path_buf(),
             source,
         })?;
-        let mut setup: CharacterSetup =
-            serde_yaml::from_str(&text).map_err(|source| CharacterSetupError::Yaml {
-                path: path.to_path_buf(),
-                source,
-            })?;
         setup.path = Some(path.to_path_buf());
         Ok(setup)
+    }
+
+    /// The setup file at `path` as a YAML mapping, its includes resolved but not checked
+    /// against the setup schema.
+    pub fn load_mapping(path: &Path) -> Result<Mapping, CharacterSetupError> {
+        let text = read(path)?;
+        Ok(resolve(path, &text, &mut Vec::new())?.0)
     }
 
     /// Parses every `*.yaml` setup of `dir`, sorted by file name.
