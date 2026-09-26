@@ -38,13 +38,13 @@ const ASSASSINATION_TO_VIGOR: [(u32, u32); 9] = [
     (105718, 2),
 ];
 
-fn data() -> std::path::PathBuf {
+pub(super) fn data() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
 }
 
 /// An Orc Rogue with the shipped data, a sword in the main hand, `talents` spent and
 /// `rotation` (YAML body after the class and name) set.
-fn rogue(talents: &[(u32, u32)], rotation: &str) -> Fixture {
+pub(super) fn rogue(talents: &[(u32, u32)], rotation: &str) -> Fixture {
     let classes = crate::character::ClassDb::load(&data().join("classes"), None).unwrap();
     let class = Arc::clone(classes.get(crate::faction::PlayerClass::Rogue).unwrap());
     let mut f = Fixture::orc(class);
@@ -65,7 +65,7 @@ fn rogue(talents: &[(u32, u32)], rotation: &str) -> Fixture {
 }
 
 /// Starts an iteration at 0 with the pull.
-fn pull(f: &mut Fixture) {
+pub(super) fn pull(f: &mut Fixture) {
     f.ctx().reset();
     f.engine.prepare_iteration(0.0);
     f.engine.add_event(Event::new(
@@ -93,7 +93,7 @@ fn run_timed(f: &mut Fixture, until: f64) -> Vec<(f64, EventKind)> {
     handled
 }
 
-fn energy(f: &Fixture, at: f64) -> u32 {
+pub(super) fn energy(f: &Fixture, at: f64) -> u32 {
     f.character.resource_level(ResourceType::Energy, at)
 }
 
@@ -108,7 +108,7 @@ fn is_regen_reaction(kind: &EventKind) -> bool {
 const SINISTER_STRIKE_ONLY: &str = "attack_mode: magic\ncast_if:\n  - name: Sinister Strike\n";
 
 /// A rotation that never casts.
-const NOTHING: &str = "attack_mode: magic\ncast_if:\n  - name: Sinister Strike\n    condition: variable \"combo_points\" greater 5\n";
+pub(super) const NOTHING: &str = "attack_mode: magic\ncast_if:\n  - name: Sinister Strike\n    condition: variable \"combo_points\" greater 5\n";
 
 /// The rotation acts 0.1 s after the tick that makes a 45 energy Sinister Strike affordable,
 /// not before and not on every tick.

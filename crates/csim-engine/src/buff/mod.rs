@@ -147,6 +147,9 @@ pub struct Buff {
     hidden: bool,
     /// `None` = permanent.
     base_duration: Option<f64>,
+    /// The duration of the running application when the spell that applied it decided it
+    /// (combo points spent, `DURATION` modifiers); the base duration otherwise.
+    application_duration: Option<f64>,
     /// Talent modification of the duration (`increase_buff_duration_percent`).
     duration_percent: i32,
     base_charges: u32,
@@ -205,6 +208,7 @@ impl Buff {
             kind,
             hidden: false,
             base_duration: duration,
+            application_duration: None,
             duration_percent: 0,
             base_charges,
             max_stacks: 1,
@@ -363,8 +367,16 @@ impl Buff {
 
     /// Duration in seconds including talent modifications; `None` = permanent.
     pub fn duration(&self) -> Option<f64> {
-        self.base_duration
+        self.application_duration
+            .or(self.base_duration)
             .map(|base| base * (1.0 + f64::from(self.duration_percent) / 100.0))
+    }
+
+    /// Sets the duration of the application about to be made (`None`: the base duration),
+    /// as the spell applying it decided it (a finisher's combo points). Set before
+    /// [`Buff::apply`]; a refresh keeps it for the rest of the application.
+    pub fn set_application_duration(&mut self, duration: Option<f64>) {
+        self.application_duration = duration.filter(|_| self.base_duration.is_some());
     }
 
     pub fn is_permanent(&self) -> bool {

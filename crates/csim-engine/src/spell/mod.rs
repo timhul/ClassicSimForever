@@ -23,7 +23,8 @@ pub(crate) mod test_world;
 pub use auto_attack::{AutoAttack, AutoAttackHost, SwingReport, swing_rage};
 pub use dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellEffectName, SpellModOp,
+    SpellSchoolMask,
 };
 pub use modifiers::{SpellModifier, SpellModifiers};
 pub use overrides::{

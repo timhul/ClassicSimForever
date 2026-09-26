@@ -143,6 +143,9 @@ pub struct Target {
     spell_damage_charge_debuffs: Vec<InstanceId>,
     debuffs: [Vec<InstanceId>; Priority::COUNT],
     size_debuffs: usize,
+    /// The armor reductions that share one slot (`EXCLUSIVE_ARMOR_REDUCTION`: Sunder Armor,
+    /// Expose Armor), summed per spell; only the strongest is applied to the armor.
+    exclusive_armor: Vec<(u32, i32)>,
 }
 
 impl Target {
@@ -176,6 +179,7 @@ impl Target {
             spell_damage_charge_debuffs: Vec::new(),
             debuffs: Default::default(),
             size_debuffs: 0,
+            exclusive_armor: Vec::new(),
         }
     }
 
@@ -232,6 +236,36 @@ impl Target {
 
     pub fn decrease_armor(&mut self, armor: i32) {
         self.stats.decrease_armor(armor);
+    }
+
+    /// Changes the exclusive armor reduction of `spell` by `delta` (negative: a stronger
+    /// reduction; one call per stack). Of all spells' reductions only the strongest lowers the
+    /// armor, so Sunder Armor and Expose Armor do not stack (forever-bugs #112). Keyed by spell:
+    /// the same spell from two casters adds up, as other target debuffs do.
+    pub fn change_exclusive_armor_reduction(&mut self, spell: u32, delta: i32) {
+        let before = self.exclusive_armor_reduction();
+        match self.exclusive_armor.iter().position(|(id, _)| *id == spell) {
+            Some(index) => {
+                self.exclusive_armor[index].1 += delta;
+                if self.exclusive_armor[index].1 == 0 {
+                    self.exclusive_armor.swap_remove(index);
+                }
+            }
+            None if delta != 0 => self.exclusive_armor.push((spell, delta)),
+            None => {}
+        }
+        let after = self.exclusive_armor_reduction();
+        self.stats.decrease_armor(after - before);
+    }
+
+    /// The armor the exclusive armor reductions take away: the strongest one.
+    pub fn exclusive_armor_reduction(&self) -> i32 {
+        self.exclusive_armor
+            .iter()
+            .map(|(_, amount)| -amount)
+            .max()
+            .unwrap_or(0)
+            .max(0)
     }
 
     /// Resistance to `school`, never negative.
@@ -568,6 +602,34 @@ mod tests {
         target.decrease_armor(1);
         target.increase_armor(500);
         assert_eq!(target.armor(), 0);
+    }
+
+    #[test]
+    fn only_the_strongest_exclusive_armor_reduction_applies() {
+        const SUNDER: u32 = 11597;
+        const EXPOSE: u32 = 11198;
+        let mut target = Target::new(63);
+        let base = Mechanics::BOSS_BASE_ARMOR;
+        for stacks in 1..=5 {
+            target.change_exclusive_armor_reduction(SUNDER, -450);
+            assert_eq!(target.armor(), base - 450 * stacks);
+        }
+        // A 3 point Expose Armor is weaker than 5 Sunders: nothing changes.
+        target.change_exclusive_armor_reduction(EXPOSE, -1350);
+        assert_eq!(target.armor(), base - 2250);
+        target.change_exclusive_armor_reduction(EXPOSE, 1350);
+        // A stronger one replaces Sunder's share, and Sunder's returns when it ends.
+        target.change_exclusive_armor_reduction(EXPOSE, -2700);
+        assert_eq!(target.armor(), base - 2700);
+        target.decrease_armor(100);
+        assert_eq!(target.armor(), base - 2800, "other reductions still add up");
+        target.change_exclusive_armor_reduction(EXPOSE, 2700);
+        assert_eq!(target.armor(), base - 2350);
+        for _ in 0..5 {
+            target.change_exclusive_armor_reduction(SUNDER, 450);
+        }
+        assert_eq!(target.armor(), base - 100);
+        assert_eq!(target.exclusive_armor_reduction(), 0);
     }
 
     #[test]

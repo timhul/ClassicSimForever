@@ -51,6 +51,10 @@ impl SpellModifier {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct SpellModifiers {
     modifiers: Vec<SpellModifier>,
+    /// The character's debuffs that make the target take more damage from the character's own
+    /// spells in their class mask (`MOD_SPELL_DAMAGE_FROM_CASTER`: Hemorrhage on Rupture). The
+    /// `op` is [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
+    damage_from_caster: Vec<SpellModifier>,
 }
 
 impl SpellModifiers {
@@ -60,6 +64,32 @@ impl SpellModifiers {
 
     pub fn add(&mut self, modifier: SpellModifier) {
         self.modifiers.push(modifier);
+    }
+
+    /// Adds a `MOD_SPELL_DAMAGE_FROM_CASTER` debuff's modifier (see `damage_from_caster`).
+    pub fn add_damage_from_caster(&mut self, modifier: SpellModifier) {
+        self.damage_from_caster.push(modifier);
+    }
+
+    /// Removes one `MOD_SPELL_DAMAGE_FROM_CASTER` modifier equal to `modifier`.
+    pub fn remove_damage_from_caster(&mut self, modifier: &SpellModifier) -> bool {
+        match self.damage_from_caster.iter().position(|m| m == modifier) {
+            Some(index) => {
+                self.damage_from_caster.remove(index);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// The damage multiplier the character's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs give a
+    /// spell with `class` options: the product of the ones that apply to it.
+    pub fn damage_from_caster_multiplier(&self, class: Option<&ClassOptions>) -> f64 {
+        self.damage_from_caster
+            .iter()
+            .filter(|m| m.applies_to(class))
+            .map(|m| 1.0 + m.amount / 100.0)
+            .product()
     }
 
     /// Removes one modifier equal to `modifier`; returns whether one was found.

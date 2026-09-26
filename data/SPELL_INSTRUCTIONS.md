@@ -208,11 +208,22 @@ Berserking 20554, Sword Specialization 20597 …); `ClassMask` −1 on a racial 
   the attack is missed, dodged or parried. The tables do not give the amount; the engine refunds
   80 % (`POWER_REFUND_ON_MISS`). Set on the single-target warrior attacks, not on Whirlwind,
   Cleave, Thunder Clap or the shouts. Other failed casts pay the full cost.
+- `SpellMisc.Attributes_2 & 0x0010_0000` (`BEHIND_TARGET`): the caster must be behind the target
+  (Backstab, Garrote, Ambush); a tanking character gets `NotBehindTarget`.
+- `SpellMisc.Attributes_3 & 0x400` (`MAIN_HAND`) / `& 0x0100_0000` (`REQUIRES_OFF_HAND_WEAPON`):
+  a weapon `SpellEquippedItems` requirement must be met by that hand's weapon itself, as the
+  server's `Spell::CheckItems` (Backstab needs the dagger in the main hand; Mutilate needs two).
+  A spell with `REQUIRES_OFF_HAND_WEAPON` and weapon damage strikes with the off hand (off-hand
+  roll, off-hand weapon damage × the off-hand penalty): Mutilate's off-hand strike.
+- Finishers: a spell with a `COMBO_POINTS` power cost needs at least one point. Its effects,
+  its aura's duration and its aura values read the points before they are spent; a finisher
+  that fails keeps them. The count spent is on the cast report (statistics: "Finishers").
 - Duration: `SpellDuration[DurationIndex].Duration` ms; −1 = until cancelled (stances).
   Finishers add `DurationPerResource` ms per combo point spent, capped at `MaxDuration`
   (Slice and Dice 6000 + 3000 × CP, max 21000); both are exported (`duration_per_resource_ms`,
   `max_duration_ms`) only when `DurationPerResource` is set, since elsewhere `MaxDuration` is a
-  level-scaling cap the simulator does not use.
+  level-scaling cap the simulator does not use. A cast's aura then lasts that duration through
+  the `DURATION` spell modifiers (Improved Slice and Dice +15/30/45 %).
 - Cost: `SpellPower` rows (`OrderIndex` 0 primary). `PowerType` 1 (rage) values are ×10
   (Mortal Strike `ManaCost` 300 = 30 rage); mana/energy are as-is; `PowerCostPct` = % of base
   mana; `ManaPerSecond` for channels.
@@ -244,7 +255,7 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 | `EffectBasePointsF` | the value (exact float; modern format, **no** +1 die offset). Percent for percentage auras, flat otherwise. |
 | `EffectRealPointsPerLevel` | value += this × (casterLevel − `SpellLevels.SpellLevel`), level capped at `MaxLevel`. |
 | `Variance` | damage/heal range: value × (1 ± Variance/2). Frostbolt r11: 475 ± 3.7 %. |
-| `EffectPointsPerResource` | value += this × combo points (finishers). |
+| `EffectPointsPerResource` | value += this × combo points (finishers). An aura's value is taken when the cast applies it (Expose Armor −450 per point, Rupture's ticks); a new cast with other values re-applies the aura. |
 | `EffectBonusCoefficient` | spell-power coefficient (Frostbolt r11 0.814, Lightning Bolt r10 0.714, Mind Blast r9 0.429 — the Classic values). 1 on melee rows is meaningless. |
 | `BonusCoefficientFromAP` | attack-power coefficient (only Hammer of Wrath 429151 uses it; SoD-style AP scaling is otherwise expressed as a `DUMMY` + description). |
 | `EffectAuraPeriod` | tick interval ms for periodic auras (Rend 3000). Ticks = duration / period; `$o1` = value × ticks. |
@@ -262,7 +273,8 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 3 DUMMY (437, scripted), 10 HEAL (227), 30 ENERGIZE (122), 121 NORMALIZED_WEAPON_DMG (112:
 weapon damage + basepoints, Mortal Strike/Whirlwind), 31 WEAPON_PERCENT_DAMAGE (108: basepoints
 = %), 28 SUMMON, 35 APPLY_AREA_AURA_PARTY, 58 WEAPON_DAMAGE (weapon + basepoints, school of
-spell), 24 CREATE_ITEM, 64 TRIGGER_SPELL, 77 SCRIPT_EFFECT, 63 THREAT (flat threat, Sunder
+spell), 24 CREATE_ITEM, 64 TRIGGER_SPELL (on an enemy, from a melee spell: a strike cast only
+when the spell lands, which cannot miss again and is no ability of its own: Mutilate), 77 SCRIPT_EFFECT, 63 THREAT (flat threat, Sunder
 Armor), 68 INTERRUPT_CAST, 38 DISPEL, 96 CHARGE, 17 WEAPON_DAMAGE_NOSCHOOL (weapon +
 basepoints, Heroic Strike), 114 ATTACK_ME (Taunt; 91 is THREAT_ALL), 65 APPLY_AREA_AURA_RAID, 27 PERSISTENT_AREA_AURA,
 16 QUEST_COMPLETE, 54 ENCHANT_ITEM_TEMPORARY (runes), 36 LEARN_SPELL, 9 HEALTH_LEECH,
@@ -286,7 +298,10 @@ MOD_SPELL_CRIT_CHANCE, 5 MOD_CONFUSE, 49 MOD_DODGE_PERCENT, 290 MOD_CRIT_PCT (Be
 +3), 41 DISPEL_IMMUNITY, 16 MOD_STEALTH, 134 MOD_MANA_REGEN_INTERRUPT, 85 MOD_POWER_REGEN (Anger
 Management: misc 1 rage), 280 MOD_ARMOR_PENETRATION_PCT (Weaponmaster 12284: percent of the
 target's armor ignored by attacks with the weapon types the spell requires), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
-MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK. Others: retail
+MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK, 271
+MOD_SPELL_DAMAGE_FROM_CASTER (Hemorrhage: the target takes `base_points` % more damage from the
+caster's spells in the effect's class mask, Rupture; a multiplier of the caster's own spells
+only). Others: retail
 `AuraType` enum (`SharedDefines.h`).
 
 **`SpellModOp` (misc value of auras 107/108)** — verified: 14 POWER_COST (Improved Heroic
@@ -453,6 +468,11 @@ overrides:
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
+| `COMBO_POINT_AP_DAMAGE` | a finisher's attack power share: `value` % of attack power per combo point, or the `per_combo_point` entry (1 to 5 points). Without `effect` the effect deals it with the direct damage; with `effect` it is spread over that periodic aura's ticks, taken at the cast | `value` or `per_combo_point`, `effect` | Eviscerate E1 (3 %/point), Rupture E2 → E0 (4/10/18/21/24 %) |
+| `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %) |
+| `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
+| `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
+| `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),

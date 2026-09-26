@@ -34,6 +34,14 @@ impl IncludedOutcomes {
         block: true,
         miss: true,
     };
+
+    /// Nothing is avoided: the attack hits or crits (the strikes of a landed attack).
+    pub const NONE: IncludedOutcomes = IncludedOutcomes {
+        dodge: false,
+        parry: false,
+        block: false,
+        miss: false,
+    };
 }
 
 impl Default for IncludedOutcomes {

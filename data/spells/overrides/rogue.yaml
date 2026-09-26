@@ -8,9 +8,12 @@
 # replaces them in the note, so `csim-tables check` lists nothing of the Rogue at every step.
 
 overrides:
-  # ----- Finishers: per-combo-point dummies -------------------------------------------------
+  # ----- Finishers ---------------------------------------------------------------------------
   # The per-combo-point duration is SpellDuration.DurationPerResource (`duration_per_resource_ms`)
-  # and the per-point damage / armor is EffectPointsPerResource; the DUMMY carries no number.
+  # and the per-point damage / armor is EffectPointsPerResource; the DUMMYs carry no number. The
+  # attack power shares are only in the descriptions: COMBO_POINT_AP_DAMAGE with the TASKS
+  # decision 2 values, which are unverified defaults (Eviscerate 3 % AP per point from
+  # ClassicSim; Rupture 4/10/18/21/24 % AP over the ticks from cMaNGOS / TBC).
   - id: 5171
     note: Slice and Dice r1; E0 is the per-combo-point duration (duration_per_resource_ms)
     effects: [{ index: 0, script: NO_OP }]
@@ -18,100 +21,128 @@ overrides:
     note: Slice and Dice r2; E0 is the per-combo-point duration (duration_per_resource_ms)
     effects: [{ index: 0, script: NO_OP }]
   - id: 1943
-    note: Rupture r1; E1 is the per-combo-point duration (duration_per_resource_ms), E2 has no number. The attack power share of the ticks comes with RG.3
+    note: Rupture r1; E1 is the per-combo-point duration (duration_per_resource_ms), E2 carries the attack power share of the ticks (unverified default, TASKS decision 2)
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 8639
-    note: Rupture r2, see r1 (RG.3)
+    note: Rupture r2, see r1
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 8640
-    note: Rupture r3, see r1 (RG.3)
+    note: Rupture r3, see r1
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 11273
-    note: Rupture r4, see r1 (RG.3)
+    note: Rupture r4, see r1
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 11274
-    note: Rupture r5, see r1 (RG.3)
+    note: Rupture r5, see r1
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 11275
-    note: Rupture r6, see r1 (RG.3)
+    note: Rupture r6, see r1
     effects:
       - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 2, script: COMBO_POINT_AP_DAMAGE, params: { effect: 0, per_combo_point: [4, 10, 18, 21, 24] } }
   - id: 2098
-    note: Eviscerate r1; E1 is "increased by Attack Power" with no number (COMBO_POINT_AP_DAMAGE, RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r1; E1 is the "increased by Attack Power" of the description, 3 % AP per combo point (unverified default, TASKS decision 2)
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 6760
-    note: Eviscerate r2, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r2, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 6761
-    note: Eviscerate r3, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r3, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 6762
-    note: Eviscerate r4, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r4, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 8623
-    note: Eviscerate r5, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r5, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 8624
-    note: Eviscerate r6, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r6, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 11299
-    note: Eviscerate r7, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r7, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 11300
-    note: Eviscerate r8, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r8, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 31016
-    note: Eviscerate r9, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Eviscerate r9, see r1
+    effects: [{ index: 1, script: COMBO_POINT_AP_DAMAGE, params: { value: 3 } }]
   - id: 8647
-    note: Expose Armor r1; E0's points_per_resource is the armor per combo point, the E1 DUMMY has no number (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Expose Armor r1; E0's points_per_resource is the armor per combo point and it shares one armor reduction with Sunder Armor, the stronger applies (forever-bugs #112); the E1 DUMMY has no number
+    effects:
+      - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
+      - { index: 1, script: NO_OP }
   - id: 8649
-    note: Expose Armor r2, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Expose Armor r2, see r1
+    effects:
+      - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
+      - { index: 1, script: NO_OP }
   - id: 8650
-    note: Expose Armor r3, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Expose Armor r3, see r1
+    effects:
+      - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
+      - { index: 1, script: NO_OP }
   - id: 11197
-    note: Expose Armor r4, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Expose Armor r4, see r1
+    effects:
+      - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
+      - { index: 1, script: NO_OP }
   - id: 11198
-    note: Expose Armor r5, see r1 (RG.3)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Expose Armor r5, see r1
+    effects:
+      - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
+      - { index: 1, script: NO_OP }
   - id: 1310703
     note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms), the poison modifiers are RG.4 / RG.5
     effects: [{ index: 0, script: NO_OP }]
 
   # ----- Builders -----------------------------------------------------------------------------
+  - id: 703
+    note: Garrote r1; the "increased by your Attack Power" of the description is 3 % AP per tick, 18 % over the bleed (unverified default, TASKS decision 2)
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
+  - id: 8631
+    note: Garrote r2, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
+  - id: 8632
+    note: Garrote r3, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
+  - id: 8633
+    note: Garrote r4, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
+  - id: 11289
+    note: Garrote r5, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
+  - id: 11290
+    note: Garrote r6, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 3 } }]
   - id: 14278
-    note: Ghostly Strike; E3 is the weapon damage with a main-hand dagger, 180 % (WEAPON_TYPE_VALUE, RG.3)
-    effects: [{ index: 3, script: NO_OP }]
+    note: Ghostly Strike; E3 is the weapon damage with a main-hand dagger, 180 % instead of E0's 125 %
+    effects: [{ index: 3, script: WEAPON_TYPE_VALUE, params: { effect: 0, weapon_subclass_mask: 32768 } }]
   - id: 16511
-    note: Hemorrhage; E4 is the weapon damage with a dagger, 145 % (WEAPON_TYPE_VALUE, RG.3)
-    effects: [{ index: 4, script: NO_OP }]
+    note: Hemorrhage; E4 is the weapon damage with a main-hand dagger, 145 % instead of E3's 100 %
+    effects: [{ index: 4, script: WEAPON_TYPE_VALUE, params: { effect: 3, weapon_subclass_mask: 32768 } }]
   - id: 1310707
-    note: Mutilate r1 (talent); E3 is +20 % damage against a poisoned target (DAMAGE_PERCENT_VS_POISONED, RG.3 / RG.5)
-    effects: [{ index: 3, script: NO_OP }]
+    note: Mutilate r1 (talent); E3 is +20 % damage of the two strikes against a target with one of the rogue's poisons (poisons come with RG.5)
+    effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
   - id: 399956
-    note: Mutilate r2, see r1 (RG.3 / RG.5)
-    effects: [{ index: 3, script: NO_OP }]
+    note: Mutilate r2, see r1
+    effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
   - id: 1241582
-    note: Mutilate r3, see r1 (RG.3 / RG.5)
-    effects: [{ index: 3, script: NO_OP }]
+    note: Mutilate r3, see r1
+    effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
   - id: 1241584
-    note: Mutilate r4, see r1 (RG.3 / RG.5)
-    effects: [{ index: 3, script: NO_OP }]
+    note: Mutilate r4, see r1
+    effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
 
   # ----- Talents ------------------------------------------------------------------------------
   # The combo point payloads (E0 ENERGIZE misc 4) carry a DUMMY without a number next to the

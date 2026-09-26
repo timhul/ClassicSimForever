@@ -86,6 +86,8 @@ pub struct ClassStatistics {
     resources: BTreeMap<SpellKey, ResourceStatistics>,
     /// Regeneration lost because the resource was full, per resource.
     lost_at_cap: [f64; ResourceType::ALL.len()],
+    /// The finishers cast, by the combo points they spent (index 0 = 1 point).
+    finishers: BTreeMap<SpellKey, [u64; 5]>,
     procs: BTreeMap<String, ProcStatistics>,
     executors: Vec<RotationExecutorStatistics>,
     /// The rotation lines that were not linked.
@@ -109,6 +111,7 @@ impl ClassStatistics {
             buffs: BTreeMap::new(),
             resources: BTreeMap::new(),
             lost_at_cap: [0.0; ResourceType::ALL.len()],
+            finishers: BTreeMap::new(),
             procs: BTreeMap::new(),
             executors: Vec::new(),
             skipped_executors: Vec::new(),
@@ -160,6 +163,17 @@ impl ClassStatistics {
     }
 
     /// Adds regeneration of `resource` lost at the cap.
+    /// Counts a finisher `name` / `rank` that spent `combo_points` (1 to 5).
+    pub fn record_finisher(&mut self, name: &str, rank: u32, combo_points: u32) {
+        let index = (combo_points.clamp(1, 5) - 1) as usize;
+        self.finishers.entry(SpellKey::new(name, rank)).or_default()[index] += 1;
+    }
+
+    /// The finishers cast, with the number of casts per combo points spent (index 0 = 1).
+    pub fn finishers(&self) -> impl Iterator<Item = (&SpellKey, &[u64; 5])> {
+        self.finishers.iter()
+    }
+
     pub fn add_lost_at_cap(&mut self, resource: ResourceType, amount: f64) {
         self.lost_at_cap[resource_index(resource)] += amount;
     }
@@ -364,6 +378,12 @@ impl ClassStatistics {
         for (mine, theirs) in self.lost_at_cap.iter_mut().zip(other.lost_at_cap) {
             *mine += theirs;
         }
+        for (key, counts) in &other.finishers {
+            let mine = self.finishers.entry(key.clone()).or_default();
+            for (mine, theirs) in mine.iter_mut().zip(counts) {
+                *mine += theirs;
+            }
+        }
         for (name, stats) in &other.procs {
             self.proc(name).add(stats);
         }
@@ -547,6 +567,7 @@ mod tests {
         a.resource("Mainhand Attack", 1)
             .add_gain(ResourceType::Rage, 100);
         a.proc("Unbridled Wrath").set_counts(10, 2);
+        a.record_finisher("Eviscerate", 9, 5);
         a.set_executors(vec![RotationExecutorStatistics::new(
             "(1) Bloodthirst",
             "Bloodthirst",
@@ -562,6 +583,8 @@ mod tests {
         b.resource("Mainhand Attack", 1)
             .add_gain(ResourceType::Rage, 50);
         b.proc("Unbridled Wrath").set_counts(5, 1);
+        b.record_finisher("Eviscerate", 9, 5);
+        b.record_finisher("Eviscerate", 9, 2);
         b.set_executors(vec![RotationExecutorStatistics::new(
             "(1) Bloodthirst",
             "Bloodthirst",
@@ -587,6 +610,11 @@ mod tests {
             150.0
         );
         assert_eq!(a.proc_statistics("Unbridled Wrath").unwrap().attempts(), 15);
+        let finishers: Vec<_> = a.finishers().collect();
+        assert_eq!(
+            finishers,
+            [(&SpellKey::new("Eviscerate", 9), &[0, 1, 0, 0, 2])]
+        );
         assert_eq!(a.executors().len(), 1);
         assert_eq!(a.engine().event_count(EventType::PlayerAction), 2);
         assert_eq!(a.engine().event_count(EventType::DotTick), 1);

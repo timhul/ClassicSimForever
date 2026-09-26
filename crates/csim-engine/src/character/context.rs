@@ -16,7 +16,7 @@ use crate::enchant::EnchantName;
 use crate::engine::{Engine, Event, EventKind, PLAYER_REACTION_DELAY};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
-use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect};
+use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect, WeaponType};
 use crate::proc::{ProcHost, ProcSource};
 use crate::resource::ResourceType;
 use crate::rotation::{
@@ -52,6 +52,9 @@ pub const REGENERATION: &str = "Regeneration";
 /// it reacts to, not the one landing with it, so the player acts 0.1 s after the tick that
 /// makes a spell affordable, whichever event runs the rotation at that instant.
 pub const TICK_READ_LAG: f64 = 1e-6;
+
+/// `SpellCategories.DispelType` of poisons.
+const DISPEL_TYPE_POISON: u32 = 4;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SwingOutcome {
@@ -1167,7 +1170,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 (spell.name().to_string(), spell.rank(), log_spell(spell))
             };
             self.record_report(&name, rank, report);
-            self.log_report(spell, report, None);
+            self.log_report(spell, report, None, false);
         }
         let granted_extra_attacks = self.character.pending_extra_attacks() > before;
         let procs = self.character.spells.procs_mut();
@@ -1675,12 +1678,25 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Also logs it; a cast of the character's own (`mark`, see [`Self::log_report`]) with its
     /// `SPELL_CAST_SUCCESS`.
     fn record_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
-        let (name, rank, spell) = {
+        let (name, rank, spell, hostile) = {
             let spell = self.character.spells.spell(id);
-            (spell.name().to_string(), spell.rank(), log_spell(spell))
+            // An off-hand strike of its own (Mutilate's) is kept apart from the main hand's.
+            let name = if spell.strikes_with_offhand() {
+                format!("{} Off-Hand", spell.name())
+            } else {
+                spell.name().to_string()
+            };
+            let hostile = spell.record().effects.iter().any(|e| e.targets_enemy());
+            (name, spell.rank(), log_spell(spell), hostile)
         };
         self.record_report(&name, rank, report);
-        self.log_report(spell, report, mark);
+        // Finishers of a class with combo points to build (not the Warrior's dodge marker).
+        if report.combo_points_spent > 0 && self.character.class().max_combo_points > 1 {
+            self.character
+                .statistics
+                .record_finisher(&name, rank, report.combo_points_spent);
+        }
+        self.log_report(spell, report, mark, hostile);
     }
 
     /// Records a cast report under `name` / `rank`.
@@ -1820,8 +1836,15 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// character cast itself also logs `SPELL_CAST_SUCCESS` at `mark`, where the log stood before
     /// it was performed (so before what the cast caused); a proc or a triggered spell (`None`)
     /// only logs its effects, like the client. A cast that only started (a cast time, an
-    /// on-next-swing queue) is logged when it completes.
-    fn log_report(&mut self, spell: LogSpell, report: &CastReport, mark: Option<usize>) {
+    /// on-next-swing queue) is logged when it completes. The cast is logged at the target when
+    /// the spell attacked it or has a `hostile` effect (a landed Rupture deals no damage itself).
+    fn log_report(
+        &mut self,
+        spell: LogSpell,
+        report: &CastReport,
+        mark: Option<usize>,
+        hostile: bool,
+    ) {
         if !self.engine.is_logging()
             || report.queued
             || report.cast_started
@@ -1831,7 +1854,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
         let me = self.log_me();
         if let Some(mark) = mark {
-            let dest = if report.attack.is_some() {
+            let dest = if report.attack.is_some() || hostile {
                 LogUnit::Target
             } else {
                 me
@@ -2364,6 +2387,26 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character.equipment().has_two_hand_weapon()
     }
 
+    fn mainhand_weapon_type(&self) -> Option<WeaponType> {
+        self.character
+            .equipment()
+            .weapon_profile(EquipmentSlot::Mainhand)
+            .map(|weapon| weapon.weapon_type)
+    }
+
+    /// One of the character's own active debuffs is a poison (`DispelType` 4).
+    fn target_poisoned_by_caster(&self) -> bool {
+        let spells = self.character.spells();
+        spells.buff_ids().any(|id| {
+            let buff = self.buff_ref(id);
+            buff.is_debuff()
+                && buff.is_active()
+                && spells.spell_by_game_id(buff.spell()).is_some_and(|spell| {
+                    spells.spell(spell).record().categories.dispel_type == DISPEL_TYPE_POISON
+                })
+        })
+    }
+
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
         self.character.adjust_offhand_copy(spell, apply);
     }
@@ -2497,6 +2540,18 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         CharacterContext::equipped_item_matches(self, requirement)
     }
 
+    fn weapon_in_hand_matches(&self, hand: Hand, requirement: &EquippedItems) -> bool {
+        let slot = match hand {
+            Hand::Mainhand => EquipmentSlot::Mainhand,
+            Hand::Offhand => EquipmentSlot::Offhand,
+        };
+        self.slot_item_matches(slot, requirement)
+    }
+
+    fn attacking_from_behind(&self) -> bool {
+        self.character.is_attacking_from_behind()
+    }
+
     fn caster_aura_state(&self, state: AuraState) -> bool {
         match state {
             AuraState::None => true,
@@ -2625,6 +2680,18 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         let report = self.with_spell(id, |s, ctx| {
             s.set_trigger_value(trigger_value);
             s.perform_triggered(ctx)
+        });
+        self.record_cast(id, &report, None);
+        Some(report)
+    }
+
+    fn trigger_strike(&mut self, spell: u32, damage_mod: f64) -> Option<CastReport> {
+        let id = self.character.spells().spell_by_game_id(spell)?;
+        let report = self.with_spell(id, |s, ctx| {
+            s.set_strike(Some(damage_mod));
+            let report = s.perform_triggered(ctx);
+            s.set_strike(None);
+            report
         });
         self.record_cast(id, &report, None);
         Some(report)

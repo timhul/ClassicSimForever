@@ -179,6 +179,26 @@ pub enum ScriptKind {
     /// An `ENERGIZE` effect gives `params.value` times its amount while a two-hand weapon is
     /// equipped (Unbridled Wrath: 1 rage, 2 with a two-hander).
     TwoHandEnergizeMultiplier,
+    /// A finisher's attack power share, which the tables only mention in the description:
+    /// `params.value` % of attack power per combo point spent, or the `params.per_combo_point`
+    /// entry (% of attack power for 1 to 5 points). Without `params.effect` the effect deals it
+    /// with the spell's direct damage (Eviscerate); with it, the share is spread over the ticks
+    /// of that periodic aura effect (Rupture).
+    ComboPointApDamage,
+    /// A bleed's attack power share: `params.value` % of attack power added to every tick of
+    /// this periodic aura effect (Garrote).
+    AttackPowerPerTick,
+    /// While the main-hand weapon's subclass is in `params.weapon_subclass_mask`, this effect's
+    /// value replaces the value of effect `params.effect` (Ghostly Strike: 180 % weapon damage
+    /// instead of 125 % with a dagger).
+    WeaponTypeValue,
+    /// The spells this one triggers deal `base_points` % more damage while one of the caster's
+    /// poisons is on the target (Mutilate).
+    DamagePercentVsPoisoned,
+    /// An armor reduction on the target that shares one slot with the other exclusive ones:
+    /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
+    /// the `MOD_RESISTANCE` aura effect itself.
+    ExclusiveArmorReduction,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -209,6 +229,28 @@ pub struct ScriptParams {
     /// Creature types the script applies to.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub creature_types: Option<CreatureTypes>,
+    /// One amount per combo point spent, for 1 to 5 points.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub per_combo_point: Option<[f64; 5]>,
+    /// Weapon subclasses, as a `SpellEquippedItems` subclass mask (32768 = dagger).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_subclass_mask: Option<u32>,
+}
+
+impl ScriptParams {
+    /// The attack power percent of a `COMBO_POINT_AP_DAMAGE` script after spending
+    /// `combo_points`: `value` per point, or the `per_combo_point` entry for the count (5 for
+    /// more). 0 without combo points.
+    pub fn combo_point_ap_percent(&self, combo_points: u32) -> f64 {
+        if combo_points == 0 {
+            return 0.0;
+        }
+        match (self.value, self.per_combo_point) {
+            (Some(per_point), _) => per_point * f64::from(combo_points),
+            (None, Some(table)) => table[(combo_points.min(5) - 1) as usize],
+            (None, None) => 0.0,
+        }
+    }
 }
 
 /// The aura effect that enables a hidden aura the server applies (`ENABLE_PROC`,
@@ -275,6 +317,18 @@ impl EffectScript {
             ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
                 need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
             }
+            ScriptKind::ComboPointApDamage => need(
+                p.value.is_some() != p.per_combo_point.is_some(),
+                "value or per_combo_point (one of them)",
+            ),
+            ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
+            ScriptKind::WeaponTypeValue => {
+                need(p.effect.is_some(), "effect")?;
+                need(
+                    p.weapon_subclass_mask.is_some_and(|mask| mask != 0),
+                    "weapon_subclass_mask (not 0)",
+                )
+            }
             ScriptKind::AttackPowerPercentDamage
             | ScriptKind::Execute
             | ScriptKind::StanceRageRetained
@@ -282,6 +336,8 @@ impl EffectScript {
             | ScriptKind::WeaponTypeDamagePercent
             | ScriptKind::WeaponTypeCritPercent
             | ScriptKind::AbilityCritPercent
+            | ScriptKind::DamagePercentVsPoisoned
+            | ScriptKind::ExclusiveArmorReduction
             | ScriptKind::NoOp => Ok(()),
         }
     }

@@ -220,5 +220,20 @@ overrides:
 
   # ----- Debuff slot priorities (the target has a limited number of debuff slots) ---------------
   - id: 11597
-    note: Sunder Armor r5 is the debuff a raid always keeps up
+    note: Sunder Armor r5 is the debuff a raid always keeps up; its armor reduction does not stack with Expose Armor's, the stronger one applies (forever-bugs #112)
     debuff_priority: high
+    effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]
+
+  # ----- Sunder Armor and Expose Armor share one armor reduction (forever-bugs #112) ----------
+  - id: 7386
+    note: Sunder Armor r1, see r5
+    effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]
+  - id: 7405
+    note: Sunder Armor r2, see r5
+    effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]
+  - id: 8380
+    note: Sunder Armor r3, see r5
+    effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]
+  - id: 11596
+    note: Sunder Armor r4, see r5
+    effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]

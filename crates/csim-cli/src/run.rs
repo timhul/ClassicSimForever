@@ -325,6 +325,9 @@ pub struct Results {
     pub resources: Vec<ResourceRow>,
     /// The sums over `resources`, one per resource.
     pub resource_totals: Vec<ResourceTotal>,
+    /// The finishers cast, by combo points spent.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub finishers: Vec<FinisherRow>,
     pub rotation: Vec<ExecutorRow>,
     /// The rotation lines that never run, and why.
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -433,6 +436,16 @@ pub struct ResourceRow {
     pub resource: String,
     pub per_fight: f64,
     pub per_second: f64,
+}
+
+/// A finisher's casts per fight by the combo points they spent.
+#[derive(Debug, Serialize)]
+pub struct FinisherRow {
+    pub name: String,
+    /// Casts per fight with 1 to 5 combo points.
+    pub per_fight: [f64; 5],
+    /// The average combo points spent.
+    pub average: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -573,6 +586,7 @@ impl Results {
             procs: proc_rows(&stats),
             resource_totals: ResourceTotal::of(&resources, &stats),
             resources,
+            finishers: finisher_rows(&stats),
             rotation: executor_rows(&stats),
             skipped_rotation_lines: skipped_rows(&stats),
             stat_weights: if r.settings.options.is_empty() {
@@ -640,6 +654,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             ("Buffs and debuffs", self.buff_table()),
             ("Procs", self.proc_table()),
             ("Resource gains", self.resource_table()),
+            ("Finishers", self.finisher_table()),
             ("Rotation", self.executor_table()),
             ("Skipped rotation lines", self.skipped_table()),
             ("Engine", self.engine_table()),
@@ -763,6 +778,20 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                     format!("{:.2}", sum.lost_at_cap_per_second),
                 ]);
             }
+        }
+        table
+    }
+
+    fn finisher_table(&self) -> Table {
+        let mut table = Table::new([
+            "Finisher", "1 CP", "2 CP", "3 CP", "4 CP", "5 CP", "Average",
+        ])
+        .left(1);
+        for finisher in &self.finishers {
+            let mut row = vec![finisher.name.clone()];
+            row.extend(finisher.per_fight.iter().map(|casts| format!("{casts:.1}")));
+            row.push(format!("{:.2}", finisher.average));
+            table.row(row);
         }
         table
     }
@@ -952,6 +981,22 @@ fn proc_rows(stats: &ClassStatistics) -> Vec<ProcRow> {
             per_fight: per(proc.procs(), iterations),
             proc_rate: proc.avg_proc_rate(),
             ppm: proc.effective_ppm(stats.time_in_combat()),
+        })
+        .collect()
+}
+
+fn finisher_rows(stats: &ClassStatistics) -> Vec<FinisherRow> {
+    let iterations = stats.iterations().max(1) as f64;
+    stats
+        .finishers()
+        .map(|(key, counts)| {
+            let casts: u64 = counts.iter().sum();
+            let points: u64 = counts.iter().zip(1..).map(|(n, cp)| n * cp).sum();
+            FinisherRow {
+                name: key.display_name(),
+                per_fight: counts.map(|n| n as f64 / iterations),
+                average: points as f64 / casts.max(1) as f64,
+            }
         })
         .collect()
 }

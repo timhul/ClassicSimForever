@@ -224,6 +224,7 @@ impl CharacterSpells {
         shared: &mut impl SharedBuffs,
     ) -> AddedSpell {
         let record = std::sync::Arc::clone(&setup.record);
+        let triggered = setup.triggered;
         assert!(
             !self.by_game_id.contains_key(&record.id),
             "{} ({}) has already been added",
@@ -264,10 +265,11 @@ impl CharacterSpells {
         self.spells[id.index()] = Some(spell);
         self.by_game_id.insert(record.id, SpellHandle::Spell(id));
 
-        // Rank groups: what a rotation names. Only spellbook abilities join; a second spell of
-        // the same name and rank stays out and is reached by game id.
+        // Rank groups: what a rotation names. Only spellbook abilities join, not the payloads
+        // another spell triggers; a second spell of the same name and rank stays out and is
+        // reached by game id.
         let mut in_rank_group = false;
-        if record.is_ability() && !ignored {
+        if record.is_ability() && !ignored && !triggered {
             let rank = record.rank_number().unwrap_or(1);
             in_rank_group = match self.rank_groups.get_mut(&record.name) {
                 Some(group) => group.add_rank(rank, id),

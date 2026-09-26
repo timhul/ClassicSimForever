@@ -19,6 +19,8 @@ pub enum SpellStatus {
     IncorrectWeaponType,
     InsufficientComboPoints,
     InsufficientResources,
+    /// The spell must be used from behind the target and the character faces it (tanking).
+    NotBehindTarget,
     NotEnabled,
     NotInExecuteRange,
     /// The sim does not model the spell (`IGNORED` override, unsupported effects).
@@ -32,7 +34,7 @@ pub enum SpellStatus {
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 21] = [
+    pub const ALL: [SpellStatus; 22] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -46,6 +48,7 @@ impl SpellStatus {
         SpellStatus::IncorrectWeaponType,
         SpellStatus::InsufficientComboPoints,
         SpellStatus::InsufficientResources,
+        SpellStatus::NotBehindTarget,
         SpellStatus::NotEnabled,
         SpellStatus::NotInExecuteRange,
         SpellStatus::NotSupported,
@@ -103,6 +106,7 @@ impl SpellStatus {
             SpellStatus::IncorrectWeaponType => "FAIL: Incorrect weapon type",
             SpellStatus::InsufficientComboPoints => "FAIL: Insufficient combo points",
             SpellStatus::InsufficientResources => "FAIL: Insufficient resources",
+            SpellStatus::NotBehindTarget => "FAIL: Not behind the target",
             SpellStatus::NotEnabled => "FAIL: Not enabled",
             SpellStatus::NotInExecuteRange => "FAIL: Not in execute range",
             SpellStatus::NotSupported => "FAIL: Not modelled by the simulator",

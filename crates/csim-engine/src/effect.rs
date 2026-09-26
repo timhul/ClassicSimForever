@@ -17,7 +17,9 @@ use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::item::{ItemStat, WeaponType};
 use crate::resource::ResourceType;
 use crate::spell::SpellResult;
-use crate::spell::dbc::{AuraType, DefenseType, PowerType, SpellEffectName, SpellSchoolMask};
+use crate::spell::dbc::{
+    AuraType, DefenseType, PowerType, SpellEffectName, SpellModOp, SpellSchoolMask,
+};
 use crate::spell::modifiers::{SpellModifier, SpellModifiers};
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
@@ -98,6 +100,14 @@ pub trait EffectHost {
     fn has_two_hand_weapon(&self) -> bool {
         false
     }
+    /// The type of the main-hand weapon, if one is equipped (`WEAPON_TYPE_VALUE`).
+    fn mainhand_weapon_type(&self) -> Option<WeaponType> {
+        None
+    }
+    /// Whether one of the caster's poisons is on the target (`DAMAGE_PERCENT_VS_POISONED`).
+    fn target_poisoned_by_caster(&self) -> bool {
+        false
+    }
 }
 
 /// How an effect relates to the effects before it in the chain. Port of `Dependency`.
@@ -122,6 +132,9 @@ pub struct ChainState {
     pub resource_cost: u32,
     /// Crit chance added by modifiers, hundredths of a percent.
     pub extra_crit: u32,
+    /// The spell is the strike of an attack that landed already (Mutilate's weapon strikes):
+    /// its roll cannot be avoided, only crit.
+    pub hit_guaranteed: bool,
 }
 
 /// What the spell needs to know after an effect was performed.
@@ -140,6 +153,9 @@ pub struct EffectOutcome {
     pub threat: f64,
     /// The spell consumes every remaining point of its resource (Execute).
     pub consumes_all_resource: bool,
+    /// Percent added to the damage of the spells this one triggers (Mutilate's strikes
+    /// against a poisoned target).
+    pub triggered_damage_percent: f64,
 }
 
 impl EffectOutcome {
@@ -150,6 +166,7 @@ impl EffectOutcome {
         trigger: None,
         threat: 0.0,
         consumes_all_resource: false,
+        triggered_damage_percent: 0.0,
     };
 
     fn plain(success: bool) -> Self {
@@ -185,6 +202,13 @@ pub struct Effect {
     value: f64,
     /// The table value.
     base_value: f64,
+    /// Points the cast that applied the effect's aura added to the value: combo points spent
+    /// times `EffectPointsPerResource`, the attack power share of a finisher's or a bleed's
+    /// ticks. Taken when the aura is applied, so a later change cannot unbalance its removal.
+    cast_bonus: f64,
+    /// The value that replaces the base points while the main-hand weapon's subclass is in
+    /// the mask (`WEAPON_TYPE_VALUE`: Ghostly Strike's 180 % with a dagger).
+    weapon_type_value: Option<(u32, f64)>,
     dependency: Dependency,
     included: IncludedOutcomes,
     can_crit: bool,
@@ -196,6 +220,8 @@ pub struct Effect {
     /// Damage produced by the last perform; the spell collects and zeroes it.
     pub damage_dealt: f64,
     reroll_result: bool,
+    /// The roll of the perform in progress cannot be avoided ([`ChainState::hit_guaranteed`]).
+    hit_guaranteed: bool,
     effect_success: bool,
 }
 
@@ -227,6 +253,8 @@ impl Effect {
         Effect {
             value: record.base_points as f64,
             base_value: record.base_points as f64,
+            cast_bonus: 0.0,
+            weapon_type_value: None,
             record: record.clone(),
             script,
             spell: spell.id,
@@ -246,6 +274,7 @@ impl Effect {
             last_result: None,
             damage_dealt: 0.0,
             reroll_result: true,
+            hit_guaranteed: false,
             effect_success: false,
         }
     }
@@ -318,6 +347,27 @@ impl Effect {
         self.value = self.base_value;
     }
 
+    /// The points the cast that applied the aura added (see `cast_bonus`).
+    pub fn cast_bonus(&self) -> f64 {
+        self.cast_bonus
+    }
+
+    /// Sets the points the cast applying the aura adds to its value.
+    pub fn set_cast_bonus(&mut self, bonus: f64) {
+        self.cast_bonus = bonus;
+    }
+
+    /// Makes `value` the base points while the main-hand weapon's subclass is in
+    /// `subclass_mask` (`WEAPON_TYPE_VALUE`).
+    pub fn set_weapon_type_value(&mut self, subclass_mask: u32, value: f64) {
+        self.weapon_type_value = Some((subclass_mask, value));
+    }
+
+    /// Whether the effect is a periodic aura (its value is a tick: `PERIODIC_DAMAGE`).
+    pub fn is_periodic_aura(&self) -> bool {
+        self.record.is_apply_aura() && self.record.is_periodic()
+    }
+
     /// The value for a caster of `level`: base points plus per-level scaling
     /// (`EffectRealPointsPerLevel × (min(level, max) − spell level)`).
     pub fn value_at_level(&self, level: u32) -> f64 {
@@ -361,7 +411,16 @@ impl Effect {
     }
 
     pub fn effective_value(&self, host: &impl EffectHost) -> f64 {
-        let base = self.value_at_level(host.caster_level());
+        let weapon_type_value = self.weapon_type_value.filter(|(mask, _)| {
+            host.mainhand_weapon_type().is_some_and(|weapon| {
+                let (_, subclass) = weapon.item_class_subclass();
+                mask & (1 << subclass) != 0
+            })
+        });
+        let base = match weapon_type_value {
+            Some((_, value)) => value,
+            None => self.value_at_level(host.caster_level()),
+        } + self.cast_bonus;
         host.spell_modifiers()
             .effect_value(self.class_options.as_ref(), self.record.index, base)
     }
@@ -413,7 +472,9 @@ impl Effect {
                 self.last_result = chain.previous;
             }
         }
+        self.hit_guaranteed = chain.hit_guaranteed;
         let outcome = self.perform_internal(host, chain.resource_cost, chain.extra_crit);
+        self.hit_guaranteed = false;
         self.effect_success = outcome.success;
         outcome
     }
@@ -512,6 +573,16 @@ impl Effect {
                 threat: self.effective_value(host),
                 ..EffectOutcome::plain(true)
             },
+            // A hostile trigger of a melee spell strikes the target: the spell must land first
+            // (Mutilate's weapon strikes), like the server's hit check of the whole spell.
+            E::TriggerSpell if self.is_strike_trigger() => {
+                let (hit, rolled) = self.roll_melee_with(host, extra_crit, false);
+                EffectOutcome {
+                    trigger: (hit && self.record.trigger_spell != 0)
+                        .then_some(self.record.trigger_spell),
+                    ..EffectOutcome::rolled(hit, rolled)
+                }
+            }
             E::TriggerSpell => EffectOutcome {
                 trigger: (self.record.trigger_spell != 0).then_some(self.record.trigger_spell),
                 ..EffectOutcome::plain(true)
@@ -566,10 +637,67 @@ impl Effect {
             }
             // Applied by the spell to its weapon damage (`weapon_damage_multiplier`).
             Some(ScriptKind::ExtraWeaponDamageVsCreatureTypes) => EffectOutcome::plain(true),
+            // A finisher's attack power share dealt with its direct damage (Eviscerate); a
+            // share of a periodic aura (`params.effect`) is added to its ticks by the spell.
+            Some(ScriptKind::ComboPointApDamage) if self.script_target().is_none() => {
+                let (hit, rolled) = self.roll_melee(host, extra_crit);
+                if hit {
+                    let percent = self.script.map_or(0.0, |s| {
+                        s.params.combo_point_ap_percent(host.combo_points())
+                    });
+                    self.damage_dealt = f64::from(host.melee_ap()) * percent / 100.0;
+                }
+                EffectOutcome::rolled(hit, rolled)
+            }
+            Some(ScriptKind::DamagePercentVsPoisoned) => EffectOutcome {
+                triggered_damage_percent: if host.target_poisoned_by_caster() {
+                    self.effective_value(host)
+                } else {
+                    0.0
+                },
+                ..EffectOutcome::plain(true)
+            },
             // Aura-side scripts (bleeds, periodic gains, triggers with a value) are run by the
             // buff, periodic and proc systems; `NO_OP` and unscripted dummies do nothing.
             _ => EffectOutcome::plain(true),
         }
+    }
+
+    /// The effect a script acts on (`params.effect`), if it names one.
+    pub fn script_target(&self) -> Option<u32> {
+        self.script.and_then(|s| s.params.effect)
+    }
+
+    /// Whether the effect rolls the attack table when it is performed on its own: weapon
+    /// damage, damage and debuffs of a melee spell, a melee spell's hostile trigger.
+    pub fn rolls_attack(&self) -> bool {
+        use SpellEffectName as E;
+        let melee = self.defense == DefenseType::Melee;
+        self.weapon_damage_kind()
+            || match self.record.effect {
+                E::SchoolDamage | E::HealthLeech => melee,
+                _ => self.is_melee_debuff() || self.is_strike_trigger(),
+            }
+    }
+
+    /// Whether the effect deals weapon damage (or scales it).
+    pub fn weapon_damage_kind(&self) -> bool {
+        use SpellEffectName as E;
+        matches!(
+            self.record.effect,
+            E::NormalizedWeaponDmg
+                | E::WeaponDamage
+                | E::WeaponDamageNoschool
+                | E::WeaponPercentDamage
+        )
+    }
+
+    /// A hostile `TRIGGER_SPELL` of a melee spell: the triggered spell is a strike of the
+    /// attack, cast only when the attack lands (Mutilate).
+    pub fn is_strike_trigger(&self) -> bool {
+        self.record.effect == SpellEffectName::TriggerSpell
+            && self.defense == DefenseType::Melee
+            && self.record.targets_enemy()
     }
 
     /// `SCHOOL_DAMAGE`: the level-scaled value with its variance, combo points and attack
@@ -632,7 +760,12 @@ impl Effect {
                 .is_some_and(PhysicalAttackResult::is_success);
             return (hit, None);
         }
-        let result = host.roll_melee_ability(self.included, extra_crit, can_crit);
+        let included = if self.hit_guaranteed {
+            IncludedOutcomes::NONE
+        } else {
+            self.included
+        };
+        let result = host.roll_melee_ability(included, extra_crit, can_crit);
         self.last_result = Some(result);
         (result.is_success(), Some(result))
     }
@@ -757,7 +890,10 @@ impl Effect {
                 CharacterStats::remove_total_stat_mod,
             ),
             A::ModResistance if school.is_physical() => {
-                if on_target {
+                if on_target && self.script_kind() == Some(ScriptKind::ExclusiveArmorReduction) {
+                    host.target_mut()
+                        .change_exclusive_armor_reduction(self.spell, signed);
+                } else if on_target {
                     change_target_armor(host, signed);
                 } else {
                     adjust(
@@ -918,6 +1054,25 @@ impl Effect {
                     host.spell_modifiers_mut().remove(&modifier);
                 }
             }
+            // The caster's debuff raises the damage the target takes from the caster's spells
+            // in its class mask (Hemorrhage: Rupture). Only the owner's spells see it, so it is
+            // kept with the owner's modifiers.
+            A::ModSpellDamageFromCaster if on_target => {
+                let modifier = SpellModifier {
+                    set: self.class_options.map_or(0, |c| c.set),
+                    class_mask: self.record.spell_class_mask,
+                    op: SpellModOp::HealingAndDamage,
+                    pct: true,
+                    amount: value,
+                    source: self.spell,
+                };
+                if apply {
+                    host.spell_modifiers_mut().add_damage_from_caster(modifier);
+                } else {
+                    host.spell_modifiers_mut()
+                        .remove_damage_from_caster(&modifier);
+                }
+            }
             A::OverrideActionbarSpells => {
                 host.override_actionbar_spell(
                     self.record.misc_value[0] as u32,
@@ -1014,7 +1169,7 @@ fn change_target_armor(host: &mut impl EffectHost, value: i32) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::spell::dbc::{ImplicitTarget, SpellModOp};
+    use crate::spell::dbc::ImplicitTarget;
     use crate::spell::overrides::ScriptParams;
     use crate::spell::record::Categories;
     use std::collections::VecDeque;
@@ -1041,6 +1196,8 @@ mod tests {
         resources_on_use: Vec<(u32, ResourceType, u32, bool)>,
         overrides: Vec<(u32, u32, bool)>,
         two_hand: bool,
+        mainhand: Option<WeaponType>,
+        poisoned: bool,
     }
 
     impl MockHost {
@@ -1067,6 +1224,8 @@ mod tests {
                 resources_on_use: Vec::new(),
                 overrides: Vec::new(),
                 two_hand: false,
+                mainhand: None,
+                poisoned: false,
             }
         }
 
@@ -1180,6 +1339,12 @@ mod tests {
         }
         fn has_two_hand_weapon(&self) -> bool {
             self.two_hand
+        }
+        fn mainhand_weapon_type(&self) -> Option<WeaponType> {
+            self.mainhand
+        }
+        fn target_poisoned_by_caster(&self) -> bool {
+            self.poisoned
         }
     }
 
@@ -1458,6 +1623,7 @@ mod tests {
             previous: None,
             resource_cost: 15,
             extra_crit: 2500,
+            hit_guaranteed: false,
         };
         let first_outcome = first.perform(&mut host, &chain);
         assert_eq!(first_outcome.rolled, Some(PhysicalAttackResult::Critical));
@@ -1491,6 +1657,192 @@ mod tests {
         let outcome = fourth.perform(&mut host, &chain);
         assert!(!outcome.success);
         assert_eq!(outcome.rolled, None);
+    }
+
+    fn scripted(index: u32, script: ScriptKind, params: ScriptParams) -> Option<EffectScript> {
+        Some(EffectScript {
+            index,
+            script,
+            params,
+        })
+    }
+
+    /// A hostile trigger of a melee spell lands on the attack table before it triggers (without
+    /// crit); the strikes it triggers roll with nothing to avoid.
+    #[test]
+    fn strike_triggers_roll_and_strikes_cannot_be_avoided() {
+        let mut host = MockHost::new().with_rolls(&[
+            PhysicalAttackResult::Dodge,
+            PhysicalAttackResult::Hit,
+            PhysicalAttackResult::Critical,
+        ]);
+        let mut record = effect_record(1, SpellEffectName::TriggerSpell, 0.0);
+        record.trigger_spell = 1310706;
+        let mut strike = Effect::new(&record, &melee_spell(), None, false);
+        assert!(strike.is_strike_trigger());
+        assert!(strike.rolls_attack());
+        let dodged = strike.perform_independent(&mut host, 0, 0);
+        assert!(!dodged.success);
+        assert_eq!(dodged.rolled, Some(PhysicalAttackResult::Dodge));
+        assert_eq!(dodged.trigger, None);
+        let landed = strike.perform_independent(&mut host, 0, 0);
+        assert_eq!(landed.trigger, Some(1310706));
+        assert_eq!(host.can_crits, [false, false]);
+
+        let mut weapon = effect(SpellEffectName::NormalizedWeaponDmg, 23.0);
+        let chain = ChainState {
+            result: SpellResult::Undetermined,
+            previous: None,
+            resource_cost: 0,
+            extra_crit: 0,
+            hit_guaranteed: true,
+        };
+        assert!(weapon.perform(&mut host, &chain).success);
+        assert_eq!(host.rolled_with[2], IncludedOutcomes::NONE);
+        assert!(host.can_crits[2]);
+    }
+
+    /// Eviscerate's attack power share: 3 % per combo point, dealt with the direct damage;
+    /// Rupture's per-point table.
+    #[test]
+    fn combo_point_attack_power_damage() {
+        let mut host = MockHost::new().with_rolls(&[PhysicalAttackResult::Hit]);
+        host.combo_points = 5;
+        let params = ScriptParams {
+            value: Some(3.0),
+            ..ScriptParams::default()
+        };
+        let mut eviscerate = Effect::new(
+            &effect_record(1, SpellEffectName::Dummy, 0.0),
+            &melee_spell(),
+            scripted(1, ScriptKind::ComboPointApDamage, params),
+            false,
+        );
+        let outcome = eviscerate.perform_independent(&mut host, 35, 0);
+        assert!(outcome.success);
+        assert_eq!(eviscerate.damage_dealt, 150.0, "15 % of 1000 attack power");
+
+        let rupture = ScriptParams {
+            effect: Some(0),
+            per_combo_point: Some([4.0, 10.0, 18.0, 21.0, 24.0]),
+            ..ScriptParams::default()
+        };
+        assert_eq!(rupture.combo_point_ap_percent(0), 0.0);
+        assert_eq!(rupture.combo_point_ap_percent(1), 4.0);
+        assert_eq!(rupture.combo_point_ap_percent(5), 24.0);
+        assert_eq!(params.combo_point_ap_percent(2), 6.0);
+        let mut periodic = Effect::new(
+            &effect_record(2, SpellEffectName::Dummy, 0.0),
+            &melee_spell(),
+            scripted(2, ScriptKind::ComboPointApDamage, rupture),
+            false,
+        );
+        periodic.perform_independent(&mut host, 0, 0);
+        assert_eq!(
+            periodic.damage_dealt, 0.0,
+            "the ticks take a periodic aura's share"
+        );
+    }
+
+    #[test]
+    fn cast_bonus_and_weapon_type_values_replace_the_base_points() {
+        let mut host = MockHost::new();
+        let mut percent = effect(SpellEffectName::WeaponPercentDamage, 125.0);
+        percent.set_weapon_type_value(1 << 15, 180.0);
+        assert_eq!(percent.effective_value(&host), 125.0);
+        host.mainhand = Some(WeaponType::Sword);
+        assert_eq!(percent.effective_value(&host), 125.0);
+        host.mainhand = Some(WeaponType::Dagger);
+        assert_eq!(percent.effective_value(&host), 180.0);
+
+        let mut expose = aura(AuraType::ModResistance, 0.0, 1);
+        expose.set_cast_bonus(-2250.0);
+        assert_eq!(expose.cast_bonus(), -2250.0);
+        assert_eq!(expose.effective_value(&host), -2250.0);
+    }
+
+    #[test]
+    fn damage_percent_vs_poisoned_is_handed_to_the_strikes() {
+        let mut host = MockHost::new();
+        let mut mutilate = Effect::new(
+            &effect_record(3, SpellEffectName::Dummy, 20.0),
+            &melee_spell(),
+            scripted(
+                3,
+                ScriptKind::DamagePercentVsPoisoned,
+                ScriptParams::default(),
+            ),
+            false,
+        );
+        let outcome = mutilate.perform_independent(&mut host, 0, 0);
+        assert_eq!(outcome.triggered_damage_percent, 0.0);
+        host.poisoned = true;
+        let outcome = mutilate.perform_independent(&mut host, 0, 0);
+        assert_eq!(outcome.triggered_damage_percent, 20.0);
+    }
+
+    /// Expose Armor and Sunder Armor share the exclusive armor reduction; Hemorrhage's debuff
+    /// is a modifier of the caster's own spells.
+    #[test]
+    fn exclusive_armor_and_damage_from_caster_auras() {
+        let mut host = MockHost::new();
+        let base_armor = host.target.armor();
+        let script = scripted(
+            0,
+            ScriptKind::ExclusiveArmorReduction,
+            ScriptParams::default(),
+        );
+        let mut sunder = aura_record(0, AuraType::ModResistance, -450.0, 1);
+        sunder.implicit_target = [ImplicitTarget::UnitTargetEnemy, ImplicitTarget::None];
+        let sunder = Effect::new(&sunder, &melee_spell(), script, false);
+        for _ in 0..5 {
+            sunder.apply_aura(&mut host, true);
+        }
+        let mut expose = sunder.clone();
+        expose.spell = 11198;
+        expose.set_value(0.0);
+        expose.set_cast_bonus(-1800.0);
+        expose.apply_aura(&mut host, true);
+        assert_eq!(host.target.armor(), base_armor - 2250);
+        for _ in 0..5 {
+            sunder.remove_aura(&mut host, true);
+        }
+        assert_eq!(host.target.armor(), base_armor - 1800);
+        expose.remove_aura(&mut host, true);
+        assert_eq!(host.target.armor(), base_armor);
+
+        let mut hemorrhage = aura_record(2, AuraType::ModSpellDamageFromCaster, 15.0, 0);
+        hemorrhage.spell_class_mask = [1 << 20, 0, 0, 0];
+        let mut spell = melee_spell();
+        spell.class_options = Some(ClassOptions {
+            set: 8,
+            mask: [0, 0, 0, 0],
+        });
+        let hemorrhage = Effect::new(&hemorrhage, &spell, None, false);
+        let rupture = ClassOptions {
+            set: 8,
+            mask: [1 << 20, 0, 0, 0],
+        };
+        hemorrhage.apply_aura(&mut host, true);
+        let multiplier = host.modifiers.damage_from_caster_multiplier(Some(&rupture));
+        assert!((multiplier - 1.15).abs() < 1e-12);
+        assert_eq!(
+            host.modifiers
+                .damage_from_caster_multiplier(Some(&ClassOptions {
+                    set: 8,
+                    mask: [1, 0, 0, 0],
+                })),
+            1.0
+        );
+        assert!(
+            host.modifiers.is_empty(),
+            "not a modifier of the spells' own values"
+        );
+        hemorrhage.remove_aura(&mut host, true);
+        assert_eq!(
+            host.modifiers.damage_from_caster_multiplier(Some(&rupture)),
+            1.0
+        );
     }
 
     #[test]
@@ -1542,6 +1894,7 @@ mod tests {
 
         let mut trigger = effect_record(1, SpellEffectName::TriggerSpell, 0.0);
         trigger.trigger_spell = 29131;
+        trigger.implicit_target = [ImplicitTarget::UnitCaster, ImplicitTarget::None];
         let mut trigger = Effect::new(&trigger, &melee_spell(), None, false);
         assert_eq!(
             trigger.perform_independent(&mut host, 0, 0).trigger,

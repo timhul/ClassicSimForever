@@ -45,9 +45,11 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::faction::PlayerClass;
+use crate::spell::Hand;
 use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellEffectName, SpellModOp,
+    SpellSchoolMask,
 };
 use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
@@ -645,6 +647,42 @@ impl SpellRecord {
         SpellAttr1::from_bits(self.attributes[1])
     }
 
+    /// `Attributes_2` as flags.
+    pub fn attr2(&self) -> SpellAttr2 {
+        SpellAttr2::from_bits(self.attributes[2])
+    }
+
+    /// `Attributes_3` as flags.
+    pub fn attr3(&self) -> SpellAttr3 {
+        SpellAttr3::from_bits(self.attributes[3])
+    }
+
+    /// The caster must attack from behind the target (Backstab, Garrote, Ambush).
+    pub fn requires_behind_target(&self) -> bool {
+        self.attr2().contains(SpellAttr2::BEHIND_TARGET)
+    }
+
+    /// The weapon requirement (`SpellEquippedItems`, a weapon class) must be met by the weapon
+    /// in `hand` itself: `MAIN_HAND` / `REQUIRES_OFF_HAND_WEAPON`, as the server's
+    /// `Spell::CheckItems`. Other requirements are met by any equipped weapon.
+    pub fn requires_weapon_in(&self, hand: Hand) -> bool {
+        let weapon_class = self
+            .equipped_items
+            .is_some_and(|items| items.class == EquippedItems::WEAPON);
+        weapon_class
+            && self.attr3().contains(match hand {
+                Hand::Mainhand => SpellAttr3::MAIN_HAND,
+                Hand::Offhand => SpellAttr3::REQUIRES_OFF_HAND_WEAPON,
+            })
+    }
+
+    /// The spell attacks with the off-hand weapon (retail's `OFF_ATTACK` attack type for
+    /// `REQUIRES_OFF_HAND_WEAPON`): its weapon damage effects deal off-hand damage (Mutilate's
+    /// off-hand strike).
+    pub fn attacks_with_offhand(&self) -> bool {
+        self.attr3().contains(SpellAttr3::REQUIRES_OFF_HAND_WEAPON)
+    }
+
     /// Most of the cost comes back when the attack is missed, dodged or parried.
     pub fn refunds_power_on_miss(&self) -> bool {
         self.attr1().contains(SpellAttr1::DISCOUNT_POWER_ON_MISS)
@@ -885,6 +923,8 @@ pub struct SpellDb {
     /// Ids from files with `learnable: false` (the external buff auras).
     unlearnable: HashSet<u32>,
     next_rank: HashMap<u32, u32>,
+    /// The spells another spell's `TRIGGER_SPELL` effect casts (Mutilate's strikes).
+    triggered: HashSet<u32>,
     overrides: Overrides,
 }
 
@@ -987,7 +1027,20 @@ impl SpellDb {
         if record.supercedes != 0 {
             self.next_rank.insert(record.supercedes, id);
         }
+        self.triggered.extend(
+            record
+                .trigger_spells()
+                .into_iter()
+                .filter(|&triggered| triggered != id),
+        );
         self.spells.insert(id, Arc::new(record));
+    }
+
+    /// Whether another spell casts `id` through a `TRIGGER_SPELL` effect: a payload, even
+    /// when it looks like a spellbook ability (Mutilate's strikes carry Mutilate's name,
+    /// rank and skill line).
+    pub fn is_triggered(&self, id: u32) -> bool {
+        self.triggered.contains(&id)
     }
 
     /// The hand-written overrides.
