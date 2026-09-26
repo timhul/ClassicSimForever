@@ -65,7 +65,12 @@ cast_if:
       variable "time_remaining_execute" less 0
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
-  # Always cast Execute if available, unless melee AP is > 2000 and BT soon off cd.
+  - name: Eureka!
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Rage" less 50
+      or variable "time_remaining_execute" greater 120
+  # Always cast Execute if available, unless melee AP is > 2220 (TODO: should be 2434 if 0/2 imp exec) and BT soon off cd.
   - name: Execute
     condition: |
       variable "melee_ap" leq 2220

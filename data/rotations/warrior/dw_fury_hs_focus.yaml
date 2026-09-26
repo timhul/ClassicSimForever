@@ -75,6 +75,11 @@ cast_if:
       variable "time_remaining_execute" less 0
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
+  - name: Eureka!
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Rage" less 50
+      or variable "time_remaining_execute" greater 120
   - name: Execute
   - name: Bloodthirst
     condition: variable "time_remaining_execute" greater 0
