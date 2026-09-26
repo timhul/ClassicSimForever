@@ -64,7 +64,16 @@ with the same seed and ranked by DPS; `--dry-run` only counts and lists the vari
 
 `cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml --dry-run`
 
+# Good cross-reference information sources
+
+https://github.com/ClassicWoWCommunity/forever-bugs/issues/
+https://github.com/magey/forever-warrior
+https://ppach-warriorcompendium.share.connect.posit.cloud/
+
+Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
+
 # Known issues
 
-- Raid DPS is much lower than solo DPS. This is because debuffs are not applied in the current
-raid setup, and many raid buffs are missing.
+- Raid DPS can be lower than solo DPS. This is because external debuffs are not applied in a raid
+context since they depend instead on the available raid members, meaning some debuffs are not
+applied if characters applying those debuffs are.
