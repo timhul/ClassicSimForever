@@ -31,6 +31,7 @@ fn ctx(clvl: u32, hit_percent: f64, dual_wielding: bool, from_behind: bool) -> R
         dual_wielding,
         attacking_from_behind: from_behind,
         glancing_blows: true,
+        expertise: 0,
     }
 }
 

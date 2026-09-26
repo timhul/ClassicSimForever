@@ -88,6 +88,8 @@ pub struct RollContext {
     pub attacking_from_behind: bool,
     /// Whether glancing blows can occur (disabled by the Loatheb ruleset).
     pub glancing_blows: bool,
+    /// Dodge and parry chance the target loses (Weapon Expertise), as a range out of 10 000.
+    pub expertise: u32,
 }
 
 /// Character state needed to build a magic attack table for one school.
@@ -100,8 +102,18 @@ pub struct MagicRollContext {
     pub target_resistance: u32,
 }
 
-/// Cache key for melee tables: weapon skill and whether the attack comes from behind.
-type MeleeTableKey = (u32, bool);
+/// Cache key for melee tables: weapon skill, whether the attack comes from behind and the
+/// expertise.
+type MeleeTableKey = (u32, bool, u32);
+
+fn melee_key(ctx: &RollContext, wpn_skill: u32) -> MeleeTableKey {
+    (wpn_skill, ctx.attacking_from_behind, ctx.expertise)
+}
+
+/// The expertise of `ctx` as a fraction.
+fn expertise_chance(ctx: &RollContext) -> f64 {
+    f64::from(ctx.expertise) / f64::from(ROLL_RANGE)
+}
 
 /// Rolls attack outcomes for one character.
 #[derive(Debug)]
@@ -166,7 +178,7 @@ impl CombatRoll {
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
         self.ensure_melee_white_table(ctx, wpn_skill);
 
-        let table = &self.melee_white_tables[&(wpn_skill, ctx.attacking_from_behind)];
+        let table = &self.melee_white_tables[&melee_key(ctx, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, IncludedOutcomes::ALL)
     }
 
@@ -182,7 +194,7 @@ impl CombatRoll {
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
         self.ensure_melee_special_table(ctx, wpn_skill);
 
-        let table = &self.melee_special_tables[&(wpn_skill, ctx.attacking_from_behind)];
+        let table = &self.melee_special_tables[&melee_key(ctx, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, included)
     }
 
@@ -223,7 +235,7 @@ impl CombatRoll {
         wpn_skill: u32,
     ) -> &MeleeWhiteHitTable {
         self.ensure_melee_white_table(ctx, wpn_skill);
-        &self.melee_white_tables[&(wpn_skill, ctx.attacking_from_behind)]
+        &self.melee_white_tables[&melee_key(ctx, wpn_skill)]
     }
 
     /// Returns (building if needed) the special hit table for `wpn_skill` and the facing in `ctx`.
@@ -233,7 +245,7 @@ impl CombatRoll {
         wpn_skill: u32,
     ) -> &MeleeSpecialTable {
         self.ensure_melee_special_table(ctx, wpn_skill);
-        &self.melee_special_tables[&(wpn_skill, ctx.attacking_from_behind)]
+        &self.melee_special_tables[&melee_key(ctx, wpn_skill)]
     }
 
     /// Returns (building if needed) the magic attack table for `school`.
@@ -256,7 +268,7 @@ impl CombatRoll {
     ) -> &mut MeleeWhiteHitTable {
         self.ensure_melee_white_table(ctx, wpn_skill);
         self.melee_white_tables
-            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .get_mut(&melee_key(ctx, wpn_skill))
             .expect("ensured above")
     }
 
@@ -270,12 +282,12 @@ impl CombatRoll {
     ) -> &mut MeleeSpecialTable {
         self.ensure_melee_special_table(ctx, wpn_skill);
         self.melee_special_tables
-            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .get_mut(&melee_key(ctx, wpn_skill))
             .expect("ensured above")
     }
 
     fn ensure_melee_white_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = (wpn_skill, ctx.attacking_from_behind);
+        let key = melee_key(ctx, wpn_skill);
         if self.melee_white_tables.contains_key(&key) {
             return;
         }
@@ -291,7 +303,7 @@ impl CombatRoll {
         let table = MeleeWhiteHitTable::new(
             wpn_skill,
             miss,
-            self.mechanics.dodge_chance(wpn_skill),
+            self.dodge_chance(ctx, wpn_skill),
             parry,
             glancing,
             self.block_chance(ctx, wpn_skill),
@@ -300,7 +312,7 @@ impl CombatRoll {
     }
 
     fn ensure_melee_special_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = (wpn_skill, ctx.attacking_from_behind);
+        let key = melee_key(ctx, wpn_skill);
         if self.melee_special_tables.contains_key(&key) {
             return;
         }
@@ -311,7 +323,7 @@ impl CombatRoll {
         let table = MeleeSpecialTable::new(
             wpn_skill,
             miss,
-            self.mechanics.dodge_chance(wpn_skill),
+            self.dodge_chance(ctx, wpn_skill),
             parry,
             self.block_chance(ctx, wpn_skill),
         );
@@ -332,11 +344,17 @@ impl CombatRoll {
         self.magic_attack_tables.insert(school, table);
     }
 
+    /// The target's dodge chance, less the character's expertise.
+    fn dodge_chance(&self, ctx: &RollContext, wpn_skill: u32) -> f64 {
+        (self.mechanics.dodge_chance(wpn_skill) - expertise_chance(ctx)).max(0.0)
+    }
+
+    /// The target's parry chance (none from behind), less the character's expertise.
     fn parry_chance(&self, ctx: &RollContext, wpn_skill: u32) -> f64 {
         if ctx.attacking_from_behind {
             0.0
         } else {
-            self.mechanics.parry_chance(ctx.clvl, wpn_skill)
+            (self.mechanics.parry_chance(ctx.clvl, wpn_skill) - expertise_chance(ctx)).max(0.0)
         }
     }
 
@@ -463,6 +481,7 @@ mod tests {
             dual_wielding: true,
             attacking_from_behind: true,
             glancing_blows: true,
+            expertise: 0,
         }
     }
 

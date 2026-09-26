@@ -1011,6 +1011,14 @@ impl Effect {
                 |s, v| s.increase_melee_hit(v),
                 |s, v| s.decrease_melee_hit(v),
             ),
+            // The target's dodge and parry chance against the character's attacks, in percent
+            // (Weapon Expertise).
+            A::ModExpertise if !on_target => adjust(
+                host.stats_mut(),
+                signed_of(hundredths, apply),
+                |s, v| s.increase_expertise(v),
+                |s, v| s.decrease_expertise(v),
+            ),
             A::ModSpellHitChance => adjust(
                 host.stats_mut(),
                 signed_of(hundredths, apply),

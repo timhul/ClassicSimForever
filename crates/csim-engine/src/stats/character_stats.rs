@@ -176,6 +176,9 @@ pub struct CharacterStats {
     /// Crit that applies to melee abilities only, not to auto attacks (Axe and Sword
     /// Specialization); suppressed like aura crit.
     melee_ability_crit: u32,
+    /// Dodge and parry chance the target loses against the character's attacks (Weapon
+    /// Expertise), out of 10 000.
+    expertise: u32,
     damage_bonuses_per_weapon_type: [i32; WeaponType::COUNT],
     /// Percent of the target's armor ignored by attacks with each weapon type (Weaponmaster's
     /// maces and staves).
@@ -547,6 +550,20 @@ impl CharacterStats {
     }
 
     /// Crit for melee abilities only (not auto attacks), subject to per-level suppression.
+    /// Dodge and parry chance the target loses against the character's attacks, out of
+    /// 10 000.
+    pub fn get_expertise(&self) -> u32 {
+        self.expertise
+    }
+
+    pub fn increase_expertise(&mut self, value: u32) {
+        self.expertise += value;
+    }
+
+    pub fn decrease_expertise(&mut self, value: u32) {
+        self.expertise = sub_checked(self.expertise, value, "expertise");
+    }
+
     pub fn increase_melee_ability_crit(&mut self, value: u32) {
         self.melee_ability_crit += value;
     }

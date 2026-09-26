@@ -524,6 +524,7 @@ impl Character {
             dual_wielding: self.uses_dual_wield_hit_table(),
             attacking_from_behind: self.is_attacking_from_behind(),
             glancing_blows: self.sim.ruleset.glancing_blows(),
+            expertise: self.stats.get_expertise(),
         }
     }
 

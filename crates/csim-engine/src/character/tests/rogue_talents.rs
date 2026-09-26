@@ -396,3 +396,54 @@ fn hack_and_slash_extra_attacks_with_swords_and_axes() {
     f.ctx().perform_proc(proc);
     assert_eq!(f.character.pending_extra_attacks(), 1);
 }
+
+const WEAPON_EXPERTISE: u32 = 105726;
+
+/// Rolls out of 10 000 that the target avoids (miss, dodge, parry) on the character's special
+/// and white attack tables, crits aside.
+fn avoided_rolls(f: &mut Fixture) -> (u32, u32) {
+    use crate::combat_roll::{IncludedOutcomes, ROLL_RANGE};
+    use crate::rng::Random;
+    let view = f.target.stat_view();
+    let ctx = f.character.roll_context(&view);
+    let skill = stat(f, |s, stat_ctx| s.get_mh_wpn_skill(stat_ctx));
+    let avoided = |result: PhysicalAttackResult| {
+        matches!(
+            result,
+            PhysicalAttackResult::Miss | PhysicalAttackResult::Dodge | PhysicalAttackResult::Parry
+        )
+    };
+    let mut random = Random::new(0, ROLL_RANGE);
+    let roll = f.character.roll_mut();
+    let special = roll.get_melee_special_table(&ctx, skill).clone();
+    let white = roll.get_melee_white_table(&ctx, skill).clone();
+    let count = |outcome: &mut dyn FnMut(u32) -> PhysicalAttackResult| {
+        (0..ROLL_RANGE).filter(|&r| avoided(outcome(r))).count() as u32
+    };
+    (
+        count(&mut |r| special.get_outcome(&mut random, r, 0, IncludedOutcomes::ALL)),
+        count(&mut |r| white.get_outcome(&mut random, r, 0, IncludedOutcomes::ALL)),
+    )
+}
+
+/// Weapon Expertise 2/2: the target dodges 2 % less, and parries 2 % less when attacked from
+/// the front, on every attack table.
+#[test]
+fn weapon_expertise_lowers_dodge_and_parry() {
+    let mut base = pulled(&[]);
+    let mut f = with_talents(&[(BLADE_FLURRY, 1), (WEAPON_EXPERTISE, 2)]);
+    let (special, white) = avoided_rolls(&mut base);
+    assert_eq!(
+        avoided_rolls(&mut f),
+        (special - 200, white - 200),
+        "behind"
+    );
+    base.character.set_tanking(true);
+    f.character.set_tanking(true);
+    let (special, white) = avoided_rolls(&mut base);
+    assert_eq!(
+        avoided_rolls(&mut f),
+        (special - 400, white - 400),
+        "in front"
+    );
+}
