@@ -180,6 +180,7 @@ impl Character {
         stats.increase_stamina(base.stamina);
         stats.increase_intellect(base.intellect);
         stats.increase_spirit(base.spirit);
+        stats.increase_health(base.health);
         stats.increase_melee_ap(base.melee_ap);
         stats.increase_ranged_ap(base.ranged_ap);
         stats.increase_melee_base_crit(base.melee_crit);
@@ -881,6 +882,10 @@ impl Character {
 
     pub fn melee_ap(&self, target: &TargetStatView) -> u32 {
         self.stats.get_melee_ap(&self.stat_context(target))
+    }
+
+    pub fn max_health(&self, target: &TargetStatView) -> u32 {
+        self.stats.get_max_health(&self.stat_context(target))
     }
 
     pub fn ranged_ap(&self, target: &TargetStatView) -> u32 {

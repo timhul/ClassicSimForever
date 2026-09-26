@@ -41,8 +41,11 @@ overrides:
   - id: 1259918
     note: Plainsrunning is movement
     sim_flags: [IGNORED]
+  # Touch of the Grave (Undead) has one spell per class group; the DUMMY aura is the server's
+  # proc aura for 1260198, a shadow HEALTH_LEECH of 5 % of the caster's maximum health.
   - id: 1260189
-    note: Touch of the Grave (Undead) drains health, no damage contribution modelled yet
-    sim_flags: [IGNORED]
+    note: Touch of the Grave for warriors, paladins and rogues (5 % chance, 1 s cooldown)
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 1260198 } }]
   - id: 1260201
+    note: Touch of the Grave for priests, mages and warlocks, not simulated
     sim_flags: [IGNORED]

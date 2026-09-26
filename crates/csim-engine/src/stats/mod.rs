@@ -59,6 +59,9 @@ pub struct Stats {
     intellect: u32,
     spirit: u32,
 
+    /// Flat maximum health (class base health, `MOD_INCREASE_HEALTH` auras).
+    health: u32,
+
     // Defensive stats
     armor: i32,
     defense: i32,
@@ -309,6 +312,7 @@ impl Stats {
             stamina,
             intellect,
             spirit,
+            health,
             melee_ap,
             feral_ap,
             ranged_ap,
@@ -360,6 +364,7 @@ impl Stats {
             decrease_intellect
         ),
         (spirit, get_spirit, increase_spirit, decrease_spirit),
+        (health, get_health, increase_health, decrease_health),
         (
             melee_ap,
             get_base_melee_ap,

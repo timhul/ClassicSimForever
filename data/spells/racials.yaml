@@ -860,6 +860,23 @@ spells:
     aura: DUMMY
     base_points: 5.0
     implicit_target: [UNIT_CASTER, NONE]
+- id: 1260198
+  name: Touch of the Grave
+  attributes: [65536, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  range_yd: 100.0
+  categories:
+    defense_type: MAGIC
+  levels:
+    spell: 1
+  labels: [5710]
+  description: Steals life from target enemy equal to $1260189s1% of the caster's maximum Health.
+  effects:
+  - index: 0
+    effect: HEALTH_LEECH
+    base_points: 5.0
+    amplitude: 1.0
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1260201
   name: Touch of the Grave
   rank_text: Racial Passive

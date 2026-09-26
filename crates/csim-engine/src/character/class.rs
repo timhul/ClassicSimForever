@@ -38,6 +38,9 @@ pub struct ClassBaseStats {
     /// Base mana of mana users.
     #[serde(default)]
     pub mana: u32,
+    /// Base health, before stamina.
+    #[serde(default)]
+    pub health: u32,
 }
 
 /// Stat conversion rules as written in the data file (percent-crit divisors and AP per stat).

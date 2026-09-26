@@ -1087,6 +1087,9 @@ impl EffectHost for World {
     fn melee_ap(&self) -> u32 {
         1000
     }
+    fn max_health(&self) -> u32 {
+        4000
+    }
     fn random_in_range(&mut self, min: f64, max: f64) -> f64 {
         (min + max) / 2.0
     }

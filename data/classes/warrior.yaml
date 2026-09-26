@@ -7,7 +7,8 @@
 # race ids 95 / 96 are not playable in the simulator yet).
 #
 # The base attributes, attack power and base crit are ClassicSim's (Class/Warrior/Warrior.cpp);
-# the tables do not carry them. Proficiencies, armor type, the global cooldown and the starting
+# the tables do not carry them. The base health is the vanilla level 60 value (server-side
+# `player_classlevelstats`), also not in the tables. Proficiencies, armor type, the global cooldown and the starting
 # stance are Warrior.cpp too; the enchant lists per slot are WarriorEnchants.cpp. Whether an
 # enchant physically fits (two-handers only, sharp vs blunt weapons, faction) is decided by
 # data/enchants.yaml, so the lists here only say which enchants the class considers.
@@ -22,6 +23,7 @@ base_stats:
   spirit: 25
   melee_ap: 160
   melee_crit: 200          # hundredths of a percent
+  health: 1689             # before stamina
 stat_rules:
   agility_per_percent_crit: 20.0
   melee_ap_per_strength: 2

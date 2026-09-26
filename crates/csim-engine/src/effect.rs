@@ -38,6 +38,8 @@ pub trait EffectHost {
     fn gain_resource(&mut self, resource: ResourceType, amount: u32) -> u32;
 
     fn melee_ap(&self) -> u32;
+    /// The caster's maximum health (`HEALTH_LEECH`: Touch of the Grave).
+    fn max_health(&self) -> u32;
     /// A uniformly random value in `[min, max]`.
     fn random_in_range(&mut self, min: f64, max: f64) -> f64;
     /// Random mainhand damage normalized to the weapon type's standard speed.
@@ -439,6 +441,16 @@ impl Effect {
                 }
                 EffectOutcome::rolled(hit, rolled)
             }
+            // Damage of `value` % of the caster's maximum health (Touch of the Grave); the
+            // healing is not modelled.
+            E::HealthLeech => {
+                let (hit, rolled) = self.roll_if_melee(host, extra_crit);
+                if hit {
+                    self.damage_dealt =
+                        f64::from(host.max_health()) * self.effective_value(host) / 100.0;
+                }
+                EffectOutcome::rolled(hit, rolled)
+            }
             E::WeaponDamageNoschool | E::WeaponDamage => {
                 let (hit, rolled) = self.roll_melee(host, extra_crit);
                 if hit {
@@ -719,6 +731,19 @@ impl Effect {
                     );
                 }
             }
+            A::ModIncreaseHealth | A::ModIncreaseHealth2 | A::ModMaxHealth if !on_target => adjust(
+                host.stats_mut(),
+                signed,
+                |s, v| s.increase_health(v),
+                |s, v| s.decrease_health(v),
+            ),
+            A::ModIncreaseHealthPercent if !on_target => multiplier(
+                host.stats_mut(),
+                apply,
+                rounded,
+                CharacterStats::add_health_mod,
+                CharacterStats::remove_health_mod,
+            ),
             A::ModTotalStatPercentage => multiplier(
                 host.stats_mut(),
                 apply,
@@ -1063,6 +1088,9 @@ mod tests {
         fn melee_ap(&self) -> u32 {
             self.melee_ap
         }
+        fn max_health(&self) -> u32 {
+            4000
+        }
         fn random_in_range(&mut self, min: f64, max: f64) -> f64 {
             (min + max) / 2.0
         }
@@ -1323,6 +1351,23 @@ mod tests {
         assert_eq!(outcome.rolled, None);
         assert_eq!(bolt.damage_dealt, 50.0);
         assert!(host.rolled_with.is_empty());
+    }
+
+    #[test]
+    fn health_leech_deals_a_percent_of_the_caster_max_health() {
+        let mut host = MockHost::new();
+        let mut spell = melee_spell();
+        spell.categories.defense_type = DefenseType::Magic;
+        let mut drain = Effect::new(
+            &effect_record(0, SpellEffectName::HealthLeech, 5.0),
+            &spell,
+            None,
+            false,
+        );
+        let outcome = drain.perform_independent(&mut host, 0, 0);
+        assert!(outcome.success);
+        assert_eq!(outcome.rolled, None, "the magic table is not rolled");
+        assert_eq!(drain.damage_dealt, 200.0, "5 % of 4000");
     }
 
     #[test]

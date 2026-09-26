@@ -166,6 +166,7 @@ pub struct CharacterStats {
     spirit: MultiplicativeStack,
     stamina: MultiplicativeStack,
     strength: MultiplicativeStack,
+    health: MultiplicativeStack,
     armor: MultiplicativeStack,
     magic_damage_per_creature: [MultiplicativeStack; CreatureType::COUNT],
     magic_school_damage: [MultiplicativeStack; MagicSchool::ALL.len()],
@@ -289,6 +290,24 @@ impl CharacterStats {
             ctx.equipment.get_spirit(),
             ctx.race.spirit,
         )
+    }
+
+    /// Maximum health: the flat health (class base health, health auras) plus the stamina's,
+    /// the first 20 stamina giving 1 health each and every further point 10, times the percent
+    /// health modifiers (`MOD_INCREASE_HEALTH_PERCENT`).
+    pub fn get_max_health(&self, ctx: &StatContext) -> u32 {
+        let stamina = self.get_stamina(ctx);
+        let from_stamina = stamina.min(20) + stamina.saturating_sub(20) * 10;
+        let flat = self.base_stats.get_health() + ctx.equipment.get_health() + from_stamina;
+        (self.health.modifier() * f64::from(flat)).round() as u32
+    }
+
+    pub fn increase_health(&mut self, value: u32) {
+        self.base_stats.increase_health(value);
+    }
+
+    pub fn decrease_health(&mut self, value: u32) {
+        self.base_stats.decrease_health(value);
     }
 
     pub fn increase_strength(&mut self, value: u32) {
@@ -932,6 +951,14 @@ impl CharacterStats {
 
     pub fn remove_stamina_mod(&mut self, percent: i32) {
         self.stamina.remove(percent);
+    }
+
+    pub fn add_health_mod(&mut self, percent: i32) {
+        self.health.add(percent);
+    }
+
+    pub fn remove_health_mod(&mut self, percent: i32) {
+        self.health.remove(percent);
     }
 
     pub fn add_strength_mod(&mut self, percent: i32) {
@@ -1683,6 +1710,24 @@ mod tests {
         assert_eq!(f.stats.get_mh_crit_chance(&ctx), 585);
         assert_eq!(f.stats.get_oh_crit_chance(&ctx), 0);
         assert_eq!(f.stats.get_armor(&ctx), 154);
+    }
+
+    #[test]
+    fn max_health_from_base_health_and_stamina() {
+        let mut f = Fixture::orc_warrior();
+        f.stats.increase_health(1689);
+        // 112 stamina: 20 × 1 + 92 × 10.
+        assert_eq!(f.stats.get_max_health(&f.ctx()), 1689 + 20 + 920);
+
+        f.stats.increase_stamina(10);
+        f.stats.increase_health(100);
+        assert_eq!(f.stats.get_max_health(&f.ctx()), 1789 + 20 + 1020);
+
+        f.stats.add_health_mod(5);
+        assert_eq!(f.stats.get_max_health(&f.ctx()), 2970);
+        f.stats.remove_health_mod(5);
+        f.stats.decrease_health(100);
+        assert_eq!(f.stats.get_max_health(&f.ctx()), 1689 + 20 + 1020);
     }
 
     #[test]

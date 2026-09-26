@@ -402,9 +402,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.set_payloads_enabled(&payloads, false);
     }
 
+    /// Enables proc `id`, unless the overrides mark it `IGNORED` (the other classes' Touch of
+    /// the Grave): such a proc stays registered but never rolls.
     pub fn enable_proc(&mut self, id: ProcId) {
         let payloads = self.with_procs(|procs, ctx| {
-            if procs.is_enabled(id) {
+            if procs.is_enabled(id) || procs.get(id).spell().is_ignored() {
                 return Vec::new();
             }
             procs.enable(id, ctx);
@@ -2107,6 +2109,10 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
 
     fn melee_ap(&self) -> u32 {
         self.character.melee_ap(&self.target_view())
+    }
+
+    fn max_health(&self) -> u32 {
+        self.character.max_health(&self.target_view())
     }
 
     fn random_in_range(&mut self, min: f64, max: f64) -> f64 {
