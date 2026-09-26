@@ -129,6 +129,9 @@ document.querySelectorAll("th").forEach((th) => th.addEventListener("click", () 
 /// Sections that start collapsed.
 const COLLAPSED: [&str; 3] = ["Rotation", "Skipped rotation lines", "Engine"];
 
+/// Sections that start sorted on a column, largest first.
+const SORTED: [(&str, &str); 1] = [("Stat weights", "DPS")];
+
 /// The results as an HTML page.
 pub fn render(results: &Results) -> String {
     let (setup, run, dps) = (&results.setup, &results.run, &results.dps);
@@ -200,7 +203,11 @@ pub fn render(results: &Results) -> String {
             "<details{open}>\n<summary><h2>{}</h2></summary>",
             escape(title)
         );
-        table_html(&mut out, &table);
+        let sorted = SORTED
+            .iter()
+            .find(|(section, _)| *section == title)
+            .and_then(|(_, header)| table.headers().iter().position(|h| h == header));
+        table_html(&mut out, &table, sorted);
         out.push_str("</details>\n");
     }
     let _ = write!(
@@ -210,7 +217,9 @@ pub fn render(results: &Results) -> String {
     out
 }
 
-fn table_html(out: &mut String, table: &Table) {
+/// Writes `table`, its body rows sorted on the numeric column `sorted` largest first (like a click
+/// on its header would) when given.
+fn table_html(out: &mut String, table: &Table, sorted: Option<usize>) {
     let align = |column| {
         if table.is_left(column) {
             " class=\"left\""
@@ -220,10 +229,25 @@ fn table_html(out: &mut String, table: &Table) {
     };
     out.push_str("<div class=\"scroll\"><table>\n<thead><tr>");
     for (column, header) in table.headers().iter().enumerate() {
-        let _ = write!(out, "<th{}>{}</th>", align(column), escape(header));
+        let sort = if sorted == Some(column) {
+            " aria-sort=\"descending\""
+        } else {
+            ""
+        };
+        let _ = write!(out, "<th{}{sort}>{}</th>", align(column), escape(header));
     }
     out.push_str("</tr></thead>\n");
-    for (part, rows) in [("tbody", table.rows()), ("tfoot", table.totals())] {
+    let mut body: Vec<_> = table.rows().iter().collect();
+    if let Some(column) = sorted {
+        let key = |row: &Vec<String>| row[column].replace(',', "").parse::<f64>().ok();
+        // Largest first, cells without a number last.
+        body.sort_by(|a, b| match (key(a), key(b)) {
+            (Some(x), Some(y)) => y.total_cmp(&x),
+            (x, y) => x.is_none().cmp(&y.is_none()),
+        });
+    }
+    let totals: Vec<_> = table.totals().iter().collect();
+    for (part, rows) in [("tbody", body), ("tfoot", totals)] {
         if rows.is_empty() {
             continue;
         }
@@ -272,11 +296,37 @@ mod tests {
         let mut table = Table::new(["Buff", "Kind", "Uptime"]).left(1);
         table.row(vec!["Flurry".into(), "buff".into(), "50.0%".into()]);
         let mut out = String::new();
-        table_html(&mut out, &table);
+        table_html(&mut out, &table, None);
         assert!(
             out.contains("<th class=\"left\">Buff</th><th class=\"left\">Kind</th><th>Uptime</th>")
         );
         assert!(out.contains("<td class=\"left\">Flurry</td>"));
         assert!(out.contains("<td>50.0%</td>"));
+    }
+
+    #[test]
+    fn sorted_tables_start_largest_first() {
+        let mut table = Table::new(["Option", "DPS"]);
+        for (option, dps) in [
+            ("Strength", "+1.50"),
+            ("Hit", ""),
+            ("Crit", "+20.25"),
+            ("Agility", "-0.50"),
+        ] {
+            table.row(vec![option.into(), dps.into()]);
+        }
+        let mut out = String::new();
+        table_html(&mut out, &table, Some(1));
+        assert!(
+            out.contains("<th class=\"left\">Option</th><th aria-sort=\"descending\">DPS</th>")
+        );
+        let order: Vec<_> = ["Crit", "Strength", "Agility", "Hit"]
+            .iter()
+            .map(|option| {
+                out.find(&format!("<td class=\"left\">{option}</td>"))
+                    .unwrap()
+            })
+            .collect();
+        assert!(order.is_sorted(), "{out}");
     }
 }
