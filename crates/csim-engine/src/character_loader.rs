@@ -47,7 +47,7 @@
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
 use serde::de::{MapAccess, Visitor};
@@ -312,13 +312,37 @@ fn resolve(
         };
         let dir = path.parent().unwrap_or(Path::new(""));
         for file in files {
-            let file = dir.join(file);
-            let (other, _) = resolve(&file, &read(&file)?, stack)?;
+            let file = normalize(&dir.join(file));
+            let text = fs::read_to_string(&file).map_err(|error| {
+                include_error(format!("cannot read {}: {error}", file.display()))
+            })?;
+            let (other, _) = resolve(&file, &text, stack)?;
             merge(&mut mapping, other);
         }
     }
     stack.pop();
     Ok((mapping, included))
+}
+
+/// `path` with its `.` and `..` components folded away where they follow a directory name,
+/// e.g. `data/sweeps/../characters/a.yaml` → `data/characters/a.yaml`.
+pub(crate) fn normalize(path: &Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::CurDir => {}
+            Component::ParentDir
+                if matches!(
+                    normalized.components().next_back(),
+                    Some(Component::Normal(_))
+                ) =>
+            {
+                normalized.pop();
+            }
+            component => normalized.push(component),
+        }
+    }
+    normalized
 }
 
 /// Merges the (partial) setup `changes` into the setup `target`: keys replace, `equipment`

@@ -1,8 +1,8 @@
 # Schema: crates/csim-engine/src/character_loader.rs.
-include: base_target.yaml
-include: base_buffs.yaml
-include: base_fury_16_35.yaml
-include: dw_fury_base_horde.yaml
+include: common/base_target.yaml
+include: common/base_buffs.yaml
+include: common/base_fury_16_35.yaml
+include: common/dw_fury_base_horde.yaml
 name: DW Fury Troll
 race: TROLL
 level: 60

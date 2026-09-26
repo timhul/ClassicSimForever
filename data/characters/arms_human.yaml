@@ -1,6 +1,6 @@
 # Schema: crates/csim-engine/src/character_loader.rs.
-include: target_base.yaml
-include: base_buffs.yaml
+include: common/base_target.yaml
+include: common/base_buffs.yaml
 name: Arms Human
 class: WARRIOR
 race: HUMAN

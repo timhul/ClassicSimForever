@@ -243,7 +243,7 @@ fn the_base_is_relative_to_the_sweep_file() {
     sweep.path = Some(PathBuf::from("data/sweeps/x.yaml"));
     assert_eq!(
         sweep.base_path().unwrap(),
-        Path::new("data/sweeps").join("../characters/dw_fury_orc.yaml")
+        Path::new("data/characters/dw_fury_orc.yaml")
     );
 }
 
@@ -290,7 +290,7 @@ fn characters_replace_the_whole_setup() {
             .path
             .as_ref()
             .unwrap()
-            .ends_with("../characters/dw_fury_human.yaml")
+            .ends_with("characters/dw_fury_human.yaml")
     );
     let two_hander = &expansion.variants[2].setup;
     assert!(

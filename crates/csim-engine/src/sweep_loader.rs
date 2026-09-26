@@ -53,7 +53,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use serde_yaml::{Mapping, Value};
 
-use crate::character_loader::{CharacterSetup, CharacterSetupError, SetupIssue, merge};
+use crate::character_loader::{CharacterSetup, CharacterSetupError, SetupIssue, merge, normalize};
 use crate::data_bundle::DataBundle;
 
 /// A `data/sweeps/*.yaml` file. See the module documentation.
@@ -288,7 +288,7 @@ impl SweepSetup {
     /// `path` relative to the sweep file's directory.
     pub fn resolve(&self, path: &Path) -> PathBuf {
         match self.path.as_ref().and_then(|path| path.parent()) {
-            Some(dir) => dir.join(path),
+            Some(dir) => normalize(&dir.join(path)),
             None => path.to_path_buf(),
         }
     }

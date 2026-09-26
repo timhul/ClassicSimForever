@@ -390,6 +390,18 @@ fn include_may_repeat_list_and_nest() {
 }
 
 #[test]
+fn normalize_folds_parent_directories() {
+    assert_eq!(
+        normalize(Path::new("data/sweeps/../characters/./a.yaml")),
+        Path::new("data/characters/a.yaml")
+    );
+    assert_eq!(
+        normalize(Path::new("../a/../b.yaml")),
+        Path::new("../b.yaml")
+    );
+}
+
+#[test]
 fn include_errors_are_reported() {
     let dir = setup_dir(
         "errors",
@@ -398,7 +410,6 @@ fn include_errors_are_reported() {
             ("b.yaml", "include: a.yaml\n"),
             ("number.yaml", "include: 3\n"),
             ("missing.yaml", "include: nowhere.yaml\n"),
-            ("partial.yaml", "include: b.yaml\nrace: ORC\n"),
             ("unknown.yaml", "include: base.yaml\nnot_a_key: 1\n"),
             ("base.yaml", BASE),
         ],
@@ -411,9 +422,13 @@ fn include_errors_are_reported() {
         load("number.yaml"),
         CharacterSetupError::Include { .. }
     ));
+    // A missing include names both the including and the included file.
+    let error = load("missing.yaml");
     assert!(
-        matches!(load("missing.yaml"), CharacterSetupError::Io { ref path, .. } if path.ends_with("nowhere.yaml"))
+        matches!(error, CharacterSetupError::Include { ref path, .. } if path.ends_with("missing.yaml")),
+        "{error}"
     );
+    assert!(error.to_string().contains("nowhere.yaml"), "{error}");
     let message = load("unknown.yaml").to_string();
     assert!(message.contains("not_a_key"), "{message}");
 }

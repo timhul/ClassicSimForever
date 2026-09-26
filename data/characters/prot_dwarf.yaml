@@ -1,5 +1,6 @@
-# Shield Slam Protection Dwarf Warrior main-tanking a raid boss.
 # Schema: crates/csim-engine/src/character_loader.rs.
+include: common/base_target.yaml
+include: common/base_buffs.yaml
 name: Prot Dwarf
 class: WARRIOR
 race: DWARF
@@ -42,14 +43,3 @@ equipment:
   RING2: { item: 18879 }                                           # Heavy Dark Iron Ring
   TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                        # Earthstrike
-buffs:
-  - Strength of Earth Totem
-  - Greater Blessing of Kings
-  - Greater Blessing of Might
-  - Gift of the Wild
-  - Elixir of the Mongoose
-  - Elixir of Giants
-  - Grilled Squid
-debuffs:
-  - Sunder Armor
-  - Faerie Fire
