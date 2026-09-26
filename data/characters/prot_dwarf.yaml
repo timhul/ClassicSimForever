@@ -25,7 +25,7 @@ talents:
     Boundless Rage: 3
     Enrage: 4
 equipment:
-  MAINHAND: { item: 18865, enchant: Crusader }                     # Grand Marshal's Punisher
+  MAINHAND: { item: 18865, enchant: Crusader, temp_enchant: WindfuryTotem }  # Grand Marshal's Punisher
   OFFHAND: { item: 19321 }                                         # The Immovable Object
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 16478, enchant: LesserArcanumOfVoracityStrength }  # Field Marshal's Plate Helm
@@ -43,6 +43,7 @@ equipment:
   TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
+  - Strength of Earth Totem
   - Greater Blessing of Kings
   - Greater Blessing of Might
   - Gift of the Wild

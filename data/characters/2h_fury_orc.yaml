@@ -43,6 +43,8 @@ equipment:
   TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
   - Strength of Earth Totem
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
   - Trueshot Aura
   - Gift of the Wild
   - Elixir of the Mongoose

@@ -1,4 +1,4 @@
-# Arms Human Warrior (Mortal Strike) with a two-handed sword and the Alliance raid buffs.
+# Arms Human Warrior (Mortal Strike) with a two-handed sword and the usual raid buffs (both factions' totems and blessings).
 # Schema: crates/csim-engine/src/character_loader.rs.
 name: Arms Human
 class: WARRIOR
@@ -26,7 +26,7 @@ talents:
     Boundless Rage: 3
     Enrage: 4
 equipment:
-  MAINHAND: { item: 18876, enchant: Crusader, temp_enchant: DenseSharpeningStone }  # Grand Marshal's Claymore
+  MAINHAND: { item: 18876, enchant: Crusader, temp_enchant: WindfuryTotem }  # Grand Marshal's Claymore
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
@@ -43,6 +43,7 @@ equipment:
   TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                        # Earthstrike
 buffs:
+  - Strength of Earth Totem
   - Greater Blessing of Kings
   - Greater Blessing of Might
   - Trueshot Aura
