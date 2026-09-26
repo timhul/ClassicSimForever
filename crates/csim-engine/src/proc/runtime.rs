@@ -252,13 +252,17 @@ impl Proc {
     }
 
     /// Whether the spell behind the event is one the proc reacts to: the override's family
-    /// mask selects it (in the proc's own class family when the proc has one) and a finisher
-    /// spent at least the combo points the override's effect names. The server keeps these in
-    /// `spell_proc` and its scripts; the client tables do not have them.
+    /// mask selects it (in the proc's own class family when the proc has one), it is a
+    /// builder when the override asks for one, and a finisher spent at least the combo points
+    /// the override's effect names. The server keeps these in `spell_proc` and its scripts;
+    /// the client tables do not have them.
     pub fn matches_trigger(&self, trigger: &ProcTrigger, host: &impl ProcHost) -> bool {
         let Some(filter) = self.spell.setup().overrides.proc else {
             return true;
         };
+        if filter.builder && !trigger.awards_combo_points {
+            return false;
+        }
         if let Some(mask) = filter.family_mask {
             let family = self.spell.record().class_options.map(|c| c.set);
             let selected = trigger
@@ -286,8 +290,9 @@ impl Proc {
             .map(Effect::value)
     }
 
-    /// The proc chance out of [`PROC_ROLL_RANGE`] for an event from `source`. Port of
-    /// `Proc::get_proc_range` / `ProcPPM::get_proc_range`.
+    /// The proc chance out of [`PROC_ROLL_RANGE`] for an event from `source` (per combo point
+    /// for a `chance_per_combo_point` proc). Port of `Proc::get_proc_range` /
+    /// `ProcPPM::get_proc_range`.
     pub fn proc_range(&self, source: ProcSource, host: &impl ProcHost) -> u32 {
         match self.rate {
             ProcRate::Chance => {
@@ -358,14 +363,30 @@ impl Proc {
         self.spell.cooldown_remaining(host) <= 0.0
     }
 
-    /// Rolls for the proc. Port of `Proc::check_proc_success` (plus the cooldown check).
-    pub fn check_proc_success(&mut self, source: ProcSource, host: &impl ProcHost) -> bool {
+    /// Rolls for the proc on an event raised by `trigger`; a chance per combo point is
+    /// multiplied by the points the finisher spent. Port of `Proc::check_proc_success` (plus
+    /// the cooldown check).
+    pub fn check_proc_success(
+        &mut self,
+        source: ProcSource,
+        trigger: &ProcTrigger,
+        host: &impl ProcHost,
+    ) -> bool {
         self.current_source = Some(source);
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
         }
-        let range = self.proc_range(source, host);
+        let mut range = self.proc_range(source, host);
+        if self
+            .spell
+            .setup()
+            .overrides
+            .proc
+            .is_some_and(|p| p.chance_per_combo_point)
+        {
+            range = range.saturating_mul(trigger.combo_points_spent);
+        }
         self.random.get_roll() < range && self.conditions_fulfilled(source, host)
     }
 
@@ -627,7 +648,7 @@ impl EnabledProcs {
             {
                 continue;
             }
-            if !self.procs[id.index()].check_proc_success(source, host) {
+            if !self.procs[id.index()].check_proc_success(source, &trigger, host) {
                 continue;
             }
             self.procced.insert(id);

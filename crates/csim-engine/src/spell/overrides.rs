@@ -399,6 +399,13 @@ pub struct ProcOverride {
     /// spent (Improved Expose Armor's `$m3`: 5).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub combo_points_effect: Option<u32>,
+    /// The chance is per combo point the finisher spent (Relentless Strikes: 20 % per point).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub chance_per_combo_point: bool,
+    /// Only the events of a spell that awards combo points (a builder: Seal Fate on the
+    /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub builder: bool,
 }
 
 impl ProcOverride {

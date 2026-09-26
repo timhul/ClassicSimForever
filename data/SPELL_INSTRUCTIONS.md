@@ -444,6 +444,10 @@ overrides:
                                      #   Puncturing Wounds on Backstab)
                                      # combo_points_effect: 2 — the finisher spent at least
                                      #   aura effect 2's value (Improved Expose Armor: 5)
+                                     # chance_per_combo_point: true — the chance times the
+                                     #   combo points spent (Relentless Strikes: 20 % each)
+                                     # builder: true — only events of a spell that awards
+                                     #   combo points (Seal Fate)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -463,6 +467,7 @@ overrides:
 | `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
 | `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of average weapon damage over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
 | `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
+| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |

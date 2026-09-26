@@ -4078,6 +4078,27 @@ spells:
     effect: APPLY_AURA
     aura: DUMMY
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 14189
+  name: Seal Fate
+  attributes: [16, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  range_yd: 50000.0
+  levels:
+    base: 1
+    spell: 1
+  aura_options:
+    proc_chance: 101
+    max_stacks: 3
+  labels: [20]
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1.0
+    misc_value: [4, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: DUMMY
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 14251
   name: Riposte
   skill_line: 38
@@ -5657,4 +5678,17 @@ spells:
     aura: DUMMY
     base_points: 35.0
     bonus_coefficient: 1.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1314102
+  name: Relentless Strikes Effect
+  attributes: [0, 0, 0, 1073741824, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 33554432, 0, 8192, 0]
+  school_mask: 1
+  labels: [20]
+  description: $s1 Energy restored.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 25.0
+    bonus_coefficient: 1.0
+    misc_value: [3, 0]
     implicit_target: [UNIT_CASTER, NONE]

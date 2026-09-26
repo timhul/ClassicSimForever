@@ -182,15 +182,20 @@ overrides:
   - id: 1310697
     note: Improved Expose Armor payload (combo point refund); E0 gives the combo points (the talent's value), E1 has no number
     effects: [{ index: 1, script: NO_OP }]
+  - id: 14189
+    note: Seal Fate payload; E0 gives the combo point, E1 has no number
+    effects: [{ index: 1, script: NO_OP }]
   - id: 14179
-    note: Relentless Strikes (talent); the rank value is the chance per combo point spent on a finisher, the Forever payload is 1314102 (25 energy) (FINISHER_CHANCE_PER_COMBO_POINT, RG.4)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Relentless Strikes (talent); the ADD_TARGET_TRIGGER's rank value is the chance per combo point a finisher spends (20 %, certain at 5), and Forever restores the energy with 1314102 (ENERGIZE 25 energy) instead of the table's trigger 14181
+    proc: { finisher: true, chance_effect: 0, chance_per_combo_point: true }
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 1314102 } }]
   - id: 14181
-    note: Relentless Strikes Effect; the DUMMY names the 25 energy, Forever restores it with 1314102 (RG.4)
+    note: Relentless Strikes Effect, the table's trigger; its DUMMY names the 25 energy that Forever's 1314102 restores
     effects: [{ index: 0, script: NO_OP }]
   - id: 14186
-    note: Seal Fate (talent); the rank value is the chance of an extra combo point on a builder crit (EXTRA_COMBO_POINT_ON_CRIT, RG.4)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Seal Fate (talent); the rank value (20-100 %) is the chance of an extra combo point (14189) when an ability that awards combo points crits, at most once per cast (500 ms internal cooldown)
+    proc: { hit_mask: [CRITICAL], chance_effect: 0, builder: true }
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 14189 } }]
   - id: 13960
     note: Hack and Slash (talent); E0 dagger/fist crit (13706), E1 mace armor penetration (13709), E2 sword/axe extra attack (1290312), as Weaponmaster (ENABLE_AURA / ENABLE_PROC, RG.4)
     effects:

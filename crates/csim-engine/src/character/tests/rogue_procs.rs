@@ -2,9 +2,10 @@
 //! proc flags (finishers, the spells a proc reacts to, the combo points a finisher spent) and
 //! what the procs give.
 
+use super::energy::energy;
 use super::rogue::{
     BACKSTAB, EVISCERATE, EXPOSE_ARMOR, HEMORRHAGE, RUPTURE, SINISTER_STRIKE, SLICE_AND_DICE,
-    buff_of, cast_at, combo_points, pulled, set_combo_points,
+    buff_of, cast_at, combo_points, highest_rank, pulled, set_combo_points,
 };
 use super::rogue_talents::with_talents;
 use super::*;
@@ -168,4 +169,95 @@ fn thousand_cuts_discounts_the_next_backstab() {
     assert_eq!(report.resource_cost, 54);
     assert!(!f.ctx().buff_ref(buff).is_active());
     assert_eq!(cost(&mut f, BACKSTAB), 60);
+}
+
+const RELENTLESS_STRIKES: u32 = 105759;
+const SEAL_FATE: u32 = 105710;
+const MUTILATE: u32 = 105709;
+const RELENTLESS_STRIKES_SPELL: u32 = 14179;
+const SEAL_FATE_SPELL: u32 = 14186;
+
+/// Relentless Strikes: 20 % per combo point a finisher spends to restore 25 energy (Forever's
+/// 1314102, not the table's DUMMY 14181): certain at 5 points, 40 % at 2.
+#[test]
+fn relentless_strikes_restores_energy_per_combo_point() {
+    let mut base = pulled(&[]);
+    let mut f = with_talents(&[(RELENTLESS_STRIKES, 1)]);
+    assert_eq!(
+        proc_sources(&f, RELENTLESS_STRIKES_SPELL),
+        [ProcSource::Finisher]
+    );
+    assert_eq!(
+        proc_chance(&mut f, RELENTLESS_STRIKES_SPELL, ProcSource::Finisher),
+        2000,
+        "per combo point"
+    );
+    for f in [&mut base, &mut f] {
+        cast_at(f, SINISTER_STRIKE, 0.0);
+        set_combo_points(f, 5);
+        cast_at(f, EVISCERATE, 1.0);
+    }
+    assert_eq!(energy(&f, 1.0), energy(&base, 1.0) + 25);
+
+    let (tries, mut time) = (500, 2.0);
+    for _ in 0..tries {
+        set_combo_points(&mut f, 2);
+        f.character.gain_resource(ResourceType::Energy, 100, time);
+        cast_at(&mut f, SLICE_AND_DICE, time);
+        time += 1.0;
+    }
+    let stats = f.ctx().take_statistics();
+    let proc = stats.proc_statistics("Relentless Strikes").unwrap();
+    assert_eq!(proc.attempts(), tries + 1);
+    let procs = proc.procs() - 1;
+    assert!((150..=250).contains(&procs), "{procs} of {tries} at 40 %");
+}
+
+/// Seal Fate 5/5: an extra combo point when an ability that awards combo points crits, once
+/// per cast (Mutilate's two crits give one); finishers and white swings do not count.
+#[test]
+fn seal_fate_adds_a_combo_point_to_builder_crits() {
+    let mut f = with_talents(&[(SEAL_FATE, 5), (MUTILATE, 1)]);
+    assert_eq!(
+        proc_sources(&f, SEAL_FATE_SPELL),
+        [ProcSource::MeleeCritical, ProcSource::SpellCritical]
+    );
+    assert_eq!(
+        proc_chance(&mut f, SEAL_FATE_SPELL, ProcSource::MeleeCritical),
+        10000
+    );
+    f.character.stats_mut().increase_melee_aura_crit(10000);
+    let report = cast_at(&mut f, SINISTER_STRIKE, 0.0);
+    assert_eq!(
+        report.attack.unwrap().result,
+        PhysicalAttackResult::Critical
+    );
+    assert_eq!(combo_points(&mut f), 2);
+    let report = cast_at(&mut f, EVISCERATE, 1.0);
+    assert_eq!(
+        report.attack.unwrap().result,
+        PhysicalAttackResult::Critical
+    );
+    assert_eq!(combo_points(&mut f), 0, "a finisher is not a builder");
+    assert!(
+        f.ctx()
+            .run_proc_checks(&[ProcSource::MeleeCritical])
+            .is_empty(),
+        "a white crit"
+    );
+
+    f.equip(EquipmentSlot::Mainhand, DAGGER);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    f.character.resource_mut().reset();
+    f.character.gain_resource(ResourceType::Energy, 100, 2.0);
+    let mutilate = highest_rank(&f, "Mutilate");
+    let mutilate = f.character.spells().spell(mutilate).game_id();
+    let report = cast_at(&mut f, mutilate, 2.0);
+    assert!(
+        report
+            .triggered
+            .iter()
+            .all(|(_, strike)| { strike.attack.unwrap().result == PhysicalAttackResult::Critical })
+    );
+    assert_eq!(combo_points(&mut f), 3);
 }
