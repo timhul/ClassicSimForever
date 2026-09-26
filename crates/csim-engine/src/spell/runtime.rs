@@ -1367,11 +1367,15 @@ impl Spell {
         proc_sources: &mut Vec<ProcSource>,
     ) -> Option<AttackOutcome> {
         let mut raw_damage = 0.0;
+        let mut weapon_damage_multiplier = 1.0;
         for effect in &mut self.effects {
             raw_damage += effect.damage_dealt;
             effect.damage_dealt = 0.0;
+            if let Some(multiplier) = effect.weapon_damage_multiplier(&*host) {
+                weapon_damage_multiplier *= multiplier;
+            }
         }
-        raw_damage *= self.damage_mod(host);
+        raw_damage *= weapon_damage_multiplier * self.damage_mod(host);
         // A spell without a roll (Sunder Armor's threat, a pure buff) reports an outcome only
         // when it did something worth counting.
         let did_something = raw_damage > 0.0 || innate_threat != 0.0;
@@ -1479,7 +1483,12 @@ impl Spell {
         }
 
         let mut raw_damage = 0.0;
+        let mut weapon_damage_multiplier = 1.0;
         for effect in &self.effects {
+            if let Some(multiplier) = effect.weapon_damage_multiplier(&*host) {
+                weapon_damage_multiplier *= multiplier;
+                continue;
+            }
             let value = effect.effective_value(&*host);
             raw_damage += match effect.kind() {
                 E::NormalizedWeaponDmg => host.random_oh_weapon_dmg(true) + value,
@@ -1490,7 +1499,7 @@ impl Spell {
                 _ => 0.0,
             };
         }
-        raw_damage *= host.offhand_penalty() * self.damage_mod(host);
+        raw_damage *= weapon_damage_multiplier * host.offhand_penalty() * self.damage_mod(host);
 
         let crit = matches!(
             result,

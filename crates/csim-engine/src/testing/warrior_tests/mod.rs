@@ -31,6 +31,7 @@ mod recklessness;
 mod rend;
 mod revenge;
 mod slam;
+mod spearing_strike;
 mod sword_specialization;
 mod talent_tree;
 mod two_handed_weapon_specialization;

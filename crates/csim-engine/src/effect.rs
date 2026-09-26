@@ -180,6 +180,9 @@ pub struct Effect {
     dependency: Dependency,
     included: IncludedOutcomes,
     can_crit: bool,
+    /// A `WEAPON_PERCENT_DAMAGE` effect of a spell that also has a weapon damage effect: it
+    /// scales that effect's damage (Raging Blow, Spearing Strike) instead of dealing its own.
+    scales_weapon_damage: bool,
     /// Result of the last hit check (own roll or inherited).
     pub last_result: Option<PhysicalAttackResult>,
     /// Damage produced by the last perform; the spell collects and zeroes it.
@@ -204,6 +207,15 @@ impl Effect {
             Dependency::PartialSuccess
         };
         let no_active_defense = spell.ignores_active_defense();
+        let scales_weapon_damage = record.effect == SpellEffectName::WeaponPercentDamage
+            && spell.effects.iter().any(|e| {
+                matches!(
+                    e.effect,
+                    SpellEffectName::NormalizedWeaponDmg
+                        | SpellEffectName::WeaponDamage
+                        | SpellEffectName::WeaponDamageNoschool
+                )
+            });
         Effect {
             value: record.base_points as f64,
             base_value: record.base_points as f64,
@@ -222,6 +234,7 @@ impl Effect {
                 miss: true,
             },
             can_crit: !cannot_crit,
+            scales_weapon_damage,
             last_result: None,
             damage_dealt: 0.0,
             reroll_result: true,
@@ -315,6 +328,15 @@ impl Effect {
 
     /// The value the caster of `host` gets: per-level scaling plus the character's
     /// `POINTS` / `POINTS_INDEX_n` modifiers.
+    /// The factor a `WEAPON_PERCENT_DAMAGE` effect applies to the spell's weapon damage
+    /// effects, like the server's `weaponDamagePercentMod`: "deals 40% weapon damage" is the
+    /// normalized weapon damage effect times 0.4. `None` for any other effect, and for a
+    /// percent effect alone on its spell, which deals the weapon damage share itself.
+    pub fn weapon_damage_multiplier(&self, host: &impl EffectHost) -> Option<f64> {
+        self.scales_weapon_damage
+            .then(|| self.effective_value(host) / 100.0)
+    }
+
     pub fn effective_value(&self, host: &impl EffectHost) -> f64 {
         let base = self.value_at_level(host.caster_level());
         host.spell_modifiers()
@@ -419,7 +441,9 @@ impl Effect {
             }
             E::WeaponPercentDamage => {
                 let (hit, rolled) = self.roll_melee(host, extra_crit);
-                if hit {
+                // With a weapon damage effect beside it, the spell applies the percentage to that
+                // effect's damage (`weapon_damage_multiplier`).
+                if hit && !self.scales_weapon_damage {
                     self.damage_dealt =
                         host.random_non_normalized_mh_dmg() * self.effective_value(host) / 100.0;
                 }
