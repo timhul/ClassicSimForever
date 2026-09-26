@@ -702,15 +702,29 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         Ok(())
     }
 
-    /// Puts the temporary enchant `enchant` (sharpening stone, oil, Windfury Totem, ...) on the
-    /// item in `slot` (`None` removes it) and registers what it grants.
-    pub fn set_temp_enchant(
+    /// Replaces the temporary enchants (sharpening stone, oil, Windfury Totem, poison) of the
+    /// item in `slot`, at most one per group (an empty list scrapes them off), and registers
+    /// what they grant.
+    pub fn set_temp_enchants(
         &mut self,
         db: &SpellDb,
         slot: EquipmentSlot,
-        enchant: Option<EnchantName>,
+        enchants: &[EnchantName],
     ) -> Result<(), EnchantError> {
-        self.character.equipment.set_temp_enchant(slot, enchant)?;
+        self.character.equipment.set_temp_enchants(slot, enchants)?;
+        self.sync_equipment_spells(db);
+        Ok(())
+    }
+
+    /// Adds a temporary enchant to the item in `slot`, replacing the one of its group, and
+    /// registers what it grants.
+    pub fn add_temp_enchant(
+        &mut self,
+        db: &SpellDb,
+        slot: EquipmentSlot,
+        enchant: EnchantName,
+    ) -> Result<(), EnchantError> {
+        self.character.equipment.add_temp_enchant(slot, enchant)?;
         self.sync_equipment_spells(db);
         Ok(())
     }

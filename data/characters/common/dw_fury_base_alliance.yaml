@@ -1,6 +1,6 @@
 equipment:
-  MAINHAND: { item: 12584, enchant: Crusader, temp_enchant: WindfuryTotem }  # Grand Marshal's Longsword
-  OFFHAND: { item: 12584, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Grand Marshal's Longsword
+  MAINHAND: { item: 12584, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # Grand Marshal's Longsword
+  OFFHAND: { item: 12584, enchant: Crusader, temp_enchants: [ElementalSharpeningStone] }  # Grand Marshal's Longsword
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant

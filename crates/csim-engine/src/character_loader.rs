@@ -16,7 +16,11 @@
 //!   Fury:
 //!     Cruelty: 5
 //! equipment:                   # slot → item id and enchants; default nothing
-//!   MAINHAND: { item: 18828, enchant: Crusader, temp_enchant: WindfuryTotem }
+//!   MAINHAND:
+//!     item: 18828
+//!     enchant: Crusader
+//!     # at most one of each group: stone / oil, Windfury, poison
+//!     temp_enchants: [WindfuryTotem, ElementalSharpeningStone]
 //!   HEAD: { item: 12640 }
 //! buffs: [Battle Squawk]       # data/external_buffs.yaml `buffs`, by name
 //! debuffs: [Sunder Armor]      # data/external_buffs.yaml `debuffs`, by name
@@ -37,7 +41,7 @@
 //! name: DW Fury Troll
 //! race: TROLL
 //! equipment:
-//!   MAINHAND: { item: 17075, enchant: Crusader, temp_enchant: WindfuryTotem }
+//!   MAINHAND: { item: 17075, enchant: Crusader, temp_enchants: [WindfuryTotem] }
 //! ```
 //!
 //! Loading only parses the file; everything that needs the data (does the talent exist, may
@@ -87,9 +91,33 @@ pub struct EquippedSetup {
     /// Permanent enchant.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enchant: Option<EnchantName>,
-    /// Temporary enchant (stone, oil, Windfury Totem).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub temp_enchant: Option<EnchantName>,
+    /// Temporary enchants (stone or oil, Windfury Totem, poison), at most one of each group. A
+    /// single name is accepted too, also as `temp_enchant`.
+    #[serde(
+        default,
+        alias = "temp_enchant",
+        deserialize_with = "one_or_many",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub temp_enchants: Vec<EnchantName>,
+}
+
+/// A list, or a single value as a list of one.
+fn one_or_many<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum OneOrMany<T> {
+        One(T),
+        Many(Vec<T>),
+    }
+    Ok(match OneOrMany::deserialize(deserializer)? {
+        OneOrMany::One(value) => vec![value],
+        OneOrMany::Many(values) => values,
+    })
 }
 
 /// The target of the encounter.
@@ -609,12 +637,21 @@ impl CharacterSetup {
                     issues.push(&context, error.to_string());
                     continue;
                 }
-                for (enchant, temporary, field) in [
-                    (equipped.enchant, false, "enchant"),
-                    (equipped.temp_enchant, true, "temp_enchant"),
-                ] {
-                    let Some(enchant) = enchant else { continue };
-                    let context = format!("{context}.{field}");
+                let enchants = equipped.enchant.iter().map(|&enchant| (enchant, false));
+                let temp_enchants = equipped
+                    .temp_enchants
+                    .iter()
+                    .map(|&enchant| (enchant, true));
+                let mut valid_temp_enchants = Vec::new();
+                for (enchant, temporary) in enchants.chain(temp_enchants) {
+                    let context = format!(
+                        "{context}.{}",
+                        if temporary {
+                            "temp_enchants"
+                        } else {
+                            "enchant"
+                        }
+                    );
                     if !class.enchants_for_slot(slot, temporary).contains(&enchant) {
                         issues.push(
                             context,
@@ -628,13 +665,19 @@ impl CharacterSetup {
                         continue;
                     }
                     let result = if temporary {
-                        ctx.set_temp_enchant(db, slot, Some(enchant))
+                        // Each on its own first, so every problem is reported; two of one
+                        // group are caught below.
+                        ctx.set_temp_enchants(db, slot, &[enchant])
+                            .map(|()| valid_temp_enchants.push(enchant))
                     } else {
                         ctx.set_enchant(db, slot, Some(enchant))
                     };
                     if let Err(error) = result {
                         issues.push(context, error.to_string());
                     }
+                }
+                if let Err(error) = ctx.set_temp_enchants(db, slot, &valid_temp_enchants) {
+                    issues.push(format!("{context}.temp_enchants"), error.to_string());
                 }
             }
             // Equipping may push an earlier item out (a two-hander and an off-hand, a unique

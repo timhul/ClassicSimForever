@@ -95,8 +95,11 @@ fn the_dw_fury_setup_is_built_as_written() {
         Some(EnchantName::Crusader)
     );
     assert_eq!(
-        character.equipment().temp_enchant(EquipmentSlot::Mainhand),
-        Some(EnchantName::WindfuryTotem)
+        character.equipment().temp_enchants(EquipmentSlot::Mainhand),
+        [
+            EnchantName::ElementalSharpeningStone,
+            EnchantName::WindfuryTotem
+        ]
     );
     let target = raid.target();
     assert_eq!(target.level(), 63);
@@ -219,7 +222,7 @@ target:
         "equipment.OFFHAND",
         "equipment.HEAD",
         "equipment.RING1",
-        "equipment.BACK.temp_enchant",
+        "equipment.BACK.temp_enchants",
         "buffs.Sunder Armor",
         "buffs.Elixir of Giants",
         "buffs.Nothing",
@@ -253,7 +256,7 @@ fn a_two_hander_taking_the_offhand_away_is_reported() {
         EquippedSetup {
             item: 18877,
             enchant: None,
-            temp_enchant: None,
+            temp_enchants: Vec::new(),
         },
     );
     setup.equipment.insert(
@@ -261,11 +264,64 @@ fn a_two_hander_taking_the_offhand_away_is_reported() {
         EquippedSetup {
             item: 18828,
             enchant: None,
-            temp_enchant: None,
+            temp_enchants: Vec::new(),
         },
     );
     let issues = issues(&setup);
     assert_eq!(contexts(&issues), ["equipment.MAINHAND"], "{issues:?}");
+}
+
+#[test]
+fn temp_enchants_take_a_list_or_a_single_name() {
+    let parse = |text: &str| {
+        serde_yaml::from_str::<EquippedSetup>(text)
+            .unwrap()
+            .temp_enchants
+    };
+    assert_eq!(
+        parse("{ item: 1, temp_enchants: [WindfuryTotem, DenseSharpeningStone] }"),
+        [
+            EnchantName::WindfuryTotem,
+            EnchantName::DenseSharpeningStone
+        ]
+    );
+    assert_eq!(
+        parse("{ item: 1, temp_enchants: WindfuryTotem }"),
+        [EnchantName::WindfuryTotem]
+    );
+    assert_eq!(
+        parse("{ item: 1, temp_enchant: WindfuryTotem }"),
+        [EnchantName::WindfuryTotem]
+    );
+    assert_eq!(parse("{ item: 1 }"), []);
+}
+
+#[test]
+fn two_temp_enchants_of_one_group_are_reported() {
+    let mut setup = minimal();
+    setup.equipment.insert(
+        EquipmentSlot::Mainhand,
+        EquippedSetup {
+            item: 18828,
+            enchant: None,
+            temp_enchants: vec![
+                EnchantName::WindfuryTotem,
+                EnchantName::DenseSharpeningStone,
+                EnchantName::ElementalSharpeningStone,
+            ],
+        },
+    );
+    let issues = issues(&setup);
+    assert_eq!(
+        contexts(&issues),
+        ["equipment.MAINHAND.temp_enchants"],
+        "{issues:?}"
+    );
+    assert!(
+        issues[0].message.contains("DenseSharpeningStone")
+            && issues[0].message.contains("ElementalSharpeningStone"),
+        "{issues:?}"
+    );
 }
 
 #[test]

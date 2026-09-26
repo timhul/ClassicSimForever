@@ -26,7 +26,7 @@ talents:
     Flurry: 5
     Bloodthirst: 1
 equipment:
-  MAINHAND: { item: 18877, enchant: Crusader, temp_enchant: WindfuryTotem }  # High Warlord's Greatsword
+  MAINHAND: { item: 18877, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # High Warlord's Greatsword
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant

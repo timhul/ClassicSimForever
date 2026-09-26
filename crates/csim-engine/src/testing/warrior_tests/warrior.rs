@@ -39,7 +39,7 @@ fn values_after_initialization() {
     );
     let db = &data().spells;
     for slot in [EquipmentSlot::Mainhand, EquipmentSlot::Offhand] {
-        test.with_ctx(|ctx| ctx.set_temp_enchant(db, slot, Some(EnchantName::ShadowOil)))
+        test.with_ctx(|ctx| ctx.set_temp_enchants(db, slot, &[EnchantName::ShadowOil]))
             .expect("Shadow Oil goes on a weapon");
     }
 }

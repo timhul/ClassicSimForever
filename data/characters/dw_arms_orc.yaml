@@ -30,8 +30,8 @@ talents:
     Blood Craze: 1
     Dual Wield Specialization: 5
 equipment:
-  MAINHAND: { item: 18866, enchant: Crusader, temp_enchant: WindfuryTotem }  # High Warlord's Bludgeon
-  OFFHAND: { item: 18866, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # High Warlord's Bludgeon
+  MAINHAND: { item: 18866, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # High Warlord's Bludgeon
+  OFFHAND: { item: 18866, enchant: Crusader, temp_enchants: [ElementalSharpeningStone] }  # High Warlord's Bludgeon
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant

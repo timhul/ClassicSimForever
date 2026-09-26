@@ -27,7 +27,7 @@ talents:
     Boundless Rage: 3
     Enrage: 4
 equipment:
-  MAINHAND: { item: 18876, enchant: Crusader, temp_enchant: WindfuryTotem }  # Grand Marshal's Claymore
+  MAINHAND: { item: 18876, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # Grand Marshal's Claymore
   RANGED: { item: 18282 }                                          # Core Marksman Rifle
   HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
   NECK: { item: 18404 }                                            # Onyxia Tooth Pendant

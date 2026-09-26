@@ -273,12 +273,12 @@ fn set_proc_seed(f: &mut Fixture, proc: ProcId, seed: u64) {
 #[test]
 fn the_windfury_totem_enchant_on_the_main_hand_registers_its_proc() {
     let mut f = fixture();
-    f.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem));
+    f.set_temp_enchants(EquipmentSlot::Mainhand, &[EnchantName::WindfuryTotem]);
     assert_eq!(
         f.character
             .equipment()
-            .temp_enchant(EquipmentSlot::Mainhand),
-        Some(EnchantName::WindfuryTotem)
+            .temp_enchants(EquipmentSlot::Mainhand),
+        [EnchantName::WindfuryTotem]
     );
     let procs = f.character.spells().procs();
     let windfury = procs
@@ -320,7 +320,7 @@ fn the_windfury_totem_enchant_on_the_main_hand_registers_its_proc() {
     assert_eq!(f.character.pending_extra_attacks(), 1);
 
     // Scraping the enchant off takes the proc out of the checks.
-    f.set_temp_enchant(EquipmentSlot::Mainhand, None);
+    f.set_temp_enchants(EquipmentSlot::Mainhand, &[]);
     assert!(
         !f.character.spells().procs().is_enabled(windfury),
         "the proc of a removed enchant no longer runs"

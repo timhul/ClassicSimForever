@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use crate::enchant::{EnchantContext, EnchantName, EnchantSpec};
+use crate::enchant::{EnchantContext, EnchantName, EnchantSpec, TempEnchantGroup};
 use crate::faction::{Faction, PlayerClass};
 use crate::item::{EquipmentDb, EquipmentSlot, Item, ItemSetBonus, Weapon, WeaponType};
 use crate::phase::Phase;
@@ -58,6 +58,11 @@ pub enum EnchantError {
     },
     #[error("slot {0:?} is empty")]
     EmptySlot(EquipmentSlot),
+    #[error("temporary enchants {first:?} and {second:?} cannot be on one weapon together")]
+    SameGroup {
+        first: EnchantName,
+        second: EnchantName,
+    },
 }
 
 /// What an equipment operation changed, so the owner can update the spells the equipment grants.
@@ -82,7 +87,8 @@ pub struct EquippedItem {
     item: Arc<Item>,
     weapon: Option<Weapon>,
     enchant: Option<EnchantName>,
-    temp_enchant: Option<EnchantName>,
+    /// At most one per [`TempEnchantGroup`], in group order.
+    temp_enchants: Vec<EnchantName>,
 }
 
 impl EquippedItem {
@@ -98,8 +104,8 @@ impl EquippedItem {
         self.enchant
     }
 
-    pub fn temp_enchant(&self) -> Option<EnchantName> {
-        self.temp_enchant
+    pub fn temp_enchants(&self) -> &[EnchantName] {
+        &self.temp_enchants
     }
 }
 
@@ -108,7 +114,7 @@ impl EquippedItem {
 pub struct Setup {
     pub items: [Option<u32>; EquipmentSlot::COUNT],
     pub enchants: [Option<EnchantName>; EquipmentSlot::COUNT],
-    pub temp_enchants: [Option<EnchantName>; EquipmentSlot::COUNT],
+    pub temp_enchants: [Vec<EnchantName>; EquipmentSlot::COUNT],
 }
 
 /// The equipped pieces of the item sets.
@@ -373,10 +379,10 @@ impl Equipment {
         }
 
         let previous = self.slots[slot.index()].take();
-        let (enchant, temp_enchant) = previous
+        let (enchant, temp_enchants) = previous
             .as_ref()
-            .map(|equipped| (equipped.enchant, equipped.temp_enchant))
-            .unwrap_or((None, None));
+            .map(|equipped| (equipped.enchant, equipped.temp_enchants.clone()))
+            .unwrap_or_default();
         if let Some(previous) = previous {
             change.merge(self.remove_from_slot(slot, previous));
         }
@@ -390,13 +396,13 @@ impl Equipment {
             item: item.clone(),
             weapon,
             enchant: None,
-            temp_enchant: None,
+            temp_enchants: Vec::new(),
         });
         change.equipped.push((slot, item));
 
         // Enchants stay with the slot when the item is swapped, as long as they still apply.
         let _ = self.set_enchant(slot, enchant);
-        let _ = self.set_temp_enchant(slot, temp_enchant);
+        self.keep_temp_enchants(slot, &temp_enchants);
 
         Ok(change)
     }
@@ -465,10 +471,7 @@ impl Equipment {
     }
 
     fn remove_from_slot(&mut self, slot: EquipmentSlot, equipped: EquippedItem) -> EquipChange {
-        for enchant in [equipped.enchant, equipped.temp_enchant]
-            .into_iter()
-            .flatten()
-        {
+        for &enchant in equipped.enchant.iter().chain(&equipped.temp_enchants) {
             self.remove_enchant_stats(slot, enchant);
         }
         self.stats.remove(equipped.item.stats());
@@ -476,7 +479,7 @@ impl Equipment {
         let setup = &mut self.setups[self.setup_index];
         setup.items[slot.index()] = None;
         setup.enchants[slot.index()] = None;
-        setup.temp_enchants[slot.index()] = None;
+        setup.temp_enchants[slot.index()].clear();
 
         EquipChange {
             unequipped: vec![(slot, equipped.item)],
@@ -519,7 +522,7 @@ impl Equipment {
             if let Ok(equipped) = self.equip(slot, item_id) {
                 change.merge(equipped);
                 let _ = self.set_enchant(slot, stored.enchants[slot.index()]);
-                let _ = self.set_temp_enchant(slot, stored.temp_enchants[slot.index()]);
+                self.keep_temp_enchants(slot, &stored.temp_enchants[slot.index()]);
             }
         }
 
@@ -551,72 +554,129 @@ impl Equipment {
         slot: EquipmentSlot,
         enchant: Option<EnchantName>,
     ) -> Result<(), EnchantError> {
-        self.change_enchant(slot, enchant, false)
-    }
-
-    /// Selects the temporary enchant (sharpening stone, oil, Windfury, ...) of the item in `slot`.
-    pub fn set_temp_enchant(
-        &mut self,
-        slot: EquipmentSlot,
-        enchant: Option<EnchantName>,
-    ) -> Result<(), EnchantError> {
-        self.change_enchant(slot, enchant, true)
-    }
-
-    fn change_enchant(
-        &mut self,
-        slot: EquipmentSlot,
-        enchant: Option<EnchantName>,
-        temporary: bool,
-    ) -> Result<(), EnchantError> {
         if self.slots[slot.index()].is_none() {
             return Err(EnchantError::EmptySlot(slot));
         }
-
         if let Some(name) = enchant {
-            let spec = self
-                .db
-                .enchants()
-                .get(name)
-                .ok_or(EnchantError::UnknownEnchant(name))?;
-            if spec.temporary != temporary {
-                return Err(EnchantError::WrongKind {
-                    enchant: name,
-                    temporary: spec.temporary,
-                });
-            }
-            if !spec.valid_for(&self.enchant_context(slot)) {
-                return Err(EnchantError::NotApplicable {
-                    enchant: name,
-                    slot,
-                });
-            }
+            self.check_enchant(slot, name, false)?;
         }
 
-        let current = if temporary {
-            self.temp_enchant(slot)
-        } else {
-            self.enchant(slot)
-        };
-        if let Some(current) = current {
+        if let Some(current) = self.enchant(slot) {
             self.remove_enchant_stats(slot, current);
         }
         if let Some(name) = enchant {
             self.add_enchant_stats(slot, name);
         }
-
-        let equipped = self.slots[slot.index()]
+        self.slots[slot.index()]
             .as_mut()
-            .expect("slot checked above");
-        let setup = &mut self.setups[self.setup_index];
-        if temporary {
-            equipped.temp_enchant = enchant;
-            setup.temp_enchants[slot.index()] = enchant;
-        } else {
-            equipped.enchant = enchant;
-            setup.enchants[slot.index()] = enchant;
-        }
+            .expect("slot checked above")
+            .enchant = enchant;
+        self.setups[self.setup_index].enchants[slot.index()] = enchant;
         Ok(())
+    }
+
+    /// Replaces the temporary enchants (sharpening stone, oil, Windfury Totem, poison) of the
+    /// item in `slot`; an empty list scrapes them off. Each must apply like a permanent enchant
+    /// (see [`Self::set_enchant`]), and at most one of each [`TempEnchantGroup`] may be given.
+    pub fn set_temp_enchants(
+        &mut self,
+        slot: EquipmentSlot,
+        enchants: &[EnchantName],
+    ) -> Result<(), EnchantError> {
+        if self.slots[slot.index()].is_none() {
+            return Err(EnchantError::EmptySlot(slot));
+        }
+        let mut grouped: Vec<(TempEnchantGroup, EnchantName)> = Vec::new();
+        for &name in enchants {
+            let group = self.check_enchant(slot, name, true)?.temp_group;
+            if let Some(&(_, first)) = grouped.iter().find(|&&(other, _)| other == group) {
+                return Err(EnchantError::SameGroup {
+                    first,
+                    second: name,
+                });
+            }
+            grouped.push((group, name));
+        }
+        grouped.sort();
+        let enchants: Vec<EnchantName> = grouped.into_iter().map(|(_, name)| name).collect();
+
+        for current in self.temp_enchants(slot).to_vec() {
+            self.remove_enchant_stats(slot, current);
+        }
+        for &name in &enchants {
+            self.add_enchant_stats(slot, name);
+        }
+        self.setups[self.setup_index].temp_enchants[slot.index()] = enchants.clone();
+        self.slots[slot.index()]
+            .as_mut()
+            .expect("slot checked above")
+            .temp_enchants = enchants;
+        Ok(())
+    }
+
+    /// Adds a temporary enchant to the item in `slot`, replacing the one of its group (a second
+    /// sharpening stone replaces the first; Windfury Totem stays on).
+    pub fn add_temp_enchant(
+        &mut self,
+        slot: EquipmentSlot,
+        enchant: EnchantName,
+    ) -> Result<(), EnchantError> {
+        let group = self.check_enchant(slot, enchant, true)?.temp_group;
+        let mut enchants: Vec<EnchantName> = self
+            .temp_enchants(slot)
+            .iter()
+            .copied()
+            .filter(|&other| self.temp_group(other) != group)
+            .collect();
+        enchants.push(enchant);
+        self.set_temp_enchants(slot, &enchants)
+    }
+
+    /// Puts back the temporary enchants the slot had, dropping those that no longer apply.
+    fn keep_temp_enchants(&mut self, slot: EquipmentSlot, enchants: &[EnchantName]) {
+        let _ = self.set_temp_enchants(slot, &[]);
+        for &enchant in enchants {
+            let _ = self.add_temp_enchant(slot, enchant);
+        }
+    }
+
+    /// The spec of `name` if it may be applied to the item in `slot` as a permanent or
+    /// temporary enchant.
+    fn check_enchant(
+        &self,
+        slot: EquipmentSlot,
+        name: EnchantName,
+        temporary: bool,
+    ) -> Result<&EnchantSpec, EnchantError> {
+        if self.slots[slot.index()].is_none() {
+            return Err(EnchantError::EmptySlot(slot));
+        }
+        let spec = self
+            .db
+            .enchants()
+            .get(name)
+            .ok_or(EnchantError::UnknownEnchant(name))?;
+        if spec.temporary != temporary {
+            return Err(EnchantError::WrongKind {
+                enchant: name,
+                temporary: spec.temporary,
+            });
+        }
+        if !spec.valid_for(&self.enchant_context(slot)) {
+            return Err(EnchantError::NotApplicable {
+                enchant: name,
+                slot,
+            });
+        }
+        Ok(spec)
+    }
+
+    fn temp_group(&self, enchant: EnchantName) -> TempEnchantGroup {
+        self.db
+            .enchants()
+            .get(enchant)
+            .expect("enchant validated when applied")
+            .temp_group
     }
 
     fn enchant_context(&self, slot: EquipmentSlot) -> EnchantContext<'_> {
@@ -650,21 +710,17 @@ impl Equipment {
     /// Drops enchants that no longer apply (after a faction change).
     fn revalidate_enchants(&mut self) {
         for slot in EquipmentSlot::ALL {
-            for temporary in [false, true] {
-                let current = if temporary {
-                    self.temp_enchant(slot)
-                } else {
-                    self.enchant(slot)
-                };
-                let Some(name) = current else { continue };
-                let valid = self
-                    .db
-                    .enchants()
-                    .get(name)
-                    .is_some_and(|spec| spec.valid_for(&self.enchant_context(slot)));
-                if !valid {
-                    let _ = self.change_enchant(slot, None, temporary);
-                }
+            if let Some(name) = self.enchant(slot)
+                && self.check_enchant(slot, name, false).is_err()
+            {
+                let _ = self.set_enchant(slot, None);
+            }
+            let temp_enchants = self.temp_enchants(slot).to_vec();
+            if temp_enchants
+                .iter()
+                .any(|&name| self.check_enchant(slot, name, true).is_err())
+            {
+                self.keep_temp_enchants(slot, &temp_enchants);
             }
         }
     }
@@ -673,10 +729,8 @@ impl Equipment {
     pub fn active_enchants(&self) -> Vec<(EquipmentSlot, &EnchantSpec)> {
         let mut active = Vec::new();
         for slot in EquipmentSlot::ALL {
-            for name in [self.enchant(slot), self.temp_enchant(slot)]
-                .into_iter()
-                .flatten()
-            {
+            let enchant = self.enchant(slot);
+            for &name in enchant.iter().chain(self.temp_enchants(slot)) {
                 if let Some(spec) = self.db.enchants().get(name) {
                     active.push((slot, spec));
                 }
@@ -689,8 +743,9 @@ impl Equipment {
         self.slot(slot).and_then(EquippedItem::enchant)
     }
 
-    pub fn temp_enchant(&self, slot: EquipmentSlot) -> Option<EnchantName> {
-        self.slot(slot).and_then(EquippedItem::temp_enchant)
+    /// The temporary enchants of the item in `slot`, in [`TempEnchantGroup`] order.
+    pub fn temp_enchants(&self, slot: EquipmentSlot) -> &[EnchantName] {
+        self.slot(slot).map_or(&[], EquippedItem::temp_enchants)
     }
 
     // ---------------------------------------------------------------- set bonuses
@@ -938,10 +993,17 @@ mod tests {
   slots: [MAINHAND, OFFHAND]
   weapon_types: [AXE, TWOHAND_AXE, DAGGER, POLEARM, SWORD, TWOHAND_SWORD]
   weapon_damage: 8
+- name: ElementalSharpeningStone
+  display_name: Elemental Sharpening Stone
+  unique_name: Elemental Sharpening Stone
+  temporary: true
+  slots: [MAINHAND, OFFHAND]
+  stats: { CRIT_CHANCE: 0.02 }
 - name: WindfuryTotem
   display_name: Windfury Totem
   unique_name: Windfury Totem
   temporary: true
+  temp_group: WINDFURY
   slots: [MAINHAND]
   faction: HORDE
   procs:
@@ -1189,9 +1251,9 @@ mod tests {
         eq.equip(EquipmentSlot::Head, 22).unwrap();
         eq.set_enchant(EquipmentSlot::Mainhand, Some(EnchantName::Crusader))
             .unwrap();
-        eq.set_temp_enchant(
+        eq.set_temp_enchants(
             EquipmentSlot::Mainhand,
-            Some(EnchantName::DenseSharpeningStone),
+            &[EnchantName::DenseSharpeningStone],
         )
         .unwrap();
 
@@ -1218,8 +1280,8 @@ mod tests {
             Some(EnchantName::Crusader)
         );
         assert_eq!(
-            eq.temp_enchant(EquipmentSlot::Mainhand),
-            Some(EnchantName::DenseSharpeningStone)
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [EnchantName::DenseSharpeningStone]
         );
         assert_eq!(eq.stats().get_strength(), 20);
 
@@ -1260,9 +1322,9 @@ mod tests {
             .unwrap();
         assert_eq!(eq.stats().get_mh_weapon_damage(), 5);
         assert_eq!(eq.stats().get_oh_weapon_damage(), 0);
-        eq.set_temp_enchant(
+        eq.set_temp_enchants(
             EquipmentSlot::Mainhand,
-            Some(EnchantName::DenseSharpeningStone),
+            &[EnchantName::DenseSharpeningStone],
         )
         .unwrap();
         assert_eq!(eq.stats().get_mh_weapon_damage(), 13);
@@ -1323,8 +1385,8 @@ mod tests {
             Some(EnchantName::SuperiorStriking)
         );
         assert_eq!(
-            eq.temp_enchant(EquipmentSlot::Mainhand),
-            Some(EnchantName::DenseSharpeningStone)
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [EnchantName::DenseSharpeningStone]
         );
         eq.set_enchant(
             EquipmentSlot::Mainhand,
@@ -1336,14 +1398,11 @@ mod tests {
         // Swapping to a shield in the offhand would drop a sharpening stone.
         eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
         eq.equip(EquipmentSlot::Offhand, 2).unwrap();
-        eq.set_temp_enchant(
-            EquipmentSlot::Offhand,
-            Some(EnchantName::DenseSharpeningStone),
-        )
-        .unwrap();
+        eq.add_temp_enchant(EquipmentSlot::Offhand, EnchantName::DenseSharpeningStone)
+            .unwrap();
         assert_eq!(eq.stats().get_oh_weapon_damage(), 8);
         eq.equip(EquipmentSlot::Offhand, 4).unwrap();
-        assert_eq!(eq.temp_enchant(EquipmentSlot::Offhand), None);
+        assert_eq!(eq.temp_enchants(EquipmentSlot::Offhand), []);
         assert_eq!(eq.stats().get_oh_weapon_damage(), 0);
 
         eq.unequip_all();
@@ -1354,17 +1413,109 @@ mod tests {
     fn faction_change_drops_invalid_enchants() {
         let mut eq = equipment();
         eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
-        eq.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem))
-            .unwrap();
+        eq.set_temp_enchants(
+            EquipmentSlot::Mainhand,
+            &[
+                EnchantName::WindfuryTotem,
+                EnchantName::DenseSharpeningStone,
+            ],
+        )
+        .unwrap();
         eq.set_faction(Faction::Alliance);
-        assert_eq!(eq.temp_enchant(EquipmentSlot::Mainhand), None);
         assert_eq!(
-            eq.set_temp_enchant(EquipmentSlot::Mainhand, Some(EnchantName::WindfuryTotem)),
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [EnchantName::DenseSharpeningStone],
+            "the stone stays on"
+        );
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 8);
+        assert_eq!(
+            eq.add_temp_enchant(EquipmentSlot::Mainhand, EnchantName::WindfuryTotem),
             Err(EnchantError::NotApplicable {
                 enchant: EnchantName::WindfuryTotem,
                 slot: EquipmentSlot::Mainhand
             })
         );
+    }
+
+    #[test]
+    fn a_weapon_holds_one_temporary_enchant_per_group() {
+        let mut eq = equipment();
+        eq.equip(EquipmentSlot::Mainhand, 1).unwrap();
+        eq.add_temp_enchant(EquipmentSlot::Mainhand, EnchantName::WindfuryTotem)
+            .unwrap();
+        eq.add_temp_enchant(EquipmentSlot::Mainhand, EnchantName::DenseSharpeningStone)
+            .unwrap();
+        // Group order: the stone before Windfury.
+        assert_eq!(
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [
+                EnchantName::DenseSharpeningStone,
+                EnchantName::WindfuryTotem
+            ]
+        );
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 8);
+        let active: Vec<EnchantName> = eq
+            .active_enchants()
+            .iter()
+            .map(|(_, spec)| spec.name)
+            .collect();
+        assert_eq!(
+            active,
+            [
+                EnchantName::DenseSharpeningStone,
+                EnchantName::WindfuryTotem
+            ]
+        );
+
+        // A second stone replaces the first; Windfury stays on.
+        eq.add_temp_enchant(
+            EquipmentSlot::Mainhand,
+            EnchantName::ElementalSharpeningStone,
+        )
+        .unwrap();
+        assert_eq!(
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [
+                EnchantName::ElementalSharpeningStone,
+                EnchantName::WindfuryTotem
+            ]
+        );
+        assert_eq!(eq.stats().get_mh_weapon_damage(), 0);
+        assert_eq!(eq.stats().get_melee_crit_chance(), 200);
+
+        // Two of one group at once are refused and change nothing.
+        assert_eq!(
+            eq.set_temp_enchants(
+                EquipmentSlot::Mainhand,
+                &[
+                    EnchantName::DenseSharpeningStone,
+                    EnchantName::ElementalSharpeningStone
+                ]
+            ),
+            Err(EnchantError::SameGroup {
+                first: EnchantName::DenseSharpeningStone,
+                second: EnchantName::ElementalSharpeningStone
+            })
+        );
+        assert_eq!(eq.temp_enchants(EquipmentSlot::Mainhand).len(), 2);
+        assert_eq!(eq.stats().get_melee_crit_chance(), 200);
+
+        // Both follow the slot through an item swap and a setup switch.
+        eq.equip(EquipmentSlot::Mainhand, 2).unwrap();
+        eq.change_setup(1).unwrap();
+        eq.change_setup(0).unwrap();
+        assert_eq!(
+            eq.temp_enchants(EquipmentSlot::Mainhand),
+            [
+                EnchantName::ElementalSharpeningStone,
+                EnchantName::WindfuryTotem
+            ]
+        );
+        assert_eq!(eq.stats().get_melee_crit_chance(), 200);
+
+        eq.set_temp_enchants(EquipmentSlot::Mainhand, &[]).unwrap();
+        assert_eq!(eq.temp_enchants(EquipmentSlot::Mainhand), []);
+        assert_eq!(eq.stats().get_melee_crit_chance(), 0);
     }
 
     #[test]

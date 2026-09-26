@@ -161,11 +161,11 @@ impl Fixture {
         self.db = db;
     }
 
-    /// Puts a temporary enchant on the item in `slot` (`None` scrapes it off), registering the
-    /// procs it grants.
-    pub fn set_temp_enchant(&mut self, slot: EquipmentSlot, enchant: Option<EnchantName>) {
+    /// Replaces the temporary enchants on the item in `slot` (empty scrapes them off),
+    /// registering the procs they grant.
+    pub fn set_temp_enchants(&mut self, slot: EquipmentSlot, enchants: &[EnchantName]) {
         let db = std::mem::take(&mut self.db);
-        self.ctx().set_temp_enchant(&db, slot, enchant).unwrap();
+        self.ctx().set_temp_enchants(&db, slot, enchants).unwrap();
         self.db = db;
     }
 

@@ -142,6 +142,26 @@ impl EnchantName {
     ];
 }
 
+/// Which temporary enchants exclude each other. In Forever a weapon holds one of each group at
+/// the same time: a sharpening stone (or weightstone, oil), Windfury Totem and a rogue poison.
+#[derive(
+    Debug, Clone, Copy, Default, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum TempEnchantGroup {
+    /// Sharpening stones, weightstones and oils.
+    #[default]
+    Coating,
+    Windfury,
+    Poison,
+}
+
+impl TempEnchantGroup {
+    fn is_coating(&self) -> bool {
+        *self == TempEnchantGroup::Coating
+    }
+}
+
 /// One enchant as stored in `data/enchants.yaml`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -155,6 +175,9 @@ pub struct EnchantSpec {
     /// Temporary enchants (stones, oils, poisons, Windfury) share a separate slot on weapons.
     #[serde(default)]
     pub temporary: bool,
+    /// For temporary enchants: a weapon holds at most one of each group.
+    #[serde(default, skip_serializing_if = "TempEnchantGroup::is_coating")]
+    pub temp_group: TempEnchantGroup,
     /// Equipment slots the enchant can be applied to.
     pub slots: Vec<EquipmentSlot>,
     /// For weapon slots: the weapon slot types the enchant fits. Empty means any.
@@ -444,6 +467,7 @@ mod tests {
   unique_name: Windfury Totem
   effect: Windfury
   temporary: true
+  temp_group: WINDFURY
   slots: [MAINHAND]
   faction: HORDE
   procs:
@@ -454,6 +478,7 @@ mod tests {
   display_name: Instant Poison
   unique_name: Instant Poison
   temporary: true
+  temp_group: POISON
   slots: [MAINHAND, OFFHAND]
   class: ROGUE
 - name: MightOfTheScourge
