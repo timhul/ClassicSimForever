@@ -204,8 +204,8 @@ fn given_time_is(test: &mut WarriorTest, time: f64) {
     test.given_engine_priority_pushed_forward(delay);
 }
 
-/// The Overpower window: 4 seconds after the last dodge.
-const WINDOW: f64 = 4.0;
+/// The Overpower window: 6 seconds after the last dodge (or Bloodthrill proc).
+const WINDOW: f64 = 6.0;
 
 #[test]
 fn overpower_window_lapses() {

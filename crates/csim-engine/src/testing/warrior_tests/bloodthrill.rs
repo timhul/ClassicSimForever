@@ -92,6 +92,12 @@ fn proc_allows_overpower() {
     test.with_ctx(|ctx| ctx.perform_proc(proc));
     test.then_overpower_is_active();
     test.then_status_is("Overpower", SpellStatus::Available);
+
+    // The same 6 s window a dodge opens.
+    test.given_engine_priority_pushed_forward(5.99);
+    test.then_overpower_is_active();
+    test.given_engine_priority_pushed_forward(0.02);
+    test.then_status_is("Overpower", SpellStatus::InsufficientComboPoints);
 }
 
 #[test]

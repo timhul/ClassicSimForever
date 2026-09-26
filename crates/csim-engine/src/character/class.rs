@@ -426,7 +426,7 @@ global_cooldown: 1.5
 default_stance: BATTLE_STANCE
 highest_armor_type: PLATE
 max_combo_points: 1
-combo_point_duration: 4.0
+combo_point_duration: 6.0
 weapon_proficiencies:
   MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD, POLEARM, STAFF, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
   OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND, SHIELD]
@@ -499,7 +499,7 @@ mod tests {
                 "",
             )
             .replace(
-                "combo_point_duration: 4.0
+                "combo_point_duration: 6.0
 ",
                 "",
             );

@@ -322,11 +322,11 @@ fn a_warrior_holds_one_combo_point_that_a_gain_only_refreshes() {
         "the second gain does not stack"
     );
     assert_eq!(
-        f.character.combo_points(16.99),
+        f.character.combo_points(18.99),
         1,
         "the second gain restarted the window"
     );
-    assert_eq!(f.character.combo_points(17.0), 0, "4 s after the last gain");
+    assert_eq!(f.character.combo_points(19.0), 0, "6 s after the last gain");
 
     f.character.gain_combo_points(1, 30.0);
     assert_eq!(f.character.combo_points(30.0), 1);

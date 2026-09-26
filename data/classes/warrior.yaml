@@ -30,10 +30,10 @@ stat_rules:
 global_cooldown: 1.5
 default_stance: BATTLE_STANCE
 highest_armor_type: PLATE
-# The Warrior's only combo point is Overpower's dodge marker: a dodge grants it, another dodge
-# only restarts its 4 second window.
+# The Warrior's only combo point is Overpower's marker: a dodge or a Bloodthrill proc grants it,
+# another one only restarts its 6 second window (Bloodthrill's tooltip: 1289681, 6 s).
 max_combo_points: 1
-combo_point_duration: 4.0
+combo_point_duration: 6.0
 weapon_proficiencies:
   MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD, POLEARM, STAFF, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
   OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND, SHIELD]
