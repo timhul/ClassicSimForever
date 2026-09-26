@@ -397,7 +397,7 @@ pub struct ResourceRow {
     pub source: String,
     pub resource: String,
     pub per_fight: f64,
-    pub per_5_seconds: f64,
+    pub per_second: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -424,7 +424,7 @@ impl SpellTotal {
 pub struct ResourceTotal {
     pub resource: String,
     pub per_fight: f64,
-    pub per_5_seconds: f64,
+    pub per_second: f64,
 }
 
 impl ResourceTotal {
@@ -435,7 +435,7 @@ impl ResourceTotal {
             .map(|rows| ResourceTotal {
                 resource: rows[0].resource.clone(),
                 per_fight: rows.iter().map(|r| r.per_fight).sum(),
-                per_5_seconds: rows.iter().map(|r| r.per_5_seconds).sum(),
+                per_second: rows.iter().map(|r| r.per_second).sum(),
             })
             .collect()
     }
@@ -660,13 +660,13 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
     }
 
     fn resource_table(&self) -> Table {
-        let mut table = Table::new(["Source", "Resource", "Per fight", "Per 5 s"]).left(1);
+        let mut table = Table::new(["Source", "Resource", "Per fight", "Per s"]).left(1);
         for gain in &self.resources {
             table.row(vec![
                 gain.source.clone(),
                 gain.resource.clone(),
                 format!("{:.1}", gain.per_fight),
-                format!("{:.2}", gain.per_5_seconds),
+                format!("{:.2}", gain.per_second),
             ]);
         }
         for sum in &self.resource_totals {
@@ -674,7 +674,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 "Total".to_string(),
                 sum.resource.clone(),
                 format!("{:.1}", sum.per_fight),
-                format!("{:.2}", sum.per_5_seconds),
+                format!("{:.2}", sum.per_second),
             ]);
         }
         table
@@ -861,7 +861,7 @@ fn resource_rows(stats: &ClassStatistics) -> Vec<ResourceRow> {
             } else {
                 gain / iterations as f64
             },
-            per_5_seconds: resource.gain_per_5(kind, time),
+            per_second: resource.gain_per_5(kind, time) / 5.0,
         })
         .collect()
 }
