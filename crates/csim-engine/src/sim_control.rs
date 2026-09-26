@@ -37,6 +37,10 @@ pub type Progress = Arc<dyn Fn(u32) + Send + Sync>;
 /// Iterations between two progress reports.
 const PROGRESS_INTERVAL: u32 = 10;
 
+/// Mixed into a sim control's seed for the encounter length generator, so that it is a stream
+/// of its own (SplitMix64 seeding decorrelates the two).
+const LENGTH_STREAM: u64 = 0x6C65_6E67_7468_5F31;
+
 /// A baseline run, or also the scaling runs.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SimMode {
@@ -67,15 +71,25 @@ pub struct SimControl {
     settings: SimSettings,
     /// Shuffles the raid order each iteration (the C++ `std::mt19937` on a random device).
     shuffle: Xoroshiro128Plus,
+    /// Seeds [`SimControl::lengths`] at the start of every set of iterations.
+    length_seed: u64,
+    /// Draws the encounter lengths and nothing else, so that they depend only on the seed:
+    /// every set of iterations (baseline, scaling option, sweep variant) of the same seed
+    /// and thread gets the same lengths, whatever the raid.
+    lengths: Xoroshiro128Plus,
     progress: Option<Progress>,
 }
 
 impl SimControl {
-    /// A sim control for `settings` whose raid shuffles derive from `seed`.
+    /// A sim control for `settings` whose raid shuffles and encounter lengths derive from
+    /// `seed`.
     pub fn new(settings: SimSettings, seed: u64) -> Self {
+        let length_seed = seed ^ LENGTH_STREAM;
         SimControl {
             settings,
             shuffle: Xoroshiro128Plus::from_seed(seed),
+            length_seed,
+            lengths: Xoroshiro128Plus::from_seed(length_seed),
             progress: None,
         }
     }
@@ -144,6 +158,7 @@ impl SimControl {
 
         // Drops the attack tables and prepares the characters' statistics and rotations.
         raid.prepare_set_of_combat_iterations();
+        self.lengths.set_state(self.length_seed);
 
         // The C++ started from the smallest positive double; the pull is at 0 either way.
         let start_at = raid
@@ -195,14 +210,14 @@ impl SimControl {
     }
 
     /// `combat_length` scaled by a uniform draw from `[1 - v, 1 + v]`, `v` the length
-    /// variance. Without variance nothing is drawn, so the raid shuffles stay as they were.
+    /// variance.
     fn draw_combat_length(&mut self, combat_length: f64) -> f64 {
         let variance = self.settings.length_variance / 100.0;
         if variance == 0.0 {
             return combat_length;
         }
         // 53 random bits: uniform in [0, 1).
-        let unit = (self.shuffle.next() >> 11) as f64 / (1u64 << 53) as f64;
+        let unit = (self.lengths.next() >> 11) as f64 / (1u64 << 53) as f64;
         combat_length * (1.0 + variance * (2.0 * unit - 1.0))
     }
 

@@ -346,25 +346,46 @@ fn a_logged_iteration_is_the_one_thread_iteration_of_its_seed() {
 
 #[test]
 fn the_encounter_length_varies_within_the_length_variance() {
+    let mut control = SimControl::new(settings(1), 1);
+    let lengths: Vec<f64> = (0..1000)
+        .map(|_| control.draw_combat_length(60.0))
+        .collect();
+    assert!(lengths.iter().all(|l| (54.0..=66.0).contains(l)));
+    let below = |limit: f64| lengths.iter().filter(|&&l| l < limit).count();
+    // Uniform: about a tenth of the draws in each tenth of the range.
+    assert!((60..=140).contains(&below(55.2)), "{}", below(55.2));
+    assert!((440..=560).contains(&below(60.0)), "{}", below(60.0));
+    assert!((860..=940).contains(&below(64.8)), "{}", below(64.8));
+}
+
+/// The lengths come from a generator of their own, reset for every set of iterations: the same
+/// seed gives the same lengths whatever the raid and however often it runs.
+#[test]
+fn the_encounter_lengths_depend_only_on_the_seed() {
     let data = Data::load();
-    let settings = settings(40);
-    let mut raid = data.raid(&settings, 1, false);
-    let mut control = SimControl::new(settings, 1);
-    let mut lengths = Vec::new();
-    for _ in 0..40 {
-        control.run_sim(&mut raid, 60, 1);
-        lengths.push(raid.take_statistics().remove(0).time_in_combat());
-    }
-    assert!(
-        lengths.iter().all(|l| (54.0..=66.0).contains(l)),
-        "{lengths:?}"
+    let settings = settings(20);
+    let time = |size: usize, sets: usize, seed: u64| {
+        let mut raid = data.raid(&settings, size, false);
+        let mut control = SimControl::new(settings.clone(), seed);
+        (0..sets)
+            .map(|_| {
+                control.run_sim(&mut raid, 60, 20);
+                raid.take_statistics()[0].time_in_combat()
+            })
+            .collect::<Vec<_>>()
+    };
+    let solo = time(1, 2, 7);
+    assert_eq!(
+        solo[0], solo[1],
+        "every set of iterations gets the same lengths"
     );
-    let (min, max) = lengths
-        .iter()
-        .fold((f64::MAX, f64::MIN), |(lo, hi), &l| (lo.min(l), hi.max(l)));
-    assert!(min < 57.0 && max > 63.0, "{lengths:?}");
-    // The character is set up for the nominal length again.
-    assert_eq!(raid.character(CharId(0)).sim().combat_length, 60.0);
+    assert_ne!(solo[0], 20.0 * 60.0);
+    assert_eq!(
+        time(3, 1, 7)[0],
+        solo[0],
+        "the raid shuffle draws nothing from it"
+    );
+    assert_ne!(time(1, 1, 8)[0], solo[0]);
 }
 
 #[test]
