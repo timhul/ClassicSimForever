@@ -1457,9 +1457,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let now = self.now();
         let combat_length = self.character.sim().combat_length;
         for id in self.character.spells.buff_ids().collect::<Vec<_>>() {
-            let (stacks, applied, hidden) = {
+            let (stacks, applied, unreported) = {
                 let buff = self.buff_ref(id);
-                (buff.stacks(), buff.applied_at(), buff.is_hidden())
+                // A passive's aura is not a buff: it is up whenever its conditions hold, applied
+                // by the reset before the clock moves back to the pull.
+                let unreported = buff.is_hidden() || buff.is_passive();
+                (buff.stacks(), buff.applied_at(), unreported)
             };
             let (buff, mut ctx) = self.buff_ctx(id);
             let reset = buff.reset(&mut ctx);
@@ -1470,7 +1473,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             // The application the end of the iteration cut short, then the iteration's share of the
             // encounter.
-            if !hidden {
+            if !unreported {
                 if reset.was_active {
                     self.record_buff_uptime(id, now - applied);
                 }
@@ -1846,7 +1849,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Records the application that just ended for a removed buff.
     fn record_buff_removed(&mut self, id: BuffId) {
         let buff = self.buff_ref(id);
-        if buff.is_hidden() {
+        if buff.is_hidden() || buff.is_passive() {
             return;
         }
         let uptime = buff.expired_at() - buff.applied_at();

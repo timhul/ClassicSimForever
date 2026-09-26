@@ -351,3 +351,15 @@ fn mutilate_strikes_with_both_daggers() {
     assert!(report.triggered.is_empty());
     assert_eq!(combo_points(&mut f), 2);
 }
+
+/// A passive's aura (Safe Fall) is not reported as a buff: it went up at the previous reset,
+/// before the clock moved back to the pull, and showed a negative shortest application.
+#[test]
+fn passive_auras_are_not_buffs_in_the_statistics() {
+    let mut f = pulled(&[]);
+    assert!(f.ctx().aura_active(1860), "Safe Fall");
+    f.advance_to(5.0);
+    f.ctx().reset();
+    let stats = f.ctx().take_statistics();
+    assert!(stats.buff_statistics("Safe Fall").is_none());
+}
