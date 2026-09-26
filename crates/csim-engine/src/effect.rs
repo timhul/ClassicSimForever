@@ -16,7 +16,7 @@
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::item::{ItemStat, WeaponType};
 use crate::resource::ResourceType;
-use crate::spell::dbc::{AuraType, DefenseType, SpellEffectName, SpellSchoolMask};
+use crate::spell::dbc::{AuraType, DefenseType, PowerType, SpellEffectName, SpellSchoolMask};
 use crate::spell::modifiers::{SpellModifier, SpellModifiers};
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
@@ -426,6 +426,13 @@ impl Effect {
                 EffectOutcome::rolled(hit, rolled)
             }
             E::Energize => {
+                // Combo points are not a resource pool: Bloodthrill's payload opens the
+                // Overpower window with one.
+                if self.record.power_type() == PowerType::ComboPoints {
+                    let amount = self.effective_value(host).round().max(0.0) as u32;
+                    host.gain_combo_points(amount);
+                    return EffectOutcome::plain(true);
+                }
                 let Some(resource) = ResourceType::from_power_type(self.record.power_type()) else {
                     return EffectOutcome::plain(true);
                 };
@@ -916,7 +923,7 @@ fn change_target_armor(host: &mut impl EffectHost, value: i32) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::spell::dbc::{ImplicitTarget, PowerType, SpellModOp};
+    use crate::spell::dbc::{ImplicitTarget, SpellModOp};
     use crate::spell::overrides::ScriptParams;
     use crate::spell::record::Categories;
     use std::collections::VecDeque;
@@ -1411,7 +1418,10 @@ mod tests {
         let mut combo = effect_record(0, SpellEffectName::Energize, 1.0);
         combo.misc_value = [PowerType::ComboPoints.id(), 0];
         let mut combo = Effect::new(&combo, &melee_spell(), None, false);
-        assert!(combo.perform_independent(&mut host, 0, 0).success);
+        let outcome = combo.perform_independent(&mut host, 0, 0);
+        assert!(outcome.success);
+        assert_eq!(outcome.resource_gained, None);
+        assert_eq!(host.combo_points, 1, "ENERGIZE of combo points grants them");
 
         let mut threat = effect(SpellEffectName::Threat, 1013.0);
         assert_eq!(threat.perform_independent(&mut host, 0, 0).threat, 1013.0);
