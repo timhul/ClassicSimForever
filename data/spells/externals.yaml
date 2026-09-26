@@ -314,6 +314,24 @@ spells:
     aura: MOD_CRIT_PCT
     base_points: 2.0
     implicit_target: [UNIT_CASTER, NONE]
+- id: 17626
+  name: Flask of the Titans
+  attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: 7200000
+  levels:
+    spell: 15
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Increases the player's maximum health by $s1 for $d. You can only have the effect of one flask at a time. This effect persists through death.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_INCREASE_HEALTH
+    base_points: 1200.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 18125
   name: Blessed Sunfruit
   attributes: [671088640, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]

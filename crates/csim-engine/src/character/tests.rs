@@ -1336,7 +1336,7 @@ debuffs:
         let db = SpellDb::load(&data.join("spells")).unwrap();
         let registry = ExternalBuffDb::load(&data.join("external_buffs.yaml")).unwrap();
         registry.validate(&db).unwrap();
-        assert_eq!(registry.buffs().len(), 20);
+        assert_eq!(registry.buffs().len(), 21);
         assert_eq!(registry.debuffs().len(), 4);
         for spec in registry.entries() {
             assert!(
@@ -1352,10 +1352,11 @@ debuffs:
         f.ctx().add_external_buffs(&registry, &db);
         assert_eq!(
             f.character.external_buffs().entries().len(),
-            23,
+            24,
             "everything but Battle Shout"
         );
         let base_strength = strength(&f);
+        let base_health = f.character.max_health(&f.target.stat_view());
         let base_armor = f.target.armor();
         let names: Vec<String> = f
             .character
@@ -1378,6 +1379,11 @@ debuffs:
             "Faerie Fire and Curse of Recklessness do not stack"
         );
         assert!(strength(&f) > base_strength + 53 + 30 + 17 + 10);
+        assert!(selected.contains(&"Flask of the Titans"));
+        assert!(
+            f.character.max_health(&f.target.stat_view()) >= base_health + 1200,
+            "Flask of the Titans"
+        );
         assert_eq!(
             f.target.armor(),
             base_armor - 5 * 450 - 505 - 3 * 165,

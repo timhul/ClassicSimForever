@@ -41,6 +41,10 @@ buffs:
     spell: 25289
     classes: [DRUID, HUNTER, PALADIN, ROGUE, SHAMAN]
     raid: true
+  # Flasks
+  - name: Flask of the Titans
+    spell: 17626
+    mutex: flask
   # Elixirs
   - name: Elixir of the Mongoose
     spell: 17538
