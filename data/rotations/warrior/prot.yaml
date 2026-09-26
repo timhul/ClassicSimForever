@@ -44,6 +44,7 @@ cast_if:
       or variable "time_remaining_encounter" greater 210
   - name: Blood Fury
     condition: resource "Rage" less 50
+  - name: Eureka!
   - name: Elune's Light
   - name: Berserking
     condition: resource "Rage" less 50
