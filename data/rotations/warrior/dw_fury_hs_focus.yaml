@@ -71,10 +71,6 @@ cast_if:
       variable "time_remaining_execute" less 0
       or variable "time_remaining_encounter" less 20
   - name: Blood Fury
-    condition: |
-      variable "time_remaining_execute" less 0
-      and resource "Rage" less 50
-      or variable "time_remaining_execute" greater 120
   - name: Berserking
     condition: |
       variable "time_remaining_execute" less 0
