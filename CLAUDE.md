@@ -64,6 +64,11 @@ with the same seed and ranked by DPS; `--dry-run` only counts and lists the vari
 
 `cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml --dry-run`
 
+Instead of a base, a `characters` variation point lists whole character files, to sim profiles
+against each other:
+
+`cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_profiles.yaml`
+
 # Good cross-reference information sources
 
 https://github.com/ClassicWoWCommunity/forever-bugs/issues/

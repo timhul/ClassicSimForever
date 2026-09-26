@@ -1,0 +1,16 @@
+# The DW Fury profiles of every race (data/characters/dw_fury_*.yaml) against each other:
+# each is simmed as is, with its own race, weapons and gear, and ranked by DPS.
+# Schema: crates/csim-engine/src/sweep_loader.rs. Run with
+#   cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_profiles.yaml
+name: DW Fury profiles
+iterations: 10000
+variations:
+  - characters:
+      - ../characters/dw_fury_dwarf.yaml
+      - ../characters/dw_fury_gnome.yaml
+      - ../characters/dw_fury_human.yaml
+      - ../characters/dw_fury_night_elf.yaml
+      - ../characters/dw_fury_orc.yaml
+      - ../characters/dw_fury_tauren.yaml
+      - ../characters/dw_fury_troll.yaml
+      - ../characters/dw_fury_undead.yaml
