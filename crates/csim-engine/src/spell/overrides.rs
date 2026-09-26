@@ -310,6 +310,10 @@ pub struct ProcOverride {
     /// decides, as [`ProcOverride::chance`].
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ppm: Option<f64>,
+    /// A spell (any rank) whose aura the character must have up on the target for the proc to
+    /// fire (Bloodthrill: main-hand attacks against enemies afflicted by your Rend).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_aura: Option<u32>,
 }
 
 impl ProcOverride {
@@ -448,6 +452,7 @@ impl SpellOverride {
         for &id in &self.ends_auras {
             push(Some(id));
         }
+        push(self.proc.and_then(|p| p.target_aura));
         ids
     }
 
@@ -738,6 +743,8 @@ overrides:
     debuff_priority: high
   - id: 10612
     proc: { hand: mainhand }
+  - id: 1289682
+    proc: { chance_effect: 0, hand: mainhand, target_aura: 772 }
 "#;
 
     fn overrides() -> Overrides {
@@ -751,7 +758,7 @@ overrides:
     #[test]
     fn overrides_are_looked_up_by_spell_id_with_file_defaults() {
         let o = overrides();
-        assert_eq!(o.len(), 11);
+        assert_eq!(o.len(), 12);
         assert_eq!(o.proc_hit_mask(12834), ProcHitMask::CRITICAL);
         assert_eq!(
             o.get(10612).and_then(|w| w.proc?.hand),
@@ -806,6 +813,12 @@ overrides:
         assert_eq!(o.get(12319).unwrap().referenced_spells(), [12966]);
         assert_eq!(o.get(12162).unwrap().referenced_spells(), [412609]);
         assert!(o.get(25286).unwrap().referenced_spells().is_empty());
+        assert_eq!(
+            o.get(1289682).and_then(|b| b.proc?.target_aura),
+            Some(772),
+            "a proc on the character's aura on the target"
+        );
+        assert_eq!(o.get(1289682).unwrap().referenced_spells(), [772]);
     }
 
     #[test]
@@ -994,7 +1007,7 @@ overrides:
             Err(OverrideError::Duplicate(12834))
         ));
         o.add(SpellOverride::new(1)).unwrap();
-        assert_eq!(o.len(), 12);
+        assert_eq!(o.len(), 13);
     }
 
     #[test]
@@ -1034,7 +1047,7 @@ overrides:
         .unwrap();
         fs::write(dir.join("README.md"), "not yaml").unwrap();
         let o = Overrides::load(&dir).unwrap();
-        assert_eq!(o.len(), 12);
+        assert_eq!(o.len(), 13);
         assert!(o.has_sim_flag(20572, SimFlag::Ignored));
         fs::write(dir.join("bad.yaml"), "overrides: [{ id: 12834 }]").unwrap();
         assert!(matches!(

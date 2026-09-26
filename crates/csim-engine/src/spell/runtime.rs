@@ -254,6 +254,9 @@ pub struct SpellSetup {
     /// The aura effect whose `ENABLE_PROC` / `ENABLE_AURA` script makes this hidden aura a
     /// passive of the character.
     pub enabled_by: Option<EnablingAura>,
+    /// Every rank of the proc override's `target_aura`: one of them must be up for the proc to
+    /// fire. Empty without the condition.
+    pub target_aura_ranks: Vec<u32>,
 }
 
 impl SpellSetup {
@@ -271,12 +274,18 @@ impl SpellSetup {
             .find(|e| e.script == ScriptKind::DeepWoundsBleed)
             .and_then(|e| e.params.duration_spell)
             .and_then(|spell| db.get(spell).map(Arc::clone));
+        let target_aura_ranks = overrides
+            .proc
+            .and_then(|p| p.target_aura)
+            .map(|spell| db.rank_chain(spell))
+            .unwrap_or_default();
         Some(SpellSetup {
             record,
             hit_mask: db.overrides().proc_hit_mask(id),
             overrides,
             bleed_aura,
             enabled_by: db.overrides().enabled_by(id),
+            target_aura_ranks,
         })
     }
 
@@ -290,6 +299,7 @@ impl SpellSetup {
             hit_mask: defaults.proc_hit_mask(id),
             bleed_aura: None,
             enabled_by: None,
+            target_aura_ranks: Vec::new(),
         }
     }
 
@@ -305,6 +315,13 @@ impl SpellSetup {
             hit_mask: overrides.proc_hit_mask(id),
             bleed_aura: None,
             enabled_by: overrides.enabled_by(id),
+            // Without the db there are no rank chains: the named spell only.
+            target_aura_ranks: overrides
+                .get(id)
+                .and_then(|o| o.proc)
+                .and_then(|p| p.target_aura)
+                .into_iter()
+                .collect(),
         }
     }
 

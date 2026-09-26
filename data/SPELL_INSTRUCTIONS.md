@@ -413,6 +413,9 @@ overrides:
                                      #   INTERRUPT FULL_BLOCK
                                      # chance_effect: N — the proc chance is aura effect N's value
                                      #   (talents whose rank value is the chance: Unbridled Wrath)
+                                     # hand: MAINHAND — only that hand's attacks trigger it
+                                     # target_aura: 772 — only while the character's aura of
+                                     #   that spell (any rank) is up (Bloodthrill: your Rend)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }

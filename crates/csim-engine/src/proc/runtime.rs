@@ -271,7 +271,8 @@ impl Proc {
 
     /// Whether the passive's conditions hold: its aura is up (the equipment and stance
     /// requirements of the record gate the aura), a weapon requirement holds for the hand of
-    /// the triggering attack (a sword-only proc never fires off an off-hand axe) and, for a PPM
+    /// the triggering attack (a sword-only proc never fires off an off-hand axe), one rank of
+    /// the override's `target_aura` is up (Bloodthrill: your Rend on the target) and, for a PPM
     /// proc, the triggering hand holds a weapon. Port of the
     /// `proc_specific_conditions_fulfilled` overrides.
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
@@ -296,6 +297,10 @@ impl Proc {
             {
                 return false;
             }
+        }
+        let target_auras = &self.spell.setup().target_aura_ranks;
+        if !target_auras.is_empty() && !target_auras.iter().any(|&id| host.aura_active(id)) {
+            return false;
         }
         if let ProcRate::Ppm(_) = self.rate {
             if host.base_weapon_speed(source.hand()).is_none() {
