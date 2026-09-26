@@ -34,6 +34,14 @@ overrides:
   - id: 1310316
     note: Master of Defense (talent); the rank value 50/100 is the chance of the rage on dodge/parry
     proc: { chance_effect: 0 }
+  - id: 1289682
+    note: Bloodthrill (talent); the rank value 4-20 is the chance, main-hand attacks against the target of your Rend only (tooltip)
+    proc: { chance_effect: 0, hand: mainhand, target_aura: 772 }
+  - id: 1282733
+    note: Bloodthrill payload; E0 gives the Overpower combo point. E1 (aura 560, unknown) and the E2 target marker change nothing the sim models
+    effects:
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
 
   # ----- Scripted (DUMMY) effects ------------------------------------------------------------
   - id: 12162

@@ -13,6 +13,7 @@ mod berserker_rage;
 mod berserker_stance;
 mod bloodrage;
 mod bloodthirst;
+mod bloodthrill;
 mod death_wish;
 mod deep_wounds;
 mod defiance;

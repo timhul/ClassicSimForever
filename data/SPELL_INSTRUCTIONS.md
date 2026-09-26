@@ -443,12 +443,12 @@ overrides:
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
 | `ENABLE_AURA` | while the aura is up the character has the hidden aura `spell` the server applies (gated by its own weapon requirement), with its effect `effect` set to this effect's value (a talent's rank value follows rank changes) | `spell`, `effect` | Weaponmaster E0 → 12700 (axe/polearm crit), E1 → 12284 (mace/staff armor penetration) |
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 4 s, so another dodge only refreshes it) | `value` | Overpower `on_event` |
-| `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
+| `RESET_COOLDOWN` | resets the cooldown of `spell` (no runtime yet) | `spell` | — |
 | `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
-| `NO_OP` | nothing; keeps the dummy out of `csim-tables check` | — | markers, unmodelled halves |
+| `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),

@@ -160,7 +160,7 @@ pub enum ScriptKind {
     EnableAura,
     /// Grants `params.value` combo points to the character.
     AddComboPoints,
-    /// Resets the cooldown of `params.spell` (Bloodthrill's Overpower reset).
+    /// Resets the cooldown of `params.spell` (no runtime yet).
     ResetCooldown,
     /// Weapon-damage bonus `base_points` % with the weapon types the aura requires
     /// (Weaponmaster's per-weapon bonuses).

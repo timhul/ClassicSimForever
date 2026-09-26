@@ -1091,7 +1091,7 @@ impl SpellDb {
     }
 
     /// Every effect the sim cannot interpret, sorted by spell and effect: unknown effect or aura
-    /// ids from a newer dump, and scripted effects (`DUMMY`, `PERIODIC_DUMMY`,
+    /// ids from a newer dump (unless an override script documents them), and scripted effects (`DUMMY`, `PERIODIC_DUMMY`,
     /// `OVERRIDE_CLASS_SCRIPTS`) without a script in the overrides. Spells the overrides mark
     /// `IGNORED` are skipped.
     pub fn unsupported(&self) -> Vec<Unsupported> {
@@ -1110,16 +1110,16 @@ impl SpellDb {
             if effect.is_discarded() {
                 continue;
             }
+            let scripted = self
+                .overrides
+                .effect_script(record.id, effect.index)
+                .is_some();
             let reason = if !effect.effect.is_known() {
                 Some(format!("unknown effect id {}", effect.effect.id()))
-            } else if effect.is_apply_aura() && !effect.aura.is_known() {
+            } else if effect.is_apply_aura() && !effect.aura.is_known() && !scripted {
+                // A script (NO_OP) documents an unknown aura as handled (Bloodthrill's 560).
                 Some(format!("unknown aura id {}", effect.aura.id()))
-            } else if effect.is_scripted()
-                && self
-                    .overrides
-                    .effect_script(record.id, effect.index)
-                    .is_none()
-            {
+            } else if effect.is_scripted() && !scripted {
                 Some(format!(
                     "{} needs a script in the overrides",
                     if effect.is_apply_aura() {
@@ -1967,9 +1967,9 @@ spells:
             pending,
             [
                 12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
-                403196, 1282733, 1287808, 1295744, 1317432, 1318325, 1318470, 1318514
+                403196, 1287808, 1295744, 1317432, 1318325, 1318470, 1318514
             ],
-            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill's Overpower (aura 560), and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
+            "Toughness (aura 466), Raging Blow, Devastate, and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );
     }
 }
