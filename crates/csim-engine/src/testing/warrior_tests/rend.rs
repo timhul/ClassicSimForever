@@ -1,6 +1,8 @@
 //! Port of `Test/Warrior/Spells/TestRend`.
 
 use crate::engine::EventType;
+use crate::rotation::condition::ConditionContext;
+use crate::rotation::executor::RotationHost;
 use crate::spell::SpellStatus;
 use crate::testing::warrior::WarriorTest;
 use crate::testing::RUN_EVENT;
@@ -186,4 +188,18 @@ fn dodge_applies_overpower_buff() {
     test.given_a_guaranteed_melee_ability_dodge();
     when_rend_is_performed(&mut test);
     test.then_overpower_is_active();
+}
+
+#[test]
+fn rotations_read_the_debuff_of_the_rank_cast() {
+    // Every rank owns a debuff called "Rend"; the rotation casts the highest learned rank, so
+    // `buff_duration "Rend"` must read that rank's debuff, not the first rank's.
+    let mut test = test();
+    test.given_a_guaranteed_melee_ability_hit();
+    when_rend_is_performed(&mut test);
+    let time_left = test.with_ctx(|ctx| {
+        let rend = RotationHost::buff_by_name(ctx, "Rend").expect("Rend's debuff");
+        ctx.buff_time_left(&rend)
+    });
+    assert_eq!(time_left, 21.0);
 }

@@ -849,9 +849,11 @@ impl CharacterSpells {
             .find(|id| self.owned_buff(*id).is_some_and(|buff| buff.name() == name))
     }
 
-    /// Resolves a buff name the way rotations and conditions refer to buffs: an enabled owned
-    /// buff, then a shared party buff, then a shared raid buff, then the shared buffs under the
-    /// canonical `"Name (spell id)"` of the spell's highest learned rank. Port of
+    /// Resolves a buff name the way rotations and conditions refer to buffs: the enabled owned
+    /// buff of the spell's highest learned rank (every Rend rank owns a debuff called "Rend";
+    /// the rotation casts the highest), another enabled owned buff of that name, then a shared
+    /// party buff, then a shared raid buff, then the shared buffs under the canonical
+    /// `"Name (spell id)"` of the spell's highest learned rank. Port of
     /// `CharacterSpells::get_buff_by_name`.
     pub fn buff_by_name(
         &self,
@@ -860,7 +862,16 @@ impl CharacterSpells {
         shared: &impl SharedBuffs,
         is_rank_learned: impl Fn(SpellId) -> bool,
     ) -> Option<BuffId> {
-        if let Some(id) = self.owned_buff_by_name(name) {
+        let highest = self
+            .rank_groups
+            .get(name)
+            .and_then(|group| group.get_spell_rank(MAX_RANK, &is_rank_learned))
+            .and_then(|spell| self.spells[spell.index()].as_ref()?.marker_buff())
+            .filter(|&id| {
+                self.enabled_buffs.contains(&id)
+                    && self.owned_buff(id).is_some_and(|buff| buff.name() == name)
+            });
+        if let Some(id) = highest.or_else(|| self.owned_buff_by_name(name)) {
             return Some(id);
         }
         let lookup = |canonical: &str| {
