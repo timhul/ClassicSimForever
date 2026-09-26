@@ -3,6 +3,9 @@
 # Overpower readiness is the combo point the target's dodge grants (there is no "Overpower
 # Buff" here), so `buff_duration "Overpower Buff" is false/greater N` became
 # `variable "combo_points" eq 0` / `greater 0`.
+#
+# Spearing Strike (a Forever Arms talent) is only worth its GCD against giants and dragonkin,
+# where it deals 120 % weapon damage instead of 40 %.
 class: WARRIOR
 name: 2h Fury
 attack_mode: melee
@@ -82,6 +85,12 @@ cast_if:
     condition: |
       variable "time_remaining_execute" greater 0
       or variable "melee_ap" greater 2220
+  - name: Spearing Strike
+    condition: |
+      variable "target_is_type" eq "giant"
+      and variable "time_remaining_execute" greater 0
+      or variable "target_is_type" eq "dragonkin"
+      and variable "time_remaining_execute" greater 0
   # Whirlwind only if Bloodthirst on cooldown and not in Execute phase.
   - name: Whirlwind
     condition: |

@@ -1993,6 +1993,10 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
         }
     }
+
+    fn target_creature_type(&self) -> CreatureType {
+        self.target.creature_type()
+    }
 }
 
 impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {

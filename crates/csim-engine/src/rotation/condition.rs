@@ -15,7 +15,8 @@
 //! any group holds (no parentheses, no precedence beyond that). Types: `buff_duration`,
 //! `buff_stacks`, `spell` (cooldown remaining), `resource`, `variable` (a builtin). A
 //! comparison is `less | leq | eq | geq | greater <number>`, or `is true | is false` for the
-//! buff types (up / down).
+//! buff types (up / down). `variable "target_is_type"` is compared by name instead:
+//! `eq "<creature type>"` (`eq "giant"`).
 //!
 //! The parsed [`Condition`] is generic over the buff and spell handle types: the parser
 //! produces `Condition<String, String>` (the names as written) and the rotation runtime
@@ -32,10 +33,12 @@
 //!   the string `"true"` / `"false"` (both `0.0` as a double), which made them equivalent.
 //!   They are only accepted for `buff_duration` and `buff_stacks`, the types that define them.
 //! - `resource "Focus"` is accepted alongside Mana / Rage / Energy.
+//! - `variable "target_is_type" eq "<creature type>"` is new: the target's creature type.
 
 use std::fmt;
 
 use crate::resource::ResourceType;
+use crate::target::CreatureType;
 
 /// Tolerance of the numeric comparisons. Port of `almost_equal` (`Utils/CompareDouble`).
 pub const EPSILON: f64 = 0.0001;
@@ -106,6 +109,8 @@ pub enum Test {
     /// `is true` / `is false`: whether the buff is up (`buff_duration`) or has any stacks
     /// (`buff_stacks`). Port of `Comparator::True` / `Comparator::False`.
     Is(bool),
+    /// `eq "<creature type>"`: whether the target is of that type (`target_is_type`).
+    IsCreatureType(CreatureType),
 }
 
 impl Test {
@@ -114,6 +119,7 @@ impl Test {
         match self {
             Test::Compare(cmp, rhs) => cmp.holds(0.0, rhs),
             Test::Is(up) => !up,
+            Test::IsCreatureType(_) => unreachable!("only parsed for target_is_type"),
         }
     }
 }
@@ -216,7 +222,12 @@ pub enum Measure<B, S> {
     Resource(ResourceType),
     /// `variable "<builtin>"`.
     Variable(BuiltinVariable),
+    /// `variable "target_is_type"`: the target's creature type, compared by name.
+    TargetType,
 }
+
+/// The variable holding the target's creature type, compared by name rather than number.
+const TARGET_TYPE_VARIABLE: &str = "target_is_type";
 
 /// The condition type keywords (`add_type`).
 const TYPES: [&str; 5] = [
@@ -250,6 +261,8 @@ pub trait ConditionContext<B, S> {
     fn resource_level(&self, resource: ResourceType) -> u32;
     /// The builtin variable's current value.
     fn variable(&self, variable: BuiltinVariable) -> f64;
+    /// The target's creature type.
+    fn target_creature_type(&self) -> CreatureType;
 }
 
 impl<B, S> Sentence<B, S> {
@@ -273,12 +286,19 @@ impl<B, S> Sentence<B, S> {
             (Measure::Variable(variable), Test::Compare(cmp, rhs)) => {
                 cmp.holds(context.variable(*variable), rhs)
             }
-            // The parser only produces `Is` for the buff measures.
+            (Measure::TargetType, Test::IsCreatureType(creature)) => {
+                context.target_creature_type() == creature
+            }
+            // The parser only produces `Is` for the buff measures, and pairs the target type
+            // with creature type tests only.
             (
                 Measure::SpellCooldown(_) | Measure::Resource(_) | Measure::Variable(_),
                 Test::Is(_),
             ) => {
                 unreachable!("`is` tests are only parsed for buff measures")
+            }
+            (Measure::TargetType, _) | (_, Test::IsCreatureType(_)) => {
+                unreachable!("target_is_type is only parsed with `eq \"<creature type>\"`")
             }
         }
     }
@@ -305,6 +325,7 @@ impl<B, S> Sentence<B, S> {
             Measure::SpellCooldown(s) => Measure::SpellCooldown(spell(s)?),
             Measure::Resource(r) => Measure::Resource(r),
             Measure::Variable(v) => Measure::Variable(v),
+            Measure::TargetType => Measure::TargetType,
         };
         Some(Mapped::Linked(Sentence {
             measure,
@@ -327,6 +348,9 @@ impl<B: fmt::Display, S: fmt::Display> fmt::Display for Sentence<B, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let (cmp, rhs) = match self.test {
             Test::Compare(cmp, rhs) => (cmp, rhs),
+            Test::IsCreatureType(creature) => {
+                return write!(f, "Target Type == {}", creature.name());
+            }
             Test::Is(value) => {
                 return match &self.measure {
                     Measure::BuffDuration(buff) => {
@@ -359,6 +383,7 @@ impl<B: fmt::Display, S: fmt::Display> fmt::Display for Sentence<B, S> {
             Measure::Resource(resource) => {
                 write!(f, "{} {symbol} {rhs:.0}", resource_name(*resource))
             }
+            Measure::TargetType => unreachable!("target_is_type only has type tests"),
             Measure::Variable(variable) => {
                 let precision = if variable.unit().is_empty() { 0 } else { 1 };
                 write!(
@@ -550,6 +575,16 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
         }
     };
 
+    if type_word == "variable" && value == TARGET_TYPE_VARIABLE {
+        let creature = parse_creature_type_test(tail)?;
+        return Ok((
+            connective,
+            Sentence {
+                measure: Measure::TargetType,
+                test: Test::IsCreatureType(creature),
+            },
+        ));
+    }
     let test = parse_test(tail)?;
     let measure = match type_word {
         "buff_duration" => Measure::BuffDuration(value.to_string()),
@@ -559,7 +594,11 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
             format!("unknown resource `{value}` (expected Mana, Rage, Energy or Focus)")
         })?),
         "variable" => Measure::Variable(BuiltinVariable::from_name(value).ok_or_else(|| {
-            let names: Vec<&str> = BuiltinVariable::ALL.iter().map(|v| v.name()).collect();
+            let names: Vec<&str> = BuiltinVariable::ALL
+                .iter()
+                .map(|v| v.name())
+                .chain([TARGET_TYPE_VARIABLE])
+                .collect();
             format!(
                 "unknown builtin variable `{value}` (expected one of {})",
                 names.join(", ")
@@ -581,6 +620,37 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
         ));
     }
     Ok((connective, Sentence { measure, test }))
+}
+
+/// Parses the `eq "<creature type>"` of `variable "target_is_type"`; the type name is not case
+/// sensitive.
+fn parse_creature_type_test(text: &str) -> Result<CreatureType, String> {
+    let names = || {
+        let names: Vec<&str> = CreatureType::ALL.iter().map(|t| t.name()).collect();
+        names.join(", ")
+    };
+    let name = text
+        .strip_prefix("eq")
+        .map(str::trim_start)
+        .and_then(|rest| rest.strip_prefix('"'))
+        .and_then(|rest| rest.strip_suffix('"'))
+        .filter(|name| !name.contains('"'))
+        .ok_or_else(|| {
+            format!(
+                "expected `eq \"<creature type>\"` after `{TARGET_TYPE_VARIABLE}` (one of {}), \
+                 got `{text}`",
+                names()
+            )
+        })?;
+    CreatureType::ALL
+        .into_iter()
+        .find(|t| t.name().eq_ignore_ascii_case(name.trim()))
+        .ok_or_else(|| {
+            format!(
+                "unknown creature type `{name}` (expected one of {})",
+                names()
+            )
+        })
 }
 
 /// Parses `<comparator> <number>` or `is true|false`. Port of `add_compare_operation`.
@@ -628,6 +698,7 @@ mod tests {
         cooldowns: HashMap<String, f64>,
         resources: HashMap<ResourceType, u32>,
         variables: HashMap<BuiltinVariable, f64>,
+        target_creature_type: Option<CreatureType>,
     }
 
     impl ConditionContext<String, String> for Mock {
@@ -648,6 +719,9 @@ mod tests {
         }
         fn variable(&self, variable: BuiltinVariable) -> f64 {
             self.variables.get(&variable).copied().unwrap_or(0.0)
+        }
+        fn target_creature_type(&self) -> CreatureType {
+            self.target_creature_type.unwrap_or(CreatureType::Dragonkin)
         }
     }
 
@@ -1074,6 +1148,68 @@ mod tests {
         mock.variables
             .insert(BuiltinVariable::TimeRemainingExecute, -1.0);
         assert!(!condition.holds(&mock));
+    }
+
+    #[test]
+    fn target_is_type_compares_the_creature_type_by_name() {
+        let giant = sentence("variable \"target_is_type\" eq \"giant\"");
+        assert_eq!(giant.measure, Measure::TargetType);
+        assert_eq!(giant.test, Test::IsCreatureType(CreatureType::Giant));
+        assert_eq!(giant.to_string(), "Target Type == Giant");
+        assert_eq!(
+            sentence("variable \"target_is_type\" eq \"Mechanical\"").test,
+            Test::IsCreatureType(CreatureType::Mechanical)
+        );
+
+        // Every creature type can be named; only the target's own type holds.
+        let mut mock = Mock::default();
+        for target in CreatureType::ALL {
+            mock.target_creature_type = Some(target);
+            for named in CreatureType::ALL {
+                let text = format!("variable \"target_is_type\" eq \"{}\"", named.name());
+                assert_eq!(
+                    sentence(&text).holds(&mock),
+                    named == target,
+                    "{named:?} vs {target:?}"
+                );
+            }
+        }
+
+        // Spearing Strike's targets as two groups.
+        let condition = Condition::parse(
+            "variable \"target_is_type\" eq \"giant\"\n\
+             or variable \"target_is_type\" eq \"dragonkin\"",
+        )
+        .unwrap();
+        mock.target_creature_type = Some(CreatureType::Dragonkin);
+        assert!(condition.holds(&mock));
+        mock.target_creature_type = Some(CreatureType::Humanoid);
+        assert!(!condition.holds(&mock));
+    }
+
+    #[test]
+    fn target_is_type_errors() {
+        let error = |text: &str| Condition::parse(text).unwrap_err();
+        let e = error("variable \"target_is_type\" eq \"ooze\"");
+        assert!(e.message.contains("unknown creature type `ooze`"), "{e}");
+        assert!(e.message.contains("Beast, Demon, Dragonkin"), "{e}");
+        for tail in [
+            "eq 1",
+            "is true",
+            "greater \"giant\"",
+            "eq \"giant",
+            "eq giant",
+        ] {
+            let e = error(&format!("variable \"target_is_type\" {tail}"));
+            assert!(
+                e.message.contains("expected `eq \"<creature type>\"`"),
+                "{tail}: {e}"
+            );
+        }
+        let e = error("variable \"target_type\" eq 1");
+        assert!(e.message.contains("target_is_type"), "listed: {e}");
+        let e = error("variable \"melee_ap\" eq \"giant\"");
+        assert!(e.message.contains("expected a number"), "{e}");
     }
 
     // --- Mapping and descriptions ---

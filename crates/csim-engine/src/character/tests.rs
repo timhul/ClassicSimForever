@@ -2250,6 +2250,17 @@ mod rotation {
     }
 
     #[test]
+    fn conditions_read_the_target_creature_type() {
+        use crate::target::CreatureType;
+
+        let mut f = shipped_orc_warrior();
+        for creature in CreatureType::ALL {
+            f.target.set_creature_type(creature);
+            assert_eq!(f.ctx().target_creature_type(), creature);
+        }
+    }
+
+    #[test]
     fn precombat_actions_run_before_the_pull() {
         let mut f = shipped_orc_warrior();
         f.ctx().set_rotation(dw_fury());

@@ -84,7 +84,12 @@ cast_if:
     condition: |
       variable "time_remaining_execute" greater 0
       or variable "melee_ap" greater 2220
-  # Whirlwind only if Bloodthirst on cooldown and not in Execute phase.
+  - name: Spearing Strike
+    condition: |
+      variable "target_is_type" eq "giant"
+      and variable "time_remaining_execute" greater 0
+      or variable "target_is_type" eq "dragonkin"
+      and variable "time_remaining_execute" greater 0
   - name: Whirlwind
     condition: |
       spell "Bloodthirst" greater 1.5

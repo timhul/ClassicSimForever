@@ -92,6 +92,12 @@ cast_if:
       spell "Bloodthirst" greater 1.5
       and variable "time_remaining_execute" greater 0
   - name: Overpower
+  - name: Spearing Strike
+    condition: |
+      variable "target_is_type" eq "giant"
+      and variable "time_remaining_execute" greater 0
+      or variable "target_is_type" eq "dragonkin"
+      and variable "time_remaining_execute" greater 0
   - name: Hamstring
     condition: |
       spell "Bloodthirst" greater 1.5

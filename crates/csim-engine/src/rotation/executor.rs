@@ -341,6 +341,7 @@ mod tests {
     use crate::rotation::condition::BuiltinVariable;
     use crate::rotation::spec::CastIfSpec;
     use crate::spell::MAX_RANK;
+    use crate::target::CreatureType;
     use std::collections::HashMap;
 
     /// A host with a fixed set of spells (name → id, rank), buffs and statuses that records
@@ -392,6 +393,9 @@ mod tests {
         }
         fn variable(&self, variable: BuiltinVariable) -> f64 {
             self.variables.get(&variable).copied().unwrap_or(0.0)
+        }
+        fn target_creature_type(&self) -> CreatureType {
+            CreatureType::Dragonkin
         }
     }
 

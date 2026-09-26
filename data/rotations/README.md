@@ -67,6 +67,16 @@ Comparisons: `less`, `leq`, `eq`, `geq`, `greater` followed by a number (`leq` /
 `eq` are within 0.0001), or `is true` / `is false` — only for the buff types: whether the
 buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 
+`variable "target_is_type"` is compared by name, not number: `eq "<creature type>"` holds when
+the target (`target: creature_type:` in the character setup) is of that type. The types are
+Beast, Demon, Dragonkin, Elemental, Giant, Humanoid, Mechanical and Undead, in any case
+(`eq "giant"`). Several types are `or`-ed groups:
+
+```
+variable "target_is_type" eq "giant"
+or variable "target_is_type" eq "dragonkin"
+```
+
 Builtin variables:
 
 | variable                   | value                                                        |
@@ -80,6 +90,7 @@ Builtin variables:
 | `melee_ap`                 | melee attack power                                           |
 | `combo_points`             | combo points on the target                                   |
 | `time_remaining_gcd`       | seconds until the global cooldown ends                       |
+| `target_is_type`           | the target's creature type, compared with `eq "<type>"`      |
 
 Every condition is parsed when the file is loaded (`crates/csim-engine/src/rotation/condition.rs`);
 a line that does not follow the grammar, an unknown type, resource or variable, or `is` on a

@@ -9,6 +9,8 @@
 # Not in ClassicSim: Rend (Battle Stance only) is refreshed in the Battle Stance window the
 # Overpower swap opens, and the swap back to Berserker Stance waits for it (unless there is no
 # rage for it or the execute phase is near). Rend on the target lets Bloodthrill proc.
+# Spearing Strike (a Forever talent) is only worth its GCD against giants and dragonkin, where
+# it deals 120 % weapon damage instead of 40 %.
 class: WARRIOR
 name: Mortal Strike
 attack_mode: melee
@@ -90,6 +92,12 @@ cast_if:
   - name: Mortal Strike
     condition: variable "time_remaining_execute" greater 0
   - name: Execute
+  - name: Spearing Strike
+    condition: |
+      variable "target_is_type" eq "giant"
+      and variable "time_remaining_execute" greater 0
+      or variable "target_is_type" eq "dragonkin"
+      and variable "time_remaining_execute" greater 0
   - name: Whirlwind
     condition: spell "Mortal Strike" greater 1.5
   # Special heroic strike usage: attempt to dump rage when Overpower is up.
