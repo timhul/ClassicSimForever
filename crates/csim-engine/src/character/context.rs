@@ -2134,7 +2134,7 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         let stat_ctx = self.character.stat_context(&view);
         let skill = self.character.stats().get_mh_wpn_skill(&stat_ctx);
         let crit = if can_crit {
-            self.character.stats().get_mh_crit_chance(&stat_ctx) + extra_crit
+            self.character.stats().get_mh_ability_crit_chance(&stat_ctx) + extra_crit
         } else {
             0
         };
@@ -2563,7 +2563,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         let stat_ctx = self.character.stat_context(&view);
         let skill = self.character.stats().get_oh_wpn_skill(&stat_ctx);
         let crit = if can_crit {
-            self.character.stats().get_oh_crit_chance(&stat_ctx) + extra_crit
+            self.character.stats().get_oh_ability_crit_chance(&stat_ctx) + extra_crit
         } else {
             0
         };

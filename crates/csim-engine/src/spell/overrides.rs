@@ -167,6 +167,9 @@ pub enum ScriptKind {
     WeaponTypeDamagePercent,
     /// Crit chance `base_points` % with the weapon types the aura requires.
     WeaponTypeCritPercent,
+    /// A `MOD_CRIT_PCT` aura whose `base_points` % crit applies to spells and melee abilities
+    /// but not to auto attacks (Axe and Sword Specialization).
+    AbilityCritPercent,
     /// Ability `spell` also strikes with the off-hand weapon (Raging Blows: Whirlwind).
     OffhandCopy,
     /// Against the `params.creature_types`, the spell's weapon damage gains `base_points`
@@ -278,6 +281,7 @@ impl EffectScript {
             | ScriptKind::OffhandRagePercent
             | ScriptKind::WeaponTypeDamagePercent
             | ScriptKind::WeaponTypeCritPercent
+            | ScriptKind::AbilityCritPercent
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -1000,6 +1004,7 @@ overrides:
             ScriptKind::OffhandRagePercent,
             ScriptKind::WeaponTypeDamagePercent,
             ScriptKind::WeaponTypeCritPercent,
+            ScriptKind::AbilityCritPercent,
             ScriptKind::NoOp,
         ] {
             assert!(script(kind, none).validate().is_ok(), "{kind:?}");

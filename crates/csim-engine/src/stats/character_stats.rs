@@ -172,6 +172,9 @@ pub struct CharacterStats {
 
     casting_time_suppression_buffs: Vec<BuffId>,
     crit_bonuses_per_weapon_type: [u32; WeaponType::COUNT],
+    /// Crit that applies to melee abilities only, not to auto attacks (Axe and Sword
+    /// Specialization); suppressed like aura crit.
+    melee_ability_crit: u32,
     damage_bonuses_per_weapon_type: [i32; WeaponType::COUNT],
     /// Percent of the target's armor ignored by attacks with each weapon type (Weaponmaster's
     /// maces and staves).
@@ -417,9 +420,16 @@ impl CharacterStats {
             as u32
     }
 
-    fn melee_crit_chance(&self, ctx: &StatContext, weapon: Option<WeaponProfile>) -> u32 {
-        let equip_effect =
-            self.aura_effects.get_melee_crit_chance() + ctx.equipment.get_melee_crit_chance();
+    fn melee_crit_chance(
+        &self,
+        ctx: &StatContext,
+        weapon: Option<WeaponProfile>,
+        ability: bool,
+    ) -> u32 {
+        let ability_crit = if ability { self.melee_ability_crit } else { 0 };
+        let equip_effect = self.aura_effects.get_melee_crit_chance()
+            + ctx.equipment.get_melee_crit_chance()
+            + ability_crit;
         let crit_from_wpn_type = weapon
             .map(|weapon| self.crit_bonuses_per_weapon_type[weapon.weapon_type.index()])
             .unwrap_or(0);
@@ -433,15 +443,30 @@ impl CharacterStats {
         crit_chance.saturating_sub(self.crit_penalty)
     }
 
+    /// Main-hand crit chance of an auto attack.
     pub fn get_mh_crit_chance(&self, ctx: &StatContext) -> u32 {
-        self.melee_crit_chance(ctx, ctx.mainhand)
+        self.melee_crit_chance(ctx, ctx.mainhand, false)
     }
 
+    /// Off-hand crit chance of an auto attack.
     pub fn get_oh_crit_chance(&self, ctx: &StatContext) -> u32 {
         if ctx.offhand.is_none() {
             return 0;
         }
-        self.melee_crit_chance(ctx, ctx.offhand)
+        self.melee_crit_chance(ctx, ctx.offhand, false)
+    }
+
+    /// Main-hand crit chance of a melee ability: the auto attack chance plus ability-only crit.
+    pub fn get_mh_ability_crit_chance(&self, ctx: &StatContext) -> u32 {
+        self.melee_crit_chance(ctx, ctx.mainhand, true)
+    }
+
+    /// Off-hand crit chance of a melee ability.
+    pub fn get_oh_ability_crit_chance(&self, ctx: &StatContext) -> u32 {
+        if ctx.offhand.is_none() {
+            return 0;
+        }
+        self.melee_crit_chance(ctx, ctx.offhand, true)
     }
 
     pub fn get_ranged_crit_chance(&self, ctx: &StatContext) -> u32 {
@@ -500,6 +525,15 @@ impl CharacterStats {
 
     pub fn decrease_ranged_crit(&mut self, value: u32) {
         self.base_stats.decrease_ranged_crit(value);
+    }
+
+    /// Crit for melee abilities only (not auto attacks), subject to per-level suppression.
+    pub fn increase_melee_ability_crit(&mut self, value: u32) {
+        self.melee_ability_crit += value;
+    }
+
+    pub fn decrease_melee_ability_crit(&mut self, value: u32) {
+        self.melee_ability_crit = sub_checked(self.melee_ability_crit, value, "melee ability crit");
     }
 
     pub fn increase_crit_for_weapon_type(&mut self, weapon_type: WeaponType, value: u32) {
@@ -2098,6 +2132,26 @@ mod tests {
 
         f.stats.increase_crit_penalty(base + 1000);
         assert_eq!(f.stats.get_mh_crit_chance(&f.ctx()), 0);
+    }
+
+    #[test]
+    fn melee_ability_crit_skips_auto_attacks() {
+        let mut f = Fixture::orc_warrior();
+        f.mainhand = weapon(WeaponType::Axe, 2.6);
+        f.offhand = weapon(WeaponType::Axe, 1.8);
+        let mh = f.stats.get_mh_crit_chance(&f.ctx());
+        let oh = f.stats.get_oh_crit_chance(&f.ctx());
+        assert_eq!(f.stats.get_mh_ability_crit_chance(&f.ctx()), mh);
+
+        // Suppressed like aura crit (1.8 % against a boss).
+        f.stats.increase_melee_ability_crit(500);
+        assert_eq!(f.stats.get_mh_crit_chance(&f.ctx()), mh);
+        assert_eq!(f.stats.get_oh_crit_chance(&f.ctx()), oh);
+        assert_eq!(f.stats.get_mh_ability_crit_chance(&f.ctx()), mh + 320);
+        assert_eq!(f.stats.get_oh_ability_crit_chance(&f.ctx()), oh + 320);
+
+        f.stats.decrease_melee_ability_crit(500);
+        assert_eq!(f.stats.get_mh_ability_crit_chance(&f.ctx()), mh);
     }
 
     #[test]

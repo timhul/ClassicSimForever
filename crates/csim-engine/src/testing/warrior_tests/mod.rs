@@ -27,6 +27,7 @@ mod mainhand_attack;
 mod mortal_strike;
 mod offhand_attack;
 mod overpower;
+mod racial_weapon_specialization;
 mod recklessness;
 mod rend;
 mod revenge;
