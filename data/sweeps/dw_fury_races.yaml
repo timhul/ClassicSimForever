@@ -1,0 +1,17 @@
+# DW Fury Orc's setup (talents, gear, buffs, rotation) played by every Warrior race, ranked by
+# DPS. Racials and base stats are the only differences.
+# Schema: crates/csim-engine/src/sweep_loader.rs. Run with
+#   cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_races.yaml
+name: DW Fury races
+base: ../characters/dw_fury_orc.yaml
+iterations: 10000
+variations:
+  - options:
+      - { label: Dwarf, race: DWARF }
+      - { label: Gnome, race: GNOME }
+      - { label: Human, race: HUMAN }
+      - { label: Night Elf, race: NIGHT_ELF }
+      - { label: Orc, race: ORC }
+      - { label: Tauren, race: TAUREN }
+      - { label: Troll, race: TROLL }
+      - { label: Undead, race: UNDEAD }
