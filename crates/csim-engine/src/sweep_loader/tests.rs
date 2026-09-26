@@ -17,7 +17,7 @@ fn sweep(yaml: &str) -> SweepSetup {
         .join("dw_fury_orc.yaml");
     let mut sweep: SweepSetup =
         serde_yaml::from_str(&format!("name: test\nbase: x\n{yaml}")).unwrap();
-    sweep.base = base;
+    sweep.base = Some(base);
     sweep
 }
 
@@ -92,6 +92,8 @@ fn the_last_3_points_of_the_48_point_build_have_46_variants() {
 
     let base_points: u32 = expansion
         .base
+        .as_ref()
+        .unwrap()
         .talents
         .values()
         .flat_map(|t| t.values())
@@ -116,7 +118,7 @@ fn the_last_3_points_of_the_48_point_build_have_46_variants() {
     assert_eq!(boundless["Boundless Rage"], 3);
     assert_eq!(boundless["Precision"], 2);
     assert!(
-        !expansion.base.talents["Fury"].contains_key("Blood Craze"),
+        !expansion.base.as_ref().unwrap().talents["Fury"].contains_key("Blood Craze"),
         "the override replaces the base's talents"
     );
 }
@@ -181,7 +183,7 @@ variations:
     .expand(data())
     .unwrap();
     assert_eq!(expansion.variants.len(), 2, "{:?}", expansion.invalid);
-    let base = &expansion.base.equipment;
+    let base = &expansion.base.as_ref().unwrap().equipment;
     let one_hand = &expansion.variants[0].setup.equipment;
     assert!(!one_hand.contains_key(&crate::item::EquipmentSlot::Offhand));
     assert_eq!(one_hand.len(), base.len() - 1);
@@ -235,10 +237,127 @@ variations:
 #[test]
 fn the_base_is_relative_to_the_sweep_file() {
     let mut sweep = sweep("");
-    sweep.base = PathBuf::from("../characters/dw_fury_orc.yaml");
+    sweep.base = Some(PathBuf::from("../characters/dw_fury_orc.yaml"));
     sweep.path = Some(PathBuf::from("data/sweeps/x.yaml"));
     assert_eq!(
-        sweep.base_path(),
+        sweep.base_path().unwrap(),
         Path::new("data/sweeps").join("../characters/dw_fury_orc.yaml")
     );
+}
+
+/// A sweep from its YAML text as if it were `data/sweeps/x.yaml`, without `base`.
+fn characters_sweep(yaml: &str) -> SweepSetup {
+    let mut sweep: SweepSetup = serde_yaml::from_str(&format!("name: test\n{yaml}")).unwrap();
+    sweep.path = Some(DataBundle::repository_dir().join("sweeps").join("x.yaml"));
+    sweep
+}
+
+const THREE_CHARACTERS: &str = "
+variations:
+  - characters:
+      - ../characters/dw_fury_orc.yaml
+      - { path: ../characters/dw_fury_human.yaml, label: Human swords }
+      - { path: ../characters/2h_fury_orc.yaml }
+";
+
+#[test]
+fn characters_replace_the_whole_setup() {
+    let expansion = characters_sweep(THREE_CHARACTERS).expand(data()).unwrap();
+    assert!(expansion.base.is_none());
+    assert_eq!(expansion.points, vec![("3 characters".to_string(), 3)]);
+    let labels: Vec<&str> = expansion
+        .variants
+        .iter()
+        .map(|v| v.label.as_str())
+        .collect();
+    assert_eq!(
+        labels,
+        vec!["DW Fury Orc", "Human swords", "2H Fury Orc"],
+        "the label, else the setup's name; {:?}",
+        expansion.invalid
+    );
+    let human = &expansion.variants[1].setup;
+    assert_eq!(human.race, Race::Human);
+    assert_eq!(
+        human.equipment[&crate::item::EquipmentSlot::Mainhand].item,
+        12584,
+        "Grand Marshal's Longsword"
+    );
+    assert!(human
+        .path
+        .as_ref()
+        .unwrap()
+        .ends_with("../characters/dw_fury_human.yaml"));
+    let two_hander = &expansion.variants[2].setup;
+    assert!(!two_hander
+        .equipment
+        .contains_key(&crate::item::EquipmentSlot::Offhand));
+}
+
+#[test]
+fn overrides_and_options_apply_to_every_character() {
+    let expansion = characters_sweep(&format!(
+        "overrides: {{ race: TAUREN }}
+{THREE_CHARACTERS}
+  - options:
+      - {{ label: as is }}
+      - {{ label: one hand, equipment: {{ OFFHAND: null }} }}
+"
+    ))
+    .expand(data())
+    .unwrap();
+    assert_eq!(expansion.combinations(), 6);
+    assert_eq!(expansion.variants.len(), 6, "{:?}", expansion.invalid);
+    assert!(expansion
+        .variants
+        .iter()
+        .all(|v| v.setup.race == Race::Tauren));
+    let one_hand = expansion
+        .variants
+        .iter()
+        .find(|v| v.label == "Human swords | one hand")
+        .unwrap();
+    assert!(!one_hand
+        .setup
+        .equipment
+        .contains_key(&crate::item::EquipmentSlot::Offhand));
+    assert!(one_hand
+        .setup
+        .equipment
+        .contains_key(&crate::item::EquipmentSlot::Mainhand));
+}
+
+#[test]
+fn the_setups_come_from_either_base_or_characters() {
+    let error = characters_sweep("variations: [{ options: [{ race: ORC }] }]")
+        .expand(data())
+        .unwrap_err();
+    assert_eq!(issue_contexts(error), vec!["base"]);
+
+    let error = sweep(THREE_CHARACTERS).expand(data()).unwrap_err();
+    assert_eq!(issue_contexts(error), vec!["base"], "not both");
+
+    let error = characters_sweep(
+        "
+variations:
+  - options: [{ race: ORC }]
+  - characters: [../characters/dw_fury_orc.yaml]
+  - talent_points: { points: 1, talents: { Arms: [Impale] } }
+",
+    )
+    .expand(data())
+    .unwrap_err();
+    assert_eq!(
+        issue_contexts(error),
+        vec!["variations[1]", "variations[2]"],
+        "characters first, talent points need a base"
+    );
+}
+
+#[test]
+fn a_missing_character_file_is_an_error() {
+    let error = characters_sweep("variations: [{ characters: [../characters/nobody.yaml] }]")
+        .expand(data())
+        .unwrap_err();
+    assert!(matches!(error, SweepError::Io { .. }), "{error}");
 }

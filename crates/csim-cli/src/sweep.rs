@@ -1,5 +1,6 @@
-//! `csim sweep`: simulates every variant of a sweep file (a base setup and variation points,
-//! see [`csim_engine::sweep_loader`]) and ranks the variants by DPS.
+//! `csim sweep`: simulates every variant of a sweep file (a base setup or whole character
+//! setups, and variation points, see [`csim_engine::sweep_loader`]) and ranks the variants by
+//! DPS.
 //!
 //! The number of variants, the product of each variation point's, and the iterations it
 //! takes are printed before anything runs; `--dry-run` stops there and lists the variants.
@@ -66,7 +67,9 @@ pub enum SweepFormat {
 #[derive(Debug, Serialize)]
 pub struct SweepResults {
     pub name: String,
-    pub base: String,
+    /// The base setup; absent when a `characters` variation point provides the setups.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub base: Option<String>,
     pub iterations: u32,
     pub combat_length: u32,
     pub seed: u64,
@@ -121,7 +124,7 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
 
     let mut results = SweepResults {
         name: sweep.name.clone(),
-        base: sweep.base.display().to_string(),
+        base: sweep.base.as_ref().map(|base| base.display().to_string()),
         iterations,
         combat_length: settings.combat_length,
         seed,
@@ -193,7 +196,8 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
 /// The sweep, its variation points and what it takes to simulate them.
 fn header(results: &SweepResults, expansion: &Expansion) -> String {
     let mut out = String::new();
-    let _ = writeln!(out, "Sweep {}: base {}", results.name, results.base);
+    let base = (results.base.as_ref()).map_or_else(String::new, |base| format!(": base {base}"));
+    let _ = writeln!(out, "Sweep {}{base}", results.name);
     for (index, point) in results.variation_points.iter().enumerate() {
         let _ = writeln!(
             out,

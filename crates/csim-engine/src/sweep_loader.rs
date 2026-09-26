@@ -1,6 +1,7 @@
-//! Sweep files: `data/sweeps/*.yaml` take a base character setup and variation points and
-//! describe every combination of them; [`SweepSetup::expand`] turns one into the character
-//! setups to simulate, so the best one can be found under the base's constraints.
+//! Sweep files: `data/sweeps/*.yaml` take a base character setup (or several whole character
+//! setups) and variation points and describe every combination of them;
+//! [`SweepSetup::expand`] turns one into the character setups to simulate, so the best one
+//! can be found under the base's constraints.
 //!
 //! ```yaml
 //! name: DW Fury last 3 points
@@ -24,6 +25,21 @@
 //! the setup's, except `equipment`, which replaces the slots it names (a slot set to `null` is
 //! emptied). A top-level key set to `null` returns to its default.
 //!
+//! To rank whole character setups against each other, a `characters` variation point takes
+//! the place of `base`: each of its alternatives is a character file, relative to the sweep
+//! file, that replaces the whole setup. `overrides` then applies to every one of them, and
+//! later variation points apply on top of each.
+//!
+//! ```yaml
+//! name: DW Fury profiles
+//! variations:
+//!   - characters:                         # the first variation point; no `base`
+//!       - ../characters/dw_fury_orc.yaml  # named by the setup's `name`
+//!       - { path: ../characters/dw_fury_human.yaml, label: Human swords }
+//! ```
+//!
+//! `talent_points` spends points on top of the base, so it needs `base`.
+//!
 //! The variants are the cartesian product of the variation points, so their count is the
 //! product of each point's; without variation points the base is the only variant. Each
 //! variant applies its points' changes in the order listed. Variants that are not valid
@@ -45,8 +61,10 @@ use crate::data_bundle::DataBundle;
 #[serde(deny_unknown_fields)]
 pub struct SweepSetup {
     pub name: String,
-    /// The base character setup, relative to the sweep file.
-    pub base: PathBuf,
+    /// The base character setup, relative to the sweep file; absent when a `characters`
+    /// variation point provides the setups.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base: Option<PathBuf>,
     /// Changes to the base, applied before the variation points.
     #[serde(default, skip_serializing_if = "Mapping::is_empty")]
     pub overrides: Mapping,
@@ -64,7 +82,7 @@ pub struct SweepSetup {
 }
 
 /// One variation point: a set of alternative changes to the setup. Written as a map with the
-/// kind as its one key (`talent_points: {...}`, `options: [...]`).
+/// kind as its one key (`talent_points: {...}`, `options: [...]`, `characters: [...]`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(try_from = "VariationPointFile", into = "VariationPointFile")]
 pub enum VariationPoint {
@@ -72,6 +90,37 @@ pub enum VariationPoint {
     TalentPoints(TalentPoints),
     /// Explicit alternatives, each an override with an optional `label`.
     Options(Vec<Mapping>),
+    /// Whole character setups, each replacing the setup.
+    Characters(Vec<CharacterRef>),
+}
+
+/// A character file of a `characters` variation point: its path, relative to the sweep
+/// file, or `{ path, label }`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CharacterRef {
+    Path(PathBuf),
+    Labeled {
+        path: PathBuf,
+        /// Names the alternative; default: the setup's `name`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        label: Option<String>,
+    },
+}
+
+impl CharacterRef {
+    pub fn path(&self) -> &Path {
+        match self {
+            CharacterRef::Path(path) | CharacterRef::Labeled { path, .. } => path,
+        }
+    }
+
+    pub fn label(&self) -> Option<&str> {
+        match self {
+            CharacterRef::Path(_) => None,
+            CharacterRef::Labeled { label, .. } => label.as_deref(),
+        }
+    }
 }
 
 /// The file form of [`VariationPoint`]: serde_yaml writes enums as `!tags`.
@@ -82,16 +131,22 @@ struct VariationPointFile {
     talent_points: Option<TalentPoints>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     options: Option<Vec<Mapping>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    characters: Option<Vec<CharacterRef>>,
 }
 
 impl TryFrom<VariationPointFile> for VariationPoint {
     type Error = String;
 
     fn try_from(file: VariationPointFile) -> Result<Self, String> {
-        match (file.talent_points, file.options) {
-            (Some(points), None) => Ok(VariationPoint::TalentPoints(points)),
-            (None, Some(options)) => Ok(VariationPoint::Options(options)),
-            _ => Err("a variation point has exactly one of talent_points, options".to_string()),
+        match (file.talent_points, file.options, file.characters) {
+            (Some(points), None, None) => Ok(VariationPoint::TalentPoints(points)),
+            (None, Some(options), None) => Ok(VariationPoint::Options(options)),
+            (None, None, Some(characters)) => Ok(VariationPoint::Characters(characters)),
+            _ => Err(
+                "a variation point has exactly one of talent_points, options, characters"
+                    .to_string(),
+            ),
         }
     }
 }
@@ -105,6 +160,10 @@ impl From<VariationPoint> for VariationPointFile {
             },
             VariationPoint::Options(options) => VariationPointFile {
                 options: Some(options),
+                ..Self::default()
+            },
+            VariationPoint::Characters(characters) => VariationPointFile {
+                characters: Some(characters),
                 ..Self::default()
             },
         }
@@ -132,6 +191,8 @@ enum Change {
     Override(Mapping),
     /// `(tab, talent, points)` added to the setup's ranks.
     AddTalents(Vec<(String, String, u32)>),
+    /// Replaces the whole setup.
+    Replace(Box<CharacterSetup>),
 }
 
 /// A variant to simulate.
@@ -145,8 +206,9 @@ pub struct Variant {
 /// What a sweep expands to.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Expansion {
-    /// The base with `overrides` applied.
-    pub base: CharacterSetup,
+    /// The base with `overrides` applied; `None` when a `characters` variation point
+    /// provides the setups.
+    pub base: Option<CharacterSetup>,
     /// Per variation point, a description and its number of alternatives.
     pub points: Vec<(String, usize)>,
     /// The valid variants, in expansion order.
@@ -219,39 +281,31 @@ impl SweepSetup {
     }
 
     /// The base setup's file: `base` relative to the sweep file's directory.
-    pub fn base_path(&self) -> PathBuf {
+    pub fn base_path(&self) -> Option<PathBuf> {
+        self.base.as_deref().map(|base| self.resolve(base))
+    }
+
+    /// `path` relative to the sweep file's directory.
+    pub fn resolve(&self, path: &Path) -> PathBuf {
         match self.path.as_ref().and_then(|path| path.parent()) {
-            Some(dir) => dir.join(&self.base),
-            None => self.base.clone(),
+            Some(dir) => dir.join(path),
+            None => path.to_path_buf(),
         }
     }
 
-    /// Reads the base, applies the overrides and expands the variation points against
-    /// `data`. Fails when the sweep itself is wrong (an unknown talent, a variation point
-    /// without alternatives, an override that is no setup, ...); variants that are merely
-    /// invalid setups end up in [`Expansion::invalid`].
+    /// Reads the base (or the `characters`), applies the overrides and expands the variation
+    /// points against `data`. Fails when the sweep itself is wrong (an unknown talent, a
+    /// variation point without alternatives, an override that is no setup, a character file
+    /// that cannot be read, ...); variants that are merely invalid setups end up in
+    /// [`Expansion::invalid`].
     pub fn expand(&self, data: &DataBundle) -> Result<Expansion, SweepError> {
-        let base_path = self.base_path();
-        let text = read(&base_path)?;
-        let mut base: Value = serde_yaml::from_str(&text).map_err(|source| SweepError::Yaml {
-            path: base_path.clone(),
-            source,
-        })?;
-        let mut issues = Vec::new();
-        if !base.is_mapping() {
-            issues.push(issue("base", "is not a character setup"));
+        let mut issues = self.structure_issues();
+        if !issues.is_empty() {
             return Err(self.invalid(issues));
         }
-        merge(&mut base, &self.overrides);
-        let base = match serde_yaml::from_value::<CharacterSetup>(base) {
-            Ok(mut setup) => {
-                setup.path = Some(base_path);
-                setup
-            }
-            Err(error) => {
-                issues.push(issue("overrides", error.to_string()));
-                return Err(self.invalid(issues));
-            }
+        let base = match self.base_path() {
+            Some(path) => Some(self.load_setup(&path, "base")?),
+            None => None,
         };
 
         let mut points = Vec::new();
@@ -259,11 +313,16 @@ impl SweepSetup {
         for (index, point) in self.variations.iter().enumerate() {
             let context = format!("variations[{index}]");
             let known = issues.len();
-            let found = match point {
-                VariationPoint::TalentPoints(spec) => {
-                    talent_alternatives(spec, &base, data, &context, &mut issues)
+            let found = match (point, &base) {
+                (VariationPoint::TalentPoints(spec), Some(base)) => {
+                    talent_alternatives(spec, base, data, &context, &mut issues)
                 }
-                VariationPoint::Options(options) => option_alternatives(options),
+                // Reported by `structure_issues`.
+                (VariationPoint::TalentPoints(_), None) => Vec::new(),
+                (VariationPoint::Options(options), _) => option_alternatives(options),
+                (VariationPoint::Characters(characters), _) => {
+                    self.character_alternatives(characters, &context)?
+                }
             };
             if found.is_empty() && issues.len() == known {
                 issues.push(issue(&context, "has no alternatives"));
@@ -287,7 +346,7 @@ impl SweepSetup {
                     .collect::<Vec<_>>()
                     .join(" | ")
             };
-            match apply(&base, &combination).and_then(|setup| {
+            match apply(base.as_ref(), &combination).and_then(|setup| {
                 setup
                     .validate(data)
                     .map(|()| setup)
@@ -303,6 +362,94 @@ impl SweepSetup {
             variants,
             invalid,
         })
+    }
+
+    /// What is wrong with the sweep's shape: the setups come from exactly one of `base` and a
+    /// `characters` variation point, which must be the first (anything before it would be
+    /// replaced), and `talent_points` needs `base`.
+    fn structure_issues(&self) -> Vec<SetupIssue> {
+        let mut issues = Vec::new();
+        let characters: Vec<usize> = self
+            .variations
+            .iter()
+            .enumerate()
+            .filter(|(_, point)| matches!(point, VariationPoint::Characters(_)))
+            .map(|(index, _)| index)
+            .collect();
+        match (&self.base, characters.is_empty()) {
+            (Some(_), false) => issues.push(issue(
+                "base",
+                "cannot be combined with a characters variation point",
+            )),
+            (None, true) => issues.push(issue(
+                "base",
+                "is required without a characters variation point",
+            )),
+            _ => {}
+        }
+        for &index in characters.iter().filter(|&&index| index > 0) {
+            issues.push(issue(
+                format!("variations[{index}]"),
+                "characters must be the first variation point",
+            ));
+        }
+        if self.base.is_none() {
+            for (index, point) in self.variations.iter().enumerate() {
+                if matches!(point, VariationPoint::TalentPoints(_)) {
+                    issues.push(issue(
+                        format!("variations[{index}]"),
+                        "talent_points needs base",
+                    ));
+                }
+            }
+        }
+        issues
+    }
+
+    /// Reads the character setup at `path` and applies the overrides; `context` names the
+    /// file in errors.
+    fn load_setup(&self, path: &Path, context: &str) -> Result<CharacterSetup, SweepError> {
+        let text = read(path)?;
+        let mut value: Value = serde_yaml::from_str(&text).map_err(|source| SweepError::Yaml {
+            path: path.to_path_buf(),
+            source,
+        })?;
+        if !value.is_mapping() {
+            return Err(self.invalid(vec![issue(context, "is not a character setup")]));
+        }
+        merge(&mut value, &self.overrides);
+        match serde_yaml::from_value::<CharacterSetup>(value) {
+            Ok(mut setup) => {
+                setup.path = Some(path.to_path_buf());
+                Ok(setup)
+            }
+            Err(error) => Err(self.invalid(vec![issue(
+                "overrides",
+                format!("applied to {}: {error}", path.display()),
+            )])),
+        }
+    }
+
+    /// One alternative per character file, labelled by its `label`, else the setup's name.
+    fn character_alternatives(
+        &self,
+        characters: &[CharacterRef],
+        context: &str,
+    ) -> Result<Vec<Alternative>, SweepError> {
+        characters
+            .iter()
+            .enumerate()
+            .map(|(index, character)| {
+                let context = format!("{context}.characters[{index}]");
+                let setup = self.load_setup(&self.resolve(character.path()), &context)?;
+                Ok(Alternative {
+                    label: character
+                        .label()
+                        .map_or_else(|| setup.name.clone(), str::to_string),
+                    change: Change::Replace(Box::new(setup)),
+                })
+            })
+            .collect()
     }
 
     fn invalid(&self, issues: Vec<SetupIssue>) -> SweepError {
@@ -331,6 +478,9 @@ impl VariationPoint {
                     .join(", ")
             ),
             VariationPoint::Options(options) => format!("{} options", options.len()),
+            VariationPoint::Characters(characters) => {
+                format!("{} characters", characters.len())
+            }
         }
     }
 }
@@ -378,21 +528,28 @@ fn merge(target: &mut Value, changes: &Mapping) {
     }
 }
 
-/// `base` with the changes of `combination` applied in order.
-fn apply(base: &CharacterSetup, combination: &[&Alternative]) -> Result<CharacterSetup, String> {
-    let mut setup = base.clone();
+/// `base` with the changes of `combination` applied in order; without a base, the first
+/// change (a `characters` alternative) provides the setup.
+fn apply(
+    base: Option<&CharacterSetup>,
+    combination: &[&Alternative],
+) -> Result<CharacterSetup, String> {
+    let mut setup = base.cloned();
     for alternative in combination {
         match &alternative.change {
+            Change::Replace(replacement) => setup = Some(replacement.as_ref().clone()),
             Change::Override(changes) => {
-                let mut value = serde_yaml::to_value(&setup).map_err(|e| e.to_string())?;
+                let current = setup.as_mut().ok_or(NO_SETUP)?;
+                let mut value = serde_yaml::to_value(&*current).map_err(|e| e.to_string())?;
                 merge(&mut value, changes);
-                let path = setup.path.take();
-                setup = serde_yaml::from_value(value).map_err(|e| e.to_string())?;
-                setup.path = path;
+                let path = current.path.take();
+                *current = serde_yaml::from_value(value).map_err(|e| e.to_string())?;
+                current.path = path;
             }
             Change::AddTalents(added) => {
+                let current = setup.as_mut().ok_or(NO_SETUP)?;
                 for (tab, name, points) in added {
-                    *setup
+                    *current
                         .talents
                         .entry(tab.clone())
                         .or_default()
@@ -402,8 +559,10 @@ fn apply(base: &CharacterSetup, combination: &[&Alternative]) -> Result<Characte
             }
         }
     }
-    Ok(setup)
+    setup.ok_or_else(|| NO_SETUP.to_string())
 }
+
+const NO_SETUP: &str = "no setup: neither base nor characters";
 
 fn option_alternatives(options: &[Mapping]) -> Vec<Alternative> {
     options
