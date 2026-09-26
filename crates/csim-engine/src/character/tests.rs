@@ -1985,11 +1985,46 @@ mod rotation {
         shipped("DW Fury High Rage")
     }
 
+    /// Covers every way an executor links or is skipped: an item use, talents not taken,
+    /// another race's racial, conditions on buffs, resources, variables and cooldowns.
+    const DW_FURY_LINKING: &str = r#"
+class: WARRIOR
+name: DW Fury (linking)
+precombat_actions: [Bloodrage, Battle Shout, Berserker Stance]
+cast_if:
+  - name: Bloodrage
+    condition: resource "Rage" less 70
+  - name: Berserker Rage
+    condition: resource "Rage" less 50
+  - name: Battle Shout
+    condition: |
+      buff_duration "Battle Shout" less 3
+      or variable "time_remaining_execute" less 10
+      and variable "time_remaining_execute" greater 0
+      and buff_duration "Battle Shout" less 45
+  - name: Heroic Strike
+    condition: |
+      variable "time_remaining_execute" greater 3
+      and resource "Rage" greater 50
+  - name: Kiss of the Spider
+    condition: buff_duration "Death Wish" is true
+  - name: Death Wish
+  - name: Elune's Light
+    condition: buff_duration "Death Wish" is true
+  - name: Blood Fury
+  - name: Execute
+  - name: Bloodthirst
+  - name: Whirlwind
+    condition: spell "Bloodthirst" greater 1.5
+  - name: Berserker Stance
+"#;
+
     #[test]
-    fn dw_fury_links_the_executors_the_orc_warrior_has() {
+    fn a_rotation_links_the_executors_the_orc_warrior_has() {
         let mut f = shipped_orc_warrior();
-        f.ctx().set_rotation(dw_fury());
-        assert_eq!(f.character.rotation_name(), "DW Fury High Rage");
+        f.ctx()
+            .set_rotation(Arc::new(serde_yaml::from_str(DW_FURY_LINKING).unwrap()));
+        assert_eq!(f.character.rotation_name(), "DW Fury (linking)");
         assert_eq!(f.character.attack_mode(), AttackMode::MeleeAttack);
         let rotation = f.character.rotation().unwrap();
 
@@ -2004,33 +2039,18 @@ mod rotation {
                 "Bloodrage",
                 "Berserker Rage",
                 "Battle Shout",
-                "Sunder Armor",
                 "Heroic Strike",
-                "Haste",
                 "Kiss of the Spider",
-                "Jom Gabbar",
-                "Badge of the Swarmguard",
-                "Slayer's Crest",
-                "Earthstrike",
-                "Restless Strength",
-                "CHUG! CHUG! CHUG! CHUG!",
-                "Heaven's Blessing",
                 "Death Wish",
-                "Recklessness",
+                "Elune's Light",
                 "Blood Fury",
-                "Berserking",
-                "Eureka!",
                 "Execute",
                 "Bloodthirst",
-                "Spearing Strike",
                 "Whirlwind",
-                "Overpower",
-                "Hamstring",
-                "Battle Stance",
                 "Berserker Stance",
             ]
         );
-        // No talents: Death Wish and Bloodthirst are not enabled; an Orc has no Berserking or Eureka!;
+        // No talents: Death Wish and Bloodthirst are not enabled; an Orc has no Elune's Light;
         // no trinkets are equipped.
         let active: Vec<&str> = rotation
             .active_executors()
@@ -2042,15 +2062,10 @@ mod rotation {
                 "Bloodrage",
                 "Berserker Rage",
                 "Battle Shout",
-                "Sunder Armor",
                 "Heroic Strike",
-                "Recklessness",
                 "Blood Fury",
                 "Execute",
                 "Whirlwind",
-                "Overpower",
-                "Hamstring",
-                "Battle Stance",
                 "Berserker Stance",
             ]
         );
@@ -2070,27 +2085,16 @@ mod rotation {
             .map(|(line, e)| (line, e.spell_name(), e.skip_reason().unwrap().to_string()))
             .collect();
         let unknown = "no spell of this name";
-        // Lines 6 - 14: the item uses, none equipped.
-        assert!(skipped[..9]
-            .iter()
-            .zip(6..)
-            .all(|((line, _, reason), expected)| *line == expected && reason == unknown));
-        assert_eq!(skipped[0].1, "Haste");
         assert_eq!(
-            skipped[9..],
+            skipped,
             [
-                (15, "Death Wish", "talent Death Wish not taken".to_string()),
-                (18, "Berserking", unknown.to_string()),
-                (19, "Eureka!", unknown.to_string()),
+                (5, "Kiss of the Spider", unknown.to_string()),
+                (6, "Death Wish", "talent Death Wish not taken".to_string()),
+                (7, "Elune's Light", unknown.to_string()),
                 (
-                    21,
+                    10,
                     "Bloodthirst",
                     "talent Bloodthirst not taken".to_string()
-                ),
-                (
-                    22,
-                    "Spearing Strike",
-                    "talent Spearing Strike not taken".to_string()
                 ),
             ]
         );
@@ -2134,8 +2138,8 @@ mod rotation {
             Measure::BuffDuration(shout_buff)
         );
         // Heroic Strike: one group of two.
-        let groups = executors[4].linked().unwrap().condition.as_ref().unwrap();
-        let heroic_strike = executors[4].linked().unwrap().spell;
+        let groups = executors[3].linked().unwrap().condition.as_ref().unwrap();
+        let heroic_strike = executors[3].linked().unwrap().spell;
         let group = f.character.spells().rank_group("Heroic Strike").unwrap();
         assert_eq!(
             group.rank_of(heroic_strike),
@@ -2158,7 +2162,7 @@ mod rotation {
         );
         // Whirlwind's `spell "Bloodthirst"` resolved to the highest rank of the (disabled)
         // Bloodthirst.
-        let groups = executors[22].linked().unwrap().condition.as_ref().unwrap();
+        let groups = executors[10].linked().unwrap().condition.as_ref().unwrap();
         let Measure::SpellCooldown(bloodthirst) = groups.groups()[0][0].measure else {
             panic!("{:?}", groups.groups()[0][0]);
         };

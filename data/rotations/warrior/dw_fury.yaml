@@ -55,6 +55,7 @@ cast_if:
       variable "time_remaining_encounter" less 33
       or variable "time_remaining_execute" less 3
       or variable "time_remaining_execute" greater 180
+  - name: Elune's Light
   - name: Recklessness
     condition: |
       variable "time_remaining_execute" less 0
