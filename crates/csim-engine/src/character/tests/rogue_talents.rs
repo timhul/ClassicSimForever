@@ -295,3 +295,104 @@ fn cold_blood_is_used_by_mutilates_strikes() {
     }
     assert!(!f.ctx().aura_active(COLD_BLOOD_SPELL));
 }
+
+const HACK_AND_SLASH: u32 = 105727;
+const HACK_AND_SLASH_TALENT: u32 = 13960;
+const HACK_AND_SLASH_PROC: u32 = 1290312;
+
+/// Equips `item` in `slot` and re-applies the passives its weapon type gates.
+fn wield(f: &mut Fixture, slot: EquipmentSlot, item: u32) {
+    f.equip(slot, item);
+    f.ctx().reevaluate_passives();
+}
+
+fn oh_crit(f: &Fixture) -> u32 {
+    stat(f, |s, ctx| s.get_oh_crit_chance(ctx))
+}
+
+/// Hack and Slash 5/5: +5 % crit for the hand holding a dagger or a fist weapon (an aura crit,
+/// suppressed like any other), nothing with other weapons.
+#[test]
+fn hack_and_slash_crit_with_daggers_and_fist_weapons() {
+    for (weapon, crits) in [
+        (DAGGER, true),
+        (FIST_WEAPON, true),
+        (SWORD, false),
+        (MACE, false),
+        (AXE, false),
+    ] {
+        let mut base = pulled(&[]);
+        let mut f = with_talents(&[(HACK_AND_SLASH, 5)]);
+        wield(&mut base, EquipmentSlot::Mainhand, weapon);
+        wield(&mut f, EquipmentSlot::Mainhand, weapon);
+        if crits {
+            base.character.stats_mut().increase_melee_aura_crit(500);
+        }
+        assert_eq!(mh_crit(&f), mh_crit(&base), "weapon {weapon}");
+    }
+    let mut base = pulled(&[]);
+    let mut f = with_talents(&[(HACK_AND_SLASH, 5)]);
+    wield(&mut base, EquipmentSlot::Offhand, DAGGER);
+    wield(&mut f, EquipmentSlot::Offhand, DAGGER);
+    assert_eq!(mh_crit(&f), mh_crit(&base), "the sword in the main hand");
+    base.character.stats_mut().increase_melee_aura_crit(500);
+    assert_eq!(oh_crit(&f), oh_crit(&base));
+}
+
+/// Hack and Slash: maces ignore 3/6/9/12/15 % of the armor, other weapons nothing.
+#[test]
+fn hack_and_slash_armor_penetration_with_maces() {
+    let mut f = with_talents(&[(HACK_AND_SLASH, 5)]);
+    assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 0);
+    wield(&mut f, EquipmentSlot::Mainhand, MACE);
+    assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 15);
+    let mut f = with_talents(&[(HACK_AND_SLASH, 2)]);
+    wield(&mut f, EquipmentSlot::Mainhand, MACE);
+    assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 6);
+}
+
+/// Hack and Slash: the talent is a plain passive; its hidden proc gives swords and axes a
+/// 1-5 % chance of an extra attack off swings and abilities, not daggers.
+#[test]
+fn hack_and_slash_extra_attacks_with_swords_and_axes() {
+    let mut f = with_talents(&[(HACK_AND_SLASH, 5)]);
+    let spells = f.character.spells();
+    assert!(spells.proc_by_game_id(HACK_AND_SLASH_TALENT).is_none());
+    let proc = spells
+        .proc_by_game_id(HACK_AND_SLASH_PROC)
+        .expect("the hidden proc");
+    assert!(spells.procs().is_enabled(proc));
+    let sources = spells.procs().get(proc).sources().to_vec();
+    assert_eq!(
+        sources,
+        [
+            crate::proc::ProcSource::MainhandSwing,
+            crate::proc::ProcSource::OffhandSwing,
+            crate::proc::ProcSource::MainhandSpell,
+            crate::proc::ProcSource::OffhandSpell,
+        ]
+    );
+    let source = crate::proc::ProcSource::MainhandSwing;
+    let fulfilled = |f: &mut Fixture| {
+        let ctx = f.ctx();
+        let procs = ctx.character.spells().procs();
+        procs.get(proc).conditions_fulfilled(source, &ctx)
+    };
+    let range = {
+        let ctx = f.ctx();
+        ctx.character
+            .spells()
+            .procs()
+            .get(proc)
+            .proc_range(source, &ctx)
+    };
+    assert_eq!(range, 500);
+    assert!(fulfilled(&mut f), "sword");
+    wield(&mut f, EquipmentSlot::Mainhand, AXE);
+    assert!(fulfilled(&mut f), "axe");
+    wield(&mut f, EquipmentSlot::Mainhand, DAGGER);
+    assert!(!fulfilled(&mut f), "dagger");
+    wield(&mut f, EquipmentSlot::Mainhand, SWORD);
+    f.ctx().perform_proc(proc);
+    assert_eq!(f.character.pending_extra_attacks(), 1);
+}

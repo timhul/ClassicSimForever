@@ -4208,6 +4208,17 @@ spells:
   - index: 1
     effect: DUMMY
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 16459
+  name: Hack and Slash
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  labels: [20]
+  effects:
+  - index: 0
+    effect: ADD_EXTRA_ATTACKS
+    base_points: 1.0
+    bonus_coefficient: 1.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 16511
   name: Hemorrhage
   skill_line: 39
@@ -5381,6 +5392,30 @@ spells:
     base_points: 75.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 1290312
+  name: Hack and Slash
+  attributes: [400, 16, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: -1
+  levels:
+    base: 1
+    spell: 1
+  aura_options:
+    proc_chance: 5
+    proc_category_recovery_ms: 200
+    proc_type_mask: 20
+  equipped_items:
+    class: 2
+    subclass_mask: 387
+  labels: [20]
+  description: Gives you a $m1% chance to get an extra attack on the same target after dealing damage with your Sword or Axe.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    base_points: 5.0
+    trigger_spell: 16459
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 1310697
   name: Improved Expose Armor
   attributes: [16, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]

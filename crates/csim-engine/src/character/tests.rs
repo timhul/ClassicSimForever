@@ -37,6 +37,9 @@ const SWORD: u32 = 1;
 const DAGGER: u32 = 2;
 const TWO_HAND_AXE: u32 = 3;
 const SHIELD: u32 = 4;
+const FIST_WEAPON: u32 = 5;
+const MACE: u32 = 6;
+const AXE: u32 = 7;
 
 const ITEMS_YAML: &str = r#"
 - id: 1
@@ -76,6 +79,33 @@ const ITEMS_YAML: &str = r#"
   item_lvl: 60
   damage: { min: 1, max: 1, speed: 1.0 }
   stats: { ARMOR: 2000 }
+- id: 5
+  name: Fist Weapon
+  phase: 1
+  slot: "1H"
+  type: FIST
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 60, max: 90, speed: 2.0 }
+- id: 6
+  name: Mace
+  phase: 1
+  slot: "1H"
+  type: MACE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 80, max: 120, speed: 2.6 }
+- id: 7
+  name: One-Handed Axe
+  phase: 1
+  slot: "1H"
+  type: AXE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 80, max: 120, speed: 2.6 }
 "#;
 
 pub(crate) fn warrior_class() -> Arc<ClassSpec> {

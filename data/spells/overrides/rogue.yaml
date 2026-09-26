@@ -197,11 +197,14 @@ overrides:
     proc: { hit_mask: [CRITICAL], chance_effect: 0, builder: true }
     effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 14189 } }]
   - id: 13960
-    note: Hack and Slash (talent); E0 dagger/fist crit (13706), E1 mace armor penetration (13709), E2 sword/axe extra attack (1290312), as Weaponmaster (ENABLE_AURA / ENABLE_PROC, RG.4)
+    note: Hack and Slash (talent), as Weaponmaster; the rank values go to the hidden auras the server applies, E0 (1-5 %) dagger/fist crit 13706, E1 (3-15 %) mace armor penetration 13709, E2 (1-5 %) sword/axe extra-attack chance 1290312 (200 ms internal cooldown, payload 16459)
     effects:
-      - { index: 0, script: NO_OP }
-      - { index: 1, script: NO_OP }
-      - { index: 2, script: NO_OP }
+      - { index: 0, script: ENABLE_AURA, params: { spell: 13706, effect: 0 } }
+      - { index: 1, script: ENABLE_AURA, params: { spell: 13709, effect: 0 } }
+      - { index: 2, script: ENABLE_PROC, params: { spell: 1290312 } }
+  - id: 13706
+    note: Hack and Slash's hidden crit aura; the crit only counts for attacks with daggers and fist weapons
+    effects: [{ index: 0, script: WEAPON_TYPE_CRIT_PERCENT }]
   - id: 1310728
     note: Quietus (talent); E0 is the damage bonus, E1 the health threshold 35 % (DAMAGE_PERCENT_BELOW_HEALTH, RG.4)
     effects:
