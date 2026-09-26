@@ -16,21 +16,20 @@
 # World buffs (Rallying Cry, Songflower, Spirit of Zandalar, Warchief's Blessing, the
 # Dire Maul tribute buffs) are left out on purpose: Forever does not offer them the same way.
 # Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff.
+# In Forever both factions get each other's buffs: Blessings, Strength of Earth and Windfury
+# carry no `faction`.
 # Schema: crates/csim-engine/src/buff/external.rs.
 
 buffs:
   # Raid buffs
   - name: Greater Blessing of Kings
     spell: 25898
-    faction: ALLIANCE
     raid: true
   - name: Greater Blessing of Might
     spell: 25916
-    faction: ALLIANCE
     raid: true
   - name: Strength of Earth Totem
     spell: 25362
-    faction: HORDE
     raid: true
   - name: Trueshot Aura
     spell: 19506

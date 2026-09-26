@@ -196,7 +196,7 @@ equipment:
   HEAD: { item: 18404 }
   RING1: { item: 999999 }
   BACK: { item: 20068, temp_enchant: WindfuryTotem }
-buffs: [Sunder Armor, Juju Power, Elixir of Giants, Greater Blessing of Kings, Nothing]
+buffs: [Sunder Armor, Juju Power, Elixir of Giants, Nothing]
 target:
   level: 70
 "#
@@ -222,7 +222,6 @@ target:
         "equipment.BACK.temp_enchant",
         "buffs.Sunder Armor",
         "buffs.Elixir of Giants",
-        "buffs.Greater Blessing of Kings",
         "buffs.Nothing",
     ] {
         assert!(
@@ -230,7 +229,7 @@ target:
             "{expected} missing from {issues:#?}"
         );
     }
-    assert_eq!(found.len(), 16, "{issues:#?}");
+    assert_eq!(found.len(), 15, "{issues:#?}");
 
     let message = setup
         .build_raid(data(), &settings())

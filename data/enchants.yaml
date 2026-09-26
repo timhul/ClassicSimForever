@@ -203,7 +203,6 @@
   effect: Windfury
   temporary: true
   slots: [MAINHAND]
-  faction: HORDE
   procs:
     - name: WINDFURY_ATTACK
       display_name: Windfury Totem Attack

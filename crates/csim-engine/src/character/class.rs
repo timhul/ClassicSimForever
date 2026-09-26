@@ -560,7 +560,7 @@ mod tests {
     }
 
     #[test]
-    fn available_enchants_follow_the_equipped_weapon_and_faction() {
+    fn available_enchants_follow_the_equipped_weapon() {
         use crate::item::{WeaponData, WeaponSlot};
         let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
         let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
@@ -594,12 +594,13 @@ mod tests {
         assert_eq!(
             names(warrior.available_enchants(&enchants, &ctx, true)),
             [
+                EnchantName::WindfuryTotem,
                 EnchantName::DenseSharpeningStone,
                 EnchantName::ElementalSharpeningStone,
                 EnchantName::ConsecratedSharpeningStone,
                 EnchantName::ShadowOil,
             ],
-            "sharp weapon, Alliance: no weightstones, no Windfury"
+            "sharp weapon: no weightstones; Windfury for the Alliance too in Forever"
         );
 
         let mace = WeaponData {
