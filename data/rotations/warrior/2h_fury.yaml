@@ -63,16 +63,16 @@ cast_if:
       variable "time_remaining_execute" less 0
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
-  # Always cast Execute if available, unless melee AP is > 2000 and BT soon off cd.
+  # Always cast Execute if available, unless melee AP is > 2220 (TODO: should be 2434 if 0/2 imp exec) and BT soon off cd.
   - name: Execute
     condition: |
-      variable "melee_ap" leq 2000
+      variable "melee_ap" leq 2220
       or spell "Bloodthirst" greater 1.0
   # Always cast Bloodthirst if above 2k AP, or not in Execute range
   - name: Bloodthirst
     condition: |
       variable "time_remaining_execute" greater 0
-      or variable "melee_ap" greater 2000
+      or variable "melee_ap" greater 2220
   # Whirlwind only if Bloodthirst on cooldown and not in Execute phase.
   - name: Whirlwind
     condition: |
