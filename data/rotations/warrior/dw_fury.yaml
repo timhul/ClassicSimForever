@@ -93,6 +93,7 @@ cast_if:
       spell "Bloodthirst" greater 1.5
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
+      and buff_duration "Eureka!" is false
   # Switch to Battle Stance
   - name: Battle Stance
     condition: |

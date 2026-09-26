@@ -45,7 +45,12 @@ impl WarriorTest {
     /// A Warrior whose set of iterations is not prepared yet (`set_up(false)`), for tests
     /// that change the setup first.
     pub fn unprepared(label: &str) -> Self {
-        let mut base = SpellTest::new(PlayerClass::Warrior, Race::Orc, label);
+        Self::unprepared_of_race(Race::Orc, label)
+    }
+
+    /// [`Self::unprepared`] of `race` (for its racials).
+    pub fn unprepared_of_race(race: Race, label: &str) -> Self {
+        let mut base = SpellTest::new(PlayerClass::Warrior, race, label);
         base.character_mut().gain_resource(ResourceType::Rage, 100);
         WarriorTest { base }
     }

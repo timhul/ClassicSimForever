@@ -100,6 +100,7 @@ cast_if:
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and resource "Rage" greater 50
+      and buff_duration "Eureka!" is false
   # Switch to Battle Stance
   - name: Battle Stance
     condition: |

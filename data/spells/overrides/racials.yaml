@@ -17,10 +17,12 @@ overrides:
   - id: 1259416
     note: Walk on Air is movement
     sim_flags: [IGNORED]
-  - id: 1259812
-    note: Eureka! (Skyborne) is an energy-cost and damage proc for energy users, not modelled yet
-    sim_flags: [IGNORED]
+  # Eureka! (Gnome) has one spell per class; only the Warrior one (1259813) is simulated.
   - id: 1259813
+    note: Eureka! (Warrior); the E3 DUMMY aura changes nothing the sim models
+    effects: [{ index: 3, script: NO_OP }]
+  - id: 1259812
+    note: Eureka! for rogues, not simulated
     sim_flags: [IGNORED]
   - id: 1259817
     sim_flags: [IGNORED]

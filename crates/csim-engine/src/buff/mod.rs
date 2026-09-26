@@ -22,7 +22,7 @@ use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, InstanceId};
 use crate::proc::ProcSource;
 use crate::spell::overrides::{Overrides, ProcHitMask, SimFlag};
-use crate::spell::record::SpellRecord;
+use crate::spell::record::{ClassOptions, SpellRecord};
 use crate::target::{Priority, Target};
 
 /// Which units a buff affects and how it is registered. Port of the `Buff` subclasses.
@@ -158,6 +158,10 @@ pub struct Buff {
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
+    /// The spell families and class masks of a charged spell modifier aura (Eureka!): a charge
+    /// is only used by an event of a spell the modifiers apply to (TrinityCore
+    /// `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
+    charge_spell_masks: Vec<(u32, [u32; 4])>,
     /// The spells whose buffs end with this one (the overrides' `ends_auras`).
     ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
@@ -204,6 +208,7 @@ impl Buff {
             refresh_policy: RefreshPolicy::default(),
             spell: 0,
             charge_sources: Vec::new(),
+            charge_spell_masks: Vec::new(),
             ends_auras: Vec::new(),
             effects: Vec::new(),
             instance_id: None,
@@ -249,6 +254,13 @@ impl Buff {
         if record.aura_options.proc_charges > 0 {
             buff.charge_sources =
                 ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
+            let set = record.class_options.map_or(0, |c| c.set);
+            buff.charge_spell_masks = record
+                .effects
+                .iter()
+                .filter(|e| e.is_spell_modifier())
+                .map(|e| (set, e.spell_class_mask))
+                .collect();
         }
         buff.ends_auras = overrides.ends_auras(record.id).to_vec();
         let cannot_crit = overrides.has_sim_flag(record.id, SimFlag::CannotCrit);
@@ -394,6 +406,23 @@ impl Buff {
     /// Whether a `source` event uses up one charge of this buff.
     pub fn consumes_charge_on(&self, source: ProcSource) -> bool {
         self.charge_sources.contains(&source)
+    }
+
+    /// Whether the charges are only used by the spells the buff's modifiers apply to.
+    pub fn charges_require_spell_modifier(&self) -> bool {
+        !self.charge_spell_masks.is_empty()
+    }
+
+    /// Whether a `source` event of a spell with `class` options (`None` for a swing) uses up
+    /// one charge of this buff.
+    pub fn consumes_charge_for(&self, source: ProcSource, class: Option<&ClassOptions>) -> bool {
+        self.consumes_charge_on(source)
+            && (self.charge_spell_masks.is_empty()
+                || class.is_some_and(|c| {
+                    self.charge_spell_masks
+                        .iter()
+                        .any(|(set, mask)| c.matches(*set, mask))
+                }))
     }
 
     /// The name under which statistics are collected (party buffs are per party).

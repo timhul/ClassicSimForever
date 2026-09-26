@@ -84,16 +84,18 @@ Builtin variables:
 Every condition is parsed when the file is loaded (`crates/csim-engine/src/rotation/condition.rs`);
 a line that does not follow the grammar, an unknown type, resource or variable, or `is` on a
 non-buff type is a load error naming the file, the executor and the line. Buff and spell names
-are only resolved when the rotation is linked to a character; an executor naming something the
-character does not have is skipped then, not rejected here.
+are only resolved when the rotation is linked to a character (see below), not rejected here.
 
 ## Linking and running
 
 A rotation is linked to a character (`Rotation::link`, again before every set of iterations):
 an executor is *active* when the character has learned its spell at the asked rank (the
 highest learned rank without `rank`), the spell is enabled (a talent taken, the race's racial,
-the item equipped) and every buff and spell its condition names resolves. The rest are skipped
-and never attempted. `spell "<name>"` in a condition resolves to the highest learned rank
+the item equipped), every spell its condition names resolves and the condition can still hold.
+A buff the character can never have (`Eureka!` for a non-Gnome) reads as down: a line that then
+always holds (`is false`, `less 3`) is dropped from its group, one that never holds (`is true`)
+drops its group, and an executor left with no group is skipped. The rest are skipped and never
+attempted. `spell "<name>"` in a condition resolves to the highest learned rank
 whether or not it is enabled (a disabled Bloodthirst has a cooldown of 0).
 
 Before the pull (at negative time) the precombat actions are cast in order when their spell is

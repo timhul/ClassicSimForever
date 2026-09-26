@@ -22,7 +22,7 @@ use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{EventScript, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
-use crate::spell::record::{EquippedItems, SpellDb};
+use crate::spell::record::{ClassOptions, EquippedItems, SpellDb};
 use crate::spell::{
     AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellSetup, SpellStatus,
     SwingReport,
@@ -988,30 +988,49 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         report
     }
 
-    /// Records the statistics of a completed cast of `id` and runs its proc sources.
+    /// Records the statistics of a completed cast of `id` and runs its proc sources. The
+    /// off-hand strike is part of the same cast: it does not use a second charge of a spell
+    /// modifier aura (Eureka!).
     fn after_cast(&mut self, id: SpellId, report: &CastReport) {
         self.record_cast(id, report);
-        self.run_sources(&report.all_proc_sources());
+        let class = self.character.spells.spell(id).record().class_options;
+        self.run_sources(&report.all_proc_sources(), class.as_ref());
         if let Some(offhand) = &report.offhand {
-            self.run_sources(&offhand.proc_sources);
+            self.run_sources(&offhand.proc_sources, None);
         }
     }
 
     /// Records the statistics of a swing and runs its proc sources.
     fn after_swing(&mut self, report: &SwingReport) {
         self.record_swing(report);
-        self.run_sources(&report.proc_sources);
+        self.run_sources(&report.proc_sources, None);
     }
 
     /// Runs the proc checks for `sources`, then uses the charges of the buffs that react to
     /// them. The charges go after the procs: a landed swing consumes a charge when its damage
     /// lands, one batch after the procs it triggered (the `classic-warrior` wiki on Windfury
     /// Totem), so the swing that proc'd Windfury uses a charge of the aura it just applied.
-    fn run_sources(&mut self, sources: &[ProcSource]) {
+    /// `class` are the class options of the spell cast (`None` for a swing); a spell modifier
+    /// aura loses at most one charge to it.
+    fn run_sources(&mut self, sources: &[ProcSource], class: Option<&ClassOptions>) {
         self.run_proc_checks(sources);
         self.run_event_scripts(sources);
+        let mut charged = Vec::new();
         for &source in sources {
-            self.consume_charges(source);
+            for id in self.character.spells.charge_consumers_for(source, class) {
+                let spell_modifier = self
+                    .character
+                    .spells
+                    .owned_buff(id)
+                    .is_some_and(Buff::charges_require_spell_modifier);
+                if spell_modifier {
+                    if charged.contains(&id) {
+                        continue;
+                    }
+                    charged.push(id);
+                }
+                self.use_charge(id);
+            }
         }
     }
 
@@ -1471,11 +1490,16 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Uses a charge of every buff that reacts to `source`.
     pub fn consume_charges(&mut self, source: ProcSource) {
         for id in self.character.spells.charge_consumers(source) {
-            let (buff, mut ctx) = self.buff_ctx(id);
-            if buff.use_charge(&mut ctx) == ChargeUse::Removed {
-                self.remove_auras(id);
-                self.record_buff_removed(id);
-            }
+            self.use_charge(id);
+        }
+    }
+
+    /// Uses a charge of buff `id`, removing it when that was the last one.
+    fn use_charge(&mut self, id: BuffId) {
+        let (buff, mut ctx) = self.buff_ctx(id);
+        if buff.use_charge(&mut ctx) == ChargeUse::Removed {
+            self.remove_auras(id);
+            self.record_buff_removed(id);
         }
     }
 

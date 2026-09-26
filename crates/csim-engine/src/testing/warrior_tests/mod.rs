@@ -17,6 +17,7 @@ mod bloodthrill;
 mod death_wish;
 mod deep_wounds;
 mod defiance;
+mod eureka;
 mod execute;
 mod flurry;
 mod fury;

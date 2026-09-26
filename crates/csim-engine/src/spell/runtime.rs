@@ -859,7 +859,8 @@ impl Spell {
     }
 
     /// The cost of a cast in displayed units after `POWER_COST` modifiers (Improved Heroic
-    /// Strike: −10 stored = −1 rage). Port of `Spell::get_resource_cost`.
+    /// Strike: −10 stored = −1 rage; Eureka! −10 %). Costs are whole units, so a fractional
+    /// cost rounds to the nearest one. Port of `Spell::get_resource_cost`.
     pub fn resource_cost(&self, host: &impl SpellHost) -> u32 {
         let record = &self.setup.record;
         let Some(resource) = self.resource_type() else {
@@ -868,7 +869,7 @@ impl Spell {
         let stored = f64::from(record.power_cost(resource.power_type()));
         let modifiers = host.spell_modifiers();
         let class = record.class_options.as_ref();
-        let stored = (stored + modifiers.flat(class, SpellModOp::PowerCost0))
+        let stored = modifiers.apply(class, SpellModOp::PowerCost0, stored)
             * modifiers.multiplier(class, SpellModOp::PowerCostPct);
         resource.from_stored_amount(stored.max(0.0))
     }

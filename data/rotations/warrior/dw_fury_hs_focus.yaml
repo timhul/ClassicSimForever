@@ -94,6 +94,7 @@ cast_if:
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and resource "Rage" greater 80
+      and buff_duration "Eureka!" is false
   - name: Battle Stance
     condition: |
       variable "time_remaining_execute" greater 5

@@ -87,6 +87,7 @@ cast_if:
     condition: |
       spell "Bloodthirst" greater 1.5
       and variable "time_remaining_execute" greater 0
+      and buff_duration "Eureka!" is false
   # Always cast Overpower if available. The implied condition checks that the player is in
   # the correct stance, Overpower is active, etc.
   - name: Overpower

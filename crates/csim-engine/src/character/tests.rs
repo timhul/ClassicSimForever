@@ -1977,6 +1977,7 @@ mod rotation {
                 "Recklessness",
                 "Blood Fury",
                 "Berserking",
+                "Eureka!",
                 "Execute",
                 "Bloodthirst",
                 "Whirlwind",
@@ -1986,7 +1987,7 @@ mod rotation {
                 "Berserker Stance",
             ]
         );
-        // No talents: Death Wish and Bloodthirst are not enabled; an Orc has no Berserking;
+        // No talents: Death Wish and Bloodthirst are not enabled; an Orc has no Berserking or Eureka!;
         // no trinkets are equipped.
         let active: Vec<&str> = rotation
             .active_executors()
@@ -2058,8 +2059,8 @@ mod rotation {
             Measure::BuffDuration(shout_buff)
         );
         // Heroic Strike: one group of two.
-        let groups = executors[3].linked().unwrap().condition.as_ref().unwrap();
-        let heroic_strike = executors[3].linked().unwrap().spell;
+        let groups = executors[4].linked().unwrap().condition.as_ref().unwrap();
+        let heroic_strike = executors[4].linked().unwrap().spell;
         let group = f.character.spells().rank_group("Heroic Strike").unwrap();
         assert_eq!(
             group.rank_of(heroic_strike),
@@ -2082,7 +2083,7 @@ mod rotation {
         );
         // Whirlwind's `spell "Bloodthirst"` resolved to the highest rank of the (disabled)
         // Bloodthirst.
-        let groups = executors[19].linked().unwrap().condition.as_ref().unwrap();
+        let groups = executors[21].linked().unwrap().condition.as_ref().unwrap();
         let Measure::SpellCooldown(bloodthirst) = groups.groups()[0][0].measure else {
             panic!("{:?}", groups.groups()[0][0]);
         };

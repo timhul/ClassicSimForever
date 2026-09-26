@@ -108,6 +108,16 @@ pub enum Test {
     Is(bool),
 }
 
+impl Test {
+    /// Whether a buff test holds for a buff that is down: no duration left, no stacks.
+    fn holds_for_a_buff_down(self) -> bool {
+        match self {
+            Test::Compare(cmp, rhs) => cmp.holds(0.0, rhs),
+            Test::Is(up) => !up,
+        }
+    }
+}
+
 /// The builtin variables of `variable "<name>"`. Port of `BuiltinVariables`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BuiltinVariable {
@@ -273,25 +283,42 @@ impl<B, S> Sentence<B, S> {
         }
     }
 
-    /// Maps the buff and spell handles, e.g. names to ids; `None` from either closure means
-    /// the name is unknown and the sentence (and its condition) cannot be linked.
+    /// Maps the buff and spell handles, e.g. names to ids. `None` from the spell closure means
+    /// the spell is unknown and the sentence (and its condition) cannot be linked. `None` from
+    /// the buff closure means the character can never have the buff: the sentence is then
+    /// decided as for a buff that is down (`buff_duration "Eureka!" is false` always holds for
+    /// a non-Gnome).
     pub fn map<B2, S2>(
         self,
         mut buff: impl FnMut(B) -> Option<B2>,
         mut spell: impl FnMut(S) -> Option<S2>,
-    ) -> Option<Sentence<B2, S2>> {
+    ) -> Option<Mapped<Sentence<B2, S2>>> {
         let measure = match self.measure {
-            Measure::BuffDuration(b) => Measure::BuffDuration(buff(b)?),
-            Measure::BuffStacks(b) => Measure::BuffStacks(buff(b)?),
+            Measure::BuffDuration(b) => match buff(b) {
+                Some(b) => Measure::BuffDuration(b),
+                None => return Some(Mapped::Constant(self.test.holds_for_a_buff_down())),
+            },
+            Measure::BuffStacks(b) => match buff(b) {
+                Some(b) => Measure::BuffStacks(b),
+                None => return Some(Mapped::Constant(self.test.holds_for_a_buff_down())),
+            },
             Measure::SpellCooldown(s) => Measure::SpellCooldown(spell(s)?),
             Measure::Resource(r) => Measure::Resource(r),
             Measure::Variable(v) => Measure::Variable(v),
         };
-        Some(Sentence {
+        Some(Mapped::Linked(Sentence {
             measure,
             test: self.test,
-        })
+        }))
     }
+}
+
+/// A mapped sentence: linked, or decided once and for all because it names a buff the
+/// character can never have.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Mapped<T> {
+    Linked(T),
+    Constant(bool),
 }
 
 impl<B: fmt::Display, S: fmt::Display> fmt::Display for Sentence<B, S> {
@@ -430,23 +457,32 @@ impl<B, S> Condition<B, S> {
             .any(|group| group.iter().all(|sentence| sentence.holds(context)))
     }
 
-    /// Maps the buff and spell handles of every sentence (see [`Sentence::map`]); `None` when
-    /// any name is unknown.
+    /// Maps the buff and spell handles of every sentence (see [`Sentence::map`]). A sentence
+    /// naming a buff the character can never have is dropped when it always holds and drops
+    /// its group when it never does. `None` when a spell is unknown or no group can hold; a
+    /// group left empty always holds.
     pub fn map<B2, S2>(
         self,
         mut buff: impl FnMut(B) -> Option<B2>,
         mut spell: impl FnMut(S) -> Option<S2>,
     ) -> Option<Condition<B2, S2>> {
-        let groups = self
-            .groups
-            .into_iter()
-            .map(|group| {
-                group
-                    .into_iter()
-                    .map(|sentence| sentence.map(&mut buff, &mut spell))
-                    .collect::<Option<Vec<_>>>()
-            })
-            .collect::<Option<Vec<_>>>()?;
+        let mut groups = Vec::new();
+        for group in self.groups {
+            let mut linked = Vec::new();
+            let mut can_hold = true;
+            for sentence in group {
+                match sentence.map(&mut buff, &mut spell)? {
+                    Mapped::Linked(sentence) => linked.push(sentence),
+                    Mapped::Constant(holds) => can_hold &= holds,
+                }
+            }
+            if can_hold {
+                groups.push(linked);
+            }
+        }
+        if groups.is_empty() {
+            return None;
+        }
         Some(Condition { groups })
     }
 }
@@ -1072,9 +1108,40 @@ mod tests {
                 }],
             ]
         );
+        // An unknown spell cannot be linked.
         assert!(condition
-            .map(|_| None::<u32>, |name: String| Some(name))
+            .clone()
+            .map(|name: String| Some(name), |_| None::<u32>)
             .is_none());
+        // An unknown buff is never up: `is true` fails its group, the other group remains.
+        let no_buffs = |_: String| None::<u32>;
+        let rage_only = condition.map(no_buffs, |name: String| Some(name)).unwrap();
+        assert_eq!(rage_only.to_string(), "Rage < 50");
+        assert!(Condition::parse("buff_duration \"Eureka!\" is true")
+            .unwrap()
+            .map(no_buffs, |name: String| Some(name))
+            .is_none());
+        // ... while `is false` always holds and drops out of its group.
+        let condition = Condition::parse(
+            "spell \"Bloodthirst\" greater 1.5\n\
+             and buff_duration \"Eureka!\" is false\n\
+             and buff_stacks \"Eureka!\" less 1",
+        )
+        .unwrap();
+        let mapped = condition.map(no_buffs, spells).unwrap();
+        assert_eq!(
+            mapped.groups(),
+            [vec![Sentence {
+                measure: Measure::SpellCooldown(3),
+                test: Test::Compare(Comparator::Greater, 1.5)
+            }]]
+        );
+        // A group left empty always holds.
+        let always = Condition::parse("buff_duration \"Eureka!\" less 3")
+            .unwrap()
+            .map(no_buffs, |name: String| Some(name))
+            .unwrap();
+        assert_eq!(always.groups(), [Vec::<Sentence<u32, String>>::new()]);
     }
 
     #[test]

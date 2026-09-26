@@ -27,7 +27,7 @@ use crate::ids::{BuffId, CharId, CooldownId, InstanceId, ProcId, SharedBuffId, S
 use crate::item::EquipmentSlot;
 use crate::proc::{EnabledProcs, Proc, ProcSource};
 use crate::spell::overrides::{Overrides, SimFlag};
-use crate::spell::record::SpellDb;
+use crate::spell::record::{ClassOptions, SpellDb};
 use crate::spell::{AutoAttack, Hand, Spell, SpellRankGroup, SpellSetup, MAX_RANK};
 
 /// Where a buff in a character's buff list lives.
@@ -831,12 +831,22 @@ impl CharacterSpells {
     /// landed swing: `SpellAuraOptions.ProcCharges` with the buff's own `ProcTypeMask`). The
     /// context uses a charge on each after the event's proc check.
     pub fn charge_consumers(&self, source: ProcSource) -> Vec<BuffId> {
+        self.charge_consumers_for(source, None)
+    }
+
+    /// [`Self::charge_consumers`] for an event of a spell with `class` options (`None` for a
+    /// swing): a charged spell modifier aura (Eureka!) only reacts to the spells it modifies.
+    pub fn charge_consumers_for(
+        &self,
+        source: ProcSource,
+        class: Option<&ClassOptions>,
+    ) -> Vec<BuffId> {
         self.enabled_buffs
             .iter()
             .copied()
             .filter(|id| {
                 self.owned_buff(*id)
-                    .is_some_and(|buff| buff.is_active() && buff.consumes_charge_on(source))
+                    .is_some_and(|buff| buff.is_active() && buff.consumes_charge_for(source, class))
             })
             .collect()
     }
