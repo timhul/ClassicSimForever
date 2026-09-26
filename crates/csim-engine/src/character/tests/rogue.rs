@@ -10,14 +10,14 @@ use crate::mechanics::Mechanics;
 use crate::spell::CastReport;
 use crate::statistics::SpellKey;
 
-const SINISTER_STRIKE: u32 = 11294;
-const BACKSTAB: u32 = 25300;
-const EVISCERATE: u32 = 31016;
-const SLICE_AND_DICE: u32 = 6774;
-const RUPTURE: u32 = 11275;
-const EXPOSE_ARMOR: u32 = 11198;
-const GHOSTLY_STRIKE: u32 = 14278;
-const HEMORRHAGE: u32 = 16511;
+pub(super) const SINISTER_STRIKE: u32 = 11294;
+pub(super) const BACKSTAB: u32 = 25300;
+pub(super) const EVISCERATE: u32 = 31016;
+pub(super) const SLICE_AND_DICE: u32 = 6774;
+pub(super) const RUPTURE: u32 = 11275;
+pub(super) const EXPOSE_ARMOR: u32 = 11198;
+pub(super) const GHOSTLY_STRIKE: u32 = 14278;
+pub(super) const HEMORRHAGE: u32 = 16511;
 
 /// Malice 5/5 and Improved Slice and Dice 3/3 (+45 % duration).
 const IMPROVED_SLICE_AND_DICE: [(u32, u32); 2] = [(105722, 5), (105739, 3)];
@@ -33,25 +33,25 @@ const TO_MUTILATE: [(u32, u32); 6] = [
 ];
 
 /// A rogue at the pull that does nothing on its own, every roll rigged to a hit.
-fn pulled(talents: &[(u32, u32)]) -> Fixture {
+pub(super) fn pulled(talents: &[(u32, u32)]) -> Fixture {
     let mut f = rogue(talents, NOTHING);
     f.rig_rolls(PhysicalAttackResult::Hit);
     pull(&mut f);
     f
 }
 
-fn combo_points(f: &mut Fixture) -> u32 {
+pub(super) fn combo_points(f: &mut Fixture) -> u32 {
     f.ctx().combo_points()
 }
 
-fn set_combo_points(f: &mut Fixture, points: u32) {
+pub(super) fn set_combo_points(f: &mut Fixture, points: u32) {
     let mut ctx = f.ctx();
     ctx.spend_combo_points();
     ctx.gain_combo_points(points);
 }
 
 /// Casts `game_id` at `time`, past the global cooldown of the previous cast.
-fn cast_at(f: &mut Fixture, game_id: u32, time: f64) -> CastReport {
+pub(super) fn cast_at(f: &mut Fixture, game_id: u32, time: f64) -> CastReport {
     f.advance_to(time);
     assert_eq!(
         f.status(game_id),
@@ -62,7 +62,7 @@ fn cast_at(f: &mut Fixture, game_id: u32, time: f64) -> CastReport {
     f.ctx().cast(id)
 }
 
-fn buff_of(f: &Fixture, game_id: u32) -> BuffId {
+pub(super) fn buff_of(f: &Fixture, game_id: u32) -> BuffId {
     f.character
         .spells()
         .spell(f.spell_id(game_id))
@@ -70,12 +70,12 @@ fn buff_of(f: &Fixture, game_id: u32) -> BuffId {
         .expect("the spell has an aura")
 }
 
-fn duration(f: &mut Fixture, game_id: u32) -> Option<f64> {
+pub(super) fn duration(f: &mut Fixture, game_id: u32) -> Option<f64> {
     let buff = buff_of(f, game_id);
     f.ctx().buff_ref(buff).duration()
 }
 
-fn highest_rank(f: &Fixture, name: &str) -> SpellId {
+pub(super) fn highest_rank(f: &Fixture, name: &str) -> SpellId {
     let spells = f.character.spells();
     spells
         .rank_group(name)
@@ -84,7 +84,7 @@ fn highest_rank(f: &Fixture, name: &str) -> SpellId {
 }
 
 /// The value of effect `index` of `game_id` as the character sees it now.
-fn effect_value(f: &mut Fixture, game_id: u32, index: u32) -> f64 {
+pub(super) fn effect_value(f: &mut Fixture, game_id: u32, index: u32) -> f64 {
     let id = f.spell_id(game_id);
     let ctx = f.ctx();
     let effect = ctx
@@ -99,7 +99,7 @@ fn effect_value(f: &mut Fixture, game_id: u32, index: u32) -> f64 {
     effect.effective_value(&ctx)
 }
 
-fn damage_mod(f: &mut Fixture, game_id: u32) -> f64 {
+pub(super) fn damage_mod(f: &mut Fixture, game_id: u32) -> f64 {
     let id = f.spell_id(game_id);
     let ctx = f.ctx();
     ctx.character.spells().spell(id).damage_mod(&ctx)

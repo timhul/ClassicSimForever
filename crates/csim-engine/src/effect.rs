@@ -25,7 +25,7 @@ use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
-use crate::target::{CreatureType, Target};
+use crate::target::{CreatureType, CreatureTypes, Target};
 
 /// What an effect needs from the world. Port of the `Character` / `CombatRoll` / `Spell` calls
 /// made by `Effect.cpp`, plus the hooks the table auras need.
@@ -1018,6 +1018,21 @@ impl Effect {
                 |s, v| s.decrease_spell_hit(v),
             ),
             A::ModOffhandDamagePct => host.adjust_offhand_damage_percent(signed),
+            // All damage done against the creature types of the mask (Murder: humanoids and
+            // giants; Beast Slaying).
+            A::ModDamageDoneVersus if !on_target => {
+                let types = CreatureTypes::from_game_mask(self.record.misc_value[0] as u32);
+                let stats = host.stats_mut();
+                for creature in Vec::<CreatureType>::from(types) {
+                    if apply {
+                        stats.increase_dmg_vs_type(creature, value / 100.0);
+                        stats.increase_magic_damage_mod_vs_type(creature, rounded);
+                    } else {
+                        stats.decrease_dmg_vs_type(creature, value / 100.0);
+                        stats.decrease_magic_damage_mod_vs_type(creature, rounded);
+                    }
+                }
+            }
             A::ModPowerRegenPercent | A::ModIncreaseEnergy if !on_target => {
                 if let Some(resource) = ResourceType::from_power_type(self.record.power_type()) {
                     if self.record.aura == A::ModPowerRegenPercent {

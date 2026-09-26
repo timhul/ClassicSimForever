@@ -56,6 +56,20 @@ impl CreatureType {
             CreatureType::Undead => "Undead",
         }
     }
+
+    /// The `CreatureType.ID` of the client tables.
+    pub fn game_id(self) -> u32 {
+        match self {
+            CreatureType::Beast => 1,
+            CreatureType::Dragonkin => 2,
+            CreatureType::Demon => 3,
+            CreatureType::Elemental => 4,
+            CreatureType::Giant => 5,
+            CreatureType::Undead => 6,
+            CreatureType::Humanoid => 7,
+            CreatureType::Mechanical => 9,
+        }
+    }
 }
 
 /// A set of creature types, written as a list (`[Giant, Dragonkin]`).
@@ -70,6 +84,15 @@ impl CreatureTypes {
 
     pub fn is_empty(self) -> bool {
         self.0 == 0
+    }
+
+    /// The types in a creature type mask of the client tables, bit `ID − 1` per type
+    /// (`MOD_DAMAGE_DONE_VERSUS` misc value 80: Giant and Humanoid).
+    pub fn from_game_mask(mask: u32) -> Self {
+        CreatureType::ALL
+            .into_iter()
+            .filter(|t| mask & (1 << (t.game_id() - 1)) != 0)
+            .collect()
     }
 }
 
@@ -515,6 +538,19 @@ mod tests {
         assert!(!types.contains(CreatureType::Humanoid));
         assert!(!types.is_empty());
         assert!(CreatureTypes::default().is_empty());
+        let murder = CreatureTypes::from_game_mask(80);
+        assert_eq!(
+            Vec::from(murder),
+            [CreatureType::Giant, CreatureType::Humanoid]
+        );
+        assert_eq!(
+            Vec::from(CreatureTypes::from_game_mask(32)),
+            [CreatureType::Undead]
+        );
+        assert_eq!(
+            Vec::from(CreatureTypes::from_game_mask(1)),
+            [CreatureType::Beast]
+        );
         assert_eq!(
             serde_yaml::to_string(&types).unwrap(),
             "- Dragonkin
