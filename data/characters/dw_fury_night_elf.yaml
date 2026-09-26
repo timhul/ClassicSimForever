@@ -1,0 +1,65 @@
+# Dual-wield Fury Night Elf Warrior in rank-14 PvP gear with the usual Alliance raid buffs.
+# Schema: crates/csim-engine/src/character_loader.rs.
+name: DW Fury Night Elf
+class: WARRIOR
+race: NIGHT_ELF
+level: 60
+phase: 3
+rotation: DW Fury High Rage
+talents:
+  Arms:
+    Improved Heroic Strike: 3
+    Improved Rend: 3
+    Improved Tactical Mastery: 5
+    Anger Management: 1
+    Deep Wounds: 3
+    Impale: 1
+  Fury:
+    Cruelty: 5
+    Unbridled Wrath: 5
+    Improved Cleave: 3
+    Piercing Howl: 1
+    Blood Craze: 1
+    Dual Wield Specialization: 5
+    Raging Blows: 1
+    Enrage: 5
+    Improved Execute: 2
+    Death Wish: 1
+    Flurry: 5
+    Bloodthirst: 1
+equipment:
+  MAINHAND: { item: 18827, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Grand Marshal's Handaxe
+  OFFHAND: { item: 18827, enchant: Crusader, temp_enchant: ElementalSharpeningStone }  # Grand Marshal's Handaxe
+  RANGED: { item: 18282 }                                          # Core Marksman Rifle
+  HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }  # Lionheart Helm
+  NECK: { item: 18404 }                                            # Onyxia Tooth Pendant
+  SHOULDERS: { item: 16480, enchant: MightOfTheScourge }           # Field Marshal's Plate Shoulderguards
+  BACK: { item: 20073, enchant: EnchantCloakLesserAgility }        # Cloak of the Honor Guard
+  CHEST: { item: 16477, enchant: EnchantChestGreaterStats }        # Field Marshal's Plate Armor
+  WRIST: { item: 19578, enchant: EnchantBracerSuperiorStrength }   # Berserker Bracers
+  GLOVES: { item: 16484, enchant: EnchantGlovesGreaterStrength }   # Marshal's Plate Gauntlets
+  BELT: { item: 16482 }                                            # Marshal's Plate Girdle
+  LEGS: { item: 16479, enchant: LesserArcanumOfVoracityStrength }  # Marshal's Plate Legguards
+  BOOTS: { item: 16483, enchant: EnchantBootsGreaterAgility }      # Marshal's Plate Boots
+  RING1: { item: 19325 }                                           # Don Julio's Band
+  RING2: { item: 18821 }                                           # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                        # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                        # Earthstrike
+buffs:
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
+  - Trueshot Aura
+  - Gift of the Wild
+  - Elixir of the Mongoose
+  - Juju Power
+  - Juju Might
+  - R.O.I.D.S.
+  - Battle Squawk
+  - Grilled Squid
+debuffs:
+  - Sunder Armor
+  - Faerie Fire
+target:
+  level: 63
+  armor: 3731
+  creature_type: Dragonkin
