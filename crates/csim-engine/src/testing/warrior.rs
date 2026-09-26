@@ -51,12 +51,14 @@ impl WarriorTest {
     /// [`Self::unprepared`] of `race` (for its racials).
     pub fn unprepared_of_race(race: Race, label: &str) -> Self {
         let mut base = SpellTest::new(PlayerClass::Warrior, race, label);
-        base.character_mut().gain_resource(ResourceType::Rage, 100);
+        base.character_mut()
+            .gain_resource(ResourceType::Rage, 100, 0.0);
         WarriorTest { base }
     }
 
     pub fn rage(&self) -> u32 {
-        self.character().resource_level(ResourceType::Rage)
+        self.character()
+            .resource_level(ResourceType::Rage, self.now())
     }
 
     // ---------------------------------------------------------------- talents
@@ -163,12 +165,12 @@ impl WarriorTest {
         let before = self.rage();
         let now = self.now();
         self.character_mut()
-            .gain_resource(ResourceType::Rage, 100 - before);
+            .gain_resource(ResourceType::Rage, 100 - before, now);
         self.cast(name);
         let after = self.rage();
         if after < before {
             self.character_mut()
-                .gain_resource(ResourceType::Rage, before - after);
+                .gain_resource(ResourceType::Rage, before - after, now);
         } else {
             self.character_mut()
                 .lose_resource(ResourceType::Rage, after - before, now);
@@ -182,7 +184,8 @@ impl WarriorTest {
         let current = self.rage();
         self.character_mut()
             .lose_resource(ResourceType::Rage, current, now);
-        self.character_mut().gain_resource(ResourceType::Rage, rage);
+        self.character_mut()
+            .gain_resource(ResourceType::Rage, rage, now);
         self.then_warrior_has_rage(rage);
     }
 

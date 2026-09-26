@@ -176,12 +176,12 @@ impl Fixture {
     }
 
     pub fn rage(&self) -> u32 {
-        self.character.resource_level(ResourceType::Rage)
+        self.character.resource_level(ResourceType::Rage, 0.0)
     }
 
     pub fn set_rage(&mut self, rage: u32) {
         self.character.resource_mut().reset();
-        self.character.gain_resource(ResourceType::Rage, rage);
+        self.character.gain_resource(ResourceType::Rage, rage, 0.0);
     }
 
     pub fn advance_to(&mut self, time: f64) {
@@ -350,9 +350,9 @@ fn combo_points_cap_at_five_and_never_lapse_by_default() {
 #[test]
 fn rage_gains_and_losses_go_through_the_resource() {
     let mut f = Fixture::orc_warrior();
-    assert_eq!(f.character.gain_resource(ResourceType::Rage, 130), 100);
-    assert_eq!(f.character.gain_resource(ResourceType::Mana, 10), 0);
-    assert_eq!(f.character.resource_level(ResourceType::Mana), 0);
+    assert_eq!(f.character.gain_resource(ResourceType::Rage, 130, 0.0), 100);
+    assert_eq!(f.character.gain_resource(ResourceType::Mana, 10, 0.0), 0);
+    assert_eq!(f.character.resource_level(ResourceType::Mana, 0.0), 0);
     assert_eq!(f.character.max_resource_level(ResourceType::Rage), 100);
     f.character.lose_resource(ResourceType::Rage, 40, 0.0);
     assert_eq!(f.rage(), 60);
@@ -362,9 +362,10 @@ fn rage_gains_and_losses_go_through_the_resource() {
 #[test]
 fn rage_refunds_keep_the_tenths() {
     let mut f = Fixture::orc_warrior();
-    f.character.gain_resource(ResourceType::Rage, 50);
+    f.character.gain_resource(ResourceType::Rage, 50, 0.0);
     f.character.lose_resource(ResourceType::Rage, 12, 0.0);
-    f.character.refund_resource(ResourceType::Rage, 12.0 * 0.8);
+    f.character
+        .refund_resource(ResourceType::Rage, 12.0 * 0.8, 0.0);
     let tenths = |f: &mut Fixture| {
         f.character
             .resource_mut()
@@ -374,7 +375,7 @@ fn rage_refunds_keep_the_tenths() {
     };
     assert_eq!(tenths(&mut f), 476);
     assert_eq!(f.rage(), 47);
-    f.character.refund_resource(ResourceType::Mana, 10.0);
+    f.character.refund_resource(ResourceType::Mana, 10.0, 0.0);
     assert_eq!(tenths(&mut f), 476, "a resource the class does not use");
 }
 
@@ -1068,6 +1069,8 @@ fn shipped_rogue_data_learns_and_runs() {
     assert!(swings >= 9, "10 s of 2.6 / 1.8 swings: {swings}");
     assert_eq!(f.character.resource_type(), ResourceType::Energy);
 }
+
+mod energy;
 
 // ---------------------------------------------------------------- external buffs
 

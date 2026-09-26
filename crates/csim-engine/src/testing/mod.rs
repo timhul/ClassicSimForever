@@ -1330,7 +1330,7 @@ impl SpellTest {
 
     pub fn then_resource_is(&self, resource: ResourceType, expected: u32) {
         assert_eq!(
-            self.character().resource_level(resource),
+            self.character().resource_level(resource, self.now()),
             expected,
             "{}: {resource:?}",
             self.label

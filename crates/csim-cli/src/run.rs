@@ -460,17 +460,30 @@ pub struct ResourceTotal {
     pub resource: String,
     pub per_fight: f64,
     pub per_second: f64,
+    /// Regeneration lost because the resource was full, per fight and per second.
+    pub lost_at_cap_per_fight: f64,
+    pub lost_at_cap_per_second: f64,
 }
 
 impl ResourceTotal {
     /// One total per resource, as rage and mana do not add up; `gains` are grouped by resource.
-    fn of(gains: &[ResourceRow]) -> Vec<ResourceTotal> {
+    fn of(gains: &[ResourceRow], stats: &ClassStatistics) -> Vec<ResourceTotal> {
+        let iterations = stats.iterations().max(1) as f64;
+        let time = stats.time_in_combat();
         gains
             .chunk_by(|a, b| a.resource == b.resource)
-            .map(|rows| ResourceTotal {
-                resource: rows[0].resource.clone(),
-                per_fight: rows.iter().map(|r| r.per_fight).sum(),
-                per_second: rows.iter().map(|r| r.per_second).sum(),
+            .map(|rows| {
+                let lost = ResourceType::ALL
+                    .into_iter()
+                    .find(|kind| kind.name() == rows[0].resource)
+                    .map_or(0.0, |kind| stats.lost_at_cap(kind));
+                ResourceTotal {
+                    resource: rows[0].resource.clone(),
+                    per_fight: rows.iter().map(|r| r.per_fight).sum(),
+                    per_second: rows.iter().map(|r| r.per_second).sum(),
+                    lost_at_cap_per_fight: lost / iterations,
+                    lost_at_cap_per_second: if time > 0.0 { lost / time } else { 0.0 },
+                }
             })
             .collect()
     }
@@ -558,7 +571,7 @@ impl Results {
             spells,
             buffs: buff_rows(&stats),
             procs: proc_rows(&stats),
-            resource_totals: ResourceTotal::of(&resources),
+            resource_totals: ResourceTotal::of(&resources, &stats),
             resources,
             rotation: executor_rows(&stats),
             skipped_rotation_lines: skipped_rows(&stats),
@@ -740,6 +753,16 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.1}", sum.per_fight),
                 format!("{:.2}", sum.per_second),
             ]);
+        }
+        for sum in &self.resource_totals {
+            if sum.lost_at_cap_per_fight > 0.0 {
+                table.total(vec![
+                    "Lost at the cap".to_string(),
+                    sum.resource.clone(),
+                    format!("{:.1}", sum.lost_at_cap_per_fight),
+                    format!("{:.2}", sum.lost_at_cap_per_second),
+                ]);
+            }
         }
         table
     }

@@ -87,6 +87,21 @@ pub struct StanceLink {
     pub passive: Option<u32>,
 }
 
+/// When the rotation runs again because energy regenerated. Every tick that gains energy is a
+/// gain like any other, which the player reacts to 0.1 s later; ticks are not events, so the
+/// reactions are scheduled from the energy grid.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum RegenReactions {
+    /// Only after the ticks that can change what the rotation does: the energy level at which
+    /// a blocked executor becomes affordable or an energy condition flips, the time at which a
+    /// time-dependent condition flips. The passes after the other ticks cannot cast anything.
+    #[default]
+    Thresholds,
+    /// After every tick that gains energy: the literal reaction to every gain, the reference
+    /// the thresholds are tested against.
+    EveryTick,
+}
+
 /// One player character.
 #[derive(Debug)]
 pub struct Character {
@@ -139,6 +154,13 @@ pub struct Character {
     resources_on_use: Vec<(u32, ResourceType, u32)>,
     /// Extra main-hand attacks granted by `ADD_EXTRA_ATTACKS` and not yet performed.
     pending_extra_attacks: u32,
+    regen_reactions: RegenReactions,
+    /// The scheduled reaction to energy regeneration, if any.
+    regen_wake: Option<f64>,
+    /// Identifies the current regeneration reaction event; older ones are stale.
+    regen_wake_id: u32,
+    /// When the last regeneration reaction ran.
+    last_regen_reaction: f64,
     /// Cached roll context, to refresh the attack tables only when it changes.
     last_roll_context: Option<RollContext>,
 
@@ -223,6 +245,10 @@ impl Character {
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
             pending_extra_attacks: 0,
+            regen_reactions: RegenReactions::default(),
+            regen_wake: None,
+            regen_wake_id: 0,
+            last_regen_reaction: f64::NEG_INFINITY,
             last_roll_context: None,
             rotation: None,
             statistics: ClassStatistics::new(&player_name, sim.combat_length),
@@ -760,9 +786,10 @@ impl Character {
 
     // ---------------------------------------------------------------- resources
 
-    pub fn resource_level(&self, resource: ResourceType) -> u32 {
+    /// The level of `resource` at `now`; 0 for a resource the class does not use.
+    pub fn resource_level(&self, resource: ResourceType, now: f64) -> u32 {
         if resource == self.class.resource {
-            self.resource.current()
+            self.resource.current(now)
         } else {
             0
         }
@@ -776,18 +803,21 @@ impl Character {
         }
     }
 
-    /// Gains `amount` of the character's resource; returns what was actually gained.
-    pub fn gain_resource(&mut self, resource: ResourceType, amount: u32) -> u32 {
+    /// Gains `amount` of the character's resource at `now`; returns what was actually gained.
+    pub fn gain_resource(&mut self, resource: ResourceType, amount: u32, now: f64) -> u32 {
         if resource != self.class.resource {
             return 0;
         }
-        self.resource.gain(amount)
+        self.resource.gain(amount, now)
     }
 
-    /// Gives back a fractional `amount` of a cost already paid (a refund on miss).
-    pub fn refund_resource(&mut self, resource: ResourceType, amount: f64) {
+    /// Gives back a fractional `amount` of a cost already paid (a refund on miss); returns what
+    /// was actually given back.
+    pub fn refund_resource(&mut self, resource: ResourceType, amount: f64, now: f64) -> f64 {
         if resource == self.class.resource {
-            self.resource.refund(amount);
+            self.resource.refund(amount, now)
+        } else {
+            0.0
         }
     }
 
@@ -800,6 +830,68 @@ impl Character {
             self.class.class
         );
         self.resource.lose(amount, now);
+    }
+
+    /// Changes the regeneration rate of `resource` by `percent` at `now`
+    /// (`MOD_POWER_REGEN_PERCENT`); only energy regenerates on its own.
+    pub fn adjust_power_regen_percent(&mut self, resource: ResourceType, percent: i32, now: f64) {
+        if resource == self.class.resource
+            && let Some(energy) = self.resource.as_energy_mut()
+        {
+            energy.adjust_regen_percent(percent, now);
+        }
+    }
+
+    /// Changes the maximum of `resource` by `amount` at `now` (`MOD_INCREASE_ENERGY`).
+    pub fn adjust_max_power(&mut self, resource: ResourceType, amount: i32, now: f64) {
+        if resource == self.class.resource
+            && let Some(energy) = self.resource.as_energy_mut()
+        {
+            energy.adjust_max_bonus(amount, now);
+        }
+    }
+
+    /// How the rotation reacts to energy regeneration.
+    pub fn regen_reactions(&self) -> RegenReactions {
+        self.regen_reactions
+    }
+
+    /// Chooses how the rotation reacts to energy regeneration (the per-tick reference mode is
+    /// for testing the default against).
+    pub fn set_regen_reactions(&mut self, mode: RegenReactions) {
+        self.regen_reactions = mode;
+    }
+
+    /// The scheduled regeneration reaction.
+    pub fn regen_wake(&self) -> Option<f64> {
+        self.regen_wake
+    }
+
+    /// Whether the regeneration reaction event `id` is the current one.
+    pub(crate) fn is_current_regen_wake(&self, id: u32) -> bool {
+        self.regen_wake.is_some() && id == self.regen_wake_id
+    }
+
+    /// Replaces the scheduled regeneration reaction by one at `at`; returns the new event's
+    /// id. Events of the previous one become stale.
+    pub(crate) fn schedule_regen_wake(&mut self, at: f64) -> u32 {
+        self.regen_wake_id = self.regen_wake_id.wrapping_add(1);
+        self.regen_wake = Some(at);
+        self.regen_wake_id
+    }
+
+    pub(crate) fn last_regen_reaction(&self) -> f64 {
+        self.last_regen_reaction
+    }
+
+    pub(crate) fn set_last_regen_reaction(&mut self, at: f64) {
+        self.last_regen_reaction = at;
+    }
+
+    /// Drops the scheduled regeneration reaction (it happened, or nothing is waited for).
+    pub(crate) fn clear_regen_wake(&mut self) {
+        self.regen_wake_id = self.regen_wake_id.wrapping_add(1);
+        self.regen_wake = None;
     }
 
     /// Rage of a landed white swing of `hand` (see [`swing_rage`]) from the base speed of the
@@ -1053,6 +1145,8 @@ impl Character {
         self.combo_points = 0;
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
+        self.clear_regen_wake();
+        self.last_regen_reaction = f64::NEG_INFINITY;
         self.spells.reset_state();
         self.resource.reset();
     }

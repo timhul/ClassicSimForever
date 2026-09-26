@@ -13,13 +13,15 @@ use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
 use crate::effect::{Effect, EffectHost};
 use crate::enchant::EnchantName;
-use crate::engine::{Engine, Event, EventKind};
+use crate::engine::{Engine, Event, EventKind, PLAYER_REACTION_DELAY};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect};
 use crate::proc::{ProcHost, ProcSource};
 use crate::resource::ResourceType;
-use crate::rotation::{BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec};
+use crate::rotation::{
+    BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec, Watched,
+};
 use crate::rulesets::Ruleset;
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
@@ -38,7 +40,18 @@ use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
 
-use super::{Character, SimParams, StanceLink};
+use super::{Character, RegenReactions, SimParams, StanceLink};
+
+/// The resource statistics source of regeneration ticks.
+pub const REGENERATION: &str = "Regeneration";
+
+/// How long before now the resource is read (rotation conditions, costs, the combat log): a
+/// regeneration tick landing at an instant is seen from the next instant on, while spends and
+/// gains at that instant come after it (a spend at 0.0 gets its first tick at 0.1). The
+/// reaction to a tick falls 0.1 s after it, on the next tick at the base rate: it sees the tick
+/// it reacts to, not the one landing with it, so the player acts 0.1 s after the tick that
+/// makes a spell affordable, whichever event runs the rotation at that instant.
+pub const TICK_READ_LAG: f64 = 1e-6;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SwingOutcome {
@@ -102,6 +115,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     fn now(&self) -> f64 {
         self.engine.current_time()
+    }
+
+    /// The time the resource is read at: just before now, so that a regeneration tick landing
+    /// now is not seen yet (see [`TICK_READ_LAG`]).
+    fn resource_read_time(&self) -> f64 {
+        self.now() - TICK_READ_LAG
     }
 
     fn target_view(&self) -> TargetStatView {
@@ -1365,6 +1384,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// removed and every spell and proc reset; the passives are then re-applied for the new
     /// iteration.
     pub fn reset(&mut self) {
+        self.record_regeneration();
         let stance = self.character.stance();
         if stance != Stance::Caster {
             self.character.set_stance(Stance::Caster);
@@ -1452,7 +1472,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Combat starts: start-of-combat buffs and spells, the auto attacks, then the rotation.
+    /// The regeneration statistics count from here.
     pub fn encounter_start(&mut self) {
+        let now = self.now();
+        if let Some(energy) = self.character.resource_mut().as_energy_mut() {
+            energy.take_regen_counters(now);
+        }
         for id in self.character.spells.start_of_combat_buffs().to_vec() {
             self.apply_buff(id);
         }
@@ -1490,6 +1515,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 self.encounter_start();
             }
             EventKind::PlayerAction { character } if character == me => {
+                self.perform_rotation();
+            }
+            EventKind::RegenReaction { character, wake } if character == me => {
+                // A reaction replaced by a later plan is not handled.
+                if !self.character.is_current_regen_wake(wake) {
+                    return false;
+                }
+                // Last of its instant, whenever it was scheduled: what the other events of
+                // the instant change (a swing resets the swing timer, a buff runs out) is seen
+                // the same way however the reactions are planned.
+                let now = self.now();
+                let others_now = self.engine.queue().iter().any(|other| {
+                    other.time == now && !matches!(other.kind, EventKind::RegenReaction { .. })
+                });
+                if others_now {
+                    self.engine.add_event(*event);
+                    return false;
+                }
+                self.character.clear_regen_wake();
+                self.character.set_last_regen_reaction(now);
                 self.perform_rotation();
             }
             EventKind::MainhandMeleeHit {
@@ -1540,7 +1585,64 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             _ => return false,
         }
+        self.plan_regen_reaction();
         true
+    }
+
+    /// Schedules the next reaction to energy regeneration (see [`RegenReactions`]), replacing
+    /// the one scheduled before: whatever the event just handled changed is accounted for. The
+    /// reaction is the one to the first tick that gains energy and brings what the rotation
+    /// waits for ([`Rotation::next_change`]), or to the next such tick in the per-tick mode.
+    fn plan_regen_reaction(&mut self) {
+        let now = self.now();
+        // A reaction due now has not happened yet: it plans again once it has.
+        if self.character.regen_wake().is_some_and(|at| at <= now) {
+            return;
+        }
+        let wake = match (
+            self.character.resource().as_energy(),
+            self.character.rotation(),
+        ) {
+            (Some(energy), Some(rotation)) if now >= 0.0 => {
+                let not_before = match self.character.regen_reactions() {
+                    RegenReactions::EveryTick => now,
+                    RegenReactions::Thresholds => {
+                        let watched = Watched {
+                            resource: ResourceType::Energy,
+                            max: energy.max(),
+                            encounter_length: self.character.sim().combat_length,
+                        };
+                        let next = rotation.next_change(self, watched);
+                        // The first reaction that sees the tick reaching the level.
+                        let by_level = next.level.map_or(f64::INFINITY, |level| {
+                            now + energy.time_until(level, now) + TICK_READ_LAG
+                        });
+                        (now + next.delay).min(by_level)
+                    }
+                };
+                // The reactions of this instant come last in it: one may still be ahead.
+                let after_now = self.character.last_regen_reaction() == now;
+                not_before
+                    .is_finite()
+                    .then(|| {
+                        energy.next_reaction(now, after_now, not_before, PLAYER_REACTION_DELAY)
+                    })
+                    .flatten()
+            }
+            _ => None,
+        };
+        if wake == self.character.regen_wake() {
+            return;
+        }
+        match wake {
+            Some(at) => {
+                let wake = self.character.schedule_regen_wake(at);
+                let character = self.character.id();
+                self.engine
+                    .add_event(Event::new(at, EventKind::RegenReaction { character, wake }));
+            }
+            None => self.character.clear_regen_wake(),
+        }
     }
 
     /// A periodic tick of `spell`; returns the tick report if the application is current.
@@ -1616,6 +1718,24 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
+    /// Records the energy regenerated since the pull and the ticks lost at the cap (regeneration
+    /// is not logged).
+    fn record_regeneration(&mut self) {
+        let now = self.now();
+        let Some(energy) = self.character.resource_mut().as_energy_mut() else {
+            return;
+        };
+        let (regenerated, lost) = energy.take_regen_counters(now);
+        if regenerated == 0 && lost == 0 {
+            return;
+        }
+        let statistics = &mut self.character.statistics;
+        statistics
+            .resource(REGENERATION, 1)
+            .add_fractional_gain(ResourceType::Energy, regenerated as f64);
+        statistics.add_lost_at_cap(ResourceType::Energy, lost as f64);
+    }
+
     /// Records a periodic tick of `id`: its damage as a hit, its resource gain.
     fn record_tick(&mut self, id: SpellId, report: &TickReport) {
         let (name, rank, spell) = {
@@ -1681,7 +1801,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 .stats()
                 .get_armor(&self.character.stat_context(&view)) as i32,
             power: Some(self.character.resource_type()),
-            current_power: resource.current(),
+            current_power: resource.current(self.resource_read_time()),
             max_power: resource.max(),
             level: self.character.clvl(),
         }
@@ -2002,7 +2122,8 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
     }
 
     fn resource_level(&self, resource: ResourceType) -> u32 {
-        self.character.resource_level(resource)
+        self.character
+            .resource_level(resource, self.resource_read_time())
     }
 
     fn variable(&self, variable: BuiltinVariable) -> f64 {
@@ -2092,6 +2213,10 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
     fn gcd_length(&self) -> f64 {
         self.character.global_cooldown()
     }
+
+    fn spell_cost(&self, spell: SpellId) -> u32 {
+        self.character.spells.spell(spell).resource_cost(self)
+    }
 }
 
 impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
@@ -2113,16 +2238,31 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
     }
 
     fn resource_level(&self, resource: ResourceType) -> u32 {
-        self.character.resource_level(resource)
+        self.character
+            .resource_level(resource, self.resource_read_time())
     }
 
-    /// Rage gains wake the player up (`Warrior::gain_rage` adds a reaction event).
+    /// Every gain wakes the player up, of any resource and from any source
+    /// (`Character::add_player_reaction_event` after `Warrior::gain_rage`,
+    /// `Rogue::gain_energy`, ...).
     fn gain_resource(&mut self, resource: ResourceType, amount: u32) -> u32 {
-        let gained = self.character.gain_resource(resource, amount);
-        if resource == ResourceType::Rage && gained > 0 {
+        let now = self.now();
+        let gained = self.character.gain_resource(resource, amount, now);
+        if gained > 0 {
             self.add_player_reaction_event();
         }
         gained
+    }
+
+    fn adjust_power_regen_percent(&mut self, resource: ResourceType, percent: i32) {
+        let now = self.now();
+        self.character
+            .adjust_power_regen_percent(resource, percent, now);
+    }
+
+    fn adjust_max_power(&mut self, resource: ResourceType, amount: i32) {
+        let now = self.now();
+        self.character.adjust_max_power(resource, amount, now);
     }
 
     fn melee_ap(&self) -> u32 {
@@ -2394,8 +2534,12 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.lose_resource(resource, amount, now);
     }
 
+    /// A refund is a gain like any other: the player reacts to it.
     fn refund_resource(&mut self, resource: ResourceType, amount: f64) {
-        self.character.refund_resource(resource, amount);
+        let now = self.now();
+        if self.character.refund_resource(resource, amount, now) > 0.0 {
+            self.add_player_reaction_event();
+        }
     }
 
     fn cooldown(&self, id: CooldownId) -> &CooldownControl {
@@ -2695,7 +2839,7 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
     fn add_player_reaction_event(&mut self) {
         let character = self.character.id();
         self.engine
-            .add_event_in(0.1, EventKind::PlayerAction { character });
+            .add_event_in(PLAYER_REACTION_DELAY, EventKind::PlayerAction { character });
     }
 
     fn is_melee_attacking(&self) -> bool {

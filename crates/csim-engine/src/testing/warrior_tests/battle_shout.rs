@@ -81,7 +81,7 @@ fn melee_ap(test: &WarriorTest, id: CharId) -> u32 {
 fn shout(test: &mut WarriorTest, id: CharId) {
     test.raid
         .character_mut(id)
-        .gain_resource(ResourceType::Rage, 10);
+        .gain_resource(ResourceType::Rage, 10, 0.0);
     test.raid.with_character(id, |ctx| {
         let spell = ctx.spell_by_name(SPELL, MAX_RANK).expect("Battle Shout");
         ctx.cast(spell);

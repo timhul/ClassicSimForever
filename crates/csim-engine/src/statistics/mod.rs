@@ -25,6 +25,8 @@ pub mod spell;
 
 use std::collections::BTreeMap;
 
+use crate::resource::ResourceType;
+
 pub use buff::BuffStatistics;
 pub use engine::EngineStatistics;
 pub use executor::{ExecutorOutcome, ExecutorResult, RotationExecutorStatistics, SkippedExecutor};
@@ -58,6 +60,13 @@ impl SpellKey {
     }
 }
 
+fn resource_index(resource: ResourceType) -> usize {
+    ResourceType::ALL
+        .iter()
+        .position(|r| *r == resource)
+        .expect("every resource type is in ALL")
+}
+
 /// One raid member's result. Port of `RaidMemberResult`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PlayerResult {
@@ -75,6 +84,8 @@ pub struct ClassStatistics {
     spells: BTreeMap<SpellKey, SpellStatistics>,
     buffs: BTreeMap<String, BuffStatistics>,
     resources: BTreeMap<SpellKey, ResourceStatistics>,
+    /// Regeneration lost because the resource was full, per resource.
+    lost_at_cap: [f64; ResourceType::ALL.len()],
     procs: BTreeMap<String, ProcStatistics>,
     executors: Vec<RotationExecutorStatistics>,
     /// The rotation lines that were not linked.
@@ -97,6 +108,7 @@ impl ClassStatistics {
             spells: BTreeMap::new(),
             buffs: BTreeMap::new(),
             resources: BTreeMap::new(),
+            lost_at_cap: [0.0; ResourceType::ALL.len()],
             procs: BTreeMap::new(),
             executors: Vec::new(),
             skipped_executors: Vec::new(),
@@ -145,6 +157,11 @@ impl ClassStatistics {
         self.resources
             .entry(SpellKey::new(name, rank))
             .or_insert_with(|| ResourceStatistics::new(name, rank))
+    }
+
+    /// Adds regeneration of `resource` lost at the cap.
+    pub fn add_lost_at_cap(&mut self, resource: ResourceType, amount: f64) {
+        self.lost_at_cap[resource_index(resource)] += amount;
     }
 
     /// The statistics of proc `name`, created on first use. Port of `get_proc_statistics`.
@@ -210,6 +227,11 @@ impl ClassStatistics {
 
     pub fn resources(&self) -> impl Iterator<Item = (&SpellKey, &ResourceStatistics)> {
         self.resources.iter()
+    }
+
+    /// Regeneration of `resource` lost because it was full, over every iteration.
+    pub fn lost_at_cap(&self, resource: ResourceType) -> f64 {
+        self.lost_at_cap[resource_index(resource)]
     }
 
     pub fn resource_statistics(&self, name: &str, rank: u32) -> Option<&ResourceStatistics> {
@@ -338,6 +360,9 @@ impl ClassStatistics {
         }
         for (key, stats) in &other.resources {
             self.resource(&key.name, key.rank).add(stats);
+        }
+        for (mine, theirs) in self.lost_at_cap.iter_mut().zip(other.lost_at_cap) {
+            *mine += theirs;
         }
         for (name, stats) in &other.procs {
             self.proc(name).add(stats);
