@@ -293,6 +293,15 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
     );
     assert!(0 < min && min < max, "{yaml}");
     assert!(mainhand["casts"].as_f64().unwrap() > 0.0, "{yaml}");
+    assert!(mainhand["damage_per_resource"].is_null(), "{yaml}");
+    let bloodthirst = spells
+        .iter()
+        .find(|s| s["name"] == "Bloodthirst (rank 4)")
+        .unwrap();
+    assert!(
+        bloodthirst["damage_per_resource"].as_f64().unwrap() > 0.0,
+        "{yaml}"
+    );
     for section in [
         "buffs",
         "procs",

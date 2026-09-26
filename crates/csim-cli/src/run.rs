@@ -369,6 +369,9 @@ pub struct SpellRow {
     /// The smallest and largest damage of one successful attempt; none without damage.
     pub min_hit: Option<u32>,
     pub max_hit: Option<u32>,
+    /// Mean damage per resource point of the successful attempts; none for spells without a
+    /// cost.
+    pub damage_per_resource: Option<f64>,
     pub hit: f64,
     pub crit: f64,
     pub glance: f64,
@@ -613,7 +616,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
 
     fn spell_table(&self) -> Table {
         let mut table = Table::new([
-            "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "Hit", "Crit", "Glance",
+            "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "DPR", "Hit", "Crit", "Glance",
             "Miss", "Dodge", "Parry", "Block", "Resist",
         ]);
         for spell in &self.spells {
@@ -625,6 +628,9 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.1}", spell.casts),
                 spell.min_hit.map_or(String::new(), |min| min.to_string()),
                 spell.max_hit.map_or(String::new(), |max| max.to_string()),
+                spell
+                    .damage_per_resource
+                    .map_or(String::new(), |dpr| format!("{dpr:.1}")),
                 percent(spell.hit),
                 percent(spell.crit),
                 percent(spell.glance),
@@ -820,6 +826,7 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
                 casts: per(attempts, iterations),
                 min_hit: damaging().map(|tally| tally.min()).min(),
                 max_hit: damaging().map(|tally| tally.max()).max(),
+                damage_per_resource: spell.dpr().is_set().then(|| spell.dpr().avg()),
                 hit: rate(spell.hits_including_partial_resists()),
                 crit: rate(spell.crits_including_partial_resists()),
                 glance: rate(spell.glances()),
