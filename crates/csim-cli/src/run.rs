@@ -1,7 +1,8 @@
 //! `csim run`: simulates one character setup, alone or in a raid (`--raid`), and prints the
 //! results as text tables, YAML or HTML (`--output-format`), to stdout or a file
 //! (`--output-file`). With `--scale`, `--weights-file` also writes the stat weights per item
-//! stat point (see [`crate::weights`]).
+//! stat point (see [`crate::weights`]). `--combat-log` instead prints the combat log of one
+//! iteration.
 
 use std::fmt::Write;
 use std::io::IsTerminal;
@@ -12,10 +13,11 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
+use csim_engine::combat_log::UnitNames;
 use csim_engine::raid::RaidControl;
 use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
-use csim_engine::sim_control::{run_threaded, Progress, SimMode};
+use csim_engine::sim_control::{run_logged_iteration, run_threaded, Progress, SimMode};
 use csim_engine::sim_settings::{SimOption, SimSettings};
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
@@ -66,6 +68,13 @@ pub struct RunArgs {
     /// `csim rank-items --weights`. Requires --scale.
     #[arg(long, value_name = "PATH", requires = "scale")]
     weights_file: Option<PathBuf>,
+    /// Simulates one iteration and prints its combat log (the lines of a `WoWCombatLog.txt`)
+    /// instead of the results. With the same seed it is the iteration `-n 1 -t 1` simulates.
+    #[arg(
+        long,
+        conflicts_with_all = ["iterations", "threads", "scale", "output_format", "output_file"]
+    )]
+    combat_log: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -152,6 +161,15 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
                 .map_err(|e| e.to_string()),
         }
     };
+    if args.combat_log {
+        settings.validate()?;
+        let mut raid = build(&settings)?;
+        let seed = args.seed.unwrap_or_else(clock_seed);
+        eprintln!("Combat log of one iteration, seed {seed}");
+        let log = run_logged_iteration(&settings, seed, &mut raid);
+        print!("{}", log.render(&UnitNames::of(&raid)));
+        return Ok(());
+    }
     // Builds the raid once up front so that an invalid setup fails before the threads start.
     let raid = build(&settings)?;
     let roster = raid_setup.as_ref().map(|(raid_setup, members)| RaidRoster {

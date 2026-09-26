@@ -493,3 +493,120 @@ fn sweep_ranks_every_variant_by_dps() {
     assert!(dps.windows(2).all(|w| w[0] >= w[1]), "best first: {dps:?}");
     assert!(dps[0] > 0.0);
 }
+
+const COMBAT_LOG: [&str; 5] = [
+    "run",
+    "data/characters/dw_fury_orc.yaml",
+    "--length",
+    "60",
+    "--combat-log",
+];
+
+/// The fields of a combat log line after the timestamp, the event name first.
+fn log_fields(line: &str) -> Vec<&str> {
+    let (timestamp, event) = line.split_once("  ").expect("a timestamp");
+    assert!(timestamp.starts_with("1/1 1"), "{line}");
+    event.split(',').collect()
+}
+
+#[test]
+fn combat_log_prints_one_iteration_as_combat_log_lines() {
+    let log = stdout(&csim(&[&COMBAT_LOG[..], &["--seed", "3"]].concat()));
+    let lines: Vec<&str> = log.lines().collect();
+    assert_eq!(
+        log_fields(lines[0]),
+        ["COMBAT_LOG_VERSION", "9", "ADVANCED_LOG_ENABLED", "1"]
+    );
+    for line in &lines[1..] {
+        let fields = log_fields(line);
+        let expected = match fields[0] {
+            "SWING_DAMAGE" => 35,
+            "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" => 38,
+            "SWING_MISSED" => 11,
+            "SPELL_MISSED" => 14,
+            "SPELL_CAST_SUCCESS" => 28,
+            "SPELL_ENERGIZE" | "SPELL_PERIODIC_ENERGIZE" => 32,
+            "SPELL_AURA_APPLIED" | "SPELL_AURA_REFRESH" | "SPELL_AURA_REMOVED" => 13,
+            "SPELL_AURA_APPLIED_DOSE" => 14,
+            other => panic!("unexpected event {other}: {line}"),
+        };
+        assert_eq!(fields.len(), expected, "{line}");
+    }
+    for event in [
+        "SWING_DAMAGE",
+        "SPELL_CAST_SUCCESS",
+        "SPELL_DAMAGE",
+        "SPELL_AURA_APPLIED",
+    ] {
+        assert!(
+            lines
+                .iter()
+                .any(|line| line.contains(&format!("  {event},"))),
+            "no {event}"
+        );
+    }
+    // Precombat actions before the pull, nothing after the encounter.
+    assert!(lines[1].starts_with("1/1 11:59:"), "{}", lines[1]);
+    assert!(lines.iter().all(|line| line[4..9] <= *"12:01"));
+}
+
+#[test]
+fn combat_log_damage_is_the_damage_of_the_same_seeds_iteration() {
+    let log = stdout(&csim(&[&COMBAT_LOG[..], &["--seed", "8"]].concat()));
+    let logged: u64 = log
+        .lines()
+        .skip(1)
+        .map(log_fields)
+        .map(|fields| match fields[0] {
+            "SWING_DAMAGE" => fields[25].parse::<u64>().unwrap(),
+            "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" => fields[28].parse().unwrap(),
+            _ => 0,
+        })
+        .sum();
+
+    let yaml = stdout(&csim(&[
+        "run",
+        "data/characters/dw_fury_orc.yaml",
+        "--length",
+        "60",
+        "-n",
+        "1",
+        "-t",
+        "1",
+        "--seed",
+        "8",
+        "--output-format",
+        "yaml",
+    ]));
+    let results: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
+    let dps = results["spell_total"]["dps"].as_f64().unwrap();
+    assert!(logged > 0);
+    assert!(
+        (dps * 60.0 - logged as f64).abs() < 0.5,
+        "{dps} DPS over 60 s vs {logged} logged"
+    );
+}
+
+#[test]
+fn a_seed_reproduces_the_combat_log() {
+    let args = [&COMBAT_LOG[..], &["--seed", "12"]].concat();
+    assert_eq!(stdout(&csim(&args)), stdout(&csim(&args)));
+}
+
+#[test]
+fn combat_log_refuses_the_options_of_a_results_run() {
+    for option in [
+        &["--iterations", "5"][..],
+        &["--threads", "2"],
+        &["--scale"],
+        &["--output-format", "yaml"],
+        &["--output-file", "out.yaml"],
+    ] {
+        let output = csim(&[&COMBAT_LOG[..], option].concat());
+        assert!(!output.status.success(), "{option:?} accepted");
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("cannot be used with"),
+            "{option:?}"
+        );
+    }
+}

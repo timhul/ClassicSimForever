@@ -39,6 +39,11 @@ Toolchain note: cargo/rustc are installed at `C:\Users\timhu\.cargo\bin` but are
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --iterations 10000`
 
+The combat log (`WoWCombatLog.txt` lines) of one iteration, the same one `-n 1 -t 1` simulates with
+that seed:
+
+`cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --combat-log --seed 1`
+
 In a raid (`data/raids/`, members refer to `data/characters/`):
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --raid data/raids/horde_melee.yaml`
