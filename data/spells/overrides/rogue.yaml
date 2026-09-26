@@ -103,7 +103,7 @@ overrides:
       - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
       - { index: 1, script: NO_OP }
   - id: 1310703
-    note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms), the poison modifiers are RG.4 / RG.5
+    note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms); E1-E3 are the poisons' damage, Deadly Poison's ticks and the chance to apply them while the buff lasts (the poisons are RG.5)
     effects: [{ index: 0, script: NO_OP }]
 
   # ----- Builders -----------------------------------------------------------------------------

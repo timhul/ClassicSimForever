@@ -466,3 +466,56 @@ fn quietus_raises_the_damage_below_35_percent() {
     }
     assert!(close(damage_mod(&mut f, BACKSTAB), 1.0));
 }
+
+const VILE_POISONS: u32 = 105714;
+const IMPROVED_POISONS: u32 = 105713;
+const VENOM: u32 = 105712;
+const VENOM_SPELL: u32 = 1310703;
+
+/// The poison modifiers of a character: damage % of the poisons (Instant 8192 and Deadly
+/// `[_, 8]`), Deadly Poison's periodic damage % (65536) and the flat chance to apply them.
+fn poison_modifiers(f: &Fixture) -> (f64, f64, f64) {
+    use crate::spell::dbc::SpellModOp;
+    use crate::spell::record::ClassOptions;
+    let modifiers = f.character.spell_modifiers();
+    let instant = ClassOptions {
+        set: 8,
+        mask: [8192, 0, 0, 0],
+    };
+    let deadly = ClassOptions {
+        set: 8,
+        mask: [65536, 8, 0, 0],
+    };
+    (
+        modifiers.pct(Some(&instant), SpellModOp::HealingAndDamage),
+        modifiers.pct(Some(&deadly), SpellModOp::PeriodicHealingAndDamage),
+        modifiers.flat(Some(&instant), SpellModOp::ProcChance),
+    )
+}
+
+/// Vile Poisons 5/5 (+20 % damage, +20 % Deadly Poison ticks) and Improved Poisons 5/5 (+10 %
+/// chance) modify the poisons, which come with RG.5.
+#[test]
+fn vile_and_improved_poisons_modify_the_poisons() {
+    let f = with_talents(&[(VILE_POISONS, 5), (IMPROVED_POISONS, 5)]);
+    assert_eq!(poison_modifiers(&f), (20.0, 20.0, 10.0));
+}
+
+/// Venom: a finisher whose buff lasts 6 s plus 3 s per combo point and, while it lasts, adds
+/// 30 % poison damage, 30 % to Deadly Poison's ticks and 10 % chance to apply poisons.
+#[test]
+fn venom_is_a_finisher_that_empowers_the_poisons() {
+    let mut f = with_talents(&[(MUTILATE, 1), (VENOM, 1)]);
+    assert_eq!(poison_modifiers(&f), (0.0, 0.0, 0.0));
+    assert_eq!(f.status(VENOM_SPELL), SpellStatus::InsufficientComboPoints);
+    super::rogue::set_combo_points(&mut f, 5);
+    let report = cast_at(&mut f, VENOM_SPELL, 0.0);
+    assert_eq!(report.combo_points_spent, 5);
+    assert_eq!(super::rogue::duration(&mut f, VENOM_SPELL), Some(21.0));
+    assert_eq!(poison_modifiers(&f), (30.0, 30.0, 10.0));
+    f.advance_to(21.5);
+    assert_eq!(poison_modifiers(&f), (0.0, 0.0, 0.0));
+    super::rogue::set_combo_points(&mut f, 1);
+    cast_at(&mut f, VENOM_SPELL, 22.0);
+    assert_eq!(super::rogue::duration(&mut f, VENOM_SPELL), Some(9.0));
+}
