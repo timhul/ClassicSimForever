@@ -14,6 +14,7 @@ mod berserker_stance;
 mod bloodrage;
 mod bloodthirst;
 mod bloodthrill;
+mod combat_log;
 mod death_wish;
 mod deep_wounds;
 mod defiance;

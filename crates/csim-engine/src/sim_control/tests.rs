@@ -313,3 +313,33 @@ fn a_character_set_up_for_another_combat_length_panics() {
     };
     SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut NumberCruncher::new());
 }
+
+#[test]
+fn a_logged_iteration_is_the_one_thread_iteration_of_its_seed() {
+    let data = Data::load();
+    let settings = settings(1);
+    let unlogged = run_threaded(&settings, SimMode::Quick, 5, None, || {
+        Ok::<_, ()>(data.raid(&settings, 2, false))
+    })
+    .unwrap();
+
+    let mut raid = data.raid(&settings, 2, false);
+    let log = run_logged_iteration(&settings, 5, &mut raid);
+    let statistics = raid.take_statistics();
+
+    let damage: u64 = statistics.iter().map(ClassStatistics::total_damage).sum();
+    assert!(damage > 0);
+    assert_eq!(log.total_damage(), damage);
+    let results: Vec<_> = statistics.iter().map(|s| s.personal_result()).collect();
+    assert_eq!(unlogged.player_results(), results);
+    // Both characters, from the precombat actions on.
+    for id in raid.char_ids() {
+        let unit = crate::combat_log::LogUnit::Character(id);
+        assert!(log.entries().iter().any(|e| e.source == unit));
+    }
+    // From the precombat actions to the end of the encounter.
+    assert!(log.entries()[0].time < 0.0, "{:#?}", log.entries()[0]);
+    let end = f64::from(settings.combat_length);
+    assert!(log.entries().iter().all(|e| e.time <= end));
+    assert!(!raid.engine().is_logging());
+}

@@ -6,6 +6,9 @@ use crate::character_spells::{
     AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, SharedBuffs,
     SpellHandle,
 };
+use crate::combat_log::{
+    AuraChange, CombatLog, CombatLogEvent, Damage, LogSpell, LogUnit, MissType, UnitInfo,
+};
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
 use crate::cooldown::CooldownControl;
 use crate::effect::{Effect, EffectHost};
@@ -24,8 +27,8 @@ use crate::spell::overrides::{EventScript, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
 use crate::spell::record::{ClassOptions, EquippedItems, SpellDb};
 use crate::spell::{
-    AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellSetup, SpellStatus,
-    SwingReport,
+    AttackOutcome, AutoAttack, AutoAttackHost, CastReport, Hand, Spell, SpellHost, SpellResult,
+    SpellSetup, SpellStatus, SwingReport,
 };
 use crate::stance::Stance;
 use crate::statistics::{ClassStatistics, EngineStatistics, RotationExecutorStatistics};
@@ -1014,17 +1017,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Casts a spell: performs it, then runs the proc checks its report asks for and the
     /// extra attacks it granted.
     pub fn cast(&mut self, id: SpellId) -> CastReport {
+        let mark = self.log_mark();
         let report = self.with_spell(id, |spell, ctx| spell.perform(ctx));
-        self.after_cast(id, &report);
+        self.after_cast(id, &report, mark);
         self.perform_extra_attacks();
         report
     }
 
     /// Records the statistics of a completed cast of `id` and runs its proc sources. The
     /// off-hand strike is part of the same cast: it does not use a second charge of a spell
-    /// modifier aura (Eureka!).
-    fn after_cast(&mut self, id: SpellId, report: &CastReport) {
-        self.record_cast(id, report);
+    /// modifier aura (Eureka!). `mark` is where the combat log stood before the spell was
+    /// performed.
+    fn after_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
+        self.record_cast(id, report, mark);
         let class = self.character.spells.spell(id).record().class_options;
         self.run_sources(&report.all_proc_sources(), class.as_ref());
         if let Some(offhand) = &report.offhand {
@@ -1107,6 +1112,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// twice in one chain of extra attacks.
     pub fn run_proc_checks(&mut self, sources: &[ProcSource]) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
+        let mark = self.log_mark();
         self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
         for &source in sources {
@@ -1115,12 +1121,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, ctx)));
         }
-        for (id, report) in &fired {
-            let (name, rank) = {
+        for (i, (id, report)) in fired.iter().enumerate() {
+            let (name, rank, spell) = {
                 let spell = self.character.spells.procs().get(*id).spell();
-                (spell.name().to_string(), spell.rank())
+                (spell.name().to_string(), spell.rank(), log_spell(spell))
             };
             self.record_report(&name, rank, report);
+            self.log_report(spell, report, mark.map(|mark| mark + i));
         }
         let granted_extra_attacks = self.character.pending_extra_attacks() > before;
         let procs = self.character.spells.procs_mut();
@@ -1190,8 +1197,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             .spells
             .mh_attack_mut()
             .complete_swing(now, speed);
+        let mark = self.log_mark();
         let report = self.with_spell(queued, |spell, ctx| spell.perform_on_swing(ctx));
-        self.after_cast(queued, &report);
+        self.after_cast(queued, &report, mark);
         report
     }
 
@@ -1428,6 +1436,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.apply_buff(id);
         }
         for id in self.character.spells.start_of_combat_spells().to_vec() {
+            let mark = self.log_mark();
             let report = self.with_spell(id, |spell, ctx| {
                 if spell.is_passive() {
                     // Restart the passive's ticking at combat start.
@@ -1443,7 +1452,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 }
             });
             if let Some(report) = report {
-                self.after_cast(id, &report);
+                self.after_cast(id, &report, mark);
                 self.perform_extra_attacks();
             }
         }
@@ -1501,9 +1510,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 spell,
                 cast_id,
             } if character == me => {
+                let mark = self.log_mark();
                 if let Some(report) = self.with_spell(spell, |s, ctx| s.complete_cast(cast_id, ctx))
                 {
-                    self.after_cast(spell, &report);
+                    self.after_cast(spell, &report, mark);
                     self.perform_extra_attacks();
                 }
             }
@@ -1539,12 +1549,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Records the attack outcome and resource gains of a cast of `id` (not of the spells it
     /// triggered: those were recorded when they were cast through [`SpellHost::trigger_spell`]).
-    fn record_cast(&mut self, id: SpellId, report: &CastReport) {
-        let (name, rank) = {
+    /// Also logs it, its `SPELL_CAST_SUCCESS` at `mark` (before what the cast caused).
+    fn record_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
+        let (name, rank, spell) = {
             let spell = self.character.spells.spell(id);
-            (spell.name().to_string(), spell.rank())
+            (spell.name().to_string(), spell.rank(), log_spell(spell))
         };
         self.record_report(&name, rank, report);
+        self.log_report(spell, report, mark);
     }
 
     /// Records a cast report under `name` / `rank`.
@@ -1573,6 +1585,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         };
         let statistics = &mut self.character.statistics;
         statistics.spell(name, 1).record_attack(&report.attack, 0.0);
+        self.log_swing(report);
+        let statistics = &mut self.character.statistics;
         if let Some(rage) = report.rage_gained {
             statistics
                 .resource(name, 1)
@@ -1582,10 +1596,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Records a periodic tick of `id`: its damage as a hit, its resource gain.
     fn record_tick(&mut self, id: SpellId, report: &TickReport) {
-        let (name, rank) = {
+        let (name, rank, spell) = {
             let spell = self.character.spells.spell(id);
-            (spell.name().to_string(), spell.rank())
+            (spell.name().to_string(), spell.rank(), log_spell(spell))
         };
+        self.log_tick(spell, report);
         let statistics = &mut self.character.statistics;
         if report.damage > 0 || report.threat > 0.0 {
             statistics.spell(&name, rank).record_tick(
@@ -1608,6 +1623,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
         let uptime = buff.expired_at() - buff.applied_at();
         self.record_buff_uptime(id, uptime);
+        self.log_aura(id, AuraChange::Removed);
     }
 
     fn record_buff_uptime(&mut self, id: BuffId, uptime: f64) {
@@ -1619,6 +1635,174 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             .statistics
             .buff(&name, debuff)
             .add_uptime(uptime);
+    }
+
+    // ---------------------------------------------------------------- combat log
+
+    /// Where the combat log stands, if it is recorded.
+    fn log_mark(&self) -> Option<usize> {
+        self.engine.combat_log().map(CombatLog::len)
+    }
+
+    fn log_me(&self) -> LogUnit {
+        LogUnit::Character(self.character.id())
+    }
+
+    /// The character's advanced combat log snapshot.
+    fn own_log_info(&self) -> UnitInfo {
+        let view = self.target_view();
+        let resource = self.character.resource();
+        UnitInfo {
+            attack_power: self.character.melee_ap(&view),
+            armor: self
+                .character
+                .stats()
+                .get_armor(&self.character.stat_context(&view)) as i32,
+            power: Some(self.character.resource_type()),
+            current_power: resource.current(),
+            max_power: resource.max(),
+            level: self.character.clvl(),
+        }
+    }
+
+    /// The target's advanced combat log snapshot.
+    fn target_log_info(&self) -> UnitInfo {
+        UnitInfo {
+            armor: self.target.armor(),
+            level: self.target.level(),
+            ..UnitInfo::default()
+        }
+    }
+
+    /// Logs a cast: `SPELL_CAST_SUCCESS` (at `mark`, before the entries performing it logged),
+    /// then its damage or miss, its off-hand strike and its power gains. A cast that only
+    /// started (a cast time, an on-next-swing queue) is logged when it completes.
+    fn log_report(&mut self, spell: LogSpell, report: &CastReport, mark: Option<usize>) {
+        if !self.engine.is_logging()
+            || report.queued
+            || report.cast_started
+            || report.result == SpellResult::Undetermined
+        {
+            return;
+        }
+        let me = self.log_me();
+        let dest = if report.attack.is_some() {
+            LogUnit::Target
+        } else {
+            me
+        };
+        let cast = CombatLogEvent::SpellCastSuccess {
+            spell: spell.clone(),
+            info: self.own_log_info(),
+        };
+        match mark {
+            Some(mark) => self.engine.log_at(mark, me, dest, cast),
+            None => self.engine.log(me, dest, cast),
+        }
+        let strikes: Vec<(AttackOutcome, bool)> = report
+            .attack
+            .iter()
+            .map(|attack| (*attack, false))
+            .chain(report.offhand.iter().map(|o| (o.attack, true)))
+            .collect();
+        for (attack, offhand) in strikes {
+            let event = match attack_damage(&attack) {
+                Ok(damage) => CombatLogEvent::SpellDamage {
+                    spell: spell.clone(),
+                    damage,
+                    info: self.target_log_info(),
+                },
+                Err(Some(miss)) => CombatLogEvent::SpellMissed {
+                    spell: spell.clone(),
+                    miss,
+                    offhand,
+                },
+                Err(None) => continue,
+            };
+            self.engine.log(me, LogUnit::Target, event);
+        }
+        for &(power, amount) in &report.resource_gained {
+            let event = CombatLogEvent::SpellEnergize {
+                spell: spell.clone(),
+                power,
+                amount,
+                periodic: false,
+                info: self.own_log_info(),
+            };
+            self.engine.log(me, me, event);
+        }
+    }
+
+    /// Logs a white swing: `SWING_DAMAGE` or `SWING_MISSED`.
+    fn log_swing(&mut self, report: &SwingReport) {
+        if !self.engine.is_logging() {
+            return;
+        }
+        let hand = report.hand;
+        let event = match attack_damage(&report.attack) {
+            Ok(damage) => CombatLogEvent::SwingDamage {
+                hand,
+                damage,
+                info: self.own_log_info(),
+            },
+            Err(Some(miss)) => CombatLogEvent::SwingMissed { hand, miss },
+            Err(None) => return,
+        };
+        self.engine.log(self.log_me(), LogUnit::Target, event);
+    }
+
+    /// Logs a periodic tick: its damage and its power gain.
+    fn log_tick(&mut self, spell: LogSpell, report: &TickReport) {
+        if !self.engine.is_logging() {
+            return;
+        }
+        let me = self.log_me();
+        if report.damage > 0 {
+            let event = CombatLogEvent::SpellPeriodicDamage {
+                spell: spell.clone(),
+                damage: Damage {
+                    amount: report.damage,
+                    ..Damage::default()
+                },
+                info: self.target_log_info(),
+            };
+            self.engine.log(me, LogUnit::Target, event);
+        }
+        if let Some((power, amount)) = report.resource_gained {
+            let event = CombatLogEvent::SpellEnergize {
+                spell,
+                power,
+                amount,
+                periodic: true,
+                info: self.own_log_info(),
+            };
+            self.engine.log(me, me, event);
+        }
+    }
+
+    /// Logs a change of a visible aura that is not a passive's; a debuff is on the target.
+    fn log_aura(&mut self, id: BuffId, change: AuraChange) {
+        if !self.engine.is_logging() {
+            return;
+        }
+        let buff = self.buff_ref(id);
+        if buff.is_hidden() || buff.is_passive() {
+            return;
+        }
+        let debuff = buff.is_debuff();
+        let spell = LogSpell {
+            id: buff.spell(),
+            name: buff.name().to_string(),
+            school: buff.school(),
+        };
+        let me = self.log_me();
+        let dest = if debuff { LogUnit::Target } else { me };
+        let event = CombatLogEvent::SpellAura {
+            spell,
+            change,
+            debuff,
+        };
+        self.engine.log(me, dest, event);
     }
 
     /// Copies the counters kept elsewhere into the statistics: the procs' attempts and
@@ -2191,6 +2375,14 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             BuffApplication::Refreshed { stacks } if stacks > before => self.apply_auras(id),
             _ => {}
         }
+        match application {
+            BuffApplication::NotApplied => {}
+            BuffApplication::Applied { .. } => self.log_aura(id, AuraChange::Applied),
+            BuffApplication::Refreshed { stacks } if stacks > before => {
+                self.log_aura(id, AuraChange::AppliedDose(stacks));
+            }
+            BuffApplication::Refreshed { .. } => self.log_aura(id, AuraChange::Refresh),
+        }
         application
     }
 
@@ -2222,11 +2414,12 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn trigger_spell(&mut self, spell: u32, trigger_value: Option<f64>) -> Option<CastReport> {
         let id = self.character.spells().spell_by_game_id(spell)?;
+        let mark = self.log_mark();
         let report = self.with_spell(id, |s, ctx| {
             s.set_trigger_value(trigger_value);
             s.perform_triggered(ctx)
         });
-        self.record_cast(id, &report);
+        self.record_cast(id, &report, mark);
         Some(report)
     }
 
@@ -2508,4 +2701,34 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
         }
     }
     ids
+}
+
+/// The combat log's name for `spell`.
+fn log_spell(spell: &Spell) -> LogSpell {
+    LogSpell {
+        id: spell.game_id(),
+        name: spell.name().to_string(),
+        school: spell.record().school_mask.bits(),
+    }
+}
+
+/// The damage of an attack that landed, or how it was avoided (`None` for a hit without
+/// damage, such as Sunder Armor's, which only logs its cast and its aura).
+fn attack_damage(attack: &AttackOutcome) -> Result<Damage, Option<MissType>> {
+    use PhysicalAttackResult as R;
+    let miss = match attack.result {
+        R::Miss => MissType::Miss,
+        R::Dodge => MissType::Dodge,
+        R::Parry => MissType::Parry,
+        R::Block | R::BlockCritical if attack.damage == 0 => MissType::Block,
+        _ if attack.damage == 0 => return Err(None),
+        result => {
+            return Ok(Damage {
+                amount: attack.damage,
+                critical: matches!(result, R::Critical | R::BlockCritical),
+                glancing: result == R::Glancing,
+            })
+        }
+    };
+    Err(Some(miss))
 }

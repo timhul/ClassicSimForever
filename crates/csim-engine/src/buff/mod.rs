@@ -155,6 +155,10 @@ pub struct Buff {
     refresh_policy: RefreshPolicy,
     /// The spell the buff belongs to (`SpellName.ID`), 0 for buffs made in code.
     spell: u32,
+    /// The school mask of that spell (physical for buffs made in code), for the combat log.
+    school: u32,
+    /// Applied by a passive spell (talents, stances' passives): not in the combat log.
+    passive: bool,
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
@@ -207,6 +211,8 @@ impl Buff {
             priority: Priority::Invalid,
             refresh_policy: RefreshPolicy::default(),
             spell: 0,
+            school: 1,
+            passive: false,
             charge_sources: Vec::new(),
             charge_spell_masks: Vec::new(),
             ends_auras: Vec::new(),
@@ -242,6 +248,8 @@ impl Buff {
         );
         buff.canonical_name = Buff::canonical_name_for(&record.name, record.id);
         buff.spell = record.id;
+        buff.school = record.school_mask.bits();
+        buff.passive = record.is_passive();
         buff.hidden = record.is_hidden();
         buff.max_stacks = record.aura_options.max_stacks.max(1);
         if kind.is_debuff() {
@@ -391,6 +399,16 @@ impl Buff {
     /// The spell the buff belongs to (0 for buffs made in code).
     pub fn spell(&self) -> u32 {
         self.spell
+    }
+
+    /// The school mask of [`Buff::spell`] (1 = physical).
+    pub fn school(&self) -> u32 {
+        self.school
+    }
+
+    /// Whether a passive spell applies the buff.
+    pub fn is_passive(&self) -> bool {
+        self.passive
     }
 
     /// The spells whose buffs end when this one does.

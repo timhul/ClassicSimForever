@@ -21,6 +21,7 @@
 
 use std::sync::Arc;
 
+use crate::combat_log::CombatLog;
 use crate::engine::{Event, EventKind};
 use crate::ids::CharId;
 use crate::raid::RaidControl;
@@ -232,6 +233,25 @@ fn collect(raid: &mut RaidControl, option: Option<SimOption>, cruncher: &mut Num
         first.add_player_result(result);
     }
     cruncher.add_class_statistics(option, first);
+}
+
+/// Runs one iteration of `raid` with the combat log recorded and returns the log; the raid's
+/// statistics hold the iteration's results. Seeded like the only thread of [`run_threaded`], so
+/// it is the iteration a one-thread, one-iteration run with the same `seed` simulates.
+pub fn run_logged_iteration(
+    settings: &SimSettings,
+    seed: u64,
+    raid: &mut RaidControl,
+) -> CombatLog {
+    let mut seeds = Xoroshiro128Plus::from_seed(seed);
+    let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
+    raid.set_seed(raid_seed);
+    raid.engine_mut().enable_combat_log();
+    let mut control = SimControl::new(settings.clone(), shuffle_seed);
+    control.run_sim(raid, settings.combat_length, 1);
+    raid.engine_mut()
+        .take_combat_log()
+        .expect("the log was enabled")
 }
 
 /// Runs `settings.threads` threads, each on a raid of its own from `build`, and merges their
