@@ -305,6 +305,8 @@ pub struct Results {
     pub rotation: Vec<ExecutorRow>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub stat_weights: Vec<StatWeightRow>,
+    /// Engine events by type, most frequent first.
+    pub engine: Vec<EngineRow>,
 }
 
 #[derive(Debug, Serialize)]
@@ -455,6 +457,14 @@ pub struct OutcomeRow {
 }
 
 #[derive(Debug, Serialize)]
+pub struct EngineRow {
+    pub event: String,
+    pub count: u64,
+    pub per_fight: f64,
+    pub share: f64,
+}
+
+#[derive(Debug, Serialize)]
 pub struct StatWeightRow {
     pub option: String,
     pub dps: f64,
@@ -510,6 +520,7 @@ impl Results {
             } else {
                 stat_weight_rows(r.cruncher)
             },
+            engine: engine_rows(&stats),
         }
     }
 
@@ -569,6 +580,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             ("Procs", self.proc_table()),
             ("Resource gains", self.resource_table()),
             ("Rotation", self.executor_table()),
+            ("Engine", self.engine_table()),
         ]
         .into_iter()
         .filter(|(_, table)| !table.is_empty())
@@ -692,6 +704,27 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                     format!("{:.1}%", outcome.share * 100.0),
                 ]);
             }
+        }
+        table
+    }
+
+    fn engine_table(&self) -> Table {
+        let mut table = Table::new(["Event", "Count", "Per fight", "Share"]);
+        for row in &self.engine {
+            table.row(vec![
+                row.event.clone(),
+                row.count.to_string(),
+                format!("{:.1}", row.per_fight),
+                percent(row.share),
+            ]);
+        }
+        if !self.engine.is_empty() {
+            table.total(vec![
+                "Total".to_string(),
+                self.run.events.to_string(),
+                format!("{:.1}", per(self.run.events, self.run.iterations)),
+                percent(1.0),
+            ]);
         }
         table
     }
@@ -887,6 +920,21 @@ fn executor_rows(stats: &ClassStatistics) -> Vec<ExecutorRow> {
                     })
                     .collect(),
             }
+        })
+        .collect()
+}
+
+fn engine_rows(stats: &ClassStatistics) -> Vec<EngineRow> {
+    let engine = stats.engine();
+    let mut events = engine.non_zero();
+    events.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    events
+        .into_iter()
+        .map(|(event, count)| EngineRow {
+            event: event.name().to_string(),
+            count,
+            per_fight: per(count, stats.iterations()),
+            share: per(count, engine.total_events()),
         })
         .collect()
 }

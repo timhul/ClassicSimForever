@@ -97,7 +97,7 @@ tfoot td, tfoot td:first-child { color: var(--yellow); font-weight: 700; }
 "#;
 
 /// Sections that start collapsed.
-const COLLAPSED: [&str; 1] = ["Rotation"];
+const COLLAPSED: [&str; 2] = ["Rotation", "Engine"];
 
 /// The results as an HTML page.
 pub fn render(results: &Results) -> String {

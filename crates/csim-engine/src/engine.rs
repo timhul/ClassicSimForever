@@ -124,6 +124,22 @@ impl EventType {
     fn index(self) -> usize {
         self as usize
     }
+
+    /// Display name.
+    pub fn name(self) -> &'static str {
+        match self {
+            EventType::BuffRemoval => "Buff removal",
+            EventType::CastComplete => "Cast complete",
+            EventType::DotTick => "DoT tick",
+            EventType::EncounterEnd => "Encounter end",
+            EventType::EncounterStart => "Encounter start",
+            EventType::IncomingDamage => "Incoming damage",
+            EventType::MainhandMeleeHit => "Mainhand melee hit",
+            EventType::OffhandMeleeHit => "Offhand melee hit",
+            EventType::PeriodicRefreshBuff => "Periodic buff refresh",
+            EventType::PlayerAction => "Player action",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

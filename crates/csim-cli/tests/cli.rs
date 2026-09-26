@@ -58,6 +58,8 @@ fn run_prints_the_breakdowns() {
         "Procs",
         "Resource gains",
         "Rotation",
+        "Engine",
+        "Player action",
     ] {
         assert!(report.contains(expected), "{expected:?} missing:\n{report}");
     }
@@ -87,6 +89,7 @@ fn scale_prints_the_stat_weights() {
         "\nBuffs and debuffs\n",
         "\nResource gains\n",
         "\nRotation\n",
+        "\nEngine\n",
     ]
     .map(|title| report.find(title).unwrap_or_else(|| panic!("{title:?}")));
     assert!(order.is_sorted(), "sections out of order:\n{report}");
@@ -287,7 +290,14 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
     );
     assert!(0 < min && min < max, "{yaml}");
     assert!(mainhand["casts"].as_f64().unwrap() > 0.0, "{yaml}");
-    for section in ["buffs", "procs", "resources", "resource_totals", "rotation"] {
+    for section in [
+        "buffs",
+        "procs",
+        "resources",
+        "resource_totals",
+        "rotation",
+        "engine",
+    ] {
         assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
     }
 
@@ -338,6 +348,7 @@ fn output_format_prints_yaml_and_html() {
         format!("<div class=\"dps\">{dps:.2}</div>"),
         "<details open>\n<summary><h2>Damage and threat</h2></summary>".to_string(),
         "<details>\n<summary><h2>Rotation</h2></summary>".to_string(),
+        "<details>\n<summary><h2>Engine</h2></summary>".to_string(),
         "<tfoot>".to_string(),
         "<td class=\"left\">Mainhand Attack</td>".to_string(),
         "</html>".to_string(),
