@@ -1084,15 +1084,16 @@ impl Spell {
         if self.is_on_next_swing() {
             return self.queue(host, report);
         }
-        self.execute(host, report)
+        self.execute(host, report, true)
     }
 
     /// Casts the spell as another spell's effect (a proc's payload, an item's chance on hit):
-    /// no cost, no global cooldown, no cast time.
+    /// no cost, no global cooldown, no cast time. The spell's own power cost (Ebon Hand's Shadow
+    /// Bolt costs mana) is never paid, so a proc works on characters without that resource.
     pub fn perform_triggered(&mut self, host: &mut impl SpellHost) -> CastReport {
         self.last_result = SpellResult::Undetermined;
         self.start_cooldown(host);
-        self.execute(host, CastReport::default())
+        self.execute(host, CastReport::default(), false)
     }
 
     /// Starts the own and category cooldowns with their player-action events (a proc's internal
@@ -1154,7 +1155,7 @@ impl Spell {
             resource_cost: self.resource_cost(host),
             ..CastReport::default()
         };
-        self.execute(host, report)
+        self.execute(host, report, true)
     }
 
     /// Starts casting: `CastComplete` is scheduled after the cast time. Port of
@@ -1203,14 +1204,20 @@ impl Spell {
             resource_cost: self.resource_cost(host),
             ..CastReport::default()
         };
-        Some(self.execute(host, report))
+        Some(self.execute(host, report, true))
     }
 
     /// Runs the effect chain, applies the buff, pays the cost, collects the damage and casts
-    /// the triggered spells. The second half of `Spell::spell_effect`.
-    fn execute(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
+    /// the triggered spells; `pays_cost` is false for a cast triggered by another effect, which
+    /// takes no resource at all. The second half of `Spell::spell_effect`.
+    fn execute(
+        &mut self,
+        host: &mut impl SpellHost,
+        mut report: CastReport,
+        pays_cost: bool,
+    ) -> CastReport {
         let cost = report.resource_cost;
-        let resource = self.resource_type();
+        let resource = self.resource_type().filter(|_| pays_cost);
 
         let mut first_roll = None;
         let mut innate_threat = self.threat_override().flat;

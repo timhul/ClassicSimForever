@@ -137,6 +137,23 @@ fn an_off_hand_on_hit_spell_procs_off_the_off_hand() {
 }
 
 #[test]
+fn an_on_hit_spell_with_a_mana_cost_costs_a_warrior_nothing() {
+    // Ebon Hand's Shadow Bolt costs 40 mana in the client data; a proc never pays it, so a
+    // character without mana casts it without touching its own resource.
+    let mut test = test("Ebon Hand");
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.equip(EquipmentSlot::Offhand, EBON_HAND);
+    test.given_warrior_has_rage(50);
+    test.given_no_previous_damage_dealt();
+
+    let proc = test.proc("Shadow Bolt");
+    test.with_ctx(|ctx| ctx.perform_proc(proc));
+
+    assert!(test.damage_dealt_by("Shadow Bolt") > 0);
+    test.then_warrior_has_rage(50);
+}
+
+#[test]
 fn an_on_equip_aura_modifies_a_spell_while_worn() {
     let mut test = test("General's Plate Gauntlets");
     assert_eq!(hamstring_cost(&mut test), 10);
