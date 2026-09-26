@@ -25,8 +25,11 @@ fn stdout(output: &Output) -> String {
 }
 
 /// The report without the line holding the elapsed time.
+/// `report` without the wall-clock dependent parts: the run line and the last section, the
+/// engine statistics with their events handled per second.
 fn without_timing(report: &str) -> String {
-    report
+    let engine = report.find("\nEngine\n").expect("engine statistics");
+    report[..engine]
         .lines()
         .filter(|line| !line.contains(" events)"))
         .collect::<Vec<_>>()
