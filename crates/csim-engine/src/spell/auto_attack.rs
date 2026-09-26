@@ -258,7 +258,7 @@ impl AutoAttack {
             Hand::Mainhand => host.random_non_normalized_mh_dmg(),
             Hand::Offhand => host.random_non_normalized_oh_dmg() * self.offhand_penalty,
         };
-        let mut damage = damage_after_modifiers(host, raw);
+        let mut damage = damage_after_modifiers(host, raw, hand);
         match result {
             PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical => {
                 damage = (damage * host.melee_crit_dmg_mod()).round();
@@ -316,10 +316,10 @@ impl AutoAttack {
 }
 
 /// Port of `Spell::damage_after_modifiers` for swings.
-fn damage_after_modifiers(host: &impl AutoAttackHost, damage: f64) -> f64 {
+fn damage_after_modifiers(host: &impl AutoAttackHost, damage: f64, hand: Hand) -> f64 {
     let armor_reduction = 1.0
         - crate::mechanics::Mechanics::reduction_from_armor(
-            host.target_armor(),
+            host.target_armor_against(hand),
             host.caster_level(),
         );
     (damage * host.total_physical_damage_mod() + f64::from(host.flat_physical_damage_bonus()))

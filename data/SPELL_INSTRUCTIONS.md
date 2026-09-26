@@ -280,7 +280,8 @@ MOD_DAMAGE_TAKEN, 7 MOD_FEAR, 36 MOD_SHAPESHIFT, 24 PERIODIC_ENERGIZE, 52
 MOD_WEAPON_CRIT_PERCENT (Cruelty), 55 MOD_SPELL_HIT_CHANCE, 53 PERIODIC_LEECH, 57
 MOD_SPELL_CRIT_CHANCE, 5 MOD_CONFUSE, 49 MOD_DODGE_PERCENT, 290 MOD_CRIT_PCT (Berserker Stance
 +3), 41 DISPEL_IMMUNITY, 16 MOD_STEALTH, 134 MOD_MANA_REGEN_INTERRUPT, 85 MOD_POWER_REGEN (Anger
-Management: misc 1 rage), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
+Management: misc 1 rage), 280 MOD_ARMOR_PENETRATION_PCT (Weaponmaster 12284: percent of the
+target's armor ignored by attacks with the weapon types the spell requires), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
 MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK. Others: retail
 `AuraType` enum (`SharedDefines.h`).
 
@@ -437,9 +438,11 @@ overrides:
 | `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
 | `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
+| `ENABLE_AURA` | while the aura is up the character has the hidden aura `spell` the server applies (gated by its own weapon requirement), with its effect `effect` set to this effect's value (a talent's rank value follows rank changes) | `spell`, `effect` | Weaponmaster E0 → 12700 (axe/polearm crit), E1 → 12284 (mace/staff armor penetration) |
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 4 s, so another dodge only refreshes it) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | resets the cooldown of `spell` | `spell` | Bloodthrill |
-| `WEAPON_TYPE_DAMAGE_PERCENT` / `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % with the aura's required weapon types | — | Weaponmaster |
+| `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
+| `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
 | `NO_OP` | nothing; keeps the dummy out of `csim-tables check` | — | markers, unmodelled halves |

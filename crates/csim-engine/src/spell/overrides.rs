@@ -154,6 +154,10 @@ pub enum ScriptKind {
     /// come from its record), firing with this effect's value as its chance in percent
     /// (Weaponmaster's sword extra attack).
     EnableProc,
+    /// While the aura is up the character has the hidden aura `params.spell` the server applies
+    /// (gated by its own equipment requirement), with its effect `params.effect` set to this
+    /// effect's value (Weaponmaster's axe/polearm crit and mace/staff armor penetration).
+    EnableAura,
     /// Grants `params.value` combo points to the character.
     AddComboPoints,
     /// Resets the cooldown of `params.spell` (Bloodthrill's Overpower reset).
@@ -197,6 +201,19 @@ pub struct ScriptParams {
     pub resource: Option<PowerType>,
 }
 
+/// The aura effect that enables a hidden aura the server applies (`ENABLE_PROC`,
+/// `ENABLE_AURA`): the hidden aura is a passive of the character while the enabling aura is up.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnablingAura {
+    /// The enabling spell.
+    pub spell: u32,
+    /// Its effect whose value the hidden aura uses.
+    pub effect: u32,
+    /// The hidden aura's effect that takes the value (`ENABLE_AURA`); `None` when the value is
+    /// the hidden proc aura's chance in percent (`ENABLE_PROC`).
+    pub target_effect: Option<u32>,
+}
+
 /// A script attached to one effect of the spell.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -237,6 +254,10 @@ impl EffectScript {
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy
             | ScriptKind::EnableProc => need(p.spell.is_some(), "spell"),
+            ScriptKind::EnableAura => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.effect.is_some(), "effect")
+            }
             ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
                 need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
             }
@@ -625,14 +646,22 @@ impl Overrides {
             .unwrap_or(self.defaults.proc_hit_mask)
     }
 
-    /// The aura effect (spell, effect index) whose `ENABLE_PROC` script enables the proc aura
-    /// `id`, if any.
-    pub fn proc_enabled_by(&self, id: u32) -> Option<(u32, u32)> {
+    /// The aura effect whose `ENABLE_PROC` / `ENABLE_AURA` script enables the hidden aura `id`,
+    /// if any.
+    pub fn enabled_by(&self, id: u32) -> Option<EnablingAura> {
         self.all().into_iter().find_map(|o| {
-            o.effects
-                .iter()
-                .find(|e| e.script == ScriptKind::EnableProc && e.params.spell == Some(id))
-                .map(|e| (o.id, e.index))
+            o.effects.iter().find_map(|e| {
+                let target_effect = match e.script {
+                    ScriptKind::EnableProc => None,
+                    ScriptKind::EnableAura => Some(e.params.effect?),
+                    _ => return None,
+                };
+                (e.params.spell == Some(id)).then_some(EnablingAura {
+                    spell: o.id,
+                    effect: e.index,
+                    target_effect,
+                })
+            })
         })
     }
 
@@ -867,6 +896,15 @@ overrides:
         assert!(script(ScriptKind::ResetCooldown, none).validate().is_err());
         assert!(script(ScriptKind::OffhandCopy, none).validate().is_err());
         assert!(script(ScriptKind::EnableProc, none).validate().is_err());
+        assert!(script(
+            ScriptKind::EnableAura,
+            ScriptParams {
+                spell: Some(1),
+                ..none
+            }
+        )
+        .validate()
+        .is_err());
         assert!(script(
             ScriptKind::AddComboPoints,
             ScriptParams {

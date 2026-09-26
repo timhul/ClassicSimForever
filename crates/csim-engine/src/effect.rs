@@ -14,12 +14,12 @@
 //! the [`ScriptKind`] the data names.
 
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
-use crate::item::ItemStat;
+use crate::item::{ItemStat, WeaponType};
 use crate::resource::ResourceType;
 use crate::spell::dbc::{AuraType, DefenseType, SpellEffectName, SpellSchoolMask};
 use crate::spell::modifiers::{SpellModifier, SpellModifiers};
 use crate::spell::overrides::{EffectScript, ScriptKind};
-use crate::spell::record::{ClassOptions, EffectRecord, Levels, SpellRecord};
+use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
 use crate::spell::SpellResult;
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
@@ -168,6 +168,9 @@ pub struct Effect {
     /// The spell the effect belongs to (`SpellName.ID`), the source of modifier auras.
     spell: u32,
     class_options: Option<ClassOptions>,
+    /// The spell's `SpellEquippedItems` requirement: the weapon types a weapon-type aura
+    /// applies to.
+    equipped_items: Option<EquippedItems>,
     levels: Levels,
     defense: DefenseType,
     /// The current base points: the table value, or the talent rank value.
@@ -208,6 +211,7 @@ impl Effect {
             script,
             spell: spell.id,
             class_options: spell.class_options,
+            equipped_items: spell.equipped_items,
             levels: spell.levels,
             defense: spell.categories.defense_type,
             dependency,
@@ -227,6 +231,21 @@ impl Effect {
 
     pub fn record(&self) -> &EffectRecord {
         &self.record
+    }
+
+    /// The weapon types the spell's weapon requirement accepts; every weapon type without one.
+    pub fn weapon_types(&self) -> Vec<WeaponType> {
+        WeaponType::ALL
+            .into_iter()
+            .filter(|weapon_type| {
+                self.equipped_items
+                    .filter(|items| items.class > 0)
+                    .is_none_or(|items| {
+                        let (class, subclass) = weapon_type.item_class_subclass();
+                        items.accepts(class, subclass)
+                    })
+            })
+            .collect()
     }
 
     pub fn index(&self) -> u32 {
@@ -576,6 +595,20 @@ impl Effect {
         let school = self.record.school_mask();
         let physical = school.is_physical();
         let magic = school.intersects(SpellSchoolMask::MAGIC);
+        // Crit with the weapon types the spell requires only (Weaponmaster: axes, polearms).
+        if self.script_kind() == Some(ScriptKind::WeaponTypeCritPercent) {
+            let crit = hundredths.max(0) as u32;
+            for weapon_type in self.weapon_types() {
+                if apply {
+                    host.stats_mut()
+                        .increase_crit_for_weapon_type(weapon_type, crit);
+                } else {
+                    host.stats_mut()
+                        .decrease_crit_for_weapon_type(weapon_type, crit);
+                }
+            }
+            return;
+        }
         match self.record.aura {
             A::ModAttackPower => adjust(
                 host.stats_mut(),
@@ -754,6 +787,20 @@ impl Effect {
                 |s, v| s.decrease_spell_hit(v),
             ),
             A::ModOffhandDamagePct => host.adjust_offhand_damage_percent(signed),
+            // Armor ignored by the attacks with the weapon types the spell requires
+            // (Weaponmaster: maces, staves).
+            A::ModArmorPenetrationPct if !on_target => {
+                let percent = rounded.max(0) as u32;
+                for weapon_type in self.weapon_types() {
+                    if apply {
+                        host.stats_mut()
+                            .increase_armor_penetration_for_weapon_type(weapon_type, percent);
+                    } else {
+                        host.stats_mut()
+                            .decrease_armor_penetration_for_weapon_type(weapon_type, percent);
+                    }
+                }
+            }
             A::ModShapeshift => {
                 if apply {
                     if let Some(stance) = Stance::from_form(self.record.shapeshift_form()) {

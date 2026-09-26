@@ -248,10 +248,12 @@ impl Proc {
         match self.rate {
             ProcRate::Chance => {
                 // A hidden aura enabled by another aura fires with that aura's value.
-                let enabled_value =
-                    self.spell.setup().enabled_by.map(|(spell, effect)| {
-                        host.aura_effect_value(spell, effect).unwrap_or(0.0)
-                    });
+                let enabled_value = self
+                    .spell
+                    .setup()
+                    .enabled_by
+                    .filter(|e| e.target_effect.is_none())
+                    .map(|e| host.aura_effect_value(e.spell, e.effect).unwrap_or(0.0));
                 let chance = self.spell.proc_chance_with(host, enabled_value);
                 (chance * f64::from(PROC_ROLL_RANGE)).round() as u32
             }

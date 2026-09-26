@@ -173,6 +173,9 @@ pub struct CharacterStats {
     casting_time_suppression_buffs: Vec<BuffId>,
     crit_bonuses_per_weapon_type: [u32; WeaponType::COUNT],
     damage_bonuses_per_weapon_type: [i32; WeaponType::COUNT],
+    /// Percent of the target's armor ignored by attacks with each weapon type (Weaponmaster's
+    /// maces and staves).
+    armor_penetration_per_weapon_type: [u32; WeaponType::COUNT],
     damage_bonuses_per_creature: [f64; CreatureType::COUNT],
     crit_dmg_bonuses_per_creature: [f64; CreatureType::COUNT],
 
@@ -506,6 +509,30 @@ impl CharacterStats {
     pub fn decrease_crit_for_weapon_type(&mut self, weapon_type: WeaponType, value: u32) {
         let bonus = &mut self.crit_bonuses_per_weapon_type[weapon_type.index()];
         *bonus = sub_checked(*bonus, value, "crit for weapon type");
+    }
+
+    pub fn increase_armor_penetration_for_weapon_type(
+        &mut self,
+        weapon_type: WeaponType,
+        percent: u32,
+    ) {
+        self.armor_penetration_per_weapon_type[weapon_type.index()] += percent;
+    }
+
+    pub fn decrease_armor_penetration_for_weapon_type(
+        &mut self,
+        weapon_type: WeaponType,
+        percent: u32,
+    ) {
+        let bonus = &mut self.armor_penetration_per_weapon_type[weapon_type.index()];
+        *bonus = sub_checked(*bonus, percent, "armor penetration for weapon type");
+    }
+
+    /// Percent of the target's armor the attacks with `weapon` ignore, at most 100.
+    pub fn get_armor_penetration_percent(&self, weapon: Option<WeaponProfile>) -> u32 {
+        weapon.map_or(0, |weapon| {
+            self.armor_penetration_per_weapon_type[weapon.weapon_type.index()].min(100)
+        })
     }
 
     pub fn increase_total_phys_dmg_for_weapon_type(&mut self, weapon_type: WeaponType, value: i32) {

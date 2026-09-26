@@ -2169,20 +2169,55 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     }
 
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64) {
-        if let Some(id) = self.character.spells().spell_by_game_id(spell) {
+        let spells = self.character.spells();
+        let script = if let Some(id) = spells.spell_by_game_id(spell) {
+            let script = spells
+                .spell(id)
+                .setup()
+                .overrides
+                .effect_script(index)
+                .copied();
             self.with_spell(id, |s, ctx| s.set_effect_value(ctx, index, value));
-        } else if let Some(id) = self.character.spells().proc_by_game_id(spell) {
+            script
+        } else if let Some(id) = spells.proc_by_game_id(spell) {
+            let script = spells
+                .procs()
+                .get(id)
+                .spell()
+                .setup()
+                .overrides
+                .effect_script(index)
+                .copied();
             self.with_procs(|procs, ctx| {
                 procs
                     .get_mut(id)
                     .spell_mut()
                     .set_effect_value(ctx, index, value);
             });
+            script
+        } else {
+            None
+        };
+        // The hidden aura an `ENABLE_AURA` effect enables carries its value (a talent's rank).
+        if let Some(script) = script.filter(|s| s.script == ScriptKind::EnableAura) {
+            if let (Some(target), Some(effect)) = (script.params.spell, script.params.effect) {
+                self.set_spell_effect_value(target, effect, value);
+            }
         }
     }
 
     fn target_armor(&self) -> i32 {
         self.target.armor()
+    }
+
+    fn armor_penetration_percent(&self, hand: Hand) -> u32 {
+        let slot = match hand {
+            Hand::Mainhand => EquipmentSlot::Mainhand,
+            Hand::Offhand => EquipmentSlot::Offhand,
+        };
+        self.character
+            .stats()
+            .get_armor_penetration_percent(self.character.equipment().weapon_profile(slot))
     }
 
     fn target_block_value(&self) -> u32 {

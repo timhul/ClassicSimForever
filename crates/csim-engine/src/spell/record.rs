@@ -1967,9 +1967,9 @@ spells:
             pending,
             [
                 12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
-                403196, 1282733, 1287808, 1290261, 1295744, 1317432, 1318325, 1318470, 1318514
+                403196, 1282733, 1287808, 1295744, 1317432, 1318325, 1318470, 1318514
             ],
-            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill's Overpower (aura 560), Weaponmaster, and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
+            "Toughness (aura 466), Raging Blow, Devastate, Bloodthrill's Overpower (aura 560), and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );
     }
 }

@@ -33,4 +33,5 @@ mod talent_tree;
 mod two_handed_weapon_specialization;
 mod unbridled_wrath;
 mod warrior;
+mod weaponmaster;
 mod whirlwind;

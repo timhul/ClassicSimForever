@@ -32,11 +32,12 @@ use crate::proc::ProcSource;
 use crate::resource::ResourceType;
 use crate::spell::dbc::{AuraState, AuraType, PowerType, SpellEffectName, SpellModOp};
 use crate::spell::overrides::{
-    EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride, ThreatOverride,
+    EnablingAura, EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride,
+    ThreatOverride,
 };
 use crate::spell::periodic::{Periodic, PeriodicKind, TickReport};
 use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
-use crate::spell::{SpellResult, SpellStatus};
+use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
 
 /// Tolerance when comparing the cooldown's ready time with the current time.
@@ -128,6 +129,16 @@ pub trait SpellHost: EffectHost {
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64);
 
     fn target_armor(&self) -> i32;
+    /// Percent of the target's armor that attacks with the weapon in `hand` ignore
+    /// (Weaponmaster's maces and staves).
+    fn armor_penetration_percent(&self, _hand: Hand) -> u32 {
+        0
+    }
+    /// The target's armor against an attack with the weapon in `hand`.
+    fn target_armor_against(&self, hand: Hand) -> i32 {
+        let ignored = f64::from(self.armor_penetration_percent(hand).min(100)) / 100.0;
+        (f64::from(self.target_armor()) * (1.0 - ignored)).round() as i32
+    }
     /// Damage a blocked attack loses (the target's block value).
     fn target_block_value(&self) -> u32;
     fn total_physical_damage_mod(&self) -> f64;
@@ -240,9 +251,9 @@ pub struct SpellSetup {
     pub hit_mask: ProcHitMask,
     /// The record of the aura a `DEEP_WOUNDS_BLEED` script ticks with (`params.duration_spell`).
     pub bleed_aura: Option<Arc<SpellRecord>>,
-    /// The aura effect (spell, effect index) whose `ENABLE_PROC` script makes this hidden aura
-    /// a proc of the character, with the effect's value as the chance.
-    pub enabled_by: Option<(u32, u32)>,
+    /// The aura effect whose `ENABLE_PROC` / `ENABLE_AURA` script makes this hidden aura a
+    /// passive of the character.
+    pub enabled_by: Option<EnablingAura>,
 }
 
 impl SpellSetup {
@@ -265,7 +276,7 @@ impl SpellSetup {
             hit_mask: db.overrides().proc_hit_mask(id),
             overrides,
             bleed_aura,
-            enabled_by: db.overrides().proc_enabled_by(id),
+            enabled_by: db.overrides().enabled_by(id),
         })
     }
 
@@ -293,7 +304,7 @@ impl SpellSetup {
                 .unwrap_or_else(|| SpellOverride::new(id)),
             hit_mask: overrides.proc_hit_mask(id),
             bleed_aura: None,
-            enabled_by: overrides.proc_enabled_by(id),
+            enabled_by: overrides.enabled_by(id),
         }
     }
 
@@ -1360,8 +1371,11 @@ impl Spell {
                     execution_time: self.execution_time(host),
                 });
             }
-            _ if crit => self.damage_after_modifiers(host, raw_damage) * self.crit_damage_mod(host),
-            _ => self.damage_after_modifiers(host, raw_damage),
+            _ if crit => {
+                self.damage_after_modifiers(host, raw_damage, Hand::Mainhand)
+                    * self.crit_damage_mod(host)
+            }
+            _ => self.damage_after_modifiers(host, raw_damage, Hand::Mainhand),
         };
         // A landed melee ability is reported as a main-hand ability (`melee_mh_yellow_hit_effect`)
         // unless it strikes with the shield (Shield Slam: an off-hand attack, which procs
@@ -1457,7 +1471,7 @@ impl Spell {
             result,
             PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
         );
-        let mut damage = self.damage_after_modifiers(host, raw_damage);
+        let mut damage = self.damage_after_modifiers(host, raw_damage, Hand::Offhand);
         proc_sources.push(ProcSource::OffhandSpell);
         if crit {
             damage *= self.crit_damage_mod(host);
@@ -1495,14 +1509,15 @@ impl Spell {
 
     /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
     /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
-    /// it is, resistances and magic damage modifiers not being ported.
-    pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64) -> f64 {
+    /// it is, resistances and magic damage modifiers not being ported. `hand` is the weapon
+    /// the spell strikes with, whose armor penetration applies.
+    pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64, hand: Hand) -> f64 {
         let school = self.setup.record.school_mask;
         if !school.is_empty() && !school.is_physical() {
             return damage;
         }
-        let armor_reduction =
-            1.0 - Mechanics::reduction_from_armor(host.target_armor(), host.caster_level());
+        let armor = host.target_armor_against(hand);
+        let armor_reduction = 1.0 - Mechanics::reduction_from_armor(armor, host.caster_level());
         (damage * host.total_physical_damage_mod() + f64::from(host.flat_physical_damage_bonus()))
             * armor_reduction
     }
