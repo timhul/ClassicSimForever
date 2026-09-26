@@ -19,6 +19,7 @@ use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{run_logged_iteration, run_threaded, Progress, SimMode};
 use csim_engine::sim_settings::{SimOption, SimSettings};
+use csim_engine::statistics::spell::Outcome;
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
@@ -360,7 +361,10 @@ pub struct SpellRow {
     pub dps: f64,
     pub damage_share: f64,
     pub tps: f64,
-    pub per_fight: f64,
+    pub casts: f64,
+    /// The smallest and largest damage of one successful attempt; none without damage.
+    pub min_hit: Option<u32>,
+    pub max_hit: Option<u32>,
     pub hit: f64,
     pub crit: f64,
     pub glance: f64,
@@ -401,7 +405,7 @@ pub struct SpellTotal {
     pub dps: f64,
     pub damage_share: f64,
     pub tps: f64,
-    pub per_fight: f64,
+    pub casts: f64,
 }
 
 impl SpellTotal {
@@ -411,7 +415,7 @@ impl SpellTotal {
             dps: sum(|s| s.dps),
             damage_share: sum(|s| s.damage_share),
             tps: sum(|s| s.tps),
-            per_fight: sum(|s| s.per_fight),
+            casts: sum(|s| s.casts),
         })
     }
 }
@@ -592,19 +596,8 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
 
     fn spell_table(&self) -> Table {
         let mut table = Table::new([
-            "Spell",
-            "DPS",
-            "Damage",
-            "TPS",
-            "Per fight",
-            "Hit",
-            "Crit",
-            "Glance",
-            "Miss",
-            "Dodge",
-            "Parry",
-            "Block",
-            "Resist",
+            "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "Hit", "Crit", "Glance",
+            "Miss", "Dodge", "Parry", "Block", "Resist",
         ]);
         for spell in &self.spells {
             table.row(vec![
@@ -612,7 +605,9 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.1}", spell.dps),
                 percent(spell.damage_share),
                 format!("{:.1}", spell.tps),
-                format!("{:.1}", spell.per_fight),
+                format!("{:.1}", spell.casts),
+                spell.min_hit.map_or(String::new(), |min| min.to_string()),
+                spell.max_hit.map_or(String::new(), |max| max.to_string()),
                 percent(spell.hit),
                 percent(spell.crit),
                 percent(spell.glance),
@@ -629,7 +624,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.1}", sum.dps),
                 percent(sum.damage_share),
                 format!("{:.1}", sum.tps),
-                format!("{:.1}", sum.per_fight),
+                format!("{:.1}", sum.casts),
             ];
             total.resize(table.headers().len(), String::new());
             table.total(total);
@@ -771,12 +766,20 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
         .map(|(key, spell)| {
             let attempts = spell.total_attempts();
             let rate = |count: u64| per(count, attempts);
+            let damaging = || {
+                Outcome::SUCCESSES
+                    .into_iter()
+                    .map(|outcome| spell.damage(outcome))
+                    .filter(|tally| tally.max() > 0)
+            };
             SpellRow {
                 name: key.display_name(),
                 dps: spell.total_damage() as f64 / time,
                 damage_share: spell.damage_share(total_damage),
                 tps: spell.total_threat() as f64 / time,
-                per_fight: per(attempts, iterations),
+                casts: per(attempts, iterations),
+                min_hit: damaging().map(|tally| tally.min()).min(),
+                max_hit: damaging().map(|tally| tally.max()).max(),
                 hit: rate(spell.hits_including_partial_resists()),
                 crit: rate(spell.crits_including_partial_resists()),
                 glance: rate(spell.glances()),

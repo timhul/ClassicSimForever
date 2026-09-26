@@ -239,6 +239,8 @@ fn damage_and_resource_gains_end_in_totals() {
         rest[..rest.find("\n\n").unwrap_or(rest.len())].to_string()
     };
     let damage = section("Damage and threat");
+    let header = damage.lines().nth(1).unwrap();
+    assert!(header.contains(" Casts  Min "), "{damage}");
     let total = damage.lines().last().unwrap();
     assert!(total.starts_with("Total "), "{damage}");
     assert!(total.contains("100.0%"), "{damage}");
@@ -275,6 +277,16 @@ fn output_file_writes_the_chosen_format_instead_of_printing() {
         spells.iter().any(|s| s["name"] == "Mainhand Attack"),
         "{yaml}"
     );
+    let mainhand = spells
+        .iter()
+        .find(|s| s["name"] == "Mainhand Attack")
+        .unwrap();
+    let (min, max) = (
+        mainhand["min_hit"].as_u64().unwrap(),
+        mainhand["max_hit"].as_u64().unwrap(),
+    );
+    assert!(0 < min && min < max, "{yaml}");
+    assert!(mainhand["casts"].as_f64().unwrap() > 0.0, "{yaml}");
     for section in ["buffs", "procs", "resources", "resource_totals", "rotation"] {
         assert!(results[section].is_sequence(), "{section} missing:\n{yaml}");
     }
