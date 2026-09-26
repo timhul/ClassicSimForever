@@ -23,7 +23,7 @@ use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, Sp
 use crate::spell::SpellResult;
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
-use crate::target::Target;
+use crate::target::{CreatureType, Target};
 
 /// What an effect needs from the world. Port of the `Character` / `CombatRoll` / `Spell` calls
 /// made by `Effect.cpp`, plus the hooks the table auras need.
@@ -56,6 +56,7 @@ pub trait EffectHost {
 
     fn stats_mut(&mut self) -> &mut CharacterStats;
     fn target_mut(&mut self) -> &mut Target;
+    fn target_creature_type(&self) -> CreatureType;
     /// Attack speed changes go through the character so pending swings are re-timed.
     fn increase_melee_attack_speed(&mut self, percent: u32);
     fn decrease_melee_attack_speed(&mut self, percent: u32);
@@ -328,13 +329,28 @@ impl Effect {
 
     /// The value the caster of `host` gets: per-level scaling plus the character's
     /// `POINTS` / `POINTS_INDEX_n` modifiers.
-    /// The factor a `WEAPON_PERCENT_DAMAGE` effect applies to the spell's weapon damage
-    /// effects, like the server's `weaponDamagePercentMod`: "deals 40% weapon damage" is the
-    /// normalized weapon damage effect times 0.4. `None` for any other effect, and for a
-    /// percent effect alone on its spell, which deals the weapon damage share itself.
+    /// The factor the effect applies to the spell's weapon damage effects. A
+    /// `WEAPON_PERCENT_DAMAGE` effect scales them like the server's `weaponDamagePercentMod`:
+    /// "deals 40% weapon damage" is the normalized weapon damage effect times 0.4 (a percent
+    /// effect alone on its spell deals the weapon damage share itself). An
+    /// `EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES` script adds its value times the damage against
+    /// its creature types. `None` for every other effect.
     pub fn weapon_damage_multiplier(&self, host: &impl EffectHost) -> Option<f64> {
-        self.scales_weapon_damage
-            .then(|| self.effective_value(host) / 100.0)
+        if self.scales_weapon_damage {
+            return Some(self.effective_value(host) / 100.0);
+        }
+        let script = self
+            .script
+            .filter(|s| s.script == ScriptKind::ExtraWeaponDamageVsCreatureTypes)?;
+        let applies = script
+            .params
+            .creature_types
+            .is_some_and(|types| types.contains(host.target_creature_type()));
+        Some(if applies {
+            1.0 + self.effective_value(host)
+        } else {
+            1.0
+        })
     }
 
     pub fn effective_value(&self, host: &impl EffectHost) -> f64 {
@@ -532,6 +548,8 @@ impl Effect {
                     ..EffectOutcome::rolled(hit, rolled)
                 }
             }
+            // Applied by the spell to its weapon damage (`weapon_damage_multiplier`).
+            Some(ScriptKind::ExtraWeaponDamageVsCreatureTypes) => EffectOutcome::plain(true),
             // Aura-side scripts (bleeds, periodic gains, triggers with a value) are run by the
             // buff, periodic and proc systems; `NO_OP` and unscripted dummies do nothing.
             _ => EffectOutcome::plain(true),
@@ -1060,6 +1078,9 @@ mod tests {
         }
         fn target_mut(&mut self) -> &mut Target {
             &mut self.target
+        }
+        fn target_creature_type(&self) -> CreatureType {
+            self.target.creature_type()
         }
         fn increase_melee_attack_speed(&mut self, percent: u32) {
             self.attack_speed_calls.push(percent as i32);

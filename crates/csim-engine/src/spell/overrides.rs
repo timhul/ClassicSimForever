@@ -48,7 +48,7 @@ use serde::{Deserialize, Serialize};
 use crate::proc::ProcSource;
 use crate::spell::dbc::{dbc_flags, PowerType};
 use crate::spell::Hand;
-use crate::target::Priority;
+use crate::target::{CreatureTypes, Priority};
 
 fn is_default<T: Default + PartialEq>(value: &T) -> bool {
     *value == T::default()
@@ -169,6 +169,10 @@ pub enum ScriptKind {
     WeaponTypeCritPercent,
     /// Ability `spell` also strikes with the off-hand weapon (Raging Blows: Whirlwind).
     OffhandCopy,
+    /// Against the `params.creature_types`, the spell's weapon damage gains `base_points`
+    /// times itself (Spearing Strike: 40 % weapon damage plus 2 × 40 % against giants and
+    /// dragonkin).
+    ExtraWeaponDamageVsCreatureTypes,
     /// An `ENERGIZE` effect gives `params.value` times its amount while a two-hand weapon is
     /// equipped (Unbridled Wrath: 1 rage, 2 with a two-hander).
     TwoHandEnergizeMultiplier,
@@ -199,6 +203,9 @@ pub struct ScriptParams {
     /// A resource.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resource: Option<PowerType>,
+    /// Creature types the script applies to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creature_types: Option<CreatureTypes>,
 }
 
 /// The aura effect that enables a hidden aura the server applies (`ENABLE_PROC`,
@@ -258,6 +265,10 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")
             }
+            ScriptKind::ExtraWeaponDamageVsCreatureTypes => need(
+                p.creature_types.is_some_and(|t| !t.is_empty()),
+                "creature_types (not empty)",
+            ),
             ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
                 need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
             }
@@ -714,6 +725,7 @@ impl Overrides {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::target::CreatureType;
 
     const WARRIOR: &str = r#"
 defaults:
@@ -909,6 +921,27 @@ overrides:
         assert!(script(ScriptKind::ResetCooldown, none).validate().is_err());
         assert!(script(ScriptKind::OffhandCopy, none).validate().is_err());
         assert!(script(ScriptKind::EnableProc, none).validate().is_err());
+        assert!(script(ScriptKind::ExtraWeaponDamageVsCreatureTypes, none)
+            .validate()
+            .is_err());
+        assert!(script(
+            ScriptKind::ExtraWeaponDamageVsCreatureTypes,
+            ScriptParams {
+                creature_types: Some(CreatureTypes::default()),
+                ..none
+            }
+        )
+        .validate()
+        .is_err());
+        assert!(script(
+            ScriptKind::ExtraWeaponDamageVsCreatureTypes,
+            ScriptParams {
+                creature_types: Some([CreatureType::Giant].into_iter().collect()),
+                ..none
+            }
+        )
+        .validate()
+        .is_ok());
         assert!(script(
             ScriptKind::EnableAura,
             ScriptParams {

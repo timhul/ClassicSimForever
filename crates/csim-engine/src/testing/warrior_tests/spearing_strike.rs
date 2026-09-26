@@ -2,10 +2,12 @@
 //! 40 % of the normalized weapon damage (`WEAPON_PERCENT_DAMAGE` 40 scaling
 //! `NORMALIZED_WEAPON_DMG` 0), needs a two-handed weapon (`SpellEquippedItems`: two-hand axe,
 //! mace, sword, polearm or staff), costs 15 rage and has a
-//! 20 s cooldown. The bonus against giants, dragonkin and mounted targets is not modelled.
+//! 20 s cooldown. Against giants and dragonkin it deals an additional 2 × 40 % (the DUMMY
+//! effect, `EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES`); the sim has no mounted targets.
 
 use crate::engine::EventType;
 use crate::spell::SpellStatus;
+use crate::target::CreatureType;
 use crate::testing::warrior::WarriorTest;
 
 const SPELL: &str = "Spearing Strike";
@@ -111,10 +113,12 @@ fn insufficient_rage() {
     test.then_status_is(SPELL, SpellStatus::InsufficientResources);
 }
 
-/// Spearing Strike with the 100 - 100 two-hander against an unarmored target, 1000 AP.
-fn damage(crit: bool, impale: u32) -> u64 {
+/// Spearing Strike with the 100 - 100 two-hander against an unarmored `creature` target,
+/// 1000 AP.
+fn damage_vs(creature: CreatureType, crit: bool, impale: u32) -> u64 {
     let mut test = test();
     test.given_target_has_0_armor();
+    test.target_mut().set_creature_type(creature);
     test.given_a_twohand_weapon_with_100_min_max_dmg();
     if crit {
         test.given_a_guaranteed_melee_ability_crit();
@@ -126,6 +130,11 @@ fn damage(crit: bool, impale: u32) -> u64 {
     test.given_impale(impale);
     test.cast(SPELL);
     test.damage_dealt()
+}
+
+/// [`damage_vs`] a humanoid, which gets no bonus.
+fn damage(crit: bool, impale: u32) -> u64 {
+    damage_vs(CreatureType::Humanoid, crit, impale)
 }
 
 #[test]
@@ -146,6 +155,29 @@ fn crit_dmg_0_of_2_impale() {
 fn crit_dmg_2_of_2_impale() {
     // [295] = (100 + 3.3 * 1000 / 14) * 0.4 * 2.2
     assert_eq!(damage(true, 2), 295);
+}
+
+#[test]
+fn hit_dmg_vs_giants_and_dragonkin() {
+    // 40 % plus the additional 2 × 40 %:
+    // [403] = (100 + 3.3 * 1000 / 14) * 0.4 * (1 + 2)
+    assert_eq!(damage_vs(CreatureType::Giant, false, 0), 403);
+    assert_eq!(damage_vs(CreatureType::Dragonkin, false, 0), 403);
+}
+
+#[test]
+fn crit_dmg_vs_giants() {
+    // [886] = (100 + 3.3 * 1000 / 14) * 0.4 * 3 * 2.2
+    assert_eq!(damage_vs(CreatureType::Giant, true, 2), 886);
+}
+
+#[test]
+fn no_bonus_vs_other_creature_types() {
+    for creature in CreatureType::ALL {
+        if !matches!(creature, CreatureType::Giant | CreatureType::Dragonkin) {
+            assert_eq!(damage_vs(creature, false, 0), 134, "{creature:?}");
+        }
+    }
 }
 
 #[test]

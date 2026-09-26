@@ -110,8 +110,9 @@ overrides:
     note: Victory Rush; E2 is 15 % of attack power as damage, E1 (the heal) is a plain effect
     effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]
   - id: 1310222
-    note: Spearing Strike; E2 doubles the weapon damage against giants/dragonkin, not modelled
-    effects: [{ index: 2, script: NO_OP }]
+    note: Spearing Strike; E2 adds twice the weapon damage against giants and dragonkin (the sim has no mounted targets)
+    effects:
+      - { index: 2, script: EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES, params: { creature_types: [Giant, Dragonkin] } }
   - id: 440488
     note: Shockwave; E2 is 50 % of attack power as damage (frontal cone, one target here)
     effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]

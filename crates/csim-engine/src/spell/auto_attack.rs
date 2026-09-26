@@ -371,7 +371,7 @@ mod tests {
     use crate::spell::CastReport;
     use crate::stance::Stance;
     use crate::stats::CharacterStats;
-    use crate::target::Target;
+    use crate::target::{CreatureType, Target};
     use std::collections::VecDeque;
 
     struct World {
@@ -488,6 +488,9 @@ mod tests {
         }
         fn target_mut(&mut self) -> &mut Target {
             &mut self.target
+        }
+        fn target_creature_type(&self) -> CreatureType {
+            self.target.creature_type()
         }
         fn increase_melee_attack_speed(&mut self, _: u32) {}
         fn decrease_melee_attack_speed(&mut self, _: u32) {}

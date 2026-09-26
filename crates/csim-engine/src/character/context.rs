@@ -34,7 +34,7 @@ use crate::stance::Stance;
 use crate::statistics::{ClassStatistics, EngineStatistics, RotationExecutorStatistics};
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
-use crate::target::Target;
+use crate::target::{CreatureType, Target};
 
 use super::{Character, SimParams, StanceLink};
 
@@ -2113,6 +2113,9 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
 
     fn target_mut(&mut self) -> &mut Target {
         self.target
+    }
+    fn target_creature_type(&self) -> CreatureType {
+        self.target.creature_type()
     }
 
     fn increase_melee_attack_speed(&mut self, percent: u32) {

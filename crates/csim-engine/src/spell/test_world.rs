@@ -23,7 +23,7 @@ use crate::spell::record::{EquippedItems, SpellDb, SpellFile};
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellStatus};
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
-use crate::target::Target;
+use crate::target::{CreatureType, Target};
 
 /// Records copied from the pruned export (descriptions and labels dropped).
 pub(crate) const SPELLS_YAML: &str = r#"
@@ -1111,6 +1111,9 @@ impl EffectHost for World {
     }
     fn target_mut(&mut self) -> &mut Target {
         &mut self.target
+    }
+    fn target_creature_type(&self) -> CreatureType {
+        self.target.creature_type()
     }
     fn increase_melee_attack_speed(&mut self, percent: u32) {
         self.stats.increase_melee_attack_speed(percent);

@@ -58,6 +58,42 @@ impl CreatureType {
     }
 }
 
+/// A set of creature types, written as a list (`[Giant, Dragonkin]`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(from = "Vec<CreatureType>", into = "Vec<CreatureType>")]
+pub struct CreatureTypes(u8);
+
+impl CreatureTypes {
+    pub fn contains(self, creature_type: CreatureType) -> bool {
+        self.0 & (1 << creature_type.index()) != 0
+    }
+
+    pub fn is_empty(self) -> bool {
+        self.0 == 0
+    }
+}
+
+impl FromIterator<CreatureType> for CreatureTypes {
+    fn from_iter<I: IntoIterator<Item = CreatureType>>(iter: I) -> Self {
+        CreatureTypes(iter.into_iter().fold(0, |bits, t| bits | 1 << t.index()))
+    }
+}
+
+impl From<Vec<CreatureType>> for CreatureTypes {
+    fn from(types: Vec<CreatureType>) -> Self {
+        types.into_iter().collect()
+    }
+}
+
+impl From<CreatureTypes> for Vec<CreatureType> {
+    fn from(types: CreatureTypes) -> Self {
+        CreatureType::ALL
+            .into_iter()
+            .filter(|&t| types.contains(t))
+            .collect()
+    }
+}
+
 /// Priority of a debuff when competing for the target's debuff slots.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -436,6 +472,22 @@ fn remove_buff_if_exists(buffs: &mut Vec<InstanceId>, buff: InstanceId) -> bool 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn creature_types_are_a_set_written_as_a_list() {
+        let types: CreatureTypes = serde_yaml::from_str("[Giant, Dragonkin, Giant]").unwrap();
+        assert!(types.contains(CreatureType::Giant));
+        assert!(types.contains(CreatureType::Dragonkin));
+        assert!(!types.contains(CreatureType::Humanoid));
+        assert!(!types.is_empty());
+        assert!(CreatureTypes::default().is_empty());
+        assert_eq!(
+            serde_yaml::to_string(&types).unwrap(),
+            "- Dragonkin
+- Giant
+"
+        );
+    }
 
     #[test]
     fn creature_type_serde_uses_display_names() {
