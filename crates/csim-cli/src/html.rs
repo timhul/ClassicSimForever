@@ -92,6 +92,7 @@ tbody tr { border-top: 1px solid var(--line); }
 tbody tr:nth-child(even of :not(.sub)) { background: var(--panel); }
 tr.sub { background: #0f0f0f; color: var(--muted); }
 tr.sub td:first-child { color: var(--muted); padding-left: 32px; }
+tr:has(> td > button.toggle) { cursor: pointer; }
 button.toggle {
   all: unset;
   cursor: pointer;
@@ -104,7 +105,7 @@ button.toggle::before {
   transition: transform 0.15s;
 }
 button.toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
-button.toggle:hover, button.toggle:hover::before { color: var(--yellow); }
+tr:hover button.toggle, tr:hover button.toggle::before { color: var(--yellow); }
 button.toggle:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
 tbody tr:hover { background: #221d00; }
 td:first-child { color: #fff; }
@@ -118,9 +119,10 @@ th[aria-sort="descending"]::after { content: " \25BE"; }
 
 /// Sorts a table's body rows on the clicked header: numbers largest first and text A to Z, a second
 /// click reverses. Empty cells stay last, the totals in `tfoot` stay put, and breakdown rows
-/// (`tr.sub`) move with the row above them. A row's toggle shows or hides its breakdown.
+/// (`tr.sub`) move with the row above them. A click on a row with a toggle (or the toggle's key)
+/// shows or hides its breakdown.
 const SCRIPT: &str = r#"
-document.querySelectorAll("button.toggle").forEach((button) => button.addEventListener("click", () => {
+document.querySelectorAll("button.toggle").forEach((button) => button.closest("tr").addEventListener("click", () => {
   const open = button.getAttribute("aria-expanded") !== "true";
   button.setAttribute("aria-expanded", open);
   for (let row = button.closest("tr").nextElementSibling; row && row.classList.contains("sub"); row = row.nextElementSibling) {
