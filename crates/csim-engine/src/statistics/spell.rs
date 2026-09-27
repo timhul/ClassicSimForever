@@ -281,6 +281,8 @@ pub struct SpellStatistics {
     magic: bool,
     /// Whether the spell is a white swing (rolled on the melee table with glancing blows).
     auto_attack: bool,
+    /// Whether the spell rolled on the melee table (a white swing or an ability).
+    melee: bool,
 }
 
 impl SpellStatistics {
@@ -297,6 +299,7 @@ impl SpellStatistics {
             tpet: Ratio::default(),
             magic: false,
             auto_attack: false,
+            melee: false,
         }
     }
 
@@ -361,7 +364,10 @@ impl SpellStatistics {
                 self.magic = true;
                 Outcome::from_magic(spell.roll.result, spell.roll.resist)
             }
-            None => Outcome::from_physical(attack.result, attack.damage),
+            None => {
+                self.melee = true;
+                Outcome::from_physical(attack.result, attack.damage)
+            }
         };
         if outcome.is_success() {
             self.add_success(
@@ -420,6 +426,13 @@ impl SpellStatistics {
         self.tpet.merge(&other.tpet);
         self.magic |= other.magic;
         self.auto_attack |= other.auto_attack;
+        self.melee |= other.melee;
+    }
+
+    /// Whether the spell rolled on the melee table (a white swing or an ability): its
+    /// attempts split by crit and hit.
+    pub fn is_melee(&self) -> bool {
+        self.melee
     }
 
     /// Whether the spell is a white swing: its attempts split by hit, crit and glancing blow.

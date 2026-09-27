@@ -414,7 +414,8 @@ pub struct SpellRow {
     /// The attempts split by outcome, each part a row of its own (named after the outcome, its
     /// rates shares of all the spell's attempts, so the parts add up to the spell): a magic
     /// spell's by the share of damage resisted (see [`RESIST_BREAKDOWN`]), a white swing's by
-    /// crit, hit and glancing blow. Empty for other spells.
+    /// crit, hit and glancing blow, a melee ability's by crit and hit. Empty for other spells
+    /// (physical damage over time, such as Deep Wounds).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub breakdown: Vec<SpellRow>,
 }
@@ -444,6 +445,10 @@ const SWING_BREAKDOWN: [(&str, &[Outcome]); 3] = [
     ("Hit", &[Outcome::Hit]),
     ("Glancing", &[Outcome::Glancing]),
 ];
+
+/// A melee ability's connecting outcomes (abilities cannot glance).
+const ABILITY_BREAKDOWN: [(&str, &[Outcome]); 2] =
+    [("Crit", &[Outcome::Crit]), ("Hit", &[Outcome::Hit])];
 
 #[derive(Debug, Serialize)]
 pub struct BuffRow {
@@ -957,6 +962,8 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
                 &RESIST_BREAKDOWN
             } else if spell.is_auto_attack() {
                 &SWING_BREAKDOWN
+            } else if spell.is_melee() {
+                &ABILITY_BREAKDOWN
             } else {
                 &[]
             };
@@ -1232,10 +1239,17 @@ mod tests {
         stats
             .spell("Bloodthirst", 1)
             .record_attack(&swing(PhysicalAttackResult::Hit, 600), 30.0);
+        stats
+            .spell("Deep Wounds", 1)
+            .record_tick(25, 25.0, 0.0, 0.0, None);
 
         let rows = spell_rows(&stats);
-        let bloodthirst = rows.iter().find(|r| r.name == "Bloodthirst").unwrap();
-        assert!(bloodthirst.breakdown.is_empty());
+        let names = |name: &str| -> Vec<String> {
+            let row = rows.iter().find(|r| r.name == name).unwrap();
+            row.breakdown.iter().map(|r| r.name.clone()).collect()
+        };
+        assert_eq!(names("Bloodthirst"), ["Crit", "Hit"]);
+        assert!(names("Deep Wounds").is_empty());
         let mh = rows.iter().find(|r| r.name == "Mainhand Attack").unwrap();
         let parts: Vec<_> = mh
             .breakdown
