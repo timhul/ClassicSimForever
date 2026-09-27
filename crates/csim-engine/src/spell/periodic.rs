@@ -130,6 +130,8 @@ pub struct TickReport {
     pub resource_gained: Option<(ResourceType, u32)>,
     /// A spell to cast on this tick (`PERIODIC_TRIGGER_SPELL`).
     pub trigger: Option<u32>,
+    /// Whether the tick dealt damage of a magic school (and so rolled a partial resist).
+    pub magic: bool,
     /// The partial resist of a damage tick of a magic school.
     pub resist: MagicResistResult,
     /// The damage the partial resist took away (not in `damage`).
@@ -255,6 +257,7 @@ impl Periodic {
             execution_time: 0.0,
             resource_gained: None,
             trigger: None,
+            magic: false,
             resist: MagicResistResult::NoResist,
             resisted: 0,
         };

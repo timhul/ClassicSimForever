@@ -277,6 +277,8 @@ pub struct SpellStatistics {
     dpet: Ratio,
     tpr: Ratio,
     tpet: Ratio,
+    /// Whether the spell rolled on the magic table (or ticked with a magic school).
+    magic: bool,
 }
 
 impl SpellStatistics {
@@ -291,6 +293,7 @@ impl SpellStatistics {
             dpet: Ratio::default(),
             tpr: Ratio::default(),
             tpet: Ratio::default(),
+            magic: false,
         }
     }
 
@@ -351,7 +354,10 @@ impl SpellStatistics {
     /// Records the attack outcome of one cast or swing (`resource_cost` in displayed units).
     pub fn record_attack(&mut self, attack: &AttackOutcome, resource_cost: f64) {
         let outcome = match attack.spell {
-            Some(spell) => Outcome::from_magic(spell.roll.result, spell.roll.resist),
+            Some(spell) => {
+                self.magic = true;
+                Outcome::from_magic(spell.roll.result, spell.roll.resist)
+            }
             None => Outcome::from_physical(attack.result, attack.damage),
         };
         if outcome.is_success() {
@@ -368,17 +374,22 @@ impl SpellStatistics {
     }
 
     /// Records a periodic tick: a hit (or a partial resist) for its damage and threat. Port of
-    /// the `add_hit_dmg` calls of the C++ periodic spells.
+    /// the `add_hit_dmg` calls of the C++ periodic spells. `resist` is the partial resist of a
+    /// tick of a magic school, none for a physical one.
     pub fn record_tick(
         &mut self,
         damage: u32,
         threat: f64,
         resource_cost: f64,
         execution_time: f64,
-        resist: MagicResistResult,
+        resist: Option<MagicResistResult>,
     ) {
+        self.magic |= resist.is_some();
         self.add_success(
-            Outcome::from_magic(MagicAttackResult::Hit, resist),
+            Outcome::from_magic(
+                MagicAttackResult::Hit,
+                resist.unwrap_or(MagicResistResult::NoResist),
+            ),
             damage,
             threat.max(0.0) as u32,
             resource_cost,
@@ -398,6 +409,13 @@ impl SpellStatistics {
         self.dpet.merge(&other.dpet);
         self.tpr.merge(&other.tpr);
         self.tpet.merge(&other.tpet);
+        self.magic |= other.magic;
+    }
+
+    /// Whether the spell rolled on the magic table (or ticked with a magic school): its
+    /// attempts split by the share of damage resisted.
+    pub fn is_magic(&self) -> bool {
+        self.magic
     }
 
     // --- Attempts ---
@@ -704,11 +722,23 @@ mod tests {
     #[test]
     fn ticks_count_as_hits() {
         let mut stats = SpellStatistics::new("Rend", 7);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, MagicResistResult::NoResist);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, MagicResistResult::NoResist);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
         assert_eq!(stats.hits(), 2);
+        assert!(!stats.is_magic());
         assert_eq!(stats.total_damage(), 74);
         assert!((stats.dpr().avg() - 25.9).abs() < 1e-9);
+    }
+
+    #[test]
+    fn magic_ticks_and_attacks_mark_the_spell_magic() {
+        let mut stats = SpellStatistics::new("Shadow Word: Pain", 1);
+        stats.record_tick(100, 100.0, 0.0, 0.0, Some(MagicResistResult::Partial50));
+        assert!(stats.is_magic());
+        assert_eq!(stats.partial_resists_50(), 1);
+        let mut merged = SpellStatistics::new("Shadow Word: Pain", 1);
+        merged.add(&stats);
+        assert!(merged.is_magic());
     }
 
     #[test]

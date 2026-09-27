@@ -1843,7 +1843,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 report.threat,
                 report.resource_cost,
                 report.execution_time,
-                report.resist,
+                report.magic.then_some(report.resist),
             );
         }
         if let Some((resource, amount)) = report.resource_gained {

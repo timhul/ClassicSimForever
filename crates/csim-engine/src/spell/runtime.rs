@@ -2020,6 +2020,7 @@ impl Spell {
         if report.damage == 0 || school == MagicSchool::Physical {
             return;
         }
+        report.magic = true;
         let pure_dot = !self
             .setup
             .record

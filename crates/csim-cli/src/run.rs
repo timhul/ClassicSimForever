@@ -19,7 +19,7 @@ use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
-use csim_engine::statistics::spell::Outcome;
+use csim_engine::statistics::spell::{Outcome, SpellStatistics};
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
@@ -411,7 +411,46 @@ pub struct SpellRow {
     pub parry: f64,
     pub block: f64,
     pub resist: f64,
+    /// A magic spell's attempts by the share of their damage resisted, 100 % (a miss or a full
+    /// resist) down to 0 %; empty for spells on the melee table.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub resisted: Vec<ResistRow>,
 }
+
+/// The attempts of a magic spell that had `resisted` percent of their damage resisted. The
+/// rates are shares of all the spell's attempts, so the rows of a spell add up to it.
+#[derive(Debug, Serialize)]
+pub struct ResistRow {
+    pub resisted: u32,
+    pub dps: f64,
+    pub damage_share: f64,
+    pub tps: f64,
+    pub casts: f64,
+    pub min_hit: Option<u32>,
+    pub max_hit: Option<u32>,
+    pub hit: f64,
+    pub crit: f64,
+    pub miss: f64,
+    pub resist: f64,
+}
+
+/// The outcomes of a magic spell by the percentage of the damage resisted.
+const RESIST_BUCKETS: [(u32, &[Outcome]); 5] = [
+    (100, &[Outcome::Miss, Outcome::FullResist]),
+    (
+        75,
+        &[Outcome::PartialResist75, Outcome::PartialResistCrit75],
+    ),
+    (
+        50,
+        &[Outcome::PartialResist50, Outcome::PartialResistCrit50],
+    ),
+    (
+        25,
+        &[Outcome::PartialResist25, Outcome::PartialResistCrit25],
+    ),
+    (0, &[Outcome::Hit, Outcome::Crit]),
+];
 
 #[derive(Debug, Serialize)]
 pub struct BuffRow {
@@ -689,26 +728,52 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             "Miss", "Dodge", "Parry", "Block", "Resist",
         ]);
         for spell in &self.spells {
-            table.row(vec![
-                spell.name.clone(),
-                format!("{:.1}", spell.dps),
-                percent(spell.damage_share),
-                format!("{:.1}", spell.tps),
-                format!("{:.1}", spell.casts),
-                spell.min_hit.map_or(String::new(), |min| min.to_string()),
-                spell.max_hit.map_or(String::new(), |max| max.to_string()),
-                spell
-                    .damage_per_resource
-                    .map_or(String::new(), |dpr| format!("{dpr:.1}")),
-                percent(spell.hit),
-                percent(spell.crit),
-                percent(spell.glance),
-                percent(spell.miss),
-                percent(spell.dodge),
-                percent(spell.parry),
-                percent(spell.block),
-                percent(spell.resist),
-            ]);
+            let resisted = spell
+                .resisted
+                .iter()
+                .map(|row| {
+                    let mut cells = vec![
+                        format!("{}% resisted", row.resisted),
+                        format!("{:.1}", row.dps),
+                        percent(row.damage_share),
+                        format!("{:.1}", row.tps),
+                        format!("{:.1}", row.casts),
+                        row.min_hit.map_or(String::new(), |min| min.to_string()),
+                        row.max_hit.map_or(String::new(), |max| max.to_string()),
+                        String::new(),
+                        percent(row.hit),
+                        percent(row.crit),
+                        String::new(),
+                        percent(row.miss),
+                    ];
+                    cells.resize(table.headers().len() - 1, String::new());
+                    cells.push(percent(row.resist));
+                    cells
+                })
+                .collect();
+            table.row_with_sub_rows(
+                vec![
+                    spell.name.clone(),
+                    format!("{:.1}", spell.dps),
+                    percent(spell.damage_share),
+                    format!("{:.1}", spell.tps),
+                    format!("{:.1}", spell.casts),
+                    spell.min_hit.map_or(String::new(), |min| min.to_string()),
+                    spell.max_hit.map_or(String::new(), |max| max.to_string()),
+                    spell
+                        .damage_per_resource
+                        .map_or(String::new(), |dpr| format!("{dpr:.1}")),
+                    percent(spell.hit),
+                    percent(spell.crit),
+                    percent(spell.glance),
+                    percent(spell.miss),
+                    percent(spell.dodge),
+                    percent(spell.parry),
+                    percent(spell.block),
+                    percent(spell.resist),
+                ],
+                resisted,
+            );
         }
         if let Some(sum) = &self.spell_total {
             let mut total = vec![
@@ -942,6 +1007,76 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
                     spell.full_blocks() + spell.partial_blocks() + spell.partial_block_crits(),
                 ),
                 resist: rate(spell.full_resists()),
+                resisted: if spell.is_magic() {
+                    resist_rows(spell, iterations, time, total_damage)
+                } else {
+                    Vec::new()
+                },
+            }
+        })
+        .collect()
+}
+
+fn resist_rows(
+    spell: &SpellStatistics,
+    iterations: u64,
+    time: f64,
+    total_damage: u64,
+) -> Vec<ResistRow> {
+    let attempts = spell.total_attempts();
+    let rate = |outcomes: &[Outcome]| {
+        per(
+            outcomes
+                .iter()
+                .map(|&outcome| spell.attempts(outcome))
+                .sum(),
+            attempts,
+        )
+    };
+    RESIST_BUCKETS
+        .into_iter()
+        .map(|(resisted, outcomes)| {
+            let count: u64 = outcomes.iter().map(|&o| spell.attempts(o)).sum();
+            let damage: u64 = outcomes.iter().map(|&o| spell.damage(o).total()).sum();
+            let threat: u64 = outcomes.iter().map(|&o| spell.threat(o).total()).sum();
+            let damaging = || {
+                outcomes
+                    .iter()
+                    .map(|&outcome| spell.damage(outcome))
+                    .filter(|tally| tally.max() > 0)
+            };
+            let (hits, crits): (Vec<_>, Vec<_>) = outcomes
+                .iter()
+                .copied()
+                .filter(|outcome| outcome.is_success())
+                .partition(|outcome| {
+                    !matches!(
+                        outcome,
+                        Outcome::Crit
+                            | Outcome::PartialResistCrit25
+                            | Outcome::PartialResistCrit50
+                            | Outcome::PartialResistCrit75
+                    )
+                });
+            let only = |outcome: Outcome| {
+                if outcomes.contains(&outcome) {
+                    rate(&[outcome])
+                } else {
+                    0.0
+                }
+            };
+            ResistRow {
+                resisted,
+                dps: damage as f64 / time,
+                damage_share: per(damage, total_damage),
+                tps: threat as f64 / time,
+                casts: per(count, iterations),
+                min_hit: damaging().map(|tally| tally.min()).min(),
+                max_hit: damaging().map(|tally| tally.max()).max(),
+                hit: rate(&hits),
+                crit: rate(&crits),
+                miss: only(Outcome::Miss),
+                resist: only(Outcome::FullResist),
             }
         })
         .collect()
