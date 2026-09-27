@@ -1129,6 +1129,7 @@ mod energy;
 mod rogue;
 mod rogue_poisons;
 mod rogue_procs;
+mod rogue_stealth;
 mod rogue_talents;
 
 // ---------------------------------------------------------------- external buffs

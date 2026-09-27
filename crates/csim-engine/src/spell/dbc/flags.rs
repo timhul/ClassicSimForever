@@ -54,6 +54,8 @@ dbc_flags! {
     /// Retail `SpellAttr1`, the `Attributes_1` word of `SpellMisc`. Only the bits the engine
     /// reads are named.
     SpellAttr1 {
+        /// Usable in Stealth without breaking it (Premeditation, Vanish, Cold Blood).
+        ALLOW_WHILE_STEALTHED = 0x0000_0020 => "ALLOW_WHILE_STEALTHED",
         /// Most of the cost is refunded when the attack is missed, dodged or parried (the
         /// single-target warrior attacks; not Whirlwind, Cleave or Thunder Clap).
         DISCOUNT_POWER_ON_MISS = 0x0800_0000 => "DISCOUNT_POWER_ON_MISS",

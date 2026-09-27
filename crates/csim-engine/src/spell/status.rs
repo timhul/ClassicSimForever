@@ -16,6 +16,9 @@ pub enum SpellStatus {
     InBearForm,
     InCatForm,
     InMoonkinForm,
+    InStealth,
+    /// The spell cannot be used in combat (`NOT_IN_COMBAT_ONLY_PEACEFUL`: Stealth).
+    InCombat,
     IncorrectWeaponType,
     InsufficientComboPoints,
     InsufficientResources,
@@ -34,7 +37,7 @@ pub enum SpellStatus {
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 22] = [
+    pub const ALL: [SpellStatus; 24] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -45,6 +48,8 @@ impl SpellStatus {
         SpellStatus::InBearForm,
         SpellStatus::InCatForm,
         SpellStatus::InMoonkinForm,
+        SpellStatus::InStealth,
+        SpellStatus::InCombat,
         SpellStatus::IncorrectWeaponType,
         SpellStatus::InsufficientComboPoints,
         SpellStatus::InsufficientResources,
@@ -73,6 +78,7 @@ impl SpellStatus {
             Stance::Bear => SpellStatus::InBearForm,
             Stance::Cat => SpellStatus::InCatForm,
             Stance::Moonkin => SpellStatus::InMoonkinForm,
+            Stance::Stealth => SpellStatus::InStealth,
         }
     }
 
@@ -86,6 +92,7 @@ impl SpellStatus {
             SpellStatus::InBearForm => Some(Stance::Bear),
             SpellStatus::InCatForm => Some(Stance::Cat),
             SpellStatus::InMoonkinForm => Some(Stance::Moonkin),
+            SpellStatus::InStealth => Some(Stance::Stealth),
             _ => None,
         }
     }
@@ -103,6 +110,8 @@ impl SpellStatus {
             SpellStatus::InBearForm => "FAIL: In Bear Form",
             SpellStatus::InCatForm => "FAIL: In Cat Form",
             SpellStatus::InMoonkinForm => "FAIL: In Moonkin Form",
+            SpellStatus::InStealth => "FAIL: In Stealth",
+            SpellStatus::InCombat => "FAIL: In combat",
             SpellStatus::IncorrectWeaponType => "FAIL: Incorrect weapon type",
             SpellStatus::InsufficientComboPoints => "FAIL: Insufficient combo points",
             SpellStatus::InsufficientResources => "FAIL: Insufficient resources",

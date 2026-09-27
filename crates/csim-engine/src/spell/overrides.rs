@@ -160,7 +160,9 @@ pub enum ScriptKind {
     EnableAura,
     /// Grants `params.value` combo points to the character.
     AddComboPoints,
-    /// Resets the cooldown of `params.spell` (no runtime yet).
+    /// Finishes the cooldown of `params.spell`, or of every spell of the spell's family in
+    /// `params.family_mask` (Preparation), when the spell is cast. As an event reaction (no
+    /// runtime yet) it names `params.spell`.
     ResetCooldown,
     /// Weapon-damage bonus `base_points` % with the weapon types the aura requires
     /// (Weaponmaster's per-weapon bonuses).
@@ -312,8 +314,11 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.resource.is_some(), "resource")
             }
+            ScriptKind::ResetCooldown => need(
+                p.spell.is_some() || p.family_mask.is_some(),
+                "spell or family_mask",
+            ),
             ScriptKind::ExtraAttack
-            | ScriptKind::ResetCooldown
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy
             | ScriptKind::EnableProc => need(p.spell.is_some(), "spell"),

@@ -478,6 +478,12 @@ impl EffectRecord {
             )
     }
 
+    /// Whether the effect lifts the form requirement of the spells in its class mask
+    /// (`MOD_IGNORE_SHAPESHIFT`: Cutthroat's Ambush without Stealth).
+    pub fn is_ignore_shapeshift(&self) -> bool {
+        self.is_apply_aura() && self.aura == AuraType::ModIgnoreShapeshift
+    }
+
     /// Whether the effect is a proc trigger (`PROC_TRIGGER_SPELL` family).
     pub fn is_proc_trigger(&self) -> bool {
         self.is_apply_aura()
@@ -756,6 +762,18 @@ impl SpellRecord {
     /// Most of the cost comes back when the attack is missed, dodged or parried.
     pub fn refunds_power_on_miss(&self) -> bool {
         self.attr1().contains(SpellAttr1::DISCOUNT_POWER_ON_MISS)
+    }
+
+    /// Usable in Stealth without breaking it (Premeditation, Vanish, Cold Blood); every other
+    /// spell the Rogue casts ends Stealth.
+    pub fn allowed_while_stealthed(&self) -> bool {
+        self.attr1().contains(SpellAttr1::ALLOW_WHILE_STEALTHED)
+    }
+
+    /// Only usable out of combat (Stealth, Charge).
+    pub fn only_out_of_combat(&self) -> bool {
+        self.attr0()
+            .contains(SpellAttr0::NOT_IN_COMBAT_ONLY_PEACEFUL)
     }
 
     /// Passive aura (talents, stance passives, proc auras).

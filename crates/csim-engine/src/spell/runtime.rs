@@ -152,6 +152,9 @@ pub trait SpellHost: EffectHost {
     /// Replaces the value of effect `index` of spell `spell` (`TRIGGER_WITH_VALUE`: Flurry's
     /// talent rank into its haste buff).
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64);
+    /// Finishes the cooldowns (own and category) of the character's spells whose record
+    /// `matches` (Preparation). The spell being cast is taken out and never matches.
+    fn reset_cooldowns(&mut self, _matches: &dyn Fn(&SpellRecord) -> bool) {}
 
     fn target_armor(&self) -> i32;
     /// Percent of the target's armor that attacks with the weapon in `hand` ignore
@@ -651,6 +654,11 @@ impl Spell {
     }
 
     /// The spell's game id (`SpellName.ID`).
+    /// The spell's own and category cooldowns.
+    pub fn cooldown_ids(&self) -> impl Iterator<Item = CooldownId> {
+        self.cooldown.into_iter().chain(self.category_cooldown)
+    }
+
     pub fn game_id(&self) -> u32 {
         self.setup.record.id
     }
@@ -1137,8 +1145,17 @@ impl Spell {
         if (self.triggers_gcd() || self.is_stance_spell()) && host.on_stance_cooldown() {
             return SpellStatus::OnStanceCooldown;
         }
-        if !host.stance().allowed_by_mask(record.shapeshift_mask) {
+        // An `IGNORE_SHAPESHIFT` aura lifts the form requirement of the spells it names
+        // (Cutthroat: the next Ambush without Stealth).
+        if !host.stance().allowed_by_mask(record.shapeshift_mask)
+            && !host
+                .spell_modifiers()
+                .ignores_shapeshift(record.class_options.as_ref())
+        {
             return SpellStatus::in_stance(host.stance());
+        }
+        if record.only_out_of_combat() && now >= 0.0 {
+            return SpellStatus::InCombat;
         }
         // A stance spell does nothing while in its stance (the C++ stance spells' own check).
         if self.stance().is_some_and(|stance| stance == host.stance()) {
@@ -1225,13 +1242,18 @@ impl Spell {
                 host.start_global_cooldown();
             }
         }
-        if self.is_stance_spell() {
+        if self.stance().is_some_and(Stance::has_swap_cooldown) {
             assert!(
                 !host.on_stance_cooldown(),
                 "Spell {} already on stance cooldown when starting another",
                 self.name()
             );
             host.start_stance_cooldown();
+        }
+
+        // Casting anything but the few spells allowed in Stealth ends it.
+        if host.stance() == Stance::Stealth && !self.setup.record.allowed_while_stealthed() {
+            host.swap_stance(Stance::Caster);
         }
 
         if self.has_cast_time() {
@@ -1518,6 +1540,10 @@ impl Spell {
             }
         }
 
+        if self.last_result != SpellResult::Failure {
+            self.reset_cooldowns(host);
+        }
+
         if host.offhand_copy_active(self.game_id()) {
             report.offhand = self.offhand_strike(host);
         }
@@ -1541,6 +1567,25 @@ impl Spell {
         );
         report.result = self.last_result;
         report
+    }
+
+    /// Finishes the cooldowns the spell's `RESET_COOLDOWN` scripts name: the spell `spell`, or
+    /// every spell of this spell's family in `family_mask` (Preparation: the other Rogue
+    /// abilities; the spell being cast is not among the host's spells).
+    fn reset_cooldowns(&self, host: &mut impl SpellHost) {
+        let set = self.setup.record.class_options.map_or(0, |c| c.set);
+        for script in &self.setup.overrides.effects {
+            if script.script != ScriptKind::ResetCooldown {
+                continue;
+            }
+            let (spell, mask) = (script.params.spell, script.params.family_mask);
+            host.reset_cooldowns(&|record: &SpellRecord| {
+                spell == Some(record.id)
+                    || mask.is_some_and(|mask| {
+                        record.class_options.is_some_and(|c| c.matches(set, &mask))
+                    })
+            });
+        }
     }
 
     /// The raw damage of the effects: summed, their weapon damage multipliers and the spell's

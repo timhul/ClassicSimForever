@@ -1451,6 +1451,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.sync_stance_passives();
         // Passives gated on a stance (Defiance in Defensive Stance) follow the change.
         self.reevaluate_passives();
+        // No auto attacks in Stealth (Vanish drops them); leaving it in combat resumes them.
+        if stance == Stance::Stealth {
+            self.character.spells_mut().stop_attack();
+        } else if old == Stance::Stealth && self.now() >= 0.0 {
+            self.start_attack();
+        }
     }
 
     /// Cancels a stance spell's buff (unless the spell is being performed right now).
@@ -1611,7 +1617,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 self.perform_extra_attacks();
             }
         }
-        self.start_attack();
+        // A Rogue in Stealth starts attacking with the opener that breaks it.
+        if self.character.stance() != Stance::Stealth {
+            self.start_attack();
+        }
         self.perform_rotation();
     }
 
@@ -2502,6 +2511,12 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         CharacterContext::swap_stance(self, stance);
     }
 
+    fn leave_stance(&mut self, stance: Stance) {
+        if self.character.stance() == stance {
+            CharacterContext::swap_stance(self, Stance::Caster);
+        }
+    }
+
     fn spell_modifiers(&self) -> &SpellModifiers {
         self.character.spell_modifiers()
     }
@@ -2838,6 +2853,23 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         });
         self.record_cast(id, &report, None);
         Some(report)
+    }
+
+    fn reset_cooldowns(&mut self, matches: &dyn Fn(&crate::spell::SpellRecord) -> bool) {
+        let spells = &self.character.spells;
+        let cooldowns: Vec<CooldownId> = spells
+            .spell_ids()
+            .map(|id| spells.spell(id))
+            .filter(|spell| matches(spell.record()))
+            .flat_map(Spell::cooldown_ids)
+            .collect();
+        for id in cooldowns {
+            self.character
+                .spells_mut()
+                .cooldowns_mut()
+                .get_mut(id)
+                .reset();
+        }
     }
 
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64) {

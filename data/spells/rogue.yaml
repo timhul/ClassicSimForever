@@ -5099,6 +5099,30 @@ spells:
     effect: APPLY_AURA
     aura: DUMMY
     implicit_target: [UNIT_CASTER, NONE]
+- id: 462707
+  name: Cutthroat
+  attributes: [327696, 0, 0, 1073741824, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  duration_ms: 10000
+  categories:
+    defense_type: MELEE
+  levels:
+    base: 1
+    spell: 1
+  aura_options:
+    proc_chance: 100
+    proc_charges: 1
+    proc_type_mask: 2446608
+  class_options:
+    set: 8
+  labels: [20]
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_IGNORE_SHAPESHIFT
+    base_points: 20.0
+    spell_class_mask: [512, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 462708
   name: Cutthroat
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]

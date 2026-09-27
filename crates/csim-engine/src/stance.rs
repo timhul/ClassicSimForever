@@ -22,10 +22,12 @@ pub enum Stance {
     Cat,
     #[serde(rename = "MOONKIN_FORM")]
     Moonkin,
+    #[serde(rename = "STEALTH")]
+    Stealth,
 }
 
 impl Stance {
-    pub const ALL: [Stance; 7] = [
+    pub const ALL: [Stance; 8] = [
         Stance::Caster,
         Stance::Battle,
         Stance::Defensive,
@@ -33,6 +35,7 @@ impl Stance {
         Stance::Bear,
         Stance::Cat,
         Stance::Moonkin,
+        Stance::Stealth,
     ];
 
     /// The stance a `MOD_SHAPESHIFT` aura's form id selects; `None` for forms no supported
@@ -46,6 +49,7 @@ impl Stance {
             ShapeshiftForm::BearForm | ShapeshiftForm::DireBearForm => Some(Stance::Bear),
             ShapeshiftForm::CatForm => Some(Stance::Cat),
             ShapeshiftForm::MoonkinForm => Some(Stance::Moonkin),
+            ShapeshiftForm::Stealth => Some(Stance::Stealth),
             _ => None,
         }
     }
@@ -60,6 +64,7 @@ impl Stance {
             Stance::Bear => ShapeshiftForm::BearForm,
             Stance::Cat => ShapeshiftForm::CatForm,
             Stance::Moonkin => ShapeshiftForm::MoonkinForm,
+            Stance::Stealth => ShapeshiftForm::Stealth,
         }
     }
 
@@ -78,7 +83,14 @@ impl Stance {
             Stance::Bear => "Bear Form",
             Stance::Cat => "Cat Form",
             Stance::Moonkin => "Moonkin Form",
+            Stance::Stealth => "Stealth",
         }
+    }
+
+    /// Whether entering the stance starts the stance cooldown (and its global cooldown lag).
+    /// Stealth is a form without one: the Rogue goes in and out of it without delay.
+    pub fn has_swap_cooldown(self) -> bool {
+        self != Stance::Stealth
     }
 }
 
@@ -116,5 +128,10 @@ mod tests {
         assert!(Stance::Berserker.allowed_by_mask(327680));
         assert!(!Stance::Defensive.allowed_by_mask(327680));
         assert!(!Stance::Caster.allowed_by_mask(65536), "form 0 has no bit");
+        assert!(
+            Stance::Stealth.allowed_by_mask(536870912),
+            "Ambush: Stealth (form 30)"
+        );
+        assert!(!Stance::Caster.allowed_by_mask(536870912));
     }
 }

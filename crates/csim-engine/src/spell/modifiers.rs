@@ -59,6 +59,9 @@ pub struct SpellModifiers {
     /// (`DAMAGE_PERCENT_BELOW_HEALTH`: Quietus below 35 %). The `op` is
     /// [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
     below_health: Vec<(SpellModifier, f64)>,
+    /// The spells that ignore their form requirement (`MOD_IGNORE_SHAPESHIFT`: Cutthroat lets
+    /// Ambush skip Stealth), as the aura's family and class mask.
+    ignore_shapeshift: Vec<(u32, [u32; 4])>,
 }
 
 impl SpellModifiers {
@@ -124,6 +127,28 @@ impl SpellModifiers {
             .filter(|(m, threshold)| health < *threshold && m.applies_to(class))
             .map(|(m, _)| 1.0 + m.amount / 100.0)
             .product()
+    }
+
+    /// Adds (`apply`) or removes a `MOD_IGNORE_SHAPESHIFT` aura's spells.
+    pub fn adjust_ignore_shapeshift(&mut self, set: u32, class_mask: [u32; 4], apply: bool) {
+        if apply {
+            self.ignore_shapeshift.push((set, class_mask));
+        } else if let Some(index) = self
+            .ignore_shapeshift
+            .iter()
+            .position(|entry| *entry == (set, class_mask))
+        {
+            self.ignore_shapeshift.remove(index);
+        }
+    }
+
+    /// Whether a spell with `class` options may be cast outside the forms it requires.
+    pub fn ignores_shapeshift(&self, class: Option<&ClassOptions>) -> bool {
+        class.is_some_and(|c| {
+            self.ignore_shapeshift
+                .iter()
+                .any(|(set, mask)| c.matches(*set, mask))
+        })
     }
 
     /// Removes one modifier equal to `modifier`; returns whether one was found.

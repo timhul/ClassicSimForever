@@ -84,6 +84,9 @@ pub trait EffectHost {
     fn increase_melee_attack_speed(&mut self, percent: u32);
     fn decrease_melee_attack_speed(&mut self, percent: u32);
     fn swap_stance(&mut self, stance: Stance);
+    /// The aura of form `stance` ended: back to caster form if the character is still in it
+    /// (Stealth broken), nothing if another form took over.
+    fn leave_stance(&mut self, _stance: Stance) {}
     /// The active spell modifiers (`ADD_FLAT_MODIFIER` / `ADD_PCT_MODIFIER` auras).
     fn spell_modifiers(&self) -> &SpellModifiers;
     fn spell_modifiers_mut(&mut self) -> &mut SpellModifiers;
@@ -567,6 +570,16 @@ impl Effect {
     ) -> EffectOutcome {
         use SpellEffectName as E;
         match self.record.effect {
+            // A direct effect that casts a spell the tables do not name (Vanish's `SANCTUARY`:
+            // the server puts the Rogue back in Stealth).
+            _ if !self.record.is_apply_aura()
+                && self.script_kind() == Some(ScriptKind::TriggerSpell) =>
+            {
+                EffectOutcome {
+                    trigger: self.script.and_then(|s| s.params.spell),
+                    ..EffectOutcome::plain(true)
+                }
+            }
             E::SchoolDamage => {
                 let outcome = self.roll_attack(host, extra_crit, self.can_crit);
                 if outcome.success {
@@ -1206,9 +1219,21 @@ impl Effect {
                 }
             }
             A::ModShapeshift => {
-                if apply && let Some(stance) = Stance::from_form(self.record.shapeshift_form()) {
-                    host.swap_stance(stance);
+                if let Some(stance) = Stance::from_form(self.record.shapeshift_form()) {
+                    if apply {
+                        host.swap_stance(stance);
+                    } else {
+                        host.leave_stance(stance);
+                    }
                 }
+            }
+            A::ModIgnoreShapeshift if !on_target => {
+                let set = self.class_options.map_or(0, |c| c.set);
+                host.spell_modifiers_mut().adjust_ignore_shapeshift(
+                    set,
+                    self.record.spell_class_mask,
+                    apply,
+                );
             }
             A::AddFlatModifier | A::AddPctModifier => {
                 let modifier = self.spell_modifier(value);

@@ -170,9 +170,9 @@ pub struct Buff {
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
-    /// The spell families and class masks of a charged spell modifier aura (Eureka!): a charge
-    /// is only used by an event of a spell the modifiers apply to (TrinityCore
-    /// `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
+    /// The spell families and class masks of a charged spell modifier aura (Eureka!) or
+    /// `MOD_IGNORE_SHAPESHIFT` aura (Cutthroat): a charge is only used by an event of a spell
+    /// the aura applies to (TrinityCore `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
     charge_spell_masks: Vec<(u32, [u32; 4])>,
     /// A spell modifier aura without charges that its `charge_sources` use up whole (Thousand
     /// Cuts: the next Backstab or Hemorrhage takes every stack).
@@ -285,7 +285,7 @@ impl Buff {
             buff.charge_spell_masks = record
                 .effects
                 .iter()
-                .filter(|e| e.is_spell_modifier())
+                .filter(|e| e.is_spell_modifier() || e.is_ignore_shapeshift())
                 .map(|e| (set, e.spell_class_mask))
                 .collect();
         }

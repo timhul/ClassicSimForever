@@ -467,7 +467,7 @@ overrides:
 | `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
 | `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of average weapon damage over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
 | `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
-| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189 |
+| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell` | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
@@ -476,7 +476,7 @@ overrides:
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
 | `ENABLE_AURA` | while the aura is up the character has the hidden aura `spell` the server applies (gated by its own weapon requirement), with its effect `effect` set to this effect's value (a talent's rank value follows rank changes) | `spell`, `effect` | Weaponmaster E0 → 12700 (axe/polearm crit), E1 → 12284 (mace/staff armor penetration) |
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 6 s, so another dodge or Bloodthrill proc only refreshes it) | `value` | Overpower `on_event` |
-| `RESET_COOLDOWN` | resets the cooldown of `spell` (no runtime yet) | `spell` | — |
+| `RESET_COOLDOWN` | when the spell is cast, finishes the cooldowns of `spell`, or of every spell of its family in `family_mask` (as an event reaction: no runtime yet) | `spell` or `family_mask` | Preparation 14185 (every Rogue spell) |
 | `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |

@@ -308,13 +308,13 @@ exporter (§1.10 of `SPELL_INSTRUCTIONS.md`).
 | Subtlety | 2 | Ghostly Strike (14278) | 1 | ability, stat aura | WEAPON_PERCENT_DAMAGE 125; MOD_DODGE_PERCENT 15; ENERGIZE 1; DUMMY 180 | ability (RG.3) |
 | Subtlety | 2 | Improved Distract (14084) | 2 | modifier | FLAT RADIUS 3/5 → Distract; FLAT EFFECT_2 -5/-10 → Distract | not simulated |
 | Subtlety | 3 | Heightened Senses (30894) | 2 | stat aura | MOD_ATTACKER_RANGED_HIT_CHANCE -2/-4; MOD_ATTACKER_SPELL_HIT_CHANCE -2/-4 misc 126 | not simulated |
-| Subtlety | 3 | Premeditation (14183) | 1 | ability, aura | ENERGIZE 2; aura 560 2; DUMMY 2 | ability (the opener is RG.6) |
+| Subtlety | 3 | Premeditation (14183) | 1 | ability, aura | ENERGIZE 2; aura 560 2; DUMMY 2 | ability (usable in Stealth before the opener) |
 | Subtlety | 3 | Serrated Blades (14171) | 3 | stat aura, modifier | MOD_ARMOR_PENETRATION_PCT 3/6/9; PCT DOT 10/20/30 → Rupture | tables |
 | Subtlety | 4 | Dirty Deeds (14082) | 2 | modifier | FLAT POWER_COST -10/-20 → Cheap Shot, Garrote | tables (cost; the position rule is moot behind the boss) |
-| Subtlety | 4 | Preparation (14185) | 1 | ability | DUMMY 0 | ability (`RESET_COOLDOWN` is RG.6) |
+| Subtlety | 4 | Preparation (14185) | 1 | ability | DUMMY 0 | ability (`RESET_COOLDOWN` of every Rogue spell) |
 | Subtlety | 4 | Hemorrhage (16511) ← Serrated Blades | 1 | ability, aura | NORMALIZED_WEAPON_DMG 0; ENERGIZE 1; MOD_SPELL_DAMAGE_FROM_CASTER 15; WEAPON_PERCENT_DAMAGE 100; DUMMY 145 | ability (RG.3) |
 | Subtlety | 5 | Quietus (1310728) ← Dirty Deeds | 5 | dummy | DUMMY 2/4/6/8/10; DUMMY 35 | `DAMAGE_PERCENT_BELOW_HEALTH` |
-| Subtlety | 5 | Cutthroat (462708) | 5 | proc(dummy) | DUMMY 3/6/9/12/15 | Stealth-free Ambush is RG.6 |
+| Subtlety | 5 | Cutthroat (462708) | 5 | proc(dummy) | DUMMY 3/6/9/12/15 | `TRIGGER_SPELL` 462707: a `MOD_IGNORE_SHAPESHIFT` charge for the next Ambush without Stealth |
 | Subtlety | 6 | Thousand Cuts (1310721) ← Preparation | 1 | proc | PROC 3 → 1310723 (Thousand Cuts) | proc: `family_mask` Rupture ticks; the discount is used up whole |
 
 ## 1.9 The exported file

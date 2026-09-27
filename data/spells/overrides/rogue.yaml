@@ -217,16 +217,28 @@ overrides:
     note: Remorseless Attacks (talent) needs a kill, nothing to simulate against one boss
     effects: [{ index: 0, script: NO_OP }]
   - id: 14183
-    note: Premeditation; E0 gives the combo points, E1 (aura 560, unknown) and the E2 DUMMY have nothing the sim models (the opener is RG.6)
+    note: Premeditation; E0 gives the combo points (usable in Stealth, before the opener), E1 (aura 560, unknown; the points are kept for 20 s) and the E2 DUMMY have nothing the sim models
     effects:
       - { index: 1, script: NO_OP }
       - { index: 2, script: NO_OP }
   - id: 14185
-    note: Preparation finishes the cooldown of the other Rogue abilities (RESET_COOLDOWN, RG.6)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Preparation finishes the cooldown of the other Rogue abilities (every spell of the Rogue family)
+    effects: [{ index: 0, script: RESET_COOLDOWN, params: { family_mask: [4294967295, 4294967295, 4294967295, 4294967295] } }]
   - id: 462708
-    note: Cutthroat (talent); the rank value is the chance a Backstab lets the next Ambush skip Stealth (RG.6)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Cutthroat (talent); the rank value (3-15 %) is the chance a landed Backstab gives 462707, whose MOD_IGNORE_SHAPESHIFT charge lets the next Ambush within 10 s skip Stealth
+    proc: { chance_effect: 0, family_mask: [4, 0, 0, 0] }
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 462707 } }]
+
+  # ----- Stealth ------------------------------------------------------------------------------
+  # Stealth is form 30 (MOD_SHAPESHIFT); every cast without ALLOW_WHILE_STEALTHED (Attributes_1
+  # 0x20) ends it. Vanish's own aura (11327 / 11329) is only MOD_STEALTH: the server puts the
+  # Rogue back in Stealth, which the SANCTUARY effect casts here (the highest rank, level 60).
+  - id: 1856
+    note: Vanish r1; E2 (SANCTUARY) stands for the server's cast of Stealth
+    effects: [{ index: 2, script: TRIGGER_SPELL, params: { spell: 1787 } }]
+  - id: 1857
+    note: Vanish r2, see r1
+    effects: [{ index: 2, script: TRIGGER_SPELL, params: { spell: 1787 } }]
 
   # ----- Not simulated ------------------------------------------------------------------------
   - id: 408
