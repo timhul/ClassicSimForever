@@ -28,6 +28,7 @@
 //!   level: 63
 //!   armor: 3731
 //!   creature_type: Dragonkin
+//!   resistances: { fire: 93, shadow: 186 }  # default none
 //! ```
 //!
 //! `include` (a path relative to the file, or a list of them) reads other setup files, which
@@ -64,6 +65,7 @@ use crate::enchant::EnchantName;
 use crate::faction::{Faction, PlayerClass};
 use crate::ids::CharId;
 use crate::item::EquipmentSlot;
+use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::phase::Phase;
 use crate::race::Race;
@@ -134,6 +136,39 @@ pub struct TargetSetup {
     /// Damage a blocked attack loses.
     #[serde(default)]
     pub block_value: u32,
+    /// Resistance to each magic school, before debuffs.
+    #[serde(default, skip_serializing_if = "SchoolResistances::is_none")]
+    pub resistances: SchoolResistances,
+}
+
+/// A target's resistance to each magic school (none by default, like most raid bosses).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct SchoolResistances {
+    pub arcane: i32,
+    pub fire: i32,
+    pub frost: i32,
+    pub nature: i32,
+    pub shadow: i32,
+    pub holy: i32,
+}
+
+impl SchoolResistances {
+    fn is_none(&self) -> bool {
+        *self == SchoolResistances::default()
+    }
+
+    /// Each magic school with its resistance.
+    pub fn by_school(&self) -> [(MagicSchool, i32); 6] {
+        [
+            (MagicSchool::Arcane, self.arcane),
+            (MagicSchool::Fire, self.fire),
+            (MagicSchool::Frost, self.frost),
+            (MagicSchool::Nature, self.nature),
+            (MagicSchool::Shadow, self.shadow),
+            (MagicSchool::Holy, self.holy),
+        ]
+    }
 }
 
 fn default_target_level() -> u32 {
@@ -156,6 +191,7 @@ impl Default for TargetSetup {
             armor: default_target_armor(),
             creature_type: default_creature_type(),
             block_value: 0,
+            resistances: SchoolResistances::default(),
         }
     }
 }
@@ -166,6 +202,9 @@ impl TargetSetup {
         target.set_base_armor(self.armor);
         target.set_creature_type(self.creature_type);
         target.set_block_value(self.block_value);
+        for (school, resistance) in self.resistances.by_school() {
+            target.set_resistance(school, resistance);
+        }
         target
     }
 }

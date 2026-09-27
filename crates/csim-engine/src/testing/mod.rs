@@ -12,6 +12,8 @@ pub(crate) mod warrior;
 #[cfg(test)]
 mod equipment_tests;
 #[cfg(test)]
+mod magic_table_tests;
+#[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod warrior_tests;

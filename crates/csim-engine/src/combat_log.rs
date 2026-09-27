@@ -68,6 +68,9 @@ pub enum MissType {
     Dodge,
     Parry,
     Block,
+    /// A spell that missed on the magic table or that the target's resistance resisted
+    /// fully: the client logs both as resisted.
+    Resist,
 }
 
 /// The damage of one hit.
@@ -75,6 +78,8 @@ pub enum MissType {
 pub struct Damage {
     /// Damage dealt.
     pub amount: u32,
+    /// The damage a partial resist took away (not in `amount`).
+    pub resisted: u32,
     pub critical: bool,
     pub glancing: bool,
 }
@@ -359,6 +364,7 @@ impl MissType {
             MissType::Dodge => "DODGE",
             MissType::Parry => "PARRY",
             MissType::Block => "BLOCK",
+            MissType::Resist => "RESIST",
         }
     }
 }
@@ -422,8 +428,10 @@ fn push_info(line: &mut String, unit: LogUnit, info: &UnitInfo) {
 fn push_damage(line: &mut String, damage: &Damage, school: u32) {
     let _ = write!(
         line,
-        ",{0},{0},-1,{school},0,0,0,{1},{2},nil",
+        ",{},{},-1,{school},{},0,0,{},{},nil",
         damage.amount,
+        damage.amount + damage.resisted,
+        damage.resisted,
         flag(damage.critical),
         flag(damage.glancing)
     );
@@ -594,6 +602,7 @@ mod render_tests {
             hand: Hand::Mainhand,
             damage: Damage {
                 amount: 512,
+                resisted: 0,
                 critical: true,
                 glancing: false,
             },
@@ -641,6 +650,7 @@ mod render_tests {
             spell: bloodthirst(),
             damage: Damage {
                 amount: 700,
+                resisted: 0,
                 critical: false,
                 glancing: false,
             },
@@ -675,6 +685,45 @@ mod render_tests {
             "1/1 12:00:04.000  SPELL_PERIODIC_DAMAGE,{HEAD},1,\"Burn\",0x4,"
         )));
         assert!(line.ends_with(",63,30,30,-1,4,0,0,0,nil,nil,nil"), "{line}");
+    }
+
+    #[test]
+    fn a_partial_resist_logs_the_resisted_damage() {
+        let event = CombatLogEvent::SpellPeriodicDamage {
+            spell: LogSpell {
+                id: 1,
+                name: "Burn".into(),
+                school: 4,
+            },
+            damage: Damage {
+                amount: 30,
+                resisted: 10,
+                ..Damage::default()
+            },
+            info: target(),
+        };
+        let line = line(4.0, ME, LogUnit::Target, event);
+        assert!(
+            line.ends_with(",63,30,40,-1,4,10,0,0,nil,nil,nil"),
+            "{line}"
+        );
+    }
+
+    #[test]
+    fn a_resisted_spell() {
+        let event = CombatLogEvent::SpellMissed {
+            spell: LogSpell {
+                id: 1,
+                name: "Burn".into(),
+                school: 4,
+            },
+            miss: MissType::Resist,
+            offhand: false,
+        };
+        assert_eq!(
+            line(3.0, ME, LogUnit::Target, event),
+            format!("1/1 12:00:03.000  SPELL_MISSED,{HEAD},1,\"Burn\",0x4,RESIST,nil")
+        );
     }
 
     #[test]

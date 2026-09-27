@@ -175,20 +175,15 @@ impl Target {
     /// Maximum number of debuffs on a target.
     pub const DEBUFF_LIMIT: usize = 16;
 
-    /// Default resistance of a raid boss to the resistable schools.
-    pub const DEFAULT_RESISTANCE: i32 = 70;
-
-    /// A raid boss of `level`: base armor 3750, 70 resistance to all but holy, Dragonkin.
+    /// A raid boss of `level`: base armor 3750, no resistances, Dragonkin. Most raid bosses have
+    /// no resistance of their own (royalgiraffe's resist guide, "Resistance scores of Vanilla
+    /// raid bosses"); the level-based resistance against non-binary spells is the magic
+    /// table's. The C++ target had 70 to all but holy.
     pub fn new(level: u32) -> Self {
         let mut stats = Stats::new();
         stats.increase_armor(Mechanics::BOSS_BASE_ARMOR);
 
-        let mut resistances = [0; MagicSchool::ALL.len()];
-        for school in MagicSchool::MAGIC {
-            if school != MagicSchool::Holy {
-                resistances[school as usize] = Self::DEFAULT_RESISTANCE;
-            }
-        }
+        let resistances = [0; MagicSchool::ALL.len()];
 
         Self {
             level,
@@ -294,6 +289,11 @@ impl Target {
     /// Resistance to `school`, never negative.
     pub fn resistance(&self, school: MagicSchool) -> i32 {
         self.resistances[school as usize].max(0)
+    }
+
+    /// Sets the base resistance to `school` (the target setup's).
+    pub fn set_resistance(&mut self, school: MagicSchool, value: i32) {
+        self.resistances[school as usize] = value;
     }
 
     pub fn increase_resistance(&mut self, school: MagicSchool, value: i32) {
@@ -592,17 +592,9 @@ mod tests {
         assert_eq!(target.armor(), Mechanics::BOSS_BASE_ARMOR);
         assert_eq!(target.defense(), 300);
         assert_eq!(target.creature_type(), CreatureType::Dragonkin);
-        for school in [
-            MagicSchool::Arcane,
-            MagicSchool::Fire,
-            MagicSchool::Frost,
-            MagicSchool::Nature,
-            MagicSchool::Shadow,
-        ] {
-            assert_eq!(target.resistance(school), 70);
+        for school in MagicSchool::ALL {
+            assert_eq!(target.resistance(school), 0);
         }
-        assert_eq!(target.resistance(MagicSchool::Holy), 0);
-        assert_eq!(target.resistance(MagicSchool::Physical), 0);
         assert_eq!(target.debuff_count(), 0);
     }
 
@@ -682,6 +674,7 @@ mod tests {
     #[test]
     fn resistances_never_negative() {
         let mut target = Target::new(60);
+        target.set_resistance(MagicSchool::Fire, 70);
         target.decrease_resistance(MagicSchool::Fire, 100);
         assert_eq!(target.resistance(MagicSchool::Fire), 0);
         target.increase_resistance(MagicSchool::Fire, 50);
@@ -810,6 +803,7 @@ mod tests {
             .stats_mut()
             .increase_spell_crit_for_school(MagicSchool::Fire, 200);
         target.increase_magic_school_damage_mod(15, MagicSchool::Frost);
+        target.set_resistance(MagicSchool::Shadow, 70);
         target.decrease_resistance(MagicSchool::Arcane, 100);
 
         let view = target.stat_view();

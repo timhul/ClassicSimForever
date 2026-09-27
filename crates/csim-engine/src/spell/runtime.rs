@@ -22,11 +22,12 @@
 use std::sync::Arc;
 
 use crate::buff::{Buff, BuffApplication};
-use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
+use crate::combat_roll::{IncludedOutcomes, MagicResistResult, PhysicalAttackResult, SpellRoll};
 use crate::cooldown::{CooldownControl, add_gcd_event};
 use crate::effect::{ChainState, Dependency, Effect, EffectHost};
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
+use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::proc::ProcSource;
 use crate::resource::ResourceType;
@@ -168,6 +169,16 @@ pub trait SpellHost: EffectHost {
     fn total_physical_damage_mod(&self) -> f64;
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
+    /// The damage multiplier of a spell crit (1.5 before talents).
+    fn spell_crit_dmg_mod(&self) -> f64 {
+        1.5
+    }
+    /// Rolls the partial resist of a periodic damage tick of `school` (see
+    /// [`CombatRoll::get_periodic_resist_result`](crate::combat_roll::CombatRoll::get_periodic_resist_result)).
+    /// A host without a magic table resists nothing.
+    fn roll_periodic_resist(&mut self, _school: MagicSchool, _pure_dot: bool) -> MagicResistResult {
+        MagicResistResult::NoResist
+    }
     fn total_threat_mod(&self) -> f64;
     /// Average base mainhand damage, without attack power (Deep Wounds bleeds for a share of it).
     fn avg_mh_weapon_damage(&self) -> f64;
@@ -195,13 +206,37 @@ pub trait SpellHost: EffectHost {
 /// The attack outcome of one cast, for the spell statistics.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AttackOutcome {
+    /// The result on the melee table, or the meaning of the magic table's result (miss, hit,
+    /// crit; a binary spell's full resist is a miss).
     pub result: PhysicalAttackResult,
-    /// Final damage after modifiers and armor (0 for avoided attacks).
+    /// The roll on the magic table, when the spell rolled on it.
+    pub spell: Option<SpellAttack>,
+    /// Final damage after modifiers, armor and resistance (0 for avoided attacks).
     pub damage: u32,
     /// Threat generated, including innate threat.
     pub threat: f64,
     /// Seconds the cast occupied (the global cooldown for GCD spells).
     pub execution_time: f64,
+}
+
+/// A spell's roll on the magic table and the damage its partial resist took away.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SpellAttack {
+    pub roll: SpellRoll,
+    pub resisted: u32,
+}
+
+impl AttackOutcome {
+    /// The outcome of a spell that failed its roll on the magic table.
+    fn spell_failed(roll: SpellRoll, execution_time: f64) -> Self {
+        AttackOutcome {
+            result: PhysicalAttackResult::Miss,
+            spell: Some(SpellAttack { roll, resisted: 0 }),
+            damage: 0,
+            threat: 0.0,
+            execution_time,
+        }
+    }
 }
 
 /// The off-hand strike of a cast (Whirlwind with Raging Blows): its own attack and its own proc
@@ -469,8 +504,9 @@ impl Spell {
             record.id
         );
         let cannot_crit = setup.has_sim_flag(SimFlag::CannotCrit);
-        // The direct effects, plus the debuff auras of a melee spell (Rend, Sunder Armor), which
-        // must land their roll before the buff carrying them is applied.
+        // The direct effects, plus the debuff auras of a melee spell (Rend, Sunder Armor) and the
+        // damage-over-time auras of a spell on the magic table (Deadly Poison), which must land
+        // their roll before the buff carrying them is applied.
         let mut effects: Vec<Effect> = record
             .effects
             .iter()
@@ -482,7 +518,7 @@ impl Spell {
                     cannot_crit,
                 )
             })
-            .filter(|e| !e.is_aura() || e.is_melee_debuff())
+            .filter(|e| !e.is_aura() || e.is_melee_debuff() || e.is_spell_damage_debuff())
             .collect();
         // The effect that rolls the attack goes first, so the others (a combo point) follow its
         // result: Mutilate's combo points come after its strikes land.
@@ -870,7 +906,15 @@ impl Spell {
     /// Multiplier on the crit damage bonus from `CRIT_DAMAGE_AND_HEALING` modifiers (Impale):
     /// the bonus part of the crit multiplier grows by the percentage.
     pub fn crit_damage_mod(&self, host: &impl SpellHost) -> f64 {
-        let base = host.melee_ability_crit_dmg_mod();
+        self.crit_multiplier(host, host.melee_ability_crit_dmg_mod())
+    }
+
+    /// [`Spell::crit_damage_mod`] of a crit on the magic table (a poison's).
+    pub fn spell_crit_damage_mod(&self, host: &impl SpellHost) -> f64 {
+        self.crit_multiplier(host, host.spell_crit_dmg_mod())
+    }
+
+    fn crit_multiplier(&self, host: &impl SpellHost, base: f64) -> f64 {
         let bonus = host.spell_modifiers().pct(
             self.setup.record.class_options.as_ref(),
             SpellModOp::CritDamageAndHealing,
@@ -1341,6 +1385,7 @@ impl Spell {
         };
 
         let mut first_roll = None;
+        let mut first_spell = None;
         let mut innate_threat = self.threat_override().flat;
         let mut triggers = Vec::new();
         let mut consumes_all = false;
@@ -1352,6 +1397,7 @@ impl Spell {
             let mut chain = ChainState {
                 result: SpellResult::Undetermined,
                 previous: None,
+                previous_spell: None,
                 resource_cost: cost,
                 extra_crit: self.crit_chance_bonus(host),
                 hit_guaranteed: self.strike.is_some(),
@@ -1363,6 +1409,8 @@ impl Spell {
                 if position == 0 {
                     first_roll = effect.last_result;
                     chain.previous = first_roll;
+                    first_spell = effect.last_spell;
+                    chain.previous_spell = first_spell;
                 }
                 chain.result = chain.result.merge(outcome.success);
                 if let Some(rolled) = outcome.rolled {
@@ -1430,10 +1478,13 @@ impl Spell {
             if let Some(result) = first_roll {
                 report.attack = Some(AttackOutcome {
                     result,
+                    spell: None,
                     damage: 0,
                     threat: 0.0,
                     execution_time: self.execution_time(host),
                 });
+            } else if let Some(roll) = first_spell {
+                report.attack = Some(AttackOutcome::spell_failed(roll, self.execution_time(host)));
             }
         } else {
             let lost = if consumes_all {
@@ -1450,8 +1501,12 @@ impl Spell {
                 host.spend_combo_points();
                 report.combo_points_spent = combo_points;
             }
-            report.attack =
-                self.collect_damage(host, first_roll, innate_threat, &mut report.proc_sources);
+            report.attack = match first_spell {
+                Some(roll) => self.collect_spell_damage(host, roll, innate_threat),
+                None => {
+                    self.collect_damage(host, first_roll, innate_threat, &mut report.proc_sources)
+                }
+            };
         }
 
         if self.last_result != SpellResult::Failure {
@@ -1488,6 +1543,57 @@ impl Spell {
         report
     }
 
+    /// The raw damage of the effects: summed, their weapon damage multipliers and the spell's
+    /// damage modifiers applied. The effects' damage is zeroed.
+    fn take_raw_damage(&mut self, host: &impl SpellHost) -> f64 {
+        let mut raw_damage = 0.0;
+        let mut weapon_damage_multiplier = 1.0;
+        for effect in &mut self.effects {
+            raw_damage += effect.damage_dealt;
+            effect.damage_dealt = 0.0;
+            if let Some(multiplier) = effect.weapon_damage_multiplier(host) {
+                weapon_damage_multiplier *= multiplier;
+            }
+        }
+        raw_damage * weapon_damage_multiplier * self.damage_mod(host)
+    }
+
+    /// The attack outcome of a spell that landed on the magic table: its damage with the spell
+    /// crit multiplier, less its partial resist. A spell on the magic table is no melee attack:
+    /// it adds no proc sources of its own. A landed damage-over-time without direct damage
+    /// reports nothing (its ticks do).
+    fn collect_spell_damage(
+        &mut self,
+        host: &mut impl SpellHost,
+        roll: SpellRoll,
+        innate_threat: f64,
+    ) -> Option<AttackOutcome> {
+        let raw_damage = self.take_raw_damage(host);
+        if raw_damage <= 0.0 && innate_threat == 0.0 {
+            return None;
+        }
+        let mut damage = self.damage_after_modifiers(host, raw_damage, Hand::Mainhand);
+        if roll.is_critical() {
+            damage *= self.spell_crit_damage_mod(host);
+        }
+        let full = damage.round().max(0.0);
+        let resisted = (full * (1.0 - roll.resist.damage_modifier())).round();
+        let damage = (full - resisted) as u32;
+        let threat = (f64::from(damage) + innate_threat)
+            * host.total_threat_mod()
+            * self.threat_override().modifier;
+        Some(AttackOutcome {
+            result: roll.result.as_physical(),
+            spell: Some(SpellAttack {
+                roll,
+                resisted: resisted as u32,
+            }),
+            damage,
+            threat,
+            execution_time: self.execution_time(host),
+        })
+    }
+
     /// Sums the damage of the effects, applies crit / modifiers / armor and produces the attack
     /// outcome. Port of the damage aggregation at the end of `Spell::spell_effect`, going through
     /// `damage_after_modifiers` like the hardcoded C++ spells did.
@@ -1498,16 +1604,7 @@ impl Spell {
         innate_threat: f64,
         proc_sources: &mut Vec<ProcSource>,
     ) -> Option<AttackOutcome> {
-        let mut raw_damage = 0.0;
-        let mut weapon_damage_multiplier = 1.0;
-        for effect in &mut self.effects {
-            raw_damage += effect.damage_dealt;
-            effect.damage_dealt = 0.0;
-            if let Some(multiplier) = effect.weapon_damage_multiplier(&*host) {
-                weapon_damage_multiplier *= multiplier;
-            }
-        }
-        raw_damage *= weapon_damage_multiplier * self.damage_mod(host);
+        let raw_damage = self.take_raw_damage(host);
         // A spell without a roll (Sunder Armor's threat, a pure buff) reports an outcome only
         // when it did something worth counting.
         let did_something = raw_damage > 0.0 || innate_threat != 0.0;
@@ -1527,6 +1624,7 @@ impl Spell {
             | PhysicalAttackResult::Parry => {
                 return Some(AttackOutcome {
                     result,
+                    spell: None,
                     damage: 0,
                     threat: 0.0,
                     execution_time: self.execution_time(host),
@@ -1570,6 +1668,7 @@ impl Spell {
             * self.threat_override().modifier;
         Some(AttackOutcome {
             result,
+            spell: None,
             damage,
             threat,
             execution_time: self.execution_time(host),
@@ -1613,6 +1712,7 @@ impl Spell {
             proc_sources.push(source);
             let attack = AttackOutcome {
                 result,
+                spell: None,
                 damage: 0,
                 threat: 0.0,
                 execution_time: 0.0,
@@ -1663,6 +1763,7 @@ impl Spell {
         Some(OffhandStrike {
             attack: AttackOutcome {
                 result,
+                spell: None,
                 damage,
                 threat,
                 execution_time: 0.0,
@@ -1775,8 +1876,9 @@ impl Spell {
 
     /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
     /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
-    /// it is, resistances and magic damage modifiers not being ported. `hand` is the weapon
-    /// the spell strikes with, whose armor penetration applies.
+    /// it is, magic damage modifiers not being ported (its resistance is the magic table's
+    /// partial resist, [`Spell::collect_spell_damage`]). `hand` is the weapon the spell strikes
+    /// with, whose armor penetration applies.
     pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64, hand: Hand) -> f64 {
         let school = self.setup.record.school_mask;
         if !school.is_empty() && !school.is_physical() {
@@ -1893,7 +1995,7 @@ impl Spell {
         // weapon damage) is taken before any of them.
         let damage_mod = self.periodic_damage_mod(host) * self.school_damage_mod(host);
         let cost = self.resource_cost(host);
-        let report = self.periodic.as_mut()?.tick(
+        let mut report = self.periodic.as_mut()?.tick(
             application_id,
             id,
             host,
@@ -1903,10 +2005,37 @@ impl Spell {
             damage_mod,
             cost,
         )?;
+        self.resist_tick(host, &mut report);
         if let Some(trigger) = report.trigger {
             host.trigger_spell(trigger, None);
         }
         Some(report)
+    }
+
+    /// Rolls the partial resist of a damage tick of a magic school (royalgiraffe: each tick of
+    /// a non-binary damage-over-time rolls its own; one without direct damage against a tenth
+    /// of the resistance).
+    fn resist_tick(&self, host: &mut impl SpellHost, report: &mut TickReport) {
+        let school = MagicSchool::from_school_mask(self.setup.record.school_mask);
+        if report.damage == 0 || school == MagicSchool::Physical {
+            return;
+        }
+        let pure_dot = !self
+            .setup
+            .record
+            .effects
+            .iter()
+            .any(|e| e.effect == SpellEffectName::SchoolDamage);
+        let resist = host.roll_periodic_resist(school, pure_dot);
+        if resist == MagicResistResult::NoResist {
+            return;
+        }
+        let full = report.damage;
+        let resisted = (f64::from(full) * (1.0 - resist.damage_modifier())).round() as u32;
+        report.damage = full - resisted;
+        report.threat *= f64::from(report.damage) / f64::from(full);
+        report.resist = resist;
+        report.resisted = resisted;
     }
 
     // --- Talent rank values ---

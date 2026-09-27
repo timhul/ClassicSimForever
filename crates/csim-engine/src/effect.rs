@@ -13,8 +13,9 @@
 //! ([`EffectOutcome`]), and there is no spell-specific code: what a `DUMMY` does is decided by
 //! the [`ScriptKind`] the data names.
 
-use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
+use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult, SpellResistKind, SpellRoll};
 use crate::item::{ItemStat, WeaponType};
+use crate::magic_school::MagicSchool;
 use crate::resource::ResourceType;
 use crate::spell::SpellResult;
 use crate::spell::dbc::{
@@ -62,6 +63,19 @@ pub trait EffectHost {
         extra_crit: u32,
         can_crit: bool,
     ) -> PhysicalAttackResult;
+    /// Rolls a spell of `school` on the magic table (the spell hit and the target's resistance),
+    /// with `extra_crit` (hundredths of a percent) added to the character's spell crit chance
+    /// for the school, or no crit chance at all when `can_crit` is false. A host without a
+    /// magic table lands every spell.
+    fn roll_spell(
+        &mut self,
+        _school: MagicSchool,
+        _kind: SpellResistKind,
+        _extra_crit: u32,
+        _can_crit: bool,
+    ) -> SpellRoll {
+        SpellRoll::HIT
+    }
 
     fn stats_mut(&mut self) -> &mut CharacterStats;
     fn target_mut(&mut self) -> &mut Target;
@@ -128,6 +142,8 @@ pub struct ChainState {
     pub result: SpellResult,
     /// The first effect's roll, reused by dependent effects.
     pub previous: Option<PhysicalAttackResult>,
+    /// The first effect's roll on the magic table, reused by dependent effects.
+    pub previous_spell: Option<SpellRoll>,
     /// The spell's resource cost in displayed units (Execute converts the rage above it).
     pub resource_cost: u32,
     /// Crit chance added by modifiers, hundredths of a percent.
@@ -145,6 +161,8 @@ pub struct EffectOutcome {
     /// The attack table result if this effect made a fresh roll (`None` when it was skipped,
     /// reused the previous result or needs no roll).
     pub rolled: Option<PhysicalAttackResult>,
+    /// The magic table result if this effect made a fresh roll on it.
+    pub spell_roll: Option<SpellRoll>,
     /// Resource gained by the effect, for the resource statistics.
     pub resource_gained: Option<(ResourceType, u32)>,
     /// A spell to cast now (`TRIGGER_SPELL`).
@@ -162,6 +180,7 @@ impl EffectOutcome {
     const SKIPPED: EffectOutcome = EffectOutcome {
         success: false,
         rolled: None,
+        spell_roll: None,
         resource_gained: None,
         trigger: None,
         threat: 0.0,
@@ -183,6 +202,35 @@ impl EffectOutcome {
             ..EffectOutcome::SKIPPED
         }
     }
+
+    /// A roll on the magic table: `fresh` when the effect made it, not when it reused the
+    /// chain's.
+    fn spell(roll: SpellRoll, fresh: bool) -> Self {
+        EffectOutcome {
+            success: roll.landed(),
+            spell_roll: fresh.then_some(roll),
+            ..EffectOutcome::SKIPPED
+        }
+    }
+}
+
+/// Royalgiraffe's classification of a spell on the magic table: non-binary when it only deals
+/// damage (direct or periodic; dummies and empty effects aside), binary when it does anything
+/// else too (a slow, a debuff, a drain), which makes it land fully or not at all.
+pub fn spell_resist_kind(spell: &SpellRecord) -> SpellResistKind {
+    let only_damage = spell.effects.iter().all(|effect| match effect.effect {
+        SpellEffectName::SchoolDamage | SpellEffectName::Dummy | SpellEffectName::None => true,
+        _ if effect.is_apply_aura() => matches!(
+            effect.aura,
+            AuraType::PeriodicDamage | AuraType::Dummy | AuraType::None
+        ),
+        _ => false,
+    });
+    if only_damage {
+        SpellResistKind::NonBinary
+    } else {
+        SpellResistKind::Binary
+    }
 }
 
 /// One runtime effect of a spell or of its buff. Port of `Effect`.
@@ -198,6 +246,10 @@ pub struct Effect {
     equipped_items: Option<EquippedItems>,
     levels: Levels,
     defense: DefenseType,
+    /// The spell's school, for the magic table and its resistance.
+    school: MagicSchool,
+    /// How the target's resistance applies to the spell on the magic table.
+    resist_kind: SpellResistKind,
     /// The current base points: the table value, or the talent rank value.
     value: f64,
     /// The table value.
@@ -220,6 +272,8 @@ pub struct Effect {
     scales_weapon_damage: bool,
     /// Result of the last hit check (own roll or inherited).
     pub last_result: Option<PhysicalAttackResult>,
+    /// Result of the last roll on the magic table (own roll or inherited).
+    pub last_spell: Option<SpellRoll>,
     /// Damage produced by the last perform; the spell collects and zeroes it.
     pub damage_dealt: f64,
     reroll_result: bool,
@@ -270,6 +324,8 @@ impl Effect {
             equipped_items: spell.equipped_items,
             levels: spell.levels,
             defense: spell.categories.defense_type,
+            school: MagicSchool::from_school_mask(spell.school_mask),
+            resist_kind: spell_resist_kind(spell),
             dependency,
             included: IncludedOutcomes {
                 dodge: !no_active_defense,
@@ -280,6 +336,7 @@ impl Effect {
             can_crit: !cannot_crit,
             scales_weapon_damage,
             last_result: None,
+            last_spell: None,
             damage_dealt: 0.0,
             reroll_result: true,
             hit_guaranteed: false,
@@ -471,6 +528,7 @@ impl Effect {
                 }
                 self.reroll_result = false;
                 self.last_result = chain.previous;
+                self.last_spell = chain.previous_spell;
             }
             Dependency::PartialSuccess => {
                 if chain.result == SpellResult::Failure {
@@ -478,6 +536,7 @@ impl Effect {
                 }
                 self.reroll_result = false;
                 self.last_result = chain.previous;
+                self.last_spell = chain.previous_spell;
             }
         }
         self.hit_guaranteed = chain.hit_guaranteed;
@@ -509,21 +568,26 @@ impl Effect {
         use SpellEffectName as E;
         match self.record.effect {
             E::SchoolDamage => {
-                let (hit, rolled) = self.roll_if_melee(host, extra_crit);
-                if hit {
+                let outcome = self.roll_attack(host, extra_crit, self.can_crit);
+                if outcome.success {
                     self.damage_dealt = self.direct_damage(host);
                 }
-                EffectOutcome::rolled(hit, rolled)
+                outcome
             }
             // Damage of `value` % of the caster's maximum health (Touch of the Grave); the
             // healing is not modelled.
+            // It stays off the magic table for now (Touch of the Grave's drain always lands).
             E::HealthLeech => {
-                let (hit, rolled) = self.roll_if_melee(host, extra_crit);
-                if hit {
+                let outcome = if self.defense == DefenseType::Melee {
+                    self.roll_attack(host, extra_crit, self.can_crit)
+                } else {
+                    EffectOutcome::plain(true)
+                };
+                if outcome.success {
                     self.damage_dealt =
                         f64::from(host.max_health()) * self.effective_value(host) / 100.0;
                 }
-                EffectOutcome::rolled(hit, rolled)
+                outcome
             }
             E::WeaponDamageNoschool | E::WeaponDamage => {
                 let (hit, rolled) = self.roll_melee(host, extra_crit);
@@ -606,6 +670,9 @@ impl Effect {
                 let (hit, rolled) = self.roll_melee_with(host, extra_crit, false);
                 EffectOutcome::rolled(hit, rolled)
             }
+            // A damage-over-time on the magic table (Deadly Poison) must land its hit roll;
+            // its ticks roll their own partial resists.
+            _ if self.is_spell_damage_debuff() => self.roll_attack(host, extra_crit, false),
             // Aura effects act through the buff they belong to.
             _ if self.record.is_apply_aura() => EffectOutcome::plain(true),
             // Everything else (dispels, interrupts, taunts, heals, summons, ...) has no
@@ -676,16 +743,50 @@ impl Effect {
         self.script.and_then(|s| s.params.effect)
     }
 
-    /// Whether the effect rolls the attack table when it is performed on its own: weapon
-    /// damage, damage and debuffs of a melee spell, a melee spell's hostile trigger.
+    /// Whether the effect rolls an attack table when it is performed on its own: weapon
+    /// damage, damage and debuffs of a melee spell, a melee spell's hostile trigger, damage and
+    /// damage-over-time of a spell on the magic table.
     pub fn rolls_attack(&self) -> bool {
         use SpellEffectName as E;
         let melee = self.defense == DefenseType::Melee;
         self.weapon_damage_kind()
             || match self.record.effect {
-                E::SchoolDamage | E::HealthLeech => melee,
-                _ => self.is_melee_debuff() || self.is_strike_trigger(),
+                E::SchoolDamage => melee || self.rolls_spell_table(),
+                E::HealthLeech => melee,
+                _ => {
+                    self.is_melee_debuff()
+                        || self.is_strike_trigger()
+                        || self.is_spell_damage_debuff()
+                }
             }
+    }
+
+    /// Whether the spell's damage rolls on the magic table (spell hit, resistance, spell crit):
+    /// a spell whose `DefenseType` is magic, or none with a magic school (a physical one, such
+    /// as Sweeping Strikes' copy of a hit, always lands).
+    pub fn rolls_spell_table(&self) -> bool {
+        match self.defense {
+            DefenseType::Magic => true,
+            DefenseType::None => self.school != MagicSchool::Physical,
+            _ => false,
+        }
+    }
+
+    /// A damage-over-time aura on the target of a spell on the magic table (Deadly Poison,
+    /// Blaze): it must land the spell's hit roll before the buff carrying it is applied.
+    pub fn is_spell_damage_debuff(&self) -> bool {
+        self.rolls_spell_table()
+            && self.record.is_apply_aura()
+            && self.record.targets_enemy()
+            && matches!(
+                self.record.aura,
+                AuraType::PeriodicDamage | AuraType::PeriodicLeech
+            )
+    }
+
+    /// The spell's school.
+    pub fn school(&self) -> MagicSchool {
+        self.school
     }
 
     /// Whether the effect deals weapon damage (or scales it).
@@ -723,18 +824,45 @@ impl Effect {
         damage
     }
 
-    /// Rolls on the melee table for melee spells (`DefenseType::Melee`); spells on another
-    /// table always land, the magic table not being ported yet.
-    fn roll_if_melee(
+    /// Rolls the table of the effect's spell: the special attack table for a melee spell
+    /// (`DefenseType::Melee`), the magic table for a spell on it
+    /// ([`Effect::rolls_spell_table`]); any other spell (ranged, a physical spell without a
+    /// defense type) always lands.
+    fn roll_attack(
         &mut self,
         host: &mut impl EffectHost,
         extra_crit: u32,
-    ) -> (bool, Option<PhysicalAttackResult>) {
+        can_crit: bool,
+    ) -> EffectOutcome {
         if self.defense == DefenseType::Melee {
-            self.roll_melee(host, extra_crit)
+            let (hit, rolled) = self.roll_melee_with(host, extra_crit, can_crit);
+            EffectOutcome::rolled(hit, rolled)
+        } else if self.rolls_spell_table() {
+            let (roll, fresh) = self.roll_spell(host, extra_crit, can_crit);
+            EffectOutcome::spell(roll, fresh)
         } else {
-            (true, None)
+            EffectOutcome::plain(true)
         }
+    }
+
+    /// Rolls (or reuses) the spell's result on the magic table; whether the roll is fresh.
+    fn roll_spell(
+        &mut self,
+        host: &mut impl EffectHost,
+        extra_crit: u32,
+        can_crit: bool,
+    ) -> (SpellRoll, bool) {
+        if !self.reroll_result {
+            let reused = match (self.last_spell, self.last_result) {
+                (Some(roll), _) => roll,
+                (None, Some(result)) if result.is_success() => SpellRoll::HIT,
+                (None, _) => SpellRoll::MISS,
+            };
+            return (reused, false);
+        }
+        let roll = host.roll_spell(self.school, self.resist_kind, extra_crit, can_crit);
+        self.last_spell = Some(roll);
+        (roll, true)
     }
 
     /// A debuff of a melee spell (Rend, Sunder Armor): a hostile spell on the melee defense
@@ -1250,6 +1378,8 @@ mod tests {
         two_hand: bool,
         mainhand: Option<WeaponType>,
         poisoned: bool,
+        spell_rolls: VecDeque<SpellRoll>,
+        spell_rolled_with: Vec<(MagicSchool, SpellResistKind, bool)>,
     }
 
     impl MockHost {
@@ -1278,7 +1408,14 @@ mod tests {
                 two_hand: false,
                 mainhand: None,
                 poisoned: false,
+                spell_rolls: VecDeque::new(),
+                spell_rolled_with: Vec::new(),
             }
+        }
+
+        fn with_spell_rolls(mut self, rolls: &[SpellRoll]) -> Self {
+            self.spell_rolls = rolls.iter().copied().collect();
+            self
         }
 
         fn with_rolls(mut self, rolls: &[PhysicalAttackResult]) -> Self {
@@ -1335,6 +1472,16 @@ mod tests {
             self.extra_crits.push(extra_crit);
             self.can_crits.push(can_crit);
             self.rolls.pop_front().expect("no roll queued")
+        }
+        fn roll_spell(
+            &mut self,
+            school: MagicSchool,
+            kind: SpellResistKind,
+            _extra_crit: u32,
+            can_crit: bool,
+        ) -> SpellRoll {
+            self.spell_rolled_with.push((school, kind, can_crit));
+            self.spell_rolls.pop_front().expect("no spell roll queued")
         }
         fn stats_mut(&mut self) -> &mut CharacterStats {
             &mut self.stats
@@ -1566,39 +1713,136 @@ mod tests {
         assert_eq!(host.rolled_with.len(), 5);
     }
 
-    #[test]
-    fn non_melee_school_damage_does_not_roll() {
-        let mut host = MockHost::new();
+    fn magic_spell(school: SpellSchoolMask, defense_type: DefenseType) -> SpellRecord {
         let mut spell = melee_spell();
-        spell.categories.defense_type = DefenseType::Magic;
-        let mut bolt = Effect::new(
-            &effect_record(0, SpellEffectName::SchoolDamage, 50.0),
-            &spell,
-            None,
-            false,
-        );
-        let outcome = bolt.perform_independent(&mut host, 0, 0);
-        assert!(outcome.success);
-        assert_eq!(outcome.rolled, None);
+        spell.categories.defense_type = defense_type;
+        spell.school_mask = school;
+        spell
+    }
+
+    #[test]
+    fn magic_school_damage_rolls_the_spell_table() {
+        let mut host = MockHost::new().with_spell_rolls(&[SpellRoll::MISS, SpellRoll::HIT]);
+        let mut spell = magic_spell(SpellSchoolMask::NATURE, DefenseType::Magic);
+        let record = effect_record(0, SpellEffectName::SchoolDamage, 50.0);
+        spell.effects = vec![record.clone()];
+        let mut bolt = Effect::new(&record, &spell, None, false);
+
+        let missed = bolt.perform_independent(&mut host, 0, 0);
+        assert!(!missed.success);
+        assert_eq!(missed.spell_roll, Some(SpellRoll::MISS));
+        assert_eq!(missed.rolled, None, "not the melee table");
+        assert_eq!(bolt.damage_dealt, 0.0);
+
+        let landed = bolt.perform_independent(&mut host, 0, 0);
+        assert!(landed.success);
+        assert_eq!(landed.spell_roll, Some(SpellRoll::HIT));
         assert_eq!(bolt.damage_dealt, 50.0);
         assert!(host.rolled_with.is_empty());
+        assert_eq!(
+            host.spell_rolled_with,
+            [(MagicSchool::Nature, SpellResistKind::NonBinary, true); 2]
+        );
     }
 
     #[test]
     fn health_leech_deals_a_percent_of_the_caster_max_health() {
         let mut host = MockHost::new();
-        let mut spell = melee_spell();
-        spell.categories.defense_type = DefenseType::Magic;
-        let mut drain = Effect::new(
-            &effect_record(0, SpellEffectName::HealthLeech, 5.0),
-            &spell,
-            None,
-            false,
-        );
+        let mut spell = magic_spell(SpellSchoolMask::SHADOW, DefenseType::Magic);
+        let record = effect_record(0, SpellEffectName::HealthLeech, 5.0);
+        spell.effects = vec![record.clone()];
+        let mut drain = Effect::new(&record, &spell, None, false);
         let outcome = drain.perform_independent(&mut host, 0, 0);
         assert!(outcome.success);
-        assert_eq!(outcome.rolled, None, "the magic table is not rolled");
+        assert_eq!(outcome.spell_roll, None, "not on the magic table yet");
         assert_eq!(drain.damage_dealt, 200.0, "5 % of 4000");
+    }
+
+    /// The magic table is for spells whose `DefenseType` is magic, or none with a magic school;
+    /// a physical spell without one (Sweeping Strikes' copy) and ranged spells always land.
+    #[test]
+    fn which_spells_roll_the_spell_table() {
+        let rolls = |school, defense_type| {
+            let spell = magic_spell(school, defense_type);
+            let record = effect_record(0, SpellEffectName::SchoolDamage, 50.0);
+            Effect::new(&record, &spell, None, false).rolls_spell_table()
+        };
+        assert!(rolls(SpellSchoolMask::FIRE, DefenseType::Magic));
+        assert!(rolls(SpellSchoolMask::PHYSICAL, DefenseType::Magic));
+        assert!(rolls(SpellSchoolMask::FIRE, DefenseType::None));
+        assert!(!rolls(SpellSchoolMask::PHYSICAL, DefenseType::None));
+        assert!(!rolls(SpellSchoolMask::FIRE, DefenseType::Ranged));
+        assert!(!rolls(SpellSchoolMask::FIRE, DefenseType::Melee));
+
+        let mut host = MockHost::new();
+        let spell = magic_spell(SpellSchoolMask::PHYSICAL, DefenseType::None);
+        let record = effect_record(0, SpellEffectName::SchoolDamage, 50.0);
+        let mut copy = Effect::new(&record, &spell, None, false);
+        let outcome = copy.perform_independent(&mut host, 0, 0);
+        assert!(outcome.success);
+        assert_eq!((outcome.rolled, outcome.spell_roll), (None, None));
+        assert_eq!(copy.damage_dealt, 50.0);
+    }
+
+    /// Royalgiraffe: a spell that only deals damage is non-binary; any other effect makes it
+    /// binary.
+    #[test]
+    fn spell_resist_kinds() {
+        let mut spell = magic_spell(SpellSchoolMask::FIRE, DefenseType::Magic);
+        let damage = effect_record(0, SpellEffectName::SchoolDamage, 50.0);
+        let mut dot = effect_record(1, SpellEffectName::ApplyAura, 10.0);
+        dot.aura = AuraType::PeriodicDamage;
+        let mut dummy = effect_record(2, SpellEffectName::ApplyAura, 0.0);
+        dummy.aura = AuraType::Dummy;
+        let mut debuff = effect_record(2, SpellEffectName::ApplyAura, -25.0);
+        debuff.aura = AuraType::ModResistance;
+
+        spell.effects = vec![damage.clone()];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::NonBinary);
+        spell.effects = vec![damage.clone(), dot.clone(), dummy];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::NonBinary);
+        spell.effects = vec![dot.clone()];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::NonBinary);
+        spell.effects = vec![damage, debuff];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::Binary);
+        spell.effects = vec![effect_record(0, SpellEffectName::HealthLeech, 5.0)];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::Binary);
+    }
+
+    /// A damage-over-time of a spell on the magic table rolls its hit (it cannot crit); a
+    /// dependent effect reuses the chain's roll.
+    #[test]
+    fn spell_damage_debuffs_roll_and_reuse_the_chain_roll() {
+        let mut host = MockHost::new().with_spell_rolls(&[SpellRoll::MISS]);
+        let mut spell = magic_spell(SpellSchoolMask::NATURE, DefenseType::Magic);
+        let mut record = effect_record(0, SpellEffectName::ApplyAura, 10.0);
+        record.aura = AuraType::PeriodicDamage;
+        record.implicit_target = [ImplicitTarget::UnitTargetEnemy, ImplicitTarget::None];
+        spell.effects = vec![record.clone()];
+        let mut dot = Effect::new(&record, &spell, None, false);
+        assert!(dot.is_spell_damage_debuff());
+        assert!(dot.rolls_attack());
+
+        let outcome = dot.perform_independent(&mut host, 0, 0);
+        assert!(!outcome.success);
+        assert_eq!(
+            host.spell_rolled_with,
+            [(MagicSchool::Nature, SpellResistKind::NonBinary, false)]
+        );
+
+        dot.set_dependency(Dependency::PartialSuccess);
+        let chain = ChainState {
+            result: SpellResult::Success,
+            previous: None,
+            previous_spell: Some(SpellRoll::HIT),
+            resource_cost: 0,
+            extra_crit: 0,
+            hit_guaranteed: false,
+        };
+        let reused = dot.perform(&mut host, &chain);
+        assert!(reused.success);
+        assert_eq!(reused.spell_roll, None, "no fresh roll");
+        assert_eq!(host.spell_rolled_with.len(), 1);
     }
 
     #[test]
@@ -1673,6 +1917,7 @@ mod tests {
         let mut chain = ChainState {
             result: SpellResult::Undetermined,
             previous: None,
+            previous_spell: None,
             resource_cost: 15,
             extra_crit: 2500,
             hit_guaranteed: false,
@@ -1745,6 +1990,7 @@ mod tests {
         let chain = ChainState {
             result: SpellResult::Undetermined,
             previous: None,
+            previous_spell: None,
             resource_cost: 0,
             extra_crit: 0,
             hit_guaranteed: true,

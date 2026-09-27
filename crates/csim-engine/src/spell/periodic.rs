@@ -11,6 +11,7 @@
 //! chain tagged with an application id, refreshing it re-arms the effect, and ticks stop when the
 //! buff is gone (stale ticks are ignored by their application id).
 
+use crate::combat_roll::MagicResistResult;
 use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
@@ -129,6 +130,10 @@ pub struct TickReport {
     pub resource_gained: Option<(ResourceType, u32)>,
     /// A spell to cast on this tick (`PERIODIC_TRIGGER_SPELL`).
     pub trigger: Option<u32>,
+    /// The partial resist of a damage tick of a magic school.
+    pub resist: MagicResistResult,
+    /// The damage the partial resist took away (not in `damage`).
+    pub resisted: u32,
 }
 
 /// The tick state of one spell's periodic aura. Port of `SpellPeriodic`'s bookkeeping plus the
@@ -250,6 +255,8 @@ impl Periodic {
             execution_time: 0.0,
             resource_gained: None,
             trigger: None,
+            resist: MagicResistResult::NoResist,
+            resisted: 0,
         };
 
         match *kind {

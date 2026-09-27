@@ -25,11 +25,12 @@ use std::sync::Arc;
 use crate::attack_mode::AttackMode;
 use crate::buff::external::GeneralBuffs;
 use crate::character_spells::CharacterSpells;
-use crate::combat_roll::{CombatRoll, RollContext};
+use crate::combat_roll::{CombatRoll, MagicRollContext, RollContext};
 use crate::equipment::Equipment;
 use crate::faction::{Faction, PlayerClass};
 use crate::ids::{CharId, SpellId};
 use crate::item::{EquipmentDb, EquipmentSlot, WeaponSlot, WeaponType};
+use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
 use crate::resource::{Rage, Resource, ResourceType};
@@ -525,6 +526,21 @@ impl Character {
             attacking_from_behind: self.is_attacking_from_behind(),
             glancing_blows: self.sim.ruleset.glancing_blows(),
             expertise: self.stats.get_expertise(),
+        }
+    }
+
+    /// What the magic table of `school` depends on: the spell hit for the school and the
+    /// target's resistance to it after spell penetration.
+    pub fn magic_roll_context(
+        &self,
+        target: &TargetStatView,
+        school: MagicSchool,
+    ) -> MagicRollContext {
+        let ctx = self.stat_context(target);
+        MagicRollContext {
+            clvl: self.clvl,
+            spell_hit_chance: self.stats.get_spell_hit_chance(&ctx, school),
+            target_resistance: self.stats.get_target_resistance(&ctx, school),
         }
     }
 

@@ -7,7 +7,7 @@
 use crate::mechanics::Mechanics;
 use crate::rng::Random;
 
-use super::{MagicAttackResult, MagicResistResult, PhysicalAttackResult};
+use super::{MagicAttackResult, MagicResistResult, PhysicalAttackResult, SpellRoll};
 
 /// The size of the roll space; rolls must be below this value.
 pub const ROLL_RANGE: u32 = 10_000;
@@ -236,38 +236,109 @@ impl MeleeSpecialTable {
     }
 }
 
-/// Hit and resist table for a magic school.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct MagicAttackTable {
-    miss_range: u32,
-    full_resist: u32,
+/// Cumulative ranges of the 75, 50 and 25 % partial resists of a non-binary spell; the rest of
+/// the roll space is no resist.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+struct PartialResistRanges {
     partial_75: u32,
     partial_50: u32,
     partial_25: u32,
 }
 
-impl MagicAttackTable {
-    /// `spell_hit` is a range out of 10 000; `target_resistance` is the effective resistance value.
-    pub fn new(mechanics: &Mechanics, clvl: u32, spell_hit: u32, target_resistance: u32) -> Self {
-        let mut table = Self {
-            miss_range: 0,
-            full_resist: 0,
-            partial_75: 0,
-            partial_50: 0,
-            partial_25: 0,
-        };
-        table.update_miss_chance(mechanics, clvl, spell_hit);
-        table.update_target_resistance(target_resistance);
-        table
+impl PartialResistRanges {
+    /// The ranges for a resistance of `ratio` of the cap.
+    fn new(ratio: f64) -> Self {
+        let [_, p25, p50, p75] = Mechanics::partial_resist_chances(ratio);
+        Self {
+            partial_75: chance_to_range(p75),
+            partial_50: chance_to_range(p75 + p50),
+            partial_25: chance_to_range(p75 + p50 + p25),
+        }
     }
 
-    /// Resolves the hit roll; crits use a second independent roll.
+    fn outcome(&self, roll: u32) -> MagicResistResult {
+        check_roll(roll);
+        if roll < self.partial_75 {
+            MagicResistResult::Partial75
+        } else if roll < self.partial_50 {
+            MagicResistResult::Partial50
+        } else if roll < self.partial_25 {
+            MagicResistResult::Partial25
+        } else {
+            MagicResistResult::NoResist
+        }
+    }
+}
+
+/// Hit and resist table of one magic school, after royalgiraffe's resist guide
+/// (<https://royalgiraffe.github.io/resist-guide>).
+///
+/// A **non-binary** spell (it only deals damage) rolls its hit against the level-based miss
+/// chance less the spell hit (at least 1 %), then, if it landed, a partial resist of 0, 25, 50
+/// or 75 % from the target's resistance plus its level-based resistance (8 per level above
+/// the caster), as a share of the resistance cap. It is never fully resisted.
+///
+/// A **binary** spell (any other effect) either lands or not in one roll that combines the
+/// level-based hit chance, the resistance (without the level-based part) and the spell hit.
+///
+/// The ticks of a damage-over-time without direct damage roll their partial resist against a
+/// tenth of the resistance (Vanilla's special DoT rule); other ticks roll like direct damage.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MagicAttackTable {
+    miss_range: u32,
+    binary_miss_range: u32,
+    /// The binary miss range plus its full resist range.
+    binary_fail_range: u32,
+    partial: PartialResistRanges,
+    periodic_partial: PartialResistRanges,
+}
+
+impl MagicAttackTable {
+    /// `spell_hit` is a range out of 10 000; `target_resistance` the target's resistance after
+    /// spell penetration, without the level-based part. A table of an unresistable school
+    /// (physical) only misses.
+    pub fn new(
+        mechanics: &Mechanics,
+        clvl: u32,
+        spell_hit: u32,
+        target_resistance: u32,
+        resistible: bool,
+    ) -> Self {
+        let spell_hit = f64::from(spell_hit) / f64::from(ROLL_RANGE);
+        let miss_chance = mechanics.spell_miss_chance_from_lvl_diff(clvl, spell_hit);
+
+        let (resistance, level_based) = if resistible {
+            (
+                f64::from(target_resistance),
+                f64::from(mechanics.level_based_resistance(clvl)),
+            )
+        } else {
+            (0.0, 0.0)
+        };
+        let direct_ratio = Mechanics::resistance_ratio(resistance + level_based, clvl);
+        let periodic_ratio = Mechanics::resistance_ratio((resistance + level_based) / 10.0, clvl);
+
+        let binary_ratio = Mechanics::resistance_ratio(resistance, clvl);
+        let binary_fail = 1.0 - mechanics.binary_spell_land_chance(clvl, spell_hit, binary_ratio);
+        let binary_miss = miss_chance.min(binary_fail);
+
+        Self {
+            miss_range: chance_to_range(miss_chance),
+            binary_miss_range: chance_to_range(binary_miss),
+            binary_fail_range: chance_to_range(binary_fail),
+            partial: PartialResistRanges::new(direct_ratio),
+            periodic_partial: PartialResistRanges::new(periodic_ratio),
+        }
+    }
+
+    /// Resolves the hit roll of a non-binary spell; crits use a second independent roll.
     pub fn get_hit_outcome(
         &self,
         random: &mut Random,
         roll: u32,
         crit_chance: u32,
     ) -> MagicAttackResult {
+        check_roll(roll);
         if roll < self.miss_range {
             return MagicAttackResult::Miss;
         }
@@ -279,34 +350,41 @@ impl MagicAttackTable {
         MagicAttackResult::Hit
     }
 
-    pub fn get_resist_outcome(&self, roll: u32) -> MagicResistResult {
-        if roll < self.full_resist {
-            MagicResistResult::FullResist
-        } else if roll < self.partial_75 {
-            MagicResistResult::Partial75
-        } else if roll < self.partial_50 {
-            MagicResistResult::Partial50
-        } else if roll < self.partial_25 {
-            MagicResistResult::Partial25
+    /// Resolves the single hit-and-resist roll of a binary spell; crits use a second
+    /// independent roll.
+    pub fn get_binary_outcome(
+        &self,
+        random: &mut Random,
+        roll: u32,
+        crit_chance: u32,
+    ) -> SpellRoll {
+        check_roll(roll);
+        if roll < self.binary_miss_range {
+            return SpellRoll::MISS;
+        }
+        if roll < self.binary_fail_range {
+            return SpellRoll::FULL_RESIST;
+        }
+        let result = if random.get_roll() < crit_chance {
+            MagicAttackResult::Critical
         } else {
-            MagicResistResult::NoResist
+            MagicAttackResult::Hit
+        };
+        SpellRoll {
+            result,
+            resist: MagicResistResult::NoResist,
         }
     }
 
-    pub fn update_miss_chance(&mut self, mechanics: &Mechanics, clvl: u32, spell_hit: u32) {
-        let spell_hit = f64::from(spell_hit) / f64::from(ROLL_RANGE);
-        let miss_chance = mechanics.spell_miss_chance_from_lvl_diff(clvl, spell_hit);
-        self.miss_range = chance_to_range(miss_chance);
+    /// The partial resist of a landed non-binary spell's direct damage (or of a tick of a DoT
+    /// with direct damage).
+    pub fn get_resist_outcome(&self, roll: u32) -> MagicResistResult {
+        self.partial.outcome(roll)
     }
 
-    pub fn update_target_resistance(&mut self, target_resistance: u32) {
-        self.full_resist = chance_to_range(Mechanics::full_resist_chance(target_resistance));
-        self.partial_75 =
-            self.full_resist + chance_to_range(Mechanics::partial_75_chance(target_resistance));
-        self.partial_50 =
-            self.partial_75 + chance_to_range(Mechanics::partial_50_chance(target_resistance));
-        self.partial_25 =
-            self.partial_50 + chance_to_range(Mechanics::partial_25_chance(target_resistance));
+    /// The partial resist of a tick of a damage-over-time without direct damage.
+    pub fn get_periodic_resist_outcome(&self, roll: u32) -> MagicResistResult {
+        self.periodic_partial.outcome(roll)
     }
 }
 
@@ -529,11 +607,11 @@ mod tests {
         );
     }
 
+    /// Port of `TestAttackTables::test_magic_attack_table`: the miss range from the level
+    /// difference.
     #[test]
     fn magic_attack_table() {
         let mut random = random();
-        let mut mechanics = Mechanics::new(63);
-        let mut table = MagicAttackTable::new(&mechanics, 60, 0, 0);
 
         let expect_miss_below = |table: &MagicAttackTable, random: &mut Random, miss: u32| {
             assert_eq!(table.get_hit_outcome(random, 0, 0), MagicAttackResult::Miss);
@@ -551,9 +629,8 @@ mod tests {
             );
         };
 
-        expect_miss_below(&table, &mut random, 1700);
-
         for (target_level, miss) in [
+            (63, 1700),
             (62, 600),
             (61, 500),
             (60, 400),
@@ -562,16 +639,21 @@ mod tests {
             (57, 100),
             (56, 100),
         ] {
-            mechanics.set_target_level(target_level);
-            table.update_miss_chance(&mechanics, 60, 0);
+            let table = MagicAttackTable::new(&Mechanics::new(target_level), 60, 0, 0, true);
             expect_miss_below(&table, &mut random, miss);
         }
+
+        // Spell hit lowers it to the 1 % floor.
+        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 1000, 0, true);
+        expect_miss_below(&table, &mut random, 700);
+        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 2000, 0, true);
+        expect_miss_below(&table, &mut random, 100);
     }
 
     #[test]
     fn magic_attack_table_crit_uses_second_roll() {
         let mut random = random();
-        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 0);
+        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 0, true);
         assert_eq!(
             table.get_hit_outcome(&mut random, 9999, 10_000),
             MagicAttackResult::Critical
@@ -580,24 +662,119 @@ mod tests {
             table.get_hit_outcome(&mut random, 9999, 0),
             MagicAttackResult::Hit
         );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 9999, 10_000).result,
+            MagicAttackResult::Critical
+        );
     }
 
     #[test]
     fn magic_resist_outcomes() {
-        let mut table = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 0);
-        assert_eq!(table.get_resist_outcome(0), MagicResistResult::NoResist);
-        assert_eq!(table.get_resist_outcome(9999), MagicResistResult::NoResist);
+        // Against a level 60 target nothing is resisted without resistance.
+        let table = MagicAttackTable::new(&Mechanics::new(60), 60, 0, 0, true);
+        for roll in [0, 5000, 9999] {
+            assert_eq!(table.get_resist_outcome(roll), MagicResistResult::NoResist);
+            assert_eq!(
+                table.get_periodic_resist_outcome(roll),
+                MagicResistResult::NoResist
+            );
+        }
 
-        // Resistance 150: full 1%, partial75 11%, partial50 37%, partial25 39%.
-        table.update_target_resistance(150);
-        assert_eq!(table.get_resist_outcome(0), MagicResistResult::FullResist);
-        assert_eq!(table.get_resist_outcome(99), MagicResistResult::FullResist);
-        assert_eq!(table.get_resist_outcome(100), MagicResistResult::Partial75);
-        assert_eq!(table.get_resist_outcome(1199), MagicResistResult::Partial75);
-        assert_eq!(table.get_resist_outcome(1200), MagicResistResult::Partial50);
-        assert_eq!(table.get_resist_outcome(4899), MagicResistResult::Partial50);
-        assert_eq!(table.get_resist_outcome(4900), MagicResistResult::Partial25);
-        assert_eq!(table.get_resist_outcome(8799), MagicResistResult::Partial25);
-        assert_eq!(table.get_resist_outcome(8800), MagicResistResult::NoResist);
+        // 100 resistance out of the 300 cap: 24 / 55 / 18 / 3 %, never a full resist.
+        let table = MagicAttackTable::new(&Mechanics::new(60), 60, 0, 100, true);
+        assert_eq!(table.get_resist_outcome(0), MagicResistResult::Partial75);
+        assert_eq!(table.get_resist_outcome(299), MagicResistResult::Partial75);
+        assert_eq!(table.get_resist_outcome(300), MagicResistResult::Partial50);
+        assert_eq!(table.get_resist_outcome(2099), MagicResistResult::Partial50);
+        assert_eq!(table.get_resist_outcome(2100), MagicResistResult::Partial25);
+        assert_eq!(table.get_resist_outcome(7599), MagicResistResult::Partial25);
+        assert_eq!(table.get_resist_outcome(7600), MagicResistResult::NoResist);
+
+        // A pure DoT's ticks see a tenth of it: 10 of 300.
+        let [_, p25, p50, p75] = Mechanics::partial_resist_chances(10.0 / 300.0);
+        let first_no_resist = chance_to_range(p75 + p50 + p25);
+        assert_eq!(
+            table.get_periodic_resist_outcome(first_no_resist - 1),
+            MagicResistResult::Partial25
+        );
+        assert_eq!(
+            table.get_periodic_resist_outcome(first_no_resist),
+            MagicResistResult::NoResist
+        );
+    }
+
+    /// A boss adds 24 level-based resistance against a level 60 caster: 8 % of the cap.
+    #[test]
+    fn level_based_resistance_of_a_boss() {
+        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 0, true);
+        let [_, p25, p50, p75] = Mechanics::partial_resist_chances(0.08);
+        assert_eq!(
+            table.get_resist_outcome(chance_to_range(p75) - 1),
+            MagicResistResult::Partial75
+        );
+        assert_eq!(
+            table.get_resist_outcome(chance_to_range(p75 + p50 + p25)),
+            MagicResistResult::NoResist
+        );
+        assert_eq!(
+            table.get_resist_outcome(chance_to_range(p75 + p50 + p25) - 1),
+            MagicResistResult::Partial25
+        );
+
+        // Not for an unresistable school.
+        let physical = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 100, false);
+        assert_eq!(physical.get_resist_outcome(0), MagicResistResult::NoResist);
+    }
+
+    /// Binary spells: one roll of miss, then full resist, then land; the level-based resistance
+    /// does not apply.
+    #[test]
+    fn binary_outcomes() {
+        let mut random = random();
+        let mechanics = Mechanics::new(60);
+        // Same level, 100 resistance of 300: lands 72 %, misses 4 %, resisted 24 %.
+        let table = MagicAttackTable::new(&mechanics, 60, 0, 100, true);
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 399, 0),
+            SpellRoll::MISS
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 400, 0),
+            SpellRoll::FULL_RESIST
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 2799, 0),
+            SpellRoll::FULL_RESIST
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 2800, 0),
+            SpellRoll::HIT
+        );
+
+        // Against a boss without resistance: only the 17 % miss.
+        let table = MagicAttackTable::new(&Mechanics::new(63), 60, 0, 0, true);
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 1699, 0),
+            SpellRoll::MISS
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 1700, 0),
+            SpellRoll::HIT
+        );
+
+        // Spell hit above the cap offsets resistance: 96 % × 75 % + 20 % = 92 %.
+        let table = MagicAttackTable::new(&mechanics, 60, 2000, 100, true);
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 99, 0),
+            SpellRoll::MISS
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 799, 0),
+            SpellRoll::FULL_RESIST
+        );
+        assert_eq!(
+            table.get_binary_outcome(&mut random, 800, 0),
+            SpellRoll::HIT
+        );
     }
 }

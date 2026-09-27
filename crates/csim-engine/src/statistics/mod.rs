@@ -424,6 +424,7 @@ mod tests {
     fn hit(damage: u32) -> AttackOutcome {
         AttackOutcome {
             result: PhysicalAttackResult::Hit,
+            spell: None,
             damage,
             threat: f64::from(damage) * 2.0,
             execution_time: 1.5,

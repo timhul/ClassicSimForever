@@ -9,7 +9,9 @@ use crate::character_spells::{
 use crate::combat_log::{
     AuraChange, CombatLog, CombatLogEvent, Damage, LogSpell, LogUnit, MissType, UnitInfo,
 };
-use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
+use crate::combat_roll::{
+    IncludedOutcomes, MagicResistResult, PhysicalAttackResult, SpellResistKind, SpellRoll,
+};
 use crate::cooldown::CooldownControl;
 use crate::effect::{Effect, EffectHost};
 use crate::enchant::EnchantName;
@@ -17,6 +19,7 @@ use crate::engine::{Engine, Event, EventKind, PLAYER_REACTION_DELAY};
 use crate::equipment::{EnchantError, EquipChange, EquipError};
 use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect, WeaponType};
+use crate::magic_school::MagicSchool;
 use crate::proc::{ProcHost, ProcSource, ProcTrigger};
 use crate::resource::ResourceType;
 use crate::rotation::{
@@ -1240,16 +1243,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         fired
     }
 
-    /// Fires proc `id` now, whatever its chance, and records it; the extra attacks it grants
-    /// stay pending.
+    /// Fires proc `id` now, whatever its chance, and records and logs it; the extra attacks it
+    /// grants stay pending.
     #[cfg(test)]
     pub(crate) fn perform_proc(&mut self, id: ProcId) -> CastReport {
         let report = self.with_procs(|procs, ctx| procs.get_mut(id).perform(ctx));
-        let (name, rank) = {
+        let (name, rank, spell) = {
             let spell = self.character.spells.procs().get(id).spell();
-            (spell.name().to_string(), spell.rank())
+            (spell.name().to_string(), spell.rank(), log_spell(spell))
         };
         self.record_report(&name, rank, &report);
+        self.log_report(spell, &report, None, false);
         report
     }
 
@@ -1839,6 +1843,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 report.threat,
                 report.resource_cost,
                 report.execution_time,
+                report.resist,
             );
         }
         if let Some((resource, amount)) = report.resource_gained {
@@ -2001,6 +2006,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 spell: spell.clone(),
                 damage: Damage {
                     amount: report.damage,
+                    resisted: report.resisted,
                     ..Damage::default()
                 },
                 info: self.target_log_info(),
@@ -2401,6 +2407,29 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character
             .roll_mut()
             .get_melee_ability_result(&roll_ctx, skill, crit, included)
+    }
+
+    fn roll_spell(
+        &mut self,
+        school: MagicSchool,
+        kind: SpellResistKind,
+        extra_crit: u32,
+        can_crit: bool,
+    ) -> SpellRoll {
+        let view = self.target_view();
+        let roll_ctx = self.character.magic_roll_context(&view, school);
+        let crit = if can_crit {
+            let stat_ctx = self.character.stat_context(&view);
+            self.character
+                .stats()
+                .get_spell_crit_chance(&stat_ctx, school)
+                + extra_crit
+        } else {
+            0
+        };
+        self.character
+            .roll_mut()
+            .get_spell_ability_result(&roll_ctx, school, crit, kind)
     }
 
     fn stats_mut(&mut self) -> &mut CharacterStats {
@@ -2844,6 +2873,21 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             .get_melee_ability_crit_dmg_mod(&self.character.stat_context(&view))
     }
 
+    fn spell_crit_dmg_mod(&self) -> f64 {
+        let view = self.target_view();
+        self.character
+            .stats()
+            .get_spell_crit_dmg_mod(&self.character.stat_context(&view))
+    }
+
+    fn roll_periodic_resist(&mut self, school: MagicSchool, pure_dot: bool) -> MagicResistResult {
+        let view = self.target_view();
+        let roll_ctx = self.character.magic_roll_context(&view, school);
+        self.character
+            .roll_mut()
+            .get_periodic_resist_result(&roll_ctx, school, pure_dot)
+    }
+
     fn total_threat_mod(&self) -> f64 {
         self.character.stats().get_total_threat_mod()
     }
@@ -3071,6 +3115,21 @@ fn log_spell(spell: &Spell) -> LogSpell {
 /// damage, such as Sunder Armor's, which only logs its cast and its aura).
 fn attack_damage(attack: &AttackOutcome) -> Result<Damage, Option<MissType>> {
     use PhysicalAttackResult as R;
+    // A spell on the magic table that missed or was resisted is logged as resisted.
+    if let Some(spell) = attack.spell {
+        if !spell.roll.landed() {
+            return Err(Some(MissType::Resist));
+        }
+        if attack.damage == 0 {
+            return Err(None);
+        }
+        return Ok(Damage {
+            amount: attack.damage,
+            resisted: spell.resisted,
+            critical: spell.roll.is_critical(),
+            glancing: false,
+        });
+    }
     let miss = match attack.result {
         R::Miss => MissType::Miss,
         R::Dodge => MissType::Dodge,
@@ -3080,6 +3139,7 @@ fn attack_damage(attack: &AttackOutcome) -> Result<Damage, Option<MissType>> {
         result => {
             return Ok(Damage {
                 amount: attack.damage,
+                resisted: 0,
                 critical: matches!(result, R::Critical | R::BlockCritical),
                 glancing: result == R::Glancing,
             });

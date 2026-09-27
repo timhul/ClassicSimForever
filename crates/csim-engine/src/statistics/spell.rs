@@ -350,7 +350,10 @@ impl SpellStatistics {
 
     /// Records the attack outcome of one cast or swing (`resource_cost` in displayed units).
     pub fn record_attack(&mut self, attack: &AttackOutcome, resource_cost: f64) {
-        let outcome = Outcome::from_physical(attack.result, attack.damage);
+        let outcome = match attack.spell {
+            Some(spell) => Outcome::from_magic(spell.roll.result, spell.roll.resist),
+            None => Outcome::from_physical(attack.result, attack.damage),
+        };
         if outcome.is_success() {
             self.add_success(
                 outcome,
@@ -364,17 +367,18 @@ impl SpellStatistics {
         }
     }
 
-    /// Records a periodic tick: a hit for its damage and threat. Port of the `add_hit_dmg`
-    /// calls of the C++ periodic spells.
+    /// Records a periodic tick: a hit (or a partial resist) for its damage and threat. Port of
+    /// the `add_hit_dmg` calls of the C++ periodic spells.
     pub fn record_tick(
         &mut self,
         damage: u32,
         threat: f64,
         resource_cost: f64,
         execution_time: f64,
+        resist: MagicResistResult,
     ) {
         self.add_success(
-            Outcome::Hit,
+            Outcome::from_magic(MagicAttackResult::Hit, resist),
             damage,
             threat.max(0.0) as u32,
             resource_cost,
@@ -555,6 +559,7 @@ mod tests {
     fn hit(damage: u32) -> AttackOutcome {
         AttackOutcome {
             result: PhysicalAttackResult::Hit,
+            spell: None,
             damage,
             threat: f64::from(damage) * 1.5,
             execution_time: 1.5,
@@ -621,6 +626,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Critical,
+                spell: None,
                 damage: 500,
                 threat: 750.0,
                 execution_time: 1.5,
@@ -630,6 +636,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Dodge,
+                spell: None,
                 damage: 0,
                 threat: 0.0,
                 execution_time: 1.5,
@@ -680,6 +687,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Glancing,
+                spell: None,
                 damage: 80,
                 threat: 80.0,
                 execution_time: 0.0,
@@ -696,8 +704,8 @@ mod tests {
     #[test]
     fn ticks_count_as_hits() {
         let mut stats = SpellStatistics::new("Rend", 7);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, MagicResistResult::NoResist);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, MagicResistResult::NoResist);
         assert_eq!(stats.hits(), 2);
         assert_eq!(stats.total_damage(), 74);
         assert!((stats.dpr().avg() - 25.9).abs() < 1e-9);
