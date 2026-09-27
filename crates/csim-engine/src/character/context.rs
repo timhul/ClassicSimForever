@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::buff::external::ExternalBuffDb;
+use crate::buff::external::{ConsumableSpec, ExternalBuffDb};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{
     AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, SharedBuffs,
@@ -26,7 +26,7 @@ use crate::rotation::{
     BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec, Watched,
 };
 use crate::rulesets::Ruleset;
-use crate::spell::dbc::AuraState;
+use crate::spell::dbc::{AuraState, SpellAttr1};
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{EventScript, ProcOverride, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
@@ -783,7 +783,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     ///   cooldown and shared category cooldown (the trinkets' 1141) in place of the record's.
     ///   One the sim cannot run (an effect without its script, a proc aura while the buff is
     ///   up: Badge of the Swarmguard) is skipped, so it does not start the shared cooldown for
-    ///   nothing.
+    ///   nothing. Using an item does not break Stealth.
+    /// - A consumable's use effect ([`Self::set_consumables`]) is the same, cast by the
+    ///   consumable's name (Thistle Tea, not its spell's Restore Energy).
     ///
     /// Spells missing from `db` (pruned by the export: stuns, heals, immunities, ...) and
     /// ignored ones (`IGNORED`) are skipped. The rotation is linked again afterwards.
@@ -806,7 +808,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     && !record.is_proc_aura()
                     && db.unsupported_effects(record).is_empty()
             };
-            if matches!(grant.kind, GrantKind::Use(_)) && !runnable_use() {
+            if matches!(grant.kind, GrantKind::Use(..)) && !runnable_use() {
                 continue;
             }
             // A combat spell casts the learned payload, one spell for both hands.
@@ -824,8 +826,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             let party = self.character.party();
             let spells = &mut self.character.spells;
             let (key, overrides) = (grant.key, db.overrides());
-            let is_proc_aura =
-                record.is_passive() && record.aura_options.proc_type_mask.bits() != 0;
+            // A finisher proc (Revealed Flaw) has no `ProcTypeMask`: the override names its event.
+            let is_proc_aura = record.is_passive()
+                && (record.aura_options.proc_type_mask.bits() != 0
+                    || setup.overrides.proc.is_some_and(|p| p.finisher));
             let handle = match grant.kind {
                 GrantKind::Proc(allowed) => spells
                     .add_equipment_proc(key, setup, overrides, &allowed, party, self.raid)
@@ -850,8 +854,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                         self.raid,
                     )
                     .map(SpellHandle::Proc),
-                GrantKind::Use(effect) => {
-                    let setup = with_item_cooldowns(setup, &effect);
+                GrantKind::Use(effect, name) => {
+                    let mut setup = with_item_cooldowns(setup, &effect);
+                    if let Some(name) = name {
+                        Arc::make_mut(&mut setup.record).name = name;
+                    }
                     let id = spells.add_equipment_passive(key, setup, overrides, party, self.raid);
                     uses.push(id);
                     Some(SpellHandle::Spell(id))
@@ -933,7 +940,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         for (slot, item) in equipment.equipped_items() {
             for (index, effect) in item.effects().iter().enumerate() {
                 let kind = match effect.trigger {
-                    EffectTrigger::Use => GrantKind::Use(effect.clone()),
+                    EffectTrigger::Use => GrantKind::Use(effect.clone(), None),
                     EffectTrigger::Equip => GrantKind::Passive(passive_proc_sources(Some(slot))),
                     EffectTrigger::OnHit if slot.is_weapon_slot() => {
                         GrantKind::OnHit(slot.default_proc_sources())
@@ -962,7 +969,33 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 kind: GrantKind::Passive(passive_proc_sources(None)),
             });
         }
+        for spec in &self.character.consumables {
+            let uses = db
+                .consumable_item(spec.item)
+                .into_iter()
+                .flat_map(|i| i.uses());
+            for (index, effect) in uses.enumerate() {
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: None,
+                        grantor: EquipmentGrantor::Consumable(spec.item),
+                        index,
+                    },
+                    spell: effect.spell,
+                    kind: GrantKind::Use(effect.clone(), Some(spec.name.clone())),
+                });
+            }
+        }
         grants
+    }
+
+    /// Replaces the items the character uses in combat (`consumables` of
+    /// `data/external_buffs.yaml`: Thistle Tea) and registers their use spells, which the
+    /// rotation casts by the consumable's name. The class is not checked
+    /// ([`ConsumableSpec::valid_for_class`] is the setup's business).
+    pub fn set_consumables(&mut self, db: &SpellDb, consumables: Vec<ConsumableSpec>) {
+        self.character.consumables = consumables;
+        self.sync_equipment_spells(db);
     }
 
     // ---------------------------------------------------------------- external buffs
@@ -3125,14 +3158,17 @@ enum GrantKind {
         sources: Vec<ProcSource>,
         chance: f64,
     },
-    /// An item's on-use spell, with the item effect's cooldowns.
-    Use(ItemEffect),
+    /// An item's on-use spell, with the item effect's cooldowns; a consumable's carries the
+    /// consumable's name.
+    Use(ItemEffect, Option<String>),
 }
 
 /// `setup` with the cooldowns of the item effect that grants it: the item's own cooldown and
-/// its shared category cooldown replace the spell record's where the item has them.
+/// its shared category cooldown replace the spell record's where the item has them. Using an
+/// item does not break Stealth (the server does not end it for casts from items).
 fn with_item_cooldowns(mut setup: SpellSetup, effect: &ItemEffect) -> SpellSetup {
     let record = Arc::make_mut(&mut setup.record);
+    record.attributes[1] |= SpellAttr1::ALLOW_WHILE_STEALTHED.bits();
     if let Some(ms) = effect.cooldown_ms {
         record.cooldown.recovery_ms = ms;
     }

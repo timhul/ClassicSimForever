@@ -442,10 +442,14 @@ overrides:
                                      # family_mask: [4, 0, 0, 0] — only events of the spells
                                      #   of this class mask (spell_proc.SpellFamilyMask:
                                      #   Puncturing Wounds on Backstab)
+                                     # family_mask_effect: 0 — as family_mask, aura effect
+                                     #   0's own SpellClassMask (Head Rush, Revealed Flaw)
                                      # combo_points_effect: 2 — the finisher spent at least
                                      #   aura effect 2's value (Improved Expose Armor: 5)
                                      # chance_per_combo_point: true — the chance times the
-                                     #   combo points spent (Relentless Strikes: 20 % each)
+                                     #   combo points spent (Relentless Strikes: 20 % each;
+                                     #   a chance_effect without a value gives its points
+                                     #   per resource: Revealed Flaw 5 %)
                                      # builder: true — only events of a spell that awards
                                      #   combo points (Seal Fate)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex

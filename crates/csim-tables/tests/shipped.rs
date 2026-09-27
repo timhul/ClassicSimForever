@@ -70,9 +70,10 @@ fn shipped_spell_files_match_a_fresh_export() {
 
     let registry = ExternalBuffDb::load(&root.join("data/external_buffs.yaml")).unwrap();
     let exclude = export::spell_ids_in_dir(&spells_dir, "externals.yaml").unwrap();
-    let externals = export::export_externals(
+    let (externals, _) = export::export_externals_with_consumables(
         &tables,
         &export::external_seeds(&registry),
+        &registry.consumable_item_ids(),
         &exclude,
         &overrides,
     )

@@ -136,10 +136,25 @@ overrides:
   - id: 23605
     note: Spell Vulnerability (Nightfall) - ClassicSim's 20 % chance on hit
     proc: { chance: 20 }
-  # Rogue set bonuses (TASKS RG.7).
+  # Rogue set bonuses.
+  - id: 27787
+    note: >-
+      Rogue Armor Energize (Darkmantle Armor 4); the table fires it on every white swing
+      (ProcChance 100), the server at a rate it keeps: ClassicSim's 3.5 % per swing
+    proc: { chance: 3.5 }
+  - id: 28812
+    note: >-
+      Head Rush (Bonescythe Armor 4); 5 energy on critical strikes only, of the spells E0's
+      SpellClassMask selects (Backstab, Sinister Strike, Hemorrhage, and also Eviscerate and
+      Mutilate, which the description does not name)
+    proc: { hit_mask: [CRITICAL], family_mask_effect: 0 }
   - id: 28814
-    note: Revealed Flaw (Bonescythe Armor 8); a chance per combo point of an Eviscerate to trigger 28815 (FINISHER_CHANCE_PER_COMBO_POINT, RG.7)
-    effects: [{ index: 0, script: NO_OP }]
+    note: >-
+      Revealed Flaw (Bonescythe Armor 8); the ADD_TARGET_TRIGGER gives an Eviscerate (E0's
+      SpellClassMask) a 5 % chance per combo point spent (its points per resource) to trigger
+      28815, the next Backstab / Sinister Strike / Hemorrhage crits
+    proc: { finisher: true, family_mask_effect: 0, chance_effect: 0, chance_per_combo_point: true }
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 28815 } }]
   # On-use auras.
   - id: 29602
     note: >-

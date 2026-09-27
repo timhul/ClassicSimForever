@@ -13,6 +13,13 @@
 #   raid      true for a buff another raid member's class provides; `csim run --raid` leaves
 #             these and every debuff out of the setups, the raid provides them or not
 #
+# `consumables` are items used in combat from the bags (a character's `consumables` list):
+#   name      display name, unique; the rotation casts it by this name
+#   item      Item.ID; `export-spells --externals` writes its use effects (spell, the item's
+#             cooldown and shared category cooldown, from ItemEffect) and the spells they cast
+#             into data/spells/externals.yaml
+#   classes   the classes it is offered to; absent = every class
+#
 # World buffs (Rallying Cry, Songflower, Spirit of Zandalar, Warchief's Blessing, the
 # Dire Maul tribute buffs) are left out on purpose: Forever does not offer them the same way.
 # Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff.
@@ -101,3 +108,8 @@ debuffs:
     mutex: armor_debuff
   - name: Annihilator
     spell: 16928
+
+consumables:
+  - name: Thistle Tea
+    item: 7676
+    classes: [ROGUE]

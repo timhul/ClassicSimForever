@@ -387,7 +387,9 @@ pub struct ProcOverride {
     pub hit_mask: Option<ProcHitMask>,
     /// The aura effect whose value is the proc chance in percent, for talents whose rank value
     /// is the chance (Unbridled Wrath 12/24/36/48/60 %) rather than the payload's value: the
-    /// table's `ProcChance` is the max-rank number.
+    /// table's `ProcChance` is the max-rank number. An effect without a value gives its value
+    /// per combo point (`points_per_resource`: Revealed Flaw's 5 %, with
+    /// `chance_per_combo_point`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub chance_effect: Option<u32>,
     /// The weapon a scripted proc is bound to: only that hand's swings and abilities trigger
@@ -419,6 +421,10 @@ pub struct ProcOverride {
     /// Thousand Cuts on Rupture's ticks).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub family_mask: Option<[u32; 4]>,
+    /// As `family_mask`, the `SpellClassMask` of this aura effect of the proc (the server's
+    /// default when `spell_proc` names no mask: Head Rush, Revealed Flaw).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask_effect: Option<u32>,
     /// The aura effect whose value is the least number of combo points the finisher must have
     /// spent (Improved Expose Armor's `$m3`: 5).
     #[serde(default, skip_serializing_if = "Option::is_none")]

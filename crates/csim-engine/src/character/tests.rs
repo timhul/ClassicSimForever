@@ -1127,6 +1127,7 @@ fn shipped_rogue_data_learns_and_runs() {
 
 mod energy;
 mod rogue;
+mod rogue_items;
 mod rogue_poisons;
 mod rogue_procs;
 mod rogue_stealth;

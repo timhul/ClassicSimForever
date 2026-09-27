@@ -847,10 +847,14 @@ impl Spell {
             .and_then(|p| p.chance_effect)
             .and_then(|index| {
                 let buff = host.buff(self.marker_buff?);
-                buff.effects
-                    .iter()
-                    .find(|e| e.index() == index)
-                    .map(Effect::value)
+                buff.effects.iter().find(|e| e.index() == index).map(|e| {
+                    let value = e.value();
+                    if value == 0.0 {
+                        f64::from(e.record().points_per_resource)
+                    } else {
+                        value
+                    }
+                })
             });
         let from_override = self.setup.overrides.proc.and_then(|p| p.chance);
         let percent = match percent.or(from_effect).or(from_override) {

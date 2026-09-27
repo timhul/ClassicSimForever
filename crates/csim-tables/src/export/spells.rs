@@ -14,6 +14,7 @@ use std::path::{Path, PathBuf};
 
 use csim_engine::buff::external::ExternalBuffDb;
 use csim_engine::faction::PlayerClass;
+use csim_engine::item::spec::{EffectTrigger, ItemEffect};
 use csim_engine::item::{ItemSetFile, ItemSpec};
 use csim_engine::rulesets::Ruleset;
 use csim_engine::spell::dbc::{
@@ -22,9 +23,9 @@ use csim_engine::spell::dbc::{
 };
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{
-    AuraOptions, AuraRestrictions, Categories, ClassOptions, Cooldown, EffectRecord, EquippedItems,
-    ItemEnchantmentEffect, ItemEnchantmentRecord, ItemEnchantmentType, Levels, PowerCost,
-    SpellFile, SpellRecord,
+    AuraOptions, AuraRestrictions, Categories, ClassOptions, ConsumableItemRecord, Cooldown,
+    EffectRecord, EquippedItems, ItemEnchantmentEffect, ItemEnchantmentRecord, ItemEnchantmentType,
+    Levels, PowerCost, SpellFile, SpellRecord,
 };
 
 use crate::db::Tables;
@@ -46,6 +47,10 @@ pub enum ExportError {
     NoRacialLines,
     #[error("external buff spells not in the tables: {0:?}")]
     MissingSeeds(Vec<u32>),
+    #[error(
+        "consumable items not in the tables (Item / ItemSparse) or without a use effect: {0:?}"
+    )]
+    MissingConsumables(Vec<u32>),
     #[error("item enchantments not in the tables (SpellItemEnchantment): {0:?}")]
     MissingEnchantments(Vec<u32>),
     #[error(
@@ -285,6 +290,56 @@ pub fn external_seeds(registry: &ExternalBuffDb) -> BTreeSet<u32> {
     seeds
 }
 
+/// Builds `data/spells/externals.yaml`: [`export_externals_with_report`] of `seeds` plus the
+/// spells the `consumables` use ([`consumable_items`]), with the consumable item records.
+pub fn export_externals_with_consumables(
+    tables: &Tables,
+    seeds: &BTreeSet<u32>,
+    consumables: &BTreeSet<u32>,
+    exclude: &BTreeSet<u32>,
+    overrides: &Overrides,
+) -> Result<(SpellFile, PruneReport), ExportError> {
+    let records = consumable_items(tables, consumables)?;
+    let mut seeds = seeds.clone();
+    seeds.extend(records.iter().flat_map(|r| r.uses().map(|e| e.spell)));
+    let (mut file, report) = export_externals_with_report(tables, &seeds, exclude, overrides)?;
+    file.consumable_items = records;
+    Ok((file, report))
+}
+
+/// The consumable items `data/external_buffs.yaml` lists (`consumables`, by item id) as
+/// records: their use effects (§1.7 of `ITEM_INSTRUCTIONS.md`), with the item's cooldowns.
+/// Their spells are external seeds too ([`external_seeds`]).
+pub fn consumable_items(
+    tables: &Tables,
+    items: &BTreeSet<u32>,
+) -> Result<Vec<ConsumableItemRecord>, ExportError> {
+    let mut records = Vec::new();
+    let mut missing = Vec::new();
+    for &id in items {
+        let mut issues = Vec::new();
+        let effects: Vec<ItemEffect> = crate::export::items::item_effects(tables, id, &mut issues)
+            .into_iter()
+            .filter(|e| e.trigger == EffectTrigger::Use)
+            .collect();
+        match tables.item_sparse(id) {
+            Some(sparse) if !effects.is_empty() && issues.is_empty() => {
+                records.push(ConsumableItemRecord {
+                    id,
+                    name: sparse.name.clone(),
+                    effects,
+                });
+            }
+            _ => missing.push(id),
+        }
+    }
+    if missing.is_empty() {
+        Ok(records)
+    } else {
+        Err(ExportError::MissingConsumables(missing))
+    }
+}
+
 /// Builds the external buff walk (`data/spells/externals.yaml`): the closure of `seeds`
 /// ([`external_seeds`]), pruned, minus `exclude` (the ids another
 /// file in `data/spells/` already carries, which the engine loads either way). The file has no
@@ -397,6 +452,7 @@ fn build_file(
         learnable: true,
         spells,
         item_enchantments: Vec::new(),
+        consumable_items: Vec::new(),
     }
 }
 

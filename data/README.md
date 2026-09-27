@@ -152,6 +152,12 @@ Sunder Armor ×5, Armor Shatter ×3). Selected buffs are applied once and stay a
 iterations; the numbers change by re-exporting `externals.yaml`, not by editing the registry.
 World buffs are deliberately absent (not available in Forever the same way).
 
+Its `consumables` are items used in combat from the bags (Thistle Tea), named by item id: the
+export writes the item's use effects (spell, item cooldown, shared category cooldown, from
+`ItemEffect`) into `externals.yaml` as `consumable_items` next to the spells they cast. A
+character's `consumables` list grants them like a trinket's use; the rotation casts one by the
+consumable's name.
+
 ## What goes in the overrides
 
 The tables describe *what* a spell does; a few things they do not carry are written by hand in

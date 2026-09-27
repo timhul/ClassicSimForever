@@ -45,9 +45,18 @@ pub(super) fn data() -> std::path::PathBuf {
 /// An Orc Rogue with the shipped data (spells, talents, enchants), a sword in the main hand,
 /// `talents` spent and `rotation` (YAML body after the class and name) set.
 pub(super) fn rogue(talents: &[(u32, u32)], rotation: &str) -> Fixture {
+    rogue_with(equipment_db_with_enchants(), talents, rotation)
+}
+
+/// [`rogue`] with the items of `equipment`.
+pub(super) fn rogue_with(
+    equipment: Arc<EquipmentDb>,
+    talents: &[(u32, u32)],
+    rotation: &str,
+) -> Fixture {
     let classes = crate::character::ClassDb::load(&data().join("classes"), None).unwrap();
     let class = Arc::clone(classes.get(crate::faction::PlayerClass::Rogue).unwrap());
-    let mut f = Fixture::orc_with(class, equipment_db_with_enchants());
+    let mut f = Fixture::orc_with(class, equipment);
     f.db = SpellDb::load(&data().join("spells")).expect("shipped spell data loads");
     let trees = TalentDb::load(&data().join("talents")).unwrap();
     let tree = Arc::clone(trees.get(crate::faction::PlayerClass::Rogue).unwrap());

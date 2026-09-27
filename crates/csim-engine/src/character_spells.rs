@@ -96,6 +96,8 @@ pub enum EquipmentGrantor {
     Enchant(EnchantName),
     /// A bonus of the item set with this id (no slot).
     SetBonus(u32),
+    /// A use effect of the consumable item with this id (no slot).
+    Consumable(u32),
 }
 
 /// One spell granted by the equipment, as [`CharacterSpells`] keys it. Equipment spells are

@@ -23,7 +23,7 @@ pub mod context;
 use std::sync::Arc;
 
 use crate::attack_mode::AttackMode;
-use crate::buff::external::GeneralBuffs;
+use crate::buff::external::{ConsumableSpec, GeneralBuffs};
 use crate::character_spells::CharacterSpells;
 use crate::combat_roll::{CombatRoll, MagicRollContext, RollContext};
 use crate::equipment::Equipment;
@@ -118,6 +118,8 @@ pub struct Character {
     spells: CharacterSpells,
     /// The external buffs the character is offered (`CharacterContext::add_external_buffs`).
     general_buffs: GeneralBuffs,
+    /// The items the character uses in combat (`CharacterContext::set_consumables`).
+    consumables: Vec<ConsumableSpec>,
     modifiers: SpellModifiers,
     /// The talent setups, once attached (`CharacterContext::set_talents`).
     talents: Option<CharacterTalents>,
@@ -223,6 +225,7 @@ impl Character {
             equipment: Equipment::new(equipment_db, phase, faction, class.class),
             spells: CharacterSpells::new(id, seed),
             general_buffs: GeneralBuffs::new(),
+            consumables: Vec::new(),
             modifiers: SpellModifiers::new(),
             talents: None,
             roll: CombatRoll::new(target_level),
@@ -446,6 +449,11 @@ impl Character {
     /// The external buffs the character is offered and which of them are selected.
     pub fn external_buffs(&self) -> &GeneralBuffs {
         &self.general_buffs
+    }
+
+    /// The items the character uses in combat (Thistle Tea).
+    pub fn consumables(&self) -> &[ConsumableSpec] {
+        &self.consumables
     }
 
     pub fn spell_modifiers(&self) -> &SpellModifiers {

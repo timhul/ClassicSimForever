@@ -24,6 +24,8 @@
 //!   HEAD: { item: 12640 }
 //! buffs: [Battle Squawk]       # data/external_buffs.yaml `buffs`, by name
 //! debuffs: [Sunder Armor]      # data/external_buffs.yaml `debuffs`, by name
+//! consumables: [Thistle Tea]   # data/external_buffs.yaml `consumables`, by name; the
+//!                              # rotation uses them
 //! target:                      # default: a level 63 Dragonkin raid boss with 3750 armor
 //!   level: 63
 //!   armor: 3731
@@ -237,6 +239,9 @@ pub struct CharacterSetup {
     pub buffs: Vec<String>,
     #[serde(default)]
     pub debuffs: Vec<String>,
+    /// Items used in combat, by name (`consumables` of `data/external_buffs.yaml`).
+    #[serde(default)]
+    pub consumables: Vec<String>,
     #[serde(default)]
     pub target: TargetSetup,
     /// The file the setup was loaded from, for error messages.
@@ -770,6 +775,23 @@ impl CharacterSetup {
                     }
                 }
             }
+
+            let mut consumables = Vec::new();
+            for name in &self.consumables {
+                let context = format!("consumables.{name}");
+                match data.external_buffs.consumable(name) {
+                    None => issues.push(context, "not in data/external_buffs.yaml `consumables`"),
+                    Some(spec) if !spec.valid_for_class(self.class) => issues.push(
+                        context,
+                        format!("is not a consumable the {:?} uses", self.class),
+                    ),
+                    Some(spec) if consumables.contains(spec) => {
+                        issues.push(context, "is listed twice");
+                    }
+                    Some(spec) => consumables.push(spec.clone()),
+                }
+            }
+            ctx.set_consumables(db, consumables);
 
             ctx.sync_ruleset_spells(db);
             if let Some(rotation) = rotation {

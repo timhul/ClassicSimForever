@@ -45,6 +45,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::faction::PlayerClass;
+use crate::item::spec::{EffectTrigger, ItemEffect};
 use crate::spell::Hand;
 use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
@@ -96,6 +97,10 @@ pub struct SpellFile {
     /// poisons, whose payloads are among `spells` (`export-spells --enchants`).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub item_enchantments: Vec<ItemEnchantmentRecord>,
+    /// The consumables `data/external_buffs.yaml` lists under `consumables` (Thistle Tea): the
+    /// item's use effects, whose spells are among `spells` (`export-spells --externals`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub consumable_items: Vec<ConsumableItemRecord>,
 }
 
 impl Default for SpellFile {
@@ -106,7 +111,27 @@ impl Default for SpellFile {
             learnable: true,
             spells: Vec::new(),
             item_enchantments: Vec::new(),
+            consumable_items: Vec::new(),
         }
+    }
+}
+
+/// A consumable item used in combat (Thistle Tea): its `ItemEffect` rows, with the item's
+/// cooldown and shared category cooldown, which its spell's record does not carry.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConsumableItemRecord {
+    pub id: u32,
+    pub name: String,
+    pub effects: Vec<ItemEffect>,
+}
+
+impl ConsumableItemRecord {
+    /// The on-use effects.
+    pub fn uses(&self) -> impl Iterator<Item = &ItemEffect> {
+        self.effects
+            .iter()
+            .filter(|e| e.trigger == EffectTrigger::Use)
     }
 }
 
@@ -977,6 +1002,10 @@ pub enum SpellDbError {
     DuplicateEnchantment(u32),
     #[error("item enchantment {enchantment} casts unknown spell {spell}")]
     UnknownEnchantmentSpell { enchantment: u32, spell: u32 },
+    #[error("consumable item {0} is defined twice")]
+    DuplicateConsumable(u32),
+    #[error("consumable item {item} uses unknown spell {spell}")]
+    UnknownConsumableSpell { item: u32, spell: u32 },
     #[error("spell {spell}: {message}")]
     Invalid { spell: u32, message: String },
     #[error("spell {spell} ({field}) refers to unknown spell {target}")]
@@ -1025,6 +1054,7 @@ pub struct SpellDb {
     /// The spells another spell's `TRIGGER_SPELL` effect casts (Mutilate's strikes).
     triggered: HashSet<u32>,
     item_enchantments: HashMap<u32, ItemEnchantmentRecord>,
+    consumable_items: HashMap<u32, ConsumableItemRecord>,
     overrides: Overrides,
 }
 
@@ -1107,8 +1137,23 @@ impl SpellDb {
                 return Err(SpellDbError::DuplicateEnchantment(enchantment.id));
             }
         }
+        for item in &file.consumable_items {
+            if self.consumable_items.contains_key(&item.id)
+                || file
+                    .consumable_items
+                    .iter()
+                    .filter(|i| i.id == item.id)
+                    .count()
+                    > 1
+            {
+                return Err(SpellDbError::DuplicateConsumable(item.id));
+            }
+        }
         for enchantment in file.item_enchantments {
             self.item_enchantments.insert(enchantment.id, enchantment);
+        }
+        for item in file.consumable_items {
+            self.consumable_items.insert(item.id, item);
         }
         for record in file.spells {
             if !file.learnable {
@@ -1193,6 +1238,16 @@ impl SpellDb {
                 }
             }
         }
+        for item in self.consumable_items.values() {
+            for effect in item.uses() {
+                if !self.spells.contains_key(&effect.spell) {
+                    return Err(SpellDbError::UnknownConsumableSpell {
+                        item: item.id,
+                        spell: effect.spell,
+                    });
+                }
+            }
+        }
         Ok(())
     }
 
@@ -1239,6 +1294,18 @@ impl SpellDb {
                         "the override takes the proc chance from an effect and gives a rate",
                     ));
                 }
+            }
+            if let Some(index) = spell_override.proc.and_then(|p| p.family_mask_effect)
+                && record
+                    .effect(index)
+                    .is_none_or(|e| e.spell_class_mask == [0; 4])
+            {
+                return Err(SpellDbError::Invalid {
+                    spell: id,
+                    message: format!(
+                        "the override takes the proc's family mask from effect {index}, which has none"
+                    ),
+                });
             }
             if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect)
                 && !record
@@ -1374,6 +1441,11 @@ impl SpellDb {
     /// The `SpellItemEnchantment` row `id`, if a spell file carries it.
     pub fn item_enchantment(&self, id: u32) -> Option<&ItemEnchantmentRecord> {
         self.item_enchantments.get(&id)
+    }
+
+    /// The consumable item `id`, if a spell file carries it.
+    pub fn consumable_item(&self, id: u32) -> Option<&ConsumableItemRecord> {
+        self.consumable_items.get(&id)
     }
 
     /// Whether `id` is loaded.
@@ -2041,6 +2113,7 @@ overrides:
                 (**db.get(284).unwrap()).clone(),
             ],
             item_enchantments: Vec::new(),
+            consumable_items: Vec::new(),
         };
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));

@@ -247,7 +247,13 @@ fn export_spells(
                 eprintln!("already in another spell file, not repeated: {repeated:?}");
             }
             (
-                export::export_externals_with_report(tables, &seeds, &exclude, &overrides)?,
+                export::export_externals_with_consumables(
+                    tables,
+                    &seeds,
+                    &registry.consumable_item_ids(),
+                    &exclude,
+                    &overrides,
+                )?,
                 "export-spells --externals".to_owned(),
                 EXTERNALS_FILE.to_owned(),
             )

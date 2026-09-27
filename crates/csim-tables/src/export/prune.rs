@@ -187,6 +187,7 @@ mod tests {
             learnable: true,
             spells,
             item_enchantments: Vec::new(),
+            consumable_items: Vec::new(),
         }
     }
 

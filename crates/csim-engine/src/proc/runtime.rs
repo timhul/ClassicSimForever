@@ -140,7 +140,7 @@ impl Proc {
     /// `Item::add_default_proc_sources`. Returns `None` when the record and the slot have no
     /// trigger in common (a main-hand only proc on a trinket).
     pub fn for_equipment(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
-        let mut sources = Self::record_sources(&spell);
+        let mut sources = Self::sources_of(&spell);
         sources.retain(|source| allowed.contains(source));
         if sources.is_empty() {
             return None;
@@ -306,7 +306,11 @@ impl Proc {
         if filter.builder && !trigger.awards_combo_points {
             return false;
         }
-        if let Some(mask) = filter.family_mask {
+        let effect_mask = filter.family_mask_effect.and_then(|index| {
+            let effect = self.spell.record().effect(index)?;
+            Some(effect.spell_class_mask)
+        });
+        if let Some(mask) = filter.family_mask.or(effect_mask) {
             let family = self.spell.record().class_options.map(|c| c.set);
             let selected = trigger
                 .class_options

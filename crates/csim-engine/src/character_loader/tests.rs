@@ -266,6 +266,7 @@ talents:
 equipment:
   MAINHAND: { item: 18866, enchant: Crusader, temp_enchants: [InstantPoison] }
   OFFHAND: { item: 18866, temp_enchants: [InstantPoison] }
+consumables: [Thistle Tea]
 "#;
     let setup: CharacterSetup = serde_yaml::from_str(text).unwrap();
     let found = issues(&setup);
@@ -274,6 +275,28 @@ equipment:
     let mut tauren = setup.clone();
     tauren.race = Race::Tauren;
     assert!(contexts(&issues(&tauren)).contains(&"race"));
+}
+
+/// A consumable must be in the registry, offered to the class, and listed once.
+#[test]
+fn consumables_are_checked() {
+    let mut setup = minimal();
+    setup.consumables = vec![
+        "Thistle Tea".to_string(),
+        "Nothing".to_string(),
+        "Nothing".to_string(),
+    ];
+    let found = issues(&setup);
+    assert_eq!(
+        contexts(&found),
+        [
+            "consumables.Thistle Tea",
+            "consumables.Nothing",
+            "consumables.Nothing"
+        ],
+        "{found:#?}"
+    );
+    assert!(found[0].message.contains("WARRIOR") || found[0].message.contains("Warrior"));
 }
 
 #[test]
