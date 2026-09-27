@@ -576,13 +576,8 @@ impl Effect {
             }
             // Damage of `value` % of the caster's maximum health (Touch of the Grave); the
             // healing is not modelled.
-            // It stays off the magic table for now (Touch of the Grave's drain always lands).
             E::HealthLeech => {
-                let outcome = if self.defense == DefenseType::Melee {
-                    self.roll_attack(host, extra_crit, self.can_crit)
-                } else {
-                    EffectOutcome::plain(true)
-                };
+                let outcome = self.roll_attack(host, extra_crit, self.can_crit);
                 if outcome.success {
                     self.damage_dealt =
                         f64::from(host.max_health()) * self.effective_value(host) / 100.0;
@@ -751,8 +746,7 @@ impl Effect {
         let melee = self.defense == DefenseType::Melee;
         self.weapon_damage_kind()
             || match self.record.effect {
-                E::SchoolDamage => melee || self.rolls_spell_table(),
-                E::HealthLeech => melee,
+                E::SchoolDamage | E::HealthLeech => melee || self.rolls_spell_table(),
                 _ => {
                     self.is_melee_debuff()
                         || self.is_strike_trigger()
@@ -1747,15 +1741,20 @@ mod tests {
 
     #[test]
     fn health_leech_deals_a_percent_of_the_caster_max_health() {
-        let mut host = MockHost::new();
+        let mut host = MockHost::new().with_spell_rolls(&[SpellRoll::HIT]);
         let mut spell = magic_spell(SpellSchoolMask::SHADOW, DefenseType::Magic);
         let record = effect_record(0, SpellEffectName::HealthLeech, 5.0);
         spell.effects = vec![record.clone()];
         let mut drain = Effect::new(&record, &spell, None, false);
         let outcome = drain.perform_independent(&mut host, 0, 0);
         assert!(outcome.success);
-        assert_eq!(outcome.spell_roll, None, "not on the magic table yet");
+        assert_eq!(outcome.spell_roll, Some(SpellRoll::HIT));
         assert_eq!(drain.damage_dealt, 200.0, "5 % of 4000");
+        // A drain is a binary spell: it lands fully or not at all.
+        assert_eq!(
+            host.spell_rolled_with,
+            [(MagicSchool::Shadow, SpellResistKind::Binary, true)]
+        );
     }
 
     /// The magic table is for spells whose `DefenseType` is magic, or none with a magic school;
