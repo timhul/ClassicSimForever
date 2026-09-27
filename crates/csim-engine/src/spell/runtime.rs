@@ -1794,7 +1794,7 @@ impl Spell {
     /// through the `DURATION` modifiers (Improved Slice and Dice). The points the cast adds to
     /// its aura effects: combo points times `EffectPointsPerResource` (Expose Armor's armor,
     /// Rupture's ticks), and the attack power shares of `COMBO_POINT_AP_DAMAGE` (spread over
-    /// the ticks) and `ATTACK_POWER_PER_TICK`. An active aura whose values change is removed
+    /// the ticks), `ATTACK_POWER_PER_TICK` and `AP_COEFFICIENT`. An active aura whose values change is removed
     /// first, so the new application does not keep the old values.
     fn prepare_buff(&self, host: &mut impl SpellHost, id: BuffId, combo_points: u32) {
         if self.setup.bleed_aura.is_some() {
@@ -1840,6 +1840,11 @@ impl Spell {
                         }
                         ScriptKind::AttackPowerPerTick if script.index == effect.index() => {
                             bonus += ap * script.params.value.unwrap_or(0.0) / 100.0;
+                        }
+                        ScriptKind::ApCoefficient
+                            if script.index == effect.index() && effect.is_periodic_aura() =>
+                        {
+                            bonus += ap * script.params.value.unwrap_or(0.0);
                         }
                         _ => {}
                     }
@@ -1944,8 +1949,12 @@ impl Spell {
                     panic!("periodic spell {} has no id", self.setup.record.name)
                 });
                 periodic.start(id, host, &kind);
+                periodic.set_aura_stacks(1);
             }
-            BuffApplication::Refreshed { .. } => periodic.refresh(&kind),
+            BuffApplication::Refreshed { stacks } => {
+                periodic.refresh(&kind);
+                periodic.set_aura_stacks(stacks);
+            }
             BuffApplication::NotApplied => {}
         }
     }

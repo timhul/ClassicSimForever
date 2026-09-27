@@ -40,6 +40,8 @@ const SHIELD: u32 = 4;
 const FIST_WEAPON: u32 = 5;
 const MACE: u32 = 6;
 const AXE: u32 = 7;
+/// A dagger whose damage does not vary.
+const EVEN_DAGGER: u32 = 8;
 
 const ITEMS_YAML: &str = r#"
 - id: 1
@@ -106,6 +108,15 @@ const ITEMS_YAML: &str = r#"
   req_lvl: 60
   item_lvl: 60
   damage: { min: 80, max: 120, speed: 2.6 }
+- id: 8
+  name: Even Dagger
+  phase: 1
+  slot: "1H"
+  type: DAGGER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 50, max: 50, speed: 1.8 }
 "#;
 
 pub(crate) fn warrior_class() -> Arc<ClassSpec> {
@@ -124,6 +135,15 @@ pub(crate) fn equipment_db() -> Arc<EquipmentDb> {
     Arc::new(EquipmentDb::from_specs(items, Vec::new()).unwrap())
 }
 
+/// [`equipment_db`] with the shipped enchants (`data/enchants.yaml`).
+pub(crate) fn equipment_db_with_enchants() -> Arc<EquipmentDb> {
+    let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
+    let mut db = EquipmentDb::from_specs(items, Vec::new()).unwrap();
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/enchants.yaml");
+    db.set_enchants(crate::enchant::EnchantDb::load(&path).unwrap());
+    Arc::new(db)
+}
+
 /// A one-character world.
 pub(crate) struct Fixture {
     pub character: Character,
@@ -140,13 +160,18 @@ impl Fixture {
 
     /// An orc of `class`.
     pub fn orc(class: Arc<ClassSpec>) -> Self {
+        Self::orc_with(class, equipment_db())
+    }
+
+    /// An orc of `class` whose items and enchants are `equipment`'s.
+    pub fn orc_with(class: Arc<ClassSpec>, equipment: Arc<EquipmentDb>) -> Self {
         let mut engine = Engine::new();
         engine.prepare_iteration(0.0);
         let character = Character::new(
             CharId(0),
             class,
             &race(Race::Orc),
-            equipment_db(),
+            equipment,
             Phase::MoltenCore,
             SimParams::default(),
             63,
@@ -1102,6 +1127,7 @@ fn shipped_rogue_data_learns_and_runs() {
 
 mod energy;
 mod rogue;
+mod rogue_poisons;
 mod rogue_procs;
 mod rogue_talents;
 

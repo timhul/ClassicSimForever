@@ -92,6 +92,10 @@ pub struct SpellFile {
     pub learnable: bool,
     #[serde(default)]
     pub spells: Vec<SpellRecord>,
+    /// The `SpellItemEnchantment` rows `data/enchants.yaml` names (`enchantment:`): the rogue
+    /// poisons, whose payloads are among `spells` (`export-spells --enchants`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub item_enchantments: Vec<ItemEnchantmentRecord>,
 }
 
 impl Default for SpellFile {
@@ -101,7 +105,73 @@ impl Default for SpellFile {
             class: None,
             learnable: true,
             spells: Vec::new(),
+            item_enchantments: Vec::new(),
         }
+    }
+}
+
+/// A `SpellItemEnchantment` row: what an enchantment on an item does.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemEnchantmentRecord {
+    pub id: u32,
+    pub name: String,
+    /// Uses before the enchantment is gone (a poison's doses); not simulated.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub charges: u32,
+    pub effects: Vec<ItemEnchantmentEffect>,
+}
+
+impl ItemEnchantmentRecord {
+    /// The combat spells: (spell, chance in percent) per `COMBAT_SPELL` effect.
+    pub fn combat_spells(&self) -> impl Iterator<Item = (u32, f64)> + '_ {
+        self.effects
+            .iter()
+            .filter(|e| e.effect == ItemEnchantmentType::CombatSpell)
+            .map(|e| (e.arg, f64::from(e.points)))
+    }
+}
+
+/// One effect of a [`ItemEnchantmentRecord`] (`Effect_n`, `EffectPointsMin_n`, `EffectArg_n`).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemEnchantmentEffect {
+    pub effect: ItemEnchantmentType,
+    /// `EffectPointsMin`: a combat spell's chance in percent, a stat's amount.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub points: i32,
+    /// `EffectArg`: the spell of a combat, equip or use spell, the stat or school otherwise.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub arg: u32,
+}
+
+/// `SpellItemEnchantment.Effect` (retail `ItemEnchantmentType`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ItemEnchantmentType {
+    /// Casts `arg` on the target when the enchanted weapon hits, at `points` % chance.
+    CombatSpell,
+    Damage,
+    EquipSpell,
+    Resistance,
+    Stat,
+    Totem,
+    UseSpell,
+}
+
+impl ItemEnchantmentType {
+    /// The type of a table value; `None` for 0 (no effect) and unknown values.
+    pub fn from_id(id: u32) -> Option<Self> {
+        Some(match id {
+            1 => Self::CombatSpell,
+            2 => Self::Damage,
+            3 => Self::EquipSpell,
+            4 => Self::Resistance,
+            5 => Self::Stat,
+            6 => Self::Totem,
+            7 => Self::UseSpell,
+            _ => return None,
+        })
     }
 }
 
@@ -885,6 +955,10 @@ pub enum SpellDbError {
     },
     #[error("spell {0} is defined twice")]
     Duplicate(u32),
+    #[error("item enchantment {0} is defined twice")]
+    DuplicateEnchantment(u32),
+    #[error("item enchantment {enchantment} casts unknown spell {spell}")]
+    UnknownEnchantmentSpell { enchantment: u32, spell: u32 },
     #[error("spell {spell}: {message}")]
     Invalid { spell: u32, message: String },
     #[error("spell {spell} ({field}) refers to unknown spell {target}")]
@@ -932,6 +1006,7 @@ pub struct SpellDb {
     next_rank: HashMap<u32, u32>,
     /// The spells another spell's `TRIGGER_SPELL` effect casts (Mutilate's strikes).
     triggered: HashSet<u32>,
+    item_enchantments: HashMap<u32, ItemEnchantmentRecord>,
     overrides: Overrides,
 }
 
@@ -1002,6 +1077,21 @@ impl SpellDb {
                 return Err(SpellDbError::Duplicate(record.id));
             }
         }
+        for enchantment in &file.item_enchantments {
+            if self.item_enchantments.contains_key(&enchantment.id)
+                || file
+                    .item_enchantments
+                    .iter()
+                    .filter(|e| e.id == enchantment.id)
+                    .count()
+                    > 1
+            {
+                return Err(SpellDbError::DuplicateEnchantment(enchantment.id));
+            }
+        }
+        for enchantment in file.item_enchantments {
+            self.item_enchantments.insert(enchantment.id, enchantment);
+        }
         for record in file.spells {
             if !file.learnable {
                 self.unlearnable.insert(record.id);
@@ -1070,7 +1160,22 @@ impl SpellDb {
     /// and that every override names a loaded spell, an existing effect and existing spells.
     pub fn check_references(&self) -> Result<(), SpellDbError> {
         self.check_record_references()?;
+        self.check_enchantment_references()?;
         self.check_override_references()
+    }
+
+    fn check_enchantment_references(&self) -> Result<(), SpellDbError> {
+        for enchantment in self.item_enchantments.values() {
+            for (spell, _) in enchantment.combat_spells() {
+                if !self.spells.contains_key(&spell) {
+                    return Err(SpellDbError::UnknownEnchantmentSpell {
+                        enchantment: enchantment.id,
+                        spell,
+                    });
+                }
+            }
+        }
+        Ok(())
     }
 
     fn check_override_references(&self) -> Result<(), SpellDbError> {
@@ -1246,6 +1351,11 @@ impl SpellDb {
     /// The record with `id`.
     pub fn get(&self, id: u32) -> Option<&Arc<SpellRecord>> {
         self.spells.get(&id)
+    }
+
+    /// The `SpellItemEnchantment` row `id`, if a spell file carries it.
+    pub fn item_enchantment(&self, id: u32) -> Option<&ItemEnchantmentRecord> {
+        self.item_enchantments.get(&id)
     }
 
     /// Whether `id` is loaded.
@@ -1912,6 +2022,7 @@ overrides:
                 (**db.get(12294).unwrap()).clone(),
                 (**db.get(284).unwrap()).clone(),
             ],
+            item_enchantments: Vec::new(),
         };
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));

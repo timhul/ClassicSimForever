@@ -60,6 +60,7 @@ pub struct Tables {
     spell_equipped_items: HashMap<u32, SpellEquippedItemsRow>,
     spell_target_restrictions: HashMap<u32, SpellTargetRestrictionsRow>,
     spell_labels: HashMap<u32, Vec<u32>>,
+    spell_item_enchantments: HashMap<u32, SpellItemEnchantmentRow>,
 
     skill_lines: HashMap<u32, SkillLineRow>,
     skill_line_abilities: Vec<SkillLineAbilityRow>,
@@ -364,6 +365,7 @@ impl Tables {
                 |r| r.spell_id,
             ),
             spell_labels,
+            spell_item_enchantments: by_key(dir.read::<SpellItemEnchantmentRow>()?, |r| r.id),
 
             skill_lines: by_key(dir.read::<SkillLineRow>()?, |r| r.id),
             skill_line_abilities,
@@ -526,6 +528,11 @@ impl Tables {
     /// `SpellClassOptions`.
     pub fn spell_class_options(&self, spell_id: u32) -> Option<&SpellClassOptionsRow> {
         self.spell_class_options.get(&spell_id)
+    }
+
+    /// `SpellItemEnchantment` by id.
+    pub fn spell_item_enchantment(&self, id: u32) -> Option<&SpellItemEnchantmentRow> {
+        self.spell_item_enchantments.get(&id)
     }
 
     /// Every `SpellClassOptions` row, for family-wide queries.

@@ -103,7 +103,7 @@ overrides:
       - { index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }
       - { index: 1, script: NO_OP }
   - id: 1310703
-    note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms); E1-E3 are the poisons' damage, Deadly Poison's ticks and the chance to apply them while the buff lasts (the poisons are RG.5)
+    note: Venom (finisher); E0 is the per-combo-point duration (duration_per_resource_ms); E1-E3 are the poisons' damage, Deadly Poison's ticks and the chance to apply them while the buff lasts
     effects: [{ index: 0, script: NO_OP }]
 
   # ----- Builders -----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ overrides:
     note: Hemorrhage; E4 is the weapon damage with a main-hand dagger, 145 % instead of E3's 100 %
     effects: [{ index: 4, script: WEAPON_TYPE_VALUE, params: { effect: 3, weapon_subclass_mask: 32768 } }]
   - id: 1310707
-    note: Mutilate r1 (talent); E3 is +20 % damage of the two strikes against a target with one of the rogue's poisons (poisons come with RG.5)
+    note: Mutilate r1 (talent); E3 is +20 % damage of the two strikes against a target with one of the rogue's poisons (Deadly Poison, the one that stays on the target)
     effects: [{ index: 3, script: DAMAGE_PERCENT_VS_POISONED }]
   - id: 399956
     note: Mutilate r2, see r1

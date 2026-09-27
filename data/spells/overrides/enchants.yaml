@@ -1,5 +1,6 @@
 # Hand-written overrides for the spells the enchant procs cast (data/spells/enchants.yaml,
-# exported from build 1.60.1.70009 from the `spell:` keys in data/enchants.yaml). See
+# exported from build 1.60.1.70009 from the `spell:` and `enchantment:` keys in
+# data/enchants.yaml). See
 # crates/csim-engine/src/spell/overrides.rs for the schema.
 
 overrides:
@@ -9,3 +10,15 @@ overrides:
       points hold the payload 10610, cast on a main-hand hit. The hand the enchant sits in decides the proc sources,
       so the override only names the payload.
     effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 10610 } }]
+
+  # ----- Rogue poisons ------------------------------------------------------------------------
+  # The attack power scaling is server data (forever-bugs #100); TASKS.md decision 2.
+  - id: 11337
+    note: Instant Poison VI; 0.5 % of attack power added to each hit
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.005 } }]
+  - id: 25349
+    note: >-
+      Deadly Poison V; 0.45 % of attack power added to each tick per stack. Every rogue has
+      a stack of their own on the target (it is not the raid's shared debuff Sunder Armor is).
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.0045 } }]
+    debuff_shared: false

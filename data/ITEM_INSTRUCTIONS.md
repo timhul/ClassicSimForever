@@ -54,7 +54,7 @@ ItemSparse.ItemNameDescriptionID ──> ItemNameDescription.ID  (grey subtitle 
 | `ItemBonus`, `ItemBonusList`, `ItemBonusTree`, `ItemBonusTreeNode`, `ItemXBonusTree` | | Random-suffix ("of the Bear") system. |
 | `ItemLimitCategory` | 52 | Unique-equipped groups ("Signet Ring of the Bronze Dragonflight", quantity 1). |
 | `ItemNameDescription` | 92 | Subtitle strings; also the suffix names used by `ItemBonus` type 5. |
-| `SpellItemEnchantment` | | Enchants (Crusader = 1900, Fiery Weapon = 803). Not item data; needed later for enchant support. |
+| `SpellItemEnchantment` | | Enchants (Crusader = 1900, Fiery Weapon = 803). Not item data; the rogue poisons' rows (the `enchantment:` keys of `data/enchants.yaml`) go into `data/spells/enchants.yaml` with `export-spells --enchants`. |
 | Ignore | | `ItemSearchName` (AH search subset), `ItemExtendedCost` (vendor prices), `ItemBonusListGroup`, `ItemCondition`, `ItemLimitCategoryCondition`, `ItemSpecOverride`, `ItemSubClassMask`, `PlayerCondition` (only 2 `ItemEffect` rows reference it). |
 
 ## 1.3 Enumerations (as observed in this build)

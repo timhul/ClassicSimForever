@@ -186,6 +186,7 @@ mod tests {
             class: None,
             learnable: true,
             spells,
+            item_enchantments: Vec::new(),
         }
     }
 

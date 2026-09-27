@@ -494,7 +494,7 @@ fn poison_modifiers(f: &Fixture) -> (f64, f64, f64) {
 }
 
 /// Vile Poisons 5/5 (+20 % damage, +20 % Deadly Poison ticks) and Improved Poisons 5/5 (+10 %
-/// chance) modify the poisons, which come with RG.5.
+/// chance) modify the poisons (see `rogue_poisons` for their effect on the poisons).
 #[test]
 fn vile_and_improved_poisons_modify_the_poisons() {
     let f = with_talents(&[(VILE_POISONS, 5), (IMPROVED_POISONS, 5)]);

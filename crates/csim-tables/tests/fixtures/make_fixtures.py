@@ -74,6 +74,8 @@ keep("SpellAuraRestrictions", in_set("SpellID", SPELLS))
 keep("SpellEquippedItems", in_set("SpellID", SPELLS))
 keep("SpellTargetRestrictions", in_set("SpellID", SPELLS))
 keep("SpellLabel", in_set("SpellID", SPELLS))
+# Instant Poison VI and Deadly Poison V (their payloads are not fixture spells).
+keep("SpellItemEnchantment", in_set("ID", {625, 2630}))
 
 # --- skill lines -------------------------------------------------------------------------
 keep("SkillLine", in_set("ID", SKILL_LINES))

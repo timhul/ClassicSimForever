@@ -57,7 +57,7 @@ csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --class rogue     →  data/spells/rogue.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
-csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name)
+csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the poisons' SpellItemEnchantment rows)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
 csim-tables export-talents --class rogue    →  data/talents/rogue.yaml
 csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml

@@ -84,6 +84,23 @@ fn shipped_spell_files_match_a_fresh_export() {
         "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
     );
 
+    let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
+    let exclude = export::spell_ids_in_dir(&spells_dir, "enchants.yaml").unwrap();
+    let (enchants_file, _) = export::export_enchants(
+        &tables,
+        &enchants.spell_ids(),
+        &enchants.enchantment_ids(),
+        &exclude,
+        &overrides,
+    )
+    .unwrap();
+    let rendered = export::render(&enchants_file, "export-spells --enchants").unwrap();
+    let shipped = std::fs::read_to_string(spells_dir.join("enchants.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/spells/enchants.yaml is stale: re-run `csim-tables export-spells --enchants`"
+    );
+
     let items = export::items::read_item_specs(&root.join("data/items")).unwrap();
     let sets: csim_engine::item::ItemSetFile =
         serde_yaml::from_str(&std::fs::read_to_string(root.join("data/item_sets.yaml")).unwrap())

@@ -57,3 +57,69 @@ spells:
     base_points: 10610.0
     radius_yd: [30.0, 30.0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 11337
+  name: Instant Poison VI
+  rank_text: Rank 6
+  attributes: [0, 136, 0, 1073741824, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 8
+  range_yd: 100.0
+  categories:
+    defense_type: MAGIC
+    dispel_type: 4
+  levels:
+    base: 60
+    spell: 60
+  class_options:
+    set: 8
+    mask: [8192, 0, 0, 0]
+  labels: [20]
+  description: $s1 Nature damage.
+  effects:
+  - index: 0
+    effect: SCHOOL_DAMAGE
+    base_points: 88.0
+    variance: 0.2769231
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 25349
+  name: Deadly Poison V
+  rank_text: Rank 5
+  attributes: [0, 131208, 0, 1073741952, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
+  school_mask: 8
+  duration_ms: 12000
+  range_yd: 100.0
+  categories:
+    defense_type: MAGIC
+    dispel_type: 4
+  levels:
+    base: 60
+    spell: 60
+  aura_options:
+    proc_chance: 101
+    max_stacks: 5
+  class_options:
+    set: 8
+    mask: [65536, 0, 0, 0]
+  labels: [20]
+  description: Target takes $s1 Nature damage every $t1 seconds.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PERIODIC_DAMAGE
+    base_points: 23.0
+    aura_period_ms: 3000
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
+item_enchantments:
+- id: 625
+  name: Instant Poison VI
+  charges: 175
+  effects:
+  - effect: COMBAT_SPELL
+    points: 20
+    arg: 11337
+- id: 2630
+  name: Deadly Poison V
+  charges: 180
+  effects:
+  - effect: COMBAT_SPELL
+    points: 30
+    arg: 25349

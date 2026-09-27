@@ -272,9 +272,9 @@ exporter (§1.10 of `SPELL_INSTRUCTIONS.md`).
 | Assassination | 2 | Relentless Strikes (14179) | 1 | proc | ADD_TARGET_TRIGGER 20/point → 14181 | proc: `finisher`, `chance_per_combo_point`, payload 1314102 (25 energy) |
 | Assassination | 2 | Improved Expose Armor (14168) | 2 | modifier, proc | FLAT POWER_COST -5/-10 → Expose Armor; PROC with value 1/2 → 1310697 (Improved Expose Armor); DUMMY 5 | tables (cost); proc: `finisher`, Expose Armor at ≥ E2 points |
 | Assassination | 2 | Lethality (14128) ← Malice | 5 | modifier | PCT CRIT_DAMAGE 4/8/12/16/20 → Backstab, Ghostly Strike, Gouge, Hemorrhage, … | tables |
-| Assassination | 3 | Vile Poisons (16513) | 5 | modifier | PCT DAMAGE/HEALING 4/8/12/16/20 → mask [8192, 8, 0, 0]; PCT DOT 4/8/12/16/20 → mask [65536, 0, 0, 0]; FLAT DISPEL_RESIST 8/16/24/32/40 → mask [268550144, 0, 0, 0] | tables (the poisons are RG.5) |
+| Assassination | 3 | Vile Poisons (16513) | 5 | modifier | PCT DAMAGE/HEALING 4/8/12/16/20 → mask [8192, 8, 0, 0]; PCT DOT 4/8/12/16/20 → mask [65536, 0, 0, 0]; FLAT DISPEL_RESIST 8/16/24/32/40 → mask [268550144, 0, 0, 0] | tables |
 | Assassination | 3 | Cold Blood (14177) | 1 | ability, modifier | FLAT CRIT_CHANCE 100 → Ambush, Backstab, Eviscerate, Mutilate, … | tables (a charged modifier used by the spells it modifies) |
-| Assassination | 3 | Improved Poisons (14113) | 5 | modifier, dummy | FLAT PROC_CHANCE 2/4/6/8/10 → mask [268558336, 0, 0, 0]; DUMMY 10/20/30/40/50 | tables (the poisons are RG.5); E1 `NO_OP` (charges) |
+| Assassination | 3 | Improved Poisons (14113) | 5 | modifier, dummy | FLAT PROC_CHANCE 2/4/6/8/10 → mask [268558336, 0, 0, 0]; DUMMY 10/20/30/40/50 | tables; E1 `NO_OP` (charges) |
 | Assassination | 4 | Vigor (14983) | 2 | stat aura | MOD_INCREASE_ENERGY 5/10 misc 3 | tables |
 | Assassination | 4 | Mutilate (1310707) | 1 | ability | ENERGIZE 2; TRIGGER_SPELL → 1310706; TRIGGER_SPELL → 1310705; DUMMY 20 | ability (RG.3) |
 | Assassination | 4 | Improved Kidney Shot (14174) | 2 | modifier | FLAT EFFECT_3 5/10 → Kidney Shot | not simulated (bosses are immune to stuns) |

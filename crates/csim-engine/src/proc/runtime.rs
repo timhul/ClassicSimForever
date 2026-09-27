@@ -16,6 +16,11 @@
 //! kind ([`Proc::on_hit`]): the spell is the payload itself, cast at the target when the
 //! wielding hand lands a hit, at the rate the overrides give (the server's item data).
 //!
+//! An item enchantment's combat spell (`SpellItemEnchantment` effect 1: a rogue poison) is a
+//! third kind ([`Proc::combat_spell`]): the proc carries the payload's name and class options,
+//! so the chance modifiers of the payload apply (Improved Poisons), and casts the character's
+//! learned copy of the payload, which the poisons of both hands share (one Deadly Poison stack).
+//!
 //! Deviation from C++: the internal cooldown (`ProcCategoryRecovery`, the spell's cooldown
 //! control) is enforced — the C++ `EnabledProcs::run_proc_check` performed a proc without
 //! checking its cooldown control.
@@ -75,6 +80,9 @@ pub enum ProcKind {
     Aura,
     /// An item's chance-on-hit spell: the proc casts the spell itself.
     OnHit,
+    /// An item enchantment's combat spell: the proc casts the character's learned spell with
+    /// its game id.
+    CombatSpell,
 }
 
 /// A passive spell with a proc chance. Port of `Proc` / `ProcPPM`.
@@ -158,6 +166,32 @@ impl Proc {
         Some(proc)
     }
 
+    /// Builds the proc of an item enchantment's combat spell (a rogue poison): `spell` is the
+    /// payload's record without its effects, whose override chance is the enchantment's; the
+    /// proc casts the character's learned payload with the same game id when one of `allowed`
+    /// (the enchanted hand's landed swings and abilities) fires. Returns `None` when `allowed` is
+    /// empty or the spell has no rate.
+    pub fn combat_spell(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
+        let has_rate = spell.setup().overrides.proc.is_some_and(|p| p.has_rate());
+        if allowed.is_empty() || !has_rate {
+            return None;
+        }
+        let rate = match spell.setup().overrides.proc.and_then(|p| p.ppm) {
+            Some(ppm) => ProcRate::Ppm(ppm),
+            None => ProcRate::Chance,
+        };
+        Some(Proc {
+            spell,
+            kind: ProcKind::CombatSpell,
+            rate,
+            sources: allowed.to_vec(),
+            random: Random::from_seed(0, PROC_ROLL_RANGE, seed),
+            current_source: None,
+            attempts: 0,
+            procs: 0,
+        })
+    }
+
     /// The sources the record's `ProcTypeMask` and hit mask name.
     fn record_sources(spell: &Spell) -> Vec<ProcSource> {
         let record = spell.record();
@@ -218,6 +252,15 @@ impl Proc {
 
     pub fn kind(&self) -> ProcKind {
         self.kind
+    }
+
+    /// The learned spells the proc casts, enabled with it: a combat spell's payload (its own
+    /// game id), else the spell's triggers and scripted payloads.
+    pub fn payload_spells(&self) -> Vec<u32> {
+        match self.kind {
+            ProcKind::CombatSpell => vec![self.game_id()],
+            ProcKind::Aura | ProcKind::OnHit => self.spell.payload_spells(),
+        }
     }
 
     pub fn rate(&self) -> ProcRate {
@@ -449,8 +492,20 @@ impl Proc {
     /// `Proc::spell_effect`.
     pub fn perform(&mut self, host: &mut impl ProcHost) -> CastReport {
         self.procs += 1;
-        if self.kind == ProcKind::OnHit {
-            return self.spell.perform_triggered(host);
+        match self.kind {
+            ProcKind::OnHit => return self.spell.perform_triggered(host),
+            ProcKind::CombatSpell => {
+                let mut report = CastReport {
+                    result: SpellResult::Success,
+                    ..CastReport::default()
+                };
+                let payload = self.spell.game_id();
+                if let Some(triggered) = host.trigger_spell(payload, None) {
+                    report.triggered.push((payload, triggered));
+                }
+                return report;
+            }
+            ProcKind::Aura => {}
         }
         let mut report = if self.spell.effects().is_empty() {
             self.spell.start_cooldown(host);

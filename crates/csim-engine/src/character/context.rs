@@ -28,7 +28,7 @@ use crate::rotation::{
 use crate::rulesets::Ruleset;
 use crate::spell::dbc::AuraState;
 use crate::spell::modifiers::SpellModifiers;
-use crate::spell::overrides::{EventScript, ScriptKind, SimFlag, SpellOverride};
+use crate::spell::overrides::{EventScript, ProcOverride, ScriptKind, SimFlag, SpellOverride};
 use crate::spell::periodic::TickReport;
 use crate::spell::record::{EquippedItems, SpellDb};
 use crate::spell::{
@@ -439,18 +439,27 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 return Vec::new();
             }
             procs.enable(id, ctx);
-            procs.get(id).spell().payload_spells()
+            procs.get(id).payload_spells()
         });
         self.set_payloads_enabled(&payloads, true);
     }
 
+    /// Disables proc `id` and the payloads no other enabled proc casts (the poison of the
+    /// other hand keeps the shared Instant Poison).
     pub fn disable_proc(&mut self, id: ProcId) {
         let payloads = self.with_procs(|procs, ctx| {
             if !procs.is_enabled(id) {
                 return Vec::new();
             }
             procs.disable(id, ctx);
-            procs.get(id).spell().payload_spells()
+            let mut payloads = procs.get(id).payload_spells();
+            payloads.retain(|payload| {
+                !procs
+                    .enabled()
+                    .iter()
+                    .any(|&other| procs.get(other).payload_spells().contains(payload))
+            });
+            payloads
         });
         self.set_payloads_enabled(&payloads, false);
     }
@@ -781,7 +790,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     pub fn sync_equipment_spells(&mut self, db: &SpellDb) {
         let mut wanted = Vec::new();
         let mut uses = Vec::new();
-        for grant in self.granted_equipment_spells() {
+        for grant in self.granted_equipment_spells(db) {
             let Some(record) = db.get(grant.spell) else {
                 continue;
             };
@@ -799,6 +808,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             };
             if matches!(grant.kind, GrantKind::Use(_)) && !runnable_use() {
                 continue;
+            }
+            // A combat spell casts the learned payload, one spell for both hands.
+            if matches!(grant.kind, GrantKind::CombatSpell { .. })
+                && !self.character.spells.has_game_id(grant.spell)
+            {
+                self.learn(db, grant.spell);
             }
             for payload in payload_spells(db, grant.spell) {
                 if db.get(payload).is_some() && !self.character.spells.has_game_id(payload) {
@@ -824,6 +839,16 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 GrantKind::Passive(_) => None,
                 GrantKind::OnHit(allowed) => spells
                     .add_on_hit_proc(key, setup, overrides, &allowed, party, self.raid)
+                    .map(SpellHandle::Proc),
+                GrantKind::CombatSpell { sources, chance } => spells
+                    .add_combat_spell_proc(
+                        key,
+                        combat_spell_setup(setup, chance),
+                        overrides,
+                        &sources,
+                        party,
+                        self.raid,
+                    )
                     .map(SpellHandle::Proc),
                 GrantKind::Use(effect) => {
                     let setup = with_item_cooldowns(setup, &effect);
@@ -870,7 +895,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// The spells the equipped items, enchants and reached set bonuses grant.
-    fn granted_equipment_spells(&self) -> Vec<Grant> {
+    fn granted_equipment_spells(&self, db: &SpellDb) -> Vec<Grant> {
         let equipment = self.character.equipment();
         let mut grants = Vec::new();
         for (slot, spec) in equipment.active_enchants() {
@@ -886,6 +911,22 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     },
                     spell,
                     kind: GrantKind::Proc(slot.default_proc_sources()),
+                });
+            }
+            let enchantment = spec.enchantment.and_then(|id| db.item_enchantment(id));
+            let combat_spells = enchantment.into_iter().flat_map(|e| e.combat_spells());
+            for (offset, (spell, chance)) in combat_spells.enumerate() {
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: Some(slot),
+                        grantor: EquipmentGrantor::Enchant(spec.name),
+                        index: spec.procs.len() + offset,
+                    },
+                    spell,
+                    kind: GrantKind::CombatSpell {
+                        sources: slot.default_proc_sources(),
+                        chance,
+                    },
                 });
             }
         }
@@ -3046,6 +3087,12 @@ enum GrantKind {
     Passive(Vec<ProcSource>),
     /// A weapon's chance-on-hit spell.
     OnHit(Vec<ProcSource>),
+    /// An item enchantment's combat spell (a rogue poison), cast at `chance` % on the enchanted
+    /// hand's hits.
+    CombatSpell {
+        sources: Vec<ProcSource>,
+        chance: f64,
+    },
     /// An item's on-use spell, with the item effect's cooldowns.
     Use(ItemEffect),
 }
@@ -3061,6 +3108,23 @@ fn with_item_cooldowns(mut setup: SpellSetup, effect: &ItemEffect) -> SpellSetup
         record.categories.category = category;
         record.cooldown.category_recovery_ms = effect.category_cooldown_ms.unwrap_or(0);
     }
+    setup
+}
+
+/// The proc spell of an item enchantment's combat spell ([`crate::proc::Proc::combat_spell`]):
+/// the payload's record without its effects (the learned payload does the work, the proc only
+/// keeps its name and class options for the chance modifiers), rolled at the enchantment's
+/// `chance` in percent.
+fn combat_spell_setup(mut setup: SpellSetup, chance: f64) -> SpellSetup {
+    let record = Arc::make_mut(&mut setup.record);
+    record.effects.clear();
+    record.duration_ms = None;
+    let proc = setup
+        .overrides
+        .proc
+        .get_or_insert_with(ProcOverride::default);
+    proc.chance = Some(chance);
+    proc.ppm = None;
     setup
 }
 

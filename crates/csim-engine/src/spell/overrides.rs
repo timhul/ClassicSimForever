@@ -188,6 +188,11 @@ pub enum ScriptKind {
     /// A bleed's attack power share: `params.value` % of attack power added to every tick of
     /// this periodic aura effect (Garrote).
     AttackPowerPerTick,
+    /// The attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`):
+    /// `params.value` times attack power added to this effect's damage, the hit of a direct
+    /// damage effect or every tick (per stack) of a periodic damage aura (the poisons, TASKS.md
+    /// decision 2).
+    ApCoefficient,
     /// While the main-hand weapon's subclass is in `params.weapon_subclass_mask`, this effect's
     /// value replaces the value of effect `params.effect` (Ghostly Strike: 180 % weapon damage
     /// instead of 125 % with a dagger).
@@ -328,6 +333,7 @@ impl EffectScript {
                 "value or per_combo_point (one of them)",
             ),
             ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
+            ScriptKind::ApCoefficient => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
             ScriptKind::DamagePercentBelowHealth => {
                 need(p.effect.is_some(), "effect")?;
                 need(

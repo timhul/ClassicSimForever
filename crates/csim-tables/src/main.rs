@@ -261,7 +261,13 @@ fn export_spells(
                 eprintln!("already in another spell file, not repeated: {repeated:?}");
             }
             (
-                export::export_enchants(tables, &seeds, &exclude, &overrides)?,
+                export::export_enchants(
+                    tables,
+                    &seeds,
+                    &enchants.enchantment_ids(),
+                    &exclude,
+                    &overrides,
+                )?,
                 "export-spells --enchants".to_owned(),
                 ENCHANTS_FILE.to_owned(),
             )

@@ -814,8 +814,19 @@ impl Effect {
             base
         };
         damage += f64::from(self.record.points_per_resource) * f64::from(host.combo_points());
-        damage += f64::from(self.record.bonus_coefficient_from_ap) * f64::from(host.melee_ap());
+        damage += self.ap_coefficient() * f64::from(host.melee_ap());
         damage
+    }
+
+    /// The attack power coefficient of the effect's damage: the table's
+    /// `BonusCoefficientFromAP`, or an `AP_COEFFICIENT` script's where the table has none.
+    pub fn ap_coefficient(&self) -> f64 {
+        match self.script {
+            Some(script) if script.script == ScriptKind::ApCoefficient => {
+                script.params.value.unwrap_or(0.0)
+            }
+            _ => f64::from(self.record.bonus_coefficient_from_ap),
+        }
     }
 
     /// Rolls the table of the effect's spell: the special attack table for a melee spell

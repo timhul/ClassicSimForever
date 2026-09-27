@@ -404,6 +404,23 @@ impl CharacterSpells {
         })
     }
 
+    /// Registers the combat spell `key` of an item enchantment ([`Proc::combat_spell`]): the
+    /// enchanted hand's landed attacks (`allowed`) cast the learned payload. Returns `None`
+    /// when `setup` has no rate.
+    pub fn add_combat_spell_proc(
+        &mut self,
+        key: EquipmentSpellKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        allowed: &[ProcSource],
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> Option<ProcId> {
+        self.add_keyed_proc(key, setup, overrides, party, shared, |spell, seed| {
+            Proc::combat_spell(spell, allowed, seed)
+        })
+    }
+
     fn add_keyed_proc(
         &mut self,
         key: EquipmentSpellKey,

@@ -23,7 +23,8 @@ use csim_engine::spell::dbc::{
 use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{
     AuraOptions, AuraRestrictions, Categories, ClassOptions, Cooldown, EffectRecord, EquippedItems,
-    Levels, PowerCost, SpellFile, SpellRecord,
+    ItemEnchantmentEffect, ItemEnchantmentRecord, ItemEnchantmentType, Levels, PowerCost,
+    SpellFile, SpellRecord,
 };
 
 use crate::db::Tables;
@@ -45,6 +46,12 @@ pub enum ExportError {
     NoRacialLines,
     #[error("external buff spells not in the tables: {0:?}")]
     MissingSeeds(Vec<u32>),
+    #[error("item enchantments not in the tables (SpellItemEnchantment): {0:?}")]
+    MissingEnchantments(Vec<u32>),
+    #[error(
+        "item enchantment {enchantment} has effect type {effect}, which the export does not know"
+    )]
+    UnknownEnchantmentEffect { enchantment: u32, effect: u32 },
     #[error("class {0:?} has no Trait tree (SkillLineXTraitTree) or no tab groups")]
     NoTraitTree(String),
     #[error("talent node {0} has several prerequisites {1:?}; the schema allows one")]
@@ -183,16 +190,61 @@ pub fn export_racials_with_report(
     Ok((file, report))
 }
 
-/// Builds the equipment walk (`data/spells/enchants.yaml`): the closure of the spells the
-/// procs of `data/enchants.yaml` name, the same way as [`export_externals`]. The records are
-/// never learned; a character registers the proc when it equips the enchant.
+/// Builds the equipment walk (`data/spells/enchants.yaml`): the `SpellItemEnchantment` rows
+/// of `enchantments` (the `enchantment:` keys of `data/enchants.yaml`: the rogue poisons) and
+/// the closure of the spells the procs name (`seeds`) and the enchantments cast, the same way
+/// as [`export_externals`]. The records are never learned; a character registers the proc when
+/// it equips the enchant.
 pub fn export_enchants(
     tables: &Tables,
     seeds: &BTreeSet<u32>,
+    enchantments: &BTreeSet<u32>,
     exclude: &BTreeSet<u32>,
     overrides: &Overrides,
 ) -> Result<(SpellFile, PruneReport), ExportError> {
-    export_externals_with_report(tables, seeds, exclude, overrides)
+    let records = enchantments
+        .iter()
+        .map(|&id| item_enchantment(tables, id))
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut seeds = seeds.clone();
+    seeds.extend(
+        records
+            .iter()
+            .flat_map(|record| record.combat_spells().map(|(spell, _)| spell)),
+    );
+    let (mut file, report) = export_externals_with_report(tables, &seeds, exclude, overrides)?;
+    file.item_enchantments = records;
+    Ok((file, report))
+}
+
+/// The `SpellItemEnchantment` row `id` as a record: its effects without the empty slots.
+fn item_enchantment(tables: &Tables, id: u32) -> Result<ItemEnchantmentRecord, ExportError> {
+    let row = tables
+        .spell_item_enchantment(id)
+        .ok_or_else(|| ExportError::MissingEnchantments(vec![id]))?;
+    let mut effects = Vec::new();
+    for slot in 0..row.effect.len() {
+        if row.effect[slot] == 0 {
+            continue;
+        }
+        let effect = ItemEnchantmentType::from_id(row.effect[slot]).ok_or(
+            ExportError::UnknownEnchantmentEffect {
+                enchantment: id,
+                effect: row.effect[slot],
+            },
+        )?;
+        effects.push(ItemEnchantmentEffect {
+            effect,
+            points: row.effect_points_min[slot],
+            arg: row.effect_arg[slot],
+        });
+    }
+    Ok(ItemEnchantmentRecord {
+        id,
+        name: row.name.clone(),
+        charges: row.charges,
+        effects,
+    })
 }
 
 /// The seeds of the item spell walk: the spells the exported items grant (on use, on equip,
@@ -344,6 +396,7 @@ fn build_file(
         class,
         learnable: true,
         spells,
+        item_enchantments: Vec::new(),
     }
 }
 

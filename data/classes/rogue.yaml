@@ -13,7 +13,8 @@
 # Rogue.cpp plus one-handed axes: in Forever SkillLineAbility gives the Rogue the Axes skill
 # (spell 196, ClassMask 79), and Hack and Slash has an axe/sword branch. The enchant lists per
 # slot are RogueEnchants.cpp; whether an enchant physically fits (sharp vs blunt weapons,
-# faction) is decided by data/enchants.yaml. The poisons run from RG.5 on.
+# faction) is decided by data/enchants.yaml. Instant and Deadly Poison are the poisons that deal
+# damage.
 
 class: ROGUE
 resource: energy
@@ -91,6 +92,7 @@ temp_enchants:
     - ElementalSharpeningStone
     - ConsecratedSharpeningStone
     - InstantPoison
+    - DeadlyPoison
     - ShadowOil
   OFFHAND:
     - SolidWeightstone
@@ -99,4 +101,5 @@ temp_enchants:
     - ElementalSharpeningStone
     - ConsecratedSharpeningStone
     - InstantPoison
+    - DeadlyPoison
     - ShadowOil

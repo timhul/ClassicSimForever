@@ -1,0 +1,3 @@
+ID,Name_lang,HordeName_lang,Duration,Charges,Effect_0,Effect_1,Effect_2,EffectPointsMin_0,EffectPointsMin_1,EffectPointsMin_2,EffectArg_0,EffectArg_1,EffectArg_2,Flags,EffectScalingPoints_0,EffectScalingPoints_1,EffectScalingPoints_2,ScalingClass,ScalingClassRestricted,Field_12_1_5_69594_011,RequiredSkillID,RequiredSkillRank,MinLevel,MaxLevel,IconFileDataID,ItemLevelMin,ItemLevelMax,TransmogUseConditionID,TransmogCost,Field_12_1_5_69594_021,ItemVisual,ItemLevel
+625,Instant Poison VI,,1800,175,1,0,0,20,0,0,11337,0,0,1,0,0,0,0,0,0,0,0,0,0,132273,0,0,0,0,0,26,1
+2630,Deadly Poison V,,1800,180,1,0,0,30,0,0,25349,0,0,1,0,0,0,0,0,0,0,0,0,0,132290,0,0,0,0,0,26,1
