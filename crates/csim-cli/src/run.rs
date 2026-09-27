@@ -411,45 +411,38 @@ pub struct SpellRow {
     pub parry: f64,
     pub block: f64,
     pub resist: f64,
-    /// A magic spell's attempts by the share of their damage resisted, 100 % (a miss or a full
-    /// resist) down to 0 %; empty for spells on the melee table.
+    /// The attempts split by outcome, each part a row of its own (named after the outcome, its
+    /// rates shares of all the spell's attempts, so the parts add up to the spell): a magic
+    /// spell's by the share of damage resisted (see [`RESIST_BREAKDOWN`]), a white swing's by
+    /// crit, hit and glancing blow. Empty for other spells.
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub resisted: Vec<ResistRow>,
+    pub breakdown: Vec<SpellRow>,
 }
 
-/// The attempts of a magic spell that had `resisted` percent of their damage resisted. The
-/// rates are shares of all the spell's attempts, so the rows of a spell add up to it.
-#[derive(Debug, Serialize)]
-pub struct ResistRow {
-    pub resisted: u32,
-    pub dps: f64,
-    pub damage_share: f64,
-    pub tps: f64,
-    pub casts: f64,
-    pub min_hit: Option<u32>,
-    pub max_hit: Option<u32>,
-    pub hit: f64,
-    pub crit: f64,
-    pub miss: f64,
-    pub resist: f64,
-}
-
-/// The outcomes of a magic spell by the percentage of the damage resisted.
-const RESIST_BUCKETS: [(u32, &[Outcome]); 5] = [
-    (100, &[Outcome::Miss, Outcome::FullResist]),
+/// A magic spell's outcomes by the share of damage resisted: 100 % (a miss or a full resist)
+/// down to 0 %.
+const RESIST_BREAKDOWN: [(&str, &[Outcome]); 5] = [
+    ("100% resisted", &[Outcome::Miss, Outcome::FullResist]),
     (
-        75,
+        "75% resisted",
         &[Outcome::PartialResist75, Outcome::PartialResistCrit75],
     ),
     (
-        50,
+        "50% resisted",
         &[Outcome::PartialResist50, Outcome::PartialResistCrit50],
     ),
     (
-        25,
+        "25% resisted",
         &[Outcome::PartialResist25, Outcome::PartialResistCrit25],
     ),
-    (0, &[Outcome::Hit, Outcome::Crit]),
+    ("0% resisted", &[Outcome::Hit, Outcome::Crit]),
+];
+
+/// A white swing's connecting outcomes.
+const SWING_BREAKDOWN: [(&str, &[Outcome]); 3] = [
+    ("Crit", &[Outcome::Crit]),
+    ("Hit", &[Outcome::Hit]),
+    ("Glancing", &[Outcome::Glancing]),
 ];
 
 #[derive(Debug, Serialize)]
@@ -727,53 +720,30 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "DPR", "Hit", "Crit", "Glance",
             "Miss", "Dodge", "Parry", "Block", "Resist",
         ]);
+        let cells = |spell: &SpellRow| {
+            vec![
+                spell.name.clone(),
+                format!("{:.1}", spell.dps),
+                percent(spell.damage_share),
+                format!("{:.1}", spell.tps),
+                format!("{:.1}", spell.casts),
+                spell.min_hit.map_or(String::new(), |min| min.to_string()),
+                spell.max_hit.map_or(String::new(), |max| max.to_string()),
+                spell
+                    .damage_per_resource
+                    .map_or(String::new(), |dpr| format!("{dpr:.1}")),
+                percent(spell.hit),
+                percent(spell.crit),
+                percent(spell.glance),
+                percent(spell.miss),
+                percent(spell.dodge),
+                percent(spell.parry),
+                percent(spell.block),
+                percent(spell.resist),
+            ]
+        };
         for spell in &self.spells {
-            let resisted = spell
-                .resisted
-                .iter()
-                .map(|row| {
-                    let mut cells = vec![
-                        format!("{}% resisted", row.resisted),
-                        format!("{:.1}", row.dps),
-                        percent(row.damage_share),
-                        format!("{:.1}", row.tps),
-                        format!("{:.1}", row.casts),
-                        row.min_hit.map_or(String::new(), |min| min.to_string()),
-                        row.max_hit.map_or(String::new(), |max| max.to_string()),
-                        String::new(),
-                        percent(row.hit),
-                        percent(row.crit),
-                        String::new(),
-                        percent(row.miss),
-                    ];
-                    cells.resize(table.headers().len() - 1, String::new());
-                    cells.push(percent(row.resist));
-                    cells
-                })
-                .collect();
-            table.row_with_sub_rows(
-                vec![
-                    spell.name.clone(),
-                    format!("{:.1}", spell.dps),
-                    percent(spell.damage_share),
-                    format!("{:.1}", spell.tps),
-                    format!("{:.1}", spell.casts),
-                    spell.min_hit.map_or(String::new(), |min| min.to_string()),
-                    spell.max_hit.map_or(String::new(), |max| max.to_string()),
-                    spell
-                        .damage_per_resource
-                        .map_or(String::new(), |dpr| format!("{dpr:.1}")),
-                    percent(spell.hit),
-                    percent(spell.crit),
-                    percent(spell.glance),
-                    percent(spell.miss),
-                    percent(spell.dodge),
-                    percent(spell.parry),
-                    percent(spell.block),
-                    percent(spell.resist),
-                ],
-                resisted,
-            );
+            table.row_with_sub_rows(cells(spell), spell.breakdown.iter().map(cells).collect());
         }
         if let Some(sum) = &self.spell_total {
             let mut total = vec![
@@ -980,106 +950,93 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
     spells
         .into_iter()
         .map(|(key, spell)| {
-            let attempts = spell.total_attempts();
-            let rate = |count: u64| per(count, attempts);
-            let damaging = || {
-                Outcome::SUCCESSES
-                    .into_iter()
-                    .map(|outcome| spell.damage(outcome))
-                    .filter(|tally| tally.max() > 0)
+            let row = |name: String, outcomes: &[Outcome]| {
+                outcome_row(name, spell, outcomes, iterations, time, total_damage)
+            };
+            let breakdown: &[(&str, &[Outcome])] = if spell.is_magic() {
+                &RESIST_BREAKDOWN
+            } else if spell.is_auto_attack() {
+                &SWING_BREAKDOWN
+            } else {
+                &[]
             };
             SpellRow {
-                name: key.display_name(),
-                dps: spell.total_damage() as f64 / time,
-                damage_share: spell.damage_share(total_damage),
-                tps: spell.total_threat() as f64 / time,
-                casts: per(attempts, iterations),
-                min_hit: damaging().map(|tally| tally.min()).min(),
-                max_hit: damaging().map(|tally| tally.max()).max(),
                 damage_per_resource: spell.dpr().is_set().then(|| spell.dpr().avg()),
-                hit: rate(spell.hits_including_partial_resists()),
-                crit: rate(spell.crits_including_partial_resists()),
-                glance: rate(spell.glances()),
-                miss: rate(spell.misses()),
-                dodge: rate(spell.dodges()),
-                parry: rate(spell.parries()),
-                block: rate(
-                    spell.full_blocks() + spell.partial_blocks() + spell.partial_block_crits(),
-                ),
-                resist: rate(spell.full_resists()),
-                resisted: if spell.is_magic() {
-                    resist_rows(spell, iterations, time, total_damage)
-                } else {
-                    Vec::new()
-                },
+                breakdown: breakdown
+                    .iter()
+                    .map(|(name, outcomes)| row(name.to_string(), outcomes))
+                    .collect(),
+                ..row(key.display_name(), &Outcome::ALL)
             }
         })
         .collect()
 }
 
-fn resist_rows(
+/// The attempts of `spell` that ended with one of `outcomes`, as a row named `name`: their
+/// damage and threat, and their rates as shares of all the spell's attempts.
+fn outcome_row(
+    name: String,
     spell: &SpellStatistics,
+    outcomes: &[Outcome],
     iterations: u64,
     time: f64,
     total_damage: u64,
-) -> Vec<ResistRow> {
+) -> SpellRow {
     let attempts = spell.total_attempts();
-    let rate = |outcomes: &[Outcome]| {
+    let sum = |value: &dyn Fn(Outcome) -> u64| outcomes.iter().map(|&o| value(o)).sum::<u64>();
+    // The share of the attempts that ended with one of `outcomes` in `column`.
+    let rate = |column: &[Outcome]| {
         per(
-            outcomes
-                .iter()
-                .map(|&outcome| spell.attempts(outcome))
-                .sum(),
+            sum(&|o| {
+                if column.contains(&o) {
+                    spell.attempts(o)
+                } else {
+                    0
+                }
+            }),
             attempts,
         )
     };
-    RESIST_BUCKETS
-        .into_iter()
-        .map(|(resisted, outcomes)| {
-            let count: u64 = outcomes.iter().map(|&o| spell.attempts(o)).sum();
-            let damage: u64 = outcomes.iter().map(|&o| spell.damage(o).total()).sum();
-            let threat: u64 = outcomes.iter().map(|&o| spell.threat(o).total()).sum();
-            let damaging = || {
-                outcomes
-                    .iter()
-                    .map(|&outcome| spell.damage(outcome))
-                    .filter(|tally| tally.max() > 0)
-            };
-            let (hits, crits): (Vec<_>, Vec<_>) = outcomes
-                .iter()
-                .copied()
-                .filter(|outcome| outcome.is_success())
-                .partition(|outcome| {
-                    !matches!(
-                        outcome,
-                        Outcome::Crit
-                            | Outcome::PartialResistCrit25
-                            | Outcome::PartialResistCrit50
-                            | Outcome::PartialResistCrit75
-                    )
-                });
-            let only = |outcome: Outcome| {
-                if outcomes.contains(&outcome) {
-                    rate(&[outcome])
-                } else {
-                    0.0
-                }
-            };
-            ResistRow {
-                resisted,
-                dps: damage as f64 / time,
-                damage_share: per(damage, total_damage),
-                tps: threat as f64 / time,
-                casts: per(count, iterations),
-                min_hit: damaging().map(|tally| tally.min()).min(),
-                max_hit: damaging().map(|tally| tally.max()).max(),
-                hit: rate(&hits),
-                crit: rate(&crits),
-                miss: only(Outcome::Miss),
-                resist: only(Outcome::FullResist),
-            }
-        })
-        .collect()
+    let damage = sum(&|o| spell.damage(o).total());
+    let damaging = || {
+        outcomes
+            .iter()
+            .map(|&outcome| spell.damage(outcome))
+            .filter(|tally| tally.max() > 0)
+    };
+    SpellRow {
+        name,
+        dps: damage as f64 / time,
+        damage_share: per(damage, total_damage),
+        tps: sum(&|o| spell.threat(o).total()) as f64 / time,
+        casts: per(sum(&|o| spell.attempts(o)), iterations),
+        min_hit: damaging().map(|tally| tally.min()).min(),
+        max_hit: damaging().map(|tally| tally.max()).max(),
+        damage_per_resource: None,
+        hit: rate(&[
+            Outcome::Hit,
+            Outcome::PartialResist25,
+            Outcome::PartialResist50,
+            Outcome::PartialResist75,
+        ]),
+        crit: rate(&[
+            Outcome::Crit,
+            Outcome::PartialResistCrit25,
+            Outcome::PartialResistCrit50,
+            Outcome::PartialResistCrit75,
+        ]),
+        glance: rate(&[Outcome::Glancing]),
+        miss: rate(&[Outcome::Miss]),
+        dodge: rate(&[Outcome::Dodge]),
+        parry: rate(&[Outcome::Parry]),
+        block: rate(&[
+            Outcome::FullBlock,
+            Outcome::PartialBlock,
+            Outcome::PartialBlockCrit,
+        ]),
+        resist: rate(&[Outcome::FullResist]),
+        breakdown: Vec::new(),
+    }
 }
 
 fn buff_rows(stats: &ClassStatistics) -> Vec<BuffRow> {
@@ -1249,6 +1206,63 @@ fn stat_weight_rows(cruncher: &NumberCruncher) -> Vec<StatWeightRow> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use csim_engine::combat_roll::PhysicalAttackResult;
+    use csim_engine::spell::AttackOutcome;
+
+    #[test]
+    fn swings_break_down_by_crit_hit_and_glance() {
+        let swing = |result, damage| AttackOutcome {
+            result,
+            spell: None,
+            damage,
+            threat: f64::from(damage),
+            execution_time: 0.0,
+        };
+        let mut stats = ClassStatistics::new("Tester", 100.0);
+        let mh = stats.spell("Mainhand Attack", 1);
+        for (result, damage) in [
+            (PhysicalAttackResult::Critical, 800),
+            (PhysicalAttackResult::Hit, 400),
+            (PhysicalAttackResult::Hit, 420),
+            (PhysicalAttackResult::Glancing, 250),
+            (PhysicalAttackResult::Dodge, 0),
+        ] {
+            mh.record_swing(&swing(result, damage));
+        }
+        stats
+            .spell("Bloodthirst", 1)
+            .record_attack(&swing(PhysicalAttackResult::Hit, 600), 30.0);
+
+        let rows = spell_rows(&stats);
+        let bloodthirst = rows.iter().find(|r| r.name == "Bloodthirst").unwrap();
+        assert!(bloodthirst.breakdown.is_empty());
+        let mh = rows.iter().find(|r| r.name == "Mainhand Attack").unwrap();
+        let parts: Vec<_> = mh
+            .breakdown
+            .iter()
+            .map(|r| {
+                (
+                    r.name.as_str(),
+                    r.min_hit,
+                    r.max_hit,
+                    r.hit,
+                    r.crit,
+                    r.glance,
+                )
+            })
+            .collect();
+        assert_eq!(
+            parts,
+            [
+                ("Crit", Some(800), Some(800), 0.0, 0.2, 0.0),
+                ("Hit", Some(400), Some(420), 0.4, 0.0, 0.0),
+                ("Glancing", Some(250), Some(250), 0.0, 0.0, 0.2),
+            ]
+        );
+        let share: f64 = mh.breakdown.iter().map(|r| r.damage_share).sum();
+        assert!((share - mh.damage_share).abs() < 1e-12);
+        assert_eq!(mh.dodge, 0.2);
+    }
 
     #[test]
     fn scale_options_parse_by_name_and_alias() {

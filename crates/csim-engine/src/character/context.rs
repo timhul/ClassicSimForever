@@ -1801,7 +1801,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             Hand::Offhand => self.character.spells.oh_attack().name(),
         };
         let statistics = &mut self.character.statistics;
-        statistics.spell(name, 1).record_attack(&report.attack, 0.0);
+        statistics.spell(name, 1).record_swing(&report.attack);
         self.log_swing(report);
         let statistics = &mut self.character.statistics;
         if let Some(rage) = report.rage_gained {

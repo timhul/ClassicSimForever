@@ -279,6 +279,8 @@ pub struct SpellStatistics {
     tpet: Ratio,
     /// Whether the spell rolled on the magic table (or ticked with a magic school).
     magic: bool,
+    /// Whether the spell is a white swing (rolled on the melee table with glancing blows).
+    auto_attack: bool,
 }
 
 impl SpellStatistics {
@@ -294,6 +296,7 @@ impl SpellStatistics {
             tpr: Ratio::default(),
             tpet: Ratio::default(),
             magic: false,
+            auto_attack: false,
         }
     }
 
@@ -373,6 +376,12 @@ impl SpellStatistics {
         }
     }
 
+    /// Records the outcome of one white swing.
+    pub fn record_swing(&mut self, attack: &AttackOutcome) {
+        self.auto_attack = true;
+        self.record_attack(attack, 0.0);
+    }
+
     /// Records a periodic tick: a hit (or a partial resist) for its damage and threat. Port of
     /// the `add_hit_dmg` calls of the C++ periodic spells. `resist` is the partial resist of a
     /// tick of a magic school, none for a physical one.
@@ -410,6 +419,12 @@ impl SpellStatistics {
         self.tpr.merge(&other.tpr);
         self.tpet.merge(&other.tpet);
         self.magic |= other.magic;
+        self.auto_attack |= other.auto_attack;
+    }
+
+    /// Whether the spell is a white swing: its attempts split by hit, crit and glancing blow.
+    pub fn is_auto_attack(&self) -> bool {
+        self.auto_attack
     }
 
     /// Whether the spell rolled on the magic table (or ticked with a magic school): its
