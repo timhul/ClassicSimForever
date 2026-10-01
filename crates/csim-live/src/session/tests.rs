@@ -124,11 +124,26 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
     assert!(state.stance.is_some());
     assert!(state.offhand.is_some());
     assert!(state.mainhand.next >= 20.0 && state.mainhand.last <= 20.0);
-    assert!(state.buffs.iter().any(|buff| buff.name == "Battle Shout"));
+    let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
+    let shout = shout.expect("Battle Shout is up");
+    let expires_at = shout.expires_at.unwrap();
+    assert!(expires_at > 20.0 && expires_at <= shout.duration.unwrap());
     assert!(
         state.cooldowns.iter().any(|cd| cd.name == "Bloodthirst"),
         "{:?}",
         state.cooldowns
+    );
+    assert_eq!(state.gcd, 1.5);
+
+    // Before anything was used, every cooldown is ready (none counts down to the pull).
+    let fresh = session_of("dw_fury_orc.yaml", 1).advance(-1.0).state;
+    let bloodthirst = fresh.cooldowns.iter().find(|cd| cd.name == "Bloodthirst");
+    assert_eq!(bloodthirst.unwrap().ready_at, None);
+    let bloodrage = fresh.cooldowns.iter().find(|cd| cd.name == "Bloodrage");
+    assert_eq!(
+        bloodrage.unwrap().ready_at,
+        Some(-1.5 + 60.0),
+        "cast before the pull"
     );
 
     let mut rogue = session_of("combat_swords_human.yaml", 1);

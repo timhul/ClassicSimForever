@@ -1,2 +1,470 @@
 <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>csim-live</title>
+<style>
+  :root {
+    --bg: #111317;
+    --panel: #1a1d23;
+    --line: #2a2e36;
+    --text: #d8dbe0;
+    --muted: #8a909b;
+    --white-hit: #ffffff;
+    --yellow-hit: #ffd100;
+    --rage: #c0392b;
+    --energy: #e6c229;
+    --mana: #2f6fd6;
+    --focus: #d2802a;
+    --gcd: #7f8aa3;
+    --swing: #5aa469;
+    --cooldown: #6b5bb5;
+    --buff: #3f8fb0;
+    --accent: #e0b04a;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header, #controls, main, footer { padding: 0 16px; }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 14px;
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 600; }
+  h2 {
+    font-size: 12px;
+    margin: 0 0 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  #sub { color: var(--muted); }
+  #totals { font-variant-numeric: tabular-nums; }
+  #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
+  #controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 8px;
+  }
+  button, select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled), select:hover { border-color: var(--muted); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  #play { min-width: 76px; font-weight: 600; }
+  #clock {
+    margin-left: auto;
+    font: 600 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  #last-event { color: var(--muted); min-width: 140px; text-align: right; }
+  #timeline {
+    height: 4px;
+    background: var(--line);
+    margin: 0 16px 16px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #timeline-fill { height: 100%; width: 0; background: var(--accent); }
+  main {
+    display: grid;
+    grid-template-columns: minmax(160px, 260px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  #feed-panel { height: calc(100vh - 150px); min-height: 240px; display: flex; flex-direction: column; }
+  #feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    flex: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px #000, 0 0 1px #000;
+  }
+  #feed li { font-size: 16px; line-height: 1.5; animation: pop 0.25s ease-out; }
+  #feed li.auto { color: var(--white-hit); }
+  #feed li.spell { color: var(--yellow-hit); }
+  #feed li.crit { font-size: 22px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  #state { display: grid; gap: 16px; }
+  .row { display: grid; grid-template-columns: 124px minmax(0, 1fr) 64px; gap: 8px; align-items: center; }
+  .row + .row { margin-top: 6px; }
+  .label { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .value { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar { height: 14px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; }
+  .bar.big { height: 20px; }
+  #pips { display: flex; gap: 6px; }
+  .pip { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--muted); }
+  .pip.on { background: var(--accent); border-color: var(--accent); }
+  #stance { font-weight: 600; }
+  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .empty { color: var(--muted); }
+  footer { color: #e06c6c; padding-top: 8px; padding-bottom: 16px; min-height: 1.4em; }
+  @media (max-width: 640px) {
+    main { grid-template-columns: minmax(0, 1fr); }
+    #feed-panel { height: 240px; }
+    #clock { margin-left: 0; }
+    #last-event { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="name">csim-live</h1>
+    <div id="sub"></div>
+  </div>
+  <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
+</header>
+
+<div id="controls">
+  <button id="play" type="button">Play</button>
+  <select id="speed" aria-label="Speed">
+    <option value="0.1">0.1×</option>
+    <option value="0.25">0.25×</option>
+    <option value="0.5">0.5×</option>
+    <option value="1" selected>1×</option>
+    <option value="2">2×</option>
+    <option value="5">5×</option>
+    <option value="10">10×</option>
+    <option value="50">50×</option>
+  </select>
+  <button id="step-event" type="button">Step event</button>
+  <button id="step-cast" type="button">Step to cast</button>
+  <button id="restart" type="button">Restart</button>
+  <button id="reseed" type="button">New seed</button>
+  <span id="last-event"></span>
+  <span id="clock">0:00.000</span>
+</div>
+<div id="timeline"><div id="timeline-fill"></div></div>
+
+<main>
+  <section id="feed-panel" class="panel">
+    <h2>Damage</h2>
+    <ol id="feed"></ol>
+  </section>
+
+  <section id="state">
+    <div class="panel">
+      <h2 id="resource-name">Resource</h2>
+      <div class="row">
+        <span class="label" id="resource-label"></span>
+        <div class="bar big"><div id="resource-fill"></div></div>
+        <span class="value" id="resource-value"></span>
+      </div>
+      <div class="row" id="pips-row" hidden>
+        <span class="label">Combo points</span>
+        <div id="pips"></div>
+        <span class="value" id="pips-value"></span>
+      </div>
+      <div class="row" id="stance-row" hidden>
+        <span class="label">Stance</span>
+        <span id="stance"></span>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Timers</h2>
+      <div class="row">
+        <span class="label">Global cooldown</span>
+        <div class="bar"><div id="gcd-fill" style="background: var(--gcd)"></div></div>
+        <span class="value" id="gcd-value"></span>
+      </div>
+      <div class="row">
+        <span class="label">Main hand</span>
+        <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
+        <span class="value" id="mh-value"></span>
+      </div>
+      <div class="row" id="oh-row">
+        <span class="label">Off hand</span>
+        <div class="bar"><div id="oh-fill" style="background: var(--swing)"></div></div>
+        <span class="value" id="oh-value"></span>
+      </div>
+    </div>
+
+    <div class="lists">
+      <div class="panel">
+        <h2>Buffs</h2>
+        <div id="buffs"></div>
+      </div>
+      <div class="panel">
+        <h2>Cooldowns</h2>
+        <div id="cooldowns"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer id="status" role="status"></footer>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const FEED_LIMIT = 200;
+const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
+
+let info = null;     // the iteration (seed as a string)
+let frame = null;    // the latest frame from the server
+let simTime = 0;     // the sim time shown; runs ahead of `frame` while playing
+let playing = false;
+let speed = 1;
+let advancing = false;
+let lastWall = null;
+
+// Every request goes through one chain, so frames are applied in the order they were asked for.
+let chain = Promise.resolve();
+function enqueue(task) {
+  chain = chain.then(task).catch(fail);
+  return chain;
+}
+
+async function api(method, path, body) {
+  const options = { method };
+  if (body !== undefined) {
+    options.headers = { "Content-Type": "application/json" };
+    options.body = JSON.stringify(body);
+  }
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    throw new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
+  }
+  return response.json();
+}
+
+function fail(error) {
+  setPlaying(false);
+  $("status").textContent = String(error.message || error);
+}
+
+/** Starts the iteration of `seed` (a string) over, or of a new seed when it is null. */
+function restart(seed) {
+  setPlaying(false);
+  return enqueue(async () => {
+    info = await api("POST", "/api/restart", seed === null ? {} : { seed });
+    $("feed").replaceChildren();
+    $("status").textContent = "";
+    $("last-event").textContent = "";
+    $("name").textContent = info.name;
+    $("sub").textContent =
+      `${info.race} ${info.class} · ${info.rotation} · seed ${info.seed} · ` +
+      `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
+    document.title = `${info.name} · csim-live`;
+    simTime = info.start_at;
+    apply(await api("POST", "/api/advance", { to: info.start_at }));
+  });
+}
+
+function step(kind) {
+  setPlaying(false);
+  enqueue(async () => {
+    const stepped = await api("POST", "/api/step", { kind });
+    $("last-event").textContent = stepped.event || "";
+    apply(stepped);
+  });
+}
+
+function apply(next) {
+  frame = next;
+  addHits(next.damage);
+  if (!playing || next.done) {
+    simTime = next.time;
+  }
+  if (next.done) {
+    setPlaying(false);
+  }
+  $("dps").textContent = next.dps.toFixed(1);
+  $("total").textContent = next.total_damage.toLocaleString("en-US");
+  for (const id of ["play", "step-event", "step-cast"]) {
+    $(id).disabled = next.done;
+  }
+}
+
+function addHits(hits) {
+  const feed = $("feed");
+  for (const hit of hits) {
+    const item = document.createElement("li");
+    item.className = (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "");
+    item.textContent = hit.critical ? `${hit.amount}*` : String(hit.amount);
+    const how = [hit.critical && "critical", hit.glancing && "glancing"].filter(Boolean).join(", ");
+    item.title = `${hit.name} at ${clock(hit.time)}${how ? ` (${how})` : ""}`;
+    feed.prepend(item);
+  }
+  while (feed.childElementCount > FEED_LIMIT) {
+    feed.lastElementChild.remove();
+  }
+}
+
+function setPlaying(on) {
+  playing = on && !(frame && frame.done);
+  $("play").textContent = playing ? "Pause" : "Play";
+  lastWall = null;
+}
+
+/** `m:ss.mmm`, negative before the pull. */
+function clock(time) {
+  const sign = time < 0 ? "-" : "";
+  const ms = Math.round(Math.abs(time) * 1000);
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const millis = ms % 1000;
+  return `${sign}${minutes}:${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
+}
+
+function seconds(left) {
+  return left > 0 ? `${left.toFixed(1)} s` : "";
+}
+
+function fill(id, fraction, color) {
+  const bar = $(id);
+  bar.style.width = `${Math.max(0, Math.min(1, fraction)) * 100}%`;
+  if (color) {
+    bar.style.background = color;
+  }
+}
+
+function swing(prefix, timer, time) {
+  const span = timer.next - timer.last;
+  const started = span > 0 && time >= 0;
+  fill(`${prefix}-fill`, started ? (time - timer.last) / span : 0);
+  $(`${prefix}-value`).textContent = started ? seconds(timer.next - time) : "";
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+}
+
+function listRows(items) {
+  if (items.length === 0) {
+    return '<div class="empty">None</div>';
+  }
+  return items.map((item) =>
+    `<div class="row"><span class="label" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>` +
+    `<div class="bar"><div style="width:${item.fraction * 100}%;background:var(${item.color})"></div></div>` +
+    `<span class="value">${item.value}</span></div>`).join("");
+}
+
+function render() {
+  if (!info || !frame) {
+    return;
+  }
+  const time = simTime;
+  const state = frame.state;
+  $("clock").textContent = clock(time);
+  fill("timeline-fill", (time - info.start_at) / (info.end_at - info.start_at));
+
+  const resource = state.resource;
+  $("resource-name").textContent = resource.kind;
+  $("resource-label").textContent = resource.kind;
+  fill("resource-fill", resource.current / resource.max,
+    `var(${RESOURCE_COLORS[resource.kind] || "--accent"})`);
+  $("resource-value").textContent = `${resource.current} / ${resource.max}`;
+
+  $("pips-row").hidden = state.combo_points === null;
+  if (state.combo_points !== null) {
+    const pips = $("pips");
+    if (pips.childElementCount !== 5) {
+      pips.replaceChildren(...Array.from({ length: 5 }, () => {
+        const pip = document.createElement("span");
+        pip.className = "pip";
+        return pip;
+      }));
+    }
+    [...pips.children].forEach((pip, i) => pip.classList.toggle("on", i < state.combo_points));
+    $("pips-value").textContent = String(state.combo_points);
+  }
+  $("stance-row").hidden = state.stance === null;
+  $("stance").textContent = state.stance || "";
+
+  const gcdLeft = state.gcd_end - time;
+  fill("gcd-fill", gcdLeft / state.gcd);
+  $("gcd-value").textContent = seconds(gcdLeft);
+  swing("mh", state.mainhand, time);
+  $("oh-row").hidden = state.offhand === null;
+  if (state.offhand !== null) {
+    swing("oh", state.offhand, time);
+  }
+
+  // The buffs running out first on top, the ones without a duration last.
+  const buffs = [...state.buffs].sort((a, b) =>
+    (a.expires_at ?? Infinity) - (b.expires_at ?? Infinity));
+  $("buffs").innerHTML = listRows(buffs.map((buff) => {
+    const left = buff.expires_at === null ? null : Math.max(0, buff.expires_at - time);
+    const stacks = buff.stacks > 1 ? ` ×${buff.stacks}` : "";
+    const charges = buff.charges > 0 ? ` (${buff.charges})` : "";
+    return {
+      name: buff.name + stacks + charges,
+      fraction: left === null ? 1 : left / buff.duration,
+      color: "--buff",
+      value: left === null ? "" : `${left.toFixed(1)} s`,
+    };
+  }));
+  $("cooldowns").innerHTML = listRows(state.cooldowns.map((cooldown) => {
+    const left = cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time);
+    return {
+      name: cooldown.name,
+      fraction: left / cooldown.duration,
+      color: "--cooldown",
+      value: left > 0 ? `${left.toFixed(1)} s` : "ready",
+    };
+  }));
+}
+
+function tick(now) {
+  if (playing && info) {
+    if (lastWall !== null) {
+      simTime = Math.min(simTime + ((now - lastWall) / 1000) * speed, info.end_at);
+    }
+    lastWall = now;
+    if (!advancing && frame && simTime > frame.time) {
+      advancing = true;
+      const to = simTime;
+      enqueue(async () => apply(await api("POST", "/api/advance", { to })))
+        .finally(() => { advancing = false; });
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+$("play").addEventListener("click", () => setPlaying(!playing));
+$("speed").addEventListener("change", (event) => { speed = Number(event.target.value); });
+$("step-event").addEventListener("click", () => step("event"));
+$("step-cast").addEventListener("click", () => step("cast"));
+$("restart").addEventListener("click", () => restart(info ? info.seed : null));
+$("reseed").addEventListener("click", () => restart(null));
+
+// A fresh start of the server's iteration, whatever an earlier page left of it.
+api("GET", "/api/info").then((current) => restart(current.seed), fail);
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

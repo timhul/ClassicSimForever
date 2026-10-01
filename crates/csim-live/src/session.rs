@@ -85,6 +85,8 @@ pub struct CharacterState {
     pub stance: Option<&'static str>,
     /// When the global cooldown ends (in the past when it is not running).
     pub gcd_end: f64,
+    /// The length of the global cooldown.
+    pub gcd: f64,
     pub mainhand: SwingState,
     /// `None` without a weapon in the off hand.
     pub offhand: Option<SwingState>,
@@ -112,15 +114,20 @@ pub struct SwingState {
 pub struct BuffState {
     pub name: String,
     pub stacks: u32,
+    /// The charges left, 0 for a buff without charges.
+    pub charges: u32,
     /// `None` for a buff without a duration.
     pub expires_at: Option<f64>,
+    /// The length of the application in seconds; `None` without a duration.
+    pub duration: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CooldownState {
     pub name: String,
-    /// When the spell is off cooldown (in the past when it is ready).
-    pub ready_at: f64,
+    /// When the spell is off cooldown (in the past when it is ready); `None` when it was not
+    /// used yet.
+    pub ready_at: Option<f64>,
     /// The cooldown length in seconds.
     pub duration: f64,
 }
@@ -303,7 +310,9 @@ impl Session {
             .map(|buff| BuffState {
                 name: buff.name().to_owned(),
                 stacks: buff.stacks(),
+                charges: buff.charges(),
                 expires_at: buff.duration().map(|_| now + buff.time_left(now)),
+                duration: buff.duration(),
             })
             .collect();
 
@@ -328,7 +337,7 @@ impl Session {
             }
             cooldowns.push(CooldownState {
                 name: spell.name().to_owned(),
-                ready_at: cooldown.next_use(),
+                ready_at: (cooldown.last_used != -cooldown.base).then(|| cooldown.next_use()),
                 duration: cooldown.base,
             });
         }
@@ -346,6 +355,7 @@ impl Session {
                 .filter(|&stance| stance != Stance::Caster)
                 .map(Stance::name),
             gcd_end: character.next_gcd(),
+            gcd: character.global_cooldown(),
             mainhand: swing(Hand::Mainhand),
             offhand: character.is_dual_wielding().then(|| swing(Hand::Offhand)),
             buffs,
