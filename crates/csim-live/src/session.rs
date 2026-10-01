@@ -11,7 +11,7 @@
 use std::sync::Arc;
 
 use csim_engine::character_loader::CharacterSetup;
-use csim_engine::combat_log::{CombatLogEvent, LogUnit};
+use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::Event;
 use csim_engine::faction::PlayerClass;
@@ -99,11 +99,15 @@ pub struct Frame {
     pub state: CharacterState,
 }
 
-/// One hit of the damage feed.
+/// One hit of the damage feed, or one attack the target avoided.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DamageNumber {
     pub time: f64,
+    /// 0 for an avoided attack.
     pub amount: u32,
+    /// How the attack was avoided ("Miss", "Dodge", "Parry", "Block" or "Resist"); `None` for a
+    /// hit.
+    pub miss: Option<&'static str>,
     pub critical: bool,
     pub glancing: bool,
     /// A white swing (an auto attack); else a spell, its periodic damage included.
@@ -400,21 +404,44 @@ impl Session {
         decisions
     }
 
-    /// The damage number of a damage event; `None` for every other event.
+    /// The damage number of a damage or missed event; `None` for every other event.
     pub(crate) fn damage_number(&self, time: f64, event: &CombatLogEvent) -> Option<DamageNumber> {
-        let (damage, auto, name, icon) = match event {
-            CombatLogEvent::SwingDamage { hand, damage, .. } => {
-                (damage, true, hand_name(*hand), self.weapon_icon(*hand))
-            }
+        let (damage, miss, auto, name, icon) = match event {
+            CombatLogEvent::SwingDamage { hand, damage, .. } => (
+                *damage,
+                None,
+                true,
+                hand_name(*hand),
+                self.weapon_icon(*hand),
+            ),
+            CombatLogEvent::SwingMissed { hand, miss } => (
+                Damage::default(),
+                Some(miss_name(*miss)),
+                true,
+                hand_name(*hand),
+                self.weapon_icon(*hand),
+            ),
             CombatLogEvent::SpellDamage { spell, damage, .. }
-            | CombatLogEvent::SpellPeriodicDamage { spell, damage, .. } => {
-                (damage, false, spell.name.clone(), self.spell_icon(spell.id))
-            }
+            | CombatLogEvent::SpellPeriodicDamage { spell, damage, .. } => (
+                *damage,
+                None,
+                false,
+                spell.name.clone(),
+                self.spell_icon(spell.id),
+            ),
+            CombatLogEvent::SpellMissed { spell, miss, .. } => (
+                Damage::default(),
+                Some(miss_name(*miss)),
+                false,
+                spell.name.clone(),
+                self.spell_icon(spell.id),
+            ),
             _ => return None,
         };
         Some(DamageNumber {
             time,
             amount: damage.amount,
+            miss,
             critical: damage.critical,
             glancing: damage.glancing,
             auto,
@@ -536,6 +563,16 @@ fn start(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> Iteration
 /// An icon `FileDataID` of the data, `None` for 0 (no icon).
 pub fn icon(file_data_id: u32) -> Option<u32> {
     Some(file_data_id).filter(|&id| id != 0)
+}
+
+fn miss_name(miss: MissType) -> &'static str {
+    match miss {
+        MissType::Miss => "Miss",
+        MissType::Dodge => "Dodge",
+        MissType::Parry => "Parry",
+        MissType::Block => "Block",
+        MissType::Resist => "Resist",
+    }
 }
 
 fn hand_name(hand: Hand) -> String {

@@ -298,3 +298,48 @@ fn the_rotation_entries_and_decisions() {
     );
     assert!(bloodrage.icon.is_some());
 }
+
+#[test]
+fn avoided_attacks_are_in_the_feed() {
+    let mut avoided = Vec::new();
+    for seed in 1..=3 {
+        let mut session = session_of("dw_fury_orc.yaml", seed);
+        let frames = play(&mut session, 1.0);
+        let numbers: Vec<DamageNumber> = frames.into_iter().flat_map(|f| f.damage).collect();
+        let shown = numbers.iter().filter(|hit| hit.miss.is_some()).count();
+        let logged = session
+            .log()
+            .iter()
+            .filter(|entry| entry.source == LogUnit::Character(PLAYER))
+            .filter(|entry| {
+                matches!(
+                    entry.event,
+                    CombatLogEvent::SwingMissed { .. } | CombatLogEvent::SpellMissed { .. }
+                )
+            })
+            .count();
+        assert_eq!(shown, logged, "seed {seed}");
+        avoided.extend(numbers.into_iter().filter(|hit| hit.miss.is_some()));
+    }
+    for hit in &avoided {
+        assert_eq!(hit.amount, 0);
+        assert!(!hit.critical && !hit.glancing);
+        assert!(hit.icon.is_some(), "{}", hit.name);
+    }
+    let kinds = |auto: bool| -> Vec<&str> {
+        let mut kinds: Vec<&str> = avoided
+            .iter()
+            .filter(|hit| hit.auto == auto)
+            .map(|hit| hit.miss.unwrap())
+            .collect();
+        kinds.sort_unstable();
+        kinds.dedup();
+        kinds
+    };
+    let white = kinds(true);
+    assert!(
+        white.contains(&"Miss") && white.contains(&"Dodge"),
+        "{white:?}"
+    );
+    assert!(!kinds(false).is_empty(), "some spell is avoided");
+}
