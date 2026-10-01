@@ -1,4 +1,4 @@
-//! Bit-flag columns: `SpellMisc.Attributes_0` / `Attributes_1`,
+//! Bit-flag columns: `SpellMisc.Attributes_0` to `Attributes_3`,
 //! `SpellAuraOptions.ProcTypeMask_0` and `SpellMisc.SchoolMask`.
 
 use super::dbc_flags;
@@ -54,9 +54,33 @@ dbc_flags! {
     /// Retail `SpellAttr1`, the `Attributes_1` word of `SpellMisc`. Only the bits the engine
     /// reads are named.
     SpellAttr1 {
+        /// Usable in Stealth without breaking it (Premeditation, Vanish, Cold Blood).
+        ALLOW_WHILE_STEALTHED = 0x0000_0020 => "ALLOW_WHILE_STEALTHED",
         /// Most of the cost is refunded when the attack is missed, dodged or parried (the
         /// single-target warrior attacks; not Whirlwind, Cleave or Thunder Clap).
         DISCOUNT_POWER_ON_MISS = 0x0800_0000 => "DISCOUNT_POWER_ON_MISS",
+    }
+}
+
+dbc_flags! {
+    /// Retail `SpellAttr2`, the `Attributes_2` word of `SpellMisc`. Only the bits the engine
+    /// reads are named.
+    SpellAttr2 {
+        /// The caster must be behind the target (Backstab, Garrote, Ambush).
+        BEHIND_TARGET = 0x0010_0000 => "BEHIND_TARGET",
+    }
+}
+
+dbc_flags! {
+    /// Retail `SpellAttr3`, the `Attributes_3` word of `SpellMisc`. Only the bits the engine
+    /// reads are named.
+    SpellAttr3 {
+        /// The main-hand weapon must meet the `SpellEquippedItems` requirement (Backstab: a
+        /// dagger in the main hand, not just anywhere).
+        MAIN_HAND = 0x0000_0400 => "MAIN_HAND",
+        /// An off-hand weapon meeting the requirement is needed, and the spell's weapon damage
+        /// is the off hand's (Mutilate's off-hand strike).
+        REQUIRES_OFF_HAND_WEAPON = 0x0100_0000 => "REQUIRES_OFF_HAND_WEAPON",
     }
 }
 

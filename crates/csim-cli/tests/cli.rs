@@ -260,6 +260,38 @@ fn rank_items_keeps_the_given_types() {
     );
 }
 
+/// The Rogue's weights rank what a Rogue can use: leather, no plate.
+#[test]
+fn rank_items_keeps_what_the_class_can_use() {
+    let path = std::env::temp_dir().join(format!("csim-rank-rogue-{}.yaml", std::process::id()));
+    std::fs::write(
+        &path,
+        "setup: Test\nclass: ROGUE\nrotation: Combat\nphase: 3\niterations: 1\nseed: 1\n\
+         dps: 500\ntps: 400\nweights:\n  STRENGTH: { dps: 1.0, tps: 0.5 }\n\
+         \x20 AGILITY: { dps: 2.0, tps: 1.0 }\n",
+    )
+    .unwrap();
+    let report = stdout(&csim(&[
+        "rank-items",
+        "--weights",
+        path.to_str().unwrap(),
+        "--slot",
+        "chest",
+        "--limit",
+        "0",
+    ]));
+    std::fs::remove_file(&path).ok();
+    assert!(
+        report.starts_with("Stat weights of Test (Rogue Combat"),
+        "{report}"
+    );
+    assert!(report.contains("LEATHER"), "{report}");
+    assert!(
+        !report.contains("PLATE") && !report.contains("MAIL"),
+        "{report}"
+    );
+}
+
 #[test]
 fn weights_file_requires_scale() {
     let output = csim(&[&RUN[..], &["--weights-file", "weights.yaml"]].concat());
@@ -487,6 +519,14 @@ fn validate_checks_every_shipped_setup() {
         report.contains("dw_fury_last_3_points.yaml (46 variants)"),
         "{report}"
     );
+    assert!(
+        report.contains("combat_swords_last_3_points.yaml (18 variants)"),
+        "{report}"
+    );
+    assert!(
+        report.contains("dw_rogue_profiles.yaml (6 variants)"),
+        "{report}"
+    );
     assert!(report.contains("sweeps are valid"), "{report}");
 }
 
@@ -514,6 +554,49 @@ fn lists_filter_by_class_slot_and_name() {
     ]));
     assert!(items.contains("18828"), "{items}");
     assert!(items.contains("High Warlord's Cleaver"), "{items}");
+
+    let rotations = stdout(&csim(&["list-rotations", "--class", "rogue"]));
+    for name in [
+        "Combat",
+        "Combat Dagger",
+        "Hemorrhage",
+        "Seal Fate Mutilate",
+        "Seal Fate Mutilate Expose Armor",
+    ] {
+        assert!(rotations.contains(name), "{rotations}");
+    }
+    assert!(!rotations.contains("DW Fury"), "{rotations}");
+
+    // The Rogue wears leather and wields no shield.
+    let chests = |class: &str| {
+        stdout(&csim(&[
+            "list-items",
+            "--class",
+            class,
+            "--slot",
+            "chest",
+            "--search",
+            "field marshal's",
+        ]))
+    };
+    let rogue = chests("rogue");
+    assert!(
+        rogue.contains("Field Marshal's Leather Chestpiece"),
+        "{rogue}"
+    );
+    assert!(
+        !rogue.contains("PLATE") && !rogue.contains("MAIL"),
+        "{rogue}"
+    );
+    assert!(chests("warrior").contains("PLATE"));
+    let shields = stdout(&csim(&[
+        "list-items",
+        "--class",
+        "rogue",
+        "--search",
+        "force reactive disk",
+    ]));
+    assert!(shields.contains("No items"), "{shields}");
 }
 
 const SWEEP: &str = "data/sweeps/dw_fury_last_3_points.yaml";

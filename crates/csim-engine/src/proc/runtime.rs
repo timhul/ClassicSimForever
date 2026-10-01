@@ -16,14 +16,20 @@
 //! kind ([`Proc::on_hit`]): the spell is the payload itself, cast at the target when the
 //! wielding hand lands a hit, at the rate the overrides give (the server's item data).
 //!
+//! An item enchantment's combat spell (`SpellItemEnchantment` effect 1: a rogue poison) is a
+//! third kind ([`Proc::combat_spell`]): the proc carries the payload's name and class options,
+//! so the chance modifiers of the payload apply (Improved Poisons), and casts the character's
+//! learned copy of the payload, which the poisons of both hands share (one Deadly Poison stack).
+//!
 //! Deviation from C++: the internal cooldown (`ProcCategoryRecovery`, the spell's cooldown
 //! control) is enforced — the C++ `EnabledProcs::run_proc_check` performed a proc without
 //! checking its cooldown control.
 
 use std::collections::HashSet;
 
+use crate::effect::Effect;
 use crate::ids::ProcId;
-use crate::proc::ProcSource;
+use crate::proc::{ProcSource, ProcTrigger};
 use crate::rng::Random;
 use crate::spell::dbc::{AuraType, SpellModOp};
 use crate::spell::overrides::ScriptKind;
@@ -74,6 +80,9 @@ pub enum ProcKind {
     Aura,
     /// An item's chance-on-hit spell: the proc casts the spell itself.
     OnHit,
+    /// An item enchantment's combat spell: the proc casts the character's learned spell with
+    /// its game id.
+    CombatSpell,
 }
 
 /// A passive spell with a proc chance. Port of `Proc` / `ProcPPM`.
@@ -103,12 +112,20 @@ impl Proc {
     }
 
     /// The sources a passive proc spell listens to: its `ProcTypeMask` and hit mask, narrowed
-    /// to the override's hand. Empty for a proc on events the sim does not have (a killing
-    /// blow).
+    /// to the override's hand, or the finishers for a `proc.finisher` override. Empty for a
+    /// proc on events the sim does not have (a killing blow).
     ///
     /// # Panics
     /// Panics if the spell is not passive.
     pub fn sources_of(spell: &Spell) -> Vec<ProcSource> {
+        if spell.setup().overrides.proc.is_some_and(|p| p.finisher) {
+            assert!(
+                spell.is_passive(),
+                "{} is not a passive spell",
+                spell.name()
+            );
+            return vec![ProcSource::Finisher];
+        }
         let mut sources = Self::record_sources(spell);
         if let Some(hand) = spell.setup().overrides.proc.and_then(|p| p.hand) {
             sources.retain(|source| source.hand() == hand);
@@ -123,7 +140,7 @@ impl Proc {
     /// `Item::add_default_proc_sources`. Returns `None` when the record and the slot have no
     /// trigger in common (a main-hand only proc on a trinket).
     pub fn for_equipment(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
-        let mut sources = Self::record_sources(&spell);
+        let mut sources = Self::sources_of(&spell);
         sources.retain(|source| allowed.contains(source));
         if sources.is_empty() {
             return None;
@@ -147,6 +164,32 @@ impl Proc {
         let mut proc = Self::build(spell, allowed.to_vec(), seed);
         proc.kind = ProcKind::OnHit;
         Some(proc)
+    }
+
+    /// Builds the proc of an item enchantment's combat spell (a rogue poison): `spell` is the
+    /// payload's record without its effects, whose override chance is the enchantment's; the
+    /// proc casts the character's learned payload with the same game id when one of `allowed`
+    /// (the enchanted hand's landed swings and abilities) fires. Returns `None` when `allowed` is
+    /// empty or the spell has no rate.
+    pub fn combat_spell(spell: Spell, allowed: &[ProcSource], seed: u64) -> Option<Self> {
+        let has_rate = spell.setup().overrides.proc.is_some_and(|p| p.has_rate());
+        if allowed.is_empty() || !has_rate {
+            return None;
+        }
+        let rate = match spell.setup().overrides.proc.and_then(|p| p.ppm) {
+            Some(ppm) => ProcRate::Ppm(ppm),
+            None => ProcRate::Chance,
+        };
+        Some(Proc {
+            spell,
+            kind: ProcKind::CombatSpell,
+            rate,
+            sources: allowed.to_vec(),
+            random: Random::from_seed(0, PROC_ROLL_RANGE, seed),
+            current_source: None,
+            attempts: 0,
+            procs: 0,
+        })
     }
 
     /// The sources the record's `ProcTypeMask` and hit mask name.
@@ -211,6 +254,15 @@ impl Proc {
         self.kind
     }
 
+    /// The learned spells the proc casts, enabled with it: a combat spell's payload (its own
+    /// game id), else the spell's triggers and scripted payloads.
+    pub fn payload_spells(&self) -> Vec<u32> {
+        match self.kind {
+            ProcKind::CombatSpell => vec![self.game_id()],
+            ProcKind::Aura | ProcKind::OnHit => self.spell.payload_spells(),
+        }
+    }
+
     pub fn rate(&self) -> ProcRate {
         self.rate
     }
@@ -242,8 +294,52 @@ impl Proc {
         self.sources.contains(&source)
     }
 
-    /// The proc chance out of [`PROC_ROLL_RANGE`] for an event from `source`. Port of
-    /// `Proc::get_proc_range` / `ProcPPM::get_proc_range`.
+    /// Whether the spell behind the event is one the proc reacts to: the override's family
+    /// mask selects it (in the proc's own class family when the proc has one), it is a
+    /// builder when the override asks for one, and a finisher spent at least the combo points
+    /// the override's effect names. The server keeps these in `spell_proc` and its scripts;
+    /// the client tables do not have them.
+    pub fn matches_trigger(&self, trigger: &ProcTrigger, host: &impl ProcHost) -> bool {
+        let Some(filter) = self.spell.setup().overrides.proc else {
+            return true;
+        };
+        if filter.builder && !trigger.awards_combo_points {
+            return false;
+        }
+        let effect_mask = filter.family_mask_effect.and_then(|index| {
+            let effect = self.spell.record().effect(index)?;
+            Some(effect.spell_class_mask)
+        });
+        if let Some(mask) = filter.family_mask.or(effect_mask) {
+            let family = self.spell.record().class_options.map(|c| c.set);
+            let selected = trigger
+                .class_options
+                .is_some_and(|class| class.matches(family.unwrap_or(class.set), &mask));
+            if !selected {
+                return false;
+            }
+        }
+        if let Some(index) = filter.combo_points_effect {
+            let needed = self.aura_value(index, host).unwrap_or(0.0);
+            if f64::from(trigger.combo_points_spent) < needed {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// The current value of the proc aura's effect `index` (a talent's rank value).
+    fn aura_value(&self, index: u32, host: &impl ProcHost) -> Option<f64> {
+        host.buff(self.spell.marker_buff()?)
+            .effects
+            .iter()
+            .find(|e| e.index() == index)
+            .map(Effect::value)
+    }
+
+    /// The proc chance out of [`PROC_ROLL_RANGE`] for an event from `source` (per combo point
+    /// for a `chance_per_combo_point` proc). Port of `Proc::get_proc_range` /
+    /// `ProcPPM::get_proc_range`.
     pub fn proc_range(&self, source: ProcSource, host: &impl ProcHost) -> u32 {
         match self.rate {
             ProcRate::Chance => {
@@ -314,14 +410,30 @@ impl Proc {
         self.spell.cooldown_remaining(host) <= 0.0
     }
 
-    /// Rolls for the proc. Port of `Proc::check_proc_success` (plus the cooldown check).
-    pub fn check_proc_success(&mut self, source: ProcSource, host: &impl ProcHost) -> bool {
+    /// Rolls for the proc on an event raised by `trigger`; a chance per combo point is
+    /// multiplied by the points the finisher spent. Port of `Proc::check_proc_success` (plus
+    /// the cooldown check).
+    pub fn check_proc_success(
+        &mut self,
+        source: ProcSource,
+        trigger: &ProcTrigger,
+        host: &impl ProcHost,
+    ) -> bool {
         self.current_source = Some(source);
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
         }
-        let range = self.proc_range(source, host);
+        let mut range = self.proc_range(source, host);
+        if self
+            .spell
+            .setup()
+            .overrides
+            .proc
+            .is_some_and(|p| p.chance_per_combo_point)
+        {
+            range = range.saturating_mul(trigger.combo_points_spent);
+        }
         self.random.get_roll() < range && self.conditions_fulfilled(source, host)
     }
 
@@ -333,38 +445,50 @@ impl Proc {
         host.buff(id)
             .effects
             .iter()
-            .filter_map(|effect| {
-                let record = effect.record();
-                if record.is_proc_trigger() && record.trigger_spell != 0 {
-                    return Some(Payload::Trigger {
-                        spell: record.trigger_spell,
-                        value: Some(effect.effective_value(host)),
-                    });
-                }
-                // A `PROC_TRIGGER_SPELL` without a trigger spell (Windfury Totem's party aura
-                // keeps the payload id in its base points) is scripted like a `DUMMY` aura.
-                if effect.aura() != AuraType::Dummy && !record.is_proc_trigger() {
-                    return None;
-                }
-                match effect.script_kind()? {
-                    ScriptKind::TriggerWithValue => {
-                        let params = &effect.script()?.params;
-                        Some(Payload::TriggerWithValue {
-                            spell: params.spell?,
-                            effect: params.effect?,
-                            value: effect.effective_value(host),
-                        })
-                    }
-                    // The server-side script: the value is the payload's id, not a number the
-                    // payload wants.
-                    ScriptKind::TriggerSpell => Some(Payload::Trigger {
-                        spell: effect.script()?.params.spell?,
-                        value: None,
-                    }),
-                    _ => None,
-                }
-            })
+            .filter_map(|effect| Self::payload(effect, host))
             .collect()
+    }
+
+    /// The payload of one aura effect: the spell a trigger script names (a `DUMMY`, a
+    /// `PROC_TRIGGER_SPELL` without a trigger spell such as Windfury Totem's party aura, or a
+    /// trigger the server replaced), else the proc trigger's own trigger spell.
+    fn payload(effect: &Effect, host: &impl ProcHost) -> Option<Payload> {
+        match effect.script_kind() {
+            Some(ScriptKind::TriggerWithValue) => {
+                let params = &effect.script()?.params;
+                return Some(Payload::TriggerWithValue {
+                    spell: params.spell?,
+                    effect: params.effect?,
+                    value: effect.effective_value(host),
+                });
+            }
+            // The server-side script: the value is the payload's id, not a number the payload
+            // wants.
+            Some(ScriptKind::TriggerSpell) => {
+                return Some(Payload::Trigger {
+                    spell: effect.script()?.params.spell?,
+                    value: None,
+                });
+            }
+            _ => {}
+        }
+        let record = effect.record();
+        if !record.is_proc_trigger() || record.trigger_spell == 0 {
+            return None;
+        }
+        // The aura's value becomes the payload's first effect value (Improved Expose Armor
+        // refunds 1 or 2 combo points with its payload's single combo point effect).
+        if record.aura == AuraType::ProcTriggerSpellWithValue {
+            return Some(Payload::TriggerWithValue {
+                spell: record.trigger_spell,
+                effect: 0,
+                value: effect.effective_value(host),
+            });
+        }
+        Some(Payload::Trigger {
+            spell: record.trigger_spell,
+            value: Some(effect.effective_value(host)),
+        })
     }
 
     /// Performs the proc: casts the payloads of its aura effects and, if the passive has direct
@@ -372,8 +496,20 @@ impl Proc {
     /// `Proc::spell_effect`.
     pub fn perform(&mut self, host: &mut impl ProcHost) -> CastReport {
         self.procs += 1;
-        if self.kind == ProcKind::OnHit {
-            return self.spell.perform_triggered(host);
+        match self.kind {
+            ProcKind::OnHit => return self.spell.perform_triggered(host),
+            ProcKind::CombatSpell => {
+                let mut report = CastReport {
+                    result: SpellResult::Success,
+                    ..CastReport::default()
+                };
+                let payload = self.spell.game_id();
+                if let Some(triggered) = host.trigger_spell(payload, None) {
+                    report.triggered.push((payload, triggered));
+                }
+                return report;
+            }
+            ProcKind::Aura => {}
         }
         let mut report = if self.spell.effects().is_empty() {
             self.spell.start_cooldown(host);
@@ -541,17 +677,18 @@ impl EnabledProcs {
         }
     }
 
-    /// Runs the proc check for `source`: every enabled proc listening to it that has not
-    /// already procced in this (possibly nested) check rolls and fires. Proc sources produced
-    /// by the procs themselves (and by the spells they trigger) are checked recursively.
-    /// Returns the cast reports of the procs that fired, for the statistics. Port of
-    /// `run_proc_check`.
+    /// Runs the proc check for `source` raised by `trigger`: every enabled proc listening to
+    /// it that reacts to the spell behind it and has not already procced in this (possibly
+    /// nested) check rolls and fires. Proc sources produced by the procs themselves (and by the
+    /// spells they trigger) are checked recursively, with no spell behind them. Returns the
+    /// cast reports of the procs that fired, for the statistics. Port of `run_proc_check`.
     ///
     /// # Panics
     /// Panics for `ProcSource::Manual`.
     pub fn run_proc_check(
         &mut self,
         source: ProcSource,
+        trigger: ProcTrigger,
         host: &mut impl ProcHost,
     ) -> Vec<(ProcId, CastReport)> {
         assert!(
@@ -563,10 +700,14 @@ impl EnabledProcs {
 
         let candidates = self.enabled.clone();
         for id in candidates {
-            if !self.procs[id.index()].procs_from_source(source) || self.procced.contains(&id) {
+            let proc = &self.procs[id.index()];
+            if !proc.procs_from_source(source)
+                || self.procced.contains(&id)
+                || !proc.matches_trigger(&trigger, host)
+            {
                 continue;
             }
-            if !self.procs[id.index()].check_proc_success(source, host) {
+            if !self.procs[id.index()].check_proc_success(source, &trigger, host) {
                 continue;
             }
             self.procced.insert(id);
@@ -588,7 +729,7 @@ impl EnabledProcs {
         let nested = report.all_proc_sources();
         reports.push((id, report));
         for nested_source in nested {
-            reports.extend(self.run_proc_check(nested_source, host));
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
         }
     }
 

@@ -1,0 +1,12 @@
+# Schema: crates/csim-engine/src/character_loader.rs.
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_mutilate_33_18.yaml
+include: common/base_rogue_horde.yaml
+name: Mutilate Undead
+race: UNDEAD
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18840, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # High Warlord's Razor
+  OFFHAND: { item: 21404, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, DeadlyPoison] }                   # Dagger of Veiled Shadows

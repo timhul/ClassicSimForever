@@ -64,6 +64,11 @@ impl BuffKind {
         if auras.iter().any(|e| e.targets_group()) {
             return Some(BuffKind::PartyBuff { party });
         }
+        // A passive's auras are on its owner; an enemy target names who the proc's payload
+        // hits (Ruthlessness, Seal Fate).
+        if record.is_passive() {
+            return Some(BuffKind::SelfBuff);
+        }
         if auras.iter().any(|e| e.targets_enemy()) {
             let shared = debuff_shared.unwrap_or(record.aura_options.max_stacks > 1);
             return Some(if shared {
@@ -147,6 +152,9 @@ pub struct Buff {
     hidden: bool,
     /// `None` = permanent.
     base_duration: Option<f64>,
+    /// The duration of the running application when the spell that applied it decided it
+    /// (combo points spent, `DURATION` modifiers); the base duration otherwise.
+    application_duration: Option<f64>,
     /// Talent modification of the duration (`increase_buff_duration_percent`).
     duration_percent: i32,
     base_charges: u32,
@@ -162,10 +170,13 @@ pub struct Buff {
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
-    /// The spell families and class masks of a charged spell modifier aura (Eureka!): a charge
-    /// is only used by an event of a spell the modifiers apply to (TrinityCore
-    /// `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
+    /// The spell families and class masks of a charged spell modifier aura (Eureka!) or
+    /// `MOD_IGNORE_SHAPESHIFT` aura (Cutthroat): a charge is only used by an event of a spell
+    /// the aura applies to (TrinityCore `PROC_ATTR_REQ_SPELLMOD`). Empty for any other buff.
     charge_spell_masks: Vec<(u32, [u32; 4])>,
+    /// A spell modifier aura without charges that its `charge_sources` use up whole (Thousand
+    /// Cuts: the next Backstab or Hemorrhage takes every stack).
+    consumed_whole: bool,
     /// The spells whose buffs end with this one (the overrides' `ends_auras`).
     ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
@@ -205,6 +216,7 @@ impl Buff {
             kind,
             hidden: false,
             base_duration: duration,
+            application_duration: None,
             duration_percent: 0,
             base_charges,
             max_stacks: 1,
@@ -215,6 +227,7 @@ impl Buff {
             passive: false,
             charge_sources: Vec::new(),
             charge_spell_masks: Vec::new(),
+            consumed_whole: false,
             ends_auras: Vec::new(),
             effects: Vec::new(),
             instance_id: None,
@@ -259,14 +272,20 @@ impl Buff {
                     .unwrap_or(Priority::Mid),
             );
         }
-        if record.aura_options.proc_charges > 0 {
+        // A spell modifier aura without charges that still reacts to events is used up whole
+        // by the first spell it modifies (Thousand Cuts, every stack at once).
+        buff.consumed_whole = record.aura_options.proc_charges == 0
+            && !record.is_passive()
+            && !record.aura_options.proc_type_mask.is_empty()
+            && record.effects.iter().any(|e| e.is_spell_modifier());
+        if record.aura_options.proc_charges > 0 || buff.consumed_whole {
             buff.charge_sources =
                 ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
             let set = record.class_options.map_or(0, |c| c.set);
             buff.charge_spell_masks = record
                 .effects
                 .iter()
-                .filter(|e| e.is_spell_modifier())
+                .filter(|e| e.is_spell_modifier() || e.is_ignore_shapeshift())
                 .map(|e| (set, e.spell_class_mask))
                 .collect();
         }
@@ -363,8 +382,16 @@ impl Buff {
 
     /// Duration in seconds including talent modifications; `None` = permanent.
     pub fn duration(&self) -> Option<f64> {
-        self.base_duration
+        self.application_duration
+            .or(self.base_duration)
             .map(|base| base * (1.0 + f64::from(self.duration_percent) / 100.0))
+    }
+
+    /// Sets the duration of the application about to be made (`None`: the base duration),
+    /// as the spell applying it decided it (a finisher's combo points). Set before
+    /// [`Buff::apply`]; a refresh keeps it for the rest of the application.
+    pub fn set_application_duration(&mut self, duration: Option<f64>) {
+        self.application_duration = duration.filter(|_| self.base_duration.is_some());
     }
 
     pub fn is_permanent(&self) -> bool {
@@ -604,13 +631,18 @@ impl Buff {
         true
     }
 
-    /// Uses one charge, removing the buff when the last one is used. Port of `Buff::use_charge`.
+    /// Uses one charge, removing the buff when the last one is used; a buff used up whole
+    /// goes at once, whatever its stacks. Port of `Buff::use_charge`.
     ///
     /// # Panics
-    /// Panics if the buff is active without charges.
+    /// Panics if the buff is active without charges (and not used up whole).
     pub fn use_charge(&mut self, ctx: &mut BuffContext) -> ChargeUse {
         if !self.active {
             return ChargeUse::Inactive;
+        }
+        if self.consumed_whole {
+            self.force_remove(ctx);
+            return ChargeUse::Removed;
         }
         assert!(
             self.current_charges > 0,

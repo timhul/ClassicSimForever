@@ -1,9 +1,10 @@
 //! Character resources. Port of `Resource/*`.
 //!
-//! [`Rage`] is the non-regenerating resource; [`Mana`], [`Energy`] and [`Focus`] port
-//! `RegeneratingResource` without the engine coupling: they compute one tick's worth of resource
-//! and the character (which owns the `ResourceTick` event) decides when to call [`Resource::tick`].
-//! The C++ virtual hierarchy is a closed [`Resource`] enum.
+//! [`Rage`] is the non-regenerating resource. [`Energy`] regenerates lazily on a 0.1 s tick
+//! grid: no tick is an event, reads compute the energy at a given time (see [`Energy`]).
+//! [`Mana`] and [`Focus`] keep the C++ per-tick amounts of `RegeneratingResource` until a class
+//! that uses them is ported; nothing ticks them yet. The C++ virtual hierarchy is a closed
+//! [`Resource`] enum.
 
 use serde::{Deserialize, Serialize};
 
@@ -163,7 +164,7 @@ impl Rage {
     }
 }
 
-/// Seconds between regeneration ticks of mana, energy and focus.
+/// Seconds between mana regeneration ticks.
 pub const REGEN_TICK_RATE: f64 = 2.0;
 
 /// Mana: max from base mana and intellect, regenerates from mp5 and spirit under the five-second
@@ -297,78 +298,263 @@ impl Mana {
     }
 }
 
-/// Energy: 100 (+ set bonuses), 20 per tick, 40 under Adrenaline Rush. Port of `Resource/Energy.*`.
+/// Seconds between two energy ticks at the base rate: 10 Hz, one energy per tick (the C++
+/// ticked 20 energy every 2 s).
+pub const ENERGY_TICK_INTERVAL: f64 = 0.1;
+
+/// Tolerance, in ticks, of the tick counting: `k × interval` carries float noise, and a read at
+/// the time of a tick must see it.
+const TICK_EPSILON: f64 = 1e-9;
+/// Tolerance, in seconds, of the reaction time comparisons.
+const TIME_EPSILON: f64 = 1e-9;
+/// How many of the latest gaining ticks are remembered for their pending reactions: enough for
+/// every tick of the last reaction delay up to +300 % regeneration.
+const RECENT_GAINS: usize = 4;
+
+/// Energy: 100 (+ `MOD_INCREASE_ENERGY`), one point per tick on a 0.1 s grid that runs from the
+/// pull, faster under `MOD_POWER_REGEN_PERCENT` (Adrenaline Rush).
+///
+/// Ticks are not events: the energy is evaluated lazily on the tick grid.
+/// `current(now) = min(max, settled + ticks since the last settle)`; every change first
+/// *settles* (moves the elapsed whole ticks into `settled`), so the phase of the grid and the
+/// progress of the running tick survive spending and gaining. Ticks at the cap are lost, as in
+/// game, and counted. A rate change settles at the old rate and keeps the fraction of the
+/// running tick.
 #[derive(Debug, Clone)]
 pub struct Energy {
-    current: u32,
-    per_tick: u32,
-    max_bonus: u32,
+    settled: u32,
+    /// Origin of the grid at the current rate: ticks fall at `epoch + k × interval`.
+    epoch: f64,
+    /// The grid index of the last tick moved into `settled`; `None` while the energy has been
+    /// full and untouched since the reset (it then reads as the maximum, whatever it becomes).
+    ticks_done: Option<i64>,
+    interval: f64,
+    /// Σ `MOD_POWER_REGEN_PERCENT` of the energy.
+    regen_percent: i32,
+    /// Σ `MOD_INCREASE_ENERGY`.
+    max_bonus: i32,
+    /// Energy gained from ticks since the counters were last taken.
+    regenerated: u64,
+    /// Ticks lost at the cap since the counters were last taken.
+    lost_at_cap: u64,
+    /// Times of the latest ticks that gained energy, oldest first (`NEG_INFINITY` when unused):
+    /// their reactions may still be ahead after they were settled.
+    recent_gains: [f64; RECENT_GAINS],
 }
 
 impl Default for Energy {
     fn default() -> Self {
         Self {
-            current: Self::BASE_MAX,
-            per_tick: Self::BASE_PER_TICK,
+            settled: Self::BASE_MAX,
+            epoch: 0.0,
+            ticks_done: None,
+            interval: ENERGY_TICK_INTERVAL,
+            regen_percent: 0,
             max_bonus: 0,
+            regenerated: 0,
+            lost_at_cap: 0,
+            recent_gains: [f64::NEG_INFINITY; RECENT_GAINS],
         }
     }
 }
 
 impl Energy {
     pub const BASE_MAX: u32 = 100;
-    pub const BASE_PER_TICK: u32 = 20;
-    pub const DOUBLED_PER_TICK: u32 = 40;
 
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn current(&self) -> u32 {
-        self.current
-    }
-
     pub fn max(&self) -> u32 {
-        Self::BASE_MAX + self.max_bonus
+        (Self::BASE_MAX as i32 + self.max_bonus).max(0) as u32
     }
 
-    pub fn per_tick(&self) -> u32 {
-        self.per_tick
+    /// Seconds between two ticks at the current rate.
+    pub fn interval(&self) -> f64 {
+        self.interval
     }
 
-    pub fn gain(&mut self, amount: u32) -> u32 {
-        let before = self.current;
-        self.current = (self.current + amount).min(self.max());
-        self.current - before
+    pub fn regen_percent(&self) -> i32 {
+        self.regen_percent
     }
 
+    /// The time of grid tick `index`.
+    fn tick_time(&self, index: i64) -> f64 {
+        self.epoch + index as f64 * self.interval
+    }
+
+    /// The grid index of the last tick at or before `now`.
+    fn elapsed(&self, now: f64) -> i64 {
+        ((now - self.epoch) / self.interval + TICK_EPSILON).floor() as i64
+    }
+
+    /// Ticks since the last settle, not capped.
+    fn pending(&self, now: f64) -> i64 {
+        self.ticks_done
+            .map_or(0, |done| (self.elapsed(now) - done).max(0))
+    }
+
+    /// The energy at `now`.
+    pub fn current(&self, now: f64) -> u32 {
+        match self.ticks_done {
+            None => self.max(),
+            Some(_) => {
+                let pending = u32::try_from(self.pending(now)).unwrap_or(u32::MAX);
+                self.settled.saturating_add(pending).min(self.max())
+            }
+        }
+    }
+
+    /// Moves the ticks up to `now` into the settled energy; ticks beyond the cap are lost.
+    fn settle(&mut self, now: f64) {
+        let elapsed = self.elapsed(now);
+        let Some(done) = self.ticks_done else {
+            self.settled = self.max();
+            self.ticks_done = Some(elapsed);
+            return;
+        };
+        let pending = elapsed - done;
+        if pending <= 0 {
+            return;
+        }
+        let room = i64::from(self.max().saturating_sub(self.settled));
+        let gained = pending.min(room);
+        // The gaining ticks are the first `gained` ones; remember the latest of them.
+        for index in (done + 1 + (gained - RECENT_GAINS as i64).max(0))..=(done + gained) {
+            self.recent_gains.rotate_left(1);
+            self.recent_gains[RECENT_GAINS - 1] = self.tick_time(index);
+        }
+        self.settled += gained as u32;
+        self.regenerated += gained as u64;
+        self.lost_at_cap += (pending - gained) as u64;
+        self.ticks_done = Some(elapsed);
+    }
+
+    /// Adds energy at `now`, capped at the maximum; returns the energy actually gained.
+    pub fn gain(&mut self, amount: u32, now: f64) -> u32 {
+        if self.ticks_done.is_none() {
+            return 0;
+        }
+        self.settle(now);
+        let gained = amount.min(self.max().saturating_sub(self.settled));
+        self.settled += gained;
+        gained
+    }
+
+    /// Spends energy at `now`.
+    ///
     /// # Panics
     /// Panics on underflow.
-    pub fn lose(&mut self, amount: u32) {
-        assert!(self.current >= amount, "{UNDERFLOW}");
-        self.current -= amount;
+    pub fn lose(&mut self, amount: u32, now: f64) {
+        self.settle(now);
+        assert!(self.settled >= amount, "{UNDERFLOW}");
+        self.settled -= amount;
     }
 
+    /// Full energy for a new iteration, the grid back on the pull (t = 0). The rate and the
+    /// maximum are aura-driven and stay.
     pub fn reset(&mut self) {
-        self.current = self.max();
-        self.per_tick = Self::BASE_PER_TICK;
+        self.settled = self.max();
+        self.epoch = 0.0;
+        self.ticks_done = None;
+        self.recent_gains = [f64::NEG_INFINITY; RECENT_GAINS];
     }
 
-    pub fn increase_energy_per_tick(&mut self) {
-        self.per_tick = Self::DOUBLED_PER_TICK;
+    /// Adds `percent` to the regeneration rate at `now` (`MOD_POWER_REGEN_PERCENT`, Adrenaline
+    /// Rush +100 %): the ticks so far count at the old rate and the running tick keeps its
+    /// progress.
+    pub fn adjust_regen_percent(&mut self, percent: i32, now: f64) {
+        if self.ticks_done.is_some() {
+            self.settle(now);
+        }
+        let done = self.ticks_done.unwrap_or_else(|| self.elapsed(now));
+        let progress = ((now - self.tick_time(done)) / self.interval).clamp(0.0, 1.0);
+        self.regen_percent += percent;
+        self.interval = ENERGY_TICK_INTERVAL / (1.0 + f64::from(self.regen_percent) / 100.0);
+        self.epoch = now - progress * self.interval;
+        if self.ticks_done.is_some() {
+            self.ticks_done = Some(0);
+        }
     }
 
-    pub fn decrease_energy_per_tick(&mut self) {
-        self.per_tick = Self::BASE_PER_TICK;
+    /// Adds `amount` to the maximum at `now` (`MOD_INCREASE_ENERGY`, Vigor); the energy is
+    /// clamped when the maximum drops.
+    pub fn adjust_max_bonus(&mut self, amount: i32, now: f64) {
+        if self.ticks_done.is_some() {
+            self.settle(now);
+        }
+        self.max_bonus += amount;
+        self.settled = self.settled.min(self.max());
     }
 
-    pub fn increase_max_bonus(&mut self, bonus: u32) {
-        self.max_bonus += bonus;
+    /// Seconds from `now` until the energy reaches `amount`: 0 when it already has, infinite
+    /// when `amount` is above the maximum.
+    pub fn time_until(&self, amount: u32, now: f64) -> f64 {
+        if amount <= self.current(now) {
+            return 0.0;
+        }
+        match self.ticks_done {
+            Some(done) if amount <= self.max() => {
+                let index = done + i64::from(amount - self.settled);
+                (self.tick_time(index) - now).max(0.0)
+            }
+            _ => f64::INFINITY,
+        }
     }
 
-    pub fn decrease_max_bonus(&mut self, bonus: u32) {
-        self.max_bonus -= bonus;
-        self.current = self.current.min(self.max());
+    /// The first reaction to a regeneration tick from `now` on (after `now` when `after_now`)
+    /// and not before `not_before`: a tick that gains energy is followed by a reaction
+    /// `reaction_delay` later (the player notices the energy), a tick at the cap by none.
+    /// Covers the settled ticks whose reaction is still ahead and the ticks to come, assuming
+    /// nothing else changes the energy.
+    pub fn next_reaction(
+        &self,
+        now: f64,
+        after_now: bool,
+        not_before: f64,
+        reaction_delay: f64,
+    ) -> Option<f64> {
+        let accepts = |reaction: f64| {
+            (if after_now {
+                reaction > now
+            } else {
+                reaction >= now
+            }) && reaction >= not_before - TIME_EPSILON
+        };
+        let recent = self
+            .recent_gains
+            .iter()
+            .map(|tick| tick + reaction_delay)
+            .find(|&reaction| accepts(reaction));
+        let upcoming = self.ticks_done.and_then(|done| {
+            let room = i64::from(self.max().saturating_sub(self.settled));
+            if room == 0 {
+                return None;
+            }
+            let lower = now.max(not_before) - reaction_delay;
+            let estimate = ((lower - self.epoch) / self.interval - 1e-6).ceil();
+            let mut index = (estimate as i64).max(done + 1);
+            while !accepts(self.tick_time(index) + reaction_delay) {
+                index += 1;
+            }
+            (index <= done + room).then(|| self.tick_time(index) + reaction_delay)
+        });
+        match (recent, upcoming) {
+            (Some(a), Some(b)) => Some(a.min(b)),
+            (a, b) => a.or(b),
+        }
+    }
+
+    /// Takes the counters since they were last taken, settled up to `now`: the energy
+    /// regenerated and the ticks lost at the cap.
+    pub fn take_regen_counters(&mut self, now: f64) -> (u64, u64) {
+        if self.ticks_done.is_some() {
+            self.settle(now);
+        }
+        let counters = (self.regenerated, self.lost_at_cap);
+        self.regenerated = 0;
+        self.lost_at_cap = 0;
+        counters
     }
 }
 
@@ -448,6 +634,9 @@ impl Focus {
 }
 
 /// A character's resource. Replaces the C++ `Resource` virtual base.
+///
+/// Reads and changes take the engine time: energy regenerates lazily on its tick grid, mana
+/// reads it for the five-second rule, rage and focus ignore it.
 #[derive(Debug, Clone)]
 pub enum Resource {
     Rage(Rage),
@@ -475,11 +664,12 @@ impl Resource {
         }
     }
 
-    pub fn current(&self) -> u32 {
+    /// The amount at engine time `now`.
+    pub fn current(&self, now: f64) -> u32 {
         match self {
             Resource::Rage(r) => r.current(),
             Resource::Mana(r) => r.current(),
-            Resource::Energy(r) => r.current(),
+            Resource::Energy(r) => r.current(now),
             Resource::Focus(r) => r.current(),
         }
     }
@@ -493,8 +683,8 @@ impl Resource {
         }
     }
 
-    pub fn is_full(&self) -> bool {
-        self.current() == self.max()
+    pub fn is_full(&self, now: f64) -> bool {
+        self.current(now) == self.max()
     }
 
     /// Whether the resource regenerates on a timer (everything but rage).
@@ -502,36 +692,32 @@ impl Resource {
         !matches!(self, Resource::Rage(_))
     }
 
-    /// Adds resource, capped at the maximum; returns the amount actually gained.
-    pub fn gain(&mut self, amount: u32) -> u32 {
+    /// Adds resource at `now`, capped at the maximum; returns the amount actually gained.
+    pub fn gain(&mut self, amount: u32, now: f64) -> u32 {
         match self {
             Resource::Rage(r) => r.gain(amount),
             Resource::Mana(r) => r.gain(amount),
-            Resource::Energy(r) => r.gain(amount),
+            Resource::Energy(r) => r.gain(amount, now),
             Resource::Focus(r) => r.gain(amount),
         }
     }
 
     /// Gives back a fractional `amount` of a cost already paid (a refund on miss): rage keeps
-    /// the tenths, the other resources round to whole points.
-    pub fn refund(&mut self, amount: f64) {
+    /// the tenths, the other resources round to whole points. Returns the amount actually given
+    /// back (after the cap).
+    pub fn refund(&mut self, amount: f64, now: f64) -> f64 {
         match self {
             Resource::Rage(r) => {
-                r.gain_tenths(amount * f64::from(Rage::TENTHS));
+                f64::from(r.gain_tenths(amount * f64::from(Rage::TENTHS))) / f64::from(Rage::TENTHS)
             }
-            Resource::Mana(r) => {
-                r.gain(amount.round() as u32);
-            }
-            Resource::Energy(r) => {
-                r.gain(amount.round() as u32);
-            }
-            Resource::Focus(r) => {
-                r.gain(amount.round() as u32);
-            }
+            Resource::Mana(r) => f64::from(r.gain(amount.round() as u32)),
+            Resource::Energy(r) => f64::from(r.gain(amount.round() as u32, now)),
+            Resource::Focus(r) => f64::from(r.gain(amount.round() as u32)),
         }
     }
 
-    /// Spends resource at engine time `now` (only mana reads the time, for the five-second rule).
+    /// Spends resource at engine time `now` (mana starts the five-second rule, energy settles
+    /// its ticks).
     ///
     /// # Panics
     /// Panics on underflow.
@@ -539,7 +725,7 @@ impl Resource {
         match self {
             Resource::Rage(r) => r.lose(amount),
             Resource::Mana(r) => r.lose(amount, now),
-            Resource::Energy(r) => r.lose(amount),
+            Resource::Energy(r) => r.lose(amount, now),
             Resource::Focus(r) => r.lose(amount),
         }
     }
@@ -554,23 +740,6 @@ impl Resource {
         }
     }
 
-    /// One regeneration tick at engine time `now`; returns the amount gained. Mana needs the
-    /// character's `mp5` and spirit-based mp5, which the other resources ignore. Rage never ticks.
-    ///
-    /// # Panics
-    /// Panics for rage (the C++ `check`).
-    pub fn tick(&mut self, now: f64, mp5: f64, mp5_from_spirit: f64) -> u32 {
-        match self {
-            Resource::Rage(_) => panic!("Rage is not a regenerating resource"),
-            Resource::Mana(r) => {
-                let amount = r.regen_per_tick(mp5, mp5_from_spirit, now);
-                r.gain(amount)
-            }
-            Resource::Energy(r) => r.gain(r.per_tick()),
-            Resource::Focus(r) => r.gain(r.per_tick()),
-        }
-    }
-
     pub fn as_rage_mut(&mut self) -> Option<&mut Rage> {
         match self {
             Resource::Rage(r) => Some(r),
@@ -581,6 +750,13 @@ impl Resource {
     pub fn as_mana_mut(&mut self) -> Option<&mut Mana> {
         match self {
             Resource::Mana(r) => Some(r),
+            _ => None,
+        }
+    }
+
+    pub fn as_energy(&self) -> Option<&Energy> {
+        match self {
+            Resource::Energy(r) => Some(r),
             _ => None,
         }
     }
@@ -755,23 +931,147 @@ mod tests {
         assert_eq!(mana.current(), 1000);
     }
 
-    #[test]
-    fn energy_and_focus_ticks() {
+    /// Energy after a spend of everything at `at`, read at `now`.
+    fn drained_at(at: f64) -> Energy {
         let mut energy = Energy::new();
-        assert_eq!(energy.current(), 100);
-        energy.lose(60);
-        assert_eq!(energy.gain(energy.per_tick()), 20);
-        energy.increase_energy_per_tick();
-        assert_eq!(energy.gain(energy.per_tick()), 40);
-        assert_eq!(energy.gain(energy.per_tick()), 0);
-        energy.increase_max_bonus(10);
-        assert_eq!(energy.max(), 110);
-        assert_eq!(energy.gain(40), 10);
-        energy.decrease_max_bonus(10);
-        assert_eq!(energy.current(), 100);
-        energy.reset();
-        assert_eq!(energy.per_tick(), 20);
+        energy.lose(100, at);
+        energy
+    }
 
+    #[test]
+    fn energy_ticks_ten_per_second_on_the_pull_grid() {
+        let energy = drained_at(0.0);
+        assert_eq!(energy.current(0.0), 0);
+        assert_eq!(energy.current(0.099), 0);
+        assert_eq!(
+            energy.current(0.1),
+            1,
+            "spent at 0.0: the first tick is at 0.1"
+        );
+        assert_eq!(
+            energy.current(0.3),
+            3,
+            "0.3 / 0.1 is 2.999...: the tick still counts"
+        );
+        assert_eq!(energy.current(1.0), 10);
+        assert_eq!(energy.current(4.55), 45);
+        assert_eq!(energy.time_until(45, 0.0), 4.5);
+        assert_eq!(energy.time_until(0, 0.0), 0.0);
+        assert!((energy.time_until(45, 0.25) - 4.25).abs() < 1e-9);
+
+        // Spent in the middle of a tick: the grid does not move.
+        let energy = drained_at(0.05);
+        assert_eq!(energy.current(0.099), 0);
+        assert_eq!(
+            energy.current(0.1),
+            1,
+            "spent at 0.05: the next tick is still at 0.1"
+        );
+        assert!((energy.time_until(1, 0.05) - 0.05).abs() < 1e-9);
+
+        // Before the pull too: a precombat spend regenerates until 0.
+        let energy = drained_at(-1.0);
+        assert_eq!(energy.current(-0.95), 0);
+        assert_eq!(energy.current(0.0), 10);
+    }
+
+    #[test]
+    fn energy_spend_and_gain_keep_the_phase() {
+        let mut energy = drained_at(0.0);
+        // 3 energy at 0.35 (ticks at 0.1, 0.2, 0.3); a spend there does not restart the tick.
+        energy.lose(2, 0.35);
+        assert_eq!(energy.current(0.35), 1);
+        assert_eq!(energy.current(0.399), 1);
+        assert_eq!(energy.current(0.4), 2);
+        assert_eq!(energy.gain(25, 0.45), 25);
+        assert_eq!(energy.current(0.45), 27);
+        assert_eq!(energy.current(0.5), 28);
+        assert_eq!(energy.take_regen_counters(0.5), (5, 0));
+    }
+
+    #[test]
+    fn energy_ticks_at_the_cap_are_lost() {
+        let mut energy = drained_at(0.0);
+        assert_eq!(energy.current(10.0), 100);
+        assert_eq!(energy.current(12.0), 100);
+        assert_eq!(energy.take_regen_counters(12.0), (100, 20));
+        assert_eq!(energy.gain(10, 12.0), 0);
+        assert!(energy.time_until(101, 12.0).is_infinite());
+        // Full and untouched since the reset: nothing is counted, nothing ticks.
+        let mut energy = Energy::new();
+        assert_eq!(energy.current(-3.0), 100);
+        assert_eq!(energy.take_regen_counters(50.0), (0, 0));
+    }
+
+    #[test]
+    fn energy_rate_change_keeps_the_running_tick() {
+        let mut energy = drained_at(0.0);
+        // Adrenaline Rush at 1.04: 10 energy, 40 % into the tick due at 1.1.
+        energy.adjust_regen_percent(100, 1.04);
+        assert_eq!(energy.interval(), 0.05);
+        assert_eq!(energy.current(1.04), 10);
+        // The rest of the running tick at the new rate: 60 % of 0.05 s.
+        assert_eq!(energy.current(1.069), 10);
+        assert_eq!(energy.current(1.07), 11);
+        // 20 energy per second from there.
+        assert_eq!(energy.current(2.07), 31);
+        assert!((energy.time_until(31, 1.04) - 1.03).abs() < 1e-9);
+        // Back to 10 per second, 50 % into the tick due at 2.12.
+        energy.adjust_regen_percent(-100, 2.095);
+        assert_eq!(energy.current(2.095), 31);
+        assert_eq!(energy.current(2.144), 31);
+        assert_eq!(energy.current(2.145), 32);
+        assert_eq!(energy.current(3.145), 42);
+        assert_eq!(energy.take_regen_counters(3.145), (42, 0));
+    }
+
+    #[test]
+    fn energy_max_bonus() {
+        let mut energy = Energy::new();
+        energy.adjust_max_bonus(10, -1.0);
+        assert_eq!(energy.max(), 110);
+        assert_eq!(
+            energy.current(-1.0),
+            110,
+            "full at the reset whatever the maximum"
+        );
+        energy.lose(110, 0.0);
+        assert_eq!(energy.current(11.0), 110);
+        assert_eq!(energy.current(20.0), 110);
+        energy.adjust_max_bonus(-10, 20.0);
+        assert_eq!(energy.current(20.0), 100);
+        energy.reset();
+        assert_eq!(energy.current(0.0), 100);
+    }
+
+    #[test]
+    fn energy_reactions_follow_the_gaining_ticks() {
+        let delay = 0.1;
+        let energy = drained_at(0.0);
+        let at = |now, not_before| energy.next_reaction(now, true, not_before, delay).unwrap();
+        // The tick at 0.1 is noticed at 0.2.
+        assert!((at(0.0, 0.0) - 0.2).abs() < 1e-9);
+        // At 0.2 itself, the next one is the reaction to the tick at 0.2.
+        assert!((at(0.2, 0.0) - 0.3).abs() < 1e-9);
+        assert!((at(0.0, 4.55) - 4.6).abs() < 1e-9);
+        // The tick that fills the energy (at 10.0) is the last one with a reaction.
+        assert!((at(0.0, 10.1) - 10.1).abs() < 1e-9);
+        assert_eq!(energy.next_reaction(0.0, true, 10.15, delay), None);
+
+        // A settled tick's reaction is still ahead: the spend at 0.15 settled the tick at 0.1.
+        let mut energy = drained_at(0.0);
+        energy.lose(1, 0.15);
+        assert!((energy.next_reaction(0.15, true, 0.0, delay).unwrap() - 0.2).abs() < 1e-9);
+        // A tick at the cap has none.
+        let mut energy = Energy::new();
+        energy.lose(1, 0.0);
+        assert!((energy.next_reaction(0.0, true, 0.0, delay).unwrap() - 0.2).abs() < 1e-9);
+        assert_eq!(energy.next_reaction(0.2, true, 0.0, delay), None);
+        assert_eq!(Energy::new().next_reaction(0.0, true, 0.0, delay), None);
+    }
+
+    #[test]
+    fn focus_ticks() {
         let mut focus = Focus::new();
         assert_eq!(focus.current(), 100);
         focus.lose(100);
@@ -806,24 +1106,21 @@ mod tests {
             }
             resource.reset();
             if resource_type == ResourceType::Rage {
-                assert_eq!(resource.current(), 0);
-                assert!(!resource.is_full());
-                assert_eq!(resource.gain(40), 40);
+                assert_eq!(resource.current(0.0), 0);
+                assert!(!resource.is_full(0.0));
+                assert_eq!(resource.gain(40, 0.0), 40);
+                assert_eq!(resource.refund(1.55, 0.0), 1.5);
             } else {
-                assert!(resource.is_full());
-                assert_eq!(resource.gain(1), 0);
+                assert!(resource.is_full(0.0));
+                assert_eq!(resource.gain(1, 0.0), 0);
                 resource.lose(20, 1.0);
-                assert_eq!(resource.current(), resource.max() - 20);
-                let gained = resource.tick(3.0, 50.0, 0.0);
-                assert_eq!(gained, 20);
-                assert!(resource.is_full());
+                assert_eq!(resource.current(1.0), resource.max() - 20);
+                assert_eq!(resource.refund(4.4, 1.0), 4.0);
+                assert_eq!(resource.gain(30, 1.0), 16);
+                assert!(resource.is_full(1.0));
             }
         }
-    }
-
-    #[test]
-    #[should_panic(expected = "Rage is not a regenerating resource")]
-    fn rage_does_not_tick() {
-        Resource::new(ResourceType::Rage).tick(0.0, 0.0, 0.0);
+        let energy = Resource::new(ResourceType::Energy);
+        assert!(energy.as_energy().is_some());
     }
 }

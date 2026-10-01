@@ -12,6 +12,8 @@ pub(crate) mod warrior;
 #[cfg(test)]
 mod equipment_tests;
 #[cfg(test)]
+mod magic_table_tests;
+#[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod warrior_tests;
@@ -1330,7 +1332,7 @@ impl SpellTest {
 
     pub fn then_resource_is(&self, resource: ResourceType, expected: u32) {
         assert_eq!(
-            self.character().resource_level(resource),
+            self.character().resource_level(resource, self.now()),
             expected,
             "{}: {resource:?}",
             self.label

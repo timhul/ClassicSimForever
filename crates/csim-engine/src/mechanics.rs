@@ -175,140 +175,99 @@ impl Mechanics {
         armor / (armor + 400.0 + 85.0 * f64::from(clvl))
     }
 
-    /// Spell miss chance from the level difference, reduced by `spell_hit` (fraction). Never below 1%.
+    /// Spell miss chance from the level difference, reduced by `spell_hit` (fraction). Never below
+    /// 1 %. From 3 levels above the caster on, each level adds 11 % (royalgiraffe's resist guide,
+    /// "Spell hit/miss based on level", PvE column).
     pub fn spell_miss_chance_from_lvl_diff(&self, clvl: u32, spell_hit: f64) -> f64 {
-        let level_diff = self.level_diff(clvl);
+        (self.base_spell_miss_chance(clvl) - spell_hit).max(Self::MIN_SPELL_MISS_CHANCE)
+    }
 
-        if level_diff < -2 {
-            return 0.01;
-        }
+    /// The smallest chance a spell misses whatever the spell hit (the "hit cap").
+    pub const MIN_SPELL_MISS_CHANCE: f64 = 0.01;
 
-        let lvl_diff_penalty = match level_diff {
+    /// Spell miss chance from the level difference alone, before spell hit.
+    fn base_spell_miss_chance(&self, clvl: u32) -> f64 {
+        match self.level_diff(clvl) {
+            ..=-3 => 0.01,
             -2 => 0.02,
             -1 => 0.03,
             0 => 0.04,
             1 => 0.05,
             2 => 0.06,
-            3 => 0.17,
-            4 => 0.28,
-            _ => 0.39,
-        };
-
-        (lvl_diff_penalty - spell_hit).max(0.01)
-    }
-
-    /// Chance for a full resist given the target's effective resistance.
-    ///
-    /// Piecewise-linear approximation of:
-    ///
-    /// | Target resistance | 0-150 | 150-200 | 200-300 |
-    /// |---|---|---|---|
-    /// | % occurrence      | 0-1 % | 1-4 %   | 4-25 %  |
-    ///
-    /// This only serves as an initial approximation and is likely incorrect.
-    pub fn full_resist_chance(t_resistance: u32) -> f64 {
-        piecewise_linear(
-            &[(0, 0.0), (150, 0.01), (200, 0.04), (300, 0.25)],
-            t_resistance,
-        )
-    }
-
-    /// Chance for a 75% partial resist. See [`Mechanics::full_resist_chance`] for the caveat.
-    pub fn partial_75_chance(t_resistance: u32) -> f64 {
-        piecewise_linear(
-            &[
-                (0, 0.0),
-                (20, 0.01),
-                (50, 0.02),
-                (80, 0.03),
-                (100, 0.04),
-                (120, 0.06),
-                (150, 0.11),
-                (200, 0.23),
-                (300, 0.55),
-            ],
-            t_resistance,
-        )
-    }
-
-    /// Chance for a 50% partial resist. See [`Mechanics::full_resist_chance`] for the caveat.
-    pub fn partial_50_chance(t_resistance: u32) -> f64 {
-        piecewise_linear(
-            &[
-                (0, 0.0),
-                (10, 0.02),
-                (20, 0.04),
-                (30, 0.05),
-                (40, 0.07),
-                (50, 0.09),
-                (60, 0.11),
-                (70, 0.13),
-                (80, 0.15),
-                (90, 0.17),
-                (100, 0.19),
-                (120, 0.24),
-                (150, 0.37),
-                (200, 0.48),
-                (300, 0.16),
-            ],
-            t_resistance,
-        )
-    }
-
-    /// Chance for a 25% partial resist. See [`Mechanics::full_resist_chance`] for the caveat.
-    pub fn partial_25_chance(t_resistance: u32) -> f64 {
-        if t_resistance >= 300 {
-            // Ported as-is: the C++ implementation returns 0.3 here although its table ends at 3%.
-            return 0.3;
-        }
-
-        piecewise_linear(
-            &[
-                (0, 0.0),
-                (10, 0.06),
-                (20, 0.12),
-                (30, 0.18),
-                (40, 0.23),
-                (50, 0.28),
-                (60, 0.33),
-                (70, 0.37),
-                (80, 0.41),
-                (90, 0.45),
-                (100, 0.47),
-                (120, 0.49),
-                (150, 0.39),
-                (200, 0.21),
-                (300, 0.03),
-            ],
-            t_resistance,
-        )
-    }
-}
-
-/// Linear interpolation over `(x, y)` breakpoints sorted by `x`; clamps to the last `y` beyond the
-/// final breakpoint.
-fn piecewise_linear(points: &[(u32, f64)], x: u32) -> f64 {
-    debug_assert!(points.len() >= 2);
-
-    for window in points.windows(2) {
-        let (x_min, y_min) = window[0];
-        let (x_max, y_max) = window[1];
-        if x < x_max {
-            return linear_increase_in_range(x_min, y_min, x_max, y_max, x);
+            diff => (0.17 + 0.11 * f64::from(diff - 3)).min(1.0),
         }
     }
 
-    points[points.len() - 1].1
-}
+    /// Resistance at or above which a spell of a caster of `clvl` is resisted the most:
+    /// `5 × level`, as if level 20 below it.
+    pub fn resistance_cap(clvl: u32) -> u32 {
+        (5 * clvl).max(100)
+    }
 
-fn linear_increase_in_range(x_min: u32, y_min: f64, x_max: u32, y_max: f64, x_curr: u32) -> f64 {
-    debug_assert!(x_curr >= x_min, "x_curr < x_min");
-    debug_assert!(x_curr <= x_max, "x_curr > x_max");
+    /// The resistance a higher-level target has against the non-binary spells of a caster of
+    /// `clvl` on top of its own: 8 per level above the caster (24 for a boss), which spell
+    /// penetration and curses do not reduce.
+    pub fn level_based_resistance(&self, clvl: u32) -> u32 {
+        8 * self.level_diff(clvl).max(0) as u32
+    }
 
-    let x_delta = f64::from(x_max) - f64::from(x_min);
-    let k = (y_max - y_min) / x_delta;
+    /// The share of the resistance cap that `resistance` is, at most 1: what every resist
+    /// chance is a function of.
+    pub fn resistance_ratio(resistance: f64, clvl: u32) -> f64 {
+        (resistance / f64::from(Self::resistance_cap(clvl))).clamp(0.0, 1.0)
+    }
 
-    (f64::from(x_curr) - f64::from(x_min)) * k + y_min
+    /// Chance that a binary spell (one with any effect besides damage) is fully resisted by
+    /// the resistance roll alone: linear from 0 to 75 % at the resistance cap.
+    pub fn binary_resist_chance(ratio: f64) -> f64 {
+        0.75 * ratio
+    }
+
+    /// Chance that a binary spell lands: the level-based hit chance reduced by the resistance
+    /// roll, plus the spell hit, at most 99 %. The spell hit is added after the resistance, so
+    /// hit above the usual cap still offsets the target's resistance.
+    pub fn binary_spell_land_chance(&self, clvl: u32, spell_hit: f64, ratio: f64) -> f64 {
+        let hit = 1.0 - self.base_spell_miss_chance(clvl);
+        (hit * (1.0 - Self::binary_resist_chance(ratio)) + spell_hit)
+            .clamp(0.0, 1.0 - Self::MIN_SPELL_MISS_CHANCE)
+    }
+
+    /// Chances of a 0, 25, 50 and 75 % partial resist of a non-binary spell (one that only
+    /// deals damage), which is never fully resisted.
+    ///
+    /// Royalgiraffe's estimates from logs (resist guide, "Partial resist tables", and the
+    /// `computeResistOutcomes` of the resistance calculator): piecewise linear in `ratio`
+    /// between the breakpoints 0, ⅓, ⅔ and 1, where the average resist is 0, 25, 50 and about
+    /// 69 %. Below ⅔ of the cap a full-damage hit keeps at least a 1 % chance; the chances are
+    /// then scaled back to sum to 1.
+    pub fn partial_resist_chances(ratio: f64) -> [f64; 4] {
+        const BREAKPOINTS: [[f64; 4]; 4] = [
+            [1.00, 0.00, 0.00, 0.00],
+            [0.24, 0.55, 0.18, 0.03],
+            [0.00, 0.22, 0.56, 0.22],
+            [0.00, 0.04, 0.16, 0.80],
+        ];
+        let ratio = ratio.clamp(0.0, 1.0);
+        let scaled = 3.0 * ratio;
+        let segment = (scaled.floor() as usize).min(2);
+        let t = scaled - segment as f64;
+        let mut chances = [0.0; 4];
+        for (i, chance) in chances.iter_mut().enumerate() {
+            *chance = BREAKPOINTS[segment][i] * (1.0 - t) + BREAKPOINTS[segment + 1][i] * t;
+        }
+        if ratio < 2.0 / 3.0 - 1e-6 {
+            chances[0] = chances[0].max(0.01);
+        }
+        let total: f64 = chances.iter().sum();
+        chances.map(|chance| chance / total)
+    }
+
+    /// Average share of a non-binary spell's damage that `ratio` resists: 75 % of the ratio up
+    /// to ⅔ of the cap, 25 % less per point above it (about 69 % at the cap).
+    pub fn average_partial_resist(ratio: f64) -> f64 {
+        let ratio = ratio.clamp(0.0, 1.0);
+        0.75 * ratio - 3.0 / 16.0 * (ratio - 2.0 / 3.0).max(0.0)
+    }
 }
 
 #[cfg(test)]
@@ -506,43 +465,134 @@ mod tests {
         );
     }
 
+    /// Royalgiraffe's resist guide, "Spell hit/miss based on level" (PvE), which agrees with
+    /// ClassicSim's `TestAttackTables::test_magic_attack_table` up to 5 levels above.
     #[test]
     fn spell_miss_chance_from_lvl_diff() {
         let mechanics = Mechanics::new(63);
 
         assert_close(0.17, mechanics.spell_miss_chance_from_lvl_diff(60, 0.0));
         assert_close(0.07, mechanics.spell_miss_chance_from_lvl_diff(60, 0.10));
+        // The hit cap against a boss is 16 %: 1 % of the spells always miss.
+        assert_close(0.01, mechanics.spell_miss_chance_from_lvl_diff(60, 0.16));
         assert_close(0.01, mechanics.spell_miss_chance_from_lvl_diff(60, 0.20));
         assert_close(0.04, mechanics.spell_miss_chance_from_lvl_diff(63, 0.0));
-        assert_close(0.39, mechanics.spell_miss_chance_from_lvl_diff(50, 0.0));
+        assert_close(0.06, mechanics.spell_miss_chance_from_lvl_diff(61, 0.0));
+        assert_close(0.28, mechanics.spell_miss_chance_from_lvl_diff(59, 0.0));
+        assert_close(0.39, mechanics.spell_miss_chance_from_lvl_diff(58, 0.0));
+        assert_close(0.50, mechanics.spell_miss_chance_from_lvl_diff(57, 0.0));
         assert_close(0.01, mechanics.spell_miss_chance_from_lvl_diff(70, 0.0));
+
+        for (target_level, miss) in [(62, 0.06), (61, 0.05), (60, 0.04), (59, 0.03), (58, 0.02)] {
+            let mechanics = Mechanics::new(target_level);
+            assert_close(miss, mechanics.spell_miss_chance_from_lvl_diff(60, 0.0));
+        }
+        assert_close(
+            0.01,
+            Mechanics::new(57).spell_miss_chance_from_lvl_diff(60, 0.0),
+        );
+        assert_close(
+            0.01,
+            Mechanics::new(56).spell_miss_chance_from_lvl_diff(60, 0.0),
+        );
     }
 
     #[test]
-    fn full_resistance_chance() {
-        assert_close(0.0, Mechanics::full_resist_chance(0));
-        assert_close(0.005, Mechanics::full_resist_chance(75));
-        assert_close(0.01, Mechanics::full_resist_chance(150));
-        assert_close(0.04, Mechanics::full_resist_chance(200));
-        assert_close(0.25, Mechanics::full_resist_chance(300));
-        assert_close(0.25, Mechanics::full_resist_chance(400));
+    fn resistance_cap_and_level_based_resistance() {
+        assert_eq!(Mechanics::resistance_cap(60), 300);
+        assert_eq!(Mechanics::resistance_cap(63), 315);
+        assert_eq!(Mechanics::resistance_cap(10), 100);
+
+        let boss = Mechanics::new(63);
+        assert_eq!(boss.level_based_resistance(60), 24);
+        assert_eq!(boss.level_based_resistance(63), 0);
+        assert_eq!(boss.level_based_resistance(70), 0);
+
+        assert_close(0.5, Mechanics::resistance_ratio(150.0, 60));
+        assert_close(1.0, Mechanics::resistance_ratio(400.0, 60));
+        assert_close(0.0, Mechanics::resistance_ratio(0.0, 60));
     }
 
+    /// The worked examples of royalgiraffe's resist guide, "Binary spells".
     #[test]
-    fn partial_resist_chances_hit_breakpoints() {
-        assert_close(0.0, Mechanics::partial_75_chance(0));
-        assert_close(0.11, Mechanics::partial_75_chance(150));
-        assert_close(0.39, Mechanics::partial_75_chance(250));
-        assert_close(0.55, Mechanics::partial_75_chance(300));
+    fn binary_spell_land_chance() {
+        assert_close(0.0, Mechanics::binary_resist_chance(0.0));
+        assert_close(0.75, Mechanics::binary_resist_chance(1.0));
 
-        assert_close(0.02, Mechanics::partial_50_chance(10));
-        assert_close(0.19, Mechanics::partial_50_chance(100));
-        assert_close(0.32, Mechanics::partial_50_chance(250));
-        assert_close(0.16, Mechanics::partial_50_chance(300));
+        // Same level, 100 resistance out of the 300 cap: 96 % × 75 % = 72 %.
+        let same_level = Mechanics::new(60);
+        let ratio = Mechanics::resistance_ratio(100.0, 60);
+        assert_close(0.72, same_level.binary_spell_land_chance(60, 0.0, ratio));
+        // Level 70, 15 % spell hit, 70 resistance out of 350: 96 % × 85 % + 15 % = 96.6 %.
+        let level_70 = Mechanics::new(70);
+        let ratio = Mechanics::resistance_ratio(70.0, 70);
+        assert_close(0.966, level_70.binary_spell_land_chance(70, 0.15, ratio));
+        // Hit above the cap offsets the resistance, up to 99 %.
+        assert_close(0.99, level_70.binary_spell_land_chance(70, 0.30, ratio));
+        // Without resistance it is the ordinary hit chance.
+        let boss = Mechanics::new(63);
+        assert_close(0.83, boss.binary_spell_land_chance(60, 0.0, 0.0));
+        assert_close(0.99, boss.binary_spell_land_chance(60, 0.20, 0.0));
+    }
 
-        assert_close(0.06, Mechanics::partial_25_chance(10));
-        assert_close(0.47, Mechanics::partial_25_chance(100));
-        assert_close(0.12, Mechanics::partial_25_chance(250));
-        assert_close(0.3, Mechanics::partial_25_chance(300));
+    fn assert_chances(expected: [f64; 4], ratio: f64) {
+        let chances = Mechanics::partial_resist_chances(ratio);
+        for (expected, actual) in expected.iter().zip(chances) {
+            assert_abs_diff_eq!(*expected, actual, epsilon = 1e-9);
+        }
+    }
+
+    /// Royalgiraffe's partial resist table (resist calculator, `computeResistOutcomes`) at its
+    /// breakpoints, and the guide's example at 20 % of the cap: 54 / 33 / 11 / 2 %.
+    #[test]
+    fn partial_resist_chances() {
+        assert_chances([1.0, 0.0, 0.0, 0.0], 0.0);
+        assert_chances([0.24, 0.55, 0.18, 0.03], 1.0 / 3.0);
+        assert_chances([0.0, 0.22, 0.56, 0.22], 2.0 / 3.0);
+        assert_chances([0.0, 0.04, 0.16, 0.80], 1.0);
+        assert_chances([0.0, 0.04, 0.16, 0.80], 1.5);
+        assert_chances([0.544, 0.33, 0.108, 0.018], 0.2);
+
+        // A full-damage hit is possible up to just below ⅔ of the cap: 1 % at 209 resistance
+        // against a level 63 caster, none at 210.
+        let at_209 = Mechanics::partial_resist_chances(Mechanics::resistance_ratio(209.0, 63));
+        assert_abs_diff_eq!(0.01, at_209[0], epsilon = 0.001);
+        let at_210 = Mechanics::partial_resist_chances(Mechanics::resistance_ratio(210.0, 63));
+        assert_abs_diff_eq!(0.0, at_210[0], epsilon = 1e-9);
+
+        for step in 0..=100 {
+            let chances = Mechanics::partial_resist_chances(f64::from(step) / 100.0);
+            assert_abs_diff_eq!(1.0, chances.iter().sum::<f64>(), epsilon = 1e-9);
+        }
+    }
+
+    /// The table's average resist follows the guide's two-piece formula: 75 % of the ratio up to
+    /// ⅔ of the cap, 69 % at the cap; a boss's 24 level-based resistance costs 6 %.
+    #[test]
+    fn average_partial_resist_matches_the_table() {
+        let table_average = |ratio: f64| {
+            let chances = Mechanics::partial_resist_chances(ratio);
+            chances
+                .iter()
+                .enumerate()
+                .map(|(i, chance)| chance * 0.25 * i as f64)
+                .sum::<f64>()
+        };
+        for step in 0..=60 {
+            let ratio = f64::from(step) / 60.0;
+            assert_abs_diff_eq!(
+                Mechanics::average_partial_resist(ratio),
+                table_average(ratio),
+                epsilon = 0.01
+            );
+        }
+        assert_close(0.25, Mechanics::average_partial_resist(1.0 / 3.0));
+        assert_close(0.5, Mechanics::average_partial_resist(2.0 / 3.0));
+        assert_close(0.6875, Mechanics::average_partial_resist(1.0));
+
+        let boss = Mechanics::new(63);
+        let level_based = f64::from(boss.level_based_resistance(60));
+        let ratio = Mechanics::resistance_ratio(level_based, 60);
+        assert_abs_diff_eq!(0.06, table_average(ratio), epsilon = 1e-9);
     }
 }

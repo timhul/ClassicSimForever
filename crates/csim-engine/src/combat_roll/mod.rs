@@ -52,6 +52,18 @@ pub enum MagicAttackResult {
     Hit,
 }
 
+impl MagicAttackResult {
+    /// The physical result with the same meaning (a spell's miss, hit or crit), for the code
+    /// that handles the outcomes of both tables alike.
+    pub fn as_physical(self) -> PhysicalAttackResult {
+        match self {
+            MagicAttackResult::Miss => PhysicalAttackResult::Miss,
+            MagicAttackResult::Critical => PhysicalAttackResult::Critical,
+            MagicAttackResult::Hit => PhysicalAttackResult::Hit,
+        }
+    }
+}
+
 /// Outcome of a magic resist roll.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MagicResistResult {
@@ -75,6 +87,39 @@ impl MagicResistResult {
     }
 }
 
+/// The outcome of a spell on the magic table: its hit roll and, if it landed, how much of it
+/// the target resisted. A binary spell resisted by the target's resistance is a
+/// [`MagicResistResult::FullResist`]; its hit roll counts as a hit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct SpellRoll {
+    pub result: MagicAttackResult,
+    pub resist: MagicResistResult,
+}
+
+impl SpellRoll {
+    pub const HIT: SpellRoll = SpellRoll {
+        result: MagicAttackResult::Hit,
+        resist: MagicResistResult::NoResist,
+    };
+    pub const MISS: SpellRoll = SpellRoll {
+        result: MagicAttackResult::Miss,
+        resist: MagicResistResult::NoResist,
+    };
+    pub const FULL_RESIST: SpellRoll = SpellRoll {
+        result: MagicAttackResult::Hit,
+        resist: MagicResistResult::FullResist,
+    };
+
+    /// Whether the spell landed (possibly partially resisted).
+    pub fn landed(self) -> bool {
+        self.result != MagicAttackResult::Miss && self.resist != MagicResistResult::FullResist
+    }
+
+    pub fn is_critical(self) -> bool {
+        self.landed() && self.result == MagicAttackResult::Critical
+    }
+}
+
 /// Character state needed to build and use melee attack tables.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RollContext {
@@ -88,20 +133,45 @@ pub struct RollContext {
     pub attacking_from_behind: bool,
     /// Whether glancing blows can occur (disabled by the Loatheb ruleset).
     pub glancing_blows: bool,
+    /// Dodge and parry chance the target loses (Weapon Expertise), as a range out of 10 000.
+    pub expertise: u32,
 }
 
 /// Character state needed to build a magic attack table for one school.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct MagicRollContext {
     pub clvl: u32,
     /// Spell hit chance for the school, as a range out of 10 000.
     pub spell_hit_chance: u32,
-    /// Effective target resistance for the school.
+    /// The target's resistance to the school after spell penetration, without the level-based
+    /// resistance (the table adds it).
     pub target_resistance: u32,
 }
 
-/// Cache key for melee tables: weapon skill and whether the attack comes from behind.
-type MeleeTableKey = (u32, bool);
+/// How a spell's resistance is rolled: royalgiraffe's binary spells (any effect besides damage)
+/// in one roll with the hit, non-binary ones (only damage) as a partial resist after it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SpellResistKind {
+    Binary,
+    NonBinary,
+}
+
+/// Cache key for magic tables: the school and what the table was built from, so a change of
+/// spell hit or resistance builds a new table instead of updating the old one.
+type MagicTableKey = (MagicSchool, MagicRollContext);
+
+/// Cache key for melee tables: weapon skill, whether the attack comes from behind and the
+/// expertise.
+type MeleeTableKey = (u32, bool, u32);
+
+fn melee_key(ctx: &RollContext, wpn_skill: u32) -> MeleeTableKey {
+    (wpn_skill, ctx.attacking_from_behind, ctx.expertise)
+}
+
+/// The expertise of `ctx` as a fraction.
+fn expertise_chance(ctx: &RollContext) -> f64 {
+    f64::from(ctx.expertise) / f64::from(ROLL_RANGE)
+}
 
 /// Rolls attack outcomes for one character.
 #[derive(Debug)]
@@ -111,7 +181,7 @@ pub struct CombatRoll {
     glance_roll: Random,
     melee_white_tables: HashMap<MeleeTableKey, MeleeWhiteHitTable>,
     melee_special_tables: HashMap<MeleeTableKey, MeleeSpecialTable>,
-    magic_attack_tables: HashMap<MagicSchool, MagicAttackTable>,
+    magic_attack_tables: HashMap<MagicTableKey, MagicAttackTable>,
 }
 
 impl CombatRoll {
@@ -166,7 +236,7 @@ impl CombatRoll {
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
         self.ensure_melee_white_table(ctx, wpn_skill);
 
-        let table = &self.melee_white_tables[&(wpn_skill, ctx.attacking_from_behind)];
+        let table = &self.melee_white_tables[&melee_key(ctx, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, IncludedOutcomes::ALL)
     }
 
@@ -182,25 +252,37 @@ impl CombatRoll {
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
         self.ensure_melee_special_table(ctx, wpn_skill);
 
-        let table = &self.melee_special_tables[&(wpn_skill, ctx.attacking_from_behind)];
+        let table = &self.melee_special_tables[&melee_key(ctx, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, included)
     }
 
-    /// Rolls a spell hit for `school`. `crit_chance` is a range out of 10 000.
+    /// Rolls a spell of `school` on the magic table: the hit (and, with `crit_chance`, a range
+    /// out of 10 000, the crit), then a non-binary spell's partial resist.
     pub fn get_spell_ability_result(
         &mut self,
         ctx: &MagicRollContext,
         school: MagicSchool,
         crit_chance: u32,
-    ) -> MagicAttackResult {
+        kind: SpellResistKind,
+    ) -> SpellRoll {
         let roll = self.random.get_roll();
-        self.ensure_magic_attack_table(ctx, school);
+        let mechanics = self.mechanics;
+        let table = ensure_magic_table(&mut self.magic_attack_tables, &mechanics, ctx, school);
+        if kind == SpellResistKind::Binary {
+            return table.get_binary_outcome(&mut self.random, roll, crit_chance);
+        }
 
-        let table = &self.magic_attack_tables[&school];
-        table.get_hit_outcome(&mut self.random, roll, crit_chance)
+        let result = table.get_hit_outcome(&mut self.random, roll, crit_chance);
+        let resist = if result == MagicAttackResult::Miss {
+            MagicResistResult::NoResist
+        } else {
+            self.get_spell_resist_result(ctx, school)
+        };
+        SpellRoll { result, resist }
     }
 
-    /// Rolls the resist outcome for `school`. Physical damage is never resisted.
+    /// Rolls the partial resist of a non-binary spell of `school`. Physical damage is never
+    /// resisted.
     pub fn get_spell_resist_result(
         &mut self,
         ctx: &MagicRollContext,
@@ -211,9 +293,30 @@ impl CombatRoll {
         }
 
         let roll = self.random.get_roll();
-        self.ensure_magic_attack_table(ctx, school);
+        self.get_magic_attack_table(ctx, school)
+            .get_resist_outcome(roll)
+    }
 
-        self.magic_attack_tables[&school].get_resist_outcome(roll)
+    /// Rolls the partial resist of a periodic damage tick of `school`: against a tenth of the
+    /// resistance for a damage-over-time without direct damage (`pure_dot`), like direct
+    /// damage otherwise. Physical ticks are never resisted.
+    pub fn get_periodic_resist_result(
+        &mut self,
+        ctx: &MagicRollContext,
+        school: MagicSchool,
+        pure_dot: bool,
+    ) -> MagicResistResult {
+        if school == MagicSchool::Physical {
+            return MagicResistResult::NoResist;
+        }
+
+        let roll = self.random.get_roll();
+        let table = self.get_magic_attack_table(ctx, school);
+        if pure_dot {
+            table.get_periodic_resist_outcome(roll)
+        } else {
+            table.get_resist_outcome(roll)
+        }
     }
 
     /// Returns (building if needed) the white hit table for `wpn_skill` and the facing in `ctx`.
@@ -223,7 +326,7 @@ impl CombatRoll {
         wpn_skill: u32,
     ) -> &MeleeWhiteHitTable {
         self.ensure_melee_white_table(ctx, wpn_skill);
-        &self.melee_white_tables[&(wpn_skill, ctx.attacking_from_behind)]
+        &self.melee_white_tables[&melee_key(ctx, wpn_skill)]
     }
 
     /// Returns (building if needed) the special hit table for `wpn_skill` and the facing in `ctx`.
@@ -233,17 +336,17 @@ impl CombatRoll {
         wpn_skill: u32,
     ) -> &MeleeSpecialTable {
         self.ensure_melee_special_table(ctx, wpn_skill);
-        &self.melee_special_tables[&(wpn_skill, ctx.attacking_from_behind)]
+        &self.melee_special_tables[&melee_key(ctx, wpn_skill)]
     }
 
-    /// Returns (building if needed) the magic attack table for `school`.
+    /// Returns (building if needed) the magic attack table for `school` and `ctx`.
     pub fn get_magic_attack_table(
         &mut self,
         ctx: &MagicRollContext,
         school: MagicSchool,
     ) -> &MagicAttackTable {
-        self.ensure_magic_attack_table(ctx, school);
-        &self.magic_attack_tables[&school]
+        let mechanics = self.mechanics;
+        ensure_magic_table(&mut self.magic_attack_tables, &mechanics, ctx, school)
     }
 
     /// The white hit table for `wpn_skill` and the facing in `ctx`, for tests that force
@@ -256,7 +359,7 @@ impl CombatRoll {
     ) -> &mut MeleeWhiteHitTable {
         self.ensure_melee_white_table(ctx, wpn_skill);
         self.melee_white_tables
-            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .get_mut(&melee_key(ctx, wpn_skill))
             .expect("ensured above")
     }
 
@@ -270,12 +373,12 @@ impl CombatRoll {
     ) -> &mut MeleeSpecialTable {
         self.ensure_melee_special_table(ctx, wpn_skill);
         self.melee_special_tables
-            .get_mut(&(wpn_skill, ctx.attacking_from_behind))
+            .get_mut(&melee_key(ctx, wpn_skill))
             .expect("ensured above")
     }
 
     fn ensure_melee_white_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = (wpn_skill, ctx.attacking_from_behind);
+        let key = melee_key(ctx, wpn_skill);
         if self.melee_white_tables.contains_key(&key) {
             return;
         }
@@ -291,7 +394,7 @@ impl CombatRoll {
         let table = MeleeWhiteHitTable::new(
             wpn_skill,
             miss,
-            self.mechanics.dodge_chance(wpn_skill),
+            self.dodge_chance(ctx, wpn_skill),
             parry,
             glancing,
             self.block_chance(ctx, wpn_skill),
@@ -300,7 +403,7 @@ impl CombatRoll {
     }
 
     fn ensure_melee_special_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = (wpn_skill, ctx.attacking_from_behind);
+        let key = melee_key(ctx, wpn_skill);
         if self.melee_special_tables.contains_key(&key) {
             return;
         }
@@ -311,32 +414,24 @@ impl CombatRoll {
         let table = MeleeSpecialTable::new(
             wpn_skill,
             miss,
-            self.mechanics.dodge_chance(wpn_skill),
+            self.dodge_chance(ctx, wpn_skill),
             parry,
             self.block_chance(ctx, wpn_skill),
         );
         self.melee_special_tables.insert(key, table);
     }
 
-    fn ensure_magic_attack_table(&mut self, ctx: &MagicRollContext, school: MagicSchool) {
-        if self.magic_attack_tables.contains_key(&school) {
-            return;
-        }
-
-        let table = MagicAttackTable::new(
-            &self.mechanics,
-            ctx.clvl,
-            ctx.spell_hit_chance,
-            ctx.target_resistance,
-        );
-        self.magic_attack_tables.insert(school, table);
+    /// The target's dodge chance, less the character's expertise.
+    fn dodge_chance(&self, ctx: &RollContext, wpn_skill: u32) -> f64 {
+        (self.mechanics.dodge_chance(wpn_skill) - expertise_chance(ctx)).max(0.0)
     }
 
+    /// The target's parry chance (none from behind), less the character's expertise.
     fn parry_chance(&self, ctx: &RollContext, wpn_skill: u32) -> f64 {
         if ctx.attacking_from_behind {
             0.0
         } else {
-            self.mechanics.parry_chance(ctx.clvl, wpn_skill)
+            (self.mechanics.parry_chance(ctx.clvl, wpn_skill) - expertise_chance(ctx)).max(0.0)
         }
     }
 
@@ -413,20 +508,6 @@ impl CombatRoll {
         }
     }
 
-    /// Recomputes the miss range of the cached table for `school`, if any.
-    pub fn update_spell_miss_chance(&mut self, clvl: u32, school: MagicSchool, spell_hit: u32) {
-        if let Some(table) = self.magic_attack_tables.get_mut(&school) {
-            table.update_miss_chance(&self.mechanics, clvl, spell_hit);
-        }
-    }
-
-    /// Recomputes the resist ranges of the cached table for `school`, if any.
-    pub fn update_target_resistance(&mut self, school: MagicSchool, target_resistance: u32) {
-        if let Some(table) = self.magic_attack_tables.get_mut(&school) {
-            table.update_target_resistance(target_resistance);
-        }
-    }
-
     /// Drops every cached table. Called between sets of iterations.
     pub fn drop_tables(&mut self) {
         self.melee_white_tables.clear();
@@ -448,6 +529,24 @@ impl CombatRoll {
     }
 }
 
+/// The cached magic table of `school` for `ctx`, built on first use.
+fn ensure_magic_table<'a>(
+    tables: &'a mut HashMap<MagicTableKey, MagicAttackTable>,
+    mechanics: &Mechanics,
+    ctx: &MagicRollContext,
+    school: MagicSchool,
+) -> &'a MagicAttackTable {
+    tables.entry((school, *ctx)).or_insert_with(|| {
+        MagicAttackTable::new(
+            mechanics,
+            ctx.clvl,
+            ctx.spell_hit_chance,
+            ctx.target_resistance,
+            school != MagicSchool::Physical,
+        )
+    })
+}
+
 fn suppressed_hit(mechanics: &Mechanics, wpn_skill: u32, hit_chance: u32) -> u32 {
     hit_chance.saturating_sub(chance_to_range(mechanics.hit_suppression(wpn_skill)))
 }
@@ -463,6 +562,7 @@ mod tests {
             dual_wielding: true,
             attacking_from_behind: true,
             glancing_blows: true,
+            expertise: 0,
         }
     }
 
@@ -761,53 +861,205 @@ mod tests {
         assert!(saw_miss);
     }
 
-    #[test]
-    fn spell_rolls() {
-        let ctx = MagicRollContext {
+    fn spell_ctx(spell_hit_chance: u32, target_resistance: u32) -> MagicRollContext {
+        MagicRollContext {
             clvl: 60,
-            spell_hit_chance: 0,
-            target_resistance: 0,
-        };
-        let mut roll = CombatRoll::from_seed(63, 11);
+            spell_hit_chance,
+            target_resistance,
+        }
+    }
 
+    fn rate(n: u32, mut roll: impl FnMut() -> bool) -> f64 {
+        (0..n).filter(|_| roll()).count() as f64 / f64::from(n)
+    }
+
+    /// Miss rates against a boss, with and without spell hit.
+    #[test]
+    fn spell_miss_rates() {
+        let mut roll = CombatRoll::from_seed(63, 11);
+        let n = 100_000;
+        let non_binary = SpellResistKind::NonBinary;
+
+        let ctx = spell_ctx(0, 0);
+        let miss = rate(n, || {
+            roll.get_spell_ability_result(&ctx, MagicSchool::Nature, 0, non_binary)
+                .result
+                == MagicAttackResult::Miss
+        });
+        assert!((miss - 0.17).abs() < 0.005, "miss rate {miss}");
+
+        // Precision's 5 % spell hit.
+        let ctx = spell_ctx(500, 0);
+        let miss = rate(n, || {
+            !roll
+                .get_spell_ability_result(&ctx, MagicSchool::Nature, 0, non_binary)
+                .landed()
+        });
+        assert!((miss - 0.12).abs() < 0.005, "miss rate {miss}");
+
+        // At and above the 16 % cap.
+        let ctx = spell_ctx(2000, 0);
+        let miss = rate(n, || {
+            !roll
+                .get_spell_ability_result(&ctx, MagicSchool::Nature, 0, non_binary)
+                .landed()
+        });
+        assert!((miss - 0.01).abs() < 0.002, "miss rate {miss}");
+    }
+
+    /// Crits come from the crit chance among the spells that land.
+    #[test]
+    fn spell_crit_rate() {
+        let mut roll = CombatRoll::from_seed(63, 13);
+        let ctx = spell_ctx(0, 0);
+        let n = 100_000;
+        let mut landed = 0;
+        let mut crits = 0;
+        for _ in 0..n {
+            let spell = roll.get_spell_ability_result(
+                &ctx,
+                MagicSchool::Nature,
+                1000,
+                SpellResistKind::NonBinary,
+            );
+            if spell.landed() {
+                landed += 1;
+            }
+            if spell.is_critical() {
+                crits += 1;
+            }
+        }
+        let crit_rate = f64::from(crits) / f64::from(landed);
+        assert!((crit_rate - 0.10).abs() < 0.005, "crit rate {crit_rate}");
+    }
+
+    /// The partial resist distribution of a landed non-binary spell matches royalgiraffe's
+    /// table for the resistance plus the boss's 24 level-based resistance, and is never full.
+    #[test]
+    fn partial_resist_distribution() {
+        let mut roll = CombatRoll::from_seed(63, 17);
+        // 76 + 24 = 100 of the 300 cap: 24 / 55 / 18 / 3 %.
+        let ctx = spell_ctx(2000, 76);
+        let n = 200_000;
+        let mut counts: HashMap<MagicResistResult, u32> = HashMap::new();
+        let mut landed = 0;
+        for _ in 0..n {
+            let spell = roll.get_spell_ability_result(
+                &ctx,
+                MagicSchool::Nature,
+                0,
+                SpellResistKind::NonBinary,
+            );
+            if spell.result != MagicAttackResult::Miss {
+                landed += 1;
+                *counts.entry(spell.resist).or_default() += 1;
+            }
+        }
+        let fraction =
+            |resist| f64::from(counts.get(&resist).copied().unwrap_or(0)) / f64::from(landed);
+        for (resist, expected) in [
+            (MagicResistResult::NoResist, 0.24),
+            (MagicResistResult::Partial25, 0.55),
+            (MagicResistResult::Partial50, 0.18),
+            (MagicResistResult::Partial75, 0.03),
+        ] {
+            let actual = fraction(resist);
+            assert!((actual - expected).abs() < 0.005, "{resist:?}: {actual}");
+        }
+        assert_eq!(counts.get(&MagicResistResult::FullResist), None);
+
+        // Physical damage is never resisted.
         for _ in 0..1000 {
             assert_eq!(
                 roll.get_spell_resist_result(&ctx, MagicSchool::Physical),
                 MagicResistResult::NoResist
             );
             assert_eq!(
-                roll.get_spell_resist_result(&ctx, MagicSchool::Fire),
+                roll.get_periodic_resist_result(&ctx, MagicSchool::Physical, false),
                 MagicResistResult::NoResist
             );
         }
+    }
 
+    /// Binary spells are fully resisted instead, without the level-based resistance.
+    #[test]
+    fn binary_spells_are_fully_resisted() {
+        let mut roll = CombatRoll::from_seed(63, 19);
         let n = 100_000;
-        let misses = (0..n)
-            .filter(|_| {
-                roll.get_spell_ability_result(&ctx, MagicSchool::Fire, 0) == MagicAttackResult::Miss
-            })
-            .count();
-        let miss_rate = misses as f64 / f64::from(n);
-        assert!((miss_rate - 0.17).abs() < 0.01, "miss rate {miss_rate}");
+        let binary = SpellResistKind::Binary;
 
-        roll.update_spell_miss_chance(60, MagicSchool::Fire, 1600);
-        let misses = (0..n)
-            .filter(|_| {
-                roll.get_spell_ability_result(&ctx, MagicSchool::Fire, 0) == MagicAttackResult::Miss
-            })
-            .count();
-        let miss_rate = misses as f64 / f64::from(n);
-        assert!((miss_rate - 0.01).abs() < 0.005, "miss rate {miss_rate}");
+        // No resistance: only the 17 % miss.
+        let ctx = spell_ctx(0, 0);
+        let mut outcomes: HashMap<SpellRoll, u32> = HashMap::new();
+        for _ in 0..n {
+            *outcomes
+                .entry(roll.get_spell_ability_result(&ctx, MagicSchool::Shadow, 0, binary))
+                .or_default() += 1;
+        }
+        let fraction = |outcomes: &HashMap<SpellRoll, u32>, spell| {
+            f64::from(outcomes.get(&spell).copied().unwrap_or(0)) / f64::from(n)
+        };
+        assert!((fraction(&outcomes, SpellRoll::MISS) - 0.17).abs() < 0.005);
+        assert_eq!(outcomes.get(&SpellRoll::FULL_RESIST), None);
 
-        roll.update_target_resistance(MagicSchool::Fire, 300);
-        let full_resists = (0..n)
-            .filter(|_| {
-                roll.get_spell_resist_result(&ctx, MagicSchool::Fire)
-                    == MagicResistResult::FullResist
-            })
-            .count();
-        let rate = full_resists as f64 / f64::from(n);
-        assert!((rate - 0.25).abs() < 0.01, "full resist rate {rate}");
+        // 150 resistance of 300: 83 % × 62.5 % lands; 17 % miss, the rest resisted.
+        let ctx = spell_ctx(0, 150);
+        let mut outcomes: HashMap<SpellRoll, u32> = HashMap::new();
+        for _ in 0..n {
+            *outcomes
+                .entry(roll.get_spell_ability_result(&ctx, MagicSchool::Shadow, 0, binary))
+                .or_default() += 1;
+        }
+        let landed = 0.83 * 0.625;
+        assert!((fraction(&outcomes, SpellRoll::HIT) - landed).abs() < 0.005);
+        assert!((fraction(&outcomes, SpellRoll::MISS) - 0.17).abs() < 0.005);
+        assert!((fraction(&outcomes, SpellRoll::FULL_RESIST) - (0.83 - landed)).abs() < 0.005);
+    }
+
+    /// A pure DoT's ticks see a tenth of the resistance; a boss's level-based 24 then costs a
+    /// tick next to nothing.
+    #[test]
+    fn periodic_resists() {
+        let mut roll = CombatRoll::from_seed(63, 23);
+        let n = 100_000;
+        let average = |roll: &mut CombatRoll, ctx: &MagicRollContext, pure_dot: bool| {
+            (0..n)
+                .map(|_| {
+                    1.0 - roll
+                        .get_periodic_resist_result(ctx, MagicSchool::Nature, pure_dot)
+                        .damage_modifier()
+                })
+                .sum::<f64>()
+                / f64::from(n)
+        };
+        let ctx = spell_ctx(0, 176);
+        // (176 + 24) / 300 = ⅔: 50 % on average for a tick of a DoT with direct damage.
+        let direct = average(&mut roll, &ctx, false);
+        assert!((direct - 0.5).abs() < 0.005, "average resist {direct}");
+        // 20 / 300 for a pure DoT's tick: 5 %.
+        let pure = average(&mut roll, &ctx, true);
+        assert!((pure - 0.05).abs() < 0.005, "average resist {pure}");
+    }
+
+    /// A change of spell hit or resistance takes effect: tables are keyed by what they were
+    /// built from.
+    #[test]
+    fn magic_tables_follow_the_context() {
+        let mut roll = CombatRoll::from_seed(63, 29);
+        let miss_range = |roll: &mut CombatRoll, ctx: &MagicRollContext| {
+            let mut random = Random::from_seed(0, ROLL_RANGE, 1);
+            let table = roll
+                .get_magic_attack_table(ctx, MagicSchool::Nature)
+                .clone();
+            (0..ROLL_RANGE)
+                .find(|&r| table.get_hit_outcome(&mut random, r, 0) != MagicAttackResult::Miss)
+                .unwrap()
+        };
+        assert_eq!(miss_range(&mut roll, &spell_ctx(0, 0)), 1700);
+        assert_eq!(miss_range(&mut roll, &spell_ctx(300, 0)), 1400);
+        assert_eq!(roll.magic_attack_tables.len(), 2);
+        roll.drop_tables();
+        assert!(roll.magic_attack_tables.is_empty());
     }
 
     #[test]

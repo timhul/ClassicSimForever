@@ -56,6 +56,20 @@ impl CreatureType {
             CreatureType::Undead => "Undead",
         }
     }
+
+    /// The `CreatureType.ID` of the client tables.
+    pub fn game_id(self) -> u32 {
+        match self {
+            CreatureType::Beast => 1,
+            CreatureType::Dragonkin => 2,
+            CreatureType::Demon => 3,
+            CreatureType::Elemental => 4,
+            CreatureType::Giant => 5,
+            CreatureType::Undead => 6,
+            CreatureType::Humanoid => 7,
+            CreatureType::Mechanical => 9,
+        }
+    }
 }
 
 /// A set of creature types, written as a list (`[Giant, Dragonkin]`).
@@ -70,6 +84,15 @@ impl CreatureTypes {
 
     pub fn is_empty(self) -> bool {
         self.0 == 0
+    }
+
+    /// The types in a creature type mask of the client tables, bit `ID − 1` per type
+    /// (`MOD_DAMAGE_DONE_VERSUS` misc value 80: Giant and Humanoid).
+    pub fn from_game_mask(mask: u32) -> Self {
+        CreatureType::ALL
+            .into_iter()
+            .filter(|t| mask & (1 << (t.game_id() - 1)) != 0)
+            .collect()
     }
 }
 
@@ -143,26 +166,24 @@ pub struct Target {
     spell_damage_charge_debuffs: Vec<InstanceId>,
     debuffs: [Vec<InstanceId>; Priority::COUNT],
     size_debuffs: usize,
+    /// The armor reductions that share one slot (`EXCLUSIVE_ARMOR_REDUCTION`: Sunder Armor,
+    /// Expose Armor), summed per spell; only the strongest is applied to the armor.
+    exclusive_armor: Vec<(u32, i32)>,
 }
 
 impl Target {
     /// Maximum number of debuffs on a target.
     pub const DEBUFF_LIMIT: usize = 16;
 
-    /// Default resistance of a raid boss to the resistable schools.
-    pub const DEFAULT_RESISTANCE: i32 = 70;
-
-    /// A raid boss of `level`: base armor 3750, 70 resistance to all but holy, Dragonkin.
+    /// A raid boss of `level`: base armor 3750, no resistances, Dragonkin. Most raid bosses have
+    /// no resistance of their own (royalgiraffe's resist guide, "Resistance scores of Vanilla
+    /// raid bosses"); the level-based resistance against non-binary spells is the magic
+    /// table's. The C++ target had 70 to all but holy.
     pub fn new(level: u32) -> Self {
         let mut stats = Stats::new();
         stats.increase_armor(Mechanics::BOSS_BASE_ARMOR);
 
-        let mut resistances = [0; MagicSchool::ALL.len()];
-        for school in MagicSchool::MAGIC {
-            if school != MagicSchool::Holy {
-                resistances[school as usize] = Self::DEFAULT_RESISTANCE;
-            }
-        }
+        let resistances = [0; MagicSchool::ALL.len()];
 
         Self {
             level,
@@ -176,6 +197,7 @@ impl Target {
             spell_damage_charge_debuffs: Vec::new(),
             debuffs: Default::default(),
             size_debuffs: 0,
+            exclusive_armor: Vec::new(),
         }
     }
 
@@ -234,9 +256,44 @@ impl Target {
         self.stats.decrease_armor(armor);
     }
 
+    /// Changes the exclusive armor reduction of `spell` by `delta` (negative: a stronger
+    /// reduction; one call per stack). Of all spells' reductions only the strongest lowers the
+    /// armor, so Sunder Armor and Expose Armor do not stack (forever-bugs #112). Keyed by spell:
+    /// the same spell from two casters adds up, as other target debuffs do.
+    pub fn change_exclusive_armor_reduction(&mut self, spell: u32, delta: i32) {
+        let before = self.exclusive_armor_reduction();
+        match self.exclusive_armor.iter().position(|(id, _)| *id == spell) {
+            Some(index) => {
+                self.exclusive_armor[index].1 += delta;
+                if self.exclusive_armor[index].1 == 0 {
+                    self.exclusive_armor.swap_remove(index);
+                }
+            }
+            None if delta != 0 => self.exclusive_armor.push((spell, delta)),
+            None => {}
+        }
+        let after = self.exclusive_armor_reduction();
+        self.stats.decrease_armor(after - before);
+    }
+
+    /// The armor the exclusive armor reductions take away: the strongest one.
+    pub fn exclusive_armor_reduction(&self) -> i32 {
+        self.exclusive_armor
+            .iter()
+            .map(|(_, amount)| -amount)
+            .max()
+            .unwrap_or(0)
+            .max(0)
+    }
+
     /// Resistance to `school`, never negative.
     pub fn resistance(&self, school: MagicSchool) -> i32 {
         self.resistances[school as usize].max(0)
+    }
+
+    /// Sets the base resistance to `school` (the target setup's).
+    pub fn set_resistance(&mut self, school: MagicSchool, value: i32) {
+        self.resistances[school as usize] = value;
     }
 
     pub fn increase_resistance(&mut self, school: MagicSchool, value: i32) {
@@ -481,6 +538,19 @@ mod tests {
         assert!(!types.contains(CreatureType::Humanoid));
         assert!(!types.is_empty());
         assert!(CreatureTypes::default().is_empty());
+        let murder = CreatureTypes::from_game_mask(80);
+        assert_eq!(
+            Vec::from(murder),
+            [CreatureType::Giant, CreatureType::Humanoid]
+        );
+        assert_eq!(
+            Vec::from(CreatureTypes::from_game_mask(32)),
+            [CreatureType::Undead]
+        );
+        assert_eq!(
+            Vec::from(CreatureTypes::from_game_mask(1)),
+            [CreatureType::Beast]
+        );
         assert_eq!(
             serde_yaml::to_string(&types).unwrap(),
             "- Dragonkin
@@ -522,17 +592,9 @@ mod tests {
         assert_eq!(target.armor(), Mechanics::BOSS_BASE_ARMOR);
         assert_eq!(target.defense(), 300);
         assert_eq!(target.creature_type(), CreatureType::Dragonkin);
-        for school in [
-            MagicSchool::Arcane,
-            MagicSchool::Fire,
-            MagicSchool::Frost,
-            MagicSchool::Nature,
-            MagicSchool::Shadow,
-        ] {
-            assert_eq!(target.resistance(school), 70);
+        for school in MagicSchool::ALL {
+            assert_eq!(target.resistance(school), 0);
         }
-        assert_eq!(target.resistance(MagicSchool::Holy), 0);
-        assert_eq!(target.resistance(MagicSchool::Physical), 0);
         assert_eq!(target.debuff_count(), 0);
     }
 
@@ -571,6 +633,34 @@ mod tests {
     }
 
     #[test]
+    fn only_the_strongest_exclusive_armor_reduction_applies() {
+        const SUNDER: u32 = 11597;
+        const EXPOSE: u32 = 11198;
+        let mut target = Target::new(63);
+        let base = Mechanics::BOSS_BASE_ARMOR;
+        for stacks in 1..=5 {
+            target.change_exclusive_armor_reduction(SUNDER, -450);
+            assert_eq!(target.armor(), base - 450 * stacks);
+        }
+        // A 3 point Expose Armor is weaker than 5 Sunders: nothing changes.
+        target.change_exclusive_armor_reduction(EXPOSE, -1350);
+        assert_eq!(target.armor(), base - 2250);
+        target.change_exclusive_armor_reduction(EXPOSE, 1350);
+        // A stronger one replaces Sunder's share, and Sunder's returns when it ends.
+        target.change_exclusive_armor_reduction(EXPOSE, -2700);
+        assert_eq!(target.armor(), base - 2700);
+        target.decrease_armor(100);
+        assert_eq!(target.armor(), base - 2800, "other reductions still add up");
+        target.change_exclusive_armor_reduction(EXPOSE, 2700);
+        assert_eq!(target.armor(), base - 2350);
+        for _ in 0..5 {
+            target.change_exclusive_armor_reduction(SUNDER, 450);
+        }
+        assert_eq!(target.armor(), base - 100);
+        assert_eq!(target.exclusive_armor_reduction(), 0);
+    }
+
+    #[test]
     fn set_base_armor_keeps_debuff_deltas() {
         let mut target = Target::new(60);
         target.decrease_armor(450);
@@ -584,6 +674,7 @@ mod tests {
     #[test]
     fn resistances_never_negative() {
         let mut target = Target::new(60);
+        target.set_resistance(MagicSchool::Fire, 70);
         target.decrease_resistance(MagicSchool::Fire, 100);
         assert_eq!(target.resistance(MagicSchool::Fire), 0);
         target.increase_resistance(MagicSchool::Fire, 50);
@@ -712,6 +803,7 @@ mod tests {
             .stats_mut()
             .increase_spell_crit_for_school(MagicSchool::Fire, 200);
         target.increase_magic_school_damage_mod(15, MagicSchool::Frost);
+        target.set_resistance(MagicSchool::Shadow, 70);
         target.decrease_resistance(MagicSchool::Arcane, 100);
 
         let view = target.stat_view();

@@ -160,7 +160,9 @@ pub enum ScriptKind {
     EnableAura,
     /// Grants `params.value` combo points to the character.
     AddComboPoints,
-    /// Resets the cooldown of `params.spell` (no runtime yet).
+    /// Finishes the cooldown of `params.spell`, or of every spell of the spell's family in
+    /// `params.family_mask` (Preparation), when the spell is cast. As an event reaction (no
+    /// runtime yet) it names `params.spell`.
     ResetCooldown,
     /// Weapon-damage bonus `base_points` % with the weapon types the aura requires
     /// (Weaponmaster's per-weapon bonuses).
@@ -179,6 +181,34 @@ pub enum ScriptKind {
     /// An `ENERGIZE` effect gives `params.value` times its amount while a two-hand weapon is
     /// equipped (Unbridled Wrath: 1 rage, 2 with a two-hander).
     TwoHandEnergizeMultiplier,
+    /// A finisher's attack power share, which the tables only mention in the description:
+    /// `params.value` % of attack power per combo point spent, or the `params.per_combo_point`
+    /// entry (% of attack power for 1 to 5 points). Without `params.effect` the effect deals it
+    /// with the spell's direct damage (Eviscerate); with it, the share is spread over the ticks
+    /// of that periodic aura effect (Rupture).
+    ComboPointApDamage,
+    /// A bleed's attack power share: `params.value` % of attack power added to every tick of
+    /// this periodic aura effect (Garrote).
+    AttackPowerPerTick,
+    /// The attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`):
+    /// `params.value` times attack power added to this effect's damage, the hit of a direct
+    /// damage effect or every tick (per stack) of a periodic damage aura (the poisons, TASKS.md
+    /// decision 2).
+    ApCoefficient,
+    /// While the main-hand weapon's subclass is in `params.weapon_subclass_mask`, this effect's
+    /// value replaces the value of effect `params.effect` (Ghostly Strike: 180 % weapon damage
+    /// instead of 125 % with a dagger).
+    WeaponTypeValue,
+    /// The spells this one triggers deal `base_points` % more damage while one of the caster's
+    /// poisons is on the target (Mutilate).
+    DamagePercentVsPoisoned,
+    /// An armor reduction on the target that shares one slot with the other exclusive ones:
+    /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
+    /// the `MOD_RESISTANCE` aura effect itself.
+    ExclusiveArmorReduction,
+    /// The spells of `params.family_mask` deal `base_points` % more damage while the target's
+    /// health is below effect `params.effect`'s value in percent (Quietus: 2-10 % below 35 %).
+    DamagePercentBelowHealth,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -209,6 +239,31 @@ pub struct ScriptParams {
     /// Creature types the script applies to.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub creature_types: Option<CreatureTypes>,
+    /// One amount per combo point spent, for 1 to 5 points.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub per_combo_point: Option<[f64; 5]>,
+    /// Weapon subclasses, as a `SpellEquippedItems` subclass mask (32768 = dagger).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_subclass_mask: Option<u32>,
+    /// The spells the script applies to, as a class mask of the spell's family.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask: Option<[u32; 4]>,
+}
+
+impl ScriptParams {
+    /// The attack power percent of a `COMBO_POINT_AP_DAMAGE` script after spending
+    /// `combo_points`: `value` per point, or the `per_combo_point` entry for the count (5 for
+    /// more). 0 without combo points.
+    pub fn combo_point_ap_percent(&self, combo_points: u32) -> f64 {
+        if combo_points == 0 {
+            return 0.0;
+        }
+        match (self.value, self.per_combo_point) {
+            (Some(per_point), _) => per_point * f64::from(combo_points),
+            (None, Some(table)) => table[(combo_points.min(5) - 1) as usize],
+            (None, None) => 0.0,
+        }
+    }
 }
 
 /// The aura effect that enables a hidden aura the server applies (`ENABLE_PROC`,
@@ -259,8 +314,11 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.resource.is_some(), "resource")
             }
+            ScriptKind::ResetCooldown => need(
+                p.spell.is_some() || p.family_mask.is_some(),
+                "spell or family_mask",
+            ),
             ScriptKind::ExtraAttack
-            | ScriptKind::ResetCooldown
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy
             | ScriptKind::EnableProc => need(p.spell.is_some(), "spell"),
@@ -275,6 +333,26 @@ impl EffectScript {
             ScriptKind::AddComboPoints | ScriptKind::TwoHandEnergizeMultiplier => {
                 need(p.value.is_some_and(|v| v > 0.0), "value (> 0)")
             }
+            ScriptKind::ComboPointApDamage => need(
+                p.value.is_some() != p.per_combo_point.is_some(),
+                "value or per_combo_point (one of them)",
+            ),
+            ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
+            ScriptKind::ApCoefficient => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
+            ScriptKind::DamagePercentBelowHealth => {
+                need(p.effect.is_some(), "effect")?;
+                need(
+                    p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                    "family_mask (not 0)",
+                )
+            }
+            ScriptKind::WeaponTypeValue => {
+                need(p.effect.is_some(), "effect")?;
+                need(
+                    p.weapon_subclass_mask.is_some_and(|mask| mask != 0),
+                    "weapon_subclass_mask (not 0)",
+                )
+            }
             ScriptKind::AttackPowerPercentDamage
             | ScriptKind::Execute
             | ScriptKind::StanceRageRetained
@@ -282,6 +360,8 @@ impl EffectScript {
             | ScriptKind::WeaponTypeDamagePercent
             | ScriptKind::WeaponTypeCritPercent
             | ScriptKind::AbilityCritPercent
+            | ScriptKind::DamagePercentVsPoisoned
+            | ScriptKind::ExclusiveArmorReduction
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -307,7 +387,9 @@ pub struct ProcOverride {
     pub hit_mask: Option<ProcHitMask>,
     /// The aura effect whose value is the proc chance in percent, for talents whose rank value
     /// is the chance (Unbridled Wrath 12/24/36/48/60 %) rather than the payload's value: the
-    /// table's `ProcChance` is the max-rank number.
+    /// table's `ProcChance` is the max-rank number. An effect without a value gives its value
+    /// per combo point (`points_per_resource`: Revealed Flaw's 5 %, with
+    /// `chance_per_combo_point`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub chance_effect: Option<u32>,
     /// The weapon a scripted proc is bound to: only that hand's swings and abilities trigger
@@ -329,6 +411,31 @@ pub struct ProcOverride {
     /// fire (Bloodthrill: main-hand attacks against enemies afflicted by your Rend).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub target_aura: Option<u32>,
+    /// The proc fires on finishing moves ([`ProcSource::Finisher`]: a finisher spent its
+    /// combo points) instead of the events its `ProcTypeMask` names (Ruthlessness, Relentless
+    /// Strikes, Improved Expose Armor).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub finisher: bool,
+    /// The spells whose events trigger the proc, as a `SpellClassMask` of the proc's class
+    /// family (the server's `spell_proc.SpellFamilyMask`: Puncturing Wounds on Backstab,
+    /// Thousand Cuts on Rupture's ticks).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask: Option<[u32; 4]>,
+    /// As `family_mask`, the `SpellClassMask` of this aura effect of the proc (the server's
+    /// default when `spell_proc` names no mask: Head Rush, Revealed Flaw).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_mask_effect: Option<u32>,
+    /// The aura effect whose value is the least number of combo points the finisher must have
+    /// spent (Improved Expose Armor's `$m3`: 5).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub combo_points_effect: Option<u32>,
+    /// The chance is per combo point the finisher spent (Relentless Strikes: 20 % per point).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub chance_per_combo_point: bool,
+    /// Only the events of a spell that awards combo points (a builder: Seal Fate on the
+    /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub builder: bool,
 }
 
 impl ProcOverride {
@@ -1155,5 +1262,10 @@ overrides:
         assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
         assert!(!o.has_sim_flag(1310200, SimFlag::ResetsSwingTimers));
         assert_eq!(o.event_scripts(11585)[0].script, ScriptKind::AddComboPoints);
+        let ruthlessness = o.get(14156).and_then(|r| r.proc).unwrap();
+        assert!(ruthlessness.finisher);
+        let expose = o.get(14168).and_then(|r| r.proc).unwrap();
+        assert_eq!(expose.family_mask, Some([524288, 0, 0, 0]));
+        assert_eq!(expose.combo_points_effect, Some(2));
     }
 }

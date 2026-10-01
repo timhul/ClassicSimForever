@@ -41,6 +41,7 @@ pub const ALL_TABLES: &[&str] = &[
     SpellEquippedItemsRow::TABLE,
     SpellTargetRestrictionsRow::TABLE,
     SpellLabelRow::TABLE,
+    SpellItemEnchantmentRow::TABLE,
     SkillLineRow::TABLE,
     SkillLineAbilityRow::TABLE,
     SkillRaceClassInfoRow::TABLE,

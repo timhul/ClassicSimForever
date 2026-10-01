@@ -1,0 +1,21 @@
+# The raid buffs and target debuffs of base_buffs.yaml plus a warrior's Battle Shout (a Warrior
+# casts its own), and Thistle Tea for the rotations.
+buffs:
+  - Strength of Earth Totem
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
+  - Battle Shout
+  - Trueshot Aura
+  - Gift of the Wild
+  - Elixir of the Mongoose
+  - Juju Power
+  - Juju Might
+  - R.O.I.D.S.
+  - Battle Squawk
+  - Grilled Squid
+  - Flask of the Titans
+debuffs:
+  - Sunder Armor
+  - Faerie Fire
+consumables:
+  - Thistle Tea

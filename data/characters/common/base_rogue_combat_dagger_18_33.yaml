@@ -1,0 +1,27 @@
+# Combat daggers, 18/33/0: Puncturing Wounds (Backstab's crit and extra combo points), Hack and
+# Slash's dagger crit, Adrenaline Rush and Blade Flurry; the Assassination points up to
+# Lethality. Lightning Reflexes and Deflection only fill the tiers up to Dual Wield
+# Specialization.
+class: ROGUE
+rotation: Combat Dagger
+talents:
+  Assassination:
+    Malice: 5
+    Ruthlessness: 3
+    Improved Slice and Dice: 3
+    Relentless Strikes: 1
+    Lethality: 5
+    Improved Poisons: 1
+  Combat:
+    Improved Eviscerate: 3
+    Lightning Reflexes: 3
+    Puncturing Wounds: 3
+    Precision: 3
+    Deflection: 3
+    Flawless Execution: 1
+    Dual Wield Specialization: 5
+    Blade Flurry: 1
+    Hack and Slash: 5
+    Weapon Expertise: 2
+    Aggression: 3
+    Adrenaline Rush: 1

@@ -78,14 +78,23 @@ overrides:
   - id: 28775
     note: Judgement of Light (Redemption Armor 2) is a paladin set bonus
     sim_flags: [IGNORED]
+  - id: 28787
+    note: Cleanse (Redemption Armor 8) is a paladin set bonus
+    sim_flags: [IGNORED]
   - id: 28789
     note: Holy Power (Redemption Armor 6) is a paladin set bonus
     sim_flags: [IGNORED]
   - id: 28809
     note: Greater Heal (Vestments of Faith 4) is a priest set bonus
     sim_flags: [IGNORED]
+  - id: 28821
+    note: Lightning Shield (The Earthshatterer 8) is a shaman set bonus
+    sim_flags: [IGNORED]
   - id: 28823
     note: Totemic Power (The Earthshatterer 6) is a shaman set bonus
+    sim_flags: [IGNORED]
+  - id: 28831
+    note: Vampirism (Plagueheart Raiment 2) is a warlock set bonus
     sim_flags: [IGNORED]
   - id: 28847
     note: Healing Touch Refund (Idol of Longevity) is a druid relic
@@ -127,6 +136,25 @@ overrides:
   - id: 23605
     note: Spell Vulnerability (Nightfall) - ClassicSim's 20 % chance on hit
     proc: { chance: 20 }
+  # Rogue set bonuses.
+  - id: 27787
+    note: >-
+      Rogue Armor Energize (Darkmantle Armor 4); the table fires it on every white swing
+      (ProcChance 100), the server at a rate it keeps: ClassicSim's 3.5 % per swing
+    proc: { chance: 3.5 }
+  - id: 28812
+    note: >-
+      Head Rush (Bonescythe Armor 4); 5 energy on critical strikes only, of the spells E0's
+      SpellClassMask selects (Backstab, Sinister Strike, Hemorrhage, and also Eviscerate and
+      Mutilate, which the description does not name)
+    proc: { hit_mask: [CRITICAL], family_mask_effect: 0 }
+  - id: 28814
+    note: >-
+      Revealed Flaw (Bonescythe Armor 8); the ADD_TARGET_TRIGGER gives an Eviscerate (E0's
+      SpellClassMask) a 5 % chance per combo point spent (its points per resource) to trigger
+      28815, the next Backstab / Sinister Strike / Hemorrhage crits
+    proc: { finisher: true, family_mask_effect: 0, chance_effect: 0, chance_per_combo_point: true }
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 28815 } }]
   # On-use auras.
   - id: 29602
     note: >-

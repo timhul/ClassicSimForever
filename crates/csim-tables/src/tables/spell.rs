@@ -332,6 +332,20 @@ table_row! {
 }
 
 table_row! {
+    /// `SpellItemEnchantment`: a permanent or temporary weapon / armor enchantment. Effect type
+    /// 1 is a combat spell: `effect_points_min` is its chance in percent, `effect_arg` the
+    /// spell it casts on the target (a rogue poison's payload).
+    SpellItemEnchantmentRow, "SpellItemEnchantment" {
+        id: u32 = "ID",
+        name: String = "Name_lang",
+        charges: u32 = "Charges",
+        effect: [u32; 3] = "Effect_",
+        effect_points_min: [i32; 3] = "EffectPointsMin_",
+        effect_arg: [u32; 3] = "EffectArg_",
+    }
+}
+
+table_row! {
     /// `Curve`: talent rank curves.
     CurveRow, "Curve" {
         id: u32 = "ID",

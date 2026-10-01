@@ -27,6 +27,7 @@ pub enum EnchantName {
     BrilliantWizardOil,
     ConsecratedSharpeningStone,
     Crusader,
+    DeadlyPoison,
     DeathsEmbrace,
     DenseSharpeningStone,
     DenseWeightstone,
@@ -81,7 +82,7 @@ pub enum EnchantName {
 
 impl EnchantName {
     /// Every enchant, in declaration order.
-    pub const ALL: [EnchantName; 57] = [
+    pub const ALL: [EnchantName; 58] = [
         EnchantName::ArcanumOfFocus,
         EnchantName::ArcanumOfRapidity,
         EnchantName::Biznicks247x128Accurascope,
@@ -89,6 +90,7 @@ impl EnchantName {
         EnchantName::BrilliantWizardOil,
         EnchantName::ConsecratedSharpeningStone,
         EnchantName::Crusader,
+        EnchantName::DeadlyPoison,
         EnchantName::DeathsEmbrace,
         EnchantName::DenseSharpeningStone,
         EnchantName::DenseWeightstone,
@@ -201,6 +203,11 @@ pub struct EnchantSpec {
     pub mana: u32,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub procs: Vec<EnchantProcSpec>,
+    /// The `SpellItemEnchantment` row the enchant is (a rogue poison): its combat spells are
+    /// procs with the row's chance and payload, exported into `data/spells/enchants.yaml`
+    /// ([`crate::spell::record::ItemEnchantmentRecord`]).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enchantment: Option<u32>,
 }
 
 /// A proc of an enchant. `name` selects the generic proc (`GENERIC_STAT_BUFF`, `FIRE_ATTACK`,
@@ -400,6 +407,15 @@ impl EnchantDb {
             .iter()
             .flat_map(|spec| spec.procs.iter())
             .filter_map(|proc| proc.spell)
+            .collect()
+    }
+
+    /// The `SpellItemEnchantment` rows the enchants name: what
+    /// `csim-tables export-spells --enchants` writes into `data/spells/enchants.yaml`.
+    pub fn enchantment_ids(&self) -> BTreeSet<u32> {
+        self.specs
+            .iter()
+            .filter_map(|spec| spec.enchantment)
             .collect()
     }
 
@@ -698,6 +714,12 @@ mod tests {
         }
         assert_eq!(db.len(), EnchantName::ALL.len());
         assert_eq!(db.get(EnchantName::Crusader).unwrap().procs.len(), 1);
+        // The poisons are their SpellItemEnchantment rows.
+        assert_eq!(
+            db.get(EnchantName::InstantPoison).unwrap().enchantment,
+            Some(625)
+        );
+        assert_eq!(db.enchantment_ids(), BTreeSet::from([625, 2630]));
         assert_eq!(
             db.get(EnchantName::EnchantChestGreaterStats)
                 .unwrap()

@@ -16,9 +16,14 @@ pub enum SpellStatus {
     InBearForm,
     InCatForm,
     InMoonkinForm,
+    InStealth,
+    /// The spell cannot be used in combat (`NOT_IN_COMBAT_ONLY_PEACEFUL`: Stealth).
+    InCombat,
     IncorrectWeaponType,
     InsufficientComboPoints,
     InsufficientResources,
+    /// The spell must be used from behind the target and the character faces it (tanking).
+    NotBehindTarget,
     NotEnabled,
     NotInExecuteRange,
     /// The sim does not model the spell (`IGNORED` override, unsupported effects).
@@ -32,7 +37,7 @@ pub enum SpellStatus {
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 21] = [
+    pub const ALL: [SpellStatus; 24] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -43,9 +48,12 @@ impl SpellStatus {
         SpellStatus::InBearForm,
         SpellStatus::InCatForm,
         SpellStatus::InMoonkinForm,
+        SpellStatus::InStealth,
+        SpellStatus::InCombat,
         SpellStatus::IncorrectWeaponType,
         SpellStatus::InsufficientComboPoints,
         SpellStatus::InsufficientResources,
+        SpellStatus::NotBehindTarget,
         SpellStatus::NotEnabled,
         SpellStatus::NotInExecuteRange,
         SpellStatus::NotSupported,
@@ -70,6 +78,7 @@ impl SpellStatus {
             Stance::Bear => SpellStatus::InBearForm,
             Stance::Cat => SpellStatus::InCatForm,
             Stance::Moonkin => SpellStatus::InMoonkinForm,
+            Stance::Stealth => SpellStatus::InStealth,
         }
     }
 
@@ -83,6 +92,7 @@ impl SpellStatus {
             SpellStatus::InBearForm => Some(Stance::Bear),
             SpellStatus::InCatForm => Some(Stance::Cat),
             SpellStatus::InMoonkinForm => Some(Stance::Moonkin),
+            SpellStatus::InStealth => Some(Stance::Stealth),
             _ => None,
         }
     }
@@ -100,9 +110,12 @@ impl SpellStatus {
             SpellStatus::InBearForm => "FAIL: In Bear Form",
             SpellStatus::InCatForm => "FAIL: In Cat Form",
             SpellStatus::InMoonkinForm => "FAIL: In Moonkin Form",
+            SpellStatus::InStealth => "FAIL: In Stealth",
+            SpellStatus::InCombat => "FAIL: In combat",
             SpellStatus::IncorrectWeaponType => "FAIL: Incorrect weapon type",
             SpellStatus::InsufficientComboPoints => "FAIL: Insufficient combo points",
             SpellStatus::InsufficientResources => "FAIL: Insufficient resources",
+            SpellStatus::NotBehindTarget => "FAIL: Not behind the target",
             SpellStatus::NotEnabled => "FAIL: Not enabled",
             SpellStatus::NotInExecuteRange => "FAIL: Not in execute range",
             SpellStatus::NotSupported => "FAIL: Not modelled by the simulator",

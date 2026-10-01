@@ -1,0 +1,19 @@
+# Alliance Rogue armor and jewelry, no weapons: the Grand Marshal's leather pieces, the same
+# jewelry and trinkets as the Warrior setups (Drake Fang Talisman, Earthstrike).
+class: ROGUE
+equipment:
+  RANGED: { item: 19107 }                                           # Bloodseeker
+  HEAD: { item: 16455, enchant: LesserArcanumOfVoracityAgility }    # Field Marshal's Leather Mask
+  NECK: { item: 18404 }                                             # Onyxia Tooth Pendant
+  SHOULDERS: { item: 16457, enchant: MightOfTheScourge }            # Field Marshal's Leather Epaulets
+  BACK: { item: 20073, enchant: EnchantCloakLesserAgility }         # Cloak of the Honor Guard
+  CHEST: { item: 16453, enchant: EnchantChestGreaterStats }         # Field Marshal's Leather Chestpiece
+  WRIST: { item: 16460, enchant: EnchantBracerSuperiorStrength }    # Marshal's Leather Armsplints
+  GLOVES: { item: 16454, enchant: EnchantGlovesSuperiorAgility }    # Marshal's Leather Handgrips
+  BELT: { item: 16458 }                                             # Marshal's Leather Cinch
+  LEGS: { item: 16456, enchant: LesserArcanumOfVoracityAgility }    # Marshal's Leather Leggings
+  BOOTS: { item: 16446, enchant: EnchantBootsGreaterAgility }       # Marshal's Leather Footguards
+  RING1: { item: 19325 }                                            # Don Julio's Band
+  RING2: { item: 18821 }                                            # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                         # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                         # Earthstrike

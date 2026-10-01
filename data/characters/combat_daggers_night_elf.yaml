@@ -1,0 +1,12 @@
+# Schema: crates/csim-engine/src/character_loader.rs.
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_combat_dagger_18_33.yaml
+include: common/base_rogue_alliance.yaml
+name: Combat Daggers Night Elf
+race: NIGHT_ELF
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18838, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # Grand Marshal's Dirk
+  OFFHAND: { item: 21404, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }                  # Dagger of Veiled Shadows

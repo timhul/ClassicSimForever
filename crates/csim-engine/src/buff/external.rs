@@ -87,6 +87,29 @@ impl ExternalBuffSpec {
     }
 }
 
+/// One `consumables` entry of `data/external_buffs.yaml`: an item the character uses in
+/// combat from its bags (Thistle Tea). Its use effects (spell, cooldown, shared category
+/// cooldown) are the item's `ItemEffect` rows, which `export-spells --externals` writes into
+/// `data/spells/externals.yaml` with the spells they cast; the rotation casts it by `name`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConsumableSpec {
+    /// Display name, unique across the registry; the name the rotation casts it by.
+    pub name: String,
+    /// The item (`Item.ID`).
+    pub item: u32,
+    /// The classes the consumable is offered to; empty = every class.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub classes: Vec<PlayerClass>,
+}
+
+impl ConsumableSpec {
+    /// Whether the entry is offered to `class`.
+    pub fn valid_for_class(&self, class: PlayerClass) -> bool {
+        self.classes.is_empty() || self.classes.contains(&class)
+    }
+}
+
 /// The file layout of `data/external_buffs.yaml`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExternalBuffFile {
@@ -96,6 +119,9 @@ pub struct ExternalBuffFile {
     /// Debuffs on the target kept up by other players.
     #[serde(default)]
     pub debuffs: Vec<ExternalBuffSpec>,
+    /// Items the character uses in combat (Thistle Tea).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub consumables: Vec<ConsumableSpec>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -120,6 +146,8 @@ pub enum ExternalBuffError {
     NoAuras { name: String, spell: u32 },
     #[error("external buff {name:?}: stacks must be at least 1")]
     ZeroStacks { name: String },
+    #[error("consumable {name:?}: item {item} has no use effect in the spell db")]
+    UnknownConsumable { name: String, item: u32 },
 }
 
 /// The registry of external buffs and debuffs.
@@ -127,6 +155,7 @@ pub enum ExternalBuffError {
 pub struct ExternalBuffDb {
     buffs: Vec<ExternalBuffSpec>,
     debuffs: Vec<ExternalBuffSpec>,
+    consumables: Vec<ConsumableSpec>,
 }
 
 impl ExternalBuffDb {
@@ -158,14 +187,32 @@ impl ExternalBuffDb {
                 });
             }
         }
+        for spec in &file.consumables {
+            if !names.insert(spec.name.as_str()) {
+                return Err(ExternalBuffError::DuplicateName(spec.name.clone()));
+            }
+        }
         Ok(Self {
             buffs: file.buffs,
             debuffs: file.debuffs,
+            consumables: file.consumables,
         })
     }
 
-    /// Checks that every entry names a spell of `db` that applies auras.
+    /// Checks that every entry names a spell of `db` that applies auras, and every consumable
+    /// an item of `db` with a use effect.
     pub fn validate(&self, db: &SpellDb) -> Result<(), ExternalBuffError> {
+        for spec in &self.consumables {
+            let usable = db
+                .consumable_item(spec.item)
+                .is_some_and(|item| item.uses().next().is_some());
+            if !usable {
+                return Err(ExternalBuffError::UnknownConsumable {
+                    name: spec.name.clone(),
+                    item: spec.item,
+                });
+            }
+        }
         for spec in self.entries() {
             let record = db
                 .get(spec.spell)
@@ -189,6 +236,20 @@ impl ExternalBuffDb {
 
     pub fn debuffs(&self) -> &[ExternalBuffSpec] {
         &self.debuffs
+    }
+
+    pub fn consumables(&self) -> &[ConsumableSpec] {
+        &self.consumables
+    }
+
+    /// The consumable called `name`.
+    pub fn consumable(&self, name: &str) -> Option<&ConsumableSpec> {
+        self.consumables.iter().find(|s| s.name == name)
+    }
+
+    /// The items of the consumables, sorted and unique (the exporter's item seeds).
+    pub fn consumable_item_ids(&self) -> BTreeSet<u32> {
+        self.consumables.iter().map(|s| s.item).collect()
     }
 
     /// Buffs first, then debuffs.
@@ -426,6 +487,39 @@ debuffs:
             registry.spell_ids(),
             BTreeSet::from([25898, 25362, 25289, 16323, 11405, 18192, 11971, 16928])
         );
+    }
+
+    /// Consumables are looked up by name, share the name space and need their item's use
+    /// effect in the spell db.
+    #[test]
+    fn consumables_need_an_item_with_a_use() {
+        let text = format!(
+            "{FILE}consumables:
+  - name: Thistle Tea
+    item: 7676
+    classes: [ROGUE]
+"
+        );
+        let registry = ExternalBuffDb::from_file(serde_yaml::from_str(&text).unwrap()).unwrap();
+        let tea = registry.consumable("Thistle Tea").unwrap();
+        assert!(tea.valid_for_class(PlayerClass::Rogue));
+        assert!(!tea.valid_for_class(PlayerClass::Warrior));
+        assert_eq!(registry.consumable_item_ids(), BTreeSet::from([7676]));
+        assert!(matches!(
+            registry.validate(&db()),
+            Err(ExternalBuffError::UnknownConsumable { item: 7676, .. })
+        ));
+
+        let clash = format!(
+            "{FILE}consumables:
+  - name: Juju Power
+    item: 7676
+"
+        );
+        assert!(matches!(
+            ExternalBuffDb::from_file(serde_yaml::from_str(&clash).unwrap()),
+            Err(ExternalBuffError::DuplicateName(name)) if name == "Juju Power"
+        ));
     }
 
     #[test]

@@ -7,11 +7,14 @@ use std::collections::VecDeque;
 
 use crate::buff::{Buff, BuffApplication, BuffContext, ChargeUse};
 use crate::character_spells::{AddedSpell, BuffSlot, CharacterSpells, SharedBuffs};
-use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult};
+use crate::combat_roll::{
+    IncludedOutcomes, MagicResistResult, PhysicalAttackResult, SpellResistKind, SpellRoll,
+};
 use crate::cooldown::CooldownControl;
 use crate::effect::EffectHost;
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
+use crate::magic_school::MagicSchool;
 use crate::proc::{ProcHost, ProcSource};
 use crate::raid::SharedBuffRegistry;
 use crate::resource::ResourceType;
@@ -849,6 +852,14 @@ pub(crate) struct World {
     /// `(spell, resource, amount)` gains on use (`GAIN_RESOURCE_ON_USE`).
     pub resources_on_use: Vec<(u32, ResourceType, u32)>,
     pub actionbar_log: Vec<(u32, u32, bool)>,
+    /// Rolls on the magic table, in order; a hit once they run out.
+    pub spell_rolls: VecDeque<SpellRoll>,
+    /// `(school, kind)` of every roll on the magic table.
+    pub spell_roll_log: Vec<(MagicSchool, SpellResistKind)>,
+    /// Partial resists of the periodic ticks, in order; none once they run out.
+    pub periodic_resists: VecDeque<MagicResistResult>,
+    /// `(school, pure DoT)` of every tick resist roll.
+    pub periodic_resist_log: Vec<(MagicSchool, bool)>,
 }
 
 impl World {
@@ -898,6 +909,10 @@ impl World {
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
             actionbar_log: Vec::new(),
+            spell_rolls: VecDeque::new(),
+            spell_roll_log: Vec::new(),
+            periodic_resists: VecDeque::new(),
+            periodic_resist_log: Vec::new(),
         }
     }
 
@@ -952,7 +967,7 @@ impl World {
 
     pub fn run_proc_check(&mut self, source: ProcSource) -> Vec<(crate::ids::ProcId, CastReport)> {
         let mut procs = self.spells.take_procs();
-        let reports = procs.run_proc_check(source, self);
+        let reports = procs.run_proc_check(source, crate::proc::ProcTrigger::default(), self);
         self.spells.put_procs(procs);
         reports
     }
@@ -1108,6 +1123,16 @@ impl EffectHost for World {
         self.extra_crits.push(extra_crit);
         self.can_crits.push(can_crit);
         self.rolls.pop_front().expect("no roll queued")
+    }
+    fn roll_spell(
+        &mut self,
+        school: MagicSchool,
+        kind: SpellResistKind,
+        _extra_crit: u32,
+        _can_crit: bool,
+    ) -> SpellRoll {
+        self.spell_roll_log.push((school, kind));
+        self.spell_rolls.pop_front().unwrap_or(SpellRoll::HIT)
     }
     fn stats_mut(&mut self) -> &mut CharacterStats {
         &mut self.stats
@@ -1348,6 +1373,12 @@ impl SpellHost for World {
     }
     fn melee_ability_crit_dmg_mod(&self) -> f64 {
         2.0
+    }
+    fn roll_periodic_resist(&mut self, school: MagicSchool, pure_dot: bool) -> MagicResistResult {
+        self.periodic_resist_log.push((school, pure_dot));
+        self.periodic_resists
+            .pop_front()
+            .unwrap_or(MagicResistResult::NoResist)
     }
     fn total_threat_mod(&self) -> f64 {
         self.stats.get_total_threat_mod()

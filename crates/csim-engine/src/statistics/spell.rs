@@ -277,6 +277,12 @@ pub struct SpellStatistics {
     dpet: Ratio,
     tpr: Ratio,
     tpet: Ratio,
+    /// Whether the spell rolled on the magic table (or ticked with a magic school).
+    magic: bool,
+    /// Whether the spell is a white swing (rolled on the melee table with glancing blows).
+    auto_attack: bool,
+    /// Whether the spell rolled on the melee table (a white swing or an ability).
+    melee: bool,
 }
 
 impl SpellStatistics {
@@ -291,6 +297,9 @@ impl SpellStatistics {
             dpet: Ratio::default(),
             tpr: Ratio::default(),
             tpet: Ratio::default(),
+            magic: false,
+            auto_attack: false,
+            melee: false,
         }
     }
 
@@ -350,7 +359,16 @@ impl SpellStatistics {
 
     /// Records the attack outcome of one cast or swing (`resource_cost` in displayed units).
     pub fn record_attack(&mut self, attack: &AttackOutcome, resource_cost: f64) {
-        let outcome = Outcome::from_physical(attack.result, attack.damage);
+        let outcome = match attack.spell {
+            Some(spell) => {
+                self.magic = true;
+                Outcome::from_magic(spell.roll.result, spell.roll.resist)
+            }
+            None => {
+                self.melee = true;
+                Outcome::from_physical(attack.result, attack.damage)
+            }
+        };
         if outcome.is_success() {
             self.add_success(
                 outcome,
@@ -364,17 +382,29 @@ impl SpellStatistics {
         }
     }
 
-    /// Records a periodic tick: a hit for its damage and threat. Port of the `add_hit_dmg`
-    /// calls of the C++ periodic spells.
+    /// Records the outcome of one white swing.
+    pub fn record_swing(&mut self, attack: &AttackOutcome) {
+        self.auto_attack = true;
+        self.record_attack(attack, 0.0);
+    }
+
+    /// Records a periodic tick: a hit (or a partial resist) for its damage and threat. Port of
+    /// the `add_hit_dmg` calls of the C++ periodic spells. `resist` is the partial resist of a
+    /// tick of a magic school, none for a physical one.
     pub fn record_tick(
         &mut self,
         damage: u32,
         threat: f64,
         resource_cost: f64,
         execution_time: f64,
+        resist: Option<MagicResistResult>,
     ) {
+        self.magic |= resist.is_some();
         self.add_success(
-            Outcome::Hit,
+            Outcome::from_magic(
+                MagicAttackResult::Hit,
+                resist.unwrap_or(MagicResistResult::NoResist),
+            ),
             damage,
             threat.max(0.0) as u32,
             resource_cost,
@@ -394,6 +424,26 @@ impl SpellStatistics {
         self.dpet.merge(&other.dpet);
         self.tpr.merge(&other.tpr);
         self.tpet.merge(&other.tpet);
+        self.magic |= other.magic;
+        self.auto_attack |= other.auto_attack;
+        self.melee |= other.melee;
+    }
+
+    /// Whether the spell rolled on the melee table (a white swing or an ability): its
+    /// attempts split by crit and hit.
+    pub fn is_melee(&self) -> bool {
+        self.melee
+    }
+
+    /// Whether the spell is a white swing: its attempts split by hit, crit and glancing blow.
+    pub fn is_auto_attack(&self) -> bool {
+        self.auto_attack
+    }
+
+    /// Whether the spell rolled on the magic table (or ticked with a magic school): its
+    /// attempts split by the share of damage resisted.
+    pub fn is_magic(&self) -> bool {
+        self.magic
     }
 
     // --- Attempts ---
@@ -555,6 +605,7 @@ mod tests {
     fn hit(damage: u32) -> AttackOutcome {
         AttackOutcome {
             result: PhysicalAttackResult::Hit,
+            spell: None,
             damage,
             threat: f64::from(damage) * 1.5,
             execution_time: 1.5,
@@ -621,6 +672,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Critical,
+                spell: None,
                 damage: 500,
                 threat: 750.0,
                 execution_time: 1.5,
@@ -630,6 +682,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Dodge,
+                spell: None,
                 damage: 0,
                 threat: 0.0,
                 execution_time: 1.5,
@@ -680,6 +733,7 @@ mod tests {
         stats.record_attack(
             &AttackOutcome {
                 result: PhysicalAttackResult::Glancing,
+                spell: None,
                 damage: 80,
                 threat: 80.0,
                 execution_time: 0.0,
@@ -696,11 +750,23 @@ mod tests {
     #[test]
     fn ticks_count_as_hits() {
         let mut stats = SpellStatistics::new("Rend", 7);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
         assert_eq!(stats.hits(), 2);
+        assert!(!stats.is_magic());
         assert_eq!(stats.total_damage(), 74);
         assert!((stats.dpr().avg() - 25.9).abs() < 1e-9);
+    }
+
+    #[test]
+    fn magic_ticks_and_attacks_mark_the_spell_magic() {
+        let mut stats = SpellStatistics::new("Shadow Word: Pain", 1);
+        stats.record_tick(100, 100.0, 0.0, 0.0, Some(MagicResistResult::Partial50));
+        assert!(stats.is_magic());
+        assert_eq!(stats.partial_resists_50(), 1);
+        let mut merged = SpellStatistics::new("Shadow Word: Pain", 1);
+        merged.add(&stats);
+        assert!(merged.is_magic());
     }
 
     #[test]

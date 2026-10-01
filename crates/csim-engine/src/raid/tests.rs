@@ -72,7 +72,7 @@ impl Fixture {
             ctx.learn(db, SUNDER_ARMOR);
         });
         let character = self.raid.character_mut(id);
-        character.gain_resource(ResourceType::Rage, 100);
+        character.gain_resource(ResourceType::Rage, 100, 0.0);
         // Sunder Armor rolls on the attack table: rig every roll to a hit so casts always land.
         character.roll_mut().random_mut().set_new_range(9999, 10000);
     }
@@ -364,7 +364,7 @@ fn reset_strips_the_party_buff_from_the_whole_party_and_cleans_the_target() {
     for id in [a, b] {
         f.raid
             .character_mut(id)
-            .gain_resource(ResourceType::Rage, 100);
+            .gain_resource(ResourceType::Rage, 100, 0.0);
     }
     f.cast(b, BATTLE_SHOUT_6);
     assert_eq!(f.ap(a), base + SHOUT_AP);

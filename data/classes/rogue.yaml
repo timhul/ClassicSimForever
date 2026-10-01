@@ -1,0 +1,105 @@
+# The Rogue class. Schema: crates/csim-engine/src/character/class.rs (`ClassSpec`).
+#
+# `stat_rules` come from the client tables (build 1.60.1.70009): ChrClasses
+# (AttackPowerPerStrength 1, AttackPowerPerAgility 1, RangedAttackPowerPerAgility 2) and
+# PlayerExpectedStat (CritPerAgility 0.000345 at level 60 = 28.99 agility per 1 % crit; no spell
+# crit from intellect). `available_races` are the CharBaseInfo rows of class 4 (the two
+# Forever-only race ids 95 / 96 are not playable in the simulator yet).
+#
+# The base attributes, attack power and base crit are ClassicSim's (Class/Rogue/Rogue.cpp); the
+# tables do not carry them. The base health is the vanilla level 60 value (server-side
+# `player_classlevelstats`: 1523), also not in the tables. The armor type and the global cooldown
+# are Rogue.cpp too (the abilities' StartRecoveryTime is 1000 ms). The weapon proficiencies are
+# Rogue.cpp plus one-handed axes: in Forever SkillLineAbility gives the Rogue the Axes skill
+# (spell 196, ClassMask 79), and Hack and Slash has an axe/sword branch. The enchant lists per
+# slot are RogueEnchants.cpp; whether an enchant physically fits (sharp vs blunt weapons,
+# faction) is decided by data/enchants.yaml. Instant and Deadly Poison are the poisons that deal
+# damage.
+
+class: ROGUE
+resource: energy
+base_stats:
+  strength: 60
+  agility: 110
+  stamina: 55
+  intellect: 15
+  spirit: 30
+  melee_ap: 100
+  melee_crit: 100          # hundredths of a percent
+  health: 1523             # before stamina
+stat_rules:
+  agility_per_percent_crit: 28.9855
+  melee_ap_per_strength: 1
+  melee_ap_per_agility: 1
+  ranged_ap_per_agility: 2
+global_cooldown: 1.0
+highest_armor_type: LEATHER
+# Combo points stay on the target until spent (no lapse window).
+max_combo_points: 5
+weapon_proficiencies:
+  MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD]
+  OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND]
+  RANGED: [BOW, CROSSBOW, GUN, THROWN]
+available_races: [HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD, GNOME, TROLL]
+enchants:
+  MAINHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponAgility
+  OFFHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponAgility
+  HEAD:
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityAgility
+    - DeathsEmbrace
+  LEGS:
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityAgility
+    - DeathsEmbrace
+  SHOULDERS:
+    - MightOfTheScourge
+    - ZandalarSignetOfMight
+  BACK:
+    - EnchantCloakLesserAgility
+  WRIST:
+    - EnchantBracerGreaterStrength
+    - EnchantBracerSuperiorStrength
+    - EnchantBracerMinorAgility
+  GLOVES:
+    - EnchantGlovesSuperiorAgility
+    - EnchantGlovesGreaterAgility
+    - EnchantGlovesMinorHaste
+    - EnchantGlovesGreaterStrength
+  CHEST:
+    - EnchantChestStats
+    - EnchantChestGreaterStats
+  BOOTS:
+    - EnchantBootsMinorSpeed
+    - EnchantBootsAgility
+    - EnchantBootsGreaterAgility
+temp_enchants:
+  MAINHAND:
+    - WindfuryTotem
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - InstantPoison
+    - DeadlyPoison
+    - ShadowOil
+  OFFHAND:
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - InstantPoison
+    - DeadlyPoison
+    - ShadowOil

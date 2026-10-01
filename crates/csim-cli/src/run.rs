@@ -19,7 +19,7 @@ use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
-use csim_engine::statistics::spell::Outcome;
+use csim_engine::statistics::spell::{Outcome, SpellStatistics};
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
@@ -325,6 +325,9 @@ pub struct Results {
     pub resources: Vec<ResourceRow>,
     /// The sums over `resources`, one per resource.
     pub resource_totals: Vec<ResourceTotal>,
+    /// The finishers cast, by combo points spent.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub finishers: Vec<FinisherRow>,
     pub rotation: Vec<ExecutorRow>,
     /// The rotation lines that never run, and why.
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -408,7 +411,44 @@ pub struct SpellRow {
     pub parry: f64,
     pub block: f64,
     pub resist: f64,
+    /// The attempts split by outcome, each part a row of its own (named after the outcome, its
+    /// rates shares of all the spell's attempts, so the parts add up to the spell): a magic
+    /// spell's by the share of damage resisted (see [`RESIST_BREAKDOWN`]), a white swing's by
+    /// crit, hit and glancing blow, a melee ability's by crit and hit. Empty for other spells
+    /// (physical damage over time, such as Deep Wounds).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub breakdown: Vec<SpellRow>,
 }
+
+/// A magic spell's outcomes by the share of damage resisted: 100 % (a miss or a full resist)
+/// down to 0 %.
+const RESIST_BREAKDOWN: [(&str, &[Outcome]); 5] = [
+    ("100% resisted", &[Outcome::Miss, Outcome::FullResist]),
+    (
+        "75% resisted",
+        &[Outcome::PartialResist75, Outcome::PartialResistCrit75],
+    ),
+    (
+        "50% resisted",
+        &[Outcome::PartialResist50, Outcome::PartialResistCrit50],
+    ),
+    (
+        "25% resisted",
+        &[Outcome::PartialResist25, Outcome::PartialResistCrit25],
+    ),
+    ("0% resisted", &[Outcome::Hit, Outcome::Crit]),
+];
+
+/// A white swing's connecting outcomes.
+const SWING_BREAKDOWN: [(&str, &[Outcome]); 3] = [
+    ("Crit", &[Outcome::Crit]),
+    ("Hit", &[Outcome::Hit]),
+    ("Glancing", &[Outcome::Glancing]),
+];
+
+/// A melee ability's connecting outcomes (abilities cannot glance).
+const ABILITY_BREAKDOWN: [(&str, &[Outcome]); 2] =
+    [("Crit", &[Outcome::Crit]), ("Hit", &[Outcome::Hit])];
 
 #[derive(Debug, Serialize)]
 pub struct BuffRow {
@@ -433,6 +473,16 @@ pub struct ResourceRow {
     pub resource: String,
     pub per_fight: f64,
     pub per_second: f64,
+}
+
+/// A finisher's casts per fight by the combo points they spent.
+#[derive(Debug, Serialize)]
+pub struct FinisherRow {
+    pub name: String,
+    /// Casts per fight with 1 to 5 combo points.
+    pub per_fight: [f64; 5],
+    /// The average combo points spent.
+    pub average: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -460,17 +510,30 @@ pub struct ResourceTotal {
     pub resource: String,
     pub per_fight: f64,
     pub per_second: f64,
+    /// Regeneration lost because the resource was full, per fight and per second.
+    pub lost_at_cap_per_fight: f64,
+    pub lost_at_cap_per_second: f64,
 }
 
 impl ResourceTotal {
     /// One total per resource, as rage and mana do not add up; `gains` are grouped by resource.
-    fn of(gains: &[ResourceRow]) -> Vec<ResourceTotal> {
+    fn of(gains: &[ResourceRow], stats: &ClassStatistics) -> Vec<ResourceTotal> {
+        let iterations = stats.iterations().max(1) as f64;
+        let time = stats.time_in_combat();
         gains
             .chunk_by(|a, b| a.resource == b.resource)
-            .map(|rows| ResourceTotal {
-                resource: rows[0].resource.clone(),
-                per_fight: rows.iter().map(|r| r.per_fight).sum(),
-                per_second: rows.iter().map(|r| r.per_second).sum(),
+            .map(|rows| {
+                let lost = ResourceType::ALL
+                    .into_iter()
+                    .find(|kind| kind.name() == rows[0].resource)
+                    .map_or(0.0, |kind| stats.lost_at_cap(kind));
+                ResourceTotal {
+                    resource: rows[0].resource.clone(),
+                    per_fight: rows.iter().map(|r| r.per_fight).sum(),
+                    per_second: rows.iter().map(|r| r.per_second).sum(),
+                    lost_at_cap_per_fight: lost / iterations,
+                    lost_at_cap_per_second: if time > 0.0 { lost / time } else { 0.0 },
+                }
             })
             .collect()
     }
@@ -558,8 +621,9 @@ impl Results {
             spells,
             buffs: buff_rows(&stats),
             procs: proc_rows(&stats),
-            resource_totals: ResourceTotal::of(&resources),
+            resource_totals: ResourceTotal::of(&resources, &stats),
             resources,
+            finishers: finisher_rows(&stats),
             rotation: executor_rows(&stats),
             skipped_rotation_lines: skipped_rows(&stats),
             stat_weights: if r.settings.options.is_empty() {
@@ -627,6 +691,7 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             ("Buffs and debuffs", self.buff_table()),
             ("Procs", self.proc_table()),
             ("Resource gains", self.resource_table()),
+            ("Finishers", self.finisher_table()),
             ("Rotation", self.executor_table()),
             ("Skipped rotation lines", self.skipped_table()),
             ("Engine", self.engine_table()),
@@ -660,8 +725,8 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
             "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "DPR", "Hit", "Crit", "Glance",
             "Miss", "Dodge", "Parry", "Block", "Resist",
         ]);
-        for spell in &self.spells {
-            table.row(vec![
+        let cells = |spell: &SpellRow| {
+            vec![
                 spell.name.clone(),
                 format!("{:.1}", spell.dps),
                 percent(spell.damage_share),
@@ -680,7 +745,10 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 percent(spell.parry),
                 percent(spell.block),
                 percent(spell.resist),
-            ]);
+            ]
+        };
+        for spell in &self.spells {
+            table.row_with_sub_rows(cells(spell), spell.breakdown.iter().map(cells).collect());
         }
         if let Some(sum) = &self.spell_total {
             let mut total = vec![
@@ -740,6 +808,30 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
                 format!("{:.1}", sum.per_fight),
                 format!("{:.2}", sum.per_second),
             ]);
+        }
+        for sum in &self.resource_totals {
+            if sum.lost_at_cap_per_fight > 0.0 {
+                table.total(vec![
+                    "Lost at the cap".to_string(),
+                    sum.resource.clone(),
+                    format!("{:.1}", sum.lost_at_cap_per_fight),
+                    format!("{:.2}", sum.lost_at_cap_per_second),
+                ]);
+            }
+        }
+        table
+    }
+
+    fn finisher_table(&self) -> Table {
+        let mut table = Table::new([
+            "Finisher", "1 CP", "2 CP", "3 CP", "4 CP", "5 CP", "Average",
+        ])
+        .left(1);
+        for finisher in &self.finishers {
+            let mut row = vec![finisher.name.clone()];
+            row.extend(finisher.per_fight.iter().map(|casts| format!("{casts:.1}")));
+            row.push(format!("{:.2}", finisher.average));
+            table.row(row);
         }
         table
     }
@@ -863,36 +955,95 @@ fn spell_rows(stats: &ClassStatistics) -> Vec<SpellRow> {
     spells
         .into_iter()
         .map(|(key, spell)| {
-            let attempts = spell.total_attempts();
-            let rate = |count: u64| per(count, attempts);
-            let damaging = || {
-                Outcome::SUCCESSES
-                    .into_iter()
-                    .map(|outcome| spell.damage(outcome))
-                    .filter(|tally| tally.max() > 0)
+            let row = |name: String, outcomes: &[Outcome]| {
+                outcome_row(name, spell, outcomes, iterations, time, total_damage)
+            };
+            let breakdown: &[(&str, &[Outcome])] = if spell.is_magic() {
+                &RESIST_BREAKDOWN
+            } else if spell.is_auto_attack() {
+                &SWING_BREAKDOWN
+            } else if spell.is_melee() {
+                &ABILITY_BREAKDOWN
+            } else {
+                &[]
             };
             SpellRow {
-                name: key.display_name(),
-                dps: spell.total_damage() as f64 / time,
-                damage_share: spell.damage_share(total_damage),
-                tps: spell.total_threat() as f64 / time,
-                casts: per(attempts, iterations),
-                min_hit: damaging().map(|tally| tally.min()).min(),
-                max_hit: damaging().map(|tally| tally.max()).max(),
                 damage_per_resource: spell.dpr().is_set().then(|| spell.dpr().avg()),
-                hit: rate(spell.hits_including_partial_resists()),
-                crit: rate(spell.crits_including_partial_resists()),
-                glance: rate(spell.glances()),
-                miss: rate(spell.misses()),
-                dodge: rate(spell.dodges()),
-                parry: rate(spell.parries()),
-                block: rate(
-                    spell.full_blocks() + spell.partial_blocks() + spell.partial_block_crits(),
-                ),
-                resist: rate(spell.full_resists()),
+                breakdown: breakdown
+                    .iter()
+                    .map(|(name, outcomes)| row(name.to_string(), outcomes))
+                    .collect(),
+                ..row(key.display_name(), &Outcome::ALL)
             }
         })
         .collect()
+}
+
+/// The attempts of `spell` that ended with one of `outcomes`, as a row named `name`: their
+/// damage and threat, and their rates as shares of all the spell's attempts.
+fn outcome_row(
+    name: String,
+    spell: &SpellStatistics,
+    outcomes: &[Outcome],
+    iterations: u64,
+    time: f64,
+    total_damage: u64,
+) -> SpellRow {
+    let attempts = spell.total_attempts();
+    let sum = |value: &dyn Fn(Outcome) -> u64| outcomes.iter().map(|&o| value(o)).sum::<u64>();
+    // The share of the attempts that ended with one of `outcomes` in `column`.
+    let rate = |column: &[Outcome]| {
+        per(
+            sum(&|o| {
+                if column.contains(&o) {
+                    spell.attempts(o)
+                } else {
+                    0
+                }
+            }),
+            attempts,
+        )
+    };
+    let damage = sum(&|o| spell.damage(o).total());
+    let damaging = || {
+        outcomes
+            .iter()
+            .map(|&outcome| spell.damage(outcome))
+            .filter(|tally| tally.max() > 0)
+    };
+    SpellRow {
+        name,
+        dps: damage as f64 / time,
+        damage_share: per(damage, total_damage),
+        tps: sum(&|o| spell.threat(o).total()) as f64 / time,
+        casts: per(sum(&|o| spell.attempts(o)), iterations),
+        min_hit: damaging().map(|tally| tally.min()).min(),
+        max_hit: damaging().map(|tally| tally.max()).max(),
+        damage_per_resource: None,
+        hit: rate(&[
+            Outcome::Hit,
+            Outcome::PartialResist25,
+            Outcome::PartialResist50,
+            Outcome::PartialResist75,
+        ]),
+        crit: rate(&[
+            Outcome::Crit,
+            Outcome::PartialResistCrit25,
+            Outcome::PartialResistCrit50,
+            Outcome::PartialResistCrit75,
+        ]),
+        glance: rate(&[Outcome::Glancing]),
+        miss: rate(&[Outcome::Miss]),
+        dodge: rate(&[Outcome::Dodge]),
+        parry: rate(&[Outcome::Parry]),
+        block: rate(&[
+            Outcome::FullBlock,
+            Outcome::PartialBlock,
+            Outcome::PartialBlockCrit,
+        ]),
+        resist: rate(&[Outcome::FullResist]),
+        breakdown: Vec::new(),
+    }
 }
 
 fn buff_rows(stats: &ClassStatistics) -> Vec<BuffRow> {
@@ -929,6 +1080,22 @@ fn proc_rows(stats: &ClassStatistics) -> Vec<ProcRow> {
             per_fight: per(proc.procs(), iterations),
             proc_rate: proc.avg_proc_rate(),
             ppm: proc.effective_ppm(stats.time_in_combat()),
+        })
+        .collect()
+}
+
+fn finisher_rows(stats: &ClassStatistics) -> Vec<FinisherRow> {
+    let iterations = stats.iterations().max(1) as f64;
+    stats
+        .finishers()
+        .map(|(key, counts)| {
+            let casts: u64 = counts.iter().sum();
+            let points: u64 = counts.iter().zip(1..).map(|(n, cp)| n * cp).sum();
+            FinisherRow {
+                name: key.display_name(),
+                per_fight: counts.map(|n| n as f64 / iterations),
+                average: points as f64 / casts.max(1) as f64,
+            }
         })
         .collect()
 }
@@ -1046,6 +1213,70 @@ fn stat_weight_rows(cruncher: &NumberCruncher) -> Vec<StatWeightRow> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use csim_engine::combat_roll::PhysicalAttackResult;
+    use csim_engine::spell::AttackOutcome;
+
+    #[test]
+    fn swings_break_down_by_crit_hit_and_glance() {
+        let swing = |result, damage| AttackOutcome {
+            result,
+            spell: None,
+            damage,
+            threat: f64::from(damage),
+            execution_time: 0.0,
+        };
+        let mut stats = ClassStatistics::new("Tester", 100.0);
+        let mh = stats.spell("Mainhand Attack", 1);
+        for (result, damage) in [
+            (PhysicalAttackResult::Critical, 800),
+            (PhysicalAttackResult::Hit, 400),
+            (PhysicalAttackResult::Hit, 420),
+            (PhysicalAttackResult::Glancing, 250),
+            (PhysicalAttackResult::Dodge, 0),
+        ] {
+            mh.record_swing(&swing(result, damage));
+        }
+        stats
+            .spell("Bloodthirst", 1)
+            .record_attack(&swing(PhysicalAttackResult::Hit, 600), 30.0);
+        stats
+            .spell("Deep Wounds", 1)
+            .record_tick(25, 25.0, 0.0, 0.0, None);
+
+        let rows = spell_rows(&stats);
+        let names = |name: &str| -> Vec<String> {
+            let row = rows.iter().find(|r| r.name == name).unwrap();
+            row.breakdown.iter().map(|r| r.name.clone()).collect()
+        };
+        assert_eq!(names("Bloodthirst"), ["Crit", "Hit"]);
+        assert!(names("Deep Wounds").is_empty());
+        let mh = rows.iter().find(|r| r.name == "Mainhand Attack").unwrap();
+        let parts: Vec<_> = mh
+            .breakdown
+            .iter()
+            .map(|r| {
+                (
+                    r.name.as_str(),
+                    r.min_hit,
+                    r.max_hit,
+                    r.hit,
+                    r.crit,
+                    r.glance,
+                )
+            })
+            .collect();
+        assert_eq!(
+            parts,
+            [
+                ("Crit", Some(800), Some(800), 0.0, 0.2, 0.0),
+                ("Hit", Some(400), Some(420), 0.4, 0.0, 0.0),
+                ("Glancing", Some(250), Some(250), 0.0, 0.0, 0.2),
+            ]
+        );
+        let share: f64 = mh.breakdown.iter().map(|r| r.damage_share).sum();
+        assert!((share - mh.damage_share).abs() < 1e-12);
+        assert_eq!(mh.dodge, 0.2);
+    }
 
     #[test]
     fn scale_options_parse_by_name_and_alias() {

@@ -1,0 +1,38 @@
+# Schema: crates/csim-engine/src/character_loader.rs.
+# Seal Fate Mutilate providing Expose Armor: the talents of base_rogue_mutilate_33_18.yaml with
+# Improved Expose Armor for Improved Poisons, and no external Sunder Armor (Expose Armor and
+# Sunder Armor share one armor reduction).
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_mutilate_33_18.yaml
+include: common/base_rogue_alliance.yaml
+name: Mutilate Expose Armor Gnome
+race: GNOME
+level: 60
+phase: 3
+rotation: Seal Fate Mutilate Expose Armor
+debuffs:
+  - Faerie Fire
+talents:
+  Assassination:
+    Malice: 5
+    Ruthlessness: 3
+    Improved Slice and Dice: 3
+    Relentless Strikes: 1
+    Improved Expose Armor: 2
+    Lethality: 5
+    Vile Poisons: 5
+    Cold Blood: 1
+    Mutilate: 1
+    Vigor: 2
+    Seal Fate: 5
+  Combat:
+    Improved Eviscerate: 3
+    Lightning Reflexes: 4
+    Puncturing Wounds: 3
+    Precision: 3
+    Deflection: 2
+    Dual Wield Specialization: 3
+equipment:
+  MAINHAND: { item: 18838, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # Grand Marshal's Dirk
+  OFFHAND: { item: 21404, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, DeadlyPoison] }                   # Dagger of Veiled Shadows

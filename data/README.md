@@ -10,19 +10,22 @@ data/
 ├── tables/               DB2 → CSV dumps, one file per table and build (gitignored, see below)
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
+│   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
 │   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
 │   ├── enchants.yaml     generated: the spells the enchant procs name
 │   ├── items.yaml        generated: the spells the items and set bonuses grant
 │   └── overrides/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
+│       ├── rogue.yaml
 │       ├── racials.yaml
 │       ├── externals.yaml
 │       ├── enchants.yaml
 │       ├── items.yaml    also the chance-on-hit rates of weapons (server data, not in the tables)
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
 ├── talents/
-│   └── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
+│   ├── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
+│   └── rogue.yaml        generated: the Rogue talent tree
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/
@@ -34,9 +37,11 @@ data/
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
 │                         executors with conditions), see rotations/README.md; the six
-│                         Warrior rotations are ports of the ClassicSim XML files
+│                         Warrior and five Rogue rotations are ports of the ClassicSim XML
+│                         files
 ├── characters/           hand-written: character setups for `csim run` (class, race, talents,
-│                         gear, buffs, rotation, target)
+│                         gear, buffs, rotation, target); common/ holds the shared parts
+│                         (buffs, talent builds, gear per faction) they include
 ├── raids/                hand-written: raid setups for `csim run --raid`, up to 8 parties of 5
 │                         (counting the player) listing setups of characters/ by file name
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
@@ -51,10 +56,12 @@ data/tables/<Table>.<build>.csv
         │  csim-tables (crates/csim-tables): loads the tables, walks the class
         ▼
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
+csim-tables export-spells --class rogue     →  data/spells/rogue.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
-csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name)
+csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the poisons' SpellItemEnchantment rows)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
+csim-tables export-talents --class rogue    →  data/talents/rogue.yaml
 csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml
 csim-tables export-spells --items           →  data/spells/items.yaml      (item and set bonus spells)
 csim-tables export-all                      →  all of the above, then check
@@ -99,10 +106,12 @@ csim_engine::talent::TalentDb::load("data/talents")
    which runs every export below in this order, then `check` (`--strict` passes through):
    ```
    cargo run -p csim-tables -- export-spells --class warrior
+   cargo run -p csim-tables -- export-spells --class rogue
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-spells --enchants
    cargo run -p csim-tables -- export-talents --class warrior
+   cargo run -p csim-tables -- export-talents --class rogue
    cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- export-spells --items
    cargo run -p csim-tables -- check
@@ -144,6 +153,12 @@ and `stacks` for a stacking debuff kept up by others (absent = the spell's `max_
 Sunder Armor ×5, Armor Shatter ×3). Selected buffs are applied once and stay applied across
 iterations; the numbers change by re-exporting `externals.yaml`, not by editing the registry.
 World buffs are deliberately absent (not available in Forever the same way).
+
+Its `consumables` are items used in combat from the bags (Thistle Tea), named by item id: the
+export writes the item's use effects (spell, item cooldown, shared category cooldown, from
+`ItemEffect`) into `externals.yaml` as `consumable_items` next to the spells they cast. A
+character's `consumables` list grants them like a trinket's use; the rotation casts one by the
+consumable's name.
 
 ## What goes in the overrides
 

@@ -14,7 +14,7 @@ pub mod spec;
 
 pub use condition::{
     BuiltinVariable, Comparator, Condition, ConditionContext, ConditionParseError, Measure,
-    Sentence, Test,
+    NextChange, Sentence, Test, Watched,
 };
 pub use executor::{
     ExecutorStatistics, LinkedExecutor, Rotation, RotationExecutor, RotationHost, SkipReason,

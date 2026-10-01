@@ -239,7 +239,11 @@ fn chance_procs_roll_and_nested_sources_are_checked() {
     assert!(!procs.is_enabled(proc));
     assert!(
         procs
-            .run_proc_check(ProcSource::MainhandSwing, &mut world)
+            .run_proc_check(
+                ProcSource::MainhandSwing,
+                ProcTrigger::default(),
+                &mut world
+            )
             .is_empty()
     );
     procs.enable(proc, &mut world);
@@ -296,12 +300,20 @@ fn procs_do_not_retrigger_themselves_within_one_check() {
     procs.ignore_in_next_check(proc);
     assert!(
         procs
-            .run_proc_check(ProcSource::MeleeCritical, &mut world)
+            .run_proc_check(
+                ProcSource::MeleeCritical,
+                ProcTrigger::default(),
+                &mut world
+            )
             .is_empty()
     );
     assert_eq!(
         procs
-            .run_proc_check(ProcSource::MeleeCritical, &mut world)
+            .run_proc_check(
+                ProcSource::MeleeCritical,
+                ProcTrigger::default(),
+                &mut world
+            )
             .len(),
         1
     );

@@ -229,6 +229,7 @@ impl AutoAttack {
             hand,
             attack: AttackOutcome {
                 result,
+                spell: None,
                 damage: 0,
                 threat: 0.0,
                 execution_time: 0.0,

@@ -24,10 +24,13 @@
 //!   HEAD: { item: 12640 }
 //! buffs: [Battle Squawk]       # data/external_buffs.yaml `buffs`, by name
 //! debuffs: [Sunder Armor]      # data/external_buffs.yaml `debuffs`, by name
+//! consumables: [Thistle Tea]   # data/external_buffs.yaml `consumables`, by name; the
+//!                              # rotation uses them
 //! target:                      # default: a level 63 Dragonkin raid boss with 3750 armor
 //!   level: 63
 //!   armor: 3731
 //!   creature_type: Dragonkin
+//!   resistances: { fire: 93, shadow: 186 }  # default none
 //! ```
 //!
 //! `include` (a path relative to the file, or a list of them) reads other setup files, which
@@ -64,6 +67,7 @@ use crate::enchant::EnchantName;
 use crate::faction::{Faction, PlayerClass};
 use crate::ids::CharId;
 use crate::item::EquipmentSlot;
+use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::phase::Phase;
 use crate::race::Race;
@@ -134,6 +138,39 @@ pub struct TargetSetup {
     /// Damage a blocked attack loses.
     #[serde(default)]
     pub block_value: u32,
+    /// Resistance to each magic school, before debuffs.
+    #[serde(default, skip_serializing_if = "SchoolResistances::is_none")]
+    pub resistances: SchoolResistances,
+}
+
+/// A target's resistance to each magic school (none by default, like most raid bosses).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct SchoolResistances {
+    pub arcane: i32,
+    pub fire: i32,
+    pub frost: i32,
+    pub nature: i32,
+    pub shadow: i32,
+    pub holy: i32,
+}
+
+impl SchoolResistances {
+    fn is_none(&self) -> bool {
+        *self == SchoolResistances::default()
+    }
+
+    /// Each magic school with its resistance.
+    pub fn by_school(&self) -> [(MagicSchool, i32); 6] {
+        [
+            (MagicSchool::Arcane, self.arcane),
+            (MagicSchool::Fire, self.fire),
+            (MagicSchool::Frost, self.frost),
+            (MagicSchool::Nature, self.nature),
+            (MagicSchool::Shadow, self.shadow),
+            (MagicSchool::Holy, self.holy),
+        ]
+    }
 }
 
 fn default_target_level() -> u32 {
@@ -156,6 +193,7 @@ impl Default for TargetSetup {
             armor: default_target_armor(),
             creature_type: default_creature_type(),
             block_value: 0,
+            resistances: SchoolResistances::default(),
         }
     }
 }
@@ -166,6 +204,9 @@ impl TargetSetup {
         target.set_base_armor(self.armor);
         target.set_creature_type(self.creature_type);
         target.set_block_value(self.block_value);
+        for (school, resistance) in self.resistances.by_school() {
+            target.set_resistance(school, resistance);
+        }
         target
     }
 }
@@ -198,6 +239,9 @@ pub struct CharacterSetup {
     pub buffs: Vec<String>,
     #[serde(default)]
     pub debuffs: Vec<String>,
+    /// Items used in combat, by name (`consumables` of `data/external_buffs.yaml`).
+    #[serde(default)]
+    pub consumables: Vec<String>,
     #[serde(default)]
     pub target: TargetSetup,
     /// The file the setup was loaded from, for error messages.
@@ -732,6 +776,23 @@ impl CharacterSetup {
                 }
             }
 
+            let mut consumables = Vec::new();
+            for name in &self.consumables {
+                let context = format!("consumables.{name}");
+                match data.external_buffs.consumable(name) {
+                    None => issues.push(context, "not in data/external_buffs.yaml `consumables`"),
+                    Some(spec) if !spec.valid_for_class(self.class) => issues.push(
+                        context,
+                        format!("is not a consumable the {:?} uses", self.class),
+                    ),
+                    Some(spec) if consumables.contains(spec) => {
+                        issues.push(context, "is listed twice");
+                    }
+                    Some(spec) => consumables.push(spec.clone()),
+                }
+            }
+            ctx.set_consumables(db, consumables);
+
             ctx.sync_ruleset_spells(db);
             if let Some(rotation) = rotation {
                 ctx.set_rotation(Arc::clone(rotation));
@@ -795,7 +856,7 @@ impl CharacterSetup {
 }
 
 /// What `Equipment::equip` does not check: the item exists in the phase, its faction and
-/// class restrictions, and weapon proficiency.
+/// class restrictions, the armor type and weapon proficiency.
 fn check_item(
     class: &ClassSpec,
     faction: Faction,
@@ -827,6 +888,15 @@ fn check_item(
             "{} ({item_id}) is not usable by the {:?}",
             item.name(),
             class.class
+        ));
+    }
+    if let Some(armor_type) = item.item_type().armor_type()
+        && !class.can_wear(armor_type)
+    {
+        return Err(format!(
+            "the {:?} cannot wear {} ({item_id}, {armor_type:?})",
+            class.class,
+            item.name()
         ));
     }
     if let Some(weapon_type) = item.weapon_type() {

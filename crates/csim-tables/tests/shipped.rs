@@ -14,6 +14,9 @@ use csim_engine::spell::record::OVERRIDES_DIR;
 use csim_tables::export;
 use csim_tables::{TableDir, Tables};
 
+/// The classes whose spell and talent files are exported (`csim-tables export-all`).
+const EXPORTED_CLASSES: [PlayerClass; 2] = [PlayerClass::Warrior, PlayerClass::Rogue];
+
 #[test]
 fn shipped_spell_files_match_a_fresh_export() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -33,13 +36,16 @@ fn shipped_spell_files_match_a_fresh_export() {
     let tables = Tables::load(&dir).unwrap();
     let overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR)).unwrap();
 
-    let warrior = export::export_class(&tables, PlayerClass::Warrior, &overrides).unwrap();
-    let rendered = export::render(&warrior, "export-spells --class warrior").unwrap();
-    let shipped = std::fs::read_to_string(spells_dir.join("warrior.yaml")).unwrap();
-    assert!(
-        rendered == shipped.replace("\r\n", "\n"),
-        "data/spells/warrior.yaml is stale: re-run `csim-tables export-spells --class warrior`"
-    );
+    for class in EXPORTED_CLASSES {
+        let name = class.name().to_lowercase();
+        let file = export::export_class(&tables, class, &overrides).unwrap();
+        let rendered = export::render(&file, &format!("export-spells --class {name}")).unwrap();
+        let shipped = std::fs::read_to_string(spells_dir.join(format!("{name}.yaml"))).unwrap();
+        assert!(
+            rendered == shipped.replace("\r\n", "\n"),
+            "data/spells/{name}.yaml is stale: re-run `csim-tables export-spells --class {name}`"
+        );
+    }
 
     let racials = export::export_racials(&tables, &overrides).unwrap();
     let rendered = export::render(&racials, "export-spells --racials").unwrap();
@@ -49,19 +55,25 @@ fn shipped_spell_files_match_a_fresh_export() {
         "data/spells/racials.yaml is stale: re-run `csim-tables export-spells --racials`"
     );
 
-    let talents = export::export_talents(&tables, PlayerClass::Warrior).unwrap();
-    let rendered = export::render_talents(&talents, "export-talents --class warrior").unwrap();
-    let shipped = std::fs::read_to_string(root.join("data/talents/warrior.yaml")).unwrap();
-    assert!(
-        rendered == shipped.replace("\r\n", "\n"),
-        "data/talents/warrior.yaml is stale: re-run `csim-tables export-talents --class warrior`"
-    );
+    for class in EXPORTED_CLASSES {
+        let name = class.name().to_lowercase();
+        let talents = export::export_talents(&tables, class).unwrap();
+        let rendered =
+            export::render_talents(&talents, &format!("export-talents --class {name}")).unwrap();
+        let shipped =
+            std::fs::read_to_string(root.join(format!("data/talents/{name}.yaml"))).unwrap();
+        assert!(
+            rendered == shipped.replace("\r\n", "\n"),
+            "data/talents/{name}.yaml is stale: re-run `csim-tables export-talents --class {name}`"
+        );
+    }
 
     let registry = ExternalBuffDb::load(&root.join("data/external_buffs.yaml")).unwrap();
     let exclude = export::spell_ids_in_dir(&spells_dir, "externals.yaml").unwrap();
-    let externals = export::export_externals(
+    let (externals, _) = export::export_externals_with_consumables(
         &tables,
         &export::external_seeds(&registry),
+        &registry.consumable_item_ids(),
         &exclude,
         &overrides,
     )
@@ -71,6 +83,23 @@ fn shipped_spell_files_match_a_fresh_export() {
     assert!(
         rendered == shipped.replace("\r\n", "\n"),
         "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
+    );
+
+    let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
+    let exclude = export::spell_ids_in_dir(&spells_dir, "enchants.yaml").unwrap();
+    let (enchants_file, _) = export::export_enchants(
+        &tables,
+        &enchants.spell_ids(),
+        &enchants.enchantment_ids(),
+        &exclude,
+        &overrides,
+    )
+    .unwrap();
+    let rendered = export::render(&enchants_file, "export-spells --enchants").unwrap();
+    let shipped = std::fs::read_to_string(spells_dir.join("enchants.yaml")).unwrap();
+    assert!(
+        rendered == shipped.replace("\r\n", "\n"),
+        "data/spells/enchants.yaml is stale: re-run `csim-tables export-spells --enchants`"
     );
 
     let items = export::items::read_item_specs(&root.join("data/items")).unwrap();
@@ -133,10 +162,10 @@ fn shipped_races_match_chr_races() {
     }
 }
 
-/// `data/classes/warrior.yaml` agrees with `ChrClasses` (attack power per stat),
+/// `data/classes/<class>.yaml` agrees with `ChrClasses` (attack power per stat),
 /// `PlayerExpectedStat` (crit per agility at 60) and `CharBaseInfo` (the playable races).
 #[test]
-fn shipped_warrior_class_matches_the_tables() {
+fn shipped_classes_match_the_tables() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let tables_dir = root.join("data/tables");
     let build = std::fs::read_to_string(root.join("data/spells/warrior.yaml"))
@@ -153,52 +182,57 @@ fn shipped_warrior_class_matches_the_tables() {
     let tables = Tables::load(&dir).unwrap();
     let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
     let classes = ClassDb::load(&root.join("data/classes"), Some(&enchants)).unwrap();
-    let warrior = classes.get(PlayerClass::Warrior).unwrap();
+    for class in EXPORTED_CLASSES {
+        let spec = classes.get(class).unwrap();
+        let class_row = tables
+            .chr_classes()
+            .find(|row| row.filename == class.name().to_uppercase())
+            .unwrap_or_else(|| panic!("ChrClasses has the {}", class.name()));
+        let rules = spec.stat_rules.rules();
+        assert_eq!(
+            rules.melee_ap_per_strength as f32, class_row.attack_power_per_strength,
+            "{class:?}"
+        );
+        assert_eq!(
+            rules.melee_ap_per_agility as f32, class_row.attack_power_per_agility,
+            "{class:?}"
+        );
+        assert_eq!(
+            rules.ranged_ap_per_agility as f32, class_row.ranged_attack_power_per_agility,
+            "{class:?}"
+        );
+        assert_eq!(
+            u32::try_from(spec.resource.power_type().id()).unwrap(),
+            class_row.display_power,
+            "{class:?}: DisplayPower is the class resource"
+        );
 
-    let class_row = tables
-        .chr_classes()
-        .find(|row| row.filename == "WARRIOR")
-        .expect("ChrClasses has the Warrior");
-    let rules = warrior.stat_rules.rules();
-    assert_eq!(
-        rules.melee_ap_per_strength as f32,
-        class_row.attack_power_per_strength
-    );
-    assert_eq!(
-        rules.melee_ap_per_agility as f32,
-        class_row.attack_power_per_agility
-    );
-    assert_eq!(
-        rules.ranged_ap_per_agility as f32,
-        class_row.ranged_attack_power_per_agility
-    );
-    assert_eq!(
-        u32::try_from(warrior.resource.power_type().id()).unwrap(),
-        class_row.display_power,
-        "DisplayPower is the class resource"
-    );
+        let expected = tables
+            .player_expected_stat(class_row.id, 60)
+            .expect("PlayerExpectedStat has level 60");
+        let agility_per_percent_crit = 1.0 / (f64::from(expected.crit_per_agility) * 100.0);
+        assert!(
+            (agility_per_percent_crit - rules.agility_per_percent_crit).abs() < 1e-3,
+            "{class:?}: {agility_per_percent_crit} vs {}",
+            rules.agility_per_percent_crit
+        );
+        assert_eq!(expected.spell_crit_per_intellect, 0.0, "{class:?}");
+        assert_eq!(
+            rules.intellect_per_percent_spell_crit,
+            f64::MAX,
+            "{class:?}"
+        );
+        assert_eq!(expected.base_mana, spec.base_stats.mana, "{class:?}");
 
-    let expected = tables
-        .player_expected_stat(class_row.id, 60)
-        .expect("PlayerExpectedStat has level 60");
-    let agility_per_percent_crit = 1.0 / (f64::from(expected.crit_per_agility) * 100.0);
-    assert!(
-        (agility_per_percent_crit - rules.agility_per_percent_crit).abs() < 1e-3,
-        "{agility_per_percent_crit} vs {}",
-        rules.agility_per_percent_crit
-    );
-    assert_eq!(expected.spell_crit_per_intellect, 0.0);
-    assert_eq!(rules.intellect_per_percent_spell_crit, f64::MAX);
-    assert_eq!(expected.base_mana, warrior.base_stats.mana);
-
-    let races: Vec<u32> = tables
-        .races_of_class(class_row.id)
-        .into_iter()
-        .filter(|id| Race::from_id(*id).is_some())
-        .collect();
-    let mut listed: Vec<u32> = warrior.available_races.iter().map(|r| r.id()).collect();
-    listed.sort_unstable();
-    assert_eq!(listed, races, "CharBaseInfo races of class 1");
+        let races: Vec<u32> = tables
+            .races_of_class(class_row.id)
+            .into_iter()
+            .filter(|id| Race::from_id(*id).is_some())
+            .collect();
+        let mut listed: Vec<u32> = spec.available_races.iter().map(|r| r.id()).collect();
+        listed.sort_unstable();
+        assert_eq!(listed, races, "CharBaseInfo races of {class:?}");
+    }
 }
 
 /// The item tables of the real dump load and join as ITEM_INSTRUCTIONS §1.1–1.9 describes.

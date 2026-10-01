@@ -1,0 +1,36 @@
+# Where the last 3 talent points of a 48 point Combat swords build go: the 18/33 build of
+# data/characters/common/base_rogue_combat_18_33.yaml without Improved Poisons and Weapon
+# Expertise, then every way to spend exactly 3 points over the four candidates (18 variants),
+# ranked by DPS. Murder only counts against Humanoids and Giants (the base target is a
+# Dragonkin).
+# Schema: crates/csim-engine/src/sweep_loader.rs. Run with
+#   cargo run --release -p csim-cli -- sweep data/sweeps/combat_swords_last_3_points.yaml
+name: Combat swords last 3 points
+base: ../characters/combat_swords_human.yaml
+iterations: 10000
+overrides:
+  talents:
+    Assassination:
+      Malice: 5
+      Ruthlessness: 3
+      Improved Slice and Dice: 3
+      Relentless Strikes: 1
+      Lethality: 5
+    Combat:
+      Improved Eviscerate: 3
+      Improved Sinister Strike: 2
+      Lightning Reflexes: 4
+      Precision: 3
+      Deflection: 3
+      Flawless Execution: 1
+      Dual Wield Specialization: 5
+      Blade Flurry: 1
+      Hack and Slash: 5
+      Aggression: 3
+      Adrenaline Rush: 1
+variations:
+  - talent_points:
+      points: 3
+      talents:
+        Assassination: [Murder, Improved Poisons, Vile Poisons]
+        Combat: [Weapon Expertise]

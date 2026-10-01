@@ -17,6 +17,10 @@ use std::time::Instant;
 use crate::combat_log::{CombatLog, CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::ids::{BuffId, CharId, SpellId};
 
+/// Seconds between something happening to a player and the player acting on it (a gain of
+/// resource, a completed cast, a swing). Port of `Character::add_player_reaction_event`.
+pub const PLAYER_REACTION_DELAY: f64 = 0.1;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EventKind {
     BuffRemoval {
@@ -56,6 +60,12 @@ pub enum EventKind {
     PlayerAction {
         character: CharId,
     },
+    /// The player notices regenerated energy (a `PlayerAction` scheduled from the energy grid,
+    /// see `RegenReactions`); only the character's current one `wake` is acted on.
+    RegenReaction {
+        character: CharId,
+        wake: u32,
+    },
 }
 
 impl EventKind {
@@ -70,7 +80,8 @@ impl EventKind {
             | EventKind::MainhandMeleeHit { character, .. }
             | EventKind::OffhandMeleeHit { character, .. }
             | EventKind::PeriodicRefreshBuff { character, .. }
-            | EventKind::PlayerAction { character } => Some(character),
+            | EventKind::PlayerAction { character }
+            | EventKind::RegenReaction { character, .. } => Some(character),
             EventKind::EncounterEnd => None,
         }
     }
@@ -88,6 +99,7 @@ impl EventKind {
             EventKind::OffhandMeleeHit { .. } => EventType::OffhandMeleeHit,
             EventKind::PeriodicRefreshBuff { .. } => EventType::PeriodicRefreshBuff,
             EventKind::PlayerAction { .. } => EventType::PlayerAction,
+            EventKind::RegenReaction { .. } => EventType::RegenReaction,
         }
     }
 }
@@ -105,10 +117,11 @@ pub enum EventType {
     OffhandMeleeHit,
     PeriodicRefreshBuff,
     PlayerAction,
+    RegenReaction,
 }
 
 impl EventType {
-    pub const ALL: [EventType; 10] = [
+    pub const ALL: [EventType; 11] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
         EventType::DotTick,
@@ -119,6 +132,7 @@ impl EventType {
         EventType::OffhandMeleeHit,
         EventType::PeriodicRefreshBuff,
         EventType::PlayerAction,
+        EventType::RegenReaction,
     ];
 
     fn index(self) -> usize {
@@ -138,6 +152,7 @@ impl EventType {
             EventType::OffhandMeleeHit => "Offhand melee hit",
             EventType::PeriodicRefreshBuff => "Periodic buff refresh",
             EventType::PlayerAction => "Player action",
+            EventType::RegenReaction => "Regeneration reaction",
         }
     }
 }
@@ -215,6 +230,11 @@ impl EventQueue {
     /// Returns the earliest event without removing it.
     pub fn peek(&self) -> Option<&Event> {
         self.heap.peek().map(|queued| &queued.event)
+    }
+
+    /// The queued events, in no particular order.
+    pub fn iter(&self) -> impl Iterator<Item = &Event> {
+        self.heap.iter().map(|queued| &queued.event)
     }
 
     pub fn is_empty(&self) -> bool {

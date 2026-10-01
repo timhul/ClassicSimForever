@@ -83,6 +83,8 @@ fn a_dodged_rend_does_not_enable_it() {
 fn proc_allows_overpower() {
     let mut test = test(5);
     given_rend_on_the_target(&mut test);
+    // The Rend cast may have proc'd it already: its debuff is up when its proc check runs.
+    test.with_ctx(|ctx| ctx.character.spend_combo_points());
     let gcd = test.character().global_cooldown();
     test.given_engine_priority_pushed_forward(gcd);
     assert_eq!(test.character().combo_points(test.now()), 0);

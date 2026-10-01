@@ -51,6 +51,17 @@ impl SpellModifier {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct SpellModifiers {
     modifiers: Vec<SpellModifier>,
+    /// The character's debuffs that make the target take more damage from the character's own
+    /// spells in their class mask (`MOD_SPELL_DAMAGE_FROM_CASTER`: Hemorrhage on Rupture). The
+    /// `op` is [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
+    damage_from_caster: Vec<SpellModifier>,
+    /// Damage modifiers that apply while the target's health is below a fraction
+    /// (`DAMAGE_PERCENT_BELOW_HEALTH`: Quietus below 35 %). The `op` is
+    /// [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
+    below_health: Vec<(SpellModifier, f64)>,
+    /// The spells that ignore their form requirement (`MOD_IGNORE_SHAPESHIFT`: Cutthroat lets
+    /// Ambush skip Stealth), as the aura's family and class mask.
+    ignore_shapeshift: Vec<(u32, [u32; 4])>,
 }
 
 impl SpellModifiers {
@@ -60,6 +71,84 @@ impl SpellModifiers {
 
     pub fn add(&mut self, modifier: SpellModifier) {
         self.modifiers.push(modifier);
+    }
+
+    /// Adds a `MOD_SPELL_DAMAGE_FROM_CASTER` debuff's modifier (see `damage_from_caster`).
+    pub fn add_damage_from_caster(&mut self, modifier: SpellModifier) {
+        self.damage_from_caster.push(modifier);
+    }
+
+    /// Removes one `MOD_SPELL_DAMAGE_FROM_CASTER` modifier equal to `modifier`.
+    pub fn remove_damage_from_caster(&mut self, modifier: &SpellModifier) -> bool {
+        match self.damage_from_caster.iter().position(|m| m == modifier) {
+            Some(index) => {
+                self.damage_from_caster.remove(index);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// The damage multiplier the character's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs give a
+    /// spell with `class` options: the product of the ones that apply to it.
+    pub fn damage_from_caster_multiplier(&self, class: Option<&ClassOptions>) -> f64 {
+        self.damage_from_caster
+            .iter()
+            .filter(|m| m.applies_to(class))
+            .map(|m| 1.0 + m.amount / 100.0)
+            .product()
+    }
+
+    /// Adds a modifier that applies while the target's health is below `threshold`, a fraction.
+    pub fn add_below_health(&mut self, modifier: SpellModifier, threshold: f64) {
+        self.below_health.push((modifier, threshold));
+    }
+
+    /// Removes one below-health modifier equal to `modifier` at `threshold`.
+    pub fn remove_below_health(&mut self, modifier: &SpellModifier, threshold: f64) -> bool {
+        let found = self
+            .below_health
+            .iter()
+            .position(|(m, t)| m == modifier && *t == threshold);
+        match found {
+            Some(index) => {
+                self.below_health.remove(index);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// The damage multiplier the below-health modifiers give a spell with `class` options
+    /// against a target at `health` (a fraction): the product of those that apply.
+    pub fn below_health_multiplier(&self, class: Option<&ClassOptions>, health: f64) -> f64 {
+        self.below_health
+            .iter()
+            .filter(|(m, threshold)| health < *threshold && m.applies_to(class))
+            .map(|(m, _)| 1.0 + m.amount / 100.0)
+            .product()
+    }
+
+    /// Adds (`apply`) or removes a `MOD_IGNORE_SHAPESHIFT` aura's spells.
+    pub fn adjust_ignore_shapeshift(&mut self, set: u32, class_mask: [u32; 4], apply: bool) {
+        if apply {
+            self.ignore_shapeshift.push((set, class_mask));
+        } else if let Some(index) = self
+            .ignore_shapeshift
+            .iter()
+            .position(|entry| *entry == (set, class_mask))
+        {
+            self.ignore_shapeshift.remove(index);
+        }
+    }
+
+    /// Whether a spell with `class` options may be cast outside the forms it requires.
+    pub fn ignores_shapeshift(&self, class: Option<&ClassOptions>) -> bool {
+        class.is_some_and(|c| {
+            self.ignore_shapeshift
+                .iter()
+                .any(|(set, mask)| c.matches(*set, mask))
+        })
     }
 
     /// Removes one modifier equal to `modifier`; returns whether one was found.

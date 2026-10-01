@@ -13,7 +13,7 @@ use csim_engine::faction::PlayerClass;
 use csim_engine::item::{EquipmentSlot, Item, ItemType};
 use csim_engine::phase::Phase;
 
-use crate::list::{matches, parse_phase, print_or_none};
+use crate::list::{matches, parse_phase, print_or_none, usable};
 use crate::table::Table;
 use crate::weights::StatWeights;
 use crate::{Result, parse_serde_name, serde_name};
@@ -42,7 +42,8 @@ pub struct RankArgs {
     /// Only items whose name contains this text (case-insensitive).
     #[arg(long)]
     search: Option<String>,
-    /// Only items this class can use (default: the class of the weights).
+    /// Only items this class can use: its armor and, in a weapon slot, its weapons (default:
+    /// the class of the weights).
     #[arg(long, value_parser = parse_serde_name::<PlayerClass>)]
     class: Option<PlayerClass>,
     /// Shows this many items; 0 shows all.
@@ -63,7 +64,7 @@ pub fn items(data: &DataBundle, args: &RankArgs) -> Result<()> {
         .into_iter()
         .filter_map(|id| db.get_item(id, phase))
         .filter(|item| {
-            item.available_for_class(class)
+            usable(data, class, item, args.slot)
                 && matches(item.name(), args.search.as_deref())
                 && args.slot.is_none_or(|slot| item.fits(slot))
                 && of_types(item, &args.types)

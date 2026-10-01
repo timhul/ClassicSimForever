@@ -1,0 +1,12 @@
+# Schema: crates/csim-engine/src/character_loader.rs.
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_hemorrhage_20_0_31.yaml
+include: common/base_rogue_horde.yaml
+name: Hemorrhage Troll
+race: TROLL
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18840, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # High Warlord's Razor
+  OFFHAND: { item: 21404, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }                  # Dagger of Veiled Shadows

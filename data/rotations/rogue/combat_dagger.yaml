@@ -1,0 +1,67 @@
+# Port of ClassicSim's Rotation/Rotations/Rogue/CombatDagger.xml, for the Forever Combat
+# dagger build (Puncturing Wounds' extra combo points on Backstab, Hack and Slash's dagger crit).
+#
+# Additions to the C++ file: the Stealth opener (Ambush), Renataki's Charm under its spell's
+# name (`Burst of Energy`) and Zandalarian Hero Medallion as `Restless Strength`. Backstab
+# assumes the rogue stands behind the target, as in the C++.
+class: ROGUE
+name: Combat Dagger
+attack_mode: melee
+description: >-
+  A rotation for Combat dagger rogues: Backstab to five combo points, Slice and Dice kept up,
+  Eviscerate at five points while Slice and Dice has more than 8 s left.
+precombat_actions:
+  - Stealth
+cast_if:
+  # Only from Stealth: the opener at the pull.
+  - name: Ambush
+  - name: Thistle Tea
+    condition: resource "Energy" less 20
+  - name: Burst of Energy  # Renataki's Charm of Trickery
+    condition: resource "Energy" leq 40
+  - name: Slice and Dice
+    condition: buff_duration "Slice and Dice" less 3
+  - name: Adrenaline Rush
+    condition: resource "Energy" leq 60
+  - name: Blade Flurry
+    condition: resource "Energy" leq 60
+  - name: Backstab
+    condition: variable "combo_points" less 5
+  - name: Eviscerate
+    condition: |
+      variable "combo_points" eq 5
+      and buff_duration "Slice and Dice" greater 8
+  - name: Kiss of the Spider
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Jom Gabbar
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Badge of the Swarmguard
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Slayer's Crest
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Earthstrike
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Restless Strength  # Zandalarian Hero Medallion
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Blood Fury
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Energy" less 50
+      or variable "time_remaining_execute" greater 120
+  - name: Berserking
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Energy" less 50
+      or variable "time_remaining_execute" greater 180

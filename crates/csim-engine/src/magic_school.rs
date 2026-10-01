@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::spell::dbc::SpellSchoolMask;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MagicSchool {
@@ -36,6 +38,26 @@ impl MagicSchool {
         MagicSchool::Holy,
     ];
 
+    /// The school of a spell with `mask`: physical when it is among the schools (or none is
+    /// set), else the first magic school of the mask.
+    pub fn from_school_mask(mask: SpellSchoolMask) -> MagicSchool {
+        const MAGIC_BITS: [(SpellSchoolMask, MagicSchool); 6] = [
+            (SpellSchoolMask::HOLY, MagicSchool::Holy),
+            (SpellSchoolMask::FIRE, MagicSchool::Fire),
+            (SpellSchoolMask::NATURE, MagicSchool::Nature),
+            (SpellSchoolMask::FROST, MagicSchool::Frost),
+            (SpellSchoolMask::SHADOW, MagicSchool::Shadow),
+            (SpellSchoolMask::ARCANE, MagicSchool::Arcane),
+        ];
+        if mask.is_physical() {
+            return MagicSchool::Physical;
+        }
+        MAGIC_BITS
+            .into_iter()
+            .find(|(bit, _)| mask.intersects(*bit))
+            .map_or(MagicSchool::Physical, |(_, school)| school)
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             MagicSchool::Physical => "Physical",
@@ -59,6 +81,26 @@ mod tests {
         assert_eq!(yaml.trim(), "frost");
         let school: MagicSchool = serde_yaml::from_str("shadow").unwrap();
         assert_eq!(school, MagicSchool::Shadow);
+    }
+
+    #[test]
+    fn school_of_a_school_mask() {
+        assert_eq!(
+            MagicSchool::from_school_mask(SpellSchoolMask::NATURE),
+            MagicSchool::Nature
+        );
+        assert_eq!(
+            MagicSchool::from_school_mask(SpellSchoolMask::PHYSICAL),
+            MagicSchool::Physical
+        );
+        assert_eq!(
+            MagicSchool::from_school_mask(SpellSchoolMask::from_bits(0)),
+            MagicSchool::Physical
+        );
+        assert_eq!(
+            MagicSchool::from_school_mask(SpellSchoolMask::SHADOW | SpellSchoolMask::FROST),
+            MagicSchool::Frost
+        );
     }
 
     #[test]

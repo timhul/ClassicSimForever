@@ -37,6 +37,11 @@ const SWORD: u32 = 1;
 const DAGGER: u32 = 2;
 const TWO_HAND_AXE: u32 = 3;
 const SHIELD: u32 = 4;
+const FIST_WEAPON: u32 = 5;
+const MACE: u32 = 6;
+const AXE: u32 = 7;
+/// A dagger whose damage does not vary.
+const EVEN_DAGGER: u32 = 8;
 
 const ITEMS_YAML: &str = r#"
 - id: 1
@@ -76,6 +81,42 @@ const ITEMS_YAML: &str = r#"
   item_lvl: 60
   damage: { min: 1, max: 1, speed: 1.0 }
   stats: { ARMOR: 2000 }
+- id: 5
+  name: Fist Weapon
+  phase: 1
+  slot: "1H"
+  type: FIST
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 60, max: 90, speed: 2.0 }
+- id: 6
+  name: Mace
+  phase: 1
+  slot: "1H"
+  type: MACE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 80, max: 120, speed: 2.6 }
+- id: 7
+  name: One-Handed Axe
+  phase: 1
+  slot: "1H"
+  type: AXE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 80, max: 120, speed: 2.6 }
+- id: 8
+  name: Even Dagger
+  phase: 1
+  slot: "1H"
+  type: DAGGER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 60
+  damage: { min: 50, max: 50, speed: 1.8 }
 "#;
 
 pub(crate) fn warrior_class() -> Arc<ClassSpec> {
@@ -94,6 +135,15 @@ pub(crate) fn equipment_db() -> Arc<EquipmentDb> {
     Arc::new(EquipmentDb::from_specs(items, Vec::new()).unwrap())
 }
 
+/// [`equipment_db`] with the shipped enchants (`data/enchants.yaml`).
+pub(crate) fn equipment_db_with_enchants() -> Arc<EquipmentDb> {
+    let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
+    let mut db = EquipmentDb::from_specs(items, Vec::new()).unwrap();
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/enchants.yaml");
+    db.set_enchants(crate::enchant::EnchantDb::load(&path).unwrap());
+    Arc::new(db)
+}
+
 /// A one-character world.
 pub(crate) struct Fixture {
     pub character: Character,
@@ -110,13 +160,18 @@ impl Fixture {
 
     /// An orc of `class`.
     pub fn orc(class: Arc<ClassSpec>) -> Self {
+        Self::orc_with(class, equipment_db())
+    }
+
+    /// An orc of `class` whose items and enchants are `equipment`'s.
+    pub fn orc_with(class: Arc<ClassSpec>, equipment: Arc<EquipmentDb>) -> Self {
         let mut engine = Engine::new();
         engine.prepare_iteration(0.0);
         let character = Character::new(
             CharId(0),
             class,
             &race(Race::Orc),
-            equipment_db(),
+            equipment,
             Phase::MoltenCore,
             SimParams::default(),
             63,
@@ -176,12 +231,12 @@ impl Fixture {
     }
 
     pub fn rage(&self) -> u32 {
-        self.character.resource_level(ResourceType::Rage)
+        self.character.resource_level(ResourceType::Rage, 0.0)
     }
 
     pub fn set_rage(&mut self, rage: u32) {
         self.character.resource_mut().reset();
-        self.character.gain_resource(ResourceType::Rage, rage);
+        self.character.gain_resource(ResourceType::Rage, rage, 0.0);
     }
 
     pub fn advance_to(&mut self, time: f64) {
@@ -350,9 +405,9 @@ fn combo_points_cap_at_five_and_never_lapse_by_default() {
 #[test]
 fn rage_gains_and_losses_go_through_the_resource() {
     let mut f = Fixture::orc_warrior();
-    assert_eq!(f.character.gain_resource(ResourceType::Rage, 130), 100);
-    assert_eq!(f.character.gain_resource(ResourceType::Mana, 10), 0);
-    assert_eq!(f.character.resource_level(ResourceType::Mana), 0);
+    assert_eq!(f.character.gain_resource(ResourceType::Rage, 130, 0.0), 100);
+    assert_eq!(f.character.gain_resource(ResourceType::Mana, 10, 0.0), 0);
+    assert_eq!(f.character.resource_level(ResourceType::Mana, 0.0), 0);
     assert_eq!(f.character.max_resource_level(ResourceType::Rage), 100);
     f.character.lose_resource(ResourceType::Rage, 40, 0.0);
     assert_eq!(f.rage(), 60);
@@ -362,9 +417,10 @@ fn rage_gains_and_losses_go_through_the_resource() {
 #[test]
 fn rage_refunds_keep_the_tenths() {
     let mut f = Fixture::orc_warrior();
-    f.character.gain_resource(ResourceType::Rage, 50);
+    f.character.gain_resource(ResourceType::Rage, 50, 0.0);
     f.character.lose_resource(ResourceType::Rage, 12, 0.0);
-    f.character.refund_resource(ResourceType::Rage, 12.0 * 0.8);
+    f.character
+        .refund_resource(ResourceType::Rage, 12.0 * 0.8, 0.0);
     let tenths = |f: &mut Fixture| {
         f.character
             .resource_mut()
@@ -374,7 +430,7 @@ fn rage_refunds_keep_the_tenths() {
     };
     assert_eq!(tenths(&mut f), 476);
     assert_eq!(f.rage(), 47);
-    f.character.refund_resource(ResourceType::Mana, 10.0);
+    f.character.refund_resource(ResourceType::Mana, 10.0, 0.0);
     assert_eq!(tenths(&mut f), 476, "a resource the class does not use");
 }
 
@@ -999,6 +1055,83 @@ fn shipped_warrior_data_learns_and_runs() {
     assert_eq!(report.result, SpellResult::Success);
     assert!(f.ctx().aura_active(BLOODRAGE_BUFF));
 }
+
+/// The shipped Rogue data end to end: the class loads, only Rogue and Orc spells are learned,
+/// the abilities resolve to their highest ranks, and an iteration of auto attacks runs.
+#[test]
+fn shipped_rogue_data_learns_and_runs() {
+    let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let classes = super::ClassDb::load(&data.join("classes"), None).unwrap();
+    let rogue = Arc::clone(classes.get(crate::faction::PlayerClass::Rogue).unwrap());
+    let mut f = Fixture::orc(rogue);
+    f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
+    let talents = crate::talent::TalentDb::load(&data.join("talents")).unwrap();
+    let tree = Arc::clone(talents.get(crate::faction::PlayerClass::Rogue).unwrap());
+    f.ctx()
+        .set_talents(crate::talent::CharacterTalents::new(tree));
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    let db = std::mem::take(&mut f.db);
+    let added = f.ctx().learn_all(&db);
+    f.db = db;
+    assert!(added.len() > 100, "{} spells", added.len());
+    let spells = f.character.spells();
+    assert!(
+        spells.spell_by_game_id(12294).is_none(),
+        "Mortal Strike is a Warrior spell"
+    );
+    assert!(spells.spell(f.spell_id(20572)).is_enabled(), "Blood Fury");
+    for (ability, rank, game_id) in [
+        ("Sinister Strike", 8, 11294),
+        ("Backstab", 9, 25300),
+        ("Eviscerate", 9, 31016),
+        ("Slice and Dice", 2, 6774),
+    ] {
+        let group = spells
+            .rank_group(ability)
+            .unwrap_or_else(|| panic!("{ability}"));
+        assert_eq!(group.max_rank(), rank, "{ability}");
+        let highest = group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap_or_else(|| panic!("{ability} has an enabled rank"));
+        assert_eq!(spells.spell(highest).game_id(), game_id, "{ability}");
+    }
+    let mutilate = f.spell_id(1310707);
+    assert!(
+        !f.character.spells().spell(mutilate).is_enabled(),
+        "Mutilate is a talent"
+    );
+
+    f.rig_rolls(PhysicalAttackResult::Hit);
+    f.ctx().reset();
+    f.engine.prepare_iteration(0.0);
+    f.engine.add_event(Event::new(
+        0.0,
+        EventKind::EncounterStart {
+            character: CharId(0),
+        },
+    ));
+    let handled = f.run(10.0);
+    let swings = handled
+        .iter()
+        .filter(|kind| {
+            matches!(
+                kind,
+                EventKind::MainhandMeleeHit { .. } | EventKind::OffhandMeleeHit { .. }
+            )
+        })
+        .count();
+    assert!(swings >= 9, "10 s of 2.6 / 1.8 swings: {swings}");
+    assert_eq!(f.character.resource_type(), ResourceType::Energy);
+}
+
+mod energy;
+mod rogue;
+mod rogue_items;
+mod rogue_poisons;
+mod rogue_procs;
+mod rogue_stealth;
+mod rogue_talents;
 
 // ---------------------------------------------------------------- external buffs
 

@@ -96,6 +96,8 @@ pub enum EquipmentGrantor {
     Enchant(EnchantName),
     /// A bonus of the item set with this id (no slot).
     SetBonus(u32),
+    /// A use effect of the consumable item with this id (no slot).
+    Consumable(u32),
 }
 
 /// One spell granted by the equipment, as [`CharacterSpells`] keys it. Equipment spells are
@@ -224,6 +226,7 @@ impl CharacterSpells {
         shared: &mut impl SharedBuffs,
     ) -> AddedSpell {
         let record = std::sync::Arc::clone(&setup.record);
+        let triggered = setup.triggered;
         assert!(
             !self.by_game_id.contains_key(&record.id),
             "{} ({}) has already been added",
@@ -235,10 +238,7 @@ impl CharacterSpells {
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
 
         // A proc on events the sim does not have (a killing blow) stays a plain passive.
-        if spell.is_passive()
-            && record.aura_options.proc_type_mask.bits() != 0
-            && !Proc::sources_of(&spell).is_empty()
-        {
+        if spell.setup().is_proc() && !Proc::sources_of(&spell).is_empty() {
             let seed = self.next_proc_seed;
             self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
             let proc = self.procs.add_proc(Proc::new(spell, seed));
@@ -264,10 +264,11 @@ impl CharacterSpells {
         self.spells[id.index()] = Some(spell);
         self.by_game_id.insert(record.id, SpellHandle::Spell(id));
 
-        // Rank groups: what a rotation names. Only spellbook abilities join; a second spell of
-        // the same name and rank stays out and is reached by game id.
+        // Rank groups: what a rotation names. Only spellbook abilities join, not the payloads
+        // another spell triggers; a second spell of the same name and rank stays out and is
+        // reached by game id.
         let mut in_rank_group = false;
-        if record.is_ability() && !ignored {
+        if record.is_ability() && !ignored && !triggered {
             let rank = record.rank_number().unwrap_or(1);
             in_rank_group = match self.rank_groups.get_mut(&record.name) {
                 Some(group) => group.add_rank(rank, id),
@@ -402,6 +403,23 @@ impl CharacterSpells {
     ) -> Option<ProcId> {
         self.add_keyed_proc(key, setup, overrides, party, shared, |spell, seed| {
             Proc::on_hit(spell, allowed, seed)
+        })
+    }
+
+    /// Registers the combat spell `key` of an item enchantment ([`Proc::combat_spell`]): the
+    /// enchanted hand's landed attacks (`allowed`) cast the learned payload. Returns `None`
+    /// when `setup` has no rate.
+    pub fn add_combat_spell_proc(
+        &mut self,
+        key: EquipmentSpellKey,
+        setup: SpellSetup,
+        overrides: &Overrides,
+        allowed: &[ProcSource],
+        party: u8,
+        shared: &mut impl SharedBuffs,
+    ) -> Option<ProcId> {
+        self.add_keyed_proc(key, setup, overrides, party, shared, |spell, seed| {
+            Proc::combat_spell(spell, allowed, seed)
         })
     }
 

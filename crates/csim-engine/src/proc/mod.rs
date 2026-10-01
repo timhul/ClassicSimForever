@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::spell::Hand;
 use crate::spell::dbc::ProcFlags;
 use crate::spell::overrides::ProcHitMask;
+use crate::spell::record::ClassOptions;
 
 /// The events a proc can trigger on. Port of `ProcInfo::Source`.
 ///
@@ -42,11 +43,18 @@ pub enum ProcSource {
     /// A melee or ranged attack landed on the character (`TAKE_*` proc flags: Enrage, Shield
     /// Specialization); run by the incoming-damage event.
     AttackTaken,
+    /// A periodic aura of the character dealt damage (`DEAL_HARMFUL_PERIODIC`: Thousand Cuts
+    /// on Rupture's ticks).
+    PeriodicDamage,
+    /// A finisher spent its combo points: the event of the procs the server fires on
+    /// finishing moves (`proc.finisher` in the overrides: Ruthlessness, Relentless Strikes),
+    /// whatever else the finisher did (Slice and Dice neither hits nor deals damage).
+    Finisher,
     Manual,
 }
 
 impl ProcSource {
-    pub const ALL: [ProcSource; 18] = [
+    pub const ALL: [ProcSource; 20] = [
         ProcSource::MainhandSwing,
         ProcSource::OffhandSwing,
         ProcSource::MainhandSpell,
@@ -64,6 +72,8 @@ impl ProcSource {
         ProcSource::RangedSpell,
         ProcSource::MagicSpell,
         ProcSource::AttackTaken,
+        ProcSource::PeriodicDamage,
+        ProcSource::Finisher,
         ProcSource::Manual,
     ];
 
@@ -123,6 +133,9 @@ impl ProcSource {
                 push(ProcSource::MagicSpell);
                 push(ProcSource::SpellHit);
             }
+            if proc_type_mask.contains(ProcFlags::DEAL_HARMFUL_PERIODIC) {
+                push(ProcSource::PeriodicDamage);
+            }
         }
         if melee_swing || melee_ability {
             if hit_mask.contains(ProcHitMask::CRITICAL) && !landed {
@@ -154,6 +167,19 @@ impl ProcSource {
         }
         sources
     }
+}
+
+/// The spell behind a proc event, for the conditions the server keeps beside the proc flags
+/// (`spell_proc.SpellFamilyMask`, the scripts of finisher and builder procs). The default is
+/// no spell: a white swing, or what a proc's payload did.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct ProcTrigger {
+    /// The class options of the spell that raised the event (a Mutilate strike's own).
+    pub class_options: Option<ClassOptions>,
+    /// The combo points the cast spent (a finisher), 0 otherwise.
+    pub combo_points_spent: u32,
+    /// The cast awards combo points (a builder); the strikes it triggers share it.
+    pub awards_combo_points: bool,
 }
 
 #[cfg(test)]
@@ -201,11 +227,16 @@ mod tests {
             ProcSource::from_masks(ProcFlags::from_bits(0x222a8), ProcHitMask::LANDED),
             [ProcSource::AttackTaken]
         );
+        // Thousand Cuts: periodic damage done.
+        assert_eq!(
+            ProcSource::from_masks(ProcFlags::DEAL_HARMFUL_PERIODIC, ProcHitMask::LANDED),
+            [ProcSource::PeriodicDamage]
+        );
         assert!(ProcSource::from_masks(ProcFlags::empty(), ProcHitMask::LANDED).is_empty());
         assert_eq!(ProcSource::OffhandSwing.hand(), Hand::Offhand);
         assert_eq!(ProcSource::OffhandSpell.hand(), Hand::Offhand);
         assert_eq!(ProcSource::MeleeCritical.hand(), Hand::Mainhand);
-        assert_eq!(ProcSource::ALL.len(), 18);
+        assert_eq!(ProcSource::ALL.len(), 20);
     }
 }
 

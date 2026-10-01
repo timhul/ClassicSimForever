@@ -89,7 +89,24 @@ th {
   top: 0;
 }
 tbody tr { border-top: 1px solid var(--line); }
-tbody tr:nth-child(even) { background: var(--panel); }
+tbody tr:nth-child(even of :not(.sub)) { background: var(--panel); }
+tr.sub { background: #0f0f0f; color: var(--muted); }
+tr.sub td:first-child { color: var(--muted); padding-left: 32px; }
+tr:has(> td > button.toggle) { cursor: pointer; }
+button.toggle {
+  all: unset;
+  cursor: pointer;
+}
+button.toggle::before {
+  content: "\25B8";
+  display: inline-block;
+  width: 1em;
+  color: var(--yellow-dim);
+  transition: transform 0.15s;
+}
+button.toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
+tr:hover button.toggle, tr:hover button.toggle::before { color: var(--yellow); }
+button.toggle:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
 tbody tr:hover { background: #221d00; }
 td:first-child { color: #fff; }
 tfoot tr { border-top: 2px solid var(--yellow); }
@@ -101,8 +118,17 @@ th[aria-sort="descending"]::after { content: " \25BE"; }
 "#;
 
 /// Sorts a table's body rows on the clicked header: numbers largest first and text A to Z, a second
-/// click reverses. Empty cells stay last, the totals in `tfoot` stay put.
+/// click reverses. Empty cells stay last, the totals in `tfoot` stay put, and breakdown rows
+/// (`tr.sub`) move with the row above them. A click on a row with a toggle (or the toggle's key)
+/// shows or hides its breakdown.
 const SCRIPT: &str = r#"
+document.querySelectorAll("button.toggle").forEach((button) => button.closest("tr").addEventListener("click", () => {
+  const open = button.getAttribute("aria-expanded") !== "true";
+  button.setAttribute("aria-expanded", open);
+  for (let row = button.closest("tr").nextElementSibling; row && row.classList.contains("sub"); row = row.nextElementSibling) {
+    row.hidden = !open;
+  }
+}));
 document.querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
   const table = th.closest("table"), body = table.tBodies[0], column = th.cellIndex;
   if (!body) return;
@@ -116,13 +142,18 @@ document.querySelectorAll("th").forEach((th) => th.addEventListener("click", () 
     const number = parseFloat(cell.replace(/,/g, ""));
     return Number.isNaN(number) ? null : number;
   };
-  const rows = [...body.rows].sort((a, b) => {
+  const groups = [];
+  for (const row of body.rows) {
+    if (row.classList.contains("sub") && groups.length) groups[groups.length - 1].push(row);
+    else groups.push([row]);
+  }
+  groups.sort(([a], [b]) => {
     const x = key(a), y = key(b);
     if (x === null || y === null) return (x === null) - (y === null);
     const order = text ? x.localeCompare(y) : x - y;
     return descending ? -order : order;
   });
-  body.append(...rows);
+  body.append(...groups.flat());
 }));
 "#;
 
@@ -238,27 +269,48 @@ fn table_html(out: &mut String, table: &Table, sorted: Option<usize>) {
         let _ = write!(out, "<th{}{sort}>{}</th>", align(column), escape(header));
     }
     out.push_str("</tr></thead>\n");
-    let mut body: Vec<_> = table.rows().iter().collect();
+    // Body rows with their breakdowns, totals without.
+    let mut body: Vec<_> = (0..table.rows().len())
+        .map(|row| (&table.rows()[row], table.sub_rows(row)))
+        .collect();
     if let Some(column) = sorted {
         let key = |row: &Vec<String>| row[column].replace(',', "").parse::<f64>().ok();
         // Largest first, cells without a number last.
-        body.sort_by(|a, b| match (key(a), key(b)) {
+        body.sort_by(|(a, _), (b, _)| match (key(a), key(b)) {
             (Some(x), Some(y)) => y.total_cmp(&x),
             (x, y) => x.is_none().cmp(&y.is_none()),
         });
     }
-    let totals: Vec<_> = table.totals().iter().collect();
+    let totals: Vec<_> = table.totals().iter().map(|row| (row, &[][..])).collect();
     for (part, rows) in [("tbody", body), ("tfoot", totals)] {
         if rows.is_empty() {
             continue;
         }
         let _ = writeln!(out, "<{part}>");
-        for row in rows {
+        for (row, sub_rows) in rows {
             out.push_str("<tr>");
             for (column, cell) in row.iter().enumerate() {
-                let _ = write!(out, "<td{}>{}</td>", align(column), escape(cell));
+                if column == 0 && !sub_rows.is_empty() {
+                    let _ = write!(
+                        out,
+                        "<td{}><button type=\"button\" class=\"toggle\" \
+                         aria-expanded=\"false\">{}</button></td>",
+                        align(column),
+                        escape(cell)
+                    );
+                } else {
+                    let _ = write!(out, "<td{}>{}</td>", align(column), escape(cell));
+                }
             }
             out.push_str("</tr>\n");
+            // Collapsed until the row's toggle opens them.
+            for sub in sub_rows {
+                out.push_str("<tr class=\"sub\" hidden>");
+                for (column, cell) in sub.iter().enumerate() {
+                    let _ = write!(out, "<td{}>{}</td>", align(column), escape(cell));
+                }
+                out.push_str("</tr>\n");
+            }
         }
         let _ = writeln!(out, "</{part}>");
     }
@@ -303,6 +355,31 @@ mod tests {
         );
         assert!(out.contains("<td class=\"left\">Flurry</td>"));
         assert!(out.contains("<td>50.0%</td>"));
+    }
+
+    #[test]
+    fn sub_rows_start_collapsed_under_their_row() {
+        let mut table = Table::new(["Spell", "DPS"]);
+        table.row_with_sub_rows(
+            vec!["Touch of the Grave".into(), "5.0".into()],
+            vec![
+                vec!["100% resisted".into(), "".into()],
+                vec!["0% resisted".into(), "5.0".into()],
+            ],
+        );
+        table.row(vec!["Bloodthirst".into(), "300.0".into()]);
+        let mut out = String::new();
+        table_html(&mut out, &table, Some(1));
+        assert!(
+            out.contains(
+                "<tr><td class=\"left\">Bloodthirst</td><td>300.0</td></tr>\n\
+                 <tr><td class=\"left\"><button type=\"button\" class=\"toggle\" aria-expanded=\"false\">\
+                 Touch of the Grave</button></td><td>5.0</td></tr>\n\
+                 <tr class=\"sub\" hidden><td class=\"left\">100% resisted</td><td></td></tr>\n\
+                 <tr class=\"sub\" hidden><td class=\"left\">0% resisted</td><td>5.0</td></tr>\n"
+            ),
+            "{out}"
+        );
     }
 
     #[test]

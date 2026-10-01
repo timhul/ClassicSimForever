@@ -267,6 +267,7 @@ mod tests {
             statistics.spell("Hit", 1).record_attack(
                 &AttackOutcome {
                     result: PhysicalAttackResult::Hit,
+                    spell: None,
                     damage,
                     threat: f64::from(damage) * 2.0,
                     execution_time: 0.0,

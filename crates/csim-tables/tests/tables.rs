@@ -392,6 +392,24 @@ fn restrictions_masks_and_variance_are_read() {
     );
 }
 
+/// A rogue poison is an enchantment with one combat spell effect: chance, payload, charges.
+#[test]
+fn item_enchantments_carry_the_poison_procs() {
+    let t = tables();
+    let instant = t.spell_item_enchantment(625).unwrap();
+    assert_eq!(instant.name, "Instant Poison VI");
+    assert_eq!(instant.charges, 175);
+    assert_eq!(instant.effect, [1, 0, 0]);
+    assert_eq!(instant.effect_points_min[0], 20);
+    assert_eq!(instant.effect_arg[0], 11337);
+    let deadly = t.spell_item_enchantment(2630).unwrap();
+    assert_eq!(
+        (deadly.effect_points_min[0], deadly.effect_arg[0]),
+        (30, 25349)
+    );
+    assert!(t.spell_item_enchantment(7).is_none());
+}
+
 #[test]
 fn skill_lines_give_the_spellbook_and_rank_chains() {
     let t = tables();

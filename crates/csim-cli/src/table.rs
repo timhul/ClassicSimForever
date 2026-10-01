@@ -5,6 +5,8 @@ use std::fmt::Write;
 pub struct Table {
     headers: Vec<String>,
     rows: Vec<Vec<String>>,
+    /// Breakdown rows under each row (by index), collapsed in the HTML and left out of the text.
+    sub_rows: Vec<Vec<Vec<String>>>,
     /// Summary rows under the rows, set apart by a rule.
     totals: Vec<Vec<String>>,
     /// Columns (by index) aligned left; the rest are aligned right.
@@ -17,6 +19,7 @@ impl Table {
         Table {
             headers: headers.iter().map(|h| h.to_string()).collect(),
             rows: Vec::new(),
+            sub_rows: Vec::new(),
             totals: Vec::new(),
             left: vec![0],
         }
@@ -29,8 +32,18 @@ impl Table {
     }
 
     pub fn row(&mut self, cells: Vec<String>) {
+        self.row_with_sub_rows(cells, Vec::new());
+    }
+
+    /// Adds a row with a breakdown under it.
+    pub fn row_with_sub_rows(&mut self, cells: Vec<String>, sub_rows: Vec<Vec<String>>) {
         debug_assert_eq!(cells.len(), self.headers.len(), "row width");
+        debug_assert!(
+            sub_rows.iter().all(|sub| sub.len() == self.headers.len()),
+            "sub row width"
+        );
         self.rows.push(cells);
+        self.sub_rows.push(sub_rows);
     }
 
     /// Adds a summary row under the rows.
@@ -49,6 +62,11 @@ impl Table {
 
     pub fn rows(&self) -> &[Vec<String>] {
         &self.rows
+    }
+
+    /// The breakdown rows under row `row`.
+    pub fn sub_rows(&self, row: usize) -> &[Vec<String>] {
+        &self.sub_rows[row]
     }
 
     pub fn totals(&self) -> &[Vec<String>] {

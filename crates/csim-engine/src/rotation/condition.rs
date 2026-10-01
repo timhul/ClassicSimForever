@@ -265,6 +265,81 @@ pub trait ConditionContext<B, S> {
     fn target_creature_type(&self) -> CreatureType;
 }
 
+/// When a condition (or a rotation pass) could next come out differently without an event of
+/// its own: time-dependent values move on with the clock, a regenerating resource with its
+/// ticks. Everything else only changes through events, after which the question is asked again.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct NextChange {
+    /// Seconds from now after which a time-dependent value may have crossed its threshold;
+    /// infinite when none can. Rounded down, never late.
+    pub delay: f64,
+    /// The lowest level of the watched resource above the current one at which a value may
+    /// change.
+    pub level: Option<u32>,
+}
+
+impl NextChange {
+    /// Nothing changes by itself.
+    pub const NEVER: NextChange = NextChange {
+        delay: f64::INFINITY,
+        level: None,
+    };
+    /// Something may already be different.
+    pub const NOW: NextChange = NextChange {
+        delay: 0.0,
+        level: None,
+    };
+
+    pub fn after(delay: f64) -> Self {
+        NextChange {
+            delay: delay.max(0.0),
+            level: None,
+        }
+    }
+
+    pub fn at_level(level: u32) -> Self {
+        NextChange {
+            delay: f64::INFINITY,
+            level: Some(level),
+        }
+    }
+
+    /// The earlier of both.
+    pub fn or(self, other: NextChange) -> NextChange {
+        NextChange {
+            delay: self.delay.min(other.delay),
+            level: match (self.level, other.level) {
+                (Some(a), Some(b)) => Some(a.min(b)),
+                (a, b) => a.or(b),
+            },
+        }
+    }
+}
+
+/// The resource a [`NextChange`] watches: the one that regenerates on its own.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Watched {
+    pub resource: ResourceType,
+    pub max: u32,
+    /// Seconds of the encounter (the target's health falls by `1 / encounter_length` per
+    /// second).
+    pub encounter_length: f64,
+}
+
+/// Seconds until `value`, moving by `rate` per second, may cross `rhs`: early by twice the
+/// comparison tolerance, infinite when it moves away or `floor` stops it first (a cooldown or a
+/// duration counts down to 0).
+fn crossing(value: f64, rhs: f64, rate: f64, floor: Option<f64>) -> f64 {
+    if floor.is_some_and(|floor| value <= floor) {
+        return f64::INFINITY;
+    }
+    let gap = rhs - value;
+    if gap * rate < 0.0 && gap.abs() > 2.0 * EPSILON {
+        return f64::INFINITY;
+    }
+    ((gap.abs() - 2.0 * EPSILON) / rate.abs()).max(0.0)
+}
+
 impl<B, S> Sentence<B, S> {
     /// Whether the sentence holds. Port of the `condition_fulfilled` overrides.
     pub fn holds(&self, context: &impl ConditionContext<B, S>) -> bool {
@@ -301,6 +376,56 @@ impl<B, S> Sentence<B, S> {
                 unreachable!("target_is_type is only parsed with `eq \"<creature type>\"`")
             }
         }
+    }
+
+    /// When the sentence could next flip by itself (see [`NextChange`]): a duration, a
+    /// cooldown or a timer crossing the threshold, the watched resource reaching the level at
+    /// which the comparison changes.
+    pub fn next_change(
+        &self,
+        context: &impl ConditionContext<B, S>,
+        watched: Watched,
+    ) -> NextChange {
+        let Test::Compare(cmp, rhs) = self.test else {
+            return NextChange::NEVER;
+        };
+        let delay = match &self.measure {
+            Measure::BuffDuration(buff) => {
+                crossing(context.buff_time_left(buff), rhs, -1.0, Some(0.0))
+            }
+            Measure::SpellCooldown(spell) => crossing(
+                context.spell_cooldown_remaining(spell),
+                rhs,
+                -1.0,
+                Some(0.0),
+            ),
+            Measure::Variable(variable) => {
+                let value = context.variable(*variable);
+                match variable {
+                    BuiltinVariable::TargetHealth => {
+                        crossing(value, rhs, -1.0 / watched.encounter_length, None)
+                    }
+                    BuiltinVariable::TimeRemainingEncounter
+                    | BuiltinVariable::TimeRemainingExecute => crossing(value, rhs, -1.0, None),
+                    BuiltinVariable::TimeRemainingSwing | BuiltinVariable::TimeRemainingGcd => {
+                        crossing(value, rhs, -1.0, Some(0.0))
+                    }
+                    BuiltinVariable::TimeSinceSwing | BuiltinVariable::TimeSinceAutoShot => {
+                        crossing(value, rhs, 1.0, None)
+                    }
+                    BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => f64::INFINITY,
+                }
+            }
+            Measure::Resource(resource) if *resource == watched.resource => {
+                let level = context.resource_level(*resource);
+                let holds = cmp.holds(f64::from(level), rhs);
+                return (level + 1..=watched.max)
+                    .find(|&next| cmp.holds(f64::from(next), rhs) != holds)
+                    .map_or(NextChange::NEVER, NextChange::at_level);
+            }
+            Measure::Resource(_) | Measure::BuffStacks(_) | Measure::TargetType => f64::INFINITY,
+        };
+        NextChange::after(delay)
     }
 
     /// Maps the buff and spell handles, e.g. names to ids. `None` from the spell closure means
@@ -480,6 +605,18 @@ impl<B, S> Condition<B, S> {
         self.groups
             .iter()
             .any(|group| group.iter().all(|sentence| sentence.holds(context)))
+    }
+
+    /// The earliest [`Sentence::next_change`] of its sentences: until then, the condition
+    /// holds or fails as it does now.
+    pub fn next_change(
+        &self,
+        context: &impl ConditionContext<B, S>,
+        watched: Watched,
+    ) -> NextChange {
+        self.sentences().fold(NextChange::NEVER, |next, sentence| {
+            next.or(sentence.next_change(context, watched))
+        })
     }
 
     /// Maps the buff and spell handles of every sentence (see [`Sentence::map`]). A sentence
@@ -751,6 +888,103 @@ mod tests {
             measure: Measure::Variable(v),
             test: Test::Compare(cmp, rhs),
         }
+    }
+
+    // --- When a condition could change by itself ---
+
+    const WATCHED: Watched = Watched {
+        resource: ResourceType::Energy,
+        max: 100,
+        encounter_length: 300.0,
+    };
+
+    #[test]
+    fn next_change_of_resource_sentences_is_the_level_that_flips_them() {
+        let mut ctx = Mock::default();
+        ctx.resources.insert(ResourceType::Energy, 40);
+        let next =
+            |sentence: Sentence<String, String>, ctx: &Mock| sentence.next_change(ctx, WATCHED);
+        let greater = resource(Comparator::Greater, ResourceType::Energy, 80.0);
+        assert_eq!(next(greater.clone(), &ctx), NextChange::at_level(81));
+        assert_eq!(
+            next(resource(Comparator::Less, ResourceType::Energy, 45.0), &ctx),
+            NextChange::at_level(45)
+        );
+        assert_eq!(
+            next(resource(Comparator::Geq, ResourceType::Energy, 40.0), &ctx),
+            NextChange::NEVER,
+            "holds now and on every level above"
+        );
+        assert_eq!(
+            next(resource(Comparator::Eq, ResourceType::Energy, 47.0), &ctx),
+            NextChange::at_level(47)
+        );
+        assert_eq!(
+            next(
+                resource(Comparator::Greater, ResourceType::Energy, 100.0),
+                &ctx
+            ),
+            NextChange::NEVER,
+            "above the maximum"
+        );
+        assert_eq!(
+            next(
+                resource(Comparator::Greater, ResourceType::Rage, 10.0),
+                &ctx
+            ),
+            NextChange::NEVER,
+            "not the watched resource"
+        );
+        ctx.resources.insert(ResourceType::Energy, 100);
+        assert_eq!(next(greater, &ctx), NextChange::NEVER);
+    }
+
+    #[test]
+    fn next_change_of_time_sentences_is_when_they_cross() {
+        let mut ctx = Mock::default();
+        ctx.buff_time_left.insert("Slice and Dice".to_string(), 7.0);
+        ctx.variables.insert(BuiltinVariable::TargetHealth, 0.5);
+        ctx.variables.insert(BuiltinVariable::TimeSinceSwing, 0.5);
+        ctx.cooldowns.insert("Adrenaline Rush".to_string(), 20.0);
+        let delay = |text: &str| sentence(text).next_change(&ctx, WATCHED).delay;
+        let early = 2.0 * EPSILON;
+        // A duration falls to the threshold, a little early.
+        assert_eq!(
+            delay(r#"buff_duration "Slice and Dice" less 2"#),
+            5.0 - early
+        );
+        assert_eq!(
+            delay(r#"buff_duration "Slice and Dice" greater 2"#),
+            5.0 - early
+        );
+        // Moving away, or stopped at 0 first.
+        assert!(delay(r#"buff_duration "Slice and Dice" less 8"#).is_infinite());
+        assert!(delay(r#"buff_duration "Slice and Dice" greater -1"#).is_finite());
+        assert!(delay(r#"buff_duration "Expose Armor" less 2"#).is_infinite());
+        assert!(delay(r#"buff_duration "Slice and Dice" is true"#).is_infinite());
+        assert_eq!(delay(r#"spell "Adrenaline Rush" less 5"#), 15.0 - early);
+        // The target loses 1 / 300 of its health per second.
+        let health = delay(r#"variable "target_health" less 0.2"#);
+        assert!((health - (0.3 - early) * 300.0).abs() < 1e-9, "{health}");
+        // Time since the swing rises.
+        assert_eq!(
+            delay(r#"variable "time_since_swing" greater 1.5"#),
+            1.0 - early
+        );
+        assert!(delay(r#"variable "time_since_swing" less 0.2"#).is_infinite());
+        assert!(delay(r#"variable "combo_points" geq 5"#).is_infinite());
+
+        // A condition changes when its first sentence does.
+        let condition = Condition::parse(
+            r#"buff_duration "Slice and Dice" less 2
+               and resource "Energy" greater 80
+               or variable "time_since_swing" greater 1.5"#,
+        )
+        .unwrap();
+        ctx.resources.insert(ResourceType::Energy, 40);
+        let next = condition.next_change(&ctx, WATCHED);
+        assert_eq!(next.delay, 1.0 - early);
+        assert_eq!(next.level, Some(81));
     }
 
     // --- Grammar (port of TestRotationFileReader::test_warrior_dw_fury) ---

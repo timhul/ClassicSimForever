@@ -250,7 +250,74 @@ spells.
 | Protection | 5 | Focused Rage (29787) | 3 | modifier | FLAT POWER_COST -10/-20/-30 → Bloodthirst, Challenging Shout, Cleave, Concussion Blow … |
 | Protection | 6 | Shield Slam (23922) ← Concussion Blow | 1 | ability | effect 38 1; SCHOOL_DAMAGE 430 |
 
-## 1.8 The exported file
+## 1.8 Rogue talent reference (generated from the exported data)
+
+As §1.7, from `data/talents/rogue.yaml` and `data/spells/rogue.yaml` (Forever's tree: Mutilate,
+Venom, Puncturing Wounds, Hack and Slash, Quietus, Thousand Cuts and the other Forever-only
+talents, see `TASKS.md` findings). Modifier targets are the Rogue spells of the class mask
+(the poisons are enchantment spells, not in the file yet: the raw mask). The last column says
+how the sim runs the talent: *tables* when the spell data is the whole story, the override
+that completes it (`data/spells/overrides/rogue.yaml`, `SPELL_INSTRUCTIONS.md` §1.11), or why
+it is not simulated against one stun-immune boss; *pruned* talents lost every effect to the
+exporter (§1.10 of `SPELL_INSTRUCTIONS.md`).
+
+| Tab | Tier | Talent (spell) | Ranks | Kind | Effects (rank values) | Sim |
+|---|---|---|---|---|---|---|
+| Assassination | 0 | Improved Gouge (13741) | 3 | modifier | FLAT DURATION 500/1000/1500 → Gouge | not simulated (Gouge is not cast) |
+| Assassination | 0 | Remorseless Attacks (14144) | 2 | proc(dummy) | DUMMY 20/40 | not simulated (needs a kill) |
+| Assassination | 0 | Malice (14138) | 5 | stat aura | MOD_CRIT_PCT 1/2/3/4/5 | tables |
+| Assassination | 1 | Ruthlessness (14156) | 3 | proc | PROC 20/40/60 → 14157 (Ruthlessness) | proc: `finisher`, chance = rank value |
+| Assassination | 1 | Murder (14158) | 2 | stat aura | MOD_DAMAGE_DONE_VERSUS 2/4 misc 80 | tables (aura 168 vs the target's creature type) |
+| Assassination | 1 | Improved Slice and Dice (14165) | 3 | modifier | PCT DURATION 15/30/45 → Slice and Dice | tables (DURATION on the per-point duration) |
+| Assassination | 2 | Relentless Strikes (14179) | 1 | proc | ADD_TARGET_TRIGGER 20/point → 14181 | proc: `finisher`, `chance_per_combo_point`, payload 1314102 (25 energy) |
+| Assassination | 2 | Improved Expose Armor (14168) | 2 | modifier, proc | FLAT POWER_COST -5/-10 → Expose Armor; PROC with value 1/2 → 1310697 (Improved Expose Armor); DUMMY 5 | tables (cost); proc: `finisher`, Expose Armor at ≥ E2 points |
+| Assassination | 2 | Lethality (14128) ← Malice | 5 | modifier | PCT CRIT_DAMAGE 4/8/12/16/20 → Backstab, Ghostly Strike, Gouge, Hemorrhage, … | tables |
+| Assassination | 3 | Vile Poisons (16513) | 5 | modifier | PCT DAMAGE/HEALING 4/8/12/16/20 → mask [8192, 8, 0, 0]; PCT DOT 4/8/12/16/20 → mask [65536, 0, 0, 0]; FLAT DISPEL_RESIST 8/16/24/32/40 → mask [268550144, 0, 0, 0] | tables |
+| Assassination | 3 | Cold Blood (14177) | 1 | ability, modifier | FLAT CRIT_CHANCE 100 → Ambush, Backstab, Eviscerate, Mutilate, … | tables (a charged modifier used by the spells it modifies) |
+| Assassination | 3 | Improved Poisons (14113) | 5 | modifier, dummy | FLAT PROC_CHANCE 2/4/6/8/10 → mask [268558336, 0, 0, 0]; DUMMY 10/20/30/40/50 | tables; E1 `NO_OP` (charges) |
+| Assassination | 4 | Vigor (14983) | 2 | stat aura | MOD_INCREASE_ENERGY 5/10 misc 3 | tables |
+| Assassination | 4 | Mutilate (1310707) | 1 | ability | ENERGIZE 2; TRIGGER_SPELL → 1310706; TRIGGER_SPELL → 1310705; DUMMY 20 | ability (RG.3) |
+| Assassination | 4 | Improved Kidney Shot (14174) | 2 | modifier | FLAT EFFECT_3 5/10 → Kidney Shot | not simulated (bosses are immune to stuns) |
+| Assassination | 5 | Seal Fate (14186) | 5 | proc(dummy) | DUMMY 20/40/60/80/100 | proc: crits of `builder`s → 14189, chance = rank value |
+| Assassination | 6 | Venom (1310703) ← Mutilate | 1 | ability, modifier | DUMMY 0; PCT DAMAGE/HEALING 30 → mask [8192, 8, 0, 0]; PCT DOT 30 → mask [65536, 0, 0, 0]; FLAT PROC_CHANCE 10 → mask [268558336, 0, 0, 0] | finisher buff (duration per point) with the poison modifiers |
+| Combat | 0 | Improved Eviscerate (14162) | 3 | modifier | PCT DAMAGE/HEALING 7/13/20 → Eviscerate | tables |
+| Combat | 0 | Improved Sinister Strike (13732) | 2 | modifier | FLAT POWER_COST -3/-5 → Sinister Strike | tables |
+| Combat | 0 | Lightning Reflexes (13712) | 5 | stat aura | MOD_DODGE_PERCENT 1/2/3/4/5 | not simulated (dodge) |
+| Combat | 1 | Puncturing Wounds (1224716) | 3 | modifier, proc | FLAT CRIT_CHANCE 10/20/30 → Backstab; PROC 15/30/45 → 1310710 (Improved Backstab); FLAT CRIT_CHANCE 5/10/15 → Mutilate | tables (crit); proc: `family_mask` Backstab, chance = E1 |
+| Combat | 1 | Deflection (13713) | 3 | stat aura | MOD_PARRY_PERCENT 2/4/6 | not simulated (parry) |
+| Combat | 1 | Precision (13705) | 3 | stat aura | MOD_HIT_CHANCE 1/2/3; MOD_SPELL_HIT_CHANCE 1/2/3 | tables |
+| Combat | 2 | Endurance (13742) | 2 | modifier | PCT COOLDOWN -30/-60 → Evasion | not simulated (Sprint, Evasion) |
+| Combat | 2 | Riposte (14251) ← Deflection | 1 | ability | WEAPON_PERCENT_DAMAGE 150 | not simulated (`IGNORED`: needs a parry) |
+| Combat | 2 | Improved Sprint (13743) | 2 | pruned | nothing the sim uses | pruned |
+| Combat | 3 | Improved Kick (13754) | 2 | pruned | nothing the sim uses | pruned |
+| Combat | 3 | Flawless Execution (1310711) | 1 | modifier | FLAT POWER_COST -10 → Eviscerate | tables |
+| Combat | 3 | Dual Wield Specialization (13715) ← Precision | 5 | stat aura | MOD_OFFHAND_DAMAGE_PCT 5/10/15/20/25 | tables |
+| Combat | 4 | Blade Flurry (13877) | 1 | ability, stat aura | MOD_MELEE_HASTE_3 20 | tables (the second target is not simulated) |
+| Combat | 4 | Hack and Slash (13960) | 5 | proc(dummy) | DUMMY 1/2/3/4/5; DUMMY 3/6/9/12/15; DUMMY 1/2/3/4/5 | `ENABLE_AURA` 13706 / 13709, `ENABLE_PROC` 1290312 |
+| Combat | 5 | Weapon Expertise (30919) ← Blade Flurry | 2 | stat aura | MOD_EXPERTISE 1/2 | tables (aura 240 in the attack tables) |
+| Combat | 5 | Aggression (18427) | 3 | modifier | PCT DAMAGE/HEALING 2/4/6 → Backstab, Eviscerate, Sinister Strike | tables |
+| Combat | 6 | Adrenaline Rush (13750) | 1 | ability, stat aura | MOD_POWER_REGEN_PERCENT 100 misc 3 | tables (energy regeneration) |
+| Subtlety | 0 | Camouflage (13975) | 5 | modifier | FLAT EFFECT_3 3/6/9/12/15 → Stealth; FLAT COOLDOWN -2000/-3000/-4000/-5000/-6000 → Stealth | not simulated (Stealth's speed and cooldown) |
+| Subtlety | 0 | Master of Deception (13958) | 3 | pruned | nothing the sim uses | pruned |
+| Subtlety | 0 | Opportunity (14057) | 2 | modifier | PCT DAMAGE/HEALING 5/10 → Ambush, Backstab, Mutilate; PCT DOT 5/10 → Garrote | tables |
+| Subtlety | 1 | Setup (13983) | 3 | proc | PROC 33/67/100 → 15250 (Setup) | not simulated (the rogue is not attacked) |
+| Subtlety | 1 | Elusiveness (13981) | 2 | modifier | FLAT COOLDOWN -45000/-90000 → Vanish | not simulated (Vanish, Blind) |
+| Subtlety | 1 | Dirty Tricks (1224782) | 2 | modifier | PCT POWER_COST -25/-50 → mask [16777344, 0, 0, 0] | not simulated (Sap, Blind) |
+| Subtlety | 1 | Improved Ambush (14079) | 3 | modifier | FLAT CRIT_CHANCE 15/30/45 → Ambush | tables |
+| Subtlety | 2 | Initiative (13976) | 3 | proc | PROC 33/67/100 → 13977 (Initiative) | proc: `family_mask` Ambush, Garrote, Cheap Shot, chance = rank value |
+| Subtlety | 2 | Ghostly Strike (14278) | 1 | ability, stat aura | WEAPON_PERCENT_DAMAGE 125; MOD_DODGE_PERCENT 15; ENERGIZE 1; DUMMY 180 | ability (RG.3) |
+| Subtlety | 2 | Improved Distract (14084) | 2 | modifier | FLAT RADIUS 3/5 → Distract; FLAT EFFECT_2 -5/-10 → Distract | not simulated |
+| Subtlety | 3 | Heightened Senses (30894) | 2 | stat aura | MOD_ATTACKER_RANGED_HIT_CHANCE -2/-4; MOD_ATTACKER_SPELL_HIT_CHANCE -2/-4 misc 126 | not simulated |
+| Subtlety | 3 | Premeditation (14183) | 1 | ability, aura | ENERGIZE 2; aura 560 2; DUMMY 2 | ability (usable in Stealth before the opener) |
+| Subtlety | 3 | Serrated Blades (14171) | 3 | stat aura, modifier | MOD_ARMOR_PENETRATION_PCT 3/6/9; PCT DOT 10/20/30 → Rupture | tables |
+| Subtlety | 4 | Dirty Deeds (14082) | 2 | modifier | FLAT POWER_COST -10/-20 → Cheap Shot, Garrote | tables (cost; the position rule is moot behind the boss) |
+| Subtlety | 4 | Preparation (14185) | 1 | ability | DUMMY 0 | ability (`RESET_COOLDOWN` of every Rogue spell) |
+| Subtlety | 4 | Hemorrhage (16511) ← Serrated Blades | 1 | ability, aura | NORMALIZED_WEAPON_DMG 0; ENERGIZE 1; MOD_SPELL_DAMAGE_FROM_CASTER 15; WEAPON_PERCENT_DAMAGE 100; DUMMY 145 | ability (RG.3) |
+| Subtlety | 5 | Quietus (1310728) ← Dirty Deeds | 5 | dummy | DUMMY 2/4/6/8/10; DUMMY 35 | `DAMAGE_PERCENT_BELOW_HEALTH` |
+| Subtlety | 5 | Cutthroat (462708) | 5 | proc(dummy) | DUMMY 3/6/9/12/15 | `TRIGGER_SPELL` 462707: a `MOD_IGNORE_SHAPESHIFT` charge for the next Ambush without Stealth |
+| Subtlety | 6 | Thousand Cuts (1310721) ← Preparation | 1 | proc | PROC 3 → 1310723 (Thousand Cuts) | proc: `family_mask` Rupture ticks; the discount is used up whole |
+
+## 1.9 The exported file
 
 `csim-tables export-talents --class warrior` writes the walk above to `data/talents/warrior.yaml`
 (schema: `crates/csim-engine/src/talent/spec.rs`): the build, class, `TraitTree.ID`, the points
@@ -279,8 +346,16 @@ aura goes up, a modifier lands in the spell modifier table, a proc arms with the
 payload's trigger value, an ability (and its trainable higher ranks) becomes castable. Effects
 without a curve keep their table value.
 
-## 1.9 Missing tables
+## 1.10 Missing tables
 
 None for talents. The retail names of a few aura ids used by Forever talents are unverified:
 232 (mechanic duration modifier, Iron Will), 418 (max power, Boundless Rage), 466 (Toughness
-second effect), 30 (`MOD_SKILL`, Anticipation). Their meaning is clear from the descriptions.
+second effect), 30 (`MOD_SKILL`, Anticipation), 560 (Premeditation's second effect, a
+`NO_OP`). Their meaning is clear from the descriptions.
+
+What the Rogue's talent procs react to is server data the tables lack (retail `spell_proc` and
+the class scripts): the finishers (Ruthlessness, Relentless Strikes, Improved Expose Armor), the
+spells of a class mask (Puncturing Wounds, Initiative, Thousand Cuts), the builders (Seal
+Fate), the combo points a finisher spent. The overrides carry them (`proc.finisher`,
+`family_mask`, `builder`, `combo_points_effect`, `chance_per_combo_point`), as well as the
+Forever payloads that differ from the table's trigger (Relentless Strikes: 1314102).

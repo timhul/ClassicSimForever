@@ -19,7 +19,9 @@ use std::fmt;
 use std::sync::Arc;
 
 use crate::ids::{BuffId, SpellId};
-use crate::rotation::condition::{Condition, ConditionContext, Measure};
+use crate::rotation::condition::{
+    BuiltinVariable, Condition, ConditionContext, Measure, NextChange, Watched,
+};
 use crate::rotation::spec::RotationSpec;
 use crate::spell::SpellStatus;
 
@@ -180,6 +182,8 @@ pub trait RotationHost: ConditionContext<BuffId, SpellId> {
     fn is_casting(&self) -> bool;
     /// The character's global cooldown length in seconds.
     fn gcd_length(&self) -> f64;
+    /// The spell's cost now, in the character's resource.
+    fn spell_cost(&self, spell: SpellId) -> u32;
 }
 
 /// A rotation built from its file and linked to a character. Port of `Rotation`.
@@ -410,6 +414,43 @@ impl Rotation {
         }
     }
 
+    /// When a pass could next cast something the pass now would not, without an event of the
+    /// character's own (see [`NextChange`]): an executor held back by the `watched` resource
+    /// becomes affordable, the execute phase starts, a condition of an available spell flips. [`NextChange::NOW`] when an executor is castable already. Rounded
+    /// early, never late: a pass at the time given may still cast nothing.
+    pub fn next_change(&self, host: &impl RotationHost, watched: Watched) -> NextChange {
+        if host.is_casting() {
+            return NextChange::NEVER;
+        }
+        let mut next = NextChange::NEVER;
+        for executor in self.active_executors() {
+            let linked = executor
+                .linked
+                .as_ref()
+                .expect("active executors are linked");
+            let change = match host.spell_status(linked.spell) {
+                SpellStatus::Available => match &linked.condition {
+                    Some(condition) if !condition.holds(host) => {
+                        condition.next_change(host, watched)
+                    }
+                    _ => return NextChange::NOW,
+                },
+                SpellStatus::InsufficientResources => {
+                    NextChange::at_level(host.spell_cost(linked.spell))
+                }
+                SpellStatus::NotInExecuteRange => {
+                    NextChange::after(host.variable(BuiltinVariable::TimeRemainingExecute))
+                }
+                // The end of a global cooldown, a cooldown, a cast or a stance cooldown wakes
+                // the player on its own; the rest changes through events (combo points,
+                // stances, buffs).
+                _ => NextChange::NEVER,
+            };
+            next = next.or(change);
+        }
+        next
+    }
+
     /// Zeroes the executor statistics. Port of `Rotation::prepare_set_of_combat_iterations`
     /// (`crate::statistics::RotationExecutorStatistics` snapshots them for reporting).
     pub fn prepare_set_of_combat_iterations(&mut self) {
@@ -458,6 +499,7 @@ mod tests {
         casting: bool,
         casts: Vec<SpellId>,
         talents: HashMap<SpellId, String>,
+        costs: HashMap<SpellId, u32>,
     }
 
     impl Mock {
@@ -540,6 +582,9 @@ mod tests {
         }
         fn gcd_length(&self) -> f64 {
             1.5
+        }
+        fn spell_cost(&self, spell: SpellId) -> u32 {
+            self.costs.get(&spell).copied().unwrap_or(0)
         }
     }
 
@@ -685,6 +730,50 @@ mod tests {
         rotation.link(&host);
         assert!(rotation.active_executors().next().is_none());
         assert!(!rotation.executors()[0].is_active());
+    }
+
+    #[test]
+    fn next_change_is_what_the_blocked_executors_wait_for() {
+        let watched = Watched {
+            resource: ResourceType::Energy,
+            max: 100,
+            encounter_length: 300.0,
+        };
+        let mut host = Mock::default();
+        let eviscerate = host.spell("Eviscerate", 1, 1);
+        let slice = host.spell("Slice and Dice", 1, 2);
+        let strike = host.spell("Sinister Strike", 1, 3);
+        let slice_buff = host.buff("Slice and Dice", 10);
+        host.resources.insert(ResourceType::Energy, 20);
+        host.statuses
+            .insert(eviscerate, SpellStatus::InsufficientComboPoints);
+        host.statuses
+            .insert(strike, SpellStatus::InsufficientResources);
+        host.costs.insert(strike, 45);
+        host.buff_time_left.insert(slice_buff, 6.0);
+        let mut rotation = Rotation::new(spec(vec![
+            CastIfSpec::always("Eviscerate"),
+            CastIfSpec::when("Slice and Dice", "buff_duration \"Slice and Dice\" less 2"),
+            CastIfSpec::always("Sinister Strike"),
+        ]));
+        rotation.link(&host);
+        // Combo points come with events; Slice and Dice runs low in 4 s; Sinister Strike needs
+        // 45 energy.
+        let next = rotation.next_change(&host, watched);
+        assert!((next.delay - 4.0).abs() < 0.001, "{next:?}");
+        assert_eq!(next.level, Some(45));
+        // Castable already.
+        host.statuses.insert(strike, SpellStatus::Available);
+        assert_eq!(rotation.next_change(&host, watched), NextChange::NOW);
+        // The end of a global cooldown or a cast wakes the player on its own.
+        for status in [SpellStatus::OnGcd, SpellStatus::OnCooldown] {
+            host.statuses.insert(strike, status);
+            host.statuses.insert(slice, status);
+            assert_eq!(rotation.next_change(&host, watched), NextChange::NEVER);
+        }
+        host.statuses.insert(strike, SpellStatus::Available);
+        host.casting = true;
+        assert_eq!(rotation.next_change(&host, watched), NextChange::NEVER);
     }
 
     #[test]

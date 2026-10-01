@@ -566,6 +566,73 @@ fn periodic_damage_ticks_for_the_duration() {
     );
 }
 
+/// Rend turned into a nature damage-over-time on the magic table: its aura rolls the spell's
+/// hit, a miss applies nothing and is reported as a miss of the magic table, and each tick
+/// rolls its own partial resist (against a tenth of the resistance: no direct damage).
+#[test]
+fn magic_damage_over_time_rolls_its_hit_and_its_ticks_resists() {
+    use crate::combat_roll::{MagicResistResult, SpellResistKind};
+    use crate::magic_school::MagicSchool;
+    use crate::spell::dbc::{DefenseType, SpellSchoolMask};
+
+    let mut world = World::with_db(db_with(|file| {
+        let rend = file.spells.iter_mut().find(|s| s.id == REND).unwrap();
+        rend.school_mask = SpellSchoolMask::NATURE;
+        rend.categories.defense_type = DefenseType::Magic;
+    }));
+    world.learn(REND);
+    let marker = world.spell(REND).marker_buff().unwrap();
+
+    world.spell_rolls.push_back(SpellRoll::MISS);
+    let report = world.perform(REND);
+    assert_eq!(report.result, SpellResult::Failure);
+    let attack = report.attack.expect("the miss is reported");
+    assert_eq!(attack.result, PhysicalAttackResult::Miss);
+    assert_eq!(attack.spell.map(|s| s.roll), Some(SpellRoll::MISS));
+    assert!(report.proc_sources.is_empty(), "no melee miss");
+    assert!(!world.buff(marker).is_active());
+    assert!(
+        world.rolls.is_empty() && world.can_crits.is_empty(),
+        "no melee roll"
+    );
+    assert_eq!(
+        world.spell_roll_log,
+        [(MagicSchool::Nature, SpellResistKind::NonBinary)]
+    );
+
+    world.next_gcd = 0.0;
+    world.periodic_resists = [MagicResistResult::Partial50, MagicResistResult::Partial25]
+        .into_iter()
+        .collect();
+    let report = world.perform(REND);
+    assert_eq!(report.result, SpellResult::Success);
+    assert!(report.attack.is_none(), "the damage comes from the ticks");
+    world.run(21.5);
+    assert_eq!(world.ticks.len(), 7);
+    assert_eq!(world.periodic_resist_log, [(MagicSchool::Nature, true); 7]);
+    let first = &world.ticks[0];
+    assert_eq!(first.resist, MagicResistResult::Partial50);
+    assert_eq!(first.damage + first.resisted, 21);
+    assert_eq!(first.resisted, 11, "half of 21, rounded");
+    assert_eq!(world.ticks[1].resist, MagicResistResult::Partial25);
+    assert_eq!(world.ticks[1].damage, 16);
+    assert_eq!(world.ticks[2].resist, MagicResistResult::NoResist);
+    assert_eq!(world.ticks[2].damage, 21);
+}
+
+/// Physical ticks (Rend's bleed) roll no resist.
+#[test]
+fn physical_ticks_roll_no_resist() {
+    let mut world = World::new();
+    world.learn(REND);
+    world.rolls.push_back(PhysicalAttackResult::Hit);
+    world.perform(REND);
+    world.run(21.5);
+    assert_eq!(world.ticks.len(), 7);
+    assert!(world.periodic_resist_log.is_empty());
+    assert!(world.spell_roll_log.is_empty());
+}
+
 #[test]
 fn avoided_rend_applies_no_bleed_and_refunds_the_cost() {
     let mut world = World::new();
@@ -875,6 +942,7 @@ fn cast_reports_aggregate_triggered_spells() {
         proc_sources: vec![ProcSource::MainhandSpell],
         attack: Some(AttackOutcome {
             result: PhysicalAttackResult::Hit,
+            spell: None,
             damage: 40,
             threat: 40.0,
             execution_time: 0.0,
@@ -885,6 +953,7 @@ fn cast_reports_aggregate_triggered_spells() {
         proc_sources: vec![ProcSource::MeleeCritical],
         attack: Some(AttackOutcome {
             result: PhysicalAttackResult::Critical,
+            spell: None,
             damage: 100,
             threat: 100.0,
             execution_time: 1.5,

@@ -45,9 +45,12 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::faction::PlayerClass;
+use crate::item::spec::{EffectTrigger, ItemEffect};
+use crate::spell::Hand;
 use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellEffectName, SpellModOp, SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellEffectName, SpellModOp,
+    SpellSchoolMask,
 };
 use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
@@ -90,6 +93,14 @@ pub struct SpellFile {
     pub learnable: bool,
     #[serde(default)]
     pub spells: Vec<SpellRecord>,
+    /// The `SpellItemEnchantment` rows `data/enchants.yaml` names (`enchantment:`): the rogue
+    /// poisons, whose payloads are among `spells` (`export-spells --enchants`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub item_enchantments: Vec<ItemEnchantmentRecord>,
+    /// The consumables `data/external_buffs.yaml` lists under `consumables` (Thistle Tea): the
+    /// item's use effects, whose spells are among `spells` (`export-spells --externals`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub consumable_items: Vec<ConsumableItemRecord>,
 }
 
 impl Default for SpellFile {
@@ -99,7 +110,93 @@ impl Default for SpellFile {
             class: None,
             learnable: true,
             spells: Vec::new(),
+            item_enchantments: Vec::new(),
+            consumable_items: Vec::new(),
         }
+    }
+}
+
+/// A consumable item used in combat (Thistle Tea): its `ItemEffect` rows, with the item's
+/// cooldown and shared category cooldown, which its spell's record does not carry.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConsumableItemRecord {
+    pub id: u32,
+    pub name: String,
+    pub effects: Vec<ItemEffect>,
+}
+
+impl ConsumableItemRecord {
+    /// The on-use effects.
+    pub fn uses(&self) -> impl Iterator<Item = &ItemEffect> {
+        self.effects
+            .iter()
+            .filter(|e| e.trigger == EffectTrigger::Use)
+    }
+}
+
+/// A `SpellItemEnchantment` row: what an enchantment on an item does.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemEnchantmentRecord {
+    pub id: u32,
+    pub name: String,
+    /// Uses before the enchantment is gone (a poison's doses); not simulated.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub charges: u32,
+    pub effects: Vec<ItemEnchantmentEffect>,
+}
+
+impl ItemEnchantmentRecord {
+    /// The combat spells: (spell, chance in percent) per `COMBAT_SPELL` effect.
+    pub fn combat_spells(&self) -> impl Iterator<Item = (u32, f64)> + '_ {
+        self.effects
+            .iter()
+            .filter(|e| e.effect == ItemEnchantmentType::CombatSpell)
+            .map(|e| (e.arg, f64::from(e.points)))
+    }
+}
+
+/// One effect of a [`ItemEnchantmentRecord`] (`Effect_n`, `EffectPointsMin_n`, `EffectArg_n`).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ItemEnchantmentEffect {
+    pub effect: ItemEnchantmentType,
+    /// `EffectPointsMin`: a combat spell's chance in percent, a stat's amount.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub points: i32,
+    /// `EffectArg`: the spell of a combat, equip or use spell, the stat or school otherwise.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub arg: u32,
+}
+
+/// `SpellItemEnchantment.Effect` (retail `ItemEnchantmentType`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ItemEnchantmentType {
+    /// Casts `arg` on the target when the enchanted weapon hits, at `points` % chance.
+    CombatSpell,
+    Damage,
+    EquipSpell,
+    Resistance,
+    Stat,
+    Totem,
+    UseSpell,
+}
+
+impl ItemEnchantmentType {
+    /// The type of a table value; `None` for 0 (no effect) and unknown values.
+    pub fn from_id(id: u32) -> Option<Self> {
+        Some(match id {
+            1 => Self::CombatSpell,
+            2 => Self::Damage,
+            3 => Self::EquipSpell,
+            4 => Self::Resistance,
+            5 => Self::Stat,
+            6 => Self::Totem,
+            7 => Self::UseSpell,
+            _ => return None,
+        })
     }
 }
 
@@ -406,6 +503,12 @@ impl EffectRecord {
             )
     }
 
+    /// Whether the effect lifts the form requirement of the spells in its class mask
+    /// (`MOD_IGNORE_SHAPESHIFT`: Cutthroat's Ambush without Stealth).
+    pub fn is_ignore_shapeshift(&self) -> bool {
+        self.is_apply_aura() && self.aura == AuraType::ModIgnoreShapeshift
+    }
+
     /// Whether the effect is a proc trigger (`PROC_TRIGGER_SPELL` family).
     pub fn is_proc_trigger(&self) -> bool {
         self.is_apply_aura()
@@ -417,11 +520,15 @@ impl EffectRecord {
             )
     }
 
-    /// Whether the effect needs hand-written logic (`DUMMY` effects and auras, class scripts).
+    /// Whether the effect needs hand-written logic (`DUMMY` effects and auras, class scripts,
+    /// `ADD_TARGET_TRIGGER` whose chance rule the server keeps).
     pub fn is_scripted(&self) -> bool {
         matches!(self.effect, SpellEffectName::Dummy)
             || (self.is_apply_aura()
-                && matches!(self.aura, AuraType::Dummy | AuraType::PeriodicDummy))
+                && matches!(
+                    self.aura,
+                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::AddTargetTrigger
+                ))
     }
 
     /// Whether the first implicit target is the caster.
@@ -550,6 +657,14 @@ pub struct SpellRecord {
     /// `SpellDuration.Duration`; −1 = until cancelled, absent = no duration.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<i32>,
+    /// `SpellDuration.DurationPerResource`: the extra duration per combo point spent
+    /// (finishers: Slice and Dice 3 s, Rupture 2 s); 0 for everything else.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub duration_per_resource_ms: i32,
+    /// `SpellDuration.MaxDuration`, the cap of a per-combo-point duration; exported only with a
+    /// `duration_per_resource_ms` (elsewhere it is a level-scaling cap the sim does not use).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub max_duration_ms: i32,
     /// `SpellRange.RangeMax_0`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub range_yd: f32,
@@ -603,6 +718,8 @@ impl SpellRecord {
             school_mask: SpellSchoolMask::PHYSICAL,
             cast_time_ms: 0,
             duration_ms: None,
+            duration_per_resource_ms: 0,
+            max_duration_ms: 0,
             range_yd: 0.0,
             power: Vec::new(),
             cooldown: Cooldown::default(),
@@ -631,9 +748,57 @@ impl SpellRecord {
         SpellAttr1::from_bits(self.attributes[1])
     }
 
+    /// `Attributes_2` as flags.
+    pub fn attr2(&self) -> SpellAttr2 {
+        SpellAttr2::from_bits(self.attributes[2])
+    }
+
+    /// `Attributes_3` as flags.
+    pub fn attr3(&self) -> SpellAttr3 {
+        SpellAttr3::from_bits(self.attributes[3])
+    }
+
+    /// The caster must attack from behind the target (Backstab, Garrote, Ambush).
+    pub fn requires_behind_target(&self) -> bool {
+        self.attr2().contains(SpellAttr2::BEHIND_TARGET)
+    }
+
+    /// The weapon requirement (`SpellEquippedItems`, a weapon class) must be met by the weapon
+    /// in `hand` itself: `MAIN_HAND` / `REQUIRES_OFF_HAND_WEAPON`, as the server's
+    /// `Spell::CheckItems`. Other requirements are met by any equipped weapon.
+    pub fn requires_weapon_in(&self, hand: Hand) -> bool {
+        let weapon_class = self
+            .equipped_items
+            .is_some_and(|items| items.class == EquippedItems::WEAPON);
+        weapon_class
+            && self.attr3().contains(match hand {
+                Hand::Mainhand => SpellAttr3::MAIN_HAND,
+                Hand::Offhand => SpellAttr3::REQUIRES_OFF_HAND_WEAPON,
+            })
+    }
+
+    /// The spell attacks with the off-hand weapon (retail's `OFF_ATTACK` attack type for
+    /// `REQUIRES_OFF_HAND_WEAPON`): its weapon damage effects deal off-hand damage (Mutilate's
+    /// off-hand strike).
+    pub fn attacks_with_offhand(&self) -> bool {
+        self.attr3().contains(SpellAttr3::REQUIRES_OFF_HAND_WEAPON)
+    }
+
     /// Most of the cost comes back when the attack is missed, dodged or parried.
     pub fn refunds_power_on_miss(&self) -> bool {
         self.attr1().contains(SpellAttr1::DISCOUNT_POWER_ON_MISS)
+    }
+
+    /// Usable in Stealth without breaking it (Premeditation, Vanish, Cold Blood); every other
+    /// spell the Rogue casts ends Stealth.
+    pub fn allowed_while_stealthed(&self) -> bool {
+        self.attr1().contains(SpellAttr1::ALLOW_WHILE_STEALTHED)
+    }
+
+    /// Only usable out of combat (Stealth, Charge).
+    pub fn only_out_of_combat(&self) -> bool {
+        self.attr0()
+            .contains(SpellAttr0::NOT_IN_COMBAT_ONLY_PEACEFUL)
     }
 
     /// Passive aura (talents, stance passives, proc auras).
@@ -693,6 +858,21 @@ impl SpellRecord {
         self.duration_ms.and_then(|d| u32::try_from(d).ok())
     }
 
+    /// The finite duration in milliseconds after spending `combo_points`:
+    /// `duration + duration_per_resource × combo_points`, capped at `max_duration_ms` when
+    /// there is one (Slice and Dice 6 s + 3 s per point, 21 s at 5).
+    pub fn finite_duration_ms_with_combo_points(&self, combo_points: u32) -> Option<u32> {
+        let base = self.finite_duration_ms()?;
+        let Ok(per_point) = u32::try_from(self.duration_per_resource_ms) else {
+            return Some(base);
+        };
+        let duration = base + per_point * combo_points;
+        Some(match u32::try_from(self.max_duration_ms) {
+            Ok(max) if max > 0 => duration.min(max),
+            _ => duration,
+        })
+    }
+
     /// Whether the spell is on the global cooldown, and that cooldown's length.
     pub fn triggers_gcd(&self) -> bool {
         self.categories.start_recovery_category == GLOBAL_COOLDOWN_CATEGORY
@@ -741,6 +921,13 @@ impl SpellRecord {
             .filter(|e| e.is_apply_aura() && e.aura == AuraType::OverrideActionbarSpells)
             .map(|e| (e.misc_value[0] as u32, e.base_points as u32))
             .collect()
+    }
+
+    /// Whether the spell awards combo points (an `ENERGIZE` of combo points: a builder).
+    pub fn awards_combo_points(&self) -> bool {
+        self.effects.iter().any(|e| {
+            e.effect == SpellEffectName::Energize && e.power_type() == PowerType::ComboPoints
+        })
     }
 
     /// Whether the spell has an apply-aura effect at all.
@@ -811,6 +998,14 @@ pub enum SpellDbError {
     },
     #[error("spell {0} is defined twice")]
     Duplicate(u32),
+    #[error("item enchantment {0} is defined twice")]
+    DuplicateEnchantment(u32),
+    #[error("item enchantment {enchantment} casts unknown spell {spell}")]
+    UnknownEnchantmentSpell { enchantment: u32, spell: u32 },
+    #[error("consumable item {0} is defined twice")]
+    DuplicateConsumable(u32),
+    #[error("consumable item {item} uses unknown spell {spell}")]
+    UnknownConsumableSpell { item: u32, spell: u32 },
     #[error("spell {spell}: {message}")]
     Invalid { spell: u32, message: String },
     #[error("spell {spell} ({field}) refers to unknown spell {target}")]
@@ -856,6 +1051,10 @@ pub struct SpellDb {
     /// Ids from files with `learnable: false` (the external buff auras).
     unlearnable: HashSet<u32>,
     next_rank: HashMap<u32, u32>,
+    /// The spells another spell's `TRIGGER_SPELL` effect casts (Mutilate's strikes).
+    triggered: HashSet<u32>,
+    item_enchantments: HashMap<u32, ItemEnchantmentRecord>,
+    consumable_items: HashMap<u32, ConsumableItemRecord>,
     overrides: Overrides,
 }
 
@@ -926,6 +1125,36 @@ impl SpellDb {
                 return Err(SpellDbError::Duplicate(record.id));
             }
         }
+        for enchantment in &file.item_enchantments {
+            if self.item_enchantments.contains_key(&enchantment.id)
+                || file
+                    .item_enchantments
+                    .iter()
+                    .filter(|e| e.id == enchantment.id)
+                    .count()
+                    > 1
+            {
+                return Err(SpellDbError::DuplicateEnchantment(enchantment.id));
+            }
+        }
+        for item in &file.consumable_items {
+            if self.consumable_items.contains_key(&item.id)
+                || file
+                    .consumable_items
+                    .iter()
+                    .filter(|i| i.id == item.id)
+                    .count()
+                    > 1
+            {
+                return Err(SpellDbError::DuplicateConsumable(item.id));
+            }
+        }
+        for enchantment in file.item_enchantments {
+            self.item_enchantments.insert(enchantment.id, enchantment);
+        }
+        for item in file.consumable_items {
+            self.consumable_items.insert(item.id, item);
+        }
         for record in file.spells {
             if !file.learnable {
                 self.unlearnable.insert(record.id);
@@ -958,7 +1187,20 @@ impl SpellDb {
         if record.supercedes != 0 {
             self.next_rank.insert(record.supercedes, id);
         }
+        self.triggered.extend(
+            record
+                .trigger_spells()
+                .into_iter()
+                .filter(|&triggered| triggered != id),
+        );
         self.spells.insert(id, Arc::new(record));
+    }
+
+    /// Whether another spell casts `id` through a `TRIGGER_SPELL` effect: a payload, even
+    /// when it looks like a spellbook ability (Mutilate's strikes carry Mutilate's name,
+    /// rank and skill line).
+    pub fn is_triggered(&self, id: u32) -> bool {
+        self.triggered.contains(&id)
     }
 
     /// The hand-written overrides.
@@ -981,7 +1223,32 @@ impl SpellDb {
     /// and that every override names a loaded spell, an existing effect and existing spells.
     pub fn check_references(&self) -> Result<(), SpellDbError> {
         self.check_record_references()?;
+        self.check_enchantment_references()?;
         self.check_override_references()
+    }
+
+    fn check_enchantment_references(&self) -> Result<(), SpellDbError> {
+        for enchantment in self.item_enchantments.values() {
+            for (spell, _) in enchantment.combat_spells() {
+                if !self.spells.contains_key(&spell) {
+                    return Err(SpellDbError::UnknownEnchantmentSpell {
+                        enchantment: enchantment.id,
+                        spell,
+                    });
+                }
+            }
+        }
+        for item in self.consumable_items.values() {
+            for effect in item.uses() {
+                if !self.spells.contains_key(&effect.spell) {
+                    return Err(SpellDbError::UnknownConsumableSpell {
+                        item: item.id,
+                        spell: effect.spell,
+                    });
+                }
+            }
+        }
+        Ok(())
     }
 
     fn check_override_references(&self) -> Result<(), SpellDbError> {
@@ -1027,6 +1294,18 @@ impl SpellDb {
                         "the override takes the proc chance from an effect and gives a rate",
                     ));
                 }
+            }
+            if let Some(index) = spell_override.proc.and_then(|p| p.family_mask_effect)
+                && record
+                    .effect(index)
+                    .is_none_or(|e| e.spell_class_mask == [0; 4])
+            {
+                return Err(SpellDbError::Invalid {
+                    spell: id,
+                    message: format!(
+                        "the override takes the proc's family mask from effect {index}, which has none"
+                    ),
+                });
             }
             if let Some(index) = spell_override.proc.and_then(|p| p.chance_effect)
                 && !record
@@ -1157,6 +1436,16 @@ impl SpellDb {
     /// The record with `id`.
     pub fn get(&self, id: u32) -> Option<&Arc<SpellRecord>> {
         self.spells.get(&id)
+    }
+
+    /// The `SpellItemEnchantment` row `id`, if a spell file carries it.
+    pub fn item_enchantment(&self, id: u32) -> Option<&ItemEnchantmentRecord> {
+        self.item_enchantments.get(&id)
+    }
+
+    /// The consumable item `id`, if a spell file carries it.
+    pub fn consumable_item(&self, id: u32) -> Option<&ConsumableItemRecord> {
+        self.consumable_items.get(&id)
     }
 
     /// Whether `id` is loaded.
@@ -1555,6 +1844,25 @@ overrides:
     }
 
     #[test]
+    fn finisher_durations_grow_per_combo_point_up_to_the_cap() {
+        // Slice and Dice (SpellDuration 185: 6 s + 3 s per point, max 21 s).
+        let mut slice = SpellRecord::new(5171, "Slice and Dice");
+        slice.duration_ms = Some(6_000);
+        slice.duration_per_resource_ms = 3_000;
+        slice.max_duration_ms = 21_000;
+        assert_eq!(slice.finite_duration_ms_with_combo_points(0), Some(6_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(1), Some(9_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(5), Some(21_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(6), Some(21_000));
+        // Without a per-point duration the combo points change nothing.
+        let mut rend = SpellRecord::new(772, "Rend");
+        rend.duration_ms = Some(9_000);
+        assert_eq!(rend.finite_duration_ms_with_combo_points(5), Some(9_000));
+        rend.duration_ms = Some(-1);
+        assert_eq!(rend.finite_duration_ms_with_combo_points(5), None);
+    }
+
+    #[test]
     fn record_helpers_decode_the_table_columns() {
         let db = db();
         let hs = db.get(78).unwrap();
@@ -1804,6 +2112,8 @@ overrides:
                 (**db.get(12294).unwrap()).clone(),
                 (**db.get(284).unwrap()).clone(),
             ],
+            item_enchantments: Vec::new(),
+            consumable_items: Vec::new(),
         };
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(yaml.contains("effect: NORMALIZED_WEAPON_DMG"));
@@ -1961,6 +2271,31 @@ spells:
         let blood_fury = db.get(20572).unwrap();
         assert_eq!(blood_fury.race_mask, 2);
         assert_eq!(db.class_of(20572), Some(None));
+
+        // The Rogue: finisher durations per combo point, Relentless Strikes kept by its
+        // ADD_TARGET_TRIGGER aura, the Season of Discovery runes ignored.
+        assert!(db.ids_of_class(Some(PlayerClass::Rogue)).len() > 150);
+        let slice = db.get(6774).unwrap();
+        assert_eq!(slice.name, "Slice and Dice");
+        assert_eq!(slice.finite_duration_ms_with_combo_points(1), Some(9_000));
+        assert_eq!(slice.finite_duration_ms_with_combo_points(5), Some(21_000));
+        let rupture = db.get(11275).unwrap();
+        assert_eq!(
+            rupture.finite_duration_ms_with_combo_points(5),
+            Some(16_000)
+        );
+        let relentless = db.get(14179).unwrap();
+        assert_eq!(relentless.effects[0].aura, AuraType::AddTargetTrigger);
+        assert_eq!(relentless.effects[0].trigger_spell, 14181);
+        assert!(
+            db.overrides().has_sim_flag(424785, SimFlag::Ignored),
+            "Saber Slash"
+        );
+        assert_eq!(
+            db.get(31016).unwrap().rank_number(),
+            Some(9),
+            "Eviscerate r9"
+        );
 
         // The effects the sim cannot interpret yet; extend the overrides rather than this list.
         let mut pending: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();

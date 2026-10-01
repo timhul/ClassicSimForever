@@ -4,6 +4,26 @@
 build: 1.60.1.70009
 learnable: false
 spells:
+- id: 9512
+  name: Restore Energy
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 60
+    defense_type: MAGIC
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Instantly restores $s1 energy.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 100.0
+    misc_value: [3, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 9907
   name: Faerie Fire
   rank_text: Rank 4
@@ -631,3 +651,13 @@ spells:
     bonus_coefficient: 1.0
     radius_yd: [100.0, 0.0]
     implicit_target: [153, NONE]
+consumable_items:
+- id: 7676
+  name: Thistle Tea
+  effects:
+  - trigger: USE
+    spell: 9512
+    cooldown_ms: 300000
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1

@@ -11,6 +11,7 @@
 //! chain tagged with an application id, refreshing it re-arms the effect, and ticks stop when the
 //! buff is gone (stale ticks are ignored by their application id).
 
+use crate::combat_roll::MagicResistResult;
 use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
@@ -47,8 +48,9 @@ pub enum PeriodicKind {
     /// `PERIODIC_ENERGIZE`: gains `amount` of `resource` per tick for as long as the buff
     /// lasts (Bloodrage's 1 rage per second). Port of `PeriodicResourceGainSpell`.
     ResourceGain { resource: ResourceType, amount: u32 },
-    /// `PERIODIC_DAMAGE`: `per_tick` damage (times the spell's periodic damage modifier) on
-    /// each of `ticks` ticks; a refresh re-arms the full count (Rend).
+    /// `PERIODIC_DAMAGE`: `per_tick` damage per stack of the aura (times the spell's periodic
+    /// damage modifier) on each of `ticks` ticks; a refresh re-arms the full count (Rend) and
+    /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
     /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
     /// in `ticks_per_application` equal ticks; every application adds an independent stack of
@@ -129,6 +131,12 @@ pub struct TickReport {
     pub resource_gained: Option<(ResourceType, u32)>,
     /// A spell to cast on this tick (`PERIODIC_TRIGGER_SPELL`).
     pub trigger: Option<u32>,
+    /// Whether the tick dealt damage of a magic school (and so rolled a partial resist).
+    pub magic: bool,
+    /// The partial resist of a damage tick of a magic school.
+    pub resist: MagicResistResult,
+    /// The damage the partial resist took away (not in `damage`).
+    pub resisted: u32,
 }
 
 /// The tick state of one spell's periodic aura. Port of `SpellPeriodic`'s bookkeeping plus the
@@ -143,6 +151,10 @@ pub struct Periodic {
     application_id: u32,
     // Rend-style state.
     ticks_left: u32,
+    /// The stacks of the aura as of its last application (0 before the first): a damage tick
+    /// deals its value once per stack. Kept here because the tick due as the aura expires
+    /// runs after the buff dropped its stacks.
+    aura_stacks: u32,
     // Deep-Wounds-style state.
     stacks: Vec<u32>,
     previous_tick_rest: f64,
@@ -162,6 +174,7 @@ impl Periodic {
             tick_rate,
             application_id: 0,
             ticks_left: 0,
+            aura_stacks: 0,
             stacks: Vec::new(),
             previous_tick_rest: 0.0,
         }
@@ -191,6 +204,16 @@ impl Periodic {
 
     pub fn stacks(&self) -> &[u32] {
         &self.stacks
+    }
+
+    /// Records the aura's stack count after an application or refresh.
+    pub fn set_aura_stacks(&mut self, stacks: u32) {
+        self.aura_stacks = stacks;
+    }
+
+    /// The aura's stack count a damage tick multiplies its value by (at least 1).
+    pub fn aura_stacks(&self) -> u32 {
+        self.aura_stacks.max(1)
     }
 
     /// The buff was applied: starts a new tick chain. Port of `SpellPeriodic::start_ticking` +
@@ -250,6 +273,9 @@ impl Periodic {
             execution_time: 0.0,
             resource_gained: None,
             trigger: None,
+            magic: false,
+            resist: MagicResistResult::NoResist,
+            resisted: 0,
         };
 
         match *kind {
@@ -279,7 +305,8 @@ impl Periodic {
                 if self.ticks_left > 0 {
                     self.schedule_tick(spell, host);
                 }
-                let damage = (per_tick * damage_mod).round().max(0.0) as u32;
+                let stacks = f64::from(self.aura_stacks());
+                let damage = (per_tick * stacks * damage_mod).round().max(0.0) as u32;
                 Some(TickReport {
                     damage,
                     threat: f64::from(damage) * host.total_threat_mod(),
@@ -331,6 +358,7 @@ impl Periodic {
     /// Clears the tick state (buff gone, iteration reset). Port of `reset_effect`.
     pub fn reset_state(&mut self) {
         self.ticks_left = 0;
+        self.aura_stacks = 0;
         self.stacks.clear();
         self.previous_tick_rest = 0.0;
     }

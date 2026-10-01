@@ -215,18 +215,28 @@
       rate: 0.2
       value: 315
 
+# Rogue poisons: the SpellItemEnchantment row gives the chance, the payload and the charges
+# (exported into data/spells/enchants.yaml). The highest ranks; Wound and Crippling Poison deal
+# no damage to a boss and are left out, the SoD poisons are not offered (TASKS.md decision 1).
 - name: InstantPoison
-  display_name: Instant Poison
+  display_name: Instant Poison VI
   unique_name: Instant Poison
-  effect: Instant Poison
+  effect: Instant Poison VI
   temporary: true
   temp_group: POISON
   slots: [MAINHAND, OFFHAND]
   class: ROGUE
-  procs:
-    - name: INSTANT_POISON
-      display_name: Instant Poison
-      rate: 0.2
+  enchantment: 625
+
+- name: DeadlyPoison
+  display_name: Deadly Poison V
+  unique_name: Deadly Poison
+  effect: Deadly Poison V
+  temporary: true
+  temp_group: POISON
+  slots: [MAINHAND, OFFHAND]
+  class: ROGUE
+  enchantment: 2630
 
 # ---------------------------------------------------------------- head / legs
 

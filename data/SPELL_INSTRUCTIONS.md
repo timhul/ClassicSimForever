@@ -208,7 +208,22 @@ Berserking 20554, Sword Specialization 20597 …); `ClassMask` −1 on a racial 
   the attack is missed, dodged or parried. The tables do not give the amount; the engine refunds
   80 % (`POWER_REFUND_ON_MISS`). Set on the single-target warrior attacks, not on Whirlwind,
   Cleave, Thunder Clap or the shouts. Other failed casts pay the full cost.
+- `SpellMisc.Attributes_2 & 0x0010_0000` (`BEHIND_TARGET`): the caster must be behind the target
+  (Backstab, Garrote, Ambush); a tanking character gets `NotBehindTarget`.
+- `SpellMisc.Attributes_3 & 0x400` (`MAIN_HAND`) / `& 0x0100_0000` (`REQUIRES_OFF_HAND_WEAPON`):
+  a weapon `SpellEquippedItems` requirement must be met by that hand's weapon itself, as the
+  server's `Spell::CheckItems` (Backstab needs the dagger in the main hand; Mutilate needs two).
+  A spell with `REQUIRES_OFF_HAND_WEAPON` and weapon damage strikes with the off hand (off-hand
+  roll, off-hand weapon damage × the off-hand penalty): Mutilate's off-hand strike.
+- Finishers: a spell with a `COMBO_POINTS` power cost needs at least one point. Its effects,
+  its aura's duration and its aura values read the points before they are spent; a finisher
+  that fails keeps them. The count spent is on the cast report (statistics: "Finishers").
 - Duration: `SpellDuration[DurationIndex].Duration` ms; −1 = until cancelled (stances).
+  Finishers add `DurationPerResource` ms per combo point spent, capped at `MaxDuration`
+  (Slice and Dice 6000 + 3000 × CP, max 21000); both are exported (`duration_per_resource_ms`,
+  `max_duration_ms`) only when `DurationPerResource` is set, since elsewhere `MaxDuration` is a
+  level-scaling cap the simulator does not use. A cast's aura then lasts that duration through
+  the `DURATION` spell modifiers (Improved Slice and Dice +15/30/45 %).
 - Cost: `SpellPower` rows (`OrderIndex` 0 primary). `PowerType` 1 (rage) values are ×10
   (Mortal Strike `ManaCost` 300 = 30 rage); mana/energy are as-is; `PowerCostPct` = % of base
   mana; `ManaPerSecond` for channels.
@@ -240,7 +255,7 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 | `EffectBasePointsF` | the value (exact float; modern format, **no** +1 die offset). Percent for percentage auras, flat otherwise. |
 | `EffectRealPointsPerLevel` | value += this × (casterLevel − `SpellLevels.SpellLevel`), level capped at `MaxLevel`. |
 | `Variance` | damage/heal range: value × (1 ± Variance/2). Frostbolt r11: 475 ± 3.7 %. |
-| `EffectPointsPerResource` | value += this × combo points (finishers). |
+| `EffectPointsPerResource` | value += this × combo points (finishers). An aura's value is taken when the cast applies it (Expose Armor −450 per point, Rupture's ticks); a new cast with other values re-applies the aura. |
 | `EffectBonusCoefficient` | spell-power coefficient (Frostbolt r11 0.814, Lightning Bolt r10 0.714, Mind Blast r9 0.429 — the Classic values). 1 on melee rows is meaningless. |
 | `BonusCoefficientFromAP` | attack-power coefficient (only Hammer of Wrath 429151 uses it; SoD-style AP scaling is otherwise expressed as a `DUMMY` + description). |
 | `EffectAuraPeriod` | tick interval ms for periodic auras (Rend 3000). Ticks = duration / period; `$o1` = value × ticks. |
@@ -258,7 +273,8 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 3 DUMMY (437, scripted), 10 HEAL (227), 30 ENERGIZE (122), 121 NORMALIZED_WEAPON_DMG (112:
 weapon damage + basepoints, Mortal Strike/Whirlwind), 31 WEAPON_PERCENT_DAMAGE (108: basepoints
 = %), 28 SUMMON, 35 APPLY_AREA_AURA_PARTY, 58 WEAPON_DAMAGE (weapon + basepoints, school of
-spell), 24 CREATE_ITEM, 64 TRIGGER_SPELL, 77 SCRIPT_EFFECT, 63 THREAT (flat threat, Sunder
+spell), 24 CREATE_ITEM, 64 TRIGGER_SPELL (on an enemy, from a melee spell: a strike cast only
+when the spell lands, which cannot miss again and is no ability of its own: Mutilate), 77 SCRIPT_EFFECT, 63 THREAT (flat threat, Sunder
 Armor), 68 INTERRUPT_CAST, 38 DISPEL, 96 CHARGE, 17 WEAPON_DAMAGE_NOSCHOOL (weapon +
 basepoints, Heroic Strike), 114 ATTACK_ME (Taunt; 91 is THREAT_ALL), 65 APPLY_AREA_AURA_RAID, 27 PERSISTENT_AREA_AURA,
 16 QUEST_COMPLETE, 54 ENCHANT_ITEM_TEMPORARY (runes), 36 LEARN_SPELL, 9 HEALTH_LEECH,
@@ -282,7 +298,10 @@ MOD_SPELL_CRIT_CHANCE, 5 MOD_CONFUSE, 49 MOD_DODGE_PERCENT, 290 MOD_CRIT_PCT (Be
 +3), 41 DISPEL_IMMUNITY, 16 MOD_STEALTH, 134 MOD_MANA_REGEN_INTERRUPT, 85 MOD_POWER_REGEN (Anger
 Management: misc 1 rage), 280 MOD_ARMOR_PENETRATION_PCT (Weaponmaster 12284: percent of the
 target's armor ignored by attacks with the weapon types the spell requires), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
-MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK. Others: retail
+MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK, 271
+MOD_SPELL_DAMAGE_FROM_CASTER (Hemorrhage: the target takes `base_points` % more damage from the
+caster's spells in the effect's class mask, Rupture; a multiplier of the caster's own spells
+only). Others: retail
 `AuraType` enum (`SharedDefines.h`).
 
 **`SpellModOp` (misc value of auras 107/108)** — verified: 14 POWER_COST (Improved Heroic
@@ -379,7 +398,8 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
    exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
-   simulated) and `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes).
+   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes) and `ADD_TARGET_TRIGGER`
+   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
    `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it
@@ -416,6 +436,22 @@ overrides:
                                      # hand: MAINHAND — only that hand's attacks trigger it
                                      # target_aura: 772 — only while the character's aura of
                                      #   that spell (any rank) is up (Bloodthrill: your Rend)
+                                     # finisher: true — fires when a finisher spends its combo
+                                     #   points (source FINISHER), not on its ProcTypeMask
+                                     #   (Ruthlessness, Improved Expose Armor)
+                                     # family_mask: [4, 0, 0, 0] — only events of the spells
+                                     #   of this class mask (spell_proc.SpellFamilyMask:
+                                     #   Puncturing Wounds on Backstab)
+                                     # family_mask_effect: 0 — as family_mask, aura effect
+                                     #   0's own SpellClassMask (Head Rush, Revealed Flaw)
+                                     # combo_points_effect: 2 — the finisher spent at least
+                                     #   aura effect 2's value (Improved Expose Armor: 5)
+                                     # chance_per_combo_point: true — the chance times the
+                                     #   combo points spent (Relentless Strikes: 20 % each;
+                                     #   a chance_effect without a value gives its points
+                                     #   per resource: Revealed Flaw 5 %)
+                                     # builder: true — only events of a spell that awards
+                                     #   combo points (Seal Fate)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -435,6 +471,7 @@ overrides:
 | `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
 | `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of average weapon damage over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
 | `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
+| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell` | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
@@ -443,11 +480,18 @@ overrides:
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
 | `ENABLE_AURA` | while the aura is up the character has the hidden aura `spell` the server applies (gated by its own weapon requirement), with its effect `effect` set to this effect's value (a talent's rank value follows rank changes) | `spell`, `effect` | Weaponmaster E0 → 12700 (axe/polearm crit), E1 → 12284 (mace/staff armor penetration) |
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 6 s, so another dodge or Bloodthrill proc only refreshes it) | `value` | Overpower `on_event` |
-| `RESET_COOLDOWN` | resets the cooldown of `spell` (no runtime yet) | `spell` | — |
+| `RESET_COOLDOWN` | when the spell is cast, finishes the cooldowns of `spell`, or of every spell of its family in `family_mask` (as an event reaction: no runtime yet) | `spell` or `family_mask` | Preparation 14185 (every Rogue spell) |
 | `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
+| `COMBO_POINT_AP_DAMAGE` | a finisher's attack power share: `value` % of attack power per combo point, or the `per_combo_point` entry (1 to 5 points). Without `effect` the effect deals it with the direct damage; with `effect` it is spread over that periodic aura's ticks, taken at the cast | `value` or `per_combo_point`, `effect` | Eviscerate E1 (3 %/point), Rupture E2 → E0 (4/10/18/21/24 %) |
+| `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %) |
+| `AP_COEFFICIENT` | the attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`): `value` × attack power added to a direct damage effect's hit, or to every tick (per stack) of a periodic damage aura, taken at the cast | `value` | Instant Poison VI E0 (0.005), Deadly Poison V E0 (0.0045) |
+| `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
+| `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
+| `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
+| `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
@@ -459,7 +503,18 @@ the client tables do not carry the enrage mechanic).
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `OFFHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
 `MELEE_FULL_BLOCK`, `SPELL_HIT`, `SPELL_CRITICAL`, `SPELL_FULL_RESIST`, `RANGED_AUTO_SHOT`,
-`RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`.
+`RANGED_SPELL`, `ATTACK_TAKEN`, `MAGIC_SPELL`, `PERIODIC_DAMAGE` (a damaging tick,
+`DEAL_HARMFUL_PERIODIC`), `FINISHER` (a finisher spent its combo points).
+
+**Proc events and the spell behind them.** A cast's events carry the spell that raised them
+(a triggered strike's own class mask, the cast's combo points), which `family_mask`,
+`combo_points_effect` and the charged spell modifier auras read: Cold Blood is used by
+Mutilate's strikes, not by Mutilate. A passive becomes a proc only when it has a payload (a
+direct effect, a proc trigger with a trigger spell, a `TRIGGER_SPELL` / `TRIGGER_WITH_VALUE`
+script); `PROC_TRIGGER_SPELL_WITH_VALUE` casts its trigger spell with the aura's value as
+the payload's first effect value. A passive's buff is its owner's even when its effect names
+an enemy target (who the payload hits). A spell modifier aura with a `ProcTypeMask` but no
+charges is used up whole, every stack, by the first spell it modifies (Thousand Cuts).
 
 Not overridable on purpose: costs, cooldowns, damage, durations, class masks, ranks and proc
 sources — they come from the tables. Spells the overrides mention are never pruned (§1.10).

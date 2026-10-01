@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::enchant::{EnchantContext, EnchantDb, EnchantName, EnchantSpec};
 use crate::faction::PlayerClass;
-use crate::item::{ArmorType, EquipmentSlot, WeaponType};
+use crate::item::{ArmorType, EquipmentSlot, Item, WeaponType};
 use crate::race::{BaseStats, Race};
 use crate::resource::ResourceType;
 use crate::stance::Stance;
@@ -337,6 +337,37 @@ impl ClassSpec {
             .contains(&weapon_type)
     }
 
+    /// Whether the class wears armor of `armor_type` (up to its `highest_armor_type`).
+    pub fn can_wear(&self, armor_type: ArmorType) -> bool {
+        armor_type <= self.highest_armor_type
+    }
+
+    /// Whether the class can use `item` in `slot`: the item's class restrictions, its armor
+    /// type, and in a weapon slot its weapon type. Whether the item fits the slot is not
+    /// checked.
+    pub fn can_equip(&self, item: &Item, slot: EquipmentSlot) -> bool {
+        let weapon_slot = matches!(
+            slot,
+            EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+        );
+        item.available_for_class(self.class)
+            && item
+                .item_type()
+                .armor_type()
+                .is_none_or(|armor| self.can_wear(armor))
+            && (!weapon_slot
+                || item
+                    .weapon_type()
+                    .is_none_or(|weapon| self.can_wield(slot, weapon)))
+    }
+
+    /// Whether the class can use `item` in any slot it fits.
+    pub fn can_use(&self, item: &Item) -> bool {
+        EquipmentSlot::ALL
+            .into_iter()
+            .any(|slot| item.fits(slot) && self.can_equip(item, slot))
+    }
+
     pub fn stat_offsets(&self, race: Race) -> StatOffsets {
         self.race_stat_offsets
             .get(&race)
@@ -529,12 +560,7 @@ mod tests {
     fn shipped_warrior_file_loads_and_matches_the_enchant_db() {
         let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
         let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
-        assert_eq!(db.len(), 1);
         let warrior = db.get(PlayerClass::Warrior).unwrap();
-        assert!(matches!(
-            db.get(PlayerClass::Rogue),
-            Err(ClassSpecError::Missing(PlayerClass::Rogue))
-        ));
         assert_eq!(warrior.resource, ResourceType::Rage);
         assert_eq!(warrior.default_stance, Stance::Battle);
         assert_eq!(warrior.highest_armor_type, ArmorType::Plate);
@@ -564,6 +590,82 @@ mod tests {
                 .enchants_for_slot(EquipmentSlot::Head, true)
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn shipped_rogue_file_loads_and_matches_the_enchant_db() {
+        let enchants = EnchantDb::load(&data_dir().join("enchants.yaml")).unwrap();
+        let db = ClassDb::load(&data_dir().join("classes"), Some(&enchants)).unwrap();
+        let rogue = db.get(PlayerClass::Rogue).unwrap();
+        assert_eq!(rogue.resource, ResourceType::Energy);
+        assert_eq!(rogue.default_stance, Stance::Caster);
+        assert_eq!(rogue.highest_armor_type, ArmorType::Leather);
+        assert_eq!(rogue.global_cooldown, 1.0);
+        assert_eq!(rogue.max_combo_points, 5);
+        assert_eq!(rogue.combo_point_duration, None);
+        assert_eq!(rogue.base_stats.agility, 110);
+        assert_eq!(rogue.base_stats.melee_ap, 100);
+        assert_eq!(rogue.base_stats.melee_crit, 100);
+        assert_eq!(rogue.base_stats.health, 1523);
+        let rules = rogue.stat_rules.rules();
+        assert_eq!(rules.melee_ap_per_strength, 1);
+        assert_eq!(rules.melee_ap_per_agility, 1);
+        assert_eq!(rules.ranged_ap_per_agility, 2);
+        assert!((rules.agility_per_percent_crit - 28.99).abs() < 0.01);
+        assert_eq!(rogue.available_races.len(), 7);
+        assert!(!rogue.available_races.contains(&Race::Tauren));
+        assert!(rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::Dagger));
+        assert!(rogue.can_wield(EquipmentSlot::Offhand, WeaponType::Axe));
+        assert!(!rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::TwohandSword));
+        assert!(
+            rogue
+                .enchants_for_slot(EquipmentSlot::Offhand, true)
+                .contains(&EnchantName::InstantPoison)
+        );
+    }
+
+    fn item(yaml: &str) -> Item {
+        Item::from_spec(serde_yaml::from_str(yaml).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn the_class_equips_its_armor_and_weapons() {
+        let db = ClassDb::load(&data_dir().join("classes"), None).unwrap();
+        let rogue = db.get(PlayerClass::Rogue).unwrap();
+        let warrior = db.get(PlayerClass::Warrior).unwrap();
+        let armor = |item_type: &str| {
+            item(&format!(
+                "{{ id: 1, name: Chest, phase: 1, slot: CHEST, type: {item_type}, quality: EPIC }}"
+            ))
+        };
+        let weapon = |slot: &str, item_type: &str| {
+            item(&format!(
+                "{{ id: 2, name: Weapon, phase: 1, slot: {slot}, type: {item_type}, \
+                 quality: EPIC, damage: {{ min: 1, max: 2, speed: 2.0 }} }}"
+            ))
+        };
+        let chest = EquipmentSlot::Chest;
+        assert!(rogue.can_equip(&armor("LEATHER"), chest));
+        assert!(rogue.can_equip(&armor("CLOTH"), chest));
+        assert!(!rogue.can_equip(&armor("MAIL"), chest));
+        assert!(warrior.can_equip(&armor("PLATE"), chest));
+
+        let dagger = weapon("1H", "DAGGER");
+        assert!(rogue.can_equip(&dagger, EquipmentSlot::Offhand));
+        assert!(rogue.can_use(&dagger));
+        let claymore = weapon("2H", "TWOHAND_SWORD");
+        assert!(!rogue.can_equip(&claymore, EquipmentSlot::Mainhand));
+        assert!(!rogue.can_use(&claymore));
+        assert!(warrior.can_use(&claymore));
+        let shield = weapon("OH", "SHIELD");
+        assert!(!rogue.can_use(&shield));
+        assert!(warrior.can_use(&shield));
+
+        let restricted = item(
+            "{ id: 4, name: Mask, phase: 1, slot: HEAD, type: LEATHER, quality: EPIC, \
+             class_restrictions: [DRUID] }",
+        );
+        assert!(!rogue.can_use(&restricted));
     }
 
     #[test]
