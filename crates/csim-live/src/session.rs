@@ -4,8 +4,9 @@
 //! The raid is built and seeded exactly as `csim run --combat-log` builds and seeds it, so with
 //! the same seed, length and variance the session runs the iteration that command logs. Each
 //! call moves the iteration forward and returns a [`Frame`]: the damage dealt since the last
-//! frame (read from the combat log, which a step only appends to) and the character's state.
-//! Every time in a frame is absolute sim time, so the page can animate between frames.
+//! frame (read from the combat log, which a step only appends to), the rotation's decisions
+//! since the last frame (its decision trace, enabled for the session) and the character's
+//! state. Every time in a frame is absolute sim time, so the page can animate between frames.
 
 use std::sync::Arc;
 
@@ -17,6 +18,7 @@ use csim_engine::faction::PlayerClass;
 use csim_engine::ids::CharId;
 use csim_engine::item::EquipmentSlot;
 use csim_engine::raid::RaidControl;
+use csim_engine::rotation::DecidedBy;
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::Hand;
@@ -44,6 +46,37 @@ pub struct Info {
     pub start_at: f64,
     /// When this iteration's encounter ends (the drawn length).
     pub end_at: f64,
+    /// The rotation's `cast_if` entries, in file order (empty without a rotation).
+    pub cast_if: Vec<RotationEntry>,
+    /// The rotation's precombat actions the character can cast, in order.
+    pub precombat: Vec<String>,
+}
+
+/// One `cast_if` entry of the rotation: an executor.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct RotationEntry {
+    /// 1-based position in the rotation file's `cast_if` list.
+    pub position: usize,
+    pub spell: String,
+    /// The rank asked for; `None` for the highest learned.
+    pub rank: Option<u32>,
+    pub icon: Option<u32>,
+    /// The condition as written in the rotation file; `None` without one.
+    pub condition: Option<String>,
+    /// Why the entry never casts; `None` when it is active.
+    pub skipped: Option<String>,
+}
+
+/// One cast the rotation decided.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Decision {
+    pub time: f64,
+    pub spell: String,
+    pub icon: Option<u32>,
+    /// `entry` (a `cast_if` entry returned true), `precombat` or `precast`.
+    pub by: &'static str,
+    /// The 1-based position of the `cast_if` entry, for `by: entry`.
+    pub entry: Option<usize>,
 }
 
 /// The iteration at one point in time.
@@ -57,6 +90,8 @@ pub struct Frame {
     pub event: Option<&'static str>,
     /// The damage dealt since the previous frame, in the order it was dealt.
     pub damage: Vec<DamageNumber>,
+    /// The rotation's decisions since the previous frame, in the order they were made.
+    pub decisions: Vec<Decision>,
     /// The damage dealt so far.
     pub total_damage: u64,
     /// `total_damage` per second of combat so far (0 before the pull).
@@ -148,6 +183,8 @@ pub struct Session {
     stepper: IterationStepper,
     /// The combat log entries already read into frames.
     read: usize,
+    /// The rotation decisions already read into frames.
+    decisions_read: usize,
     total_damage: u64,
     /// The latest time shown.
     time: f64,
@@ -168,7 +205,7 @@ impl Session {
         let mut raid = setup
             .build_raid(&data, &settings)
             .map_err(|error| error.to_string())?;
-        let stepper = IterationStepper::new(&settings, seed, &mut raid);
+        let stepper = start(&settings, seed, &mut raid);
         let time = stepper.start_at();
         Ok(Session {
             data,
@@ -178,6 +215,7 @@ impl Session {
             raid,
             stepper,
             read: 0,
+            decisions_read: 0,
             total_damage: 0,
             time,
         })
@@ -192,10 +230,11 @@ impl Session {
             .setup
             .build_raid(&self.data, &self.settings)
             .expect("the setup built before");
-        self.stepper = IterationStepper::new(&self.settings, seed, &mut raid);
+        self.stepper = start(&self.settings, seed, &mut raid);
         self.raid = raid;
         self.seed = seed;
         self.read = 0;
+        self.decisions_read = 0;
         self.total_damage = 0;
         self.time = self.stepper.start_at();
     }
@@ -212,7 +251,43 @@ impl Session {
             length_variance: self.settings.length_variance,
             start_at: self.stepper.start_at(),
             end_at: character.sim().combat_length,
+            cast_if: self.rotation_entries(),
+            precombat: character.rotation().map_or_else(Vec::new, |rotation| {
+                let spells = character.spells();
+                rotation
+                    .precombat_spells()
+                    .iter()
+                    .map(|&id| spells.spell(id).name().to_owned())
+                    .collect()
+            }),
         }
+    }
+
+    fn rotation_entries(&self) -> Vec<RotationEntry> {
+        let character = self.raid.character(PLAYER);
+        let Some(rotation) = character.rotation() else {
+            return Vec::new();
+        };
+        let spells = character.spells();
+        rotation
+            .executors()
+            .iter()
+            .zip(&rotation.spec().cast_if)
+            .enumerate()
+            .map(|(index, (executor, written))| RotationEntry {
+                position: index + 1,
+                spell: written.name.clone(),
+                rank: written.rank,
+                icon: executor
+                    .linked()
+                    .and_then(|linked| icon(spells.spell(linked.spell).record().icon)),
+                condition: written
+                    .condition
+                    .as_deref()
+                    .map(|text| text.trim().to_owned()),
+                skipped: executor.skip_reason().map(ToString::to_string),
+            })
+            .collect()
     }
 
     /// Runs every event up to `time` and shows `time` (the end of the encounter once every
@@ -276,6 +351,7 @@ impl Session {
             .filter_map(|entry| self.damage_number(entry.time, &entry.event))
             .collect();
         self.read = self.log().len();
+        let decisions = self.decisions();
         self.total_damage += damage.iter().map(|hit| u64::from(hit.amount)).sum::<u64>();
         let dps = if self.time > 0.0 {
             self.total_damage as f64 / self.time
@@ -287,10 +363,41 @@ impl Session {
             done: self.done(),
             event,
             damage,
+            decisions,
             total_damage: self.total_damage,
             dps,
             state: self.character_state(),
         }
+    }
+
+    /// The rotation's decisions not read into a frame yet.
+    fn decisions(&mut self) -> Vec<Decision> {
+        let character = self.raid.character(PLAYER);
+        let Some(rotation) = character.rotation() else {
+            return Vec::new();
+        };
+        let spells = character.spells();
+        let trace = rotation.trace();
+        let decisions = trace[self.decisions_read..]
+            .iter()
+            .map(|decision| {
+                let spell = spells.spell(decision.spell);
+                let (by, entry) = match decision.by {
+                    DecidedBy::Executor(index) => ("entry", Some(index + 1)),
+                    DecidedBy::Precombat => ("precombat", None),
+                    DecidedBy::Precast => ("precast", None),
+                };
+                Decision {
+                    time: decision.time,
+                    spell: spell.name().to_owned(),
+                    icon: icon(spell.record().icon),
+                    by,
+                    entry,
+                }
+            })
+            .collect();
+        self.decisions_read = trace.len();
+        decisions
     }
 
     /// The damage number of a damage event; `None` for every other event.
@@ -415,6 +522,15 @@ impl Session {
 
 fn as_string<S: serde::Serializer>(value: &u64, serializer: S) -> Result<S::Ok, S::Error> {
     serializer.collect_str(value)
+}
+
+/// Enables the character's decision trace (the precombat actions are decided when the
+/// iteration starts) and starts the iteration of `seed`.
+fn start(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> IterationStepper {
+    if let Some(rotation) = raid.character_mut(PLAYER).rotation_mut() {
+        rotation.enable_trace();
+    }
+    IterationStepper::new(settings, seed, raid)
 }
 
 /// An icon `FileDataID` of the data, `None` for 0 (no icon).

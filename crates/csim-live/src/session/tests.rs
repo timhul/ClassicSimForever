@@ -228,3 +228,73 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
         .find(|buff| buff.name == "Slice and Dice");
     assert!(slice.unwrap().icon.is_some());
 }
+
+#[test]
+fn the_rotation_entries_and_decisions() {
+    for file in ["dw_fury_orc.yaml", "combat_swords_human.yaml"] {
+        let mut session = session_of(file, 2);
+        let info = session.info();
+        assert!(info.cast_if.len() > 5, "{file}");
+        assert!(
+            info.cast_if
+                .iter()
+                .enumerate()
+                .all(|(index, entry)| entry.position == index + 1)
+        );
+        let active = |position: usize| info.cast_if[position - 1].skipped.is_none();
+
+        let frames = play(&mut session, 0.5);
+        let mut shown = f64::NEG_INFINITY;
+        let mut decisions = Vec::new();
+        for frame in &frames {
+            for decision in &frame.decisions {
+                assert!(
+                    decision.time <= frame.time,
+                    "{file}: never ahead of the frame"
+                );
+                assert!(decision.time >= shown - 1e-9, "{file}: in time order");
+                shown = decision.time;
+            }
+            decisions.extend(frame.decisions.iter().cloned());
+        }
+
+        let precombat: Vec<&str> = decisions
+            .iter()
+            .filter(|d| d.by == "precombat")
+            .map(|d| d.spell.as_str())
+            .collect();
+        assert_eq!(precombat, info.precombat, "{file}");
+        let by_entry: Vec<&Decision> = decisions.iter().filter(|d| d.by == "entry").collect();
+        // A minute: the rogue is energy bound (~30 casts), the warrior casts more.
+        assert!(by_entry.len() > 20, "{file}: {}", by_entry.len());
+        for decision in &by_entry {
+            let position = decision.entry.unwrap();
+            assert!(active(position), "{file}: #{position} is skipped");
+            assert_eq!(decision.spell, info.cast_if[position - 1].spell, "{file}");
+            assert!(decision.icon.is_some());
+        }
+        assert!(
+            by_entry
+                .iter()
+                .any(|d| info.cast_if[d.entry.unwrap() - 1].condition.is_some()),
+            "{file}: some decisions come from conditional entries"
+        );
+    }
+
+    // DW Fury: Bloodthirst is decided by its own entry, whose condition is as written.
+    let session = session_of("dw_fury_orc.yaml", 2);
+    let info = session.info();
+    let bloodrage = info
+        .cast_if
+        .iter()
+        .find(|e| e.spell == "Bloodrage")
+        .unwrap();
+    assert!(
+        bloodrage
+            .condition
+            .as_deref()
+            .unwrap()
+            .contains("resource \"Rage\"")
+    );
+    assert!(bloodrage.icon.is_some());
+}
