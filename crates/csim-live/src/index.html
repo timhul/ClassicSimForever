@@ -88,8 +88,18 @@
   main {
     display: grid;
     grid-template-columns: minmax(160px, 260px) minmax(0, 1fr);
+    grid-template-areas: "feed state" "feed rotation";
     gap: 16px;
     align-items: start;
+  }
+  #feed-panel { grid-area: feed; }
+  #state { grid-area: state; }
+  #rotation-panel { grid-area: rotation; }
+  @media (min-width: 1200px) {
+    main {
+      grid-template-columns: minmax(160px, 240px) minmax(0, 1fr) minmax(300px, 380px);
+      grid-template-areas: "feed state rotation";
+    }
   }
   .panel {
     background: var(--panel);
@@ -142,11 +152,68 @@
   .pip { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--muted); }
   .pip.on { background: var(--accent); border-color: var(--accent); }
   #stance { font-weight: 600; }
-  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
   .empty { color: var(--muted); }
   footer { color: #e06c6c; padding-top: 8px; padding-bottom: 16px; min-height: 1.4em; }
+  #rotation-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 150px);
+    min-height: 240px;
+  }
+  #entries { margin-bottom: 10px; }
+  #entries summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .entries, #decisions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+    align-content: start;
+  }
+  .entries { margin-top: 8px; max-height: 40vh; overflow-y: auto; position: relative; }
+  #decisions { flex: 1; overflow-y: auto; min-height: 0; }
+  .entry, .decision {
+    display: grid;
+    grid-template-columns: 64px 18px minmax(0, 1fr);
+    gap: 2px 6px;
+    align-items: center;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+  .entry { grid-template-columns: 2.4em 18px minmax(0, 1fr); }
+  .entry.skipped { opacity: 0.45; }
+  .entry.latest, .decision.newest {
+    background: rgba(224, 176, 74, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(224, 176, 74, 0.45);
+  }
+  .decision.newest { animation: pop 0.25s ease-out; }
+  .slot { width: 18px; height: 18px; display: flex; }
+  .when {
+    color: var(--muted);
+    font: 12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .spell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .position { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .spell .position { margin-left: 6px; }
+  .condition {
+    grid-column: 3;
+    margin: 0;
+    color: var(--muted);
+    font: 12px/1.35 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
   @media (max-width: 640px) {
-    main { grid-template-columns: minmax(0, 1fr); }
+    main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
     #clock { margin-left: 0; }
     #last-event { text-align: left; }
@@ -239,6 +306,15 @@
       </div>
     </div>
   </section>
+
+  <section id="rotation-panel" class="panel">
+    <h2>Rotation</h2>
+    <details id="entries">
+      <summary>cast_if entries (<span id="entries-count">0</span>)</summary>
+      <ol id="entries-list" class="entries"></ol>
+    </details>
+    <ol id="decisions"></ol>
+  </section>
 </main>
 <footer id="status" role="status"></footer>
 
@@ -247,6 +323,7 @@
 
 const $ = (id) => document.getElementById(id);
 const FEED_LIMIT = 200;
+const DECISION_LIMIT = 200;
 const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
 // Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
 const missingIcons = new Set();
@@ -297,6 +374,7 @@ function restart(seed) {
       `${info.race} ${info.class} · ${info.rotation} · seed ${info.seed} · ` +
       `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
     document.title = `${info.name} · csim-live`;
+    renderEntries();
     simTime = info.start_at;
     apply(await api("POST", "/api/advance", { to: info.start_at }));
   });
@@ -314,6 +392,7 @@ function step(kind) {
 function apply(next) {
   frame = next;
   addHits(next.damage);
+  addDecisions(next.decisions);
   if (!playing || next.done) {
     simTime = next.time;
   }
@@ -343,6 +422,111 @@ function addHits(hits) {
   }
   while (feed.childElementCount > FEED_LIMIT) {
     feed.lastElementChild.remove();
+  }
+}
+
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) {
+    node.className = className;
+  }
+  if (text !== undefined) {
+    node.textContent = text;
+  }
+  return node;
+}
+
+/** An 18 px cell holding the icon, kept empty without one so the rows stay aligned. */
+function iconSlot(id) {
+  const slot = element("span", "slot");
+  const icon = iconImage(id);
+  if (icon) {
+    slot.append(icon);
+  }
+  return slot;
+}
+
+function entryName(entry) {
+  return entry.rank === null ? entry.spell : `${entry.spell} (rank ${entry.rank})`;
+}
+
+/** The rotation's `cast_if` entries, in file order. */
+function renderEntries() {
+  $("entries-count").textContent = String(info.cast_if.length);
+  $("entries-list").replaceChildren(...info.cast_if.map((entry) => {
+    const item = element("li", entry.skipped === null ? "entry" : "entry skipped");
+    item.dataset.position = String(entry.position);
+    const name = entry.skipped === null ? entryName(entry) : `${entryName(entry)} — ${entry.skipped}`;
+    item.append(
+      element("span", "position", `#${entry.position}`),
+      iconSlot(entry.icon),
+      element("span", "spell", name),
+      element("pre", "condition", entry.condition ?? "no condition"),
+    );
+    item.title = name;
+    return item;
+  }));
+  $("decisions").replaceChildren();
+}
+
+/** What decided a cast: the condition of the entry that returned true, or how it was cast. */
+function decidedBy(decision) {
+  if (decision.by !== "entry") {
+    return decision.by;
+  }
+  return info.cast_if[decision.entry - 1].condition ?? "no condition";
+}
+
+function addDecisions(decisions) {
+  if (decisions.length === 0) {
+    return;
+  }
+  const list = $("decisions");
+  for (const decision of decisions) {
+    const item = element("li", "decision");
+    const name = element("span", "spell", decision.spell);
+    if (decision.entry !== null) {
+      name.append(element("span", "position", `#${decision.entry}`));
+    }
+    item.append(
+      element("span", "when", clock(decision.time)),
+      iconSlot(decision.icon),
+      name,
+      element("pre", "condition", decidedBy(decision)),
+    );
+    list.prepend(item);
+  }
+  while (list.childElementCount > DECISION_LIMIT) {
+    list.lastElementChild.remove();
+  }
+  for (const item of list.querySelectorAll(".newest")) {
+    item.classList.remove("newest");
+  }
+  list.firstElementChild.classList.add("newest");
+  list.scrollTop = 0;
+
+  const latest = decisions.findLast((decision) => decision.entry !== null);
+  if (latest) {
+    const entries = $("entries-list");
+    for (const item of entries.children) {
+      const isLatest = item.dataset.position === String(latest.entry);
+      item.classList.toggle("latest", isLatest);
+      if (isLatest && $("entries").open) {
+        scrollIntoList(entries, item);
+      }
+    }
+  }
+}
+
+/** Scrolls `list` (only it, never the page) just enough to show `item`. */
+function scrollIntoList(list, item) {
+  // The list is positioned, so offsetTop is relative to it.
+  const top = item.offsetTop;
+  const bottom = top + item.offsetHeight;
+  if (top < list.scrollTop) {
+    list.scrollTop = top;
+  } else if (bottom > list.scrollTop + list.clientHeight) {
+    list.scrollTop = bottom - list.clientHeight;
   }
 }
 
