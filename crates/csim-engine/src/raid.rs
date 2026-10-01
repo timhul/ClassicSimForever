@@ -402,11 +402,16 @@ impl RaidControl {
         }
     }
 
+    /// Pops and dispatches the next event and returns it; `None` when the queue is empty.
+    pub fn step(&mut self) -> Option<Event> {
+        let event = self.engine.next_event()?;
+        self.dispatch(&event);
+        Some(event)
+    }
+
     /// Pops and dispatches events until the queue is empty. Port of `Engine::run`.
     pub fn run(&mut self) {
-        while let Some(event) = self.engine.next_event() {
-            self.dispatch(&event);
-        }
+        while self.step().is_some() {}
     }
 
     // ---------------------------------------------------------------- lifecycle

@@ -10,6 +10,9 @@
 //! per scaling option with the option's stat added to the first character; both hand the statistics of the raid's
 //! first character, with every member's result added, to a [`NumberCruncher`].
 //!
+//! [`IterationStepper`] runs one iteration through the same pieces an event at a time, for
+//! watching it unfold.
+//!
 //! [`run_threaded`] is the thread pool: each thread builds its own raid (the raid is not
 //! shared between threads), seeds it, runs its share of the iterations and returns its
 //! cruncher; the crunchers are merged in thread order. With the same seed and thread count
@@ -146,6 +149,34 @@ impl SimControl {
     /// # Panics
     /// Panics if a character was set up for another combat length (its DPS would be wrong).
     pub fn run_sim(&mut self, raid: &mut RaidControl, combat_length: u32, iterations: u32) {
+        let mut set = self.begin_set_of_iterations(raid, combat_length);
+        let mut reported = 0;
+        for _ in 0..iterations {
+            self.begin_iteration(raid, &mut set);
+            raid.run();
+            end_iteration(raid);
+
+            reported += 1;
+            if reported == PROGRESS_INTERVAL {
+                self.report(reported);
+                reported = 0;
+            }
+        }
+        if reported > 0 {
+            self.report(reported);
+        }
+        end_set_of_iterations(raid, &set);
+    }
+
+    /// Prepares the raid for a set of iterations of `combat_length` seconds.
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length.
+    fn begin_set_of_iterations(
+        &mut self,
+        raid: &mut RaidControl,
+        combat_length: u32,
+    ) -> IterationSet {
         let combat_length = f64::from(combat_length);
         for character in raid.characters() {
             assert_eq!(
@@ -166,47 +197,38 @@ impl SimControl {
             .map(|id| raid.context(id).time_required_to_run_precombat())
             .fold(0.0, f64::max);
 
-        let mut order: Vec<CharId> = raid.char_ids().collect();
-        let mut reported = 0;
-        for _ in 0..iterations {
-            raid.engine_mut().prepare_iteration(-start_at);
+        IterationSet {
+            combat_length,
+            start_at,
+            order: raid.char_ids().collect(),
+        }
+    }
 
-            self.shuffle_order(&mut order);
+    /// Starts an iteration: shuffles the raid, runs the precombat actions and schedules the
+    /// encounter start and end. The raid's events then run the iteration.
+    fn begin_iteration(&mut self, raid: &mut RaidControl, set: &mut IterationSet) {
+        raid.engine_mut().prepare_iteration(-set.start_at);
 
-            // Also casts the precast spell if it is enabled.
-            for &id in &order {
-                raid.with_character(id, |ctx| ctx.run_precombat_actions());
-            }
+        self.shuffle_order(&mut set.order);
 
-            for &id in &order {
-                if raid.character(id).is_tanking() {
-                    raid.engine_mut()
-                        .add_event(Event::new(0.0, EventKind::IncomingDamage { character: id }));
-                }
+        // Also casts the precast spell if it is enabled.
+        for &id in &set.order {
+            raid.with_character(id, |ctx| ctx.run_precombat_actions());
+        }
+
+        for &id in &set.order {
+            if raid.character(id).is_tanking() {
                 raid.engine_mut()
-                    .add_event(Event::new(0.0, EventKind::EncounterStart { character: id }));
+                    .add_event(Event::new(0.0, EventKind::IncomingDamage { character: id }));
             }
-
-            let iteration_length = self.draw_combat_length(combat_length);
-            raid.set_combat_length(iteration_length);
             raid.engine_mut()
-                .add_event(Event::new(iteration_length, EventKind::EncounterEnd));
-            raid.run();
-
-            // Resets every character and checks that the target is clean.
-            raid.reset();
-            raid.finish_combat_iteration();
-
-            reported += 1;
-            if reported == PROGRESS_INTERVAL {
-                self.report(reported);
-                reported = 0;
-            }
+                .add_event(Event::new(0.0, EventKind::EncounterStart { character: id }));
         }
-        if reported > 0 {
-            self.report(reported);
-        }
-        raid.set_combat_length(combat_length);
+
+        let iteration_length = self.draw_combat_length(set.combat_length);
+        raid.set_combat_length(iteration_length);
+        raid.engine_mut()
+            .add_event(Event::new(iteration_length, EventKind::EncounterEnd));
     }
 
     /// `combat_length` scaled by a uniform draw from `[1 - v, 1 + v]`, `v` the length
@@ -252,6 +274,28 @@ impl SimControl {
     }
 }
 
+/// What every iteration of a set needs, from [`SimControl::begin_set_of_iterations`].
+#[derive(Debug, Clone)]
+struct IterationSet {
+    combat_length: f64,
+    /// Seconds before the pull the iterations start at, for the slowest precombat actions.
+    start_at: f64,
+    /// Who acts first at a tie, shuffled every iteration.
+    order: Vec<CharId>,
+}
+
+/// Ends an iteration whose events ran out: resets every character, checks that the target is
+/// clean and closes the iteration for the statistics.
+fn end_iteration(raid: &mut RaidControl) {
+    raid.reset();
+    raid.finish_combat_iteration();
+}
+
+/// Ends a set of iterations: the characters' combat length back to the set's.
+fn end_set_of_iterations(raid: &mut RaidControl, set: &IterationSet) {
+    raid.set_combat_length(set.combat_length);
+}
+
 /// Hands the first character's statistics, with every member's result added, to the
 /// cruncher. The `add_player_result` / `add_class_statistic` lines of `SimControl`.
 fn collect(raid: &mut RaidControl, option: Option<SimOption>, cruncher: &mut NumberCruncher) {
@@ -276,15 +320,80 @@ pub fn run_logged_iteration(
     seed: u64,
     raid: &mut RaidControl,
 ) -> CombatLog {
-    let mut seeds = Xoroshiro128Plus::from_seed(seed);
-    let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
-    raid.set_seed(raid_seed);
-    raid.engine_mut().enable_combat_log();
-    let mut control = SimControl::new(settings.clone(), shuffle_seed);
-    control.run_sim(raid, settings.combat_length, 1);
-    raid.engine_mut()
-        .take_combat_log()
-        .expect("the log was enabled")
+    IterationStepper::new(settings, seed, raid).finish(raid)
+}
+
+/// One iteration run an event at a time, for watching it unfold: [`run_logged_iteration`]
+/// stepped by the caller. Seeded and run like it (and so like the only thread of
+/// [`run_threaded`]), through the same pieces as [`SimControl::run_sim`], with the combat log
+/// recorded.
+///
+/// Every call takes the raid the stepper was created with. The combat log is final up to its
+/// length after each [`IterationStepper::step`]: an event only inserts entries after the log
+/// length at its own start.
+#[derive(Debug)]
+pub struct IterationStepper {
+    set: IterationSet,
+}
+
+impl IterationStepper {
+    /// Seeds `raid` from `seed`, enables its combat log and starts the iteration: the
+    /// precombat actions have run, the engine's clock is at the start of the iteration
+    /// (before the pull) and the events of the iteration are queued.
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length than `settings`'.
+    pub fn new(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> Self {
+        let mut seeds = Xoroshiro128Plus::from_seed(seed);
+        let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
+        raid.set_seed(raid_seed);
+        raid.engine_mut().enable_combat_log();
+        let mut control = SimControl::new(settings.clone(), shuffle_seed);
+        let mut set = control.begin_set_of_iterations(raid, settings.combat_length);
+        control.begin_iteration(raid, &mut set);
+        IterationStepper { set }
+    }
+
+    /// Seconds before the pull the iteration started at.
+    pub fn start_at(&self) -> f64 {
+        -self.set.start_at
+    }
+
+    /// Runs the next event and returns it; `None` once the iteration is over.
+    pub fn step(&mut self, raid: &mut RaidControl) -> Option<Event> {
+        raid.step()
+    }
+
+    /// The time of the next event; `None` once the iteration is over.
+    pub fn next_event_time(&self, raid: &RaidControl) -> Option<f64> {
+        raid.engine().peek().map(|event| event.time)
+    }
+
+    /// Runs every event at or before `time` and returns how many ran.
+    pub fn step_until(&mut self, raid: &mut RaidControl, time: f64) -> usize {
+        let mut steps = 0;
+        while self.next_event_time(raid).is_some_and(|next| next <= time) {
+            self.step(raid);
+            steps += 1;
+        }
+        steps
+    }
+
+    /// Whether every event of the iteration ran.
+    pub fn is_done(&self, raid: &RaidControl) -> bool {
+        raid.engine().peek().is_none()
+    }
+
+    /// Runs what is left of the iteration, ends it (the characters' statistics hold its
+    /// results) and returns the combat log.
+    pub fn finish(mut self, raid: &mut RaidControl) -> CombatLog {
+        while self.step(raid).is_some() {}
+        end_iteration(raid);
+        end_set_of_iterations(raid, &self.set);
+        raid.engine_mut()
+            .take_combat_log()
+            .expect("the log was enabled")
+    }
 }
 
 /// Runs `settings.threads` threads, each on a raid of its own from `build`, and merges their

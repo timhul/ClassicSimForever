@@ -9,6 +9,7 @@ use super::*;
 use crate::character::tests::{equipment_db, race};
 use crate::character::{Character, ClassDb, ClassSpec};
 use crate::character_loader::CharacterSetup;
+use crate::combat_log::CombatLogEntry;
 use crate::data_bundle::DataBundle;
 use crate::engine::EventType;
 use crate::faction::PlayerClass;
@@ -342,6 +343,85 @@ fn a_logged_iteration_is_the_one_thread_iteration_of_its_seed() {
     let end = f64::from(settings.combat_length) * 1.1;
     assert!(log.entries().iter().all(|e| e.time <= end));
     assert!(!raid.engine().is_logging());
+}
+
+#[test]
+fn a_stepped_iteration_is_the_logged_iteration_of_its_seed() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut logged_raid = data.raid(&settings, 2, true);
+    let logged = run_logged_iteration(&settings, 9, &mut logged_raid);
+
+    let mut raid = data.raid(&settings, 2, true);
+    let mut stepper = IterationStepper::new(&settings, 9, &mut raid);
+    assert!(stepper.start_at() < 0.0);
+    assert_eq!(raid.engine().current_time(), stepper.start_at());
+    let mut steps = 0;
+    while let Some(event) = stepper.step(&mut raid) {
+        assert_eq!(event.time, raid.engine().current_time());
+        steps += 1;
+    }
+    assert!(steps > 100, "{steps}");
+    assert!(stepper.is_done(&raid));
+    assert_eq!(stepper.next_event_time(&raid), None);
+    let log = stepper.finish(&mut raid);
+
+    assert_eq!(log, logged);
+    let results = |raid: &mut RaidControl| -> Vec<_> {
+        raid.take_statistics()
+            .iter()
+            .map(|s| s.personal_result())
+            .collect()
+    };
+    assert_eq!(results(&mut raid), results(&mut logged_raid));
+    assert!(!raid.engine().is_logging());
+}
+
+#[test]
+fn stepping_until_a_time_runs_no_later_event() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let mut stepper = IterationStepper::new(&settings, 3, &mut raid);
+    let mut total = 0;
+    for time in [-0.5, 0.0, 0.25, 7.3, 7.3, 30.0] {
+        total += stepper.step_until(&mut raid, time);
+        assert!(raid.engine().current_time() <= time);
+        assert!(
+            stepper
+                .next_event_time(&raid)
+                .is_some_and(|next| next > time)
+        );
+    }
+    assert!(total > 10, "{total}");
+    assert_eq!(
+        stepper.step_until(&mut raid, 7.3),
+        0,
+        "nothing left before 7.3"
+    );
+    stepper.step_until(&mut raid, f64::INFINITY);
+    assert!(stepper.is_done(&raid));
+}
+
+/// A step only adds entries after the log's length at its start: what a viewer read of the log
+/// before a step stays as it was.
+#[test]
+fn a_step_leaves_the_log_before_it_untouched() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 2, false);
+    let mut stepper = IterationStepper::new(&settings, 4, &mut raid);
+    let mut seen: Vec<CombatLogEntry> = Vec::new();
+    loop {
+        let log = raid.engine().combat_log().unwrap().entries();
+        assert_eq!(&log[..seen.len()], &seen[..]);
+        seen = log.to_vec();
+        if stepper.step(&mut raid).is_none() {
+            break;
+        }
+    }
+    assert!(seen.len() > 100, "{}", seen.len());
+    assert_eq!(stepper.finish(&mut raid).entries(), &seen[..]);
 }
 
 #[test]
