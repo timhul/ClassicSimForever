@@ -1,18 +1,45 @@
 //! Routing tests, without sockets.
 
+use std::path::PathBuf;
+
 use serde_json::Value;
 
 use super::*;
 use crate::session::tests::session_of;
 
+/// A directory of its own under the temp directory, removed when dropped.
+struct TempDir(PathBuf);
+
+impl TempDir {
+    fn new(name: &str) -> TempDir {
+        let dir = std::env::temp_dir().join(format!("csim-live-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        TempDir(dir)
+    }
+}
+
+impl Drop for TempDir {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+fn call_with(session: &mut Session, icons: &Path, method: &str, path: &str) -> Reply {
+    route(session, icons, method, path, "", || 42)
+}
+
 fn call(session: &mut Session, method: &str, path: &str, body: &str) -> Reply {
-    route(session, method, path, body, || 42)
+    route(session, Path::new("no-icons"), method, path, body, || 42)
+}
+
+fn text(reply: &Reply) -> String {
+    String::from_utf8_lossy(&reply.body).into_owned()
 }
 
 fn json(reply: &Reply) -> Value {
-    assert_eq!(reply.status, 200, "{}", reply.body);
+    assert_eq!(reply.status, 200, "{}", text(reply));
     assert_eq!(reply.content_type, "application/json");
-    serde_json::from_str(&reply.body).unwrap()
+    serde_json::from_slice(&reply.body).unwrap()
 }
 
 #[test]
@@ -21,7 +48,7 @@ fn the_page_and_the_info() {
     let page = call(&mut session, "GET", "/", "");
     assert_eq!(page.status, 200);
     assert!(page.content_type.starts_with("text/html"));
-    assert!(page.body.starts_with("<!doctype html>"));
+    assert!(text(&page).starts_with("<!doctype html>"));
 
     let info = json(&call(&mut session, "GET", "/api/info", ""));
     assert_eq!(
@@ -95,10 +122,41 @@ fn bad_requests_are_refused() {
     ] {
         let reply = call(&mut session, method, path, body);
         assert_eq!(
-            reply.status, status,
+            reply.status,
+            status,
             "{method} {path} {body}: {}",
-            reply.body
+            text(&reply)
         );
     }
     assert_eq!(session.info().seed, 1, "nothing restarted");
+}
+
+#[test]
+fn icons_are_served_from_the_icon_directory() {
+    let icons = TempDir::new("icons");
+    let png = b"PNG, as far as the route cares".to_vec();
+    std::fs::write(icons.0.join("136012.png"), &png).unwrap();
+    std::fs::write(icons.0.join("secret.png"), b"no").unwrap();
+    let mut session = session_of("dw_fury_orc.yaml", 1);
+
+    let reply = call_with(&mut session, &icons.0, "GET", "/icons/136012.png");
+    assert_eq!(reply.status, 200);
+    assert_eq!(reply.content_type, "image/png");
+    assert_eq!(reply.cache_control, Some(ICON_CACHE));
+    assert_eq!(reply.body, png);
+
+    for (method, path, status) in [
+        ("GET", "/icons/132369.png", 404),
+        ("GET", "/icons/secret.png", 404),
+        ("GET", "/icons/../icons/136012.png", 404),
+        ("GET", "/icons/..%2F136012.png", 404),
+        ("GET", "/icons/136012", 404),
+        ("GET", "/icons/.png", 404),
+        ("GET", "/icons/99999999999.png", 404),
+        ("POST", "/icons/136012.png", 405),
+    ] {
+        let reply = call_with(&mut session, &icons.0, method, path);
+        assert_eq!(reply.status, status, "{method} {path}: {}", text(&reply));
+        assert_eq!(reply.cache_control, None);
+    }
 }

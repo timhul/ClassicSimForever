@@ -8,6 +8,10 @@
 //!   frame.
 //! - `POST /api/restart {"seed": "S"}`: starts the iteration of seed `S` (a string: seeds do
 //!   not fit a JavaScript number), or of a new seed without one; the new info.
+//! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon directory
+//!   (`<data>/icons/`, filled by `tools/fetch_icons.py`).
+
+use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
@@ -15,28 +19,39 @@ use crate::session::Session;
 
 const PAGE: &str = include_str!("index.html");
 
-/// A response: status, content type and body.
+/// The `Cache-Control` of an icon: a `FileDataID` always names the same texture.
+const ICON_CACHE: &str = "public, max-age=604800, immutable";
+
+/// A response: status, content type, caching and body.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Reply {
     pub status: u16,
     pub content_type: &'static str,
-    pub body: String,
+    pub cache_control: Option<&'static str>,
+    pub body: Vec<u8>,
 }
 
 impl Reply {
-    fn json(value: &impl Serialize) -> Reply {
+    fn ok(content_type: &'static str, body: Vec<u8>) -> Reply {
         Reply {
             status: 200,
-            content_type: "application/json",
-            body: serde_json::to_string(value).expect("frames serialize"),
+            content_type,
+            cache_control: None,
+            body,
         }
+    }
+
+    fn json(value: &impl Serialize) -> Reply {
+        let body = serde_json::to_vec(value).expect("frames serialize");
+        Reply::ok("application/json", body)
     }
 
     fn error(status: u16, message: impl Into<String>) -> Reply {
         Reply {
             status,
             content_type: "text/plain; charset=utf-8",
-            body: message.into(),
+            cache_control: None,
+            body: message.into().into_bytes(),
         }
     }
 }
@@ -66,20 +81,24 @@ struct Restart {
     seed: Option<String>,
 }
 
-/// Answers one request. `new_seed` gives the seed of a restart that names none.
+/// Answers one request. Icons are read from `icons`; `new_seed` gives the seed of a restart
+/// that names none.
 pub fn route(
     session: &mut Session,
+    icons: &Path,
     method: &str,
     path: &str,
     body: &str,
     new_seed: impl FnOnce() -> u64,
 ) -> Reply {
+    if let Some(name) = path.strip_prefix("/icons/") {
+        return match method {
+            "GET" => icon(icons, name),
+            _ => Reply::error(405, format!("{method} not allowed on {path}")),
+        };
+    }
     match (method, path) {
-        ("GET", "/") => Reply {
-            status: 200,
-            content_type: "text/html; charset=utf-8",
-            body: PAGE.to_owned(),
-        },
+        ("GET", "/") => Reply::ok("text/html; charset=utf-8", PAGE.as_bytes().to_vec()),
         ("GET", "/api/info") => Reply::json(&session.info()),
         ("POST", "/api/advance") => match serde_json::from_str::<Advance>(body) {
             Ok(Advance { to }) if to.is_finite() => Reply::json(&session.advance(to)),
@@ -114,12 +133,32 @@ pub fn route(
     }
 }
 
+/// The icon file `name` (`<FileDataID>.png`) of `icons`. The file name is rebuilt from the
+/// parsed number, so a request cannot name anything else.
+fn icon(icons: &Path, name: &str) -> Reply {
+    let id = name
+        .strip_suffix(".png")
+        .filter(|id| !id.is_empty() && id.bytes().all(|b| b.is_ascii_digit()))
+        .and_then(|id| id.parse::<u32>().ok());
+    let Some(id) = id else {
+        return Reply::error(404, format!("no icon {name}"));
+    };
+    match std::fs::read(icons.join(format!("{id}.png"))) {
+        Ok(png) => Reply {
+            cache_control: Some(ICON_CACHE),
+            ..Reply::ok("image/png", png)
+        },
+        Err(_) => Reply::error(404, format!("no icon {id} (run tools/fetch_icons.py)")),
+    }
+}
+
 /// Serves `session` on 127.0.0.1:`port` until the process is stopped.
 ///
 /// # Errors
 /// The port cannot be bound.
 pub fn serve(
     mut session: Session,
+    icons: &Path,
     port: u16,
     new_seed: impl Fn() -> u64,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -130,15 +169,19 @@ pub fn serve(
             Ok(_) => {
                 let method = request.method().as_str().to_owned();
                 let path = request.url().split('?').next().unwrap_or("").to_owned();
-                route(&mut session, &method, &path, &body, &new_seed)
+                route(&mut session, icons, &method, &path, &body, &new_seed)
             }
             Err(error) => Reply::error(400, error.to_string()),
         };
-        let header = tiny_http::Header::from_bytes("Content-Type", reply.content_type)
-            .expect("a valid header");
-        let response = tiny_http::Response::from_string(reply.body)
+        let header = |name: &str, value: &str| {
+            tiny_http::Header::from_bytes(name, value).expect("a valid header")
+        };
+        let mut response = tiny_http::Response::from_data(reply.body)
             .with_status_code(reply.status)
-            .with_header(header);
+            .with_header(header("Content-Type", reply.content_type));
+        if let Some(cache_control) = reply.cache_control {
+            response.add_header(header("Cache-Control", cache_control));
+        }
         if let Err(error) = request.respond(response) {
             eprintln!("cannot answer: {error}");
         }

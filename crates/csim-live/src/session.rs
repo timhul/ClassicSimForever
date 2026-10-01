@@ -15,6 +15,7 @@ use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::Event;
 use csim_engine::faction::PlayerClass;
 use csim_engine::ids::CharId;
+use csim_engine::item::EquipmentSlot;
 use csim_engine::raid::RaidControl;
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
@@ -74,6 +75,8 @@ pub struct DamageNumber {
     pub auto: bool,
     /// The spell, or the hand of a swing.
     pub name: String,
+    /// The icon (a texture `FileDataID`, see [`icon`]): the spell's, or the weapon's for a swing.
+    pub icon: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -120,6 +123,8 @@ pub struct BuffState {
     pub expires_at: Option<f64>,
     /// The length of the application in seconds; `None` without a duration.
     pub duration: Option<f64>,
+    /// The icon of the spell applying it; `None` for a buff made in code.
+    pub icon: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -130,6 +135,7 @@ pub struct CooldownState {
     pub ready_at: Option<f64>,
     /// The cooldown length in seconds.
     pub duration: f64,
+    pub icon: Option<u32>,
 }
 
 /// One iteration being watched. See the module documentation.
@@ -267,7 +273,7 @@ impl Session {
         let damage: Vec<DamageNumber> = self.log()[self.read..]
             .iter()
             .filter(|entry| entry.source == LogUnit::Character(PLAYER))
-            .filter_map(|entry| damage_number(entry.time, &entry.event))
+            .filter_map(|entry| self.damage_number(entry.time, &entry.event))
             .collect();
         self.read = self.log().len();
         self.total_damage += damage.iter().map(|hit| u64::from(hit.amount)).sum::<u64>();
@@ -285,6 +291,47 @@ impl Session {
             dps,
             state: self.character_state(),
         }
+    }
+
+    /// The damage number of a damage event; `None` for every other event.
+    pub(crate) fn damage_number(&self, time: f64, event: &CombatLogEvent) -> Option<DamageNumber> {
+        let (damage, auto, name, icon) = match event {
+            CombatLogEvent::SwingDamage { hand, damage, .. } => {
+                (damage, true, hand_name(*hand), self.weapon_icon(*hand))
+            }
+            CombatLogEvent::SpellDamage { spell, damage, .. }
+            | CombatLogEvent::SpellPeriodicDamage { spell, damage, .. } => {
+                (damage, false, spell.name.clone(), self.spell_icon(spell.id))
+            }
+            _ => return None,
+        };
+        Some(DamageNumber {
+            time,
+            amount: damage.amount,
+            critical: damage.critical,
+            glancing: damage.glancing,
+            auto,
+            name,
+            icon,
+        })
+    }
+
+    /// The icon of the game spell `id` (0 for spells made in code: none).
+    fn spell_icon(&self, id: u32) -> Option<u32> {
+        self.data
+            .spells
+            .get(id)
+            .and_then(|record| icon(record.icon))
+    }
+
+    /// The icon of the weapon in `hand`.
+    fn weapon_icon(&self, hand: Hand) -> Option<u32> {
+        let slot = match hand {
+            Hand::Mainhand => EquipmentSlot::Mainhand,
+            Hand::Offhand => EquipmentSlot::Offhand,
+        };
+        let equipment = self.raid.character(PLAYER).equipment();
+        equipment.item(slot).and_then(|item| icon(item.spec().icon))
     }
 
     fn character_state(&self) -> CharacterState {
@@ -313,6 +360,7 @@ impl Session {
                 charges: buff.charges(),
                 expires_at: buff.duration().map(|_| now + buff.time_left(now)),
                 duration: buff.duration(),
+                icon: self.spell_icon(buff.spell()),
             })
             .collect();
 
@@ -339,6 +387,7 @@ impl Session {
                 name: spell.name().to_owned(),
                 ready_at: (cooldown.last_used != -cooldown.base).then(|| cooldown.next_use()),
                 duration: cooldown.base,
+                icon: icon(spell.record().icon),
             });
         }
 
@@ -368,24 +417,9 @@ fn as_string<S: serde::Serializer>(value: &u64, serializer: S) -> Result<S::Ok, 
     serializer.collect_str(value)
 }
 
-/// The damage number of a damage event; `None` for every other event.
-fn damage_number(time: f64, event: &CombatLogEvent) -> Option<DamageNumber> {
-    let (damage, auto, name) = match event {
-        CombatLogEvent::SwingDamage { hand, damage, .. } => (damage, true, hand_name(*hand)),
-        CombatLogEvent::SpellDamage { spell, damage, .. }
-        | CombatLogEvent::SpellPeriodicDamage { spell, damage, .. } => {
-            (damage, false, spell.name.clone())
-        }
-        _ => return None,
-    };
-    Some(DamageNumber {
-        time,
-        amount: damage.amount,
-        critical: damage.critical,
-        glancing: damage.glancing,
-        auto,
-        name,
-    })
+/// An icon `FileDataID` of the data, `None` for 0 (no icon).
+pub fn icon(file_data_id: u32) -> Option<u32> {
+    Some(file_data_id).filter(|&id| id != 0)
 }
 
 fn hand_name(hand: Hand) -> String {

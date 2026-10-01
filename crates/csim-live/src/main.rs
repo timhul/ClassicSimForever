@@ -75,9 +75,18 @@ fn run(args: &Args) -> Result<()> {
         "Serving {} ({} {}, {}), seed {}, at http://127.0.0.1:{}",
         info.name, info.race, info.class, info.rotation, info.seed, args.port
     );
-    server::serve(session, args.port, clock_seed).map_err(|error| -> Box<dyn std::error::Error> {
-        format!("cannot serve on port {}: {error}", args.port).into()
-    })
+    let icons = data_dir.join("icons");
+    if !icons.is_dir() {
+        println!(
+            "No icons in {}: run `python tools/fetch_icons.py` to show them",
+            icons.display()
+        );
+    }
+    server::serve(session, &icons, args.port, clock_seed).map_err(
+        |error| -> Box<dyn std::error::Error> {
+            format!("cannot serve on port {}: {error}", args.port).into()
+        },
+    )
 }
 
 /// `./data` when it exists, else the repository's `data/` (as `csim`).

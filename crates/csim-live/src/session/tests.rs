@@ -58,7 +58,7 @@ fn the_session_shows_the_iteration_the_cli_logs() {
         let logged: Vec<DamageNumber> = log
             .entries()
             .iter()
-            .filter_map(|entry| damage_number(entry.time, &entry.event))
+            .filter_map(|entry| session.damage_number(entry.time, &entry.event))
             .collect();
 
         assert!(logged.len() > 50, "{file}: {}", logged.len());
@@ -185,4 +185,46 @@ fn stepping_runs_one_event_or_up_to_a_cast() {
     }
     assert!(casts > 10, "{casts}");
     assert_eq!(session.step_event().event, None);
+}
+
+#[test]
+fn hits_buffs_and_cooldowns_carry_their_icons() {
+    const BLOODTHIRST: Option<u32> = Some(136012);
+    // High Warlord's Bludgeon, in both hands.
+    const BLUDGEON: Option<u32> = Some(133057);
+
+    let mut session = session_of("dw_fury_orc.yaml", 1);
+    let frames = play(&mut session, 1.0);
+    let numbers: Vec<&DamageNumber> = frames.iter().flat_map(|f| &f.damage).collect();
+    let icons_of = |name: &str| -> Vec<Option<u32>> {
+        let mut icons: Vec<_> = numbers
+            .iter()
+            .filter(|hit| hit.name == name)
+            .map(|hit| hit.icon)
+            .collect();
+        icons.dedup();
+        icons
+    };
+    assert_eq!(icons_of("Bloodthirst"), [BLOODTHIRST]);
+    assert_eq!(icons_of("Main hand"), [BLUDGEON]);
+    assert_eq!(icons_of("Off hand"), [BLUDGEON]);
+    assert!(
+        numbers.iter().all(|hit| hit.icon.is_some()),
+        "every hit has one"
+    );
+
+    let state = session_of("dw_fury_orc.yaml", 1).advance(20.0).state;
+    let cooldown = state.cooldowns.iter().find(|cd| cd.name == "Bloodthirst");
+    assert_eq!(cooldown.unwrap().icon, BLOODTHIRST);
+    let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
+    assert!(shout.unwrap().icon.is_some());
+
+    let state = session_of("combat_swords_human.yaml", 1)
+        .advance(20.0)
+        .state;
+    let slice = state
+        .buffs
+        .iter()
+        .find(|buff| buff.name == "Slice and Dice");
+    assert!(slice.unwrap().icon.is_some());
 }
