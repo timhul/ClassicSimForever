@@ -215,3 +215,43 @@ fn flurry_charges_not_consumed() {
 
     assert_eq!(test.with_buff_id(flurry, Buff::charges), 3);
 }
+
+/// The queue is a buff named like the spell, the one a rotation's `buff_duration "Heroic
+/// Strike"` resolves to: up from the queue until the swing lands.
+#[test]
+fn queued_heroic_strike_is_a_buff_until_the_swing_lands() {
+    let mut test = test();
+    test.given_warrior_has_rage(100);
+    let id = test.spell(SPELL);
+    let marker = test.character().spells().spell(id).marker_buff().unwrap();
+    assert_eq!(test.buff(SPELL), marker);
+    assert!(!test.buff_is_active(SPELL));
+
+    assert!(test.cast(SPELL).queued);
+    assert!(test.buff_is_active(SPELL));
+    assert!(test.with_buff(SPELL, Buff::is_permanent));
+    test.cast(SPELL);
+    assert!(test.buff_is_active(SPELL), "queued again: still up");
+
+    when_heroic_strike_is_performed(&mut test);
+    assert!(!test.buff_is_active(SPELL));
+    assert_eq!(test.character().spells().queued_next_swing(), None);
+}
+
+/// Heroic Strike and Cleave share the queue: the last one queued replaces the other, buff
+/// included.
+#[test]
+fn cleave_replaces_a_queued_heroic_strike() {
+    let mut test = test();
+    test.given_warrior_has_rage(100);
+    test.cast(SPELL);
+    let cleave = test.spell("Cleave");
+    assert!(test.cast("Cleave").queued);
+    assert_eq!(test.character().spells().queued_next_swing(), Some(cleave));
+    assert!(!test.buff_is_active(SPELL));
+    assert!(test.buff_is_active("Cleave"));
+
+    test.cast(SPELL);
+    assert!(test.buff_is_active(SPELL));
+    assert!(!test.buff_is_active("Cleave"));
+}

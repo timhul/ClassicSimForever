@@ -443,12 +443,14 @@ fn auto_attacks_and_the_next_swing_queue() {
     assert_eq!(spells.auto_attack(Hand::Offhand).last_used(), 1.0);
 
     assert_eq!(spells.queued_next_swing(), None);
-    spells.queue_next_swing(SpellId(3));
+    spells.queue_next_swing(SpellId(3), Some(BuffId(7)));
     assert_eq!(spells.queued_next_swing(), Some(SpellId(3)));
+    assert_eq!(spells.queued_next_swing_marker(), Some(BuffId(7)));
     assert_eq!(spells.cancel_next_swing(), Some(SpellId(3)));
+    assert_eq!(spells.queued_next_swing_marker(), None);
     assert_eq!(spells.cancel_next_swing(), None);
 
-    spells.queue_next_swing(SpellId(3));
+    spells.queue_next_swing(SpellId(3), None);
     spells.reset_state();
     assert_eq!(spells.queued_next_swing(), None);
     assert_eq!(spells.auto_attack(Hand::Offhand).last_used(), 0.0);

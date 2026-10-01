@@ -2108,13 +2108,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Logs a change of a visible aura that is not a passive's; a debuff is on the target.
+    /// Logs a change of a visible aura that is not a passive's or a sim-only marker's; a debuff
+    /// is on the target.
     fn log_aura(&mut self, id: BuffId, change: AuraChange) {
         if !self.engine.is_logging() {
             return;
         }
         let buff = self.buff_ref(id);
-        if buff.is_hidden() || buff.is_passive() {
+        if buff.is_hidden() || buff.is_passive() || !buff.is_in_combat_log() {
             return;
         }
         let debuff = buff.is_debuff();
@@ -2715,12 +2716,20 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         }
     }
 
-    fn queue_next_swing(&mut self, spell: SpellId) {
-        self.character.spells_mut().queue_next_swing(spell);
+    fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
+        if self.character.spells().queued_next_swing() != Some(spell) {
+            // Cleave replacing a queued Heroic Strike.
+            SpellHost::cancel_next_swing(self);
+        }
+        self.character.spells_mut().queue_next_swing(spell, marker);
     }
 
     fn cancel_next_swing(&mut self) {
+        let marker = self.character.spells().queued_next_swing_marker();
         self.character.spells_mut().cancel_next_swing();
+        if let Some(marker) = marker {
+            self.cancel_buff(marker);
+        }
     }
 
     fn queued_next_swing(&self) -> Option<SpellId> {

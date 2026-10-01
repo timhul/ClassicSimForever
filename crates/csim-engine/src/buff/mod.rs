@@ -167,6 +167,8 @@ pub struct Buff {
     school: u32,
     /// Applied by a passive spell (talents, stances' passives): not in the combat log.
     passive: bool,
+    /// Whether its changes are in the combat log (not a sim-only marker: the next-swing queue).
+    in_combat_log: bool,
     /// The events that use up one charge (`SpellAuraOptions.ProcTypeMask` of a charged aura:
     /// Flurry loses a charge per landed swing).
     charge_sources: Vec<ProcSource>,
@@ -225,6 +227,7 @@ impl Buff {
             spell: 0,
             school: 1,
             passive: false,
+            in_combat_log: true,
             charge_sources: Vec::new(),
             charge_spell_masks: Vec::new(),
             consumed_whole: false,
@@ -304,6 +307,19 @@ impl Buff {
                 )
             })
             .collect();
+        buff
+    }
+
+    /// The buff that is up while on-next-swing spell `record` (Heroic Strike, Cleave) is queued
+    /// and that spell has no aura of its own: named like the spell, on the character, until the
+    /// queue drops. The game shows the queue on the action button only, so it is not in the
+    /// combat log; it is in the statistics (the queue uptime) and in rotation conditions.
+    pub fn next_swing_queue(record: &SpellRecord) -> Self {
+        let mut buff = Buff::new(&record.name, None, BuffKind::SelfBuff, None, 0);
+        buff.canonical_name = Buff::canonical_name_for(&record.name, record.id);
+        buff.spell = record.id;
+        buff.school = record.school_mask.bits();
+        buff.in_combat_log = false;
         buff
     }
 
@@ -436,6 +452,12 @@ impl Buff {
     /// Whether a passive spell applies the buff.
     pub fn is_passive(&self) -> bool {
         self.passive
+    }
+
+    /// Whether the buff's changes are in the combat log (passives' and hidden buffs' are not
+    /// either).
+    pub fn is_in_combat_log(&self) -> bool {
+        self.in_combat_log
     }
 
     /// The spells whose buffs end when this one does.
