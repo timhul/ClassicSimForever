@@ -354,6 +354,7 @@ spells:
   name: Walk on Air
   rank_text: Racial
   skill_line: 2980
+  race_mask: 12884901888
   acquire_method: 2
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
@@ -395,6 +396,7 @@ spells:
   name: Read Ley Line
   rank_text: Racial
   skill_line: 2980
+  race_mask: 4294967296
   acquire_method: 2
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
@@ -421,6 +423,7 @@ spells:
   name: Elemental Insight
   rank_text: Racial Passive
   skill_line: 2980
+  race_mask: 12884901888
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
@@ -437,6 +440,7 @@ spells:
   name: Wind Blessed
   rank_text: Racial Passive
   skill_line: 2980
+  race_mask: 12884901888
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1

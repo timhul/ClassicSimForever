@@ -49,3 +49,16 @@
   id: 8
   faction: HORDE
   base_stats: { strength: 21, agility: 22, stamina: 21, intellect: 16, spirit: 21 }
+
+# Skyborne, one ChrRaces row per faction (High Order: Alliance, Windshaper: Horde). The level-1
+# starting stats Warcraft Tavern lists (Warrior 22 / 21 / 21 / 21 / 20, Rogue 20 / 24 / 20 / 21 /
+# 20, ...) minus the class modifiers all give the same race base.
+- race: HIGH_ORDER_SKYBORNE
+  id: 95
+  faction: ALLIANCE
+  base_stats: { strength: 19, agility: 21, stamina: 19, intellect: 21, spirit: 20 }
+
+- race: WINDSHAPER_SKYBORNE
+  id: 96
+  faction: HORDE
+  base_stats: { strength: 19, agility: 21, stamina: 19, intellect: 21, spirit: 20 }

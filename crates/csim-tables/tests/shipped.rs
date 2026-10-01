@@ -155,7 +155,7 @@ fn shipped_races_match_chr_races() {
         assert_eq!(faction, spec.faction, "{:?}", spec.race);
         assert_eq!(
             row.playable_race_bit,
-            i32::try_from(spec.id - 1).unwrap(),
+            i32::try_from(spec.race.playable_race_bit()).unwrap(),
             "{:?}: race_mask bit",
             spec.race
         );

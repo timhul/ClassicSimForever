@@ -192,8 +192,10 @@ Skill lines of `CategoryID` 9 named "<Race> Racial" / "Racial - <Race>" (101 Dwa
 125 Orc, 126 Night Elf, 220 Undead, 733 Troll, 753 Gnome, 754 Human, 2980 Skyborne).
 `SkillLineAbility.RaceMasks_0` = `1 << (ChrRaces.ID - 1)` (Human 1, Orc 2, Dwarf 4, Night Elf 8,
 Undead 16, Tauren 32, Gnome 64, Troll 128). The Forever race Skyborne is `ChrRaces` 95/96 (two
-variants) and uses `RaceMasks_1` bits 1/2 instead. Racials are ordinary spells (Blood Fury 20572,
-Berserking 20554, Sword Specialization 20597 …); `ClassMask` −1 on a racial means "all classes".
+variants, High Order Alliance and Windshaper Horde, `PlayableRaceBit` 32/33) and uses `RaceMasks_1`
+bits 1/2 instead; the exported `race_mask` is the 64-bit `RaceMasks_0 | RaceMasks_1 << 32`.
+Racials are ordinary spells (Blood Fury 20572, Berserking 20554, Sword Specialization 20597 …);
+`ClassMask` −1 on a racial means "all classes".
 
 ## 1.7 Spell → what it does
 

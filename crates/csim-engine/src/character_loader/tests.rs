@@ -79,6 +79,25 @@ fn every_shipped_setup_builds() {
     }
 }
 
+/// The Skyborne profile is DW Fury Orc's Horde setup on a Windshaper, whose Wind Blessed adds
+/// 1 % attack speed; the High Order variant is the Alliance one.
+#[test]
+fn the_skyborne_setup_has_wind_blessed() {
+    let setup = shipped("dw_fury_skyborne.yaml");
+    assert_eq!(setup.race, Race::WindshaperSkyborne);
+    let attack_speed = |setup: &CharacterSetup| {
+        let raid = setup.build_raid(data(), &settings()).unwrap();
+        raid.character(CharId(0))
+            .stats()
+            .get_melee_attack_speed_mod()
+    };
+    let mut orc = setup.clone();
+    orc.race = Race::Orc;
+    let ratio = attack_speed(&setup) / attack_speed(&orc);
+    assert!((ratio - 1.01).abs() < 1e-9, "{ratio}");
+    assert_eq!(Race::HighOrderSkyborne.faction(), Faction::Alliance);
+}
+
 #[test]
 fn the_dw_fury_setup_is_built_as_written() {
     let setup = shipped("dw_fury_orc.yaml");

@@ -11,6 +11,7 @@ variations:
       - ../characters/dw_fury_human.yaml
       - ../characters/dw_fury_night_elf.yaml
       - ../characters/dw_fury_orc.yaml
+      - ../characters/dw_fury_skyborne.yaml
       - ../characters/dw_fury_tauren.yaml
       - ../characters/dw_fury_troll.yaml
       - ../characters/dw_fury_undead.yaml

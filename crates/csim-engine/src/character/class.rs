@@ -612,8 +612,9 @@ mod tests {
         assert_eq!(rules.melee_ap_per_agility, 1);
         assert_eq!(rules.ranged_ap_per_agility, 2);
         assert!((rules.agility_per_percent_crit - 28.99).abs() < 0.01);
-        assert_eq!(rogue.available_races.len(), 7);
+        assert_eq!(rogue.available_races.len(), 9);
         assert!(!rogue.available_races.contains(&Race::Tauren));
+        assert!(rogue.available_races.contains(&Race::WindshaperSkyborne));
         assert!(rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::Dagger));
         assert!(rogue.can_wield(EquipmentSlot::Offhand, WeaponType::Axe));
         assert!(!rogue.can_wield(EquipmentSlot::Mainhand, WeaponType::TwohandSword));

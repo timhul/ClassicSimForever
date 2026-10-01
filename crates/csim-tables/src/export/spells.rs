@@ -504,7 +504,7 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
     if let Some(ability) = ability {
         record.skill_line = Some(ability.skill_line);
         record.class_mask = ability.class_mask;
-        record.race_mask = ability.race_masks[0];
+        record.race_mask = ability.race_mask();
         record.supercedes = ability.supercedes_spell;
         record.acquire_method = ability.acquire_method;
     }
