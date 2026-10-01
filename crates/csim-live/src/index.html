@@ -129,6 +129,7 @@
   #feed li.auto { color: var(--white-hit); }
   #feed li.spell { color: var(--yellow-hit); }
   #feed li.crit { font-size: 22px; }
+  #feed li.miss { font-style: italic; }
   @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   #state { display: grid; gap: 16px; }
   .row { display: grid; grid-template-columns: 124px minmax(0, 1fr) 64px; gap: 8px; align-items: center; }
@@ -410,13 +411,15 @@ function addHits(hits) {
   const feed = $("feed");
   for (const hit of hits) {
     const item = document.createElement("li");
-    item.className = (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "");
+    item.className = (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "")
+      + (hit.miss ? " miss" : "");
     const icon = iconImage(hit.icon);
     if (icon) {
       item.append(icon);
     }
-    item.append(hit.critical ? `${hit.amount}*` : String(hit.amount));
-    const how = [hit.critical && "critical", hit.glancing && "glancing"].filter(Boolean).join(", ");
+    item.append(hit.miss || (hit.critical ? `${hit.amount}*` : String(hit.amount)));
+    const how = [hit.miss && hit.miss.toLowerCase(), hit.critical && "critical",
+      hit.glancing && "glancing"].filter(Boolean).join(", ");
     item.title = `${hit.name} at ${clock(hit.time)}${how ? ` (${how})` : ""}`;
     feed.prepend(item);
   }
