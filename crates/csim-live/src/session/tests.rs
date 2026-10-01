@@ -2,6 +2,7 @@
 
 use std::sync::{Arc, OnceLock};
 
+use csim_engine::proc::Proc;
 use csim_engine::sim_control::run_logged_iteration;
 
 use super::*;
@@ -49,7 +50,11 @@ fn the_session_shows_the_iteration_the_cli_logs() {
     for (file, seed) in [("dw_fury_orc.yaml", 3), ("combat_swords_human.yaml", 4)] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
-        let numbers: Vec<&DamageNumber> = frames.iter().flat_map(|f| &f.damage).collect();
+        let numbers: Vec<&DamageNumber> = frames
+            .iter()
+            .flat_map(|f| &f.damage)
+            .filter(|hit| !hit.proc)
+            .collect();
 
         let setup = setup(file);
         let settings = settings(&setup);
@@ -342,4 +347,62 @@ fn avoided_attacks_are_in_the_feed() {
         "{white:?}"
     );
     assert!(!kinds(false).is_empty(), "some spell is avoided");
+}
+
+#[test]
+fn procs_are_in_the_feed() {
+    for (file, seed) in [("dw_fury_orc.yaml", 3), ("combat_swords_human.yaml", 4)] {
+        let mut session = session_of(file, seed);
+        let frames = play(&mut session, 0.37);
+        let feed: Vec<DamageNumber> = frames.into_iter().flat_map(|f| f.damage).collect();
+        let shown = |name: &str| {
+            feed.iter()
+                .filter(|hit| hit.proc && hit.name == name)
+                .count()
+        };
+
+        let procs = session.raid.character(PLAYER).spells().procs().procs();
+        let fired: Vec<&Proc> = procs.iter().filter(|proc| proc.procs() > 0).collect();
+        assert!(fired.len() > 1, "{file}");
+        // Procs of the same name (a poison on each weapon) add up.
+        for proc in &fired {
+            let count: u32 = fired
+                .iter()
+                .filter(|other| other.name() == proc.name())
+                .map(|other| other.procs())
+                .sum();
+            assert_eq!(
+                shown(proc.name()),
+                count as usize,
+                "{file}: {}",
+                proc.name()
+            );
+        }
+        for hit in feed.iter().filter(|hit| hit.proc) {
+            assert_eq!(hit.amount, 0);
+            assert!(hit.miss.is_none() && !hit.critical && !hit.auto);
+        }
+    }
+
+    // Windfury Totem: between the hit that procced it (a swing or a spell like Bloodthirst)
+    // and the extra main-hand swing (a queued Heroic Strike when one is queued).
+    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let feed: Vec<DamageNumber> = play(&mut session, 0.37)
+        .into_iter()
+        .flat_map(|f| f.damage)
+        .collect();
+    let windfury: Vec<usize> = feed
+        .iter()
+        .enumerate()
+        .filter(|(_, hit)| hit.proc && hit.name == "Windfury Totem")
+        .map(|(index, _)| index)
+        .collect();
+    assert!(windfury.len() > 5, "{}", windfury.len());
+    for index in windfury {
+        let at = feed[index].time;
+        let before = feed[..index].iter().rev().find(|hit| !hit.proc).unwrap();
+        assert_eq!(before.time, at, "{before:?}");
+        let after = feed[index + 1..].iter().find(|hit| !hit.proc).unwrap();
+        assert_eq!(after.time, at, "{:?}", &feed[index..index + 4]);
+    }
 }

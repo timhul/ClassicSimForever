@@ -4,7 +4,8 @@
 //! The raid is built and seeded exactly as `csim run --combat-log` builds and seeds it, so with
 //! the same seed, length and variance the session runs the iteration that command logs. Each
 //! call moves the iteration forward and returns a [`Frame`]: the damage dealt since the last
-//! frame (read from the combat log, which a step only appends to), the rotation's decisions
+//! frame (read from the combat log, which a step only appends to) with the procs that fired
+//! (the log has no proc lines: each proc's count is compared after every event), the rotation's decisions
 //! since the last frame (its decision trace, enabled for the session) and the character's
 //! state. Every time in a frame is absolute sim time, so the page can animate between frames.
 
@@ -17,6 +18,7 @@ use csim_engine::engine::Event;
 use csim_engine::faction::PlayerClass;
 use csim_engine::ids::CharId;
 use csim_engine::item::EquipmentSlot;
+use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
 use csim_engine::rotation::DecidedBy;
 use csim_engine::sim_control::IterationStepper;
@@ -99,7 +101,7 @@ pub struct Frame {
     pub state: CharacterState,
 }
 
-/// One hit of the damage feed, or one attack the target avoided.
+/// One hit of the damage feed, one attack the target avoided, or one proc that fired.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DamageNumber {
     pub time: f64,
@@ -108,6 +110,9 @@ pub struct DamageNumber {
     /// How the attack was avoided ("Miss", "Dodge", "Parry", "Block" or "Resist"); `None` for a
     /// hit.
     pub miss: Option<&'static str>,
+    /// A proc that fired (`name` is the proc's; no damage): not damage, but it shows what
+    /// happened in between (a Windfury Totem extra swing, a Flurry).
+    pub proc: bool,
     pub critical: bool,
     pub glancing: bool,
     /// A white swing (an auto attack); else a spell, its periodic damage included.
@@ -189,6 +194,10 @@ pub struct Session {
     read: usize,
     /// The rotation decisions already read into frames.
     decisions_read: usize,
+    /// Each of the character's procs' firings so far, by proc index.
+    proc_counts: Vec<u32>,
+    /// The procs fired and not read into a frame yet.
+    proc_marks: Vec<ProcMark>,
     total_damage: u64,
     /// The latest time shown.
     time: f64,
@@ -211,6 +220,7 @@ impl Session {
             .map_err(|error| error.to_string())?;
         let stepper = start(&settings, seed, &mut raid);
         let time = stepper.start_at();
+        let proc_counts = proc_counts(&raid);
         Ok(Session {
             data,
             setup,
@@ -220,6 +230,8 @@ impl Session {
             stepper,
             read: 0,
             decisions_read: 0,
+            proc_counts,
+            proc_marks: Vec::new(),
             total_damage: 0,
             time,
         })
@@ -235,6 +247,8 @@ impl Session {
             .build_raid(&self.data, &self.settings)
             .expect("the setup built before");
         self.stepper = start(&self.settings, seed, &mut raid);
+        self.proc_counts = proc_counts(&raid);
+        self.proc_marks.clear();
         self.raid = raid;
         self.seed = seed;
         self.read = 0;
@@ -297,7 +311,14 @@ impl Session {
     /// Runs every event up to `time` and shows `time` (the end of the encounter once every
     /// event ran). A time before the one shown runs nothing.
     pub fn advance(&mut self, time: f64) -> Frame {
-        self.stepper.step_until(&mut self.raid, time);
+        // One event at a time, for the procs each fires.
+        while self
+            .stepper
+            .next_event_time(&self.raid)
+            .is_some_and(|next| next <= time)
+        {
+            self.step();
+        }
         let now = self.raid.engine().current_time();
         self.time = if self.done() {
             now
@@ -330,9 +351,54 @@ impl Session {
     }
 
     fn step(&mut self) -> Option<Event> {
+        let start = self.log().len();
         let event = self.stepper.step(&mut self.raid)?;
         self.time = event.time;
+        self.mark_procs(start, event.time);
         Some(event)
+    }
+
+    /// Marks the procs the event that logged from `start` on fired: before its first line of
+    /// the proc's spell or of a spell it casts, else after its lines. Later events only append
+    /// to the log, so the place stays.
+    fn mark_procs(&mut self, start: usize, time: f64) {
+        let procs = self.raid.character(PLAYER).spells().procs().procs();
+        let log = self.log();
+        let mut marks = Vec::new();
+        for (index, proc) in procs.iter().enumerate() {
+            let before = self.proc_counts.get(index).copied().unwrap_or(0);
+            if proc.procs() <= before {
+                continue;
+            }
+            let mut spells = proc.payload_spells();
+            spells.insert(0, proc.game_id());
+            let at = log[start..]
+                .iter()
+                .position(|entry| {
+                    entry.source == LogUnit::Character(PLAYER)
+                        && logged_spell(&entry.event).is_some_and(|id| spells.contains(&id))
+                })
+                .map_or(log.len(), |offset| start + offset);
+            let icon = spells.iter().find_map(|&id| self.spell_icon(id));
+            for _ in before..proc.procs() {
+                marks.push(ProcMark {
+                    at,
+                    number: DamageNumber {
+                        time,
+                        amount: 0,
+                        miss: None,
+                        proc: true,
+                        critical: false,
+                        glancing: false,
+                        auto: false,
+                        name: proc.name().to_owned(),
+                        icon,
+                    },
+                });
+            }
+        }
+        self.proc_counts = procs.iter().map(Proc::procs).collect();
+        self.proc_marks.extend(marks);
     }
 
     fn done(&self) -> bool {
@@ -349,11 +415,21 @@ impl Session {
 
     /// The frame at the time shown, with the damage logged since the last frame.
     fn frame(&mut self, event: Option<&'static str>) -> Frame {
-        let damage: Vec<DamageNumber> = self.log()[self.read..]
-            .iter()
-            .filter(|entry| entry.source == LogUnit::Character(PLAYER))
-            .filter_map(|entry| self.damage_number(entry.time, &entry.event))
-            .collect();
+        let mut marks = std::mem::take(&mut self.proc_marks);
+        marks.sort_by_key(|mark| mark.at);
+        let mut marks = marks.into_iter().peekable();
+        let mut damage = Vec::new();
+        for (index, entry) in self.log().iter().enumerate().skip(self.read) {
+            while let Some(mark) = marks.next_if(|mark| mark.at <= index) {
+                damage.push(mark.number);
+            }
+            if entry.source == LogUnit::Character(PLAYER)
+                && let Some(number) = self.damage_number(entry.time, &entry.event)
+            {
+                damage.push(number);
+            }
+        }
+        damage.extend(marks.map(|mark| mark.number));
         self.read = self.log().len();
         let decisions = self.decisions();
         self.total_damage += damage.iter().map(|hit| u64::from(hit.amount)).sum::<u64>();
@@ -442,6 +518,7 @@ impl Session {
             time,
             amount: damage.amount,
             miss,
+            proc: false,
             critical: damage.critical,
             glancing: damage.glancing,
             auto,
@@ -563,6 +640,32 @@ fn start(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> Iteration
 /// An icon `FileDataID` of the data, `None` for 0 (no icon).
 pub fn icon(file_data_id: u32) -> Option<u32> {
     Some(file_data_id).filter(|&id| id != 0)
+}
+
+/// A proc that fired, to show before the log line `at`.
+#[derive(Debug)]
+struct ProcMark {
+    at: usize,
+    number: DamageNumber,
+}
+
+/// Each of the character's procs' firings so far.
+fn proc_counts(raid: &RaidControl) -> Vec<u32> {
+    let procs = raid.character(PLAYER).spells().procs().procs();
+    procs.iter().map(Proc::procs).collect()
+}
+
+/// The game spell of a spell event.
+fn logged_spell(event: &CombatLogEvent) -> Option<u32> {
+    match event {
+        CombatLogEvent::SpellCastSuccess { spell, .. }
+        | CombatLogEvent::SpellDamage { spell, .. }
+        | CombatLogEvent::SpellMissed { spell, .. }
+        | CombatLogEvent::SpellPeriodicDamage { spell, .. }
+        | CombatLogEvent::SpellEnergize { spell, .. }
+        | CombatLogEvent::SpellAura { spell, .. } => Some(spell.id),
+        CombatLogEvent::SwingDamage { .. } | CombatLogEvent::SwingMissed { .. } => None,
+    }
 }
 
 fn miss_name(miss: MissType) -> &'static str {
