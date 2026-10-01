@@ -436,29 +436,51 @@ fn rage_refunds_keep_the_tenths() {
 
 /// Swing rage comes from the base speed of the weapon in the hand: 3.46 per second for a
 /// one-hander, half that in the off hand (scaled by the off-hand rage percent), 4.5 for a
-/// two-hander.
+/// two-hander. A crit doubles it, off-hand percent included.
 #[test]
 fn swing_rage_follows_the_equipped_weapons() {
     let mut f = Fixture::orc_warrior();
-    assert_eq!(f.character.swing_rage(Hand::Mainhand), None, "no weapon");
+    assert_eq!(
+        f.character.swing_rage(Hand::Mainhand, false),
+        None,
+        "no weapon"
+    );
     f.equip(EquipmentSlot::Mainhand, SWORD);
     f.equip(EquipmentSlot::Offhand, DAGGER);
     let close = |rage: Option<f64>, expected: f64| (rage.unwrap() - expected).abs() < 1e-9;
-    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
-    assert!(close(f.character.swing_rage(Hand::Offhand), 1.73 * 1.8));
+    assert!(close(
+        f.character.swing_rage(Hand::Mainhand, false),
+        3.46 * 2.6
+    ));
+    assert!(close(
+        f.character.swing_rage(Hand::Offhand, false),
+        1.73 * 1.8
+    ));
     f.character.adjust_offhand_rage_percent(50);
     assert!(close(
-        f.character.swing_rage(Hand::Offhand),
+        f.character.swing_rage(Hand::Offhand, false),
         1.73 * 1.8 * 1.5
     ));
-    assert!(close(f.character.swing_rage(Hand::Mainhand), 3.46 * 2.6));
+    assert!(close(
+        f.character.swing_rage(Hand::Offhand, true),
+        1.73 * 1.8 * 1.5 * 2.0
+    ));
+    assert!(close(
+        f.character.swing_rage(Hand::Mainhand, false),
+        3.46 * 2.6
+    ));
 
     f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
-    assert!(close(f.character.swing_rage(Hand::Mainhand), 16.2));
-    assert_eq!(f.character.swing_rage(Hand::Offhand), None);
+    assert!(close(f.character.swing_rage(Hand::Mainhand, false), 16.2));
+    assert_eq!(f.character.swing_rage(Hand::Offhand, false), None);
+    // 16.2 × 2 = 32.4 rage.
+    assert_eq!(
+        f.character.gain_swing_rage(Hand::Mainhand, true),
+        Some(32.4)
+    );
     f.set_rage(90);
     assert_eq!(
-        f.character.gain_swing_rage(Hand::Mainhand),
+        f.character.gain_swing_rage(Hand::Mainhand, false),
         Some(10.0),
         "capped"
     );

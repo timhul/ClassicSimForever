@@ -474,7 +474,7 @@ overrides:
 | `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell` | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
-| `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` % | — | Dual Wield Specialization E1 |
+| `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` × `value` (1 if absent) % | — (`value` optional) | Dual Wield Specialization E1 (`value: 0.5`) |
 | `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
 | `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |

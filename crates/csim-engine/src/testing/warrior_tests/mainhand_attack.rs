@@ -209,7 +209,8 @@ fn sword(test: &mut WarriorTest) {
 }
 
 /// Forever swing rage (magey/forever-warrior#3): 3.46 per second of weapon speed for a
-/// one-hander, whatever the damage; 3.46 × 2.6 = 8.996 rage lands as 89 tenths.
+/// one-hander, whatever the damage; 3.46 × 2.6 = 8.996 rage lands as 89 tenths. A crit gives
+/// double: 17.992 rage.
 #[test]
 fn landed_swings_give_rage_by_weapon_speed() {
     assert_eq!(
@@ -218,8 +219,8 @@ fn landed_swings_give_rage_by_weapon_speed() {
     );
     assert_eq!(
         swing_rage(sword, |t| t.given_a_guaranteed_white_crit()),
-        Some(8.9),
-        "no crit bonus"
+        Some(17.9),
+        "100 % crit bonus"
     );
     assert_eq!(
         swing_rage(sword, |t| t.given_a_guaranteed_white_glancing_blow()),
@@ -256,7 +257,7 @@ fn avoided_swings_give_no_rage() {
     );
 }
 
-/// Two-handers: 4.5 per second, 4.5 × 3.5 = 15.75 rage.
+/// Two-handers: 4.5 per second, 4.5 × 3.5 = 15.75 rage; a crit 15.75 × 2 = 31.5.
 #[test]
 fn two_handers_give_more_rage_per_second() {
     assert_eq!(
@@ -265,6 +266,13 @@ fn two_handers_give_more_rage_per_second() {
             |t| t.given_a_guaranteed_white_hit()
         ),
         Some(15.7)
+    );
+    assert_eq!(
+        swing_rage(
+            |t| t.given_a_twohand_weapon_with_100_min_max_dmg(),
+            |t| t.given_a_guaranteed_white_crit()
+        ),
+        Some(31.5)
     );
 }
 

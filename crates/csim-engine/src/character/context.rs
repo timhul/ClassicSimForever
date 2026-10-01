@@ -3122,8 +3122,8 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
         2.0
     }
 
-    fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64> {
-        self.character.gain_swing_rage(hand)
+    fn gain_swing_rage(&mut self, hand: Hand, crit: bool) -> Option<f64> {
+        self.character.gain_swing_rage(hand, crit)
     }
 
     fn add_player_reaction_event(&mut self) {

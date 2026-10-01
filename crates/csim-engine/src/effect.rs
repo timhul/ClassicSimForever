@@ -1271,7 +1271,12 @@ impl Effect {
             }
             A::Dummy => match self.script_kind() {
                 Some(ScriptKind::StanceRageRetained) => host.adjust_stance_rage_retained(signed),
-                Some(ScriptKind::OffhandRagePercent) => host.adjust_offhand_rage_percent(signed),
+                // `params.value` scales the client's value (Dual Wield Specialization's
+                // 20 % per rank is 10 % in the patched game).
+                Some(ScriptKind::OffhandRagePercent) => {
+                    let scale = self.script().and_then(|s| s.params.value).unwrap_or(1.0);
+                    host.adjust_offhand_rage_percent((f64::from(signed) * scale).round() as i32);
+                }
                 Some(ScriptKind::OffhandCopy) => {
                     // Validated as present when the overrides were loaded.
                     if let Some(spell) = self.script().and_then(|s| s.params.spell) {
@@ -2383,6 +2388,26 @@ mod tests {
         );
         dw.apply_aura(&mut host, false);
         assert_eq!(host.offhand_rage, 40);
+        dw.remove_aura(&mut host, false);
+        assert_eq!(host.offhand_rage, 0);
+
+        // `value` scales the record's value.
+        let script = EffectScript {
+            index: 1,
+            script: ScriptKind::OffhandRagePercent,
+            params: ScriptParams {
+                value: Some(0.5),
+                ..ScriptParams::default()
+            },
+        };
+        let dw = Effect::new(
+            &aura_record(1, AuraType::Dummy, 40.0, 0),
+            &melee_spell(),
+            Some(script),
+            false,
+        );
+        dw.apply_aura(&mut host, false);
+        assert_eq!(host.offhand_rage, 20);
 
         // A direct effect never applies as an aura.
         effect(SpellEffectName::SchoolDamage, 100.0).apply_aura(&mut host, false);

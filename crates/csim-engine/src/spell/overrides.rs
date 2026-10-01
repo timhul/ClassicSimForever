@@ -141,7 +141,8 @@ pub enum ScriptKind {
     /// `base_points` (or `params.value`) of `params.resource` (rage by default) every
     /// `params.period_ms` while in combat (Anger Management).
     PeriodicResourceGain,
-    /// Off-hand rage generation raised by `base_points` % (Dual Wield Specialization).
+    /// Off-hand rage generation raised by `base_points` % (Dual Wield Specialization), times
+    /// the optional `params.value`.
     OffhandRagePercent,
     /// Gain `base_points` (or `params.value`, in stored units) of `params.resource` whenever
     /// `params.spell` is used (Improved Berserker Rage's rage on Berserker Rage).

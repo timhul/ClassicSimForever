@@ -9,7 +9,8 @@
 //! gain it in [`AutoAttackHost::gain_swing_rage`], others return `None`.
 //!
 //! Forever normalizes white swing rage: a landed swing gives a fixed amount per second of base
-//! weapon speed, independent of the damage (see [`swing_rage`]).
+//! weapon speed, independent of the damage (see [`swing_rage`]); a crit gives
+//! [`CRIT_RAGE_FACTOR`] times that.
 
 use crate::combat_roll::PhysicalAttackResult;
 use crate::engine::EventKind;
@@ -32,9 +33,10 @@ pub trait AutoAttackHost: SpellHost {
     fn random_non_normalized_oh_dmg(&mut self) -> f64;
     /// Damage multiplier of a white crit.
     fn melee_crit_dmg_mod(&self) -> f64;
-    /// Gains the rage of a landed swing of `hand` (see [`swing_rage`]); returns the rage
-    /// actually gained after the cap, or `None` for characters that do not use rage.
-    fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64>;
+    /// Gains the rage of a landed swing of `hand` (see [`swing_rage`]), times
+    /// [`CRIT_RAGE_FACTOR`] when it `crit`; returns the rage actually gained after the cap, or
+    /// `None` for characters that do not use rage.
+    fn gain_swing_rage(&mut self, hand: Hand, crit: bool) -> Option<f64>;
     /// Schedules the player's reaction to the swing. Port of `Character::add_player_reaction_event`.
     fn add_player_reaction_event(&mut self);
     fn is_melee_attacking(&self) -> bool;
@@ -273,7 +275,12 @@ impl AutoAttack {
         }
         // A blocked swing lands for its damage less the target's block value; one the block
         // value absorbs entirely is a full block and counts as avoided for the procs. There is
-        // no Forever data on block rage; both give the swing's rage like a landed hit.
+        // no Forever data on block rage; both give the swing's rage like a landed hit (a block
+        // crit like a crit).
+        let crit = matches!(
+            result,
+            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
+        );
         if matches!(
             result,
             PhysicalAttackResult::Block | PhysicalAttackResult::BlockCritical
@@ -281,7 +288,7 @@ impl AutoAttack {
             damage -= f64::from(host.target_block_value());
             if damage <= 0.0 {
                 report.proc_sources.push(ProcSource::MeleeFullBlock);
-                report.rage_gained = host.gain_swing_rage(hand);
+                report.rage_gained = host.gain_swing_rage(hand, crit);
                 return report;
             }
         }
@@ -289,15 +296,12 @@ impl AutoAttack {
         // `melee_oh_white_hit_effect`); a crit additionally by its result, for the crit-only
         // procs (Flurry, Deep Wounds). See `ProcSource::from_masks`.
         report.proc_sources.push(self.proc_source());
-        if matches!(
-            result,
-            PhysicalAttackResult::Critical | PhysicalAttackResult::BlockCritical
-        ) {
+        if crit {
             report.proc_sources.push(ProcSource::MeleeCritical);
         }
         report.attack.damage = damage.max(0.0) as u32;
         report.attack.threat = f64::from(report.attack.damage) * host.total_threat_mod();
-        report.rage_gained = host.gain_swing_rage(hand);
+        report.rage_gained = host.gain_swing_rage(hand, crit);
         report
     }
 
@@ -337,9 +341,15 @@ pub const TWO_HAND_RAGE_PER_SECOND: f64 = 4.5;
 /// The off-hand generates half the one-hand rate (issue comment, 1.8 / 1.6 daggers);
 /// Dual Wield Specialization's `OFFHAND_RAGE_PERCENT` scales it back up.
 pub const OFFHAND_RAGE_FACTOR: f64 = 0.5;
+/// A white crit gives double the rage of the same swing landing as a normal hit (game patch;
+/// before it crits gave no bonus). Applies to both hands and to block crits, on top of the
+/// off-hand factor and percent: an off-hand crit with 5/5 Dual Wield Specialization gives
+/// 0.5 × 1.5 × 2 = 150 % of a main-hand hit's rate.
+pub const CRIT_RAGE_FACTOR: f64 = 2.0;
 
-/// Rage of one landed white swing, before the off-hand rage percentage: a fixed amount per
-/// second of **base** weapon speed, with no damage, crit or glancing term. The logs were
+/// Rage of one landed non-crit white swing, before the off-hand rage percentage: a fixed amount
+/// per second of **base** weapon speed, with no damage or glancing term (a crit multiplies it by
+/// [`CRIT_RAGE_FACTOR`]). The logs were
 /// unhasted, so whether haste shortens the speed used here is untested; the base speed is the
 /// assumption (as in TBC), so haste still adds rage by adding swings. Measured at levels 8-22;
 /// taken as level independent.
@@ -683,7 +693,7 @@ mod tests {
         fn melee_crit_dmg_mod(&self) -> f64 {
             2.0
         }
-        fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64> {
+        fn gain_swing_rage(&mut self, hand: Hand, crit: bool) -> Option<f64> {
             if !self.rage_user {
                 return None;
             }
@@ -694,6 +704,9 @@ mod tests {
             let mut rage = swing_rage(base_speed, self.two_hand, hand);
             if hand == Hand::Offhand {
                 rage *= 1.0 + f64::from(self.offhand_rage_percent) / 100.0;
+            }
+            if crit {
+                rage *= CRIT_RAGE_FACTOR;
             }
             Some(f64::from(self.rage.gain_tenths(rage * 10.0)) / 10.0)
         }
@@ -755,14 +768,14 @@ mod tests {
             vec![ProcSource::MainhandSwing, ProcSource::MeleeCritical],
             "a crit is a landed swing and a crit"
         );
-        // No crit bonus: 0.96 + 89.96 = 90.92 tenths.
-        assert_eq!(report.rage_gained, Some(9.0));
+        // Double rage on a crit: 0.96 + 89.96 × 2 = 180.88 tenths.
+        assert_eq!(report.rage_gained, Some(18.0));
 
         world.rolls.push_back(PhysicalAttackResult::Glancing);
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.damage, (285.714 * 0.7f64).round() as u32);
         assert_eq!(report.proc_sources, vec![ProcSource::MainhandSwing]);
-        // Glancing blows give full rage: 0.92 + 89.96 = 90.88 tenths.
+        // Glancing blows give full rage: 0.88 + 89.96 = 90.84 tenths.
         assert_eq!(report.rage_gained, Some(9.0));
         assert_eq!(world.rolled_hands, vec![Hand::Mainhand; 3]);
     }
@@ -831,6 +844,8 @@ mod tests {
         world.rolls.push_back(PhysicalAttackResult::BlockCritical);
         let report = mh.perform(&mut world);
         assert_eq!(report.attack.damage, 521);
+        // A block crit is a crit for the rage: 0.96 + 89.96 × 2 = 180.88 tenths.
+        assert_eq!(report.rage_gained, Some(18.0));
 
         // Fully absorbed: no damage, the swing's rage, a full block for the procs.
         world.block_value = 300;
@@ -898,13 +913,23 @@ mod tests {
             "damage does not change the rage"
         );
 
-        // Dual Wield Specialization 5/5 (+100 %) brings it to the one-hand rate: 0.28 carried
-        // + 62.28 tenths.
+        // +100 % off-hand rage brings it to the one-hand rate: 0.28 carried + 62.28 tenths.
         world.offhand_rage_percent = 100;
         world.rolls.push_back(PhysicalAttackResult::Hit);
         assert_eq!(oh.perform(&mut world).rage_gained, Some(6.2));
         world.rolls.push_back(PhysicalAttackResult::Dodge);
         assert_eq!(oh.perform(&mut world).rage_gained, None);
+
+        // The crit doubles the off-hand rage, percent included: 0.56 carried + 62.28 × 2 =
+        // 125.12 tenths.
+        world.rolls.push_back(PhysicalAttackResult::Critical);
+        assert_eq!(oh.perform(&mut world).rage_gained, Some(12.5));
+
+        // 5/5 Dual Wield Specialization (+50 %): a crit is 0.5 × 1.5 × 2 = 150 % of the
+        // main-hand rate, 31.14 × 3 = 93.42 tenths + 0.12 carried.
+        world.offhand_rage_percent = 50;
+        world.rolls.push_back(PhysicalAttackResult::Critical);
+        assert_eq!(oh.perform(&mut world).rage_gained, Some(9.3));
     }
 
     #[test]
