@@ -108,7 +108,14 @@
     font-variant-numeric: tabular-nums;
     text-shadow: 0 1px 2px #000, 0 0 1px #000;
   }
-  #feed li { font-size: 16px; line-height: 1.5; animation: pop 0.25s ease-out; }
+  #feed li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+    line-height: 1.5;
+    animation: pop 0.25s ease-out;
+  }
   #feed li.auto { color: var(--white-hit); }
   #feed li.spell { color: var(--yellow-hit); }
   #feed li.crit { font-size: 22px; }
@@ -117,6 +124,16 @@
   .row { display: grid; grid-template-columns: 124px minmax(0, 1fr) 64px; gap: 8px; align-items: center; }
   .row + .row { margin-top: 6px; }
   .label { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row.listed { grid-template-columns: 150px minmax(0, 1fr) 56px; }
+  .row.listed .label { display: flex; align-items: center; gap: 6px; }
+  .row.listed .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .icon {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px #000;
+  }
   .value { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .bar { height: 14px; background: var(--line); border-radius: 3px; overflow: hidden; }
   .bar > div { height: 100%; width: 0; }
@@ -231,6 +248,8 @@
 const $ = (id) => document.getElementById(id);
 const FEED_LIMIT = 200;
 const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
+// Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
+const missingIcons = new Set();
 
 let info = null;     // the iteration (seed as a string)
 let frame = null;    // the latest frame from the server
@@ -313,7 +332,11 @@ function addHits(hits) {
   for (const hit of hits) {
     const item = document.createElement("li");
     item.className = (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "");
-    item.textContent = hit.critical ? `${hit.amount}*` : String(hit.amount);
+    const icon = iconImage(hit.icon);
+    if (icon) {
+      item.append(icon);
+    }
+    item.append(hit.critical ? `${hit.amount}*` : String(hit.amount));
     const how = [hit.critical && "critical", hit.glancing && "glancing"].filter(Boolean).join(", ");
     item.title = `${hit.name} at ${clock(hit.time)}${how ? ` (${how})` : ""}`;
     feed.prepend(item);
@@ -358,18 +381,107 @@ function swing(prefix, timer, time) {
   $(`${prefix}-value`).textContent = started ? seconds(timer.next - time) : "";
 }
 
-function escapeHtml(text) {
-  return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+/** An 18 px icon of `/icons/<id>.png`; null without an icon or when the server has none. */
+function iconImage(id) {
+  if (id === null || missingIcons.has(id)) {
+    return null;
+  }
+  const image = document.createElement("img");
+  image.className = "icon";
+  image.alt = "";
+  image.width = 18;
+  image.height = 18;
+  image.src = `/icons/${id}.png`;
+  image.addEventListener("error", () => {
+    missingIcons.add(id);
+    image.remove();
+  }, { once: true });
+  return image;
 }
 
-function listRows(items) {
-  if (items.length === 0) {
-    return '<div class="empty">None</div>';
+function setText(element, text) {
+  if (element.textContent !== text) {
+    element.textContent = text;
   }
-  return items.map((item) =>
-    `<div class="row"><span class="label" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>` +
-    `<div class="bar"><div style="width:${item.fraction * 100}%;background:var(${item.color})"></div></div>` +
-    `<span class="value">${item.value}</span></div>`).join("");
+}
+
+/** The rows of each list, by key: kept from frame to frame so the icons are not reloaded. */
+const listRows = new Map();
+
+/** Shows `items` ({key, name, icon, fraction, color, value}) as the rows of `container`. */
+function renderList(container, items) {
+  let rows = listRows.get(container);
+  if (!rows) {
+    rows = new Map();
+    listRows.set(container, rows);
+  }
+  const keys = new Set(items.map((item) => item.key));
+  for (const [key, row] of rows) {
+    if (!keys.has(key)) {
+      row.root.remove();
+      rows.delete(key);
+    }
+  }
+  let empty = container.querySelector(".empty");
+  if (items.length === 0) {
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "None";
+      container.append(empty);
+    }
+    return;
+  }
+  if (empty) {
+    empty.remove();
+  }
+  items.forEach((item, index) => {
+    let row = rows.get(item.key);
+    if (!row) {
+      row = listRow(item);
+      rows.set(item.key, row);
+    }
+    if (container.children[index] !== row.root) {
+      container.insertBefore(row.root, container.children[index] || null);
+    }
+    setText(row.name, item.name);
+    row.label.title = item.name;
+    row.fill.style.width = `${Math.max(0, Math.min(1, item.fraction)) * 100}%`;
+    row.fill.style.background = `var(${item.color})`;
+    setText(row.value, item.value);
+  });
+}
+
+function listRow(item) {
+  const root = document.createElement("div");
+  root.className = "row listed";
+  const label = document.createElement("span");
+  label.className = "label";
+  const icon = iconImage(item.icon);
+  if (icon) {
+    label.append(icon);
+  }
+  const name = document.createElement("span");
+  name.className = "name";
+  label.append(name);
+  const bar = document.createElement("div");
+  bar.className = "bar";
+  const fill = document.createElement("div");
+  bar.append(fill);
+  const value = document.createElement("span");
+  value.className = "value";
+  root.append(label, bar, value);
+  return { root, label, name, fill, value };
+}
+
+/** `name`, or `name#2`, `name#3`... for the repeats: a key per row. */
+function keyed(items) {
+  const seen = new Map();
+  return items.map((item) => {
+    const count = (seen.get(item.name) || 0) + 1;
+    seen.set(item.name, count);
+    return { ...item, key: count === 1 ? item.name : `${item.name}#${count}` };
+  });
 }
 
 function render() {
@@ -416,21 +528,25 @@ function render() {
   // The buffs running out first on top, the ones without a duration last.
   const buffs = [...state.buffs].sort((a, b) =>
     (a.expires_at ?? Infinity) - (b.expires_at ?? Infinity));
-  $("buffs").innerHTML = listRows(buffs.map((buff) => {
+  renderList($("buffs"), keyed(buffs).map((buff) => {
     const left = buff.expires_at === null ? null : Math.max(0, buff.expires_at - time);
     const stacks = buff.stacks > 1 ? ` ×${buff.stacks}` : "";
     const charges = buff.charges > 0 ? ` (${buff.charges})` : "";
     return {
+      key: buff.key,
       name: buff.name + stacks + charges,
+      icon: buff.icon,
       fraction: left === null ? 1 : left / buff.duration,
       color: "--buff",
       value: left === null ? "" : `${left.toFixed(1)} s`,
     };
   }));
-  $("cooldowns").innerHTML = listRows(state.cooldowns.map((cooldown) => {
+  renderList($("cooldowns"), keyed(state.cooldowns).map((cooldown) => {
     const left = cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time);
     return {
+      key: cooldown.key,
       name: cooldown.name,
+      icon: cooldown.icon,
       fraction: left / cooldown.duration,
       color: "--cooldown",
       value: left > 0 ? `${left.toFixed(1)} s` : "ready",
