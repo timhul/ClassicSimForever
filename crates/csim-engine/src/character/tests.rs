@@ -2151,7 +2151,7 @@ mod rotation {
     }
 
     fn dw_fury() -> Arc<RotationSpec> {
-        shipped("DW Fury High Rage")
+        shipped("DW Fury")
     }
 
     /// Covers every way an executor links or is skipped: an item use, talents not taken,
@@ -2528,7 +2528,7 @@ cast_if:
             [
                 "2h Fury",
                 "Mortal Strike",
-                "DW Fury High Rage",
+                "DW Fury",
                 "Fury Rage conservative stance dancing",
                 "Fury Heroic Strike Focus",
                 "Protection",
@@ -2537,7 +2537,7 @@ cast_if:
         );
         let expected: [(&str, &[&str]); 6] = [
             (
-                "DW Fury High Rage",
+                "DW Fury",
                 &[
                     "Bloodrage",
                     "Berserker Rage",

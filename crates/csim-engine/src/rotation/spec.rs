@@ -355,7 +355,7 @@ mod tests {
 
     const DW_FURY: &str = r#"
 class: WARRIOR
-name: DW Fury High Rage
+name: DW Fury
 attack_mode: melee
 description: >
   A rotation for dual-wield fury that does not
@@ -410,13 +410,9 @@ cast_if:
     fn parses_the_dw_fury_example() {
         let spec = parse(DW_FURY).unwrap();
         assert_eq!(spec.class, PlayerClass::Warrior);
-        assert_eq!(spec.name, "DW Fury High Rage");
+        assert_eq!(spec.name, "DW Fury");
         assert_eq!(spec.attack_mode, AttackMode::MeleeAttack);
-        assert_eq!(
-            spec.description,
-            "A rotation for dual-wield fury that does not attempt to dump rage before \
-             switching to Battle Stance for Overpower."
-        );
+        assert_eq!(spec.description, "A rotation for dual-wield fury.");
         assert_eq!(
             spec.precombat_actions,
             ["Bloodrage", "Battle Shout", "Berserker Stance"]

@@ -9,11 +9,10 @@ The engine scans every class subdirectory (`RotationDb::load`, schema in
 
 ```yaml
 class: WARRIOR                # the class (SCREAMING_SNAKE_CASE, as in data/classes/)
-name: DW Fury High Rage       # display name, unique within the class
+name: DW Fury                 # display name, unique within the class
 attack_mode: melee            # melee | ranged | magic; default melee
 description: >-               # free text; whitespace is collapsed on load
-  A rotation for dual-wield fury that does not attempt to dump rage before
-  switching to Battle Stance for Overpower.
+  A rotation for dual-wield fury.
 precombat_actions:            # cast before the pull, in this order; default none
   - Bloodrage
   - Battle Shout

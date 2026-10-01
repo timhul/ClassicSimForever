@@ -4,11 +4,10 @@
 # Buff" here), so `buff_duration "Overpower Buff" is true/false/greater N` became
 # `variable "combo_points" greater 0` / `eq 0`.
 class: WARRIOR
-name: DW Fury High Rage
+name: DW Fury
 attack_mode: melee
 description: >-
-  A rotation for dual-wield fury that does not attempt to dump rage before switching to
-  Battle Stance for Overpower.
+  A rotation for dual-wield fury.
 precombat_actions:
   - Bloodrage
   - Battle Shout

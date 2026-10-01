@@ -533,7 +533,7 @@ fn validate_checks_every_shipped_setup() {
 #[test]
 fn lists_filter_by_class_slot_and_name() {
     let rotations = stdout(&csim(&["list-rotations", "--class", "warrior"]));
-    assert!(rotations.contains("DW Fury High Rage"), "{rotations}");
+    assert!(rotations.contains("DW Fury"), "{rotations}");
 
     let spells = stdout(&csim(&[
         "list-spells",
