@@ -25,6 +25,9 @@ overrides:
   - id: 1259416
     note: Walk on Air is movement
     sim_flags: [IGNORED]
+  - id: 1259705
+    note: Read Ley Line (High Order Skyborne) regenerates health and mana
+    sim_flags: [IGNORED]
   # Eureka! (Gnome) has one spell per class; only the Warrior one (1259813) is simulated.
   - id: 1259813
     note: Eureka! (Warrior); the E3 DUMMY aura changes nothing the sim models

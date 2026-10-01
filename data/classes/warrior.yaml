@@ -3,8 +3,8 @@
 # `stat_rules` come from the client tables (build 1.60.1.70009): ChrClasses
 # (AttackPowerPerStrength 2, AttackPowerPerAgility 0, RangedAttackPowerPerAgility 2) and
 # PlayerExpectedStat (CritPerAgility 0.0005 at level 60 = 20 agility per 1 % crit; no spell crit
-# from intellect). `available_races` are the CharBaseInfo rows of class 1 (the two Forever-only
-# race ids 95 / 96 are not playable in the simulator yet).
+# from intellect). `available_races` are the CharBaseInfo rows of class 1 (with the Forever race
+# Skyborne, ids 95 / 96).
 #
 # The base attributes, attack power and base crit are ClassicSim's (Class/Warrior/Warrior.cpp);
 # the tables do not carry them. The base health is the vanilla level 60 value (server-side
@@ -40,7 +40,8 @@ weapon_proficiencies:
   MAINHAND: [AXE, DAGGER, FIST, MACE, SWORD, POLEARM, STAFF, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
   OFFHAND: [AXE, DAGGER, FIST, MACE, SWORD, CASTER_OFFHAND, SHIELD]
   RANGED: [BOW, CROSSBOW, GUN, THROWN]
-available_races: [HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD, TAUREN, GNOME, TROLL]
+available_races:
+  [HUMAN, ORC, DWARF, NIGHT_ELF, UNDEAD, TAUREN, GNOME, TROLL, HIGH_ORDER_SKYBORNE, WINDSHAPER_SKYBORNE]
 enchants:
   MAINHAND:
     - Crusader

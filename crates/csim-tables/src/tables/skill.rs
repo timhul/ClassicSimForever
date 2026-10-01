@@ -28,8 +28,16 @@ table_row! {
         /// 0 trainer, 1 auto-learned, 2 granted, 3 Forever baseline additions.
         acquire_method: u32 = "AcquireMethod",
         flags: u32 = "Flags",
-        /// `1 << (ChrRaces.ID − 1)`; the second word holds the Forever race Skyborne.
+        /// Bit `ChrRaces.PlayableRaceBit` of a 64-bit mask, split in two words: the classic races
+        /// sit in the first (`1 << (ChrRaces.ID − 1)`), the Forever race Skyborne in the second.
         race_masks: [u32; 2] = "RaceMasks_",
+    }
+}
+
+impl SkillLineAbilityRow {
+    /// The two `RaceMasks_` words as one mask, bit `ChrRaces.PlayableRaceBit`.
+    pub fn race_mask(&self) -> u64 {
+        u64::from(self.race_masks[0]) | u64::from(self.race_masks[1]) << 32
     }
 }
 

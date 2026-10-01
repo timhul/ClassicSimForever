@@ -1116,7 +1116,12 @@ impl Effect {
                     host.stats_mut().decrease_total_threat_mod(rounded);
                 }
             }
-            A::ModMeleeHaste3 | A::ModMeleeHaste | A::ModAttackspeed | A::ModMeleeRangedHaste
+            // Wind Blessed (Skyborne) is a MOD_MELEE_RANGED_HASTE_2.
+            A::ModMeleeHaste3
+            | A::ModMeleeHaste
+            | A::ModAttackspeed
+            | A::ModMeleeRangedHaste
+            | A::ModMeleeRangedHaste2
                 if !on_target && rounded > 0 =>
             {
                 if apply {
@@ -2303,6 +2308,18 @@ mod tests {
         assert_eq!(host.target.armor(), base_armor);
         assert_eq!(host.attack_speed_calls, vec![30, -30]);
         assert_eq!(host.offhand_damage, 0);
+    }
+
+    #[test]
+    fn melee_ranged_haste_2_is_attack_speed() {
+        // Wind Blessed (1259710): +1 % melee, ranged and casting haste.
+        let mut host = MockHost::new();
+        let haste = aura(AuraType::ModMeleeRangedHaste2, 1.0, 0);
+        haste.apply_aura(&mut host, false);
+        assert_eq!(host.stats.get_melee_attack_speed_mod(), 1.01);
+        haste.remove_aura(&mut host, false);
+        assert_eq!(host.stats.get_melee_attack_speed_mod(), 1.0);
+        assert_eq!(host.attack_speed_calls, vec![1, -1]);
     }
 
     #[test]

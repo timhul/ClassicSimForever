@@ -4,6 +4,7 @@
 //! bonuses. Here [`Race`] is a plain enum keyed on the client `ChrRaces` id and everything else is
 //! data: `data/races.yaml` ([`RaceSpec`]) holds the base attributes, and the racial abilities are
 //! ordinary spells in `data/spells/racials.yaml`, selected by their `race_mask` ([`Race::mask`]).
+//! The Forever race Skyborne is two races, one per faction, as in `ChrRaces`.
 //!
 //! ClassicSim's per-race weapon skill bonuses and `get_int_multiplier` / `get_spirit_multiplier`
 //! are not ported: whatever a game version grants a race comes from its racial spells (Forever's
@@ -33,10 +34,13 @@ pub enum Race {
     Tauren = 6,
     Gnome = 7,
     Troll = 8,
+    /// The Forever race Skyborne has one `ChrRaces` row per faction.
+    HighOrderSkyborne = 95,
+    WindshaperSkyborne = 96,
 }
 
 impl Race {
-    pub const ALL: [Race; 8] = [
+    pub const ALL: [Race; 10] = [
         Race::Human,
         Race::Orc,
         Race::Dwarf,
@@ -45,6 +49,8 @@ impl Race {
         Race::Tauren,
         Race::Gnome,
         Race::Troll,
+        Race::HighOrderSkyborne,
+        Race::WindshaperSkyborne,
     ];
 
     /// The `ChrRaces` id.
@@ -56,13 +62,22 @@ impl Race {
         Race::ALL.iter().copied().find(|race| race.id() == id)
     }
 
-    /// The race's bit in `SkillLineAbility.RaceMasks` (`ChrRaces.PlayableRaceBit` = id − 1).
-    pub fn mask(self) -> u32 {
-        1 << (self.id() - 1)
+    /// `ChrRaces.PlayableRaceBit`: id − 1 for the classic races, 32 / 33 for Skyborne.
+    pub fn playable_race_bit(self) -> u32 {
+        match self {
+            Race::HighOrderSkyborne => 32,
+            Race::WindshaperSkyborne => 33,
+            _ => self.id() - 1,
+        }
+    }
+
+    /// The race's bit in the 64-bit `SkillLineAbility.RaceMasks` (see [`Race::playable_race_bit`]).
+    pub fn mask(self) -> u64 {
+        1 << self.playable_race_bit()
     }
 
     /// Whether a race mask (`0` = unrestricted) includes this race.
-    pub fn in_mask(self, mask: u32) -> bool {
+    pub fn in_mask(self, mask: u64) -> bool {
         mask == 0 || mask & self.mask() != 0
     }
 
@@ -77,6 +92,8 @@ impl Race {
             Race::Tauren => "Tauren",
             Race::Gnome => "Gnome",
             Race::Troll => "Troll",
+            Race::HighOrderSkyborne => "High Order Skyborne",
+            Race::WindshaperSkyborne => "Windshaper Skyborne",
         }
     }
 
@@ -86,8 +103,12 @@ impl Race {
 
     pub fn faction(self) -> Faction {
         match self {
-            Race::Human | Race::Dwarf | Race::NightElf | Race::Gnome => Faction::Alliance,
-            Race::Orc | Race::Undead | Race::Tauren | Race::Troll => Faction::Horde,
+            Race::Human | Race::Dwarf | Race::NightElf | Race::Gnome | Race::HighOrderSkyborne => {
+                Faction::Alliance
+            }
+            Race::Orc | Race::Undead | Race::Tauren | Race::Troll | Race::WindshaperSkyborne => {
+                Faction::Horde
+            }
         }
     }
 
@@ -258,7 +279,7 @@ mod tests {
         for race in Race::ALL {
             assert_eq!(Race::from_id(race.id()), Some(race));
             assert_eq!(Race::from_name(race.name()), Some(race));
-            assert_eq!(race.mask(), 1 << (race.id() - 1));
+            assert_eq!(race.mask(), 1 << race.playable_race_bit());
             assert!(race.in_mask(race.mask()));
             assert!(race.in_mask(0), "an empty mask is unrestricted");
         }
@@ -267,6 +288,9 @@ mod tests {
         assert_eq!(Race::Human.mask(), 1);
         assert_eq!(Race::Orc.mask(), 2);
         assert_eq!(Race::Troll.mask(), 128);
+        assert_eq!(Race::HighOrderSkyborne.mask(), 1 << 32);
+        assert_eq!(Race::WindshaperSkyborne.mask(), 1 << 33);
+        assert_eq!(Race::from_id(95), Some(Race::HighOrderSkyborne));
         assert!(!Race::Human.in_mask(Race::Orc.mask()));
         assert!(Race::Undead.in_mask(Race::Orc.mask() | Race::Undead.mask()));
     }
@@ -281,14 +305,30 @@ mod tests {
             serde_yaml::to_string(&Race::Undead).unwrap().trim(),
             "UNDEAD"
         );
+        assert_eq!(
+            serde_yaml::from_str::<Race>("WINDSHAPER_SKYBORNE").unwrap(),
+            Race::WindshaperSkyborne
+        );
     }
 
     #[test]
     fn factions() {
-        for race in [Race::Human, Race::Dwarf, Race::NightElf, Race::Gnome] {
+        for race in [
+            Race::Human,
+            Race::Dwarf,
+            Race::NightElf,
+            Race::Gnome,
+            Race::HighOrderSkyborne,
+        ] {
             assert_eq!(race.faction(), Faction::Alliance);
         }
-        for race in [Race::Orc, Race::Undead, Race::Tauren, Race::Troll] {
+        for race in [
+            Race::Orc,
+            Race::Undead,
+            Race::Tauren,
+            Race::Troll,
+            Race::WindshaperSkyborne,
+        ] {
             assert_eq!(race.faction(), Faction::Horde);
         }
     }
@@ -390,6 +430,25 @@ base_stats: { strength: 20, agility: 21, stamina: 22, intellect: 23, spirit: 24 
         assert!(human.contains(&20597), "Sword Specialization: {human:?}");
         assert!(human.contains(&20598), "The Human Spirit: {human:?}");
         assert!(!human.contains(&20572), "Blood Fury is Orc-only");
+        // Skyborne's racials sit in the second word of the race masks.
+        let high_order = ids(Race::HighOrderSkyborne);
+        let windshaper = ids(Race::WindshaperSkyborne);
+        for skyborne in [&high_order, &windshaper] {
+            assert!(
+                skyborne.contains(&1259707),
+                "Elemental Insight: {skyborne:?}"
+            );
+            assert!(skyborne.contains(&1259710), "Wind Blessed: {skyborne:?}");
+        }
+        assert!(
+            high_order.contains(&1259705),
+            "Read Ley Line: {high_order:?}"
+        );
+        assert!(
+            !windshaper.contains(&1259705),
+            "Read Ley Line is High Order-only"
+        );
+        assert!(!orc.contains(&1259710), "Wind Blessed is Skyborne-only");
 
         for race in Race::ALL {
             for record in race.racials(&db) {

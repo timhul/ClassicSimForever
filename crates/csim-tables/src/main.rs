@@ -683,7 +683,7 @@ fn describe_spell(tables: &Tables, id: u32, depth: usize, seen: &mut Vec<u32>) {
             "{indent}  skill line {} class mask {:#x} race mask {:#x} supercedes {} acquire {}",
             ability.skill_line,
             ability.class_mask,
-            ability.race_masks[0],
+            ability.race_mask(),
             ability.supercedes_spell,
             ability.acquire_method
         );

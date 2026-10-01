@@ -637,9 +637,9 @@ pub struct SpellRecord {
     /// rune-granted ones.
     #[serde(default, skip_serializing_if = "is_default")]
     pub class_mask: u32,
-    /// `SkillLineAbility.RaceMasks_0` (racials).
+    /// `SkillLineAbility.RaceMasks_0 | RaceMasks_1 << 32` (racials): bit `ChrRaces.PlayableRaceBit`.
     #[serde(default, skip_serializing_if = "is_default")]
-    pub race_mask: u32,
+    pub race_mask: u64,
     /// `SkillLineAbility.SupercedesSpell`: the previous rank.
     #[serde(default, skip_serializing_if = "is_default")]
     pub supercedes: u32,
