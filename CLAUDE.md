@@ -49,6 +49,13 @@ that seed:
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --combat-log --seed 1`
 
+The same iteration, watched live in a browser (`csim-live` serves a page on
+http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
+is used as a library, as by the CLI). It takes the setup, `--seed`, `--length`,
+`--length-variance` and `--port`, one character only (no `--raid`):
+
+`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --seed 1`
+
 A Rogue is run the same way, with a rogue setup (`combat_swords_human`, `combat_axes_orc`,
 `combat_daggers_night_elf`, `mutilate_undead`, `mutilate_ea_gnome`, `hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):
