@@ -56,6 +56,12 @@ is used as a library, as by the CLI). It takes the setup, `--seed`, `--length`,
 
 `cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --seed 1`
 
+Its spell and item icons come from `data/icons/` (a gitignored cache of the game's textures, by
+the `icon` FileDataIDs of the exported spells and items). Fetch them once, and again after a
+re-export; without them the page shows no icons:
+
+`python tools/fetch_icons.py`
+
 A Rogue is run the same way, with a rogue setup (`combat_swords_human`, `combat_axes_orc`,
 `combat_daggers_night_elf`, `mutilate_undead`, `mutilate_ea_gnome`, `hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):
