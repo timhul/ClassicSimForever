@@ -32,6 +32,7 @@ cast_if:
     condition: |
       variable "time_remaining_execute" greater 3
       and resource "Rage" greater 50
+      and buff_duration "Heroic Strike" eq 0
   - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: buff_duration "Death Wish" is true
