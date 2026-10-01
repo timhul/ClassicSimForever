@@ -84,25 +84,27 @@ cast_if:
       and variable "time_remaining_execute" greater 0
   - name: Whirlwind
     condition: |
-      spell "Bloodthirst" greater 1.5
-      and variable "time_remaining_execute" greater 0
-  # Always cast Overpower if available. The implied condition checks that the player is in
-  # the correct stance, Overpower is active, etc.
+      variable "time_remaining_execute" greater 0
   - name: Overpower
+    condition: |
+      spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
   - name: Hamstring
     condition: |
       spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and buff_duration "Eureka!" is false
   # Switch to Battle Stance
-  - name: Battle Stance
-    condition: |
-      variable "time_remaining_execute" greater 5
-      and variable "combo_points" greater 0
-      and spell "Bloodthirst" greater 3
-      and resource "Rage" less 50
-  - name: Berserker Stance
-    condition: |
-      variable "time_remaining_execute" less 0
-      or variable "combo_points" eq 0
+  # - name: Battle Stance
+  #   condition: |
+  #     variable "time_remaining_execute" greater 5
+  #     and variable "combo_points" greater 0
+  #     and spell "Bloodthirst" greater 3
+  #     and spell "Whirlwind" greater 3
+  #     and resource "Rage" less 50
+  # - name: Berserker Stance
+  #   condition: |
+  #     variable "time_remaining_execute" less 0
+  #     or variable "combo_points" eq 0
