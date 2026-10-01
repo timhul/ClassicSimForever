@@ -1,0 +1,11 @@
+# Schema: crates/csim-engine/src/character_loader.rs.
+# Windshaper Skyborne, the Horde Skyborne (the Alliance one is HIGH_ORDER_SKYBORNE): no weapon
+# racial, so DW Fury Orc's Horde setup as is.
+include: common/base_target.yaml
+include: common/base_buffs.yaml
+include: common/base_fury_16_35.yaml
+include: common/dw_fury_base_horde.yaml
+name: DW Fury Skyborne
+race: WINDSHAPER_SKYBORNE
+level: 60
+phase: 3

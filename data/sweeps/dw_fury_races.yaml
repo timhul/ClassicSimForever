@@ -9,9 +9,11 @@ variations:
   - options:
       - { label: Dwarf, race: DWARF }
       - { label: Gnome, race: GNOME }
+      - { label: High Order Skyborne, race: HIGH_ORDER_SKYBORNE }
       - { label: Human, race: HUMAN }
       - { label: Night Elf, race: NIGHT_ELF }
       - { label: Orc, race: ORC }
       - { label: Tauren, race: TAUREN }
       - { label: Troll, race: TROLL }
       - { label: Undead, race: UNDEAD }
+      - { label: Windshaper Skyborne, race: WINDSHAPER_SKYBORNE }

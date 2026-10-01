@@ -39,6 +39,11 @@ Toolchain note: cargo/rustc are installed at `C:\Users\timhu\.cargo\bin` but are
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --iterations 10000`
 
+The Forever race Skyborne is two races, one per faction: `HIGH_ORDER_SKYBORNE` (Alliance) and
+`WINDSHAPER_SKYBORNE` (Horde). Its DW Fury profile is the Horde one:
+
+`cargo run --release -p csim-cli -- run data/characters/dw_fury_skyborne.yaml --iterations 10000`
+
 The combat log (`WoWCombatLog.txt` lines) of one iteration, the same one `-n 1 -t 1` simulates with
 that seed:
 
