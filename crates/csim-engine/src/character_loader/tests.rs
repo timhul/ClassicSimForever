@@ -4,8 +4,9 @@
 use std::sync::OnceLock;
 
 use super::*;
+use crate::character::RegenReactions;
 use crate::ids::CharId;
-use crate::sim_control::SimControl;
+use crate::sim_control::{SimControl, run_logged_iteration};
 use crate::statistics::NumberCruncher;
 
 fn data() -> &'static DataBundle {
@@ -248,10 +249,10 @@ target:
     );
 }
 
-/// A Rogue setup passes every check but the rotation (none shipped yet): class, race, talents,
-/// weapons, enchants and poisons.
+/// A Rogue setup is checked like a Warrior's: class, race, talents, rotation, weapons,
+/// enchants, poisons; and the armor and weapons the class can use.
 #[test]
-fn a_rogue_setup_lacks_only_its_rotation() {
+fn a_rogue_setup_is_checked() {
     let text = r#"
 name: Rogue
 class: ROGUE
@@ -266,15 +267,183 @@ talents:
 equipment:
   MAINHAND: { item: 18866, enchant: Crusader, temp_enchants: [InstantPoison] }
   OFFHAND: { item: 18866, temp_enchants: [InstantPoison] }
+  CHEST: { item: 16563 }
 consumables: [Thistle Tea]
 "#;
     let setup: CharacterSetup = serde_yaml::from_str(text).unwrap();
-    let found = issues(&setup);
-    assert_eq!(contexts(&found), ["rotation"], "{found:#?}");
+    setup
+        .build_raid(data(), &settings())
+        .unwrap_or_else(|error| panic!("{error}"));
 
     let mut tauren = setup.clone();
     tauren.race = Race::Tauren;
     assert!(contexts(&issues(&tauren)).contains(&"race"));
+
+    // Lionheart Helm, Force Reactive Disk.
+    let mut plate = setup.clone();
+    let equip = |item| EquippedSetup {
+        item,
+        enchant: None,
+        temp_enchants: Vec::new(),
+    };
+    plate.equipment.insert(EquipmentSlot::Head, equip(12640));
+    let found = issues(&plate);
+    assert_eq!(contexts(&found), ["equipment.HEAD"], "{found:#?}");
+    assert!(found[0].message.contains("cannot wear"), "{found:#?}");
+
+    let mut shield = setup.clone();
+    shield
+        .equipment
+        .insert(EquipmentSlot::Offhand, equip(18168));
+    let found = issues(&shield);
+    assert_eq!(contexts(&found), ["equipment.OFFHAND"], "{found:#?}");
+    assert!(found[0].message.contains("cannot wield"), "{found:#?}");
+}
+
+/// The item uses and racials the Rogue rotations name, which only link when equipped or of the
+/// right race.
+const ROGUE_ITEM_AND_RACIAL_LINES: [&str; 9] = [
+    "Burst of Energy",
+    "Kiss of the Spider",
+    "Jom Gabbar",
+    "Badge of the Swarmguard",
+    "Slayer's Crest",
+    "Earthstrike",
+    "Restless Strength",
+    "Blood Fury",
+    "Berserking",
+];
+
+/// Every Rogue setup runs its rotation: the opener once per fight, the builder and a
+/// finisher, Slice and Dice kept up; the only lines left unlinked are items not equipped and
+/// other races' racials.
+#[test]
+fn the_rogue_setups_run_their_rotations() {
+    let cases = [
+        (
+            "combat_swords_human.yaml",
+            "Garrote",
+            "Sinister Strike",
+            "Eviscerate",
+        ),
+        (
+            "combat_axes_orc.yaml",
+            "Garrote",
+            "Sinister Strike",
+            "Eviscerate",
+        ),
+        (
+            "combat_daggers_night_elf.yaml",
+            "Ambush",
+            "Backstab",
+            "Eviscerate",
+        ),
+        ("mutilate_undead.yaml", "Ambush", "Mutilate", "Eviscerate"),
+        (
+            "mutilate_ea_gnome.yaml",
+            "Ambush",
+            "Mutilate",
+            "Expose Armor",
+        ),
+        ("hemorrhage_troll.yaml", "Ambush", "Hemorrhage", "Rupture"),
+    ];
+    for (file, opener, builder, finisher) in cases {
+        let setup = shipped(file);
+        let settings = SimSettings {
+            combat_length: 120,
+            ..setup.sim_settings(&settings())
+        };
+        let mut raid = setup.build_raid(data(), &settings).unwrap();
+        let mut cruncher = NumberCruncher::new();
+        SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
+        let stats = cruncher.merged(None).unwrap();
+        assert!(stats.personal_dps() > 300.0, "{file}");
+
+        let casts = |name: &str| -> u64 {
+            stats
+                .executors()
+                .iter()
+                .filter(|e| e.spell_name() == name)
+                .map(|e| e.successful_casts())
+                .sum()
+        };
+        assert_eq!(casts(opener), stats.iterations(), "{file}: {opener}");
+        assert!(
+            casts(builder) > 20 * stats.iterations(),
+            "{file}: {builder}"
+        );
+        assert!(casts(finisher) > 0, "{file}: {finisher}");
+        let slice_and_dice = stats.buff_statistics("Slice and Dice").unwrap();
+        assert!(slice_and_dice.avg_uptime() > 0.9, "{file}");
+        for skipped in stats.skipped_executors() {
+            assert!(
+                ROGUE_ITEM_AND_RACIAL_LINES.contains(&skipped.spell_name.as_str())
+                    && skipped.reason == "no spell of this name",
+                "{file}: {skipped:?}"
+            );
+        }
+    }
+    let rupture = |file: &str| {
+        let setup = shipped(file);
+        let mut raid = setup.build_raid(data(), &settings()).unwrap();
+        let mut cruncher = NumberCruncher::new();
+        SimControl::new(setup.sim_settings(&settings()), 1).run_quick_sim(&mut raid, &mut cruncher);
+        let stats = cruncher.merged(None).unwrap();
+        (
+            stats.buff_statistics("Rupture").map(|b| b.avg_uptime()),
+            stats
+                .buff_statistics("Expose Armor")
+                .map(|b| b.avg_uptime()),
+        )
+    };
+    let (hemorrhage_rupture, _) = rupture("hemorrhage_troll.yaml");
+    assert!(hemorrhage_rupture.unwrap() > 0.4, "{hemorrhage_rupture:?}");
+    let (_, expose_armor) = rupture("mutilate_ea_gnome.yaml");
+    assert!(expose_armor.unwrap() > 0.5, "{expose_armor:?}");
+}
+
+/// With every shipped Rogue setup, reacting to energy regeneration only after the ticks that
+/// can change the rotation's outcome (the default) fights the same fights, event for event, as
+/// reacting after every tick (the C++).
+#[test]
+fn the_rogue_setups_fight_the_same_reacting_to_every_tick() {
+    for file in [
+        "combat_swords_human.yaml",
+        "combat_axes_orc.yaml",
+        "combat_daggers_night_elf.yaml",
+        "mutilate_undead.yaml",
+        "mutilate_ea_gnome.yaml",
+        "hemorrhage_troll.yaml",
+    ] {
+        let setup = shipped(file);
+        let settings = SimSettings {
+            combat_length: 300,
+            ..setup.sim_settings(&settings())
+        };
+        let fight = |mode: RegenReactions, seed: u64| {
+            let mut raid = setup.build_raid(data(), &settings).unwrap();
+            raid.character_mut(CharId(0)).set_regen_reactions(mode);
+            run_logged_iteration(&settings, seed, &mut raid)
+        };
+        for seed in [1, 2] {
+            let reference = fight(RegenReactions::EveryTick, seed);
+            let log = fight(RegenReactions::Thresholds, seed);
+            assert!(reference.len() > 500, "{file}: {}", reference.len());
+            if let Some(index) = log
+                .entries()
+                .iter()
+                .zip(reference.entries())
+                .position(|(a, b)| a != b)
+            {
+                panic!(
+                    "{file}, seed {seed}: entry {index} differs:\n{:?}\n{:?}",
+                    log.entries()[index],
+                    reference.entries()[index]
+                );
+            }
+            assert_eq!(log.len(), reference.len(), "{file}, seed {seed}");
+        }
+    }
 }
 
 /// A consumable must be in the registry, offered to the class, and listed once.

@@ -37,9 +37,11 @@ data/
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
 │                         executors with conditions), see rotations/README.md; the six
-│                         Warrior rotations are ports of the ClassicSim XML files
+│                         Warrior and five Rogue rotations are ports of the ClassicSim XML
+│                         files
 ├── characters/           hand-written: character setups for `csim run` (class, race, talents,
-│                         gear, buffs, rotation, target)
+│                         gear, buffs, rotation, target); common/ holds the shared parts
+│                         (buffs, talent builds, gear per faction) they include
 ├── raids/                hand-written: raid setups for `csim run --raid`, up to 8 parties of 5
 │                         (counting the player) listing setups of characters/ by file name
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together

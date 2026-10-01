@@ -67,6 +67,10 @@ Comparisons: `less`, `leq`, `eq`, `geq`, `greater` followed by a number (`leq` /
 `eq` are within 0.0001), or `is true` / `is false` — only for the buff types: whether the
 buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 
+The buff types read the character's own debuffs on the target too, by the debuff's name:
+`buff_duration "Rupture" less 2` or `buff_duration "Expose Armor" less 3` time a Rogue's
+refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's.
+
 `variable "target_is_type"` is compared by name, not number: `eq "<creature type>"` holds when
 the target (`target: creature_type:` in the character setup) is of that type. The types are
 Beast, Demon, Dragonkin, Elemental, Giant, Humanoid, Mechanical and Undead, in any case
@@ -128,8 +132,9 @@ runs, not when it is linked: they show up as failure outcomes in the Rotation se
 Before the pull (at negative time) the precombat actions are cast in order when their spell is
 available or merely on cooldown (every cooldown reads as "ready at 0" then), followed by the
 precast. The rotation itself never runs before the pull; the first pass is the encounter start,
-after which every `PlayerAction` (a global cooldown or a cooldown ending, a rage gain, the
-stance swap lag, a completed cast) runs the active executors in order: a spell that is not
+after which every `PlayerAction` (a global cooldown or a cooldown ending, a resource gain,
+energy regenerating to a level a condition or a blocked spell's cost waits for, the stance swap
+lag, a completed cast) runs the active executors in order: a spell that is not
 available counts its status, one whose condition does not hold counts a failed condition, and
 one that is cast counts a successful cast. Those counts are the executor statistics.
 
@@ -157,3 +162,33 @@ Medallion → `Restless Strength`, Diamond Flask → `CHUG! CHUG! CHUG! CHUG!`, 
 Legplates → `Heaven's Blessing`. Uses the sim cannot run yet (Restless Strength and CHUG need a
 `DUMMY` script, Badge of the Swarmguard is a proc aura while its buff is up) are not given to
 the character, so their lines stay unlinked.
+
+## The Rogue rotations
+
+`rogue/` holds ports of the five ClassicSim rotations, adapted to the Forever talents; each is
+used by a setup of `data/characters/`:
+
+| file                      | name                              | C++ file             | setups                                              |
+|---------------------------|-----------------------------------|----------------------|-----------------------------------------------------|
+| `combat.yaml`             | Combat                            | `Combat.xml`         | `combat_swords_human.yaml`, `combat_axes_orc.yaml`  |
+| `combat_dagger.yaml`      | Combat Dagger                     | `CombatDagger.xml`   | `combat_daggers_night_elf.yaml`                     |
+| `seal_fate_mutilate.yaml` | Seal Fate Mutilate                | `SealFateDagger.xml` | `mutilate_undead.yaml`                              |
+| `seal_fate_ea.yaml`       | Seal Fate Mutilate Expose Armor   | `SealFateEA.xml`     | `mutilate_ea_gnome.yaml`                            |
+| `hemorrhage.yaml`         | Hemorrhage                        | `Hemorrhage.xml`     | `hemorrhage_troll.yaml`                             |
+
+What the C++ files do is kept: a builder to five combo points (four with Seal Fate), Slice and
+Dice refreshed under 3 s, Eviscerate while Slice and Dice has more than 8 s left, Adrenaline
+Rush and Blade Flurry at 60 energy or less, Thistle Tea under 20, the trinkets and racials.
+The additions each file's header explains:
+
+- An opener: `Stealth` (and `Premeditation` for Hemorrhage) before the pull, the opener
+  (`Ambush` with a dagger, `Garrote` otherwise) as the first executor; it is only castable from
+  Stealth, so it runs once at the pull.
+- The Forever builders and finishers: Mutilate instead of Backstab for Seal Fate, Cold Blood
+  before an Eviscerate, Rupture kept up for Hemorrhage (Thousand Cuts, Serrated Blades and
+  Hemorrhage's Rupture bonus; ~22 DPS over Eviscerate only), Expose Armor at five points for
+  the Expose Armor variant (the C++ file was a copy of `SealFateDagger.xml`). Venom is left
+  out: its poison damage does not make up for the Eviscerates it replaces (~30 DPS less).
+- Item uses go by their spell's name: Renataki's Charm of Trickery is `Burst of Energy`,
+  Zandalarian Hero Medallion `Restless Strength`. Thistle Tea is a consumable (`consumables:`
+  in the setup, `common/base_rogue_buffs.yaml`) cast by its name.

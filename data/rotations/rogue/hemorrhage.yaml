@@ -1,0 +1,76 @@
+# Port of ClassicSim's Rotation/Rotations/Rogue/Hemorrhage.xml, for the Forever Subtlety
+# dagger build: Hemorrhage (145 % weapon damage with a dagger) raises the Rupture damage the
+# target takes, Rupture's ticks stack Thousand Cuts' energy discount on the next Hemorrhage,
+# and Serrated Blades adds to Rupture. So Rupture is kept up next to Slice and Dice, which the
+# C++ rotation (Eviscerate only) did not do: ~22 DPS more with hemorrhage_troll.yaml, whose
+# combo points go almost entirely to the two (Rupture ~60 % uptime); Eviscerate only spends
+# the rare surplus.
+#
+# Additions to the C++ file: Stealth and Premeditation before the pull with Ambush as the
+# opener (Initiative), Ghostly Strike on cooldown, Renataki's Charm under its spell's name
+# (`Burst of Energy`) and Zandalarian Hero Medallion as `Restless Strength`.
+class: ROGUE
+name: Hemorrhage
+attack_mode: melee
+description: >-
+  A rotation for Subtlety Hemorrhage rogues: Hemorrhage and Ghostly Strike to five combo points,
+  Slice and Dice and Rupture kept up, Eviscerate at five points while both have time left.
+precombat_actions:
+  - Stealth
+  - Premeditation
+cast_if:
+  # Only from Stealth: the opener at the pull.
+  - name: Ambush
+  - name: Thistle Tea
+    condition: resource "Energy" less 20
+  - name: Burst of Energy  # Renataki's Charm of Trickery
+    condition: resource "Energy" leq 40
+  - name: Slice and Dice
+    condition: buff_duration "Slice and Dice" less 3
+  - name: Rupture
+    condition: |
+      variable "combo_points" eq 5
+      and buff_duration "Rupture" less 2
+  - name: Ghostly Strike
+    condition: variable "combo_points" less 5
+  - name: Hemorrhage
+    condition: variable "combo_points" less 5
+  - name: Eviscerate
+    condition: |
+      variable "combo_points" eq 5
+      and buff_duration "Slice and Dice" greater 8
+      and buff_duration "Rupture" greater 6
+  - name: Kiss of the Spider
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Jom Gabbar
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Badge of the Swarmguard
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Slayer's Crest
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Earthstrike
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Restless Strength  # Zandalarian Hero Medallion
+    condition: |
+      variable "time_remaining_execute" greater 120
+      or variable "time_remaining_execute" less 0
+  - name: Blood Fury
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Energy" less 50
+      or variable "time_remaining_execute" greater 120
+  - name: Berserking
+    condition: |
+      variable "time_remaining_execute" less 0
+      and resource "Energy" less 50
+      or variable "time_remaining_execute" greater 180

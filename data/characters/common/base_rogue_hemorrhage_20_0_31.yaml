@@ -1,0 +1,28 @@
+# Subtlety Hemorrhage daggers, 20/0/31: Hemorrhage, Serrated Blades, Quietus and Thousand Cuts;
+# Initiative and Premeditation for the opener. Camouflage, Elusiveness, Heightened Senses and
+# Preparation only fill the tiers; the Assassination points go up to Lethality.
+class: ROGUE
+rotation: Hemorrhage
+talents:
+  Assassination:
+    Malice: 5
+    Ruthlessness: 3
+    Improved Slice and Dice: 3
+    Relentless Strikes: 1
+    Lethality: 5
+    Improved Poisons: 3
+  Subtlety:
+    Camouflage: 4
+    Opportunity: 2
+    Improved Ambush: 3
+    Elusiveness: 2
+    Initiative: 3
+    Ghostly Strike: 1
+    Premeditation: 1
+    Serrated Blades: 3
+    Heightened Senses: 2
+    Dirty Deeds: 2
+    Preparation: 1
+    Hemorrhage: 1
+    Quietus: 5
+    Thousand Cuts: 1

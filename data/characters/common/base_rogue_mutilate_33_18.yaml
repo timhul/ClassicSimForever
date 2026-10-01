@@ -1,0 +1,26 @@
+# Seal Fate Mutilate daggers, 33/18/0: Mutilate, Seal Fate, Cold Blood and the poison talents
+# (Venom is not used by the rotation, see seal_fate_mutilate.yaml);
+# Puncturing Wounds (Mutilate's crit) and Precision from Combat. Lightning Reflexes and
+# Deflection only fill the tiers up to Dual Wield Specialization.
+class: ROGUE
+rotation: Seal Fate Mutilate
+talents:
+  Assassination:
+    Malice: 5
+    Ruthlessness: 3
+    Improved Slice and Dice: 3
+    Relentless Strikes: 1
+    Lethality: 5
+    Vile Poisons: 5
+    Mutilate: 1
+    Vigor: 2
+    Seal Fate: 5
+    Improved Poisons: 2
+    Cold Blood: 1
+  Combat:
+    Improved Eviscerate: 3
+    Lightning Reflexes: 4
+    Puncturing Wounds: 3
+    Precision: 3
+    Deflection: 2
+    Dual Wield Specialization: 3

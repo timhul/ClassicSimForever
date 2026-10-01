@@ -3,7 +3,7 @@
 use clap::Args;
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::faction::PlayerClass;
-use csim_engine::item::EquipmentSlot;
+use csim_engine::item::{EquipmentSlot, Item};
 use csim_engine::phase::Phase;
 
 use crate::table::Table;
@@ -20,6 +20,10 @@ pub struct ItemArgs {
     /// Only items whose name contains this text (case-insensitive).
     #[arg(long)]
     search: Option<String>,
+    /// Only items this class can use: its armor and, in a weapon slot, its weapons (WARRIOR,
+    /// ROGUE, ...).
+    #[arg(long, value_parser = parse_serde_name::<PlayerClass>)]
+    class: Option<PlayerClass>,
 }
 
 #[derive(Debug, Args)]
@@ -50,6 +54,23 @@ pub(crate) fn matches(name: &str, search: Option<&str>) -> bool {
     search.is_none_or(|search| name.to_lowercase().contains(&search.to_lowercase()))
 }
 
+/// Whether `class` can use `item`, in `slot` when one is given: the item's class restrictions
+/// and, for a class of `data/classes/`, its armor type and weapon proficiencies.
+pub(crate) fn usable(
+    data: &DataBundle,
+    class: PlayerClass,
+    item: &Item,
+    slot: Option<EquipmentSlot>,
+) -> bool {
+    let Ok(spec) = data.classes.get(class) else {
+        return item.available_for_class(class);
+    };
+    match slot {
+        Some(slot) => spec.can_equip(item, slot),
+        None => spec.can_use(item),
+    }
+}
+
 pub fn items(data: &DataBundle, args: &ItemArgs) {
     let db = &data.equipment;
     let mut table = Table::new(["Id", "Name", "Slot", "Type", "Quality", "Phase", "Weapon"])
@@ -66,6 +87,9 @@ pub fn items(data: &DataBundle, args: &ItemArgs) {
         let Some(item) = item else { continue };
         if !matches(item.name(), args.search.as_deref())
             || args.slot.is_some_and(|slot| !item.fits(slot))
+            || args
+                .class
+                .is_some_and(|class| !usable(data, class, item, args.slot))
         {
             continue;
         }

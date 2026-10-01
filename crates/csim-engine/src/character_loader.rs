@@ -856,7 +856,7 @@ impl CharacterSetup {
 }
 
 /// What `Equipment::equip` does not check: the item exists in the phase, its faction and
-/// class restrictions, and weapon proficiency.
+/// class restrictions, the armor type and weapon proficiency.
 fn check_item(
     class: &ClassSpec,
     faction: Faction,
@@ -888,6 +888,15 @@ fn check_item(
             "{} ({item_id}) is not usable by the {:?}",
             item.name(),
             class.class
+        ));
+    }
+    if let Some(armor_type) = item.item_type().armor_type()
+        && !class.can_wear(armor_type)
+    {
+        return Err(format!(
+            "the {:?} cannot wear {} ({item_id}, {armor_type:?})",
+            class.class,
+            item.name()
         ));
     }
     if let Some(weapon_type) = item.weapon_type() {

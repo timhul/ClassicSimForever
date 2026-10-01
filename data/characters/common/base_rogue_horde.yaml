@@ -1,0 +1,19 @@
+# Horde Rogue armor and jewelry, no weapons: the High Warlord's leather pieces, the same
+# jewelry and trinkets as the Warrior setups (Drake Fang Talisman, Earthstrike).
+class: ROGUE
+equipment:
+  RANGED: { item: 19107 }                                           # Bloodseeker
+  HEAD: { item: 16561, enchant: LesserArcanumOfVoracityAgility }    # Warlord's Leather Helm
+  NECK: { item: 18404 }                                             # Onyxia Tooth Pendant
+  SHOULDERS: { item: 16562, enchant: MightOfTheScourge }            # Warlord's Leather Spaulders
+  BACK: { item: 20068, enchant: EnchantCloakLesserAgility }         # Deathguard's Cloak
+  CHEST: { item: 16563, enchant: EnchantChestGreaterStats }         # Warlord's Leather Breastplate
+  WRIST: { item: 16559, enchant: EnchantBracerSuperiorStrength }    # General's Leather Armsplints
+  GLOVES: { item: 16560, enchant: EnchantGlovesSuperiorAgility }    # General's Leather Mitts
+  BELT: { item: 16557 }                                             # General's Leather Girdle
+  LEGS: { item: 16564, enchant: LesserArcanumOfVoracityAgility }    # General's Leather Legguards
+  BOOTS: { item: 16558, enchant: EnchantBootsGreaterAgility }       # General's Leather Treads
+  RING1: { item: 19325 }                                            # Don Julio's Band
+  RING2: { item: 18821 }                                            # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                         # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                         # Earthstrike

@@ -44,9 +44,17 @@ that seed:
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --combat-log --seed 1`
 
+A Rogue is run the same way, with a rogue setup (`combat_swords_human`, `combat_axes_orc`,
+`combat_daggers_night_elf`, `mutilate_undead`, `mutilate_ea_gnome`, `hemorrhage_troll`; their
+rotations are in `data/rotations/rogue/`):
+
+`cargo run --release -p csim-cli -- run data/characters/combat_swords_human.yaml --iterations 10000`
+
 In a raid (`data/raids/`, members refer to `data/characters/`):
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --raid data/raids/horde_melee.yaml`
+
+`cargo run --release -p csim-cli -- run data/characters/combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml`
 
 Stat weights per item stat point, then items ranked by them (static stats only; weapon damage,
 effects, set bonuses and suffixes are not scored):
@@ -56,6 +64,9 @@ effects, set bonuses and suffixes are not scored):
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot gloves`
 
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot mainhand --type axe,sword,mace,dagger,fist`
+
+`rank-items` only lists what the weights' class can use (armor type, weapon proficiencies per slot);
+`list-items --class rogue` filters the same way.
 
 Sweeps (`data/sweeps/`, schema in `crates/csim-engine/src/sweep_loader.rs`): a base character setup
 plus variation points (`talent_points`: every way to spend exactly N more points over some talents;
@@ -68,6 +79,8 @@ Instead of a base, a `characters` variation point lists whole character files, t
 against each other:
 
 `cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_profiles.yaml`
+
+The Rogue's: `data/sweeps/combat_swords_last_3_points.yaml` and `data/sweeps/dw_rogue_profiles.yaml`.
 
 # Good cross-reference information sources
 

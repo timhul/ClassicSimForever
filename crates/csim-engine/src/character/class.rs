@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::enchant::{EnchantContext, EnchantDb, EnchantName, EnchantSpec};
 use crate::faction::PlayerClass;
-use crate::item::{ArmorType, EquipmentSlot, WeaponType};
+use crate::item::{ArmorType, EquipmentSlot, Item, WeaponType};
 use crate::race::{BaseStats, Race};
 use crate::resource::ResourceType;
 use crate::stance::Stance;
@@ -337,6 +337,37 @@ impl ClassSpec {
             .contains(&weapon_type)
     }
 
+    /// Whether the class wears armor of `armor_type` (up to its `highest_armor_type`).
+    pub fn can_wear(&self, armor_type: ArmorType) -> bool {
+        armor_type <= self.highest_armor_type
+    }
+
+    /// Whether the class can use `item` in `slot`: the item's class restrictions, its armor
+    /// type, and in a weapon slot its weapon type. Whether the item fits the slot is not
+    /// checked.
+    pub fn can_equip(&self, item: &Item, slot: EquipmentSlot) -> bool {
+        let weapon_slot = matches!(
+            slot,
+            EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+        );
+        item.available_for_class(self.class)
+            && item
+                .item_type()
+                .armor_type()
+                .is_none_or(|armor| self.can_wear(armor))
+            && (!weapon_slot
+                || item
+                    .weapon_type()
+                    .is_none_or(|weapon| self.can_wield(slot, weapon)))
+    }
+
+    /// Whether the class can use `item` in any slot it fits.
+    pub fn can_use(&self, item: &Item) -> bool {
+        EquipmentSlot::ALL
+            .into_iter()
+            .any(|slot| item.fits(slot) && self.can_equip(item, slot))
+    }
+
     pub fn stat_offsets(&self, race: Race) -> StatOffsets {
         self.race_stat_offsets
             .get(&race)
@@ -591,6 +622,50 @@ mod tests {
                 .enchants_for_slot(EquipmentSlot::Offhand, true)
                 .contains(&EnchantName::InstantPoison)
         );
+    }
+
+    fn item(yaml: &str) -> Item {
+        Item::from_spec(serde_yaml::from_str(yaml).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn the_class_equips_its_armor_and_weapons() {
+        let db = ClassDb::load(&data_dir().join("classes"), None).unwrap();
+        let rogue = db.get(PlayerClass::Rogue).unwrap();
+        let warrior = db.get(PlayerClass::Warrior).unwrap();
+        let armor = |item_type: &str| {
+            item(&format!(
+                "{{ id: 1, name: Chest, phase: 1, slot: CHEST, type: {item_type}, quality: EPIC }}"
+            ))
+        };
+        let weapon = |slot: &str, item_type: &str| {
+            item(&format!(
+                "{{ id: 2, name: Weapon, phase: 1, slot: {slot}, type: {item_type}, \
+                 quality: EPIC, damage: {{ min: 1, max: 2, speed: 2.0 }} }}"
+            ))
+        };
+        let chest = EquipmentSlot::Chest;
+        assert!(rogue.can_equip(&armor("LEATHER"), chest));
+        assert!(rogue.can_equip(&armor("CLOTH"), chest));
+        assert!(!rogue.can_equip(&armor("MAIL"), chest));
+        assert!(warrior.can_equip(&armor("PLATE"), chest));
+
+        let dagger = weapon("1H", "DAGGER");
+        assert!(rogue.can_equip(&dagger, EquipmentSlot::Offhand));
+        assert!(rogue.can_use(&dagger));
+        let claymore = weapon("2H", "TWOHAND_SWORD");
+        assert!(!rogue.can_equip(&claymore, EquipmentSlot::Mainhand));
+        assert!(!rogue.can_use(&claymore));
+        assert!(warrior.can_use(&claymore));
+        let shield = weapon("OH", "SHIELD");
+        assert!(!rogue.can_use(&shield));
+        assert!(warrior.can_use(&shield));
+
+        let restricted = item(
+            "{ id: 4, name: Mask, phase: 1, slot: HEAD, type: LEATHER, quality: EPIC, \
+             class_restrictions: [DRUID] }",
+        );
+        assert!(!rogue.can_use(&restricted));
     }
 
     #[test]
