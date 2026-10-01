@@ -87,8 +87,8 @@ overrides:
     note: Improved Tactical Mastery adds 3-15 rage kept on stance change
     effects: [{ index: 0, script: STANCE_RAGE_RETAINED }]
   - id: 23584
-    note: Dual Wield Specialization; E0 and E2 are plain auras, E1 is off-hand rage generation
-    effects: [{ index: 1, script: OFFHAND_RAGE_PERCENT }]
+    note: Dual Wield Specialization; E0 and E2 are plain auras, E1 is off-hand rage generation, halved by a game patch (client 20 % per rank, 10 % in game; 5/5 makes the off-hand 75 % of the main-hand rate)
+    effects: [{ index: 1, script: OFFHAND_RAGE_PERCENT, params: { value: 0.5 } }]
   - id: 1310315
     note: Raging Blows (talent); E0 makes Whirlwind also strike with the off hand, E1 is the Cleave cost modifier
     effects: [{ index: 0, script: OFFHAND_COPY, params: { spell: 1680 } }]

@@ -244,13 +244,40 @@ fn swing_rage(dws: u32) -> Option<f64> {
 }
 
 /// The off hand generates half the one-hand rate, 1.73 × 2.6 = 4.498 rage; each rank of
-/// Dual Wield Specialization adds 20 % of it, so 5 of 5 matches the main hand's 8.996.
+/// Dual Wield Specialization adds 10 % of it (patched from the client's 20 %), so 5 of 5 makes
+/// 6.747, 75 % of the main hand's 8.996.
 #[test]
 fn rage_dual_wield_specialization() {
     let rage: Vec<Option<f64>> = (0..=5).map(swing_rage).collect();
     assert_eq!(
         rage,
-        [44.0, 53.0, 62.0, 71.0, 80.0, 89.0].map(|t| Some(t / 10.0))
+        [44.0, 49.0, 53.0, 58.0, 62.0, 67.0].map(|t| Some(t / 10.0))
+    );
+}
+
+/// Rage of one off-hand crit of the 2.6 speed test sword with `dws` of 5 Dual Wield
+/// Specialization.
+fn crit_rage(dws: u32) -> Option<f64> {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_100_min_max_dmg();
+    test.given_a_guaranteed_white_crit();
+    if dws > 0 {
+        test.given_fury_talent_with_rank("Dual Wield Specialization", dws);
+    }
+    test.given_warrior_has_rage(0);
+    test.when_swing_is_performed(Hand::Offhand).rage_gained
+}
+
+/// An off-hand crit doubles the off-hand rage, Dual Wield Specialization included:
+/// 4.498 x (1 + 0.1 x rank) x 2 rage, from 100 % of a main-hand hit's 8.996 at 0/5 to 150 %
+/// (13.494) at 5/5.
+#[test]
+fn offhand_crits_double_the_dual_wield_specialization_rage() {
+    let rage: Vec<Option<f64>> = (0..=5).map(crit_rage).collect();
+    assert_eq!(
+        rage,
+        [89.0, 98.0, 107.0, 116.0, 125.0, 134.0].map(|t| Some(t / 10.0))
     );
 }
 

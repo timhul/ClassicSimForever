@@ -37,7 +37,7 @@ use crate::resource::{Rage, Resource, ResourceType};
 use crate::rng::{Random, Xoroshiro128Plus};
 use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
-use crate::spell::auto_attack::swing_rage;
+use crate::spell::auto_attack::{CRIT_RAGE_FACTOR, swing_rage};
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::{AutoAttack, Hand};
 use crate::stance::Stance;
@@ -920,9 +920,9 @@ impl Character {
     }
 
     /// Rage of a landed white swing of `hand` (see [`swing_rage`]) from the base speed of the
-    /// weapon in that hand, with the off-hand rage percentage applied; `None` for characters
-    /// without rage or an empty hand.
-    pub fn swing_rage(&self, hand: Hand) -> Option<f64> {
+    /// weapon in that hand, with the off-hand rage percentage applied and, when it `crit`,
+    /// times [`CRIT_RAGE_FACTOR`]; `None` for characters without rage or an empty hand.
+    pub fn swing_rage(&self, hand: Hand, crit: bool) -> Option<f64> {
         if self.class.resource != ResourceType::Rage {
             return None;
         }
@@ -931,16 +931,18 @@ impl Character {
             Hand::Offhand => self.equipment.offhand(),
         }?;
         let rage = swing_rage(weapon.speed(), weapon.is_two_hand(), hand);
-        Some(match hand {
+        let rage = match hand {
             Hand::Mainhand => rage,
             Hand::Offhand => (rage * (1.0 + f64::from(self.offhand_rage_percent) / 100.0)).max(0.0),
-        })
+        };
+        Some(if crit { rage * CRIT_RAGE_FACTOR } else { rage })
     }
 
-    /// Gains the rage of a landed white swing of `hand`; returns the rage actually gained
-    /// (fractional, after the cap), `None` for characters without rage.
-    pub fn gain_swing_rage(&mut self, hand: Hand) -> Option<f64> {
-        let rage = self.swing_rage(hand)?;
+    /// Gains the rage of a landed white swing of `hand` (see [`Character::swing_rage`]);
+    /// returns the rage actually gained (fractional, after the cap), `None` for characters
+    /// without rage.
+    pub fn gain_swing_rage(&mut self, hand: Hand, crit: bool) -> Option<f64> {
+        let rage = self.swing_rage(hand, crit)?;
         let tenths = self
             .resource
             .as_rage_mut()?
