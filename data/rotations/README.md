@@ -70,6 +70,13 @@ The buff types read the character's own debuffs on the target too, by the debuff
 `buff_duration "Rupture" less 2` or `buff_duration "Expose Armor" less 3` time a Rogue's
 refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's.
 
+An on-next-swing spell (Heroic Strike, Cleave) is a buff of its own name while it is queued,
+from the cast until the main hand swing that takes it (or drops it, without the rage for it).
+Casting it again while queued changes nothing but the executor's cast count, so a rotation can
+skip it with `buff_duration "Heroic Strike" is false`. Queueing Cleave un-queues Heroic Strike
+and the other way round. The buff is in the buff statistics (the queue uptime) and in
+`csim-live`, not in the combat log.
+
 `variable "target_is_type"` is compared by name, not number: `eq "<creature type>"` holds when
 the target (`target: creature_type:` in the character setup) is of that type. The types are
 Beast, Demon, Dragonkin, Elemental, Giant, Humanoid, Mechanical and Undead, in any case
