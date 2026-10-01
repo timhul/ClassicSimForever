@@ -362,6 +362,10 @@ impl Character {
         self.rotation.as_ref()
     }
 
+    pub fn rotation_mut(&mut self) -> Option<&mut Rotation> {
+        self.rotation.as_mut()
+    }
+
     /// Takes the rotation out (to run it against the context); [`Self::put_rotation`] returns
     /// it.
     pub fn take_rotation(&mut self) -> Option<Rotation> {

@@ -377,6 +377,69 @@ fn a_stepped_iteration_is_the_logged_iteration_of_its_seed() {
     assert!(!raid.engine().is_logging());
 }
 
+/// The rotation's decision trace: one decision per executor cast, and recording it changes
+/// nothing about the iteration.
+#[test]
+fn the_rotation_trace_names_every_cast_and_changes_nothing() {
+    use crate::rotation::DecidedBy;
+
+    let data = Data::load();
+    let settings = settings(1);
+    let mut untraced = data.raid(&settings, 2, false);
+    let untraced_log = run_logged_iteration(&settings, 8, &mut untraced);
+
+    let mut raid = data.raid(&settings, 2, false);
+    for id in raid.char_ids().collect::<Vec<_>>() {
+        raid.character_mut(id)
+            .rotation_mut()
+            .unwrap()
+            .enable_trace();
+    }
+    let log = run_logged_iteration(&settings, 8, &mut raid);
+    assert_eq!(log, untraced_log);
+
+    for character in raid.characters() {
+        let rotation = character.rotation().unwrap();
+        let trace = rotation.trace();
+        assert!(trace.is_sorted_by(|a, b| a.time <= b.time));
+        let precombat: Vec<_> = trace
+            .iter()
+            .filter(|d| d.by == DecidedBy::Precombat)
+            .map(|d| d.spell)
+            .collect();
+        assert_eq!(
+            precombat,
+            rotation.precombat_spells(),
+            "all available at the start"
+        );
+        assert!(
+            trace
+                .iter()
+                .all(|d| d.by != DecidedBy::Precombat || d.time < 0.0)
+        );
+
+        let mut casts = 0;
+        for (index, executor) in rotation.executors().iter().enumerate() {
+            let decisions: Vec<_> = trace
+                .iter()
+                .filter(|d| d.by == DecidedBy::Executor(index))
+                .collect();
+            assert_eq!(
+                decisions.len() as u64,
+                executor.statistics().successful_casts,
+                "{}",
+                executor.spell_name()
+            );
+            if let Some(linked) = executor.linked() {
+                assert!(decisions.iter().all(|d| d.spell == linked.spell));
+            }
+            casts += decisions.len();
+        }
+        // The untalented test rotation casts Execute, Whirlwind, the stances and the like.
+        assert!(casts >= 10, "{casts}");
+    }
+}
+
 #[test]
 fn stepping_until_a_time_runs_no_later_event() {
     let data = Data::load();

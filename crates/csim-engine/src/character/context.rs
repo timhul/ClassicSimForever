@@ -2261,7 +2261,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Casts the rotation's precombat spells.
     /// Expected to run at T < 0, but not strictly enforced.
     pub fn run_precombat_actions(&mut self) {
-        if let Some(rotation) = self.character.take_rotation() {
+        if let Some(mut rotation) = self.character.take_rotation() {
             rotation.run_precombat_actions(self);
             self.character.put_rotation(Some(rotation));
         }
@@ -2340,6 +2340,10 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
 }
 
 impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
+    fn now(&self) -> f64 {
+        self.engine.current_time()
+    }
+
     fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
         self.spell_rank_by_name(name, rank)
     }
