@@ -8,6 +8,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132490
   req_lvl: 32
   item_lvl: 37
   boe: true
@@ -25,6 +26,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132498
   req_lvl: 18
   item_lvl: 23
   boe: true
@@ -39,6 +41,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -54,6 +57,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -69,6 +73,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -85,6 +90,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132517
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -100,6 +106,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -116,6 +123,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -131,6 +139,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -146,6 +155,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -161,6 +171,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132517
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -177,6 +188,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -194,6 +206,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -209,6 +222,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -224,6 +238,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -240,6 +255,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -255,6 +271,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -270,6 +287,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -285,6 +303,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132498
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -300,6 +319,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -315,6 +335,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -330,6 +351,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -346,6 +368,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -362,6 +385,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132491
   req_lvl: 0
   item_lvl: 27
   stats:
@@ -374,6 +398,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132502
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -389,6 +414,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -404,6 +430,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -419,6 +446,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -434,6 +462,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -449,6 +478,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -464,6 +494,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -479,6 +510,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -494,6 +526,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -509,6 +542,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132520
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -524,6 +558,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132515
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -538,6 +573,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132505
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -551,6 +587,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132498
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -565,6 +602,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132498
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -580,6 +618,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132500
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -593,6 +632,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132524
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -607,6 +647,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132507
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -621,6 +662,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132515
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -635,6 +677,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132493
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -649,6 +692,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132524
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -663,6 +707,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132507
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -677,6 +722,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132515
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -691,6 +737,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132493
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -705,6 +752,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132521
   req_lvl: 60
   item_lvl: 66
   boe: true
@@ -718,6 +766,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132513
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -733,6 +782,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132502
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -747,6 +797,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132521
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [WARRIOR]
@@ -762,6 +813,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132521
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PALADIN]
@@ -779,6 +831,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132508
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [SHAMAN]
@@ -795,6 +848,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132508
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [HUNTER]
@@ -812,6 +866,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132490
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [DRUID]
@@ -828,6 +883,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132497
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PRIEST]
@@ -844,6 +900,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -859,6 +916,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -875,6 +933,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -890,6 +949,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -905,6 +965,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -920,6 +981,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -935,6 +997,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -951,6 +1014,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -965,6 +1029,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -979,6 +1044,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -992,6 +1058,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1007,6 +1074,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1021,6 +1089,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1035,6 +1104,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1049,6 +1119,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1062,6 +1133,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1075,6 +1147,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1090,6 +1163,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1104,6 +1178,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1118,6 +1193,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1132,6 +1208,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1145,6 +1222,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1158,6 +1236,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1172,6 +1251,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1185,6 +1265,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1198,6 +1279,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1212,6 +1294,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1225,6 +1308,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1238,6 +1322,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1253,6 +1338,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1267,6 +1353,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1280,6 +1367,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1294,6 +1382,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1310,6 +1399,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1324,6 +1414,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1339,6 +1430,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1353,6 +1445,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1368,6 +1461,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1381,6 +1475,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1394,6 +1489,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1408,6 +1504,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1423,6 +1520,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1437,6 +1535,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1452,6 +1551,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1466,6 +1566,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1481,6 +1582,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1494,6 +1596,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1507,6 +1610,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1521,6 +1625,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1536,6 +1641,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1550,6 +1656,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1563,6 +1670,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132509
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1576,6 +1684,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1591,6 +1700,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1605,6 +1715,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1618,6 +1729,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1631,6 +1743,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132502
   req_lvl: 0
   item_lvl: 70
   stats:
@@ -1644,6 +1757,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132501
   req_lvl: 0
   item_lvl: 70
   stats:
@@ -1658,6 +1772,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132503
   req_lvl: 0
   item_lvl: 70
   stats:
@@ -1672,6 +1787,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   req_lvl: 0
   item_lvl: 70
   stats:
@@ -1685,6 +1801,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132503
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -1699,6 +1816,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132520
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1713,6 +1831,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132515
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1727,6 +1846,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132520
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1742,6 +1862,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132523
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1757,6 +1878,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132521
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1773,6 +1895,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132500
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1787,6 +1910,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132523
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1802,6 +1926,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132492
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1816,6 +1941,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132517
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1830,6 +1956,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132497
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1845,6 +1972,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132501
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1859,6 +1987,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132499
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1874,6 +2003,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132500
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1890,6 +2020,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132505
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1906,6 +2037,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132504
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1923,6 +2055,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132505
   req_lvl: 60
   item_lvl: 68
   boe: true
@@ -1937,6 +2070,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132505
   req_lvl: 60
   item_lvl: 68
   boe: true
@@ -1950,6 +2084,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1966,6 +2101,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1981,6 +2117,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1998,6 +2135,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2013,6 +2151,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2028,6 +2167,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2044,6 +2184,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132492
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2060,6 +2201,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132492
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2075,6 +2217,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132497
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -2090,6 +2233,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132506
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -2878,6 +3022,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132505
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -2904,6 +3049,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 236896
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2919,6 +3065,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132515
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2933,6 +3080,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132505
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2947,6 +3095,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132514
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2961,6 +3110,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132494
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2976,6 +3126,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132522
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2990,6 +3141,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132504
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3004,6 +3156,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 236918
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3019,6 +3172,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132522
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -3033,6 +3187,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132496
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3047,6 +3202,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132500
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3062,6 +3218,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132505
   req_lvl: 60
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3076,6 +3233,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -3090,6 +3248,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3105,6 +3264,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -3119,6 +3279,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -3133,6 +3294,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -3147,6 +3309,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132498
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -3161,6 +3324,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3176,6 +3340,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -3190,6 +3355,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -3204,6 +3370,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3218,6 +3385,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -3232,6 +3400,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -3246,6 +3415,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132502
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3260,6 +3430,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3274,6 +3445,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -3288,6 +3460,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -3302,6 +3475,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3317,6 +3491,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132517
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -3331,6 +3506,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3345,6 +3521,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -3359,6 +3536,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3374,6 +3552,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -3388,6 +3567,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132517
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -3402,6 +3582,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3416,6 +3597,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -3430,6 +3612,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -3444,6 +3627,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -3458,6 +3642,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3472,6 +3657,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3486,6 +3672,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132498
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -3500,6 +3687,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -3514,6 +3702,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3530,6 +3719,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3544,6 +3734,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3560,6 +3751,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3574,6 +3766,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3590,6 +3783,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3606,6 +3800,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3622,6 +3817,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3636,6 +3832,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3650,6 +3847,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132512
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3666,6 +3864,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: RARE
+  icon: 132495
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3680,6 +3879,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3694,6 +3894,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132512
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3710,6 +3911,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3724,6 +3926,7 @@ items:
   slot: BELT
   type: LEATHER
   quality: EPIC
+  icon: 132495
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3740,6 +3943,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132511
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3756,6 +3960,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132502
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3772,6 +3977,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3788,6 +3994,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3802,6 +4009,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3816,6 +4024,7 @@ items:
   slot: BELT
   type: MAIL
   quality: EPIC
+  icon: 132503
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3832,6 +4041,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3846,6 +4056,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3862,6 +4073,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132503
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3876,6 +4088,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3890,6 +4103,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3904,6 +4118,7 @@ items:
   slot: BELT
   type: PLATE
   quality: EPIC
+  icon: 132516
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3920,6 +4135,7 @@ items:
   slot: BELT
   type: PLATE
   quality: RARE
+  icon: 132516
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3936,6 +4152,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: RARE
+  icon: 132511
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -4066,6 +4283,7 @@ items:
   slot: BELT
   type: MAIL
   quality: RARE
+  icon: 132506
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -4094,6 +4312,7 @@ items:
   slot: BELT
   type: CLOTH
   quality: EPIC
+  icon: 132495
   req_lvl: 60
   item_lvl: 65
   boe: true

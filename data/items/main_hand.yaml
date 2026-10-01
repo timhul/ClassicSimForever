@@ -8,6 +8,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133048
   req_lvl: 49
   item_lvl: 54
   boe: true
@@ -24,6 +25,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133061
   unique: true
   req_lvl: 40
   item_lvl: 50
@@ -40,6 +42,7 @@ items:
   slot: MH
   type: FIST
   quality: RARE
+  icon: 135663
   req_lvl: 55
   item_lvl: 60
   damage:
@@ -55,6 +58,7 @@ items:
   slot: MH
   type: FIST
   quality: EPIC
+  icon: 135643
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -71,6 +75,7 @@ items:
   slot: MH
   type: FIST
   quality: EPIC
+  icon: 134296
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -87,6 +92,7 @@ items:
   slot: MH
   type: FIST
   quality: RARE
+  icon: 134295
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -103,6 +109,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135311
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -119,6 +126,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135311
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -135,6 +143,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133497
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -152,6 +161,7 @@ items:
   slot: MH
   type: MACE
   quality: RARE
+  icon: 133059
   unique: true
   req_lvl: 0
   item_lvl: 63
@@ -169,6 +179,7 @@ items:
   slot: MH
   type: SWORD
   quality: EPIC
+  icon: 135367
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -189,6 +200,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133474
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -208,6 +220,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133474
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -231,6 +244,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133474
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -250,6 +264,7 @@ items:
   slot: MH
   type: SWORD
   quality: EPIC
+  icon: 135367
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -269,6 +284,7 @@ items:
   slot: MH
   type: SWORD
   quality: EPIC
+  icon: 135361
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -286,6 +302,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135665
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -303,6 +320,7 @@ items:
   slot: MH
   type: SWORD
   quality: EPIC
+  icon: 135368
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -321,6 +339,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133474
   req_lvl: 60
   item_lvl: 84
   damage:
@@ -337,6 +356,7 @@ items:
   slot: MH
   type: DAGGER
   quality: RARE
+  icon: 135322
   req_lvl: 0
   item_lvl: 65
   damage:
@@ -351,6 +371,7 @@ items:
   slot: MH
   type: MACE
   quality: RARE
+  icon: 133042
   req_lvl: 0
   item_lvl: 65
   damage:
@@ -365,6 +386,7 @@ items:
   slot: MH
   type: SWORD
   quality: EPIC
+  icon: 135361
   req_lvl: 59
   item_lvl: 64
   boe: true
@@ -382,6 +404,7 @@ items:
   slot: MH
   type: DAGGER
   quality: RARE
+  icon: 135639
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -398,6 +421,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135662
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -414,6 +438,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135662
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -430,6 +455,7 @@ items:
   slot: MH
   type: DAGGER
   quality: RARE
+  icon: 132797
   req_lvl: 50
   item_lvl: 55
   damage:
@@ -461,6 +487,7 @@ items:
   slot: MH
   type: FIST
   quality: EPIC
+  icon: 134296
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -477,6 +504,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133039
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -493,6 +521,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135662
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -509,6 +538,7 @@ items:
   slot: MH
   type: FIST
   quality: EPIC
+  icon: 135643
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -525,6 +555,7 @@ items:
   slot: MH
   type: DAGGER
   quality: EPIC
+  icon: 135662
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -541,6 +572,7 @@ items:
   slot: MH
   type: MACE
   quality: EPIC
+  icon: 133039
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -602,6 +634,7 @@ items:
   slot: MH
   type: FIST
   quality: RARE
+  icon: 135606
   req_lvl: 1
   item_lvl: 40
   damage:
@@ -619,6 +652,7 @@ items:
   slot: MH
   type: FIST
   quality: RARE
+  icon: 135600
   req_lvl: 1
   item_lvl: 40
   damage:

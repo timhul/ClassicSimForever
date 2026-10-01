@@ -8,6 +8,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134335
   req_lvl: 0
   item_lvl: 25
   class_restrictions: [WARLOCK]
@@ -28,6 +29,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134335
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -48,6 +50,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134335
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARLOCK]
@@ -68,6 +71,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134335
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARLOCK]
@@ -88,6 +92,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 135148
   req_lvl: 0
   item_lvl: 60
   damage:
@@ -104,6 +109,7 @@ items:
   slot: OH
   type: SHIELD
   quality: RARE
+  icon: 134952
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -120,6 +126,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 135741
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -141,6 +148,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 133738
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -159,6 +167,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134430
   req_lvl: 0
   item_lvl: 54
   damage:
@@ -174,6 +183,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134951
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -193,6 +203,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134965
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -212,6 +223,7 @@ items:
   slot: OH
   type: FIST
   quality: EPIC
+  icon: 132302
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -228,6 +240,7 @@ items:
   slot: OH
   type: FIST
   quality: EPIC
+  icon: 134297
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -244,6 +257,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133733
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -260,6 +274,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133738
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -276,6 +291,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133743
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -292,6 +308,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133741
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -307,6 +324,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133941
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -325,6 +343,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133749
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -340,6 +359,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 135835
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -357,6 +377,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 134335
   req_lvl: 60
   item_lvl: 83
   damage:
@@ -373,6 +394,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 133743
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -389,6 +411,7 @@ items:
   slot: OH
   type: FIST
   quality: RARE
+  icon: 134295
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -407,6 +430,7 @@ items:
   slot: OH
   type: SHIELD
   quality: RARE
+  icon: 134957
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -423,6 +447,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 134125
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -440,6 +465,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134969
   unique: true
   req_lvl: 60
   item_lvl: 79
@@ -460,6 +486,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 135472
   req_lvl: 60
   item_lvl: 81
   damage:
@@ -478,6 +505,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134970
   req_lvl: 60
   item_lvl: 81
   damage:
@@ -497,6 +525,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134968
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -517,6 +546,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133744
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -533,6 +563,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133745
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -550,6 +581,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133747
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -566,6 +598,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133746
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -583,6 +616,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 133743
   unique: true
   req_lvl: 0
   item_lvl: 55
@@ -600,6 +634,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 1769010
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -615,6 +650,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134336
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -631,6 +667,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 134922
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -647,6 +684,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: RARE
+  icon: 4638472
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -697,6 +735,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134965
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -716,6 +755,7 @@ items:
   slot: OH
   type: FIST
   quality: EPIC
+  icon: 134297
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -732,6 +772,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133747
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -748,6 +789,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133746
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -766,6 +808,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134951
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -785,6 +828,7 @@ items:
   slot: OH
   type: FIST
   quality: EPIC
+  icon: 132302
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -860,6 +904,7 @@ items:
   slot: OH
   type: SHIELD
   quality: RARE
+  icon: 134959
   req_lvl: 0
   item_lvl: 55
   damage:
@@ -971,6 +1016,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133745
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -989,6 +1035,7 @@ items:
   slot: OH
   type: CASTER_OFFHAND
   quality: EPIC
+  icon: 133744
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1005,6 +1052,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134951
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1023,6 +1071,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 134965
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1041,6 +1090,7 @@ items:
   slot: OH
   type: SHIELD
   quality: EPIC
+  icon: 7956963
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -1060,6 +1110,7 @@ items:
   slot: OH
   type: SHIELD
   quality: RARE
+  icon: 134955
   req_lvl: 1
   item_lvl: 40
   damage:

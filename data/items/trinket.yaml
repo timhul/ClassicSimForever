@@ -8,6 +8,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134084
   unique: true
   req_lvl: 56
   item_lvl: 61
@@ -21,6 +22,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134153
   unique: true
   req_lvl: 50
   item_lvl: 60
@@ -39,6 +41,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133431
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -57,6 +60,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133432
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -75,6 +79,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133433
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -94,6 +99,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133285
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -112,6 +118,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133286
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -130,6 +137,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133287
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -149,6 +157,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133293
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -161,6 +170,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 136168
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -178,6 +188,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133860
   unique: true
   req_lvl: 47
   item_lvl: 52
@@ -194,6 +205,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133862
   unique: true
   req_lvl: 53
   item_lvl: 58
@@ -210,6 +222,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133874
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -226,6 +239,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135933
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -240,6 +254,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 136224
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -251,6 +266,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135805
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -263,6 +279,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134465
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -278,6 +295,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -292,6 +310,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -306,6 +325,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -320,6 +340,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -334,6 +355,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -348,6 +370,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -362,6 +385,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -376,6 +400,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -390,6 +415,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -404,6 +430,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -418,6 +445,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -432,6 +460,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -446,6 +475,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -460,6 +490,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -474,6 +505,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -488,6 +520,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -502,6 +535,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133599
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -524,6 +558,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134488
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -536,6 +571,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134484
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -548,6 +584,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134491
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -560,6 +597,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134495
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -572,6 +610,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 136116
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -588,6 +627,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133738
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -604,6 +644,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 136115
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -620,6 +661,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134419
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -634,6 +676,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134124
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -648,6 +691,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134232
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -664,6 +708,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134944
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -680,6 +725,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134073
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -696,6 +742,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135880
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -710,6 +757,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135241
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -723,6 +771,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134136
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -735,6 +784,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133723
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -748,6 +798,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133605
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -761,6 +812,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133300
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -774,6 +826,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133300
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -789,6 +842,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133300
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -804,6 +858,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -821,6 +876,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -838,6 +894,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -855,6 +912,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -872,6 +930,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -887,6 +946,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -904,6 +964,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -921,6 +982,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -936,6 +998,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133306
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -953,6 +1016,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 136245
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -965,6 +1029,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -985,6 +1050,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1005,6 +1071,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 136069
   req_lvl: 0
   item_lvl: 52
   effects:
@@ -1017,6 +1084,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134134
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -1030,6 +1098,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1050,6 +1119,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1070,6 +1140,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1090,6 +1161,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1110,6 +1182,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1130,6 +1203,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133438
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1150,6 +1224,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 136006
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1165,6 +1240,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134182
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1178,6 +1254,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134227
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -1196,6 +1273,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133884
   unique: true
   req_lvl: 60
   item_lvl: 74
@@ -1211,6 +1289,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133571
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1225,6 +1304,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134418
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -1244,6 +1324,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134418
   req_lvl: 20
   item_lvl: 25
   stats:
@@ -1263,6 +1344,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134415
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -1282,6 +1364,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134415
   req_lvl: 20
   item_lvl: 25
   stats:
@@ -1301,6 +1384,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133574
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1314,6 +1398,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133575
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1327,6 +1412,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133572
   unique: true
   req_lvl: 60
   item_lvl: 77
@@ -1340,6 +1426,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133573
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1353,6 +1440,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133570
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1366,6 +1454,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133573
   req_lvl: 60
   item_lvl: 75
   effects:
@@ -1378,6 +1467,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134123
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -1393,6 +1483,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135442
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1411,6 +1502,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135440
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1426,6 +1518,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135439
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1441,6 +1534,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135443
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1457,6 +1551,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135441
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1474,6 +1569,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135443
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1493,6 +1589,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135444
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1510,6 +1607,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135439
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1525,6 +1623,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134500
   unique: true
   req_lvl: 0
   item_lvl: 90
@@ -1537,6 +1636,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134501
   unique: true
   req_lvl: 0
   item_lvl: 90
@@ -1549,6 +1649,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134969
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1562,6 +1663,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 133877
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1577,6 +1679,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 135441
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -1589,6 +1692,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1603,6 +1707,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1617,6 +1722,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1631,6 +1737,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1645,6 +1752,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1659,6 +1767,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1673,6 +1782,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1687,6 +1797,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1701,6 +1812,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1715,6 +1827,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1729,6 +1842,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1743,6 +1857,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1757,6 +1872,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1771,6 +1887,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1785,6 +1902,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1799,6 +1917,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1813,6 +1932,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 136091
   req_lvl: 50
   item_lvl: 50
   stats:
@@ -1829,6 +1949,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134932
   req_lvl: 1
   item_lvl: 1
   effects:
@@ -1840,6 +1961,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134131
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -1861,6 +1983,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134128
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -1882,6 +2005,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134094
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -1899,6 +2023,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133864
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -1912,6 +2037,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: EPIC
+  icon: 134228
   unique: true
   req_lvl: 55
   item_lvl: 62
@@ -1930,6 +2056,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134419
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1949,6 +2076,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134421
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1968,6 +2096,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134419
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1987,6 +2116,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134421
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2006,6 +2136,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134419
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -2025,6 +2156,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134421
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2044,6 +2176,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134419
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2063,6 +2196,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 134421
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -2082,6 +2216,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 3610508
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2102,6 +2237,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 321487
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2122,6 +2258,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 465877
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2143,6 +2280,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 4620673
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2163,6 +2301,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133453
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -2176,6 +2315,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133452
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -2189,6 +2329,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133874
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2209,6 +2350,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133861
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2229,6 +2371,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133863
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2251,6 +2394,7 @@ items:
   slot: TRINKET
   type: TRINKET
   quality: RARE
+  icon: 133633
   req_lvl: 1
   item_lvl: 33
   effects:

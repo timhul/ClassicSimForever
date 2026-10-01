@@ -8,6 +8,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132608
   req_lvl: 44
   item_lvl: 49
   boe: true
@@ -23,6 +24,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -38,6 +40,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132601
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -52,6 +55,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132601
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -66,6 +70,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132616
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -80,6 +85,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -95,6 +101,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -110,6 +117,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -125,6 +133,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -140,6 +149,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132616
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -155,6 +165,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -170,6 +181,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -185,6 +197,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -199,6 +212,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -213,6 +227,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -227,6 +242,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -241,6 +257,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -255,6 +272,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -270,6 +288,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132618
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -285,6 +304,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -300,6 +320,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -315,6 +336,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -330,6 +352,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -345,6 +368,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132606
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -358,6 +382,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -373,6 +398,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -388,6 +414,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -403,6 +430,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -418,6 +446,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -433,6 +462,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -448,6 +478,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -463,6 +494,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -478,6 +510,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   req_lvl: 60
   item_lvl: 64
   boe: true
@@ -492,6 +525,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132618
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -506,6 +540,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132618
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -520,6 +555,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -534,6 +570,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -548,6 +585,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -562,6 +600,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -576,6 +615,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -590,6 +630,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -604,6 +645,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -618,6 +660,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132605
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -632,6 +675,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132605
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -646,6 +690,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -660,6 +705,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -674,6 +720,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -688,6 +735,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -702,6 +750,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -716,6 +765,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -730,6 +780,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132604
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -743,6 +794,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132614
   req_lvl: 27
   item_lvl: 32
   boe: true
@@ -757,6 +809,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132605
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -771,6 +824,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132605
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -785,6 +839,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132605
   unique: true
   req_lvl: 40
   item_lvl: 45
@@ -799,6 +854,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132602
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -813,6 +869,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132602
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -827,6 +884,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132602
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -841,6 +899,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132611
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -854,6 +913,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132611
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -867,6 +927,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132611
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -880,6 +941,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -894,6 +956,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -908,6 +971,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -922,6 +986,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -937,6 +1002,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132613
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [WARRIOR]
@@ -952,6 +1018,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132613
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PALADIN]
@@ -969,6 +1036,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132614
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [SHAMAN]
@@ -985,6 +1053,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132617
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [HUNTER]
@@ -1001,6 +1070,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132613
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [ROGUE]
@@ -1016,6 +1086,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132607
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [DRUID]
@@ -1032,6 +1103,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PRIEST]
@@ -1048,6 +1120,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [MAGE]
@@ -1064,6 +1137,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [WARLOCK]
@@ -1079,6 +1153,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132611
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -1092,6 +1167,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132604
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -1107,6 +1183,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132606
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -1120,6 +1197,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132611
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -1133,6 +1211,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1145,6 +1224,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132618
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1160,6 +1240,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132613
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1174,6 +1255,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132610
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1188,6 +1270,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1202,6 +1285,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1216,6 +1300,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1229,6 +1314,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 78
   stats:
@@ -1241,6 +1327,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1256,6 +1343,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1270,6 +1358,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132616
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1284,6 +1373,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 133365
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1299,6 +1389,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132612
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1313,6 +1404,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132520
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1329,6 +1421,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132613
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1344,6 +1437,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132601
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1359,6 +1453,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132608
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1376,6 +1471,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132614
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1390,6 +1486,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1405,6 +1502,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1419,6 +1517,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1434,6 +1533,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132614
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1448,6 +1548,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1463,6 +1564,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1478,6 +1580,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1492,6 +1595,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132612
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1507,6 +1611,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1521,6 +1626,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1535,6 +1641,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1549,6 +1656,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132611
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1564,6 +1672,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132603
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1577,6 +1686,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1592,6 +1702,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 236968
   req_lvl: 25
   item_lvl: 30
   boe: true
@@ -1895,6 +2006,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132603
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -1908,6 +2020,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132609
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -1934,6 +2047,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -1948,6 +2062,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -1963,6 +2078,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132606
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -1976,6 +2092,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -1990,6 +2107,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2004,6 +2122,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -2018,6 +2137,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132618
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -2031,6 +2151,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2045,6 +2166,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -2058,6 +2180,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -2072,6 +2195,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2086,6 +2210,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2100,6 +2225,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -2114,6 +2240,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132606
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2128,6 +2255,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2142,6 +2270,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132618
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2155,6 +2284,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132618
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -2169,6 +2299,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -2183,6 +2314,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2197,6 +2329,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -2211,6 +2344,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132601
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2224,6 +2358,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132601
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2238,6 +2373,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2252,6 +2388,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -2266,6 +2403,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2280,6 +2418,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -2293,6 +2432,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132616
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -2307,6 +2447,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2321,6 +2462,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -2334,6 +2476,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2348,6 +2491,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -2362,6 +2506,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2376,6 +2521,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2390,6 +2536,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2403,6 +2550,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132605
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2417,6 +2565,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2432,6 +2581,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2446,6 +2596,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2461,6 +2612,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2475,6 +2627,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2490,6 +2643,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2504,6 +2658,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2519,6 +2674,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2534,6 +2690,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132602
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2548,6 +2705,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2562,6 +2720,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2577,6 +2736,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2591,6 +2751,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: EPIC
+  icon: 132602
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2606,6 +2767,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132608
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2621,6 +2783,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: EPIC
+  icon: 132606
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2636,6 +2799,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2651,6 +2815,7 @@ items:
   slot: WRIST
   type: CLOTH
   quality: RARE
+  icon: 132608
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2666,6 +2831,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2680,6 +2846,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2694,6 +2861,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2708,6 +2876,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132615
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2723,6 +2892,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2737,6 +2907,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: RARE
+  icon: 132615
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2752,6 +2923,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2766,6 +2938,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2780,6 +2953,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: EPIC
+  icon: 132617
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2795,6 +2969,7 @@ items:
   slot: WRIST
   type: PLATE
   quality: RARE
+  icon: 132617
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2810,6 +2985,7 @@ items:
   slot: WRIST
   type: LEATHER
   quality: RARE
+  icon: 132611
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -2823,6 +2999,7 @@ items:
   slot: WRIST
   type: MAIL
   quality: EPIC
+  icon: 132601
   req_lvl: 60
   item_lvl: 65
   boe: true

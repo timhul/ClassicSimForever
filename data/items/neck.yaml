@@ -8,6 +8,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134317
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -20,6 +21,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133298
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -32,6 +34,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133444
   unique: true
   req_lvl: 50
   item_lvl: 63
@@ -45,6 +48,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134317
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -57,6 +61,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133434
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -72,6 +77,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134128
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -86,6 +92,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133296
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -100,6 +107,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134317
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -112,6 +120,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134311
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -124,6 +133,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134311
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -136,6 +146,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134311
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -148,6 +159,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133280
   req_lvl: 60
   item_lvl: 78
   stats:
@@ -160,6 +172,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133303
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -171,6 +184,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133294
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -183,6 +197,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133302
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -194,6 +209,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -206,6 +222,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134196
   req_lvl: 0
   item_lvl: 51
   stats:
@@ -218,6 +235,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133298
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -229,6 +247,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133299
   req_lvl: 60
   item_lvl: 74
   stats:
@@ -241,6 +260,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133304
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -252,6 +272,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133305
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -265,6 +286,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133303
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -277,6 +299,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133301
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -289,6 +312,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -301,6 +325,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -313,6 +338,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -325,6 +351,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -337,6 +364,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133300
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -349,6 +377,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133300
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -361,6 +390,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133300
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -373,6 +403,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133300
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -385,6 +416,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -400,6 +432,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -415,6 +448,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -435,6 +469,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -450,6 +485,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -465,6 +501,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -484,6 +521,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -499,6 +537,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -514,6 +553,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -533,6 +573,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -548,6 +589,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -563,6 +605,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -582,6 +625,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -596,6 +640,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -610,6 +655,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -628,6 +674,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -643,6 +690,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -658,6 +706,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -677,6 +726,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -692,6 +742,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -707,6 +758,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -726,6 +778,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -740,6 +793,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -754,6 +808,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -772,6 +827,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133311
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -786,6 +842,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133312
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -800,6 +857,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133313
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -818,6 +876,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -830,6 +889,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133300
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -842,6 +902,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133305
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -855,6 +916,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133308
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -869,6 +931,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133291
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -881,6 +944,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133341
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -893,6 +957,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133341
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -904,6 +969,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133341
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -916,6 +982,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133341
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -927,6 +994,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133304
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -939,6 +1007,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133309
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -952,6 +1021,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133339
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -965,6 +1035,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133340
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -977,6 +1048,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133342
   req_lvl: 60
   item_lvl: 76
   stats:
@@ -990,6 +1062,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133307
   req_lvl: 60
   item_lvl: 75
   stats:
@@ -1003,6 +1076,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133339
   req_lvl: 60
   item_lvl: 73
   stats:
@@ -1016,6 +1090,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133299
   req_lvl: 60
   item_lvl: 73
   stats:
@@ -1028,6 +1103,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133340
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1040,6 +1116,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133301
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -1052,6 +1129,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133280
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1064,6 +1142,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133280
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1076,6 +1155,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133279
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1088,6 +1168,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133279
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1100,6 +1181,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133342
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1113,6 +1195,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133279
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1125,6 +1208,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133319
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1138,6 +1222,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133317
   req_lvl: 60
   item_lvl: 85
   stats:
@@ -1150,6 +1235,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133315
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1163,6 +1249,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133319
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1175,6 +1262,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133321
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1188,6 +1276,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133317
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1200,6 +1289,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133319
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1213,6 +1303,7 @@ items:
   slot: NECK
   type: AMULET
   quality: EPIC
+  icon: 133321
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1224,6 +1315,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 132507
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1234,6 +1326,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133290
   req_lvl: 30
   item_lvl: 35
   stats:
@@ -1246,6 +1339,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1257,6 +1351,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1268,6 +1363,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1279,6 +1375,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1290,6 +1387,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1301,6 +1399,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1312,6 +1411,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1323,6 +1423,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133295
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1334,6 +1435,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133292
   req_lvl: 1
   item_lvl: 43
   stats:
@@ -1345,6 +1447,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133293
   req_lvl: 1
   item_lvl: 43
   stats:
@@ -1356,6 +1459,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133297
   req_lvl: 30
   item_lvl: 35
   stats:
@@ -1367,6 +1471,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134317
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1378,6 +1483,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134311
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1389,6 +1495,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 134229
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -1401,6 +1508,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 458247
   req_lvl: 0
   item_lvl: 58
   stats:
@@ -1413,6 +1521,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133298
   req_lvl: 0
   item_lvl: 25
   stats:
@@ -1424,6 +1533,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133288
   req_lvl: 0
   item_lvl: 25
   stats:
@@ -1435,6 +1545,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133302
   req_lvl: 0
   item_lvl: 32
   stats:
@@ -1445,6 +1556,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 454054
   req_lvl: 0
   item_lvl: 58
   stats:
@@ -1457,6 +1569,7 @@ items:
   slot: NECK
   type: AMULET
   quality: RARE
+  icon: 133298
   req_lvl: 36
   item_lvl: 41
   stats:

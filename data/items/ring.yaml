@@ -8,6 +8,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133347
   req_lvl: 0
   item_lvl: 31
   stats:
@@ -22,6 +23,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133368
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -32,6 +34,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133343
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -42,6 +45,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -55,6 +59,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -68,6 +73,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133369
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -82,6 +88,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133362
   req_lvl: 60
   item_lvl: 66
   stats:
@@ -95,6 +102,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133351
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -106,6 +114,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133355
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -118,6 +127,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133351
   unique: true
   req_lvl: 57
   item_lvl: 62
@@ -130,6 +140,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133349
   unique: true
   req_lvl: 60
   item_lvl: 67
@@ -144,6 +155,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133356
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -157,6 +169,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133356
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -167,6 +180,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133368
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -177,6 +191,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133347
   req_lvl: 0
   item_lvl: 60
   effects:
@@ -188,6 +203,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133357
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -198,6 +214,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133379
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -209,6 +226,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133377
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -221,6 +239,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133378
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -234,6 +253,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133381
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -247,6 +267,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133380
   req_lvl: 60
   item_lvl: 66
   stats:
@@ -257,6 +278,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133376
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -268,6 +290,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133377
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -282,6 +305,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -294,6 +318,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133384
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -309,6 +334,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133383
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -322,6 +348,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133385
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -334,6 +361,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133376
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -348,6 +376,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133379
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -361,6 +390,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133366
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -374,6 +404,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133363
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -387,6 +418,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133363
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -400,6 +432,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133363
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -413,6 +446,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133363
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -426,6 +460,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -439,6 +474,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -452,6 +488,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -465,6 +502,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -478,6 +516,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -491,6 +530,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -504,6 +544,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -517,6 +558,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -530,6 +572,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -543,6 +586,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -556,6 +600,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -569,6 +614,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -582,6 +628,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -595,6 +642,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133363
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -608,6 +656,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -621,6 +670,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -634,6 +684,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133368
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -644,6 +695,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133368
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -654,6 +706,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133379
   unique: true
   req_lvl: 60
   item_lvl: 72
@@ -666,6 +719,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133380
   unique: true
   req_lvl: 60
   item_lvl: 72
@@ -678,6 +732,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133346
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -692,6 +747,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133365
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -705,6 +761,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133369
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -719,6 +776,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133360
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -732,6 +790,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133361
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -745,6 +804,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133383
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -758,6 +818,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -770,6 +831,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -788,6 +850,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -806,6 +869,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -824,6 +888,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -842,6 +907,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -860,6 +926,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -878,6 +945,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -896,6 +964,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -914,6 +983,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -932,6 +1002,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -950,6 +1021,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -969,6 +1041,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -988,6 +1061,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1007,6 +1081,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1026,6 +1101,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133382
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -1045,6 +1121,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1060,6 +1137,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1076,6 +1154,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1093,6 +1172,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1108,6 +1188,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1123,6 +1204,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1141,6 +1223,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1156,6 +1239,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1171,6 +1255,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133425
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1187,6 +1272,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133426
   unique: true
   req_lvl: 60
   item_lvl: 74
@@ -1200,6 +1286,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133427
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1214,6 +1301,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133377
   unique: true
   req_lvl: 60
   item_lvl: 77
@@ -1229,6 +1317,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133376
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1243,6 +1332,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133428
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1255,6 +1345,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133423
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1269,6 +1360,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133423
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1282,6 +1374,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133423
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1295,6 +1388,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133427
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1309,6 +1403,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133366
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1322,6 +1417,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133426
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1336,6 +1432,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133426
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1348,6 +1445,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133424
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1362,6 +1460,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133376
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -1375,6 +1474,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133343
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1387,6 +1487,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133375
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1402,6 +1503,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133377
   unique: true
   req_lvl: 0
   item_lvl: 80
@@ -1415,6 +1517,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133353
   unique: true
   req_lvl: 0
   item_lvl: 70
@@ -1427,6 +1530,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133392
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1441,6 +1545,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133391
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1452,6 +1557,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133392
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1465,6 +1571,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133390
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1479,6 +1586,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133377
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1492,6 +1600,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133395
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1504,6 +1613,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133394
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1517,6 +1627,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133390
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1530,6 +1641,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1545,6 +1657,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1561,6 +1674,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1576,6 +1690,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1592,6 +1707,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1606,6 +1722,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1622,6 +1739,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1638,6 +1756,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1654,6 +1773,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133393
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1668,6 +1788,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133390
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1681,6 +1802,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133380
   req_lvl: 1
   item_lvl: 6
   stats:
@@ -1691,6 +1813,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133354
   unique: true
   req_lvl: 0
   item_lvl: 33
@@ -1704,6 +1827,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1716,6 +1840,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1728,6 +1853,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1740,6 +1866,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1752,6 +1879,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1764,6 +1892,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1776,6 +1905,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1788,6 +1918,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1800,6 +1931,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1812,6 +1944,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1824,6 +1957,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1836,6 +1970,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133362
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1848,6 +1983,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1860,6 +1996,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1872,6 +2009,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1884,6 +2022,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133370
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1896,6 +2035,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133366
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1909,6 +2049,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133402
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1924,6 +2065,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133343
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1937,6 +2079,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133343
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1950,6 +2093,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 134066
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -1962,6 +2106,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133434
   req_lvl: 1
   item_lvl: 1
   stats:
@@ -1976,6 +2121,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133367
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -1988,6 +2134,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133346
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -2000,6 +2147,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133722
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -2013,6 +2161,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133358
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -2025,6 +2174,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133353
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -2038,6 +2188,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133367
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2054,6 +2205,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133351
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2070,6 +2222,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133353
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2087,6 +2240,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2103,6 +2257,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133367
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2119,6 +2274,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133351
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2135,6 +2291,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133353
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2152,6 +2309,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133352
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2168,6 +2326,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133367
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2184,6 +2343,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133351
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2200,6 +2360,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133353
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2217,6 +2378,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133352
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2233,6 +2395,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133367
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2249,6 +2412,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133351
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2265,6 +2429,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133353
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2282,6 +2447,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133352
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2298,6 +2464,7 @@ items:
   slot: RING
   type: RING
   quality: EPIC
+  icon: 133380
   req_lvl: 1
   item_lvl: 66
   stats:
@@ -2308,6 +2475,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133343
   req_lvl: 1
   item_lvl: 38
   stats:
@@ -2319,6 +2487,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133344
   req_lvl: 0
   item_lvl: 25
   class_restrictions: [ROGUE]
@@ -2332,6 +2501,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133357
   req_lvl: 0
   item_lvl: 32
   stats:
@@ -2342,6 +2512,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133344
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [ROGUE]
@@ -2355,6 +2526,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 133356
   req_lvl: 0
   item_lvl: 40
   stats:
@@ -2366,6 +2538,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 1769008
   req_lvl: 1
   item_lvl: 32
   stats:
@@ -2378,6 +2551,7 @@ items:
   slot: RING
   type: RING
   quality: RARE
+  icon: 6029060
   req_lvl: 1
   item_lvl: 1
   stats:

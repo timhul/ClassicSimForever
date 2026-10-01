@@ -77,3 +77,17 @@ impl DataBundle {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn spells_and_items_carry_their_icons() {
+        let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
+        // Bloodthirst (rank 4): `SpellMisc.SpellIconFileDataID`.
+        assert_eq!(data.spells.get(23894).unwrap().icon, 136012);
+        // High Warlord's Bludgeon: `Item.IconFileDataID`.
+        assert_eq!(data.equipment.item(18866).unwrap().spec().icon, 133057);
+    }
+}
