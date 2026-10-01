@@ -725,8 +725,13 @@ function render() {
       value: left === null ? "" : `${left.toFixed(1)} s`,
     };
   }));
-  renderList($("cooldowns"), keyed(state.cooldowns).map((cooldown) => {
-    const left = cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time);
+  // The least time left on top; the ready ones (0 left) stay in rotation order.
+  const cooldowns = keyed(state.cooldowns).map((cooldown) => ({
+    ...cooldown,
+    left: cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time),
+  })).sort((a, b) => a.left - b.left);
+  renderList($("cooldowns"), cooldowns.map((cooldown) => {
+    const left = cooldown.left;
     return {
       key: cooldown.key,
       name: cooldown.name,
