@@ -172,9 +172,9 @@
   #target-frame .health { flex: 1; }
   .unit .fill { position: absolute; inset: 0 auto 0 0; width: 100%; }
   .unit .health .fill { background: var(--health); }
-  .unit .right { display: flex; align-items: center; gap: 6px; }
-  /* The combo points on the target, as in the game. */
-  #pips { display: flex; gap: 2px; }
+  /* The combo points just under the target frame, in the stage's bottom margin. */
+  .target { position: relative; }
+  #pips { position: absolute; top: calc(100% + 2px); right: 0; display: flex; gap: 2px; }
   .pip { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 0, 0, 0.55); }
   .pip.on { background: var(--accent); box-shadow: 0 0 0 1px #000; }
   .unit .text {
@@ -189,7 +189,8 @@
     line-height: 1;
     white-space: nowrap;
     overflow: hidden;
-    text-shadow: 0 0 2px #000, 0 0 2px #000;
+    /* A black outline, as in the game: readable on every class colour. */
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
   }
   .swing {
     display: grid;
@@ -399,19 +400,22 @@
         <div id="frames">
           <div class="unit" id="player-frame">
             <div class="health">
-              <div class="fill"></div>
+              <div class="fill" id="player-health"></div>
               <div class="text"><span id="player-name"></span></div>
             </div>
             <div class="power"><div class="fill" id="player-power"></div></div>
           </div>
-          <div class="unit" id="target-frame">
-            <div class="health">
-              <div class="fill" id="target-health"></div>
-              <div class="text">
-                <span>Target</span>
-                <span class="right"><span id="pips" hidden></span><span id="target-percent"></span></span>
+          <div class="target">
+            <div class="unit" id="target-frame">
+              <div class="health">
+                <div class="fill" id="target-health"></div>
+                <div class="text">
+                  <span id="target-percent"></span>
+                  <span id="target-ttd" title="time to death"></span>
+                </div>
               </div>
             </div>
+            <div id="pips" hidden></div>
           </div>
         </div>
       </div>
@@ -446,6 +450,18 @@ const $ = (id) => document.getElementById(id);
 const FEED_LIMIT = 200;
 const DECISION_LIMIT = 200;
 const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
+// The class colours of CLAUDE.md.
+const CLASS_COLORS = {
+  Druid: "#FF7C0A",
+  Hunter: "#AAD372",
+  Mage: "#3FC7EB",
+  Paladin: "#F48CBA",
+  Priest: "#FFFFFF",
+  Rogue: "#FFF468",
+  Shaman: "#0070DD",
+  Warlock: "#8788EE",
+  Warrior: "#C69B6D",
+};
 // Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
 const missingIcons = new Set();
 
@@ -793,10 +809,14 @@ function render() {
     `var(${RESOURCE_COLORS[resource.kind] || "--accent"})`);
   $("player-frame").title = `${resource.kind} ${resource.current} / ${resource.max}`;
   setText($("player-name"), info.name);
+  fill("player-health", 1, CLASS_COLORS[info.class] || "var(--health)");
   // Nothing damages the target but the clock: full until the pull, empty at the end.
   const health = time <= 0 ? 1 : Math.max(0, 1 - time / info.end_at);
   fill("target-health", health);
   setText($("target-percent"), `${Math.ceil(health * 100)}%`);
+  // The sim knows when the target dies: the end of the encounter.
+  const toDeath = Math.max(0, info.end_at - Math.max(0, time));
+  setText($("target-ttd"), `${Math.floor(toDeath / 60)}:${String(Math.floor(toDeath % 60)).padStart(2, "0")}`);
 
   $("pips").hidden = state.combo_points === null;
   if (state.combo_points !== null) {
