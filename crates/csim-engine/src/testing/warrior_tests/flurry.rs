@@ -104,6 +104,27 @@ fn has_3_charges() {
 }
 
 #[test]
+fn swing_that_applies_flurry_does_not_use_a_charge() {
+    for (hand, attack) in [
+        ("main hand", mh_attack as fn(&mut WarriorTest)),
+        ("off hand", oh_attack),
+    ] {
+        let mut test = test();
+        given_a_mainhand_and_offhand_equipped(&mut test);
+        given_flurry_enabled(&mut test);
+        test.given_a_guaranteed_white_crit();
+        attack(&mut test);
+        assert!(flurry_is_active(&mut test), "{hand}");
+        let flurry = test.flurry();
+        assert_eq!(
+            test.with_buff_id(flurry, |buff| buff.charges()),
+            3,
+            "{hand}"
+        );
+    }
+}
+
+#[test]
 fn attack_speed_increased_when_flurry_applied() {
     for rank in 1..=5 {
         let mut test = test();
