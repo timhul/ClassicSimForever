@@ -1,8 +1,3 @@
-# Port of ClassicSim's Rotation/Rotations/Warrior/DWFury.xml.
-#
-# Overpower readiness is the combo point the target's dodge grants (there is no "Overpower
-# Buff" here), so `buff_duration "Overpower Buff" is true/false/greater N` became
-# `variable "combo_points" greater 0` / `eq 0`.
 class: WARRIOR
 name: DW Fury
 attack_mode: melee
@@ -27,7 +22,6 @@ cast_if:
     condition: |
       buff_stacks "Sunder Armor" less 5
       or buff_duration "Sunder Armor" less 4
-  # General heroic strike usage
   - name: Heroic Strike
     condition: |
       variable "time_remaining_execute" greater 3
@@ -67,12 +61,10 @@ cast_if:
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
   - name: Eureka!
-  # Always cast Execute if available, unless melee AP is > 2220 (TODO: should be 2434 if 0/2 imp exec) and BT soon off cd.
   - name: Execute
     condition: |
       variable "melee_ap" leq 2220
       or spell "Bloodthirst" greater 1.0
-  # Always cast Bloodthirst if above 2k AP, or not in Execute range
   - name: Bloodthirst
     condition: |
       variable "time_remaining_execute" greater 0
@@ -94,18 +86,7 @@ cast_if:
     condition: |
       spell "Bloodthirst" greater 1.5
       and spell "Whirlwind" greater 1.5
+      and resource "Rage" greater 35
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and buff_duration "Eureka!" is false
-  # Switch to Battle Stance
-  # - name: Battle Stance
-  #   condition: |
-  #     variable "time_remaining_execute" greater 5
-  #     and variable "combo_points" greater 0
-  #     and spell "Bloodthirst" greater 3
-  #     and spell "Whirlwind" greater 3
-  #     and resource "Rage" less 50
-  # - name: Berserker Stance
-  #   condition: |
-  #     variable "time_remaining_execute" less 0
-  #     or variable "combo_points" eq 0

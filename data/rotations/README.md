@@ -133,7 +133,7 @@ the `cast_if` lines, with the reason:
 
 A spell's other requirements (stance, weapon type, resources) are checked when the executor
 runs, not when it is linked: they show up as failure outcomes in the Rotation section
-(`FAIL: Incorrect weapon type` for Spearing Strike with a one-hander).
+(`FAIL: In Berserker Stance` for Spearing Strike, which is Battle Stance only, in Berserker Stance).
 
 Before the pull (at negative time) the precombat actions are cast in order when their spell is
 available or merely on cooldown (every cooldown reads as "ready at 0" then), followed by the

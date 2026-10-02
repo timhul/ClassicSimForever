@@ -104,6 +104,44 @@ fn has_3_charges() {
 }
 
 #[test]
+fn swing_that_applies_flurry_does_not_use_a_charge() {
+    for (hand, attack) in [
+        ("main hand", mh_attack as fn(&mut WarriorTest)),
+        ("off hand", oh_attack),
+    ] {
+        let mut test = test();
+        given_a_mainhand_and_offhand_equipped(&mut test);
+        given_flurry_enabled(&mut test);
+        test.given_a_guaranteed_white_crit();
+        attack(&mut test);
+        assert!(flurry_is_active(&mut test), "{hand}");
+        let flurry = test.flurry();
+        assert_eq!(
+            test.with_buff_id(flurry, |buff| buff.charges()),
+            3,
+            "{hand}"
+        );
+    }
+}
+
+/// A crit uses a charge of the Flurry already up, then refreshes it to three charges.
+#[test]
+fn crit_refreshes_flurry_to_3_charges() {
+    let mut test = test();
+    given_a_mainhand_and_offhand_equipped(&mut test);
+    given_flurry_enabled(&mut test);
+    let flurry = test.flurry();
+    test.given_a_guaranteed_white_crit();
+    when_performing_mh_attack(&mut test);
+    test.given_a_guaranteed_white_hit();
+    when_performing_oh_attack(&mut test);
+    assert_eq!(test.with_buff_id(flurry, |buff| buff.charges()), 2);
+    test.given_a_guaranteed_white_crit();
+    when_performing_oh_attack(&mut test);
+    assert_eq!(test.with_buff_id(flurry, |buff| buff.charges()), 3);
+}
+
+#[test]
 fn attack_speed_increased_when_flurry_applied() {
     for rank in 1..=5 {
         let mut test = test();
@@ -167,21 +205,31 @@ fn attack_speed_decreased_when_flurry_removed() {
             "{rank} of 5"
         );
         test.given_engine_priority_at(mh);
-        // The swing uses the last of the three charges (the crit that applied Flurry used the
-        // first): Flurry falls off, as the C++ removed it here.
         when_performing_mh_attack(&mut test);
+        // The crit that applied Flurry kept its three charges: one is left.
+        assert!(flurry_is_active(&mut test));
+
+        let oh_2 = 2.0 * oh;
+        assert_eq!(
+            test.next_expected_use(Hand::Offhand),
+            time(oh_2),
+            "{rank} of 5"
+        );
+        test.given_engine_priority_at(oh_2);
+        // The swing uses the last of the three charges: Flurry falls off.
+        when_performing_oh_attack(&mut test);
         assert!(!flurry_is_active(&mut test));
 
         // updated swing = curr_time + (curr_expected_use - curr_time) * haste_change
-        let oh_after = mh + (2.0 * oh - mh) * speed;
+        let mh_after = oh_2 + (2.0 * mh - oh_2) * speed;
         assert_eq!(
-            test.next_expected_use(Hand::Offhand),
-            time(oh_after),
+            test.next_expected_use(Hand::Mainhand),
+            time(mh_after),
             "{rank} of 5"
         );
         assert_eq!(
-            test.next_expected_use(Hand::Mainhand),
-            time(mh + 3.0),
+            test.next_expected_use(Hand::Offhand),
+            time(oh_2 + 2.0),
             "{rank} of 5"
         );
     }

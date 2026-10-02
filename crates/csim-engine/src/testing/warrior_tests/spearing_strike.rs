@@ -1,8 +1,8 @@
 //! Spearing Strike, the Forever-only Arms talent (spell 1310222); no C++ counterpart. It deals
 //! 40 % of the normalized weapon damage (`WEAPON_PERCENT_DAMAGE` 40 scaling
-//! `NORMALIZED_WEAPON_DMG` 0), needs a two-handed weapon (`SpellEquippedItems`: two-hand axe,
-//! mace, sword, polearm or staff), costs 15 rage and has a
-//! 20 s cooldown. Against giants and dragonkin it deals an additional 2 × 40 % (the DUMMY
+//! `NORMALIZED_WEAPON_DMG` 0), needs a melee weapon (`SpellEquippedItems`: one- or two-handed;
+//! two-handers only before build 70170), is Battle Stance only (`shapeshift_mask`, any stance
+//! before 70170), costs 15 rage and has a 20 s cooldown. Against giants and dragonkin it deals an additional 2 × 40 % (the DUMMY
 //! effect, `EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES`); the sim has no mounted targets.
 
 use crate::engine::EventType;
@@ -73,27 +73,27 @@ fn is_ready_conditions() {
 }
 
 #[test]
-fn needs_a_twohanded_weapon() {
+fn usable_with_a_one_handed_weapon() {
     let mut test = test();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     test.enable_spell(SPELL);
     test.given_warrior_has_rage(100);
-    test.then_status_is(SPELL, SpellStatus::IncorrectWeaponType);
+    test.then_status_is(SPELL, SpellStatus::Available);
 }
 
 #[test]
-fn usable_in_every_stance() {
+fn only_usable_in_battle_stance() {
     let mut test = test_with_twohander();
     test.enable_spell(SPELL);
     test.given_warrior_in_berserker_stance();
     test.given_warrior_has_rage(100);
-    test.then_status_is(SPELL, SpellStatus::Available);
+    test.then_status_is(SPELL, SpellStatus::InBerserkerStance);
 
     let mut test = test_with_twohander();
     test.enable_spell(SPELL);
     test.given_warrior_in_defensive_stance();
     test.given_warrior_has_rage(100);
-    test.then_status_is(SPELL, SpellStatus::Available);
+    test.then_status_is(SPELL, SpellStatus::InDefensiveStance);
 }
 
 #[test]
