@@ -192,6 +192,7 @@
   .unit > div { position: relative; overflow: hidden; }
   .unit .health { flex: 6; }
   .unit .power { flex: 4; border-top: 1px solid #000; }
+  .unit .power .text { font-size: 9px; }
   #target-frame .health { flex: 1; }
   .unit .fill { position: absolute; inset: 0 auto 0 0; width: 100%; }
   .unit .health .fill { background: var(--health); }
@@ -476,7 +477,10 @@
               <div class="fill" id="player-health"></div>
               <div class="text"><span id="player-name"></span><span id="player-stance"></span></div>
             </div>
-            <div class="power"><div class="fill" id="player-power"></div></div>
+            <div class="power">
+              <div class="fill" id="player-power"></div>
+              <div class="text"><span></span><span id="player-power-value"></span></div>
+            </div>
           </div>
           <div class="target">
             <div class="unit" id="target-frame">
@@ -918,6 +922,7 @@ function render() {
   const resource = state.resource;
   fill("player-power", resource.current / resource.max,
     `var(${RESOURCE_COLORS[resource.kind] || "--accent"})`);
+  setText($("player-power-value"), `${resource.current} | ${resource.max}`);
   $("player-frame").title = `${resource.kind} ${resource.current} / ${resource.max}`;
   setText($("player-name"), info.name);
   // The stance (or form) in effect: its spells need it.
