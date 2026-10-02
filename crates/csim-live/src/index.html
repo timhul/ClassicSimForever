@@ -163,6 +163,15 @@
     max-width: calc(50cqw - 16px);
   }
   #skills { justify-content: center; max-width: calc(100cqw - 24px); }
+  /* The buffs top right, over the numbers, wrapping leftwards as in the game. */
+  #buffs {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    max-width: 40cqw;
+    justify-content: flex-end;
+  }
   #stage .tiles { gap: 4px; }
   #stage .tile { width: 30px; height: 30px; }
   #stage .tile .left { font-size: 12px; }
@@ -257,7 +266,6 @@
   .value { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .bar { height: 14px; background: var(--line); border-radius: 3px; overflow: hidden; }
   .bar > div { height: 100%; width: 0; }
-  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
   .empty { color: var(--muted); }
   .tiles { display: flex; flex-wrap: wrap; gap: 6px; }
   .tile {
@@ -394,6 +402,7 @@
   <section id="state">
     <div id="stage" class="paused">
       <div id="floats"></div>
+      <div id="buffs" class="tiles" title="Buffs"></div>
       <div id="hud">
         <div id="swings">
           <div class="swing">
@@ -430,12 +439,6 @@
           <div id="cooldowns" class="tiles" title="Cooldowns"></div>
         </div>
         <div id="skills" class="tiles"></div>
-      </div>
-    </div>
-    <div class="lists">
-      <div class="panel">
-        <h2>Buffs</h2>
-        <div id="buffs" class="tiles"></div>
       </div>
     </div>
   </section>
