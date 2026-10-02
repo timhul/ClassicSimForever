@@ -39,7 +39,7 @@ use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
 use crate::spell::auto_attack::{CRIT_RAGE_FACTOR, swing_rage};
 use crate::spell::modifiers::SpellModifiers;
-use crate::spell::{AutoAttack, Hand};
+use crate::spell::{AutoAttack, Hand, SpellStatus};
 use crate::stance::Stance;
 use crate::statistics::ClassStatistics;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
@@ -173,6 +173,10 @@ pub struct Character {
     manual_input: bool,
     /// The spell input asked for and not cast yet, with the last time it may be cast.
     queued_input: Option<(SpellId, f64)>,
+    /// What the queued input last waited on (`Available` before its first wake-up).
+    input_waiting_on: SpellStatus,
+    /// The last input dropped uncast, with why it could not be cast.
+    input_failure: Option<(SpellId, SpellStatus)>,
     player_name: String,
     /// The statistics of the current set of iterations (the context records into them).
     statistics: ClassStatistics,
@@ -261,6 +265,8 @@ impl Character {
             rotation: None,
             manual_input: false,
             queued_input: None,
+            input_waiting_on: SpellStatus::Available,
+            input_failure: None,
             statistics: ClassStatistics::new(&player_name, sim.combat_length),
             player_name,
             race: race.race,
@@ -397,6 +403,7 @@ impl Character {
     /// queue window). The caller wakes the character at the input with a `PlayerAction`.
     pub fn queue_input(&mut self, spell: SpellId, until: f64) {
         self.queued_input = Some((spell, until));
+        self.input_waiting_on = SpellStatus::Available;
     }
 
     /// The spell input asked for and not cast yet, with the last time it may be cast.
@@ -406,6 +413,29 @@ impl Character {
 
     pub(crate) fn clear_queued_input(&mut self) {
         self.queued_input = None;
+    }
+
+    /// What the queued input last waited on (`Available` before its first wake-up).
+    pub(crate) fn input_waiting_on(&self) -> SpellStatus {
+        self.input_waiting_on
+    }
+
+    pub(crate) fn set_input_waiting_on(&mut self, status: SpellStatus) {
+        self.input_waiting_on = status;
+    }
+
+    /// Drops the queued input uncast because of `status`.
+    pub(crate) fn fail_queued_input(&mut self, status: SpellStatus) {
+        if let Some((spell, _)) = self.queued_input.take() {
+            self.input_failure = Some((spell, status));
+        }
+    }
+
+    /// The last input dropped uncast, with why: its status when it could not wait any longer
+    /// (at once when waiting cannot help, [`SpellStatus::passes_with_time`]; else when its
+    /// queue window closed). Taken: reported once.
+    pub fn take_input_failure(&mut self) -> Option<(SpellId, SpellStatus)> {
+        self.input_failure.take()
     }
 
     pub fn take_rotation(&mut self) -> Option<Rotation> {
@@ -1217,6 +1247,7 @@ impl Character {
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
         self.queued_input = None;
+        self.input_failure = None;
         self.clear_regen_wake();
         self.last_regen_reaction = f64::NEG_INFINITY;
         self.spells.reset_state();

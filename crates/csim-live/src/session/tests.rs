@@ -571,3 +571,21 @@ fn the_shipped_keybinds_bind_their_characters_spells() {
         );
     }
 }
+
+#[test]
+fn a_press_that_cannot_cast_says_why() {
+    let mut session = manual_session_of("dw_fury_orc.yaml", 3, "Whirlwind: 2\nHamstring: 4\n");
+    // No precombat actions from the keyboard: still in Battle Stance.
+    let frame = session.cast("Whirlwind", 3.0).unwrap();
+    let error = frame.input_error.expect("dropped at once");
+    assert_eq!(error.spell, "Whirlwind");
+    assert_eq!(error.reason, "Can't do that in Battle Stance");
+    assert_eq!(session.advance(3.5).input_error, None, "reported once");
+
+    session.cast("Hamstring", 10.0).unwrap();
+    // 1 s into the GCD: waits, and is dropped when its window closes before the GCD ends.
+    let waiting = session.cast("Hamstring", 10.5).unwrap();
+    assert_eq!(waiting.input_error, None);
+    let dropped = session.advance(11.0).input_error.unwrap();
+    assert_eq!(dropped.reason, "Ability is not ready yet");
+}

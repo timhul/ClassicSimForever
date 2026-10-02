@@ -2269,18 +2269,31 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the queued input ([`Character::queue_input`]) if it can be cast now, and drops it
-    /// once its time is up. Also before the pull: the player may act before it.
+    /// Casts the queued input ([`Character::queue_input`]) if it can be cast now; drops it
+    /// when waiting cannot help or its time is up ([`Character::take_input_failure`]). Also
+    /// before the pull: the player may act before it.
     fn perform_input(&mut self) {
         let Some((spell, until)) = self.character.queued_input() else {
             return;
         };
         let now = self.now();
+        let status = self.character.spells.spell(spell).status(self);
         if now > until {
-            self.character.clear_queued_input();
+            // Too late, even if usable by now: why it had to wait.
+            let waited_on = if status.is_available() {
+                self.character.input_waiting_on()
+            } else {
+                status
+            };
+            self.character.fail_queued_input(waited_on);
             return;
         }
-        if self.character.spells.spell(spell).status(self) != SpellStatus::Available {
+        if !status.is_available() {
+            if status.passes_with_time() {
+                self.character.set_input_waiting_on(status);
+            } else {
+                self.character.fail_queued_input(status);
+            }
             return;
         }
         self.character.clear_queued_input();

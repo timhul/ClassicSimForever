@@ -17,6 +17,7 @@ use crate::item::EquipmentSlot;
 use crate::phase::Phase;
 use crate::race::Race;
 use crate::rotation::RotationSpec;
+use crate::spell::SpellStatus;
 use crate::spell::record::SpellDb;
 use crate::statistics::ClassStatistics;
 use crate::talent::{CharacterTalents, TalentDb, TalentFile};
@@ -592,34 +593,55 @@ fn queued_input_is_cast_when_it_can_be_within_its_window() {
         .rotation_mut()
         .unwrap()
         .enable_trace();
-    let hamstring = {
+    let learned = |raid: &RaidControl, name: &str| {
         let spells = raid.character(me).spells();
-        let group = spells.rank_group("Hamstring").unwrap();
+        let group = spells.rank_group(name).unwrap();
         group
             .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
             .unwrap()
     };
+    let hamstring = learned(&raid, "Hamstring");
+    let whirlwind = learned(&raid, "Whirlwind");
     let mut stepper = IterationStepper::new(&settings, 5, &mut raid);
     // A press at `at`, queued for 0.4 s: the caller wakes the character then.
-    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, at: f64| {
+    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, spell, at: f64| {
         stepper.step_until(raid, at);
-        raid.character_mut(me).queue_input(hamstring, at + 0.4);
+        raid.character_mut(me).queue_input(spell, at + 0.4);
         let wake = Event::new(at, EventKind::PlayerAction { character: me });
         raid.engine_mut().add_event(wake);
         stepper.step_until(raid, at);
     };
 
+    // Not in Berserker Stance (no precombat actions: Battle Stance): waiting cannot help,
+    // dropped at once.
+    press(&mut raid, &mut stepper, whirlwind, 9.0);
+    assert_eq!(raid.character(me).queued_input(), None);
+    let failure = raid.character_mut(me).take_input_failure();
+    assert_eq!(failure, Some((whirlwind, SpellStatus::InBattleStance)));
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "reported once"
+    );
     // Castable: cast at the press. Hamstring triggers the global cooldown (1.5 s).
-    press(&mut raid, &mut stepper, 10.0);
+    press(&mut raid, &mut stepper, hamstring, 10.0);
     // Pressed 1 s into the GCD: it ends after the window, so the press is dropped.
-    press(&mut raid, &mut stepper, 10.5);
+    press(&mut raid, &mut stepper, hamstring, 10.5);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "still waiting"
+    );
     stepper.step_until(&mut raid, 12.0);
     assert_eq!(raid.character(me).queued_input(), None, "dropped");
+    let failure = raid.character_mut(me).take_input_failure();
+    assert_eq!(failure, Some((hamstring, SpellStatus::OnGcd)));
     // Castable again.
-    press(&mut raid, &mut stepper, 13.0);
+    press(&mut raid, &mut stepper, hamstring, 13.0);
     // Pressed 0.2 s before the GCD ends: cast when it does.
-    press(&mut raid, &mut stepper, 14.3);
+    press(&mut raid, &mut stepper, hamstring, 14.3);
     stepper.step_until(&mut raid, 16.0);
+    assert_eq!(raid.character_mut(me).take_input_failure(), None);
 
     let casts = player_casts(raid.engine().combat_log().unwrap());
     let expected = [

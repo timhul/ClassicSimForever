@@ -244,7 +244,8 @@
   .float.miss { font-style: italic; }
   .float.hit { font-size: 18px; animation: slide 2.5s ease-out forwards; }
   .float.crit { font-size: 40px; animation: crit 3s ease-out forwards; }
-  #stage.paused .float, #stage.paused .tile.cast::after { animation-play-state: paused; }
+  #stage.paused .float, #stage.paused .tile.cast::after,
+  #stage.paused .tile.failed::after { animation-play-state: paused; }
   /* A spell the rotation just cast: a gold glow over its icon, fading out. */
   .tile.cast::after {
     content: "";
@@ -256,6 +257,32 @@
     animation: cast 0.8s ease-out forwards;
   }
   @keyframes cast { from { opacity: 1; } to { opacity: 0; } }
+  /* A key press that could not cast: its icon flashes red. */
+  .tile.failed::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(224, 60, 50, 0.4);
+    box-shadow: inset 0 0 0 2px #e03c32;
+    animation: cast 0.8s ease-out forwards;
+  }
+  /* Why, in red at the top of the stage, as the game's error text. */
+  #input-error {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    color: #ff3b30;
+    font-size: 16px;
+    font-weight: 700;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  #input-error.gone { opacity: 0; }
   /* A hit slides from the middle out to one side (--dx), fading on the way. */
   @keyframes slide {
     from { opacity: 1; transform: translate(-50%, -50%); }
@@ -429,6 +456,7 @@
     <div id="stage" class="paused">
       <div id="floats"></div>
       <div id="buffs" class="tiles" title="Buffs"></div>
+      <div id="input-error" class="gone"></div>
       <div id="hud">
         <div id="swings">
           <div class="swing">
@@ -446,7 +474,7 @@
           <div class="unit" id="player-frame">
             <div class="health">
               <div class="fill" id="player-health"></div>
-              <div class="text"><span id="player-name"></span></div>
+              <div class="text"><span id="player-name"></span><span id="player-stance"></span></div>
             </div>
             <div class="power"><div class="fill" id="player-power"></div></div>
           </div>
@@ -578,6 +606,7 @@ function apply(next) {
   addHits(next.damage);
   addDecisions(next.decisions);
   flashCasts(next.decisions);
+  showInputError(next.input_error);
   if (!playing || next.done) {
     simTime = next.time;
   }
@@ -721,16 +750,37 @@ function decidedBy(decision) {
 
 /** Flashes the icon of each spell the rotation cast in the spells bar. */
 function flashCasts(decisions) {
-  const views = tileViews.get($("spells"));
   for (const decision of decisions) {
-    const view = views && views.get(decision.spell);
-    if (view) {
-      // Restart the animation when the spell is cast again before it ended.
-      view.root.classList.remove("cast");
-      void view.root.offsetWidth;
-      view.root.classList.add("cast");
-    }
+    flashTile(decision.spell, "cast");
   }
+}
+
+/** Flashes the icon of `spell` in the spells bar with `kind` (`cast` or `failed`). */
+function flashTile(spell, kind) {
+  const views = tileViews.get($("spells"));
+  const view = views && views.get(spell);
+  if (view) {
+    // Restart the animation when it flashes again before it ended.
+    view.root.classList.remove("cast", "failed");
+    void view.root.offsetWidth;
+    view.root.classList.add(kind);
+  }
+}
+
+let inputErrorTimer = null;
+
+/** A key press that could not cast: why, for 2 s, and a red flash of its icon. */
+function showInputError(error) {
+  if (!error) {
+    return;
+  }
+  const text = $("input-error");
+  text.textContent = error.reason;
+  text.title = error.spell;
+  text.classList.remove("gone");
+  clearTimeout(inputErrorTimer);
+  inputErrorTimer = setTimeout(() => text.classList.add("gone"), 2000);
+  flashTile(error.spell, "failed");
 }
 
 function addDecisions(decisions) {
@@ -870,6 +920,8 @@ function render() {
     `var(${RESOURCE_COLORS[resource.kind] || "--accent"})`);
   $("player-frame").title = `${resource.kind} ${resource.current} / ${resource.max}`;
   setText($("player-name"), info.name);
+  // The stance (or form) in effect: its spells need it.
+  setText($("player-stance"), state.stance ? state.stance.replace(/ (Stance|Form)$/, "") : "");
   fill("player-health", 1, CLASS_COLORS[info.class] || "var(--health)");
   // Nothing damages the target but the clock: full until the pull, empty at the end.
   const health = time <= 0 ? 1 : Math.max(0, 1 - time / info.end_at);

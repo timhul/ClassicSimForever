@@ -29,6 +29,7 @@ use csim_engine::rotation::DecidedBy;
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::Hand;
+use csim_engine::spell::SpellStatus;
 use csim_engine::stance::Stance;
 use serde::Serialize;
 
@@ -123,7 +124,16 @@ pub struct Frame {
     pub total_damage: u64,
     /// `total_damage` per second of combat so far (0 before the pull).
     pub dps: f64,
+    /// From the keyboard: the last key press since the previous frame that was dropped uncast.
+    pub input_error: Option<InputError>,
     pub state: CharacterState,
+}
+
+/// A key press that could not cast its spell, with why, as the game says it.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct InputError {
+    pub spell: String,
+    pub reason: String,
 }
 
 /// One hit of the damage feed, one attack the target avoided, or one proc that fired.
@@ -366,8 +376,11 @@ impl Session {
         self.raid
             .character_mut(PLAYER)
             .queue_input(self.bound[index], at + INPUT_QUEUE_WINDOW);
-        let wake = Event::new(at, EventKind::PlayerAction { character: PLAYER });
-        self.raid.engine_mut().add_event(wake);
+        // Woken at the press, and just after its window: a press still waiting is dropped then.
+        for wake in [at, at + INPUT_QUEUE_WINDOW + 1e-6] {
+            let wake = Event::new(wake, EventKind::PlayerAction { character: PLAYER });
+            self.raid.engine_mut().add_event(wake);
+        }
         Ok(self.advance(at))
     }
 
@@ -536,8 +549,20 @@ impl Session {
             decisions,
             total_damage: self.total_damage,
             dps,
+            input_error: self.input_error(),
             state: self.character_state(),
         }
+    }
+
+    /// The key press dropped uncast since the last frame, if any.
+    fn input_error(&mut self) -> Option<InputError> {
+        let character = self.raid.character_mut(PLAYER);
+        let (spell, status) = character.take_input_failure()?;
+        let resource = character.resource().resource_type().name().to_lowercase();
+        Some(InputError {
+            spell: character.spells().spell(spell).name().to_owned(),
+            reason: input_reason(status, &resource),
+        })
     }
 
     /// The rotation's decisions not read into a frame yet.
@@ -804,6 +829,31 @@ fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<SpellId>
                 })
         })
         .collect()
+}
+
+/// Why a key press could not cast its spell, as the game's error text says it.
+fn input_reason(status: SpellStatus, resource: &str) -> String {
+    match status {
+        SpellStatus::OnGcd
+        | SpellStatus::OnCooldown
+        | SpellStatus::OnStanceCooldown
+        | SpellStatus::OnTrinketCooldown
+        | SpellStatus::CastInProgress => "Ability is not ready yet".to_owned(),
+        SpellStatus::InsufficientResources => format!("Not enough {resource}"),
+        SpellStatus::OvercapResource => format!("Too much {resource}"),
+        SpellStatus::InsufficientComboPoints => "That ability requires combo points".to_owned(),
+        SpellStatus::NotInExecuteRange => "Not in execute range".to_owned(),
+        SpellStatus::BuffInactive => "Can't do that yet".to_owned(),
+        SpellStatus::InCombat => "Can't do that while in combat".to_owned(),
+        SpellStatus::IncorrectWeaponType => "Requires a different weapon".to_owned(),
+        SpellStatus::NotBehindTarget => "You must be behind your target".to_owned(),
+        SpellStatus::NotEnabled => "Not learned".to_owned(),
+        SpellStatus::NotSupported => "Not modelled by the simulator".to_owned(),
+        _ => match status.stance() {
+            Some(stance) => format!("Can't do that in {}", stance.name()),
+            None => status.description().to_owned(),
+        },
+    }
 }
 
 /// An icon `FileDataID` of the data, `None` for 0 (no icon).
