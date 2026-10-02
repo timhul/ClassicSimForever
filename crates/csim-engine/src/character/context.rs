@@ -1309,22 +1309,36 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let before = self.character.pending_extra_attacks();
         self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
-        let (crits, landed): (Vec<_>, Vec<_>) = sources.iter().partition(|(source, _)| {
-            matches!(
-                source,
-                ProcSource::MeleeCritical | ProcSource::SpellCritical
-            )
-        });
+        let (crits, landed): (Vec<&(ProcSource, ProcTrigger)>, Vec<_>) =
+            sources.iter().partition(|(source, _)| {
+                matches!(
+                    source,
+                    ProcSource::MeleeCritical | ProcSource::SpellCritical
+                )
+            });
+        // A crit is reported apart from its hit: it is an off-hand one when the hit was.
+        let hand = if landed
+            .iter()
+            .any(|(source, _)| source.hand() == Hand::Offhand)
+        {
+            Hand::Offhand
+        } else {
+            Hand::Mainhand
+        };
         for &(source, trigger) in landed {
             if source == ProcSource::Manual {
                 continue;
             }
+            self.character.set_proc_hand(source.hand());
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
+        self.character.set_proc_hand(Hand::Mainhand);
         between(self);
+        self.character.set_proc_hand(hand);
         for &(source, trigger) in crits {
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
+        self.character.set_proc_hand(Hand::Mainhand);
         for (id, report) in &fired {
             let (name, rank, spell) = {
                 let spell = self.character.spells.procs().get(*id).spell();
@@ -3124,8 +3138,16 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.stats().get_total_threat_mod()
     }
 
-    fn avg_mh_weapon_damage(&self) -> f64 {
-        self.character.avg_mh_weapon_damage(&self.target_view())
+    fn avg_weapon_damage(&self, hand: Hand) -> f64 {
+        let target = self.target_view();
+        match hand {
+            Hand::Mainhand => self.character.avg_mh_weapon_damage(&target),
+            Hand::Offhand => self.character.avg_oh_weapon_damage(&target),
+        }
+    }
+
+    fn proc_hand(&self) -> Hand {
+        self.character.proc_hand()
     }
 
     fn offhand_copy_active(&self, spell: u32) -> bool {

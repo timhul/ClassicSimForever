@@ -52,8 +52,9 @@ pub enum PeriodicKind {
     /// damage modifier) on each of `ticks` ticks; a refresh re-arms the full count (Rend) and
     /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
-    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
-    /// in `ticks_per_application` ticks. An application while the bleed runs adds its damage to
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base damage of the weapon that crit (as of
+    /// the crit) per application, dealt in `ticks_per_application` ticks, times the damage done
+    /// modifiers of each tick. An application while the bleed runs adds its damage to
     /// what the bleed has left and spreads the pool over a fresh `ticks_per_application` ticks
     /// (on the running tick chain); the rounding remainder is carried between ticks. Port of
     /// `DeepWounds`, which instead kept the per-tick damage and a stack of ticks per application.
@@ -158,8 +159,7 @@ pub struct Periodic {
     /// runs after the buff dropped its stacks.
     aura_stacks: u32,
     // Deep-Wounds-style state (ticks left in `ticks_left`).
-    /// The damage the bleed has left to deal, in applications (1 per application, less a share
-    /// per tick): scaled by the weapon damage on each tick.
+    /// The damage the bleed has left to deal, before the damage done modifiers of its ticks.
     pool: f64,
     previous_tick_rest: f64,
 }
@@ -206,7 +206,7 @@ impl Periodic {
         self.ticks_left
     }
 
-    /// The damage a bleed has left to deal, in applications.
+    /// The damage a bleed has left to deal, before the damage done modifiers of its ticks.
     pub fn pool(&self) -> f64 {
         self.pool
     }
@@ -226,28 +226,34 @@ impl Periodic {
     pub fn start(&mut self, spell: SpellId, host: &mut impl SpellHost, kind: &PeriodicKind) {
         self.application_id += 1;
         self.reset_state();
-        self.arm(kind);
+        self.arm(host, kind);
         self.schedule_tick(spell, host);
     }
 
     /// The buff was refreshed while active: re-arms the effect without restarting the tick chain.
     /// Port of `refresh_effect`.
-    pub fn refresh(&mut self, kind: &PeriodicKind) {
-        self.arm(kind);
+    pub fn refresh(&mut self, host: &impl SpellHost, kind: &PeriodicKind) {
+        self.arm(host, kind);
     }
 
-    fn arm(&mut self, kind: &PeriodicKind) {
+    fn arm(&mut self, host: &impl SpellHost, kind: &PeriodicKind) {
         match *kind {
             PeriodicKind::ResourceGain { .. } | PeriodicKind::TriggerSpell { .. } => {}
             PeriodicKind::Damage { ticks, .. } => self.ticks_left = ticks,
             PeriodicKind::WeaponDamage {
+                percent,
                 ticks_per_application,
-                ..
             } => {
-                self.pool += 1.0;
-                self.ticks_left = ticks_per_application;
+                let weapon = host.avg_weapon_damage(host.proc_hand());
+                self.add_bleed(weapon * percent / 100.0, ticks_per_application);
             }
         }
+    }
+
+    /// Adds `damage` to what the bleed has left and spreads it over `ticks` fresh ticks.
+    fn add_bleed(&mut self, damage: f64, ticks: u32) {
+        self.pool += damage;
+        self.ticks_left = ticks;
     }
 
     /// Handles a `DotTick` event. Returns `None` for stale ticks or after the buff is gone
@@ -323,14 +329,14 @@ impl Periodic {
                     ..quiet
                 })
             }
-            PeriodicKind::WeaponDamage { percent, .. } => {
+            PeriodicKind::WeaponDamage { .. } => {
                 if self.ticks_left == 0 {
                     return None;
                 }
                 let share = self.pool / f64::from(self.ticks_left);
                 self.pool -= share;
                 self.ticks_left -= 1;
-                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod * share;
+                let mut damage = share * damage_mod;
                 damage += self.previous_tick_rest;
                 self.previous_tick_rest = damage - damage.round();
                 if self.ticks_left == 0 {
@@ -431,9 +437,9 @@ mod tests {
         );
         let mut periodic = Periodic::new(None, rate);
         assert!(periodic.is_exhausted(&kind));
-        periodic.refresh(&kind);
-        periodic.refresh(&kind);
-        assert_eq!(periodic.pool(), 2.0);
+        periodic.add_bleed(60.0, 4);
+        periodic.add_bleed(30.0, 4);
+        assert_eq!(periodic.pool(), 90.0);
         assert_eq!(periodic.ticks_left(), 4);
         assert!(!periodic.is_exhausted(&kind));
         periodic.reset_state();

@@ -315,6 +315,51 @@ fn a_later_crit_rolls_the_rest_of_the_bleed_into_fresh_ticks() {
     );
 }
 
+/// Deep Wounds at rank 3 after critical swings of the 100 damage main hand and the 50 damage
+/// off hand, in `hands` order.
+fn damage_after_crits_of(hands: &[Hand]) -> u64 {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_50_min_max_dmg();
+    given_deep_wounds(&mut test, 3);
+    test.given_a_guaranteed_white_crit();
+    for &hand in hands {
+        test.when_swing_is_performed(hand);
+    }
+    deep_wounds_damage(&mut test)
+}
+
+/// An off-hand crit bleeds for 60 % of the off-hand weapon's 50 average damage.
+#[test]
+fn offhand_crit_bleeds_for_the_offhand_weapon_damage() {
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand]), 30);
+}
+
+/// Each crit adds its own weapon's share to the pool: 60 + 30.
+#[test]
+fn mainhand_and_offhand_crits_pool_their_own_weapon_damage() {
+    assert_eq!(damage_after_crits_of(&[Hand::Mainhand, Hand::Offhand]), 90);
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand, Hand::Mainhand]), 90);
+}
+
+/// A critical Whirlwind with Raging Blows' off-hand strike: the main-hand crit adds 60 % of the
+/// main hand's 100, the off-hand strike's crit 60 % of the off hand's 50.
+#[test]
+fn offhand_strike_crit_bleeds_for_the_offhand_weapon_damage() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_50_min_max_dmg();
+    test.given_fury_talent_with_rank("Raging Blows", 1);
+    given_deep_wounds(&mut test, 3);
+    test.given_a_guaranteed_melee_ability_crit();
+    let report = test.cast("Whirlwind");
+    assert!(
+        report.offhand.is_some(),
+        "Whirlwind strikes with the off hand"
+    );
+    assert_eq!(deep_wounds_damage(&mut test), 90);
+}
+
 /// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage, times
 /// 1.2, not also to the weapon damage it is based on.
 #[test]
