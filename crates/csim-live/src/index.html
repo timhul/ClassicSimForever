@@ -312,6 +312,17 @@
   }
   .tile .left { inset: 0; display: grid; place-items: center; font-size: 13px; }
   .tile .count { right: 2px; bottom: 0; font-size: 11px; line-height: 1.2; }
+  /* The key bound to the spell, top left as the game's hotkeys. */
+  .tile .hotkey {
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    color: #e8e8e8;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 3px #000;
+  }
   footer { color: #e06c6c; padding-top: 8px; padding-bottom: 16px; min-height: 1.4em; }
   #rotation-panel {
     display: flex;
@@ -475,6 +486,10 @@
 const $ = (id) => document.getElementById(id);
 const FEED_LIMIT = 200;
 const DECISION_LIMIT = 200;
+// From the keyboard: the binding of each bound spell, and the spell of each binding.
+let hotkeys = new Map();
+let bindings = new Map();
+
 const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
 // The class colours of CLAUDE.md.
 const CLASS_COLORS = {
@@ -535,8 +550,13 @@ function restart(seed) {
     $("last-event").textContent = "";
     $("name").textContent = info.name;
     $("sub").textContent =
-      `${info.race} ${info.class} · ${info.rotation} · seed ${info.seed} · ` +
+      `${info.race} ${info.class} · ` +
+      (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
       `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
+    // From the keyboard the rotation does not run: its entries are not what decides.
+    $("entries").hidden = info.manual;
+    hotkeys = new Map(info.keybinds.map((keybind) => [keybind.spell, keybind.binding]));
+    bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.spell]));
     document.title = `${info.name} · csim-live`;
     renderEntries();
     simTime = info.start_at;
@@ -881,11 +901,15 @@ function render() {
     swing("oh", state.offhand, time);
   }
 
-  // A fixed order: the shortest base cooldown first, then by name.
+  // A fixed order: the shortest base cooldown first, then by name (the keybinds' order
+  // from the keyboard, as the server sends them).
   const cooldowns = keyed(state.rotation_spells).map((cooldown) => ({
     ...cooldown,
     left: cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time),
-  })).sort((a, b) => (a.duration ?? 0) - (b.duration ?? 0) || a.name.localeCompare(b.name));
+  }));
+  if (!info.manual) {
+    cooldowns.sort((a, b) => (a.duration ?? 0) - (b.duration ?? 0) || a.name.localeCompare(b.name));
+  }
   const gcd = Math.max(0, gcdLeft);
   renderTiles($("spells"), cooldowns.map((cooldown) => cooldownTile(cooldown, gcd, state.gcd)));
 
@@ -928,7 +952,22 @@ function cooldownTile(cooldown, gcdLeft, gcd) {
     sweep: remainingSweep(fraction),
     left: cooldown.left > 0 && !gcdLater ? tileSeconds(cooldown.left) : "",
     count: "",
+    hotkey: hotkeys.has(cooldown.name) ? shortBinding(hotkeys.get(cooldown.name)) : "",
   };
+}
+
+/** A binding as the game's hotkey labels: `Ctrl+Shift+Alt+E` as `csa-E`, `Numpad1` as `N1`. */
+function shortBinding(binding) {
+  const parts = binding.split("+");
+  const key = parts.pop()
+    .replace(/^Numpad/, "N")
+    .replace(/^Arrow/, "")
+    .replace("Space", "Spc")
+    .replace("Backquote", "`")
+    .replace("Minus", "-")
+    .replace("Equal", "=");
+  const modifiers = parts.map((modifier) => modifier[0].toLowerCase()).join("");
+  return modifiers ? `${modifiers}-${key}` : key;
 }
 
 /** A cooldown's sweep: the part still to come dark, clearing clockwise from 12 o'clock. */
@@ -993,6 +1032,7 @@ function renderTiles(container, items, showEmpty = true) {
     }
     setText(view.left, item.left);
     setText(view.count, item.count);
+    setText(view.hotkey, item.hotkey || "");
   });
 }
 
@@ -1010,8 +1050,9 @@ function tile(item) {
   const sweep = element("div", "sweep");
   const left = element("span", "left");
   const count = element("span", "count");
-  root.append(sweep, left, count);
-  return { root, sweep, left, count, sweepValue: null };
+  const hotkey = element("span", "hotkey");
+  root.append(sweep, left, count, hotkey);
+  return { root, sweep, left, count, hotkey, sweepValue: null };
 }
 
 /** Whole seconds from 10 s up, tenths below. */
@@ -1038,6 +1079,28 @@ function tick(now) {
 
 $("play").addEventListener("click", () => setPlaying(!playing));
 $("speed").addEventListener("change", (event) => { speed = Number(event.target.value); });
+
+/** A key press as a binding, `Ctrl+Shift+Alt+KEY` (as the server normalises them). */
+function pressedBinding(event) {
+  const key = event.code.replace(/^Key/, "").replace(/^Digit/, "");
+  const modifiers = [event.ctrlKey && "Ctrl", event.shiftKey && "Shift", event.altKey && "Alt"];
+  return [...modifiers.filter(Boolean), key].join("+");
+}
+
+// From the keyboard: a press of a bound key casts its spell at the time shown.
+document.addEventListener("keydown", (event) => {
+  const inForm = event.target instanceof Element && event.target.closest("select, input");
+  if (!info || !info.manual || event.repeat || inForm) {
+    return;
+  }
+  const spell = bindings.get(pressedBinding(event));
+  if (spell === undefined) {
+    return;
+  }
+  event.preventDefault();
+  const at = simTime;
+  enqueue(async () => apply(await api("POST", "/api/cast", { spell, at })));
+});
 $("step-event").addEventListener("click", () => step("event"));
 $("step-cast").addEventListener("click", () => step("cast"));
 $("restart").addEventListener("click", () => restart(info ? info.seed : null));
