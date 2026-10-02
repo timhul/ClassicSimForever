@@ -20,6 +20,7 @@ pub mod engine;
 pub mod executor;
 pub mod number_cruncher;
 pub mod proc;
+pub mod report;
 pub mod resource;
 pub mod spell;
 
