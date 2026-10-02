@@ -223,3 +223,28 @@ fn nothing_is_logged_unless_enabled() {
     test.when_swing_is_performed(Hand::Mainhand);
     assert!(test.raid.engine_mut().take_combat_log().is_none());
 }
+
+/// The queue of an on-next-swing spell is a buff in the sim only: the game logs the strike's
+/// cast and damage when the swing lands, no aura.
+#[test]
+fn a_queued_heroic_strike_logs_no_aura() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_a_guaranteed_melee_ability_hit();
+    test.given_warrior_has_rage(100);
+    test.cast("Heroic Strike");
+    assert!(test.buff_is_active("Heroic Strike"));
+    test.when_next_swing_spell_lands("Heroic Strike");
+
+    let events = events(&mut test);
+    assert!(
+        !events
+            .iter()
+            .any(|event| matches!(event, CombatLogEvent::SpellAura { .. })),
+        "{events:?}"
+    );
+    assert!(events.iter().any(|event| matches!(
+        event,
+        CombatLogEvent::SpellDamage { spell, .. } if spell.name == "Heroic Strike"
+    )));
+}

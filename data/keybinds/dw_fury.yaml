@@ -1,0 +1,33 @@
+# Keys for playing DW Fury from the keyboard in csim-live:
+#   cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --keybinds data/keybinds/dw_fury.yaml
+#
+# 'spell name': [Ctrl+][Shift+][Alt+]key. The key is a letter, a digit, F1..F12 or a key name
+# (Space, Tab, Minus, Numpad1, ...). A spell without a key cannot be cast.
+#
+# A macro casts its spells in order, as the game's /cast lines: it stops after a spell that
+# triggers the global cooldown, waits (0.4 s) at one the global cooldown blocks, and skips one
+# that cannot be cast otherwise.
+#
+# Without the rotation nothing is cast before the pull either: swap to Berserker Stance
+# (Whirlwind, Berserker Rage) and shout yourself.
+Bloodthirst: 2
+Whirlwind: 3
+Execute: F
+Hamstring: 4
+Battle Shout: Shift+R
+Sunder Armor: 5
+Heroic Strike: V
+Bloodrage: Q
+Berserker Rage: Shift+Q
+Death Wish: Shift+T
+Recklessness: Ctrl+Q
+Blood Fury: E
+Earthstrike: Shift+E
+Berserker Stance: Shift+2
+Battle Stance: Shift+1
+Cooldowns:
+  hotkey: T
+  cast:
+    - Blood Fury
+    - Earthstrike
+    - Death Wish

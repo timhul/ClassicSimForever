@@ -13,6 +13,10 @@
 //! The character owns its rotation (`Character::rotation`); the context takes it out to run
 //! it ([`crate::character::context::CharacterContext::perform_rotation`]) since the rotation
 //! needs the whole context to check statuses and cast.
+//!
+//! A rotation can record its decisions ([`Rotation::enable_trace`]): every cast it makes, with
+//! the executor that returned true (or the precombat action / precast it was). Off by default;
+//! recording changes nothing about what is cast.
 
 use std::collections::BTreeMap;
 use std::fmt;
@@ -160,9 +164,36 @@ impl RotationExecutor {
     }
 }
 
+/// What made the rotation cast a spell.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DecidedBy {
+    /// The executor at this index of [`Rotation::executors`] (the `cast_if` file order):
+    /// its spell was available and its condition held.
+    Executor(usize),
+    /// One of the precombat actions.
+    Precombat,
+    /// The precast.
+    Precast,
+    /// Not the rotation: the player's input ([`Character::queue_input`]).
+    ///
+    /// [`Character::queue_input`]: crate::character::Character::queue_input
+    Input,
+}
+
+/// One cast the rotation made, recorded while its trace is enabled.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RotationDecision {
+    /// Sim time of the cast.
+    pub time: f64,
+    pub spell: SpellId,
+    pub by: DecidedBy,
+}
+
 /// Where a rotation finds the character's spells and buffs when it links, and what it acts
 /// on when it runs. Implemented by `CharacterContext`.
 pub trait RotationHost: ConditionContext<BuffId, SpellId> {
+    /// The current sim time (for the decision trace).
+    fn now(&self) -> f64;
     /// The spell `name` at `rank` (`MAX_RANK` = the highest learned rank), if the character
     /// has learned it. Port of `get_spell_rank_group_by_name` + `get_spell_rank`.
     fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId>;
@@ -195,6 +226,8 @@ pub struct Rotation {
     active: Vec<usize>,
     precombat_spells: Vec<SpellId>,
     precast_spell: Option<SpellId>,
+    /// The decisions since the set of iterations started, when the trace is enabled.
+    trace: Option<Vec<RotationDecision>>,
 }
 
 impl Rotation {
@@ -227,6 +260,32 @@ impl Rotation {
             active: Vec::new(),
             precombat_spells: Vec::new(),
             precast_spell: None,
+            trace: None,
+        }
+    }
+
+    /// Starts recording the rotation's decisions (kept across [`Rotation::link`], cleared at
+    /// the start of every set of iterations).
+    pub fn enable_trace(&mut self) {
+        self.trace.get_or_insert_with(Vec::new);
+    }
+
+    /// The decisions recorded so far, in the order they were made; empty when the trace is
+    /// not enabled.
+    pub fn trace(&self) -> &[RotationDecision] {
+        self.trace.as_deref().unwrap_or_default()
+    }
+
+    /// Records a decision, when the trace is enabled.
+    /// Records a cast of the player's input in the trace (when it is enabled), so the trace
+    /// lists every cast of a character played by input too.
+    pub fn record_input(&mut self, time: f64, spell: SpellId) {
+        self.record(time, spell, DecidedBy::Input);
+    }
+
+    fn record(&mut self, time: f64, spell: SpellId, by: DecidedBy) {
+        if let Some(trace) = &mut self.trace {
+            trace.push(RotationDecision { time, spell, by });
         }
     }
 
@@ -367,18 +426,21 @@ impl Rotation {
     /// Casts the precombat spells that are available (or merely on cooldown, which the
     /// precombat time ignores), then starts the precast if it is enabled. Port of
     /// `Rotation::run_precombat_actions` and the precast lines of `SimControl::run_sim`.
-    pub fn run_precombat_actions(&self, host: &mut impl RotationHost) {
-        for &spell in &self.precombat_spells {
+    pub fn run_precombat_actions(&mut self, host: &mut impl RotationHost) {
+        for index in 0..self.precombat_spells.len() {
+            let spell = self.precombat_spells[index];
             if matches!(
                 host.spell_status(spell),
                 SpellStatus::Available | SpellStatus::OnCooldown
             ) {
+                self.record(host.now(), spell, DecidedBy::Precombat);
                 host.cast_spell(spell);
             }
         }
         if let Some(spell) = self.precast_spell
             && host.spell_is_enabled(spell)
         {
+            self.record(host.now(), spell, DecidedBy::Precast);
             host.cast_spell(spell);
         }
     }
@@ -407,7 +469,15 @@ impl Rotation {
                 .is_none_or(|condition| condition.holds(host));
             if fulfilled {
                 executor.statistics.successful_casts += 1;
-                host.cast_spell(linked.spell);
+                let spell = linked.spell;
+                if let Some(trace) = &mut self.trace {
+                    trace.push(RotationDecision {
+                        time: host.now(),
+                        spell,
+                        by: DecidedBy::Executor(index),
+                    });
+                }
+                host.cast_spell(spell);
             } else {
                 executor.statistics.no_condition_group_fulfilled += 1;
             }
@@ -457,6 +527,9 @@ impl Rotation {
         for executor in &mut self.executors {
             executor.statistics.reset();
         }
+        if let Some(trace) = &mut self.trace {
+            trace.clear();
+        }
     }
 
     /// The statistics of the active executors, merged per spell name (a spell with several
@@ -500,6 +573,7 @@ mod tests {
         casts: Vec<SpellId>,
         talents: HashMap<SpellId, String>,
         costs: HashMap<SpellId, u32>,
+        now: f64,
     }
 
     impl Mock {
@@ -541,6 +615,9 @@ mod tests {
     }
 
     impl RotationHost for Mock {
+        fn now(&self) -> f64 {
+            self.now
+        }
         fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
             let requested = self.spells.get(&(name.to_string(), rank)).copied();
             if rank != MAX_RANK {
@@ -893,6 +970,54 @@ mod tests {
         rotation.link(&host);
         assert_eq!(rotation.precast_spell(), None);
         assert_eq!(rotation.time_required_to_run_precombat(&host), 1.5);
+    }
+
+    #[test]
+    fn the_trace_records_which_executor_cast() {
+        let mut host = Mock::default();
+        let bloodrage = host.spell("Bloodrage", 1, 1);
+        let shout = host.spell("Battle Shout", 7, 2);
+        let bloodthirst = host.spell("Bloodthirst", 1, 3);
+        let hs = host.spell("Heroic Strike", 9, 4);
+        host.resources.insert(ResourceType::Rage, 60);
+        let mut rotation = Rotation::new(spec(vec![
+            // Skipped (no such spell): the indices stay those of the file.
+            CastIfSpec::always("Kiss of the Spider"),
+            CastIfSpec::when("Bloodrage", "resource \"Rage\" less 50"),
+            CastIfSpec::always("Bloodthirst"),
+            CastIfSpec::when("Heroic Strike", "resource \"Rage\" greater 70"),
+            CastIfSpec::when("Heroic Strike", "resource \"Rage\" greater 50"),
+        ]));
+        rotation.link(&host);
+
+        // Off by default.
+        host.now = -1.5;
+        rotation.run_precombat_actions(&mut host);
+        rotation.perform(&mut host);
+        assert!(rotation.trace().is_empty());
+
+        rotation.enable_trace();
+        rotation.run_precombat_actions(&mut host);
+        host.now = 2.25;
+        rotation.perform(&mut host);
+        let decision = |time, spell, by| RotationDecision { time, spell, by };
+        assert_eq!(
+            rotation.trace(),
+            [
+                decision(-1.5, bloodrage, DecidedBy::Precombat),
+                decision(-1.5, shout, DecidedBy::Precombat),
+                decision(2.25, bloodthirst, DecidedBy::Executor(2)),
+                decision(2.25, hs, DecidedBy::Executor(4)),
+            ]
+        );
+
+        // Kept across a relink, cleared for a new set of iterations.
+        rotation.link(&host);
+        assert_eq!(rotation.trace().len(), 4);
+        rotation.prepare_set_of_combat_iterations();
+        assert!(rotation.trace().is_empty());
+        rotation.perform(&mut host);
+        assert_eq!(rotation.trace().len(), 2, "still enabled");
     }
 
     #[test]

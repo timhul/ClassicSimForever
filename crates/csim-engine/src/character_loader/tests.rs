@@ -44,7 +44,7 @@ const MINIMAL: &str = r#"
 name: Minimal
 class: WARRIOR
 race: ORC
-rotation: DW Fury High Rage
+rotation: DW Fury
 "#;
 
 fn minimal() -> CharacterSetup {
@@ -598,7 +598,7 @@ name: Base
 class: WARRIOR
 race: ORC
 level: 58
-rotation: DW Fury High Rage
+rotation: DW Fury
 equipment:
   MAINHAND: { item: 18828 }
   OFFHAND: { item: 18828 }

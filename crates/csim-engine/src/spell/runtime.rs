@@ -82,8 +82,10 @@ pub trait SpellHost: EffectHost {
     fn reset_swing_timers(&mut self);
     /// Queues `spell` to replace the next mainhand swing (on-next-swing spells); the character
     /// updates its white miss chance since a queued swing does not suffer the dual-wield penalty.
-    fn queue_next_swing(&mut self, spell: SpellId);
-    /// Clears the queued next-swing spell.
+    /// `marker` is the spell's marker buff, applied by the spell and up while it stays queued:
+    /// a different spell queued before is un-queued and its marker cancelled.
+    fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>);
+    /// Clears the queued next-swing spell and cancels its marker buff.
     fn cancel_next_swing(&mut self);
     /// The spell queued to replace the next mainhand swing, if any.
     fn queued_next_swing(&self) -> Option<SpellId>;
@@ -1312,16 +1314,17 @@ impl Spell {
         ms.max(0.0) / 1000.0
     }
 
-    /// Queues the spell for the next mainhand swing: its marker buff marks it as queued. Port
+    /// Queues the spell for the next mainhand swing: its marker buff marks it as queued
+    /// ([`Buff::next_swing_queue`](crate::buff::Buff::next_swing_queue) without an aura). Port
     /// of `HeroicStrike::spell_effect`.
     fn queue(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
         let id = self
             .id
             .unwrap_or_else(|| panic!("on-next-swing spell {} has no id", self.name()));
+        host.queue_next_swing(id, self.marker_buff);
         if let Some(marker) = self.marker_buff {
             report.buff = Some(host.apply_buff(marker));
         }
-        host.queue_next_swing(id);
         report.queued = true;
         report
     }

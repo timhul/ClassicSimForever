@@ -70,6 +70,9 @@ pub struct ItemSpec {
     #[serde(rename = "type")]
     pub item_type: ItemType,
     pub quality: Quality,
+    /// `Item.IconFileDataID`: the `FileDataID` of the icon texture; 0 = none.
+    #[serde(default, skip_serializing_if = "is_no_icon")]
+    pub icon: u32,
     #[serde(default, skip_serializing_if = "is_false")]
     pub unique: bool,
     #[serde(default)]
@@ -120,6 +123,10 @@ pub struct WeaponDamageSpec {
 
 fn is_false(value: &bool) -> bool {
     !*value
+}
+
+fn is_no_icon(icon: &u32) -> bool {
+    *icon == 0
 }
 
 fn physical() -> MagicSchool {

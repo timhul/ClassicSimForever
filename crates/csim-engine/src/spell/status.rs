@@ -68,6 +68,21 @@ impl SpellStatus {
         self == SpellStatus::Available
     }
 
+    /// Whether the spell may become usable by waiting alone: the global, stance, trinket or
+    /// own cooldown runs out, the cast in progress ends, the resource regenerates. Not another
+    /// stance, execute range, combo points, an inactive buff, ...: those take something else.
+    pub fn passes_with_time(self) -> bool {
+        matches!(
+            self,
+            SpellStatus::OnGcd
+                | SpellStatus::OnCooldown
+                | SpellStatus::OnStanceCooldown
+                | SpellStatus::OnTrinketCooldown
+                | SpellStatus::CastInProgress
+                | SpellStatus::InsufficientResources
+        )
+    }
+
     /// The status reported when a spell is unusable because the character is in `stance`.
     pub fn in_stance(stance: Stance) -> SpellStatus {
         match stance {

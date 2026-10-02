@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>csim-live</title>
+<style>
+  :root {
+    --bg: #111317;
+    --panel: #1a1d23;
+    --line: #2a2e36;
+    --text: #d8dbe0;
+    --muted: #8a909b;
+    --white-hit: #ffffff;
+    --yellow-hit: #ffd100;
+    --proc-hit: #7cc4ff;
+    --rage: #c0392b;
+    --energy: #e6c229;
+    --mana: #2f6fd6;
+    --health: #3fae49;
+    --focus: #d2802a;
+    --swing: #5aa469;
+    --accent: #e0b04a;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header, #controls, main, footer { padding: 0 16px; }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 14px;
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 600; }
+  h2 {
+    font-size: 12px;
+    margin: 0 0 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  #sub { color: var(--muted); }
+  #totals { font-variant-numeric: tabular-nums; }
+  #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
+  #controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 8px;
+  }
+  button, select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled), select:hover { border-color: var(--muted); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  #play { min-width: 76px; font-weight: 600; }
+  #clock {
+    margin-left: auto;
+    font: 600 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  #last-event { color: var(--muted); min-width: 140px; text-align: right; }
+  #timeline {
+    height: 4px;
+    background: var(--line);
+    margin: 0 16px 16px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #timeline-fill { height: 100%; width: 0; background: var(--accent); }
+  main {
+    display: grid;
+    grid-template-columns: minmax(160px, 260px) minmax(0, 1fr);
+    grid-template-areas: "feed state" "feed rotation";
+    gap: 16px;
+    align-items: start;
+  }
+  #feed-panel { grid-area: feed; }
+  #state { grid-area: state; }
+  #rotation-panel { grid-area: rotation; }
+  @media (min-width: 1200px) {
+    main {
+      grid-template-columns: minmax(160px, 240px) minmax(0, 1fr) minmax(300px, 380px);
+      grid-template-areas: "feed state rotation";
+    }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  #feed-panel { height: calc(100vh - 150px); min-height: 240px; display: flex; flex-direction: column; }
+  #feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    flex: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px #000, 0 0 1px #000;
+  }
+  #feed li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+    line-height: 1.5;
+    animation: pop 0.25s ease-out;
+  }
+  #feed li.auto { color: var(--white-hit); }
+  #feed li.spell { color: var(--yellow-hit); }
+  #feed li.crit { font-size: 22px; }
+  #feed li.miss { font-style: italic; }
+  #feed li.proc { color: var(--proc-hit); font-size: 13px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  #stage {
+    position: relative;
+    padding-bottom: 12px;
+    overflow: hidden;
+    background: #000;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    container-type: inline-size;
+  }
+  /* Under the numbers: the swing timers, the unit frames with the target's debuffs, then the
+     rotation's spells. */
+  #hud {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    /* 20% of the width the Timers panel's bars had: the stage less ~230 px. */
+    --bar-width: max(40px, calc((100cqw - 230px) * 0.2));
+  }
+  #swings { display: grid; gap: 4px; }
+  /* The two frames, the target's debuffs under its frame. */
+  #frames {
+    display: grid;
+    grid-template-columns: var(--bar-width) var(--bar-width);
+    gap: 14px 8px;
+  }
+  #debuffs {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+    width: max-content;
+    max-width: calc(50cqw - 16px);
+  }
+  /* Every spell the rotation can cast, centred under the frames. */
+  #spells { justify-content: center; max-width: calc(100cqw - 24px); }
+  .tile.debuff { box-shadow: 0 0 0 1px #c0392b; }
+  /* The buffs top right, over the numbers, wrapping leftwards as in the game. */
+  #buffs {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    max-width: 40cqw;
+    justify-content: flex-end;
+  }
+  #stage .tiles { gap: 4px; }
+  #stage .tile { width: 30px; height: 30px; }
+  #stage .tile .left { font-size: 12px; }
+  .unit {
+    width: var(--bar-width);
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    background: #1b1e24;
+    box-shadow: 0 0 0 1px #3a3f48;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .unit > div { position: relative; overflow: hidden; }
+  .unit .health { flex: 6; }
+  .unit .power { flex: 4; border-top: 1px solid #000; }
+  .unit .power .text { font-size: 9px; }
+  #target-frame .health { flex: 1; }
+  .unit .fill { position: absolute; inset: 0 auto 0 0; width: 100%; }
+  .unit .health .fill { background: var(--health); }
+  /* The combo points just under the target frame, in the stage's bottom margin. */
+  .target { position: relative; }
+  #pips { position: absolute; top: calc(100% + 2px); right: 0; display: flex; gap: 2px; }
+  .pip { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 0, 0, 0.55); }
+  .pip.on { background: var(--accent); box-shadow: 0 0 0 1px #000; }
+  .unit .text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    /* A black outline, as in the game: readable on every class colour. */
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+  .swing {
+    display: grid;
+    grid-template-columns: 22px var(--bar-width) 34px;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .swing .bar { height: 6px; }
+  /* The floating numbers, above the swing timers. */
+  #floats { position: relative; height: 240px; z-index: 1; }
+  .swing .value { text-align: left; }
+  .float {
+    position: absolute;
+    left: 50%;
+    top: var(--y);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+    transform: translate(-50%, -50%);
+  }
+  .float.auto { color: var(--white-hit); }
+  .float.spell { color: var(--yellow-hit); }
+  .float.miss { font-style: italic; }
+  .float.hit { font-size: 18px; animation: slide 2.5s ease-out forwards; }
+  .float.crit { font-size: 40px; animation: crit 3s ease-out forwards; }
+  #stage.paused .float, #stage.paused .tile.cast::after,
+  #stage.paused .tile.failed::after { animation-play-state: paused; }
+  /* A spell the rotation just cast: a gold glow over its icon, fading out. */
+  .tile.cast::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(255, 209, 0, 0.35);
+    box-shadow: inset 0 0 0 2px #ffd100, inset 0 0 8px 2px rgba(255, 209, 0, 0.9);
+    animation: cast 0.8s ease-out forwards;
+  }
+  @keyframes cast { from { opacity: 1; } to { opacity: 0; } }
+  /* A key press that could not cast: its icon flashes red. */
+  .tile.failed::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(224, 60, 50, 0.4);
+    box-shadow: inset 0 0 0 2px #e03c32;
+    animation: cast 0.8s ease-out forwards;
+  }
+  /* Why, in red at the top of the stage, as the game's error text. */
+  #input-error {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    color: #ff3b30;
+    font-size: 16px;
+    font-weight: 700;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  #input-error.gone { opacity: 0; }
+  /* A hit slides from the middle out to one side (--dx), fading on the way. */
+  @keyframes slide {
+    from { opacity: 1; transform: translate(-50%, -50%); }
+    60% { opacity: 1; }
+    to { opacity: 0; transform: translate(calc(-50% + var(--dx)), -50%); }
+  }
+  /* A crit pops in, stays in the middle and fades out. */
+  @keyframes crit {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+    6% { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+    10% { transform: translate(-50%, -50%) scale(1); }
+    40% { opacity: 1; }
+    to { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  }
+  #state { display: grid; gap: 16px; }
+  .icon {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px #000;
+  }
+  .value { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar { height: 14px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; }
+  .empty { color: var(--muted); }
+  .tiles { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tile {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #1b1e24;
+    box-shadow: 0 0 0 1px #000;
+  }
+  .tile img { display: block; width: 100%; height: 100%; }
+  .tile .initials {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tile .sweep { position: absolute; inset: 0; }
+  .tile .left, .tile .count {
+    position: absolute;
+    color: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 3px #000;
+  }
+  .tile .left { inset: 0; display: grid; place-items: center; font-size: 13px; }
+  .tile .count { right: 2px; bottom: 0; font-size: 11px; line-height: 1.2; }
+  /* The key bound to the spell, top left as the game's hotkeys. */
+  .tile .hotkey {
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    color: #e8e8e8;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 3px #000;
+  }
+  footer { color: #e06c6c; padding-top: 8px; padding-bottom: 16px; min-height: 1.4em; }
+  #rotation-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 150px);
+    min-height: 240px;
+  }
+  #entries { margin-bottom: 10px; }
+  #entries summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .entries, #decisions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+    align-content: start;
+  }
+  .entries { margin-top: 8px; max-height: 40vh; overflow-y: auto; position: relative; }
+  #decisions { flex: 1; overflow-y: auto; min-height: 0; }
+  .entry, .decision {
+    display: grid;
+    grid-template-columns: 64px 18px minmax(0, 1fr);
+    gap: 2px 6px;
+    align-items: center;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+  .entry { grid-template-columns: 2.4em 18px minmax(0, 1fr); }
+  .entry.skipped { opacity: 0.45; }
+  .entry.latest, .decision.newest {
+    background: rgba(224, 176, 74, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(224, 176, 74, 0.45);
+  }
+  .decision.newest { animation: pop 0.25s ease-out; }
+  .slot { width: 18px; height: 18px; display: flex; }
+  .when {
+    color: var(--muted);
+    font: 12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .spell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .position { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .spell .position { margin-left: 6px; }
+  .condition {
+    grid-column: 3;
+    margin: 0;
+    color: var(--muted);
+    font: 12px/1.35 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  /* Below the stage: the damage so far per spell, as `csim run` breaks it down. */
+  #breakdown-panel { margin-top: 16px; }
+  .breakdown-scroll { overflow-x: auto; }
+  .breakdown {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .breakdown th {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+    padding: 0 8px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .breakdown td { text-align: right; padding: 3px 8px; }
+  .breakdown th:first-child, .breakdown td:first-child { text-align: left; padding-left: 0; }
+  .breakdown .name { display: flex; align-items: center; gap: 6px; }
+  .breakdown .expander { width: 10px; color: var(--muted); font-size: 10px; }
+  .breakdown tr.expandable { cursor: pointer; }
+  .breakdown tr.expandable:hover { background: rgba(255, 255, 255, 0.04); }
+  .breakdown tr.part { color: var(--muted); font-size: 12px; }
+  .breakdown tr.part .name { padding-left: 34px; }
+  .breakdown .share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .breakdown .share-bar { width: 60px; height: 6px; background: var(--line); border-radius: 3px; }
+  .breakdown .share-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
+  .breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
+  #buff-heading { margin-top: 16px; }
+  .breakdown .debuff-tag { color: #e05a4f; font-size: 11px; margin-left: 6px; }
+  #breakdown-empty, #buff-uptimes-empty { color: var(--muted); }
+  @media (max-width: 640px) {
+    main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
+    #feed-panel { height: 240px; }
+    #clock { margin-left: 0; }
+    #last-event { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="name">csim-live</h1>
+    <div id="sub"></div>
+  </div>
+  <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
+</header>
+
+<div id="controls">
+  <button id="play" type="button">Play</button>
+  <select id="speed" aria-label="Speed">
+    <option value="0.1">0.1×</option>
+    <option value="0.25">0.25×</option>
+    <option value="0.5">0.5×</option>
+    <option value="1" selected>1×</option>
+    <option value="2">2×</option>
+    <option value="5">5×</option>
+    <option value="10">10×</option>
+    <option value="50">50×</option>
+  </select>
+  <button id="step-event" type="button">Step event</button>
+  <button id="step-cast" type="button">Step to cast</button>
+  <button id="restart" type="button">Restart</button>
+  <button id="reseed" type="button">New seed</button>
+  <span id="last-event"></span>
+  <span id="clock">0:00.000</span>
+</div>
+<div id="timeline"><div id="timeline-fill"></div></div>
+
+<main>
+  <section id="feed-panel" class="panel">
+    <h2>Damage</h2>
+    <ol id="feed"></ol>
+  </section>
+
+  <section id="state">
+    <div id="stage" class="paused">
+      <div id="floats"></div>
+      <div id="buffs" class="tiles" title="Buffs"></div>
+      <div id="input-error" class="gone"></div>
+      <div id="hud">
+        <div id="swings">
+          <div class="swing">
+            <span>MH</span>
+            <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
+            <span class="value" id="mh-value"></span>
+          </div>
+          <div class="swing" id="oh-row">
+            <span>OH</span>
+            <div class="bar"><div id="oh-fill" style="background: var(--swing)"></div></div>
+            <span class="value" id="oh-value"></span>
+          </div>
+        </div>
+        <div id="frames">
+          <div class="unit" id="player-frame">
+            <div class="health">
+              <div class="fill" id="player-health"></div>
+              <div class="text"><span id="player-name"></span><span id="player-stance"></span></div>
+            </div>
+            <div class="power">
+              <div class="fill" id="player-power"></div>
+              <div class="text"><span></span><span id="player-power-value"></span></div>
+            </div>
+          </div>
+          <div class="target">
+            <div class="unit" id="target-frame">
+              <div class="health">
+                <div class="fill" id="target-health"></div>
+                <div class="text">
+                  <span id="target-percent"></span>
+                  <span id="target-ttd" title="time to death"></span>
+                </div>
+              </div>
+            </div>
+            <div id="pips" hidden></div>
+          </div>
+          <div id="debuffs" class="tiles" title="Debuffs on the target"></div>
+        </div>
+        <div id="spells" class="tiles"></div>
+      </div>
+    </div>
+    <section id="breakdown-panel" class="panel">
+      <h2>Breakdown</h2>
+      <div class="breakdown-scroll">
+        <table id="breakdown" class="breakdown">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="breakdown-empty">Nothing dealt yet.</div>
+      <h2 id="buff-heading">Buffs</h2>
+      <div class="breakdown-scroll">
+        <table id="buff-uptimes" class="breakdown">
+          <thead><tr><th>Buff</th><th>Uptime</th><th>Shortest</th><th>Longest</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="buff-uptimes-empty">No buff up yet.</div>
+    </section>
+  </section>
+
+  <section id="rotation-panel" class="panel">
+    <h2>Rotation</h2>
+    <details id="entries">
+      <summary>cast_if entries (<span id="entries-count">0</span>)</summary>
+      <ol id="entries-list" class="entries"></ol>
+    </details>
+    <ol id="decisions"></ol>
+  </section>
+</main>
+<footer id="status" role="status"></footer>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const FEED_LIMIT = 200;
+const DECISION_LIMIT = 200;
+// From the keyboard: the binding of each bound spell, and the spell of each binding.
+let hotkeys = new Map();
+let bindings = new Map();
+// From the keyboard: the keybinds (a spell's, a macro's) casting each spell.
+let castBy = new Map();
+// From the keyboard: what a macro's tile says, its spells.
+let macroTitles = new Map();
+
+const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
+// The class colours of CLAUDE.md.
+const CLASS_COLORS = {
+  Druid: "#FF7C0A",
+  Hunter: "#AAD372",
+  Mage: "#3FC7EB",
+  Paladin: "#F48CBA",
+  Priest: "#FFFFFF",
+  Rogue: "#FFF468",
+  Shaman: "#0070DD",
+  Warlock: "#8788EE",
+  Warrior: "#C69B6D",
+};
+// Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
+const missingIcons = new Set();
+/** The icon of each spell that dealt damage, by name (without rank), for the breakdown. */
+const iconsByName = new Map();
+/** The breakdown's spells whose outcome rows are shown. */
+const expanded = new Set();
+let breakdownAt = 0;
+
+let info = null;     // the iteration (seed as a string)
+let frame = null;    // the latest frame from the server
+let simTime = 0;     // the sim time shown; runs ahead of `frame` while playing
+let playing = false;
+let speed = 1;
+let advancing = false;
+let lastWall = null;
+
+// Every request goes through one chain, so frames are applied in the order they were asked for.
+let chain = Promise.resolve();
+function enqueue(task) {
+  chain = chain.then(task).catch(fail);
+  return chain;
+}
+
+async function api(method, path, body) {
+  const options = { method };
+  if (body !== undefined) {
+    options.headers = { "Content-Type": "application/json" };
+    options.body = JSON.stringify(body);
+  }
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    throw new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
+  }
+  return response.json();
+}
+
+function fail(error) {
+  setPlaying(false);
+  $("status").textContent = String(error.message || error);
+}
+
+/** Starts the iteration of `seed` (a string) over, or of a new seed when it is null. */
+function restart(seed) {
+  setPlaying(false);
+  return enqueue(async () => {
+    info = await api("POST", "/api/restart", seed === null ? {} : { seed });
+    $("feed").replaceChildren();
+    $("floats").replaceChildren();
+    $("status").textContent = "";
+    $("last-event").textContent = "";
+    $("name").textContent = info.name;
+    $("sub").textContent =
+      `${info.race} ${info.class} · ` +
+      (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
+      `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
+    // From the keyboard the rotation does not run: its entries are not what decides.
+    $("entries").hidden = info.manual;
+    hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
+    bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.name]));
+    castBy = new Map();
+    for (const keybind of info.keybinds) {
+      for (const spell of keybind.spells) {
+        castBy.set(spell, [...(castBy.get(spell) || []), keybind.name]);
+      }
+    }
+    macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
+      .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
+    document.title = `${info.name} · csim-live`;
+    renderEntries();
+    simTime = info.start_at;
+    apply(await api("POST", "/api/advance", { to: info.start_at }));
+  });
+}
+
+function step(kind) {
+  setPlaying(false);
+  enqueue(async () => {
+    const stepped = await api("POST", "/api/step", { kind });
+    $("last-event").textContent = stepped.event || "";
+    apply(stepped);
+  });
+}
+
+function apply(next) {
+  frame = next;
+  addHits(next.damage);
+  addDecisions(next.decisions);
+  flashCasts(next.decisions);
+  showInputError(next.input_error);
+  if (!playing || next.done) {
+    simTime = next.time;
+  }
+  if (next.done) {
+    setPlaying(false);
+  }
+  // Rebuilt a few times a second while playing, at once otherwise.
+  if (!playing || next.done || performance.now() - breakdownAt >= 250) {
+    breakdownAt = performance.now();
+    renderBreakdown(next);
+    renderBuffUptimes(next);
+  }
+  $("dps").textContent = next.dps.toFixed(1);
+  $("total").textContent = next.total_damage.toLocaleString("en-US");
+  for (const id of ["play", "step-event", "step-cast"]) {
+    $(id).disabled = next.done;
+  }
+}
+
+function addHits(hits) {
+  const feed = $("feed");
+  for (const hit of hits) {
+    if (hit.icon !== null && !iconsByName.has(hit.name)) {
+      iconsByName.set(hit.name, hit.icon);
+    }
+    const item = document.createElement("li");
+    item.className = hit.proc ? "proc"
+      : (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "") + (hit.miss ? " miss" : "");
+    const icon = iconImage(hit.icon);
+    if (icon) {
+      item.append(icon);
+    }
+    item.append(hit.proc ? hit.name
+      : hit.miss || (hit.critical ? `${amountText(hit)}*` : amountText(hit)));
+    const how = [hit.proc && "proc", hit.miss && hit.miss.toLowerCase(), hit.critical && "critical",
+      hit.glancing && "glancing"].filter(Boolean).join(", ");
+    item.title = `${hit.name} at ${clock(hit.time)}${how ? ` (${how})` : ""}`;
+    feed.prepend(item);
+  }
+  while (feed.childElementCount > FEED_LIMIT) {
+    feed.lastElementChild.remove();
+  }
+  floatHits(hits);
+}
+
+const FLOAT_LIMIT = 60;
+const CRIT_ROW_HEIGHT = 44;
+/** The crits' rows from the middle (0), in the order they fill: above (-1), below (1), ... */
+const CRIT_ROWS = [0, -1, 1, -2, 2];
+
+/**
+ * The first free row for a crit, in `CRIT_ROWS` order: a row frees when its crit fades out.
+ * With every row taken, the oldest crit makes room.
+ */
+function critRow(stage) {
+  const crits = [...stage.querySelectorAll(".float.crit")];
+  const taken = new Set(crits.map((crit) => Number(crit.dataset.row)));
+  const free = CRIT_ROWS.find((row) => !taken.has(row));
+  if (free !== undefined) {
+    return free;
+  }
+  crits[0].remove();
+  return Number(crits[0].dataset.row);
+}
+/** The side the next non-crit slides to: 1 right, -1 left. */
+let floatSide = 1;
+
+/** The damage of a hit, `~` in front for a glancing blow. */
+function amountText(hit) {
+  return `${hit.glancing ? "~" : ""}${hit.amount}`;
+}
+
+/** The hits as damage numbers floating on the stage, as in the game. */
+function floatHits(hits) {
+  const stage = $("floats");
+  for (const hit of hits) {
+    if (hit.proc) {
+      continue;
+    }
+    const number = element("span", `float ${hit.auto ? "auto" : "spell"}`,
+      hit.miss || amountText(hit));
+    if (hit.miss) {
+      number.classList.add("miss");
+    }
+    if (hit.critical) {
+      number.classList.add("crit");
+      const row = critRow(stage);
+      number.dataset.row = String(row);
+      number.style.setProperty("--y", `calc(50% + ${row * CRIT_ROW_HEIGHT}px)`);
+    } else {
+      number.classList.add("hit");
+      number.style.setProperty("--y", `${15 + Math.random() * 70}%`);
+      number.style.setProperty("--dx", `${floatSide * (120 + Math.random() * 60)}px`);
+      floatSide = -floatSide;
+    }
+    number.addEventListener("animationend", () => number.remove(), { once: true });
+    stage.append(number);
+  }
+  while (stage.childElementCount > FLOAT_LIMIT) {
+    stage.firstElementChild.remove();
+  }
+}
+
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) {
+    node.className = className;
+  }
+  if (text !== undefined) {
+    node.textContent = text;
+  }
+  return node;
+}
+
+/** An 18 px cell holding the icon, kept empty without one so the rows stay aligned. */
+function iconSlot(id) {
+  const slot = element("span", "slot");
+  const icon = iconImage(id);
+  if (icon) {
+    slot.append(icon);
+  }
+  return slot;
+}
+
+function entryName(entry) {
+  return entry.rank === null ? entry.spell : `${entry.spell} (rank ${entry.rank})`;
+}
+
+/** The rotation's `cast_if` entries, in file order. */
+function renderEntries() {
+  $("entries-count").textContent = String(info.cast_if.length);
+  $("entries-list").replaceChildren(...info.cast_if.map((entry) => {
+    const item = element("li", entry.skipped === null ? "entry" : "entry skipped");
+    item.dataset.position = String(entry.position);
+    const name = entry.skipped === null ? entryName(entry) : `${entryName(entry)} — ${entry.skipped}`;
+    item.append(
+      element("span", "position", `#${entry.position}`),
+      iconSlot(entry.icon),
+      element("span", "spell", name),
+      element("pre", "condition", entry.condition ?? "no condition"),
+    );
+    item.title = name;
+    return item;
+  }));
+  $("decisions").replaceChildren();
+}
+
+/** What decided a cast: the condition of the entry that returned true, or how it was cast. */
+function decidedBy(decision) {
+  if (decision.by !== "entry") {
+    return decision.by;
+  }
+  return info.cast_if[decision.entry - 1].condition ?? "no condition";
+}
+
+/** Flashes the icon of each spell the rotation cast in the spells bar. */
+function flashCasts(decisions) {
+  for (const decision of decisions) {
+    flashTile(decision.spell, "cast");
+  }
+}
+
+/**
+ * Flashes the icons of `spell` in the spells bar with `kind` (`cast` or `failed`): its own,
+ * and those of the macros casting it.
+ */
+function flashTile(spell, kind) {
+  const views = tileViews.get($("spells"));
+  for (const name of castBy.get(spell) || [spell]) {
+    const view = views && views.get(name);
+    if (view) {
+      // Restart the animation when it flashes again before it ended.
+      view.root.classList.remove("cast", "failed");
+      void view.root.offsetWidth;
+      view.root.classList.add(kind);
+    }
+  }
+}
+
+let inputErrorTimer = null;
+
+/** A key press that could not cast: why, for 2 s, and a red flash of its icon. */
+function showInputError(error) {
+  if (!error) {
+    return;
+  }
+  const text = $("input-error");
+  text.textContent = error.reason;
+  text.title = error.spell;
+  text.classList.remove("gone");
+  clearTimeout(inputErrorTimer);
+  inputErrorTimer = setTimeout(() => text.classList.add("gone"), 2000);
+  flashTile(error.spell, "failed");
+}
+
+function addDecisions(decisions) {
+  if (decisions.length === 0) {
+    return;
+  }
+  const list = $("decisions");
+  for (const decision of decisions) {
+    const item = element("li", "decision");
+    const name = element("span", "spell", decision.spell);
+    if (decision.entry !== null) {
+      name.append(element("span", "position", `#${decision.entry}`));
+    }
+    item.append(
+      element("span", "when", clock(decision.time)),
+      iconSlot(decision.icon),
+      name,
+      element("pre", "condition", decidedBy(decision)),
+    );
+    list.prepend(item);
+  }
+  while (list.childElementCount > DECISION_LIMIT) {
+    list.lastElementChild.remove();
+  }
+  for (const item of list.querySelectorAll(".newest")) {
+    item.classList.remove("newest");
+  }
+  list.firstElementChild.classList.add("newest");
+  list.scrollTop = 0;
+
+  const latest = decisions.findLast((decision) => decision.entry !== null);
+  if (latest) {
+    const entries = $("entries-list");
+    for (const item of entries.children) {
+      const isLatest = item.dataset.position === String(latest.entry);
+      item.classList.toggle("latest", isLatest);
+      if (isLatest && $("entries").open) {
+        scrollIntoList(entries, item);
+      }
+    }
+  }
+}
+
+/** Scrolls `list` (only it, never the page) just enough to show `item`. */
+function scrollIntoList(list, item) {
+  // The list is positioned, so offsetTop is relative to it.
+  const top = item.offsetTop;
+  const bottom = top + item.offsetHeight;
+  if (top < list.scrollTop) {
+    list.scrollTop = top;
+  } else if (bottom > list.scrollTop + list.clientHeight) {
+    list.scrollTop = bottom - list.clientHeight;
+  }
+}
+
+function setPlaying(on) {
+  playing = on && !(frame && frame.done);
+  $("play").textContent = playing ? "Pause" : "Play";
+  $("stage").classList.toggle("paused", !playing);
+  lastWall = null;
+  if (!playing && frame) {
+    renderBreakdown(frame);
+    renderBuffUptimes(frame);
+  }
+}
+
+/** `m:ss.mmm`, negative before the pull. */
+function clock(time) {
+  const sign = time < 0 ? "-" : "";
+  const ms = Math.round(Math.abs(time) * 1000);
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const millis = ms % 1000;
+  return `${sign}${minutes}:${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
+}
+
+function seconds(left) {
+  return left > 0 ? `${left.toFixed(1)} s` : "";
+}
+
+function fill(id, fraction, color) {
+  const bar = $(id);
+  bar.style.width = `${Math.max(0, Math.min(1, fraction)) * 100}%`;
+  if (color) {
+    bar.style.background = color;
+  }
+}
+
+function swing(prefix, timer, time) {
+  const span = timer.next - timer.last;
+  const started = span > 0 && time >= 0;
+  fill(`${prefix}-fill`, started ? (time - timer.last) / span : 0);
+  $(`${prefix}-value`).textContent = started ? seconds(timer.next - time) : "";
+}
+
+/** An 18 px icon of `/icons/<id>.png`; null without an icon or when the server has none. */
+/**
+ * The breakdown's columns: a heading, the cell of a row (`time` is the combat so far) and
+ * whether it is shown although every row is 0 there.
+ */
+const BREAKDOWN_COLUMNS = [
+  { name: "Damage", cell: (row, time) => Math.round(row.dps * time).toLocaleString("en-US") },
+  { name: "Share", cell: (row) => shareCell(row.damage_share) },
+  { name: "DPS", cell: (row) => row.dps.toFixed(1) },
+  { name: "Casts", cell: (row) => String(Math.round(row.casts)) },
+  { name: "Min", cell: (row) => row.min_hit ?? "" },
+  { name: "Max", cell: (row) => row.max_hit ?? "" },
+  { name: "DPR", cell: (row) => row.damage_per_resource?.toFixed(1) ?? "",
+    key: "damage_per_resource" },
+  { name: "Hit", cell: (row) => percent(row.hit), key: "hit" },
+  { name: "Crit", cell: (row) => percent(row.crit), key: "crit" },
+  { name: "Glance", cell: (row) => percent(row.glance), key: "glance" },
+  { name: "Miss", cell: (row) => percent(row.miss), key: "miss" },
+  { name: "Dodge", cell: (row) => percent(row.dodge), key: "dodge" },
+  { name: "Parry", cell: (row) => percent(row.parry), key: "parry" },
+  { name: "Block", cell: (row) => percent(row.block), key: "block" },
+  { name: "Resist", cell: (row) => percent(row.resist), key: "resist" },
+];
+
+function percent(share) {
+  return `${(share * 100).toFixed(1)}%`;
+}
+
+function shareCell(share) {
+  const cell = document.createElement("span");
+  cell.className = "share";
+  const bar = document.createElement("span");
+  bar.className = "share-bar";
+  const fill = document.createElement("div");
+  fill.style.width = `${(share * 100).toFixed(1)}%`;
+  bar.append(fill);
+  cell.append(percent(share), bar);
+  return cell;
+}
+
+/**
+ * The damage so far per spell, by damage: a row each, its outcome rows below it when expanded
+ * (a click on it), and the total. A column only some spells have (`key`) shows when one does.
+ */
+function renderBreakdown(next) {
+  const rows = next.breakdown;
+  const time = next.time;
+  $("breakdown-empty").hidden = rows.length > 0;
+  $("breakdown").hidden = rows.length === 0;
+  const columns = BREAKDOWN_COLUMNS.filter((column) => !column.key ||
+    rows.some((row) => row[column.key]));
+  const heading = $("breakdown").tHead.rows[0];
+  const names = ["Spell", ...columns.map((column) => column.name)];
+  if (heading.textContent !== names.join("")) {
+    heading.replaceChildren(...names.map((name) => {
+      const th = document.createElement("th");
+      th.textContent = name;
+      return th;
+    }));
+  }
+  const line = (row, part) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const label = document.createElement("span");
+    label.className = "name";
+    if (part) {
+      tr.className = "part";
+      label.append(row.name);
+    } else {
+      const plain = row.name.replace(/ \(rank \d+\)$/, "");
+      const expander = document.createElement("span");
+      expander.className = "expander";
+      if (row.breakdown?.length) {
+        tr.className = "expandable";
+        tr.dataset.spell = row.name;
+        expander.textContent = expanded.has(row.name) ? "▼" : "▶";
+      }
+      const slot = document.createElement("span");
+      slot.className = "slot";
+      // The statistics name the swings and off-hand strikes otherwise than the damage does.
+      const iconName = { "Mainhand Attack": "Main hand", "Offhand Attack": "Off hand" }[plain]
+        ?? plain.replace(/ Off-Hand$/, "");
+      const icon = iconImage(iconsByName.get(iconName) ?? null);
+      if (icon) {
+        slot.append(icon);
+      }
+      label.append(expander, slot, plain);
+      label.title = row.name;
+    }
+    name.append(label);
+    tr.append(name, ...columns.map((column) => {
+      const td = document.createElement("td");
+      td.append(column.cell(row, time));
+      return td;
+    }));
+    return tr;
+  };
+  const body = [];
+  for (const row of rows) {
+    body.push(line(row, false));
+    if (expanded.has(row.name)) {
+      body.push(...(row.breakdown || []).map((part) => line(part, true)));
+    }
+  }
+  $("breakdown").tBodies[0].replaceChildren(...body);
+  const total = document.createElement("tr");
+  const totalDamage = rows.reduce((sum, row) => sum + row.dps * time, 0);
+  total.append(...["Total", ...columns.map((column) => column.name === "Damage"
+    ? Math.round(totalDamage).toLocaleString("en-US")
+    : column.name === "DPS" ? (time > 0 ? totalDamage / time : 0).toFixed(1) : "")]
+    .map((text) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      return td;
+    }));
+  $("breakdown").tFoot.replaceChildren(total);
+}
+
+/** The buffs' uptimes so far: the share of the combat, shortest and longest application. */
+function renderBuffUptimes(next) {
+  const rows = next.buff_uptimes;
+  $("buff-uptimes-empty").hidden = rows.length > 0;
+  $("buff-uptimes").hidden = rows.length === 0;
+  const seconds = (value) => value > 0 ? `${value.toFixed(1)} s` : "";
+  $("buff-uptimes").tBodies[0].replaceChildren(...rows.map((row) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const label = document.createElement("span");
+    label.className = "name";
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    const icon = iconImage(row.icon);
+    if (icon) {
+      slot.append(icon);
+    }
+    label.append(slot, row.name);
+    if (row.debuff) {
+      const tag = document.createElement("span");
+      tag.className = "debuff-tag";
+      tag.textContent = "debuff";
+      label.append(tag);
+    }
+    name.append(label);
+    const cells = [shareCell(row.uptime), seconds(row.shortest_seconds),
+      seconds(row.longest_seconds)].map((content) => {
+      const td = document.createElement("td");
+      td.append(content);
+      return td;
+    });
+    tr.append(name, ...cells);
+    return tr;
+  }));
+}
+
+$("breakdown").tBodies[0].addEventListener("click", (event) => {
+  const row = event.target instanceof Element && event.target.closest("tr.expandable");
+  if (!row) {
+    return;
+  }
+  const spell = row.dataset.spell;
+  if (!expanded.delete(spell)) {
+    expanded.add(spell);
+  }
+  if (frame) {
+    renderBreakdown(frame);
+  }
+});
+
+function iconImage(id) {
+  if (id === null || missingIcons.has(id)) {
+    return null;
+  }
+  const image = document.createElement("img");
+  image.className = "icon";
+  image.alt = "";
+  image.width = 18;
+  image.height = 18;
+  image.src = `/icons/${id}.png`;
+  image.addEventListener("error", () => {
+    missingIcons.add(id);
+    image.remove();
+  }, { once: true });
+  return image;
+}
+
+function setText(element, text) {
+  if (element.textContent !== text) {
+    element.textContent = text;
+  }
+}
+
+/** `name`, or `name#2`, `name#3`... for the repeats: a key per tile. */
+function keyed(items) {
+  const seen = new Map();
+  return items.map((item) => {
+    const count = (seen.get(item.name) || 0) + 1;
+    seen.set(item.name, count);
+    return { ...item, key: count === 1 ? item.name : `${item.name}#${count}` };
+  });
+}
+
+function render() {
+  if (!info || !frame) {
+    return;
+  }
+  const time = simTime;
+  const state = frame.state;
+  $("clock").textContent = clock(time);
+  fill("timeline-fill", (time - info.start_at) / (info.end_at - info.start_at));
+
+  const resource = state.resource;
+  fill("player-power", resource.current / resource.max,
+    `var(${RESOURCE_COLORS[resource.kind] || "--accent"})`);
+  setText($("player-power-value"), `${resource.current} | ${resource.max}`);
+  $("player-frame").title = `${resource.kind} ${resource.current} / ${resource.max}`;
+  setText($("player-name"), info.name);
+  // The stance (or form) in effect: its spells need it.
+  setText($("player-stance"), state.stance ? state.stance.replace(/ (Stance|Form)$/, "") : "");
+  fill("player-health", 1, CLASS_COLORS[info.class] || "var(--health)");
+  // Nothing damages the target but the clock: full until the pull, empty at the end.
+  const health = time <= 0 ? 1 : Math.max(0, 1 - time / info.end_at);
+  fill("target-health", health);
+  // Rounded up (0.0% only when dead), past float noise like 0.30000000000000004.
+  setText($("target-percent"), `${(Math.ceil(health * 1000 - 1e-9) / 10).toFixed(1)}%`);
+  // The sim knows when the target dies: the end of the encounter.
+  const toDeath = Math.max(0, info.end_at - Math.max(0, time));
+  setText($("target-ttd"), `${Math.floor(toDeath / 60)}:${String(Math.floor(toDeath % 60)).padStart(2, "0")}`);
+
+  $("pips").hidden = state.combo_points === null;
+  if (state.combo_points !== null) {
+    const pips = $("pips");
+    if (pips.childElementCount !== 5) {
+      pips.replaceChildren(...Array.from({ length: 5 }, () => {
+        const pip = document.createElement("span");
+        pip.className = "pip";
+        return pip;
+      }));
+    }
+    [...pips.children].forEach((pip, i) => pip.classList.toggle("on", i < state.combo_points));
+    $("pips").title = `${state.combo_points} combo points`;
+  }
+
+  const gcdLeft = state.gcd_end - time;
+  swing("mh", state.mainhand, time);
+  $("oh-row").hidden = state.offhand === null;
+  if (state.offhand !== null) {
+    swing("oh", state.offhand, time);
+  }
+
+  // A fixed order: the shortest base cooldown first, then by name (the keybinds' order
+  // from the keyboard, as the server sends them).
+  const cooldowns = keyed(state.rotation_spells).map((cooldown) => ({
+    ...cooldown,
+    left: cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time),
+  }));
+  if (!info.manual) {
+    cooldowns.sort((a, b) => (a.duration ?? 0) - (b.duration ?? 0) || a.name.localeCompare(b.name));
+  }
+  const gcd = Math.max(0, gcdLeft);
+  renderTiles($("spells"), cooldowns.map((cooldown) => cooldownTile(cooldown, gcd, state.gcd)));
+
+  // The buffs running out first, the ones without a duration last.
+  const buffs = [...state.buffs].sort((a, b) =>
+    (a.expires_at ?? Infinity) - (b.expires_at ?? Infinity));
+  renderTiles($("buffs"), keyed(buffs).map((buff) => buffTile(buff, time)));
+  // The debuffs in the server's order: the sim's own, then the setup's.
+  renderTiles($("debuffs"), keyed(state.debuffs).map((debuff) =>
+    ({ ...buffTile(debuff, time), debuff: true })), false);
+}
+
+/** The tile of a buff or debuff: the part of its duration gone swept dark. */
+function buffTile(buff, time) {
+  const left = buff.expires_at === null ? null : Math.max(0, buff.expires_at - time);
+  const stacks = buff.stacks > 1 ? ` ×${buff.stacks}` : "";
+  const charges = buff.charges > 0 ? ` (${buff.charges} charges)` : "";
+  return {
+    key: buff.key,
+    name: buff.name + stacks + charges,
+    icon: buff.icon,
+    sweep: left === null ? "none" : elapsedSweep(1 - left / buff.duration),
+    left: left === null ? "" : tileSeconds(left),
+    count: buff.stacks > 1 ? String(buff.stacks) : buff.charges > 0 ? String(buff.charges) : "",
+  };
+}
+
+/**
+ * The tile of a spell with `left` seconds of cooldown: a spell that waits for the global
+ * cooldown is swept for it while it ends later.
+ */
+function cooldownTile(cooldown, gcdLeft, gcd) {
+  const gcdLater = cooldown.on_gcd && gcdLeft > cooldown.left;
+  const fraction = gcdLater ? gcdLeft / gcd
+    : cooldown.duration > 0 ? cooldown.left / cooldown.duration : 0;
+  return {
+    key: cooldown.key,
+    name: cooldown.name,
+    title: macroTitles.get(cooldown.name),
+    icon: cooldown.icon,
+    sweep: remainingSweep(fraction),
+    left: cooldown.left > 0 && !gcdLater ? tileSeconds(cooldown.left) : "",
+    count: "",
+    hotkey: hotkeys.has(cooldown.name) ? shortBinding(hotkeys.get(cooldown.name)) : "",
+  };
+}
+
+/** A binding as the game's hotkey labels: `Ctrl+Shift+Alt+E` as `csa-E`, `Numpad1` as `N1`. */
+function shortBinding(binding) {
+  const parts = binding.split("+");
+  const key = parts.pop()
+    .replace(/^Numpad/, "N")
+    .replace(/^Arrow/, "")
+    .replace("Space", "Spc")
+    .replace("Backquote", "`")
+    .replace("Minus", "-")
+    .replace("Equal", "=");
+  const modifiers = parts.map((modifier) => modifier[0].toLowerCase()).join("");
+  return modifiers ? `${modifiers}-${key}` : key;
+}
+
+/** A cooldown's sweep: the part still to come dark, clearing clockwise from 12 o'clock. */
+function remainingSweep(fraction) {
+  const clear = (1 - Math.max(0, Math.min(1, fraction))) * 360;
+  return fraction > 0
+    ? `conic-gradient(transparent ${clear}deg, rgba(0, 0, 0, 0.7) ${clear}deg)`
+    : "none";
+}
+
+/** A buff's sweep: the part gone dark, growing clockwise from 12 o'clock. */
+function elapsedSweep(fraction) {
+  const dark = Math.max(0, Math.min(1, fraction)) * 360;
+  return fraction > 0
+    ? `conic-gradient(rgba(0, 0, 0, 0.7) ${dark}deg, transparent ${dark}deg)`
+    : "none";
+}
+
+/** The tiles of each container, by key: kept from frame to frame so icons are not reloaded. */
+const tileViews = new Map();
+
+/**
+ * Shows `items` ({key, name, title?, icon, sweep, left, count, hotkey?}) as the icon tiles of
+ * `container`.
+ */
+function renderTiles(container, items, showEmpty = true) {
+  let views = tileViews.get(container);
+  if (!views) {
+    views = new Map();
+    tileViews.set(container, views);
+  }
+  const keys = new Set(items.map((item) => item.key));
+  for (const [key, view] of views) {
+    if (!keys.has(key)) {
+      view.root.remove();
+      views.delete(key);
+    }
+  }
+  const empty = container.querySelector(".empty");
+  if (items.length === 0) {
+    if (!empty && showEmpty) {
+      container.append(element("div", "empty", "None"));
+    }
+    return;
+  }
+  if (empty) {
+    empty.remove();
+  }
+  items.forEach((item, index) => {
+    let view = views.get(item.key);
+    if (!view) {
+      view = tile(item);
+      views.set(item.key, view);
+    }
+    if (container.children[index] !== view.root) {
+      container.insertBefore(view.root, container.children[index] || null);
+    }
+    const title = item.title || item.name;
+    if (view.root.title !== title) {
+      view.root.title = title;
+    }
+    view.root.classList.toggle("debuff", item.debuff === true);
+    if (view.sweepValue !== item.sweep) {
+      view.sweepValue = item.sweep;
+      view.sweep.style.background = item.sweep;
+    }
+    setText(view.left, item.left);
+    setText(view.count, item.count);
+    setText(view.hotkey, item.hotkey || "");
+  });
+}
+
+function tile(item) {
+  const root = element("div", "tile");
+  const image = iconImage(item.icon);
+  const initials = element("span", "initials",
+    item.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 3));
+  if (image) {
+    image.addEventListener("error", () => root.prepend(initials), { once: true });
+    root.append(image);
+  } else {
+    root.append(initials);
+  }
+  const sweep = element("div", "sweep");
+  const left = element("span", "left");
+  const count = element("span", "count");
+  const hotkey = element("span", "hotkey");
+  root.append(sweep, left, count, hotkey);
+  return { root, sweep, left, count, hotkey, sweepValue: null };
+}
+
+/** Whole seconds from 10 s up, tenths below. */
+function tileSeconds(left) {
+  return left >= 10 ? String(Math.ceil(left)) : left.toFixed(1);
+}
+
+function tick(now) {
+  if (playing && info) {
+    if (lastWall !== null) {
+      simTime = Math.min(simTime + ((now - lastWall) / 1000) * speed, info.end_at);
+    }
+    lastWall = now;
+    if (!advancing && frame && simTime > frame.time) {
+      advancing = true;
+      const to = simTime;
+      enqueue(async () => apply(await api("POST", "/api/advance", { to })))
+        .finally(() => { advancing = false; });
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+$("play").addEventListener("click", () => setPlaying(!playing));
+$("speed").addEventListener("change", (event) => { speed = Number(event.target.value); });
+
+/** A key press as a binding, `Ctrl+Shift+Alt+KEY` (as the server normalises them). */
+function pressedBinding(event) {
+  const key = event.code.replace(/^Key/, "").replace(/^Digit/, "");
+  const modifiers = [event.ctrlKey && "Ctrl", event.shiftKey && "Shift", event.altKey && "Alt"];
+  return [...modifiers.filter(Boolean), key].join("+");
+}
+
+// From the keyboard: a press of a bound key casts its spell at the time shown.
+document.addEventListener("keydown", (event) => {
+  const inForm = event.target instanceof Element && event.target.closest("select, input");
+  if (!info || !info.manual || event.repeat || inForm) {
+    return;
+  }
+  // A spell's name, or a macro's.
+  const spell = bindings.get(pressedBinding(event));
+  if (spell === undefined) {
+    return;
+  }
+  event.preventDefault();
+  const at = simTime;
+  enqueue(async () => apply(await api("POST", "/api/cast", { spell, at })));
+});
+$("step-event").addEventListener("click", () => step("event"));
+$("step-cast").addEventListener("click", () => step("cast"));
+$("restart").addEventListener("click", () => restart(info ? info.seed : null));
+$("reseed").addEventListener("click", () => restart(null));
+
+// A fresh start of the server's iteration, whatever an earlier page left of it.
+api("GET", "/api/info").then((current) => restart(current.seed), fail);
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

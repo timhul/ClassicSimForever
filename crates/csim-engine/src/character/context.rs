@@ -1750,10 +1750,16 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if self.character.regen_wake().is_some_and(|at| at <= now) {
             return;
         }
+        let manual = self.character.manual_input();
         let wake = match (
             self.character.resource().as_energy(),
             self.character.rotation(),
         ) {
+            // Played by input: every tick that gains energy while a spell is queued.
+            (Some(energy), _) if manual => self.character.queued_input().and_then(|_| {
+                let after_now = self.character.last_regen_reaction() == now;
+                energy.next_reaction(now, after_now, now, PLAYER_REACTION_DELAY)
+            }),
             (Some(energy), Some(rotation)) if now >= 0.0 => {
                 let not_before = match self.character.regen_reactions() {
                     RegenReactions::EveryTick => now,
@@ -2108,13 +2114,14 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Logs a change of a visible aura that is not a passive's; a debuff is on the target.
+    /// Logs a change of a visible aura that is not a passive's or a sim-only marker's; a debuff
+    /// is on the target.
     fn log_aura(&mut self, id: BuffId, change: AuraChange) {
         if !self.engine.is_logging() {
             return;
         }
         let buff = self.buff_ref(id);
-        if buff.is_hidden() || buff.is_passive() {
+        if buff.is_hidden() || buff.is_passive() || !buff.is_in_combat_log() {
             return;
         }
         let debuff = buff.is_debuff();
@@ -2249,6 +2256,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Evaluate player action according to current rotation.
     /// This is a no-op before combat start (T < 0).
     pub fn perform_rotation(&mut self) {
+        if self.character.manual_input() {
+            self.perform_input();
+            return;
+        }
         if self.now() < 0.0 {
             return;
         }
@@ -2258,10 +2269,87 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells.
+    /// Casts the queued input ([`Character::queue_input`]) if it can be cast now; drops it
+    /// when waiting cannot help or its time is up ([`Character::take_input_failure`]). Also
+    /// before the pull: the player may act before it.
+    fn perform_input(&mut self) {
+        let Some(input) = self.character.queued() else {
+            return;
+        };
+        let (until, is_macro) = (input.until, input.is_macro);
+        let now = self.now();
+        loop {
+            let Some(input) = self.character.queued() else {
+                return;
+            };
+            let Some(&spell) = input.spells.get(input.next) else {
+                // A macro through its entries: nothing cast reports why.
+                match input.first_failure {
+                    Some((spell, status)) if !input.cast_any => {
+                        self.character.fail_queued_input(spell, status);
+                    }
+                    _ => self.character.clear_queued_input(),
+                }
+                return;
+            };
+            let status = self.character.spells.spell(spell).status(self);
+            if now > until {
+                // Too late, even if usable by now: why it had to wait.
+                let waited_on = if status.is_available() {
+                    self.character.input_waiting_on()
+                } else {
+                    status
+                };
+                self.character.fail_queued_input(spell, waited_on);
+                return;
+            }
+            if status.is_available() {
+                let ends = self.character.spells.spell(spell).triggers_gcd();
+                let input = self.character.queued_mut().expect("queued");
+                input.next += 1;
+                input.cast_any = true;
+                if ends {
+                    // The global cooldown it starts ends a macro: nothing after it fires.
+                    self.character.clear_queued_input();
+                }
+                self.cast(spell);
+                if let Some(rotation) = self.character.rotation_mut() {
+                    rotation.record_input(now, spell);
+                }
+                continue;
+            }
+            let waits = if is_macro {
+                matches!(
+                    status,
+                    SpellStatus::OnGcd
+                        | SpellStatus::OnStanceCooldown
+                        | SpellStatus::CastInProgress
+                )
+            } else {
+                status.passes_with_time()
+            };
+            if waits {
+                self.character.set_input_waiting_on(status);
+                return;
+            }
+            if !is_macro {
+                self.character.fail_queued_input(spell, status);
+                return;
+            }
+            // A macro skips what it cannot cast.
+            let input = self.character.queued_mut().expect("queued");
+            input.first_failure.get_or_insert((spell, status));
+            input.next += 1;
+        }
+    }
+
+    /// Casts the rotation's precombat spells (none for a character played by input).
     /// Expected to run at T < 0, but not strictly enforced.
     pub fn run_precombat_actions(&mut self) {
-        if let Some(rotation) = self.character.take_rotation() {
+        if self.character.manual_input() {
+            return;
+        }
+        if let Some(mut rotation) = self.character.take_rotation() {
             rotation.run_precombat_actions(self);
             self.character.put_rotation(Some(rotation));
         }
@@ -2340,6 +2428,10 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
 }
 
 impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
+    fn now(&self) -> f64 {
+        self.engine.current_time()
+    }
+
     fn spell_by_name(&self, name: &str, rank: u32) -> Option<SpellId> {
         self.spell_rank_by_name(name, rank)
     }
@@ -2711,12 +2803,20 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         }
     }
 
-    fn queue_next_swing(&mut self, spell: SpellId) {
-        self.character.spells_mut().queue_next_swing(spell);
+    fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
+        if self.character.spells().queued_next_swing() != Some(spell) {
+            // Cleave replacing a queued Heroic Strike.
+            SpellHost::cancel_next_swing(self);
+        }
+        self.character.spells_mut().queue_next_swing(spell, marker);
     }
 
     fn cancel_next_swing(&mut self) {
+        let marker = self.character.spells().queued_next_swing_marker();
         self.character.spells_mut().cancel_next_swing();
+        if let Some(marker) = marker {
+            self.cancel_buff(marker);
+        }
     }
 
     fn queued_next_swing(&self) -> Option<SpellId> {

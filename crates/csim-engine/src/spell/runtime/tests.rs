@@ -65,7 +65,13 @@ fn construction_reads_the_record_and_validates_handles() {
     assert!(hs.is_on_next_swing() && !hs.triggers_gcd());
     assert_eq!(hs.resource_cost(&world), 15);
     assert_eq!(hs.threat_override().flat, 145.0);
-    assert!(hs.marker_buff().is_none());
+    // No aura, but a marker that is up while it is queued.
+    let marker = world.buff(hs.marker_buff().unwrap());
+    assert_eq!(marker.name(), "Heroic Strike");
+    assert_eq!(marker.kind(), BuffKind::SelfBuff);
+    assert!(marker.is_permanent() && marker.effects.is_empty());
+    assert!(!marker.is_hidden() && !marker.is_in_combat_log());
+    assert_eq!(marker.spell(), HEROIC_STRIKE);
 }
 
 #[test]
@@ -815,19 +821,25 @@ fn on_next_swing_spells_queue_and_fire_on_the_swing() {
     let mut world = World::new();
     world.learn(HEROIC_STRIKE);
     let id = world.spell_id(HEROIC_STRIKE);
+    let marker = world.spell(HEROIC_STRIKE).marker_buff().unwrap();
     assert!(!world.spell(HEROIC_STRIKE).is_queued(&world));
+    assert!(!world.buff(marker).is_active());
 
     let report = world.perform(HEROIC_STRIKE);
     assert!(report.queued);
+    assert!(matches!(report.buff, Some(BuffApplication::Applied { .. })));
     assert_eq!(world.rage, 100);
     assert!(!world.on_global_cooldown());
     assert!(world.spell(HEROIC_STRIKE).is_queued(&world));
+    assert!(world.buff(marker).is_active(), "up while queued");
     assert_eq!(world.spells.queued_next_swing(), Some(id));
+    assert_eq!(world.spells.queued_next_swing_marker(), Some(marker));
     assert_eq!(world.attack_log, vec!["queue"]);
 
     world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.with_spell(id, |spell, world| spell.perform_on_swing(world));
     assert!(!world.spell(HEROIC_STRIKE).is_queued(&world));
+    assert!(!world.buff(marker).is_active(), "down once the swing lands");
     let attack = report.attack.unwrap();
     assert_eq!(attack.damage, 411, "400 weapon + 11");
     assert_eq!(attack.threat, 411.0 + 145.0);
@@ -838,6 +850,15 @@ fn on_next_swing_spells_queue_and_fire_on_the_swing() {
     world.perform(HEROIC_STRIKE);
     world.with_spell(id, |spell, world| spell.cancel(world));
     assert_eq!(world.spells.queued_next_swing(), None);
+    assert!(!world.buff(marker).is_active());
+
+    // A cast that cancels the queue (Slam) ends the marker too.
+    world.learn(SLAM);
+    world.perform(HEROIC_STRIKE);
+    assert!(world.buff(marker).is_active());
+    assert!(world.perform(SLAM).cast_started);
+    assert_eq!(world.spells.queued_next_swing(), None);
+    assert!(!world.buff(marker).is_active(), "Slam dropped the queue");
 }
 
 #[test]

@@ -10,6 +10,7 @@ spells:
   class_mask: 1
   attributes: [151322640, 268435456, 256, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132341
   duration_ms: -1
   power:
   - type: RAGE
@@ -40,6 +41,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132357
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -78,6 +80,7 @@ spells:
   acquire_method: 2
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -108,6 +111,7 @@ spells:
   class_mask: 1
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -141,6 +145,7 @@ spells:
   supercedes: 78
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -172,6 +177,7 @@ spells:
   supercedes: 284
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -202,6 +208,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132350
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -241,6 +248,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 9000
   range_yd: 5.0
   power:
@@ -278,6 +286,7 @@ spells:
   class_mask: 1
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   range_yd: 5.0
   power:
   - type: RAGE
@@ -308,6 +317,7 @@ spells:
   class_mask: 1
   attributes: [327696, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132362
   duration_ms: 12000
   power:
   - type: RAGE
@@ -345,6 +355,7 @@ spells:
   class_mask: 1
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   duration_ms: 45000
   power:
   - type: RAGE
@@ -381,6 +392,7 @@ spells:
   supercedes: 1240193
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -418,6 +430,7 @@ spells:
   supercedes: 285
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -449,6 +462,7 @@ spells:
   supercedes: 72
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132357
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -487,6 +501,7 @@ spells:
   supercedes: 1671
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132357
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -522,6 +537,7 @@ spells:
   class_mask: 1
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132369
   power:
   - type: RAGE
     cost: 250
@@ -558,6 +574,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132316
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -592,6 +609,7 @@ spells:
   class_mask: 1
   attributes: [327696, 229376, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132109
   duration_ms: 15000
   power:
   - type: RAGE
@@ -631,6 +649,7 @@ spells:
   acquire_method: 2
   attributes: [151322640, 2415919104, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 32768, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132349
   duration_ms: -1
   power:
   - type: RAGE
@@ -661,6 +680,7 @@ spells:
   class_mask: 1
   attributes: [151322640, 268435456, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132275
   duration_ms: -1
   power:
   - type: RAGE
@@ -691,6 +711,7 @@ spells:
   class_mask: 1
   attributes: [327696, 0, 0, 2, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132110
   duration_ms: 7000
   power:
   - type: RAGE
@@ -725,6 +746,7 @@ spells:
   class_mask: 1
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132277
   power:
   - type: HEALTH
     cost_pct: 20.0
@@ -756,6 +778,7 @@ spells:
   supercedes: 6673
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -789,6 +812,7 @@ spells:
   class_mask: 1
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 5.0
   power:
   - type: RAGE
@@ -831,6 +855,7 @@ spells:
   supercedes: 100
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -864,6 +889,7 @@ spells:
   supercedes: 1160
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   duration_ms: 45000
   power:
   - type: RAGE
@@ -900,6 +926,7 @@ spells:
   supercedes: 5242
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -933,6 +960,7 @@ spells:
   class_mask: 1
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 10000
   power:
   - type: RAGE
@@ -974,6 +1002,7 @@ spells:
   supercedes: 772
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 12000
   range_yd: 5.0
   power:
@@ -1012,6 +1041,7 @@ spells:
   supercedes: 6546
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1050,6 +1080,7 @@ spells:
   supercedes: 6547
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -1087,6 +1118,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132938
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -1122,6 +1154,7 @@ spells:
   supercedes: 6552
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132938
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -1156,6 +1189,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1196,6 +1230,7 @@ spells:
   supercedes: 6572
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1235,6 +1270,7 @@ spells:
   class_mask: 1
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -1269,6 +1305,7 @@ spells:
   supercedes: 845
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1301,6 +1338,7 @@ spells:
   supercedes: 1715
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132316
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1337,6 +1375,7 @@ spells:
   supercedes: 7372
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132316
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1371,6 +1410,7 @@ spells:
   class_mask: 1
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132341
   levels:
     base: 10
     spell: 10
@@ -1407,6 +1447,7 @@ spells:
   supercedes: 6574
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1445,6 +1486,7 @@ spells:
   class_mask: 1
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132275
   power:
   - type: RAGE
   levels:
@@ -1484,6 +1526,7 @@ spells:
   class_mask: 1
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
+  icon: 132223
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1522,6 +1565,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1565,6 +1609,7 @@ spells:
   supercedes: 694
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132350
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -1605,6 +1650,7 @@ spells:
   supercedes: 7400
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132350
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -1645,6 +1691,7 @@ spells:
   supercedes: 7386
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1688,6 +1735,7 @@ spells:
   supercedes: 7384
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
+  icon: 132223
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1727,6 +1775,7 @@ spells:
   supercedes: 6343
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 14000
   power:
   - type: RAGE
@@ -1768,6 +1817,7 @@ spells:
   supercedes: 8198
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 18000
   power:
   - type: RAGE
@@ -1809,6 +1859,7 @@ spells:
   supercedes: 8204
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 22000
   power:
   - type: RAGE
@@ -1850,6 +1901,7 @@ spells:
   supercedes: 7405
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1893,6 +1945,7 @@ spells:
   supercedes: 1464
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -1930,6 +1983,7 @@ spells:
   supercedes: 6192
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -1964,6 +2018,7 @@ spells:
   supercedes: 11549
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -1998,6 +2053,7 @@ spells:
   supercedes: 11550
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -2032,6 +2088,7 @@ spells:
   supercedes: 6190
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2068,6 +2125,7 @@ spells:
   supercedes: 11554
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2104,6 +2162,7 @@ spells:
   supercedes: 11555
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2140,6 +2199,7 @@ spells:
   supercedes: 1608
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2171,6 +2231,7 @@ spells:
   supercedes: 11564
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2202,6 +2263,7 @@ spells:
   supercedes: 11565
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2233,6 +2295,7 @@ spells:
   supercedes: 11566
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2264,6 +2327,7 @@ spells:
   supercedes: 6548
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2302,6 +2366,7 @@ spells:
   supercedes: 11572
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2340,6 +2405,7 @@ spells:
   supercedes: 11573
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2378,6 +2444,7 @@ spells:
   supercedes: 6178
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -2411,6 +2478,7 @@ spells:
   supercedes: 8205
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 26000
   power:
   - type: RAGE
@@ -2452,6 +2520,7 @@ spells:
   supercedes: 11580
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 136105
   duration_ms: 30000
   power:
   - type: RAGE
@@ -2493,6 +2562,7 @@ spells:
   supercedes: 7887
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
+  icon: 132223
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2532,6 +2602,7 @@ spells:
   supercedes: 11584
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
+  icon: 132223
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2571,6 +2642,7 @@ spells:
   supercedes: 8380
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2614,6 +2686,7 @@ spells:
   supercedes: 11596
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2657,6 +2730,7 @@ spells:
   supercedes: 7379
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2697,6 +2771,7 @@ spells:
   supercedes: 11600
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2737,6 +2812,7 @@ spells:
   supercedes: 8820
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -2774,6 +2850,7 @@ spells:
   supercedes: 11604
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -2811,6 +2888,7 @@ spells:
   supercedes: 7369
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2843,6 +2921,7 @@ spells:
   supercedes: 11608
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2871,6 +2950,7 @@ spells:
   name: Deep Wounds
   attributes: [262544, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132090
   range_yd: 50000.0
   categories:
     mechanic: BLEED
@@ -2887,6 +2967,7 @@ spells:
   skill_line: 26
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132400
   levels:
     base: 1
     spell: 1
@@ -2907,6 +2988,7 @@ spells:
   skill_line: 26
   attributes: [400, 16, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135328
   duration_ms: -1
   levels:
     base: 1
@@ -2931,6 +3013,7 @@ spells:
   skill_line: 26
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   levels:
     base: 1
     spell: 1
@@ -2951,6 +3034,7 @@ spells:
   skill_line: 26
   attributes: [400, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 133476
   duration_ms: -1
   levels:
     base: 1
@@ -2971,6 +3055,7 @@ spells:
   skill_line: 26
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   levels:
     base: 1
     spell: 1
@@ -2991,6 +3076,7 @@ spells:
   skill_line: 26
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132155
   levels:
     base: 1
     spell: 1
@@ -3011,6 +3097,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132326
   levels:
     base: 1
     spell: 1
@@ -3032,6 +3119,7 @@ spells:
   skill_line: 26
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132938
   levels:
     base: 1
     spell: 1
@@ -3053,6 +3141,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135275
   levels:
     base: 1
     spell: 1
@@ -3073,6 +3162,7 @@ spells:
   skill_line: 26
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132306
   duration_ms: 20000
   power:
   - type: RAGE
@@ -3104,6 +3194,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132355
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -3138,6 +3229,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136031
   levels:
     base: 1
     spell: 1
@@ -3156,6 +3248,7 @@ spells:
   skill_line: 26
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135881
   levels:
     base: 1
     spell: 1
@@ -3188,6 +3281,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136056
   levels:
     base: 1
     spell: 1
@@ -3205,6 +3299,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134952
   levels:
     base: 1
     spell: 1
@@ -3230,6 +3325,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135892
   levels:
     base: 1
     spell: 1
@@ -3252,6 +3348,7 @@ spells:
   skill_line: 257
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132277
   levels:
     base: 1
     spell: 1
@@ -3273,6 +3370,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136080
   levels:
     base: 1
     spell: 1
@@ -3294,6 +3392,7 @@ spells:
   skill_line: 257
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132110
   levels:
     base: 1
     spell: 1
@@ -3321,6 +3420,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132363
   levels:
     base: 1
     spell: 1
@@ -3341,6 +3441,7 @@ spells:
   skill_line: 257
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132362
   levels:
     base: 1
     spell: 1
@@ -3361,6 +3462,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132343
   levels:
     base: 1
     spell: 1
@@ -3381,6 +3483,7 @@ spells:
   skill_line: 256
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136224
   levels:
     spell: 1
   aura_options:
@@ -3398,6 +3501,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   levels:
     base: 1
     spell: 1
@@ -3418,6 +3522,7 @@ spells:
   skill_line: 256
   attributes: [262336, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132152
   levels:
     base: 1
     spell: 1
@@ -3437,6 +3542,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132292
   levels:
     base: 1
     spell: 1
@@ -3456,6 +3562,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136075
   levels:
     base: 1
     spell: 1
@@ -3477,6 +3584,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136097
   levels:
     base: 1
     spell: 1
@@ -3500,6 +3608,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   levels:
     base: 1
     spell: 1
@@ -3521,6 +3630,7 @@ spells:
   skill_line: 256
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132336
   levels:
     base: 1
     spell: 1
@@ -3541,6 +3651,7 @@ spells:
   skill_line: 256
   attributes: [201588752, 98304, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136146
   duration_ms: 30000
   power:
   - type: RAGE
@@ -3576,6 +3687,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   levels:
     base: 1
     spell: 1
@@ -3598,6 +3710,7 @@ spells:
   acquire_method: 3
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   levels:
     spell: 1
   aura_options:
@@ -3615,6 +3728,7 @@ spells:
   acquire_method: 3
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   levels:
     spell: 1
   aura_options:
@@ -3630,6 +3744,7 @@ spells:
   skill_line: 26
   attributes: [262544, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132397
   duration_ms: -1
   levels:
     base: 1
@@ -3651,6 +3766,7 @@ spells:
   skill_line: 26
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132938
   levels:
     base: 1
     spell: 1
@@ -3672,6 +3788,7 @@ spells:
   acquire_method: 3
   attributes: [262160, 0, 541065344, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132306
   range_yd: 100.0
   levels:
     base: 1
@@ -3690,6 +3807,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136080
   levels:
     base: 1
     spell: 1
@@ -3710,6 +3828,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 16, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132347
   shapeshift_mask: 131072
   levels:
     spell: 1
@@ -3729,6 +3848,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   levels:
     base: 1
     spell: 1
@@ -3751,6 +3871,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132090
   levels:
     base: 1
     spell: 1
@@ -3776,6 +3897,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   levels:
     base: 1
     spell: 1
@@ -3797,6 +3919,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   levels:
     base: 1
     spell: 1
@@ -3818,6 +3941,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   levels:
     base: 1
     spell: 1
@@ -3839,6 +3963,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   levels:
     base: 1
     spell: 1
@@ -3859,6 +3984,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   levels:
     base: 1
     spell: 1
@@ -3924,6 +4050,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   levels:
     base: 1
     spell: 1
@@ -3945,6 +4072,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   levels:
     base: 1
     spell: 1
@@ -3966,6 +4094,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   levels:
     base: 1
     spell: 1
@@ -3987,6 +4116,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132366
   levels:
     base: 1
     spell: 1
@@ -4006,6 +4136,7 @@ spells:
   name: Enrage
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136224
   duration_ms: 12000
   categories:
     category: 21
@@ -4026,6 +4157,7 @@ spells:
   skill_line: 256
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132336
   levels:
     base: 1
     spell: 1
@@ -4047,6 +4179,7 @@ spells:
   skill_line: 257
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132110
   levels:
     base: 1
     spell: 1
@@ -4075,6 +4208,7 @@ spells:
   skill_line: 257
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132110
   levels:
     base: 1
     spell: 1
@@ -4103,6 +4237,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135275
   levels:
     base: 1
     spell: 1
@@ -4123,6 +4258,7 @@ spells:
   skill_line: 256
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136097
   levels:
     base: 1
     spell: 1
@@ -4139,6 +4275,7 @@ spells:
   acquire_method: 3
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132152
   duration_ms: 15000
   levels:
     base: 1
@@ -4159,6 +4296,7 @@ spells:
   skill_line: 257
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135871
   cooldown:
     recovery_ms: 180000
   levels:
@@ -4179,6 +4317,7 @@ spells:
   acquire_method: 3
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135871
   duration_ms: 20000
   levels:
     spell: 1
@@ -4195,6 +4334,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132269
   labels: [25]
   description: Increases your Parry chance by $s1%.
   effects:
@@ -4209,6 +4349,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136218
   aura_options:
     proc_chance: 100
     proc_type_mask: 139960
@@ -4225,6 +4366,7 @@ spells:
   skill_line: 26
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132312
   class_options:
     set: 4
   labels: [25]
@@ -4243,6 +4385,7 @@ spells:
   skill_line: 257
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134950
   levels:
     base: 1
     spell: 1
@@ -4264,6 +4407,7 @@ spells:
   class_mask: 1
   attributes: [327696, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136009
   duration_ms: 10000
   power:
   - type: RAGE
@@ -4290,6 +4434,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132154
   class_options:
     set: 4
   labels: [25]
@@ -4309,6 +4454,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132154
   class_options:
     set: 4
   labels: [25]
@@ -4328,6 +4474,7 @@ spells:
   class_mask: 1
   attributes: [327696, 131072, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132336
   duration_ms: 15000
   power:
   - type: RAGE
@@ -4363,6 +4510,7 @@ spells:
   class_mask: 1
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132307
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4395,6 +4543,7 @@ spells:
   rank_text: Rank 1
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 135860
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4418,6 +4567,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136009
   aura_options:
     proc_chance: 100
     proc_type_mask: 87376
@@ -4441,6 +4591,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   class_options:
     set: 4
   labels: [25]
@@ -4459,6 +4610,7 @@ spells:
   skill_line: 256
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132307
   class_options:
     set: 4
   labels: [25]
@@ -4480,6 +4632,7 @@ spells:
   supercedes: 7402
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132350
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -4520,6 +4673,7 @@ spells:
   supercedes: 20559
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132350
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -4560,6 +4714,7 @@ spells:
   supercedes: 11609
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132338
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4589,6 +4744,7 @@ spells:
   rank_text: Rank 2
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 135860
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4612,6 +4768,7 @@ spells:
   rank_text: Rank 3
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 135860
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4638,6 +4795,7 @@ spells:
   supercedes: 20252
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132307
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4673,6 +4831,7 @@ spells:
   supercedes: 20616
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132307
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4707,6 +4866,7 @@ spells:
   acquire_method: 3
   attributes: [262160, 512, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 100.0
   power:
   - type: RAGE
@@ -4736,6 +4896,7 @@ spells:
   supercedes: 5308
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4778,6 +4939,7 @@ spells:
   supercedes: 20658
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4820,6 +4982,7 @@ spells:
   supercedes: 20660
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4862,6 +5025,7 @@ spells:
   supercedes: 20661
   attributes: [327952, 134218240, 0, 197632, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135358
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4902,6 +5066,7 @@ spells:
   class_mask: 1
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132349
   duration_ms: -1
   levels:
     spell: 1
@@ -4923,6 +5088,7 @@ spells:
   supercedes: 12294
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132355
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -4960,6 +5126,7 @@ spells:
   supercedes: 21551
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132355
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -4997,6 +5164,7 @@ spells:
   supercedes: 21552
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132355
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5032,6 +5200,7 @@ spells:
   class_mask: 1
   attributes: [448, 0, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132147
   aura_options:
     proc_chance: 100
     proc_type_mask: 8388612
@@ -5065,6 +5234,7 @@ spells:
   name: Master of Defense
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132359
   levels:
     base: 1
     spell: 1
@@ -5083,6 +5253,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136012
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5122,6 +5293,7 @@ spells:
   supercedes: 23881
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136012
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5161,6 +5333,7 @@ spells:
   supercedes: 23892
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136012
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5200,6 +5373,7 @@ spells:
   supercedes: 23893
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136012
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5238,6 +5412,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134951
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5275,6 +5450,7 @@ spells:
   supercedes: 23922
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134951
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5312,6 +5488,7 @@ spells:
   supercedes: 23923
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134951
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5349,6 +5526,7 @@ spells:
   supercedes: 23924
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134951
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5386,6 +5564,7 @@ spells:
   supercedes: 11567
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132282
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5417,6 +5596,7 @@ spells:
   supercedes: 11601
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132353
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5457,6 +5637,7 @@ spells:
   supercedes: 11551
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132333
   duration_ms: 180000
   power:
   - type: RAGE
@@ -5487,6 +5668,7 @@ spells:
   name: Execute
   attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135724
   duration_ms: 1000
   shapeshift_mask: 1
   class_options:
@@ -5504,6 +5686,7 @@ spells:
   name: Bloodrage
   attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132277
   duration_ms: 10000
   power:
   - type: HEALTH
@@ -5526,6 +5709,7 @@ spells:
   name: Focused Rage
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132345
   class_options:
     set: 4
   labels: [25]
@@ -5545,6 +5729,7 @@ spells:
   acquire_method: 3
   attributes: [327696, 134218240, 256, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132215
   range_yd: 5.0
   cooldown:
     recovery_ms: 8000
@@ -5584,6 +5769,7 @@ spells:
   acquire_method: 3
   attributes: [327696, 0, 256, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132175
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -5614,6 +5800,7 @@ spells:
   class_mask: 1
   attributes: [327696, 512, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132342
   range_yd: 5.0
   cooldown:
     recovery_ms: 30000
@@ -5653,6 +5840,7 @@ spells:
   acquire_method: 3
   attributes: [2424848, 0, 0, 1073742336, 0, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135291
   range_yd: 50000.0
   categories:
     defense_type: MELEE
@@ -5684,6 +5872,7 @@ spells:
   acquire_method: 3
   attributes: [327696, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132351
   duration_ms: 300000
   cooldown:
     start_recovery_ms: 1500
@@ -5713,6 +5902,7 @@ spells:
   acquire_method: 3
   attributes: [0, 524288, 1048896, 0, 0, 0, 276824064, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132507
   range_yd: 30.0
   power:
   - type: RAGE
@@ -5740,6 +5930,7 @@ spells:
   name: Deep Wound
   attributes: [16, 0, 4, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
+  icon: 132090
   duration_ms: 12000
   range_yd: 50000.0
   categories:
@@ -5768,6 +5959,7 @@ spells:
   acquire_method: 3
   attributes: [262160, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132339
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -5791,6 +5983,7 @@ spells:
   acquire_method: 3
   attributes: [327696, 134217728, 256, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132394
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5823,6 +6016,7 @@ spells:
   acquire_method: 3
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 236312
   duration_ms: 4000
   power:
   - type: RAGE
@@ -5863,6 +6057,7 @@ spells:
   acquire_method: 3
   attributes: [0, 0, 260, 0, 0, 393224, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132347
   duration_ms: 7200000
   range_yd: 100.0
   cooldown:
@@ -5910,6 +6105,7 @@ spells:
   name: Precision
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132222
   labels: [25]
   description: Improves your chance to hit by $s1%.
   effects:
@@ -5932,6 +6128,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -5966,6 +6163,7 @@ spells:
   rank_text: Rank 1
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -5996,6 +6194,7 @@ spells:
   rank_text: Rank 2
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -6026,6 +6225,7 @@ spells:
   rank_text: Rank 3
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132337
   range_yd: 25.0
   power:
   - type: RAGE
@@ -6055,6 +6255,7 @@ spells:
   name: Sword Specialization
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135328
   labels: [20]
   effects:
   - index: 0
@@ -6066,6 +6267,7 @@ spells:
   name: Overpower
   attributes: [400, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132223
   duration_ms: 5000
   range_yd: 50000.0
   levels:
@@ -6090,6 +6292,7 @@ spells:
   name: Bloodthrill
   attributes: [464, 0, 0, 1024, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135271
   levels:
     spell: 1
   aura_options:
@@ -6110,6 +6313,7 @@ spells:
   name: Weaponmaster
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 1085608
   levels:
     base: 1
     spell: 1
@@ -6139,6 +6343,7 @@ spells:
   class_mask: 1
   attributes: [336, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136031
   levels:
     base: 14
     spell: 14
@@ -6157,6 +6362,7 @@ spells:
   rank_text: Rank 1
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6191,6 +6397,7 @@ spells:
   rank_text: Rank 2
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6225,6 +6432,7 @@ spells:
   rank_text: Rank 3
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6259,6 +6467,7 @@ spells:
   rank_text: Rank 4
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6293,6 +6502,7 @@ spells:
   rank_text: Rank 5
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132340
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6328,6 +6538,7 @@ spells:
   class_mask: 1
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135124
   range_yd: 5.0
   power:
   - type: RAGE
@@ -6368,6 +6579,7 @@ spells:
   name: Boundless Rage
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 236310
   labels: [25]
   description: Increases your maximum Rage by ${$m1/10}.
   effects:
@@ -6382,6 +6594,7 @@ spells:
   name: Raging Blows
   attributes: [464, 0, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132369
   class_options:
     set: 4
   labels: [25]
@@ -6403,6 +6616,7 @@ spells:
   name: Master of Defense
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132359
   levels:
     base: 1
     spell: 1
@@ -6421,6 +6635,7 @@ spells:
   name: Vanguard
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 4194304, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 4667427
   class_options:
     set: 4
   labels: [25]
@@ -6448,6 +6663,7 @@ spells:
   name: Shield Specialization
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134952
   levels:
     base: 1
     spell: 1

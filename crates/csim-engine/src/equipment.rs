@@ -840,6 +840,7 @@ mod tests {
             slot,
             item_type,
             quality: Quality::Epic,
+            icon: 0,
             unique: false,
             req_lvl: 60,
             item_lvl: 60,

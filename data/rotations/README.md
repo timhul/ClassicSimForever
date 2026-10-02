@@ -9,11 +9,10 @@ The engine scans every class subdirectory (`RotationDb::load`, schema in
 
 ```yaml
 class: WARRIOR                # the class (SCREAMING_SNAKE_CASE, as in data/classes/)
-name: DW Fury High Rage       # display name, unique within the class
+name: DW Fury                 # display name, unique within the class
 attack_mode: melee            # melee | ranged | magic; default melee
 description: >-               # free text; whitespace is collapsed on load
-  A rotation for dual-wield fury that does not attempt to dump rage before
-  switching to Battle Stance for Overpower.
+  A rotation for dual-wield fury.
 precombat_actions:            # cast before the pull, in this order; default none
   - Bloodrage
   - Battle Shout
@@ -70,6 +69,13 @@ buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 The buff types read the character's own debuffs on the target too, by the debuff's name:
 `buff_duration "Rupture" less 2` or `buff_duration "Expose Armor" less 3` time a Rogue's
 refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's.
+
+An on-next-swing spell (Heroic Strike, Cleave) is a buff of its own name while it is queued,
+from the cast until the main hand swing that takes it (or drops it, without the rage for it).
+Casting it again while queued changes nothing but the executor's cast count, so a rotation can
+skip it with `buff_duration "Heroic Strike" is false`. Queueing Cleave un-queues Heroic Strike
+and the other way round. The buff is in the buff statistics (the queue uptime) and in
+`csim-live`, not in the combat log.
 
 `variable "target_is_type"` is compared by name, not number: `eq "<creature type>"` holds when
 the target (`target: creature_type:` in the character setup) is of that type. The types are

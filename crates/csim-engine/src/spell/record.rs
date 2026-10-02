@@ -651,6 +651,9 @@ pub struct SpellRecord {
     pub attributes: [u32; 17],
     #[serde(default, skip_serializing_if = "is_default")]
     pub school_mask: SpellSchoolMask,
+    /// `SpellMisc.SpellIconFileDataID`: the `FileDataID` of the icon texture; 0 = none.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub icon: u32,
     /// `SpellCastTimes.Base`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub cast_time_ms: u32,
@@ -716,6 +719,7 @@ impl SpellRecord {
             acquire_method: 0,
             attributes: [0; 17],
             school_mask: SpellSchoolMask::PHYSICAL,
+            icon: 0,
             cast_time_ms: 0,
             duration_ms: None,
             duration_per_resource_ms: 0,

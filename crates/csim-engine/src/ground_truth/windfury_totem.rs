@@ -767,6 +767,8 @@ fn a_queued_heroic_strike_replaces_the_extra_attack_without_using_a_charge() {
         None,
         "the queued Heroic Strike went off as the extra attack"
     );
+    let queued = f.character.spells().spell(hs).marker_buff().unwrap();
+    assert!(!buff_active(&mut f, queued), "and is no longer queued");
     assert_eq!(f.rage(), 85, "Heroic Strike's 15 rage was paid");
     assert!(buff_active(&mut f, buff));
     assert_eq!(

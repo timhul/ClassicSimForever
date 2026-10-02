@@ -152,7 +152,7 @@ fn options_and_talent_points_multiply() {
         "{BUILD_48}{LAST_3_POINTS}
   - options:
       - {{ label: Orc, race: ORC }}
-      - {{ race: TROLL, rotation: DW Fury High Rage }}
+      - {{ race: TROLL, rotation: DW Fury }}
 "
     ))
     .expand(data())
@@ -163,7 +163,7 @@ fn options_and_talent_points_multiply() {
     let troll = expansion
         .variants
         .iter()
-        .find(|v| v.label == "Precision +3 | race: TROLL, rotation: DW Fury High Rage")
+        .find(|v| v.label == "Precision +3 | race: TROLL, rotation: DW Fury")
         .unwrap();
     assert_eq!(troll.setup.race, Race::Troll);
     assert_eq!(troll.setup.talents["Fury"]["Precision"], 3);

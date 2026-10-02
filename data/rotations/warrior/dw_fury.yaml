@@ -4,11 +4,10 @@
 # Buff" here), so `buff_duration "Overpower Buff" is true/false/greater N` became
 # `variable "combo_points" greater 0` / `eq 0`.
 class: WARRIOR
-name: DW Fury High Rage
+name: DW Fury
 attack_mode: melee
 description: >-
-  A rotation for dual-wield fury that does not attempt to dump rage before switching to
-  Battle Stance for Overpower.
+  A rotation for dual-wield fury.
 precombat_actions:
   - Bloodrage
   - Battle Shout
@@ -32,7 +31,8 @@ cast_if:
   - name: Heroic Strike
     condition: |
       variable "time_remaining_execute" greater 3
-      and resource "Rage" greater 50
+      and resource "Rage" greater 55
+      and buff_duration "Heroic Strike" eq 0
   - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: buff_duration "Death Wish" is true
@@ -85,25 +85,27 @@ cast_if:
       and variable "time_remaining_execute" greater 0
   - name: Whirlwind
     condition: |
-      spell "Bloodthirst" greater 1.5
-      and variable "time_remaining_execute" greater 0
-  # Always cast Overpower if available. The implied condition checks that the player is in
-  # the correct stance, Overpower is active, etc.
+      variable "time_remaining_execute" greater 0
   - name: Overpower
+    condition: |
+      spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
   - name: Hamstring
     condition: |
       spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and buff_duration "Eureka!" is false
   # Switch to Battle Stance
-  - name: Battle Stance
-    condition: |
-      variable "time_remaining_execute" greater 5
-      and variable "combo_points" greater 0
-      and spell "Bloodthirst" greater 3
-      and resource "Rage" less 50
-  - name: Berserker Stance
-    condition: |
-      variable "time_remaining_execute" less 0
-      or variable "combo_points" eq 0
+  # - name: Battle Stance
+  #   condition: |
+  #     variable "time_remaining_execute" greater 5
+  #     and variable "combo_points" greater 0
+  #     and spell "Bloodthirst" greater 3
+  #     and spell "Whirlwind" greater 3
+  #     and resource "Rage" less 50
+  # - name: Berserker Stance
+  #   condition: |
+  #     variable "time_remaining_execute" less 0
+  #     or variable "combo_points" eq 0

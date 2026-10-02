@@ -791,9 +791,12 @@ fn heroic_strike_replaces_the_next_swing() {
     assert!(f.character.uses_dual_wield_hit_table());
 
     // Queued but unaffordable: the queue is dropped and the white swing lands.
+    let marker = f.character.spells().spell(hs).marker_buff().unwrap();
+    assert!(!f.ctx().buff_ref(marker).is_active());
     f.set_rage(100);
     f.ctx().cast(hs);
     assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
+    assert!(f.ctx().buff_ref(marker).is_active());
     f.set_rage(0);
     let now = f.engine.current_time();
     let handled = f.run(now + 2.61);
@@ -803,6 +806,7 @@ fn heroic_strike_replaces_the_next_swing() {
             .any(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. }))
     );
     assert_eq!(f.character.spells().queued_next_swing(), None);
+    assert!(!f.ctx().buff_ref(marker).is_active(), "the queue dropped");
     assert!(f.rage() > 0, "the white swing landed and generated rage");
 }
 
@@ -2151,7 +2155,7 @@ mod rotation {
     }
 
     fn dw_fury() -> Arc<RotationSpec> {
-        shipped("DW Fury High Rage")
+        shipped("DW Fury")
     }
 
     /// Covers every way an executor links or is skipped: an item use, talents not taken,
@@ -2528,7 +2532,7 @@ cast_if:
             [
                 "2h Fury",
                 "Mortal Strike",
-                "DW Fury High Rage",
+                "DW Fury",
                 "Fury Rage conservative stance dancing",
                 "Fury Heroic Strike Focus",
                 "Protection",
@@ -2537,7 +2541,7 @@ cast_if:
         );
         let expected: [(&str, &[&str]); 6] = [
             (
-                "DW Fury High Rage",
+                "DW Fury",
                 &[
                     "Bloodrage",
                     "Berserker Rage",
@@ -2722,6 +2726,56 @@ cast_if:
         let stats = f.character.rotation().unwrap().statistics_by_spell();
         assert_eq!(stats["Whirlwind"].attempts(), 0);
     }
+
+    /// A queued Heroic Strike is a buff of its name: `is false` queues it once per swing
+    /// instead of re-queueing it on every action.
+    #[test]
+    fn a_rotation_skips_a_queued_heroic_strike() {
+        let run = |condition: &str| {
+            let rotation = format!(
+                "class: WARRIOR\nname: HS\ncast_if:\n  - name: Bloodrage\n  \
+                 - name: Heroic Strike\n    condition: |\n      {condition}\n"
+            );
+            let mut f = shipped_orc_warrior();
+            f.rig_rolls(PhysicalAttackResult::Hit);
+            f.ctx()
+                .set_rotation(Arc::new(serde_yaml::from_str(&rotation).unwrap()));
+            let marker =
+                crate::rotation::executor::RotationHost::buff_by_name(&f.ctx(), "Heroic Strike")
+                    .unwrap();
+            let hs = f.character.rotation().unwrap().executors()[1]
+                .linked()
+                .unwrap()
+                .spell;
+            assert_eq!(f.character.spells().spell(hs).marker_buff(), Some(marker));
+            f.ctx().prepare_set_of_combat_iterations();
+            f.ctx().reset();
+            f.engine.prepare_iteration(0.0);
+            f.set_rage(100);
+            f.engine.add_event(Event::new(
+                0.0,
+                EventKind::EncounterStart {
+                    character: CharId(0),
+                },
+            ));
+            let handled = f.run(30.0);
+            let swings = handled
+                .iter()
+                .filter(|kind| matches!(kind, EventKind::MainhandMeleeHit { .. }))
+                .count() as u64;
+            let stats = f.character.rotation().unwrap().statistics_by_spell();
+            (stats["Heroic Strike"].successful_casts, swings)
+        };
+        let (requeued, swings) = run("resource \"Rage\" greater 15");
+        assert!(requeued > swings, "{requeued} casts for {swings} swings");
+        let (queued_once, swings) =
+            run("resource \"Rage\" greater 15\n      and buff_duration \"Heroic Strike\" is false");
+        assert!(queued_once > 0);
+        assert!(
+            queued_once <= swings + 1,
+            "{queued_once} casts for {swings} swings"
+        );
+    }
 }
 
 mod statistics {
@@ -2862,9 +2916,12 @@ mod statistics {
         let blood_fury = stats.buff_statistics("Blood Fury").unwrap();
         assert!(blood_fury.max_uptime() > 0.0 && blood_fury.max_uptime() < 60.0);
         assert!(stats.buffs().all(|b| b.encounters() == 1));
+        // Heroic Strike's queue marker: up from each queue to the swing that takes or drops it.
+        let queued = stats.buff_statistics("Heroic Strike").unwrap();
+        assert!(!queued.is_debuff());
         assert!(
-            stats.buffs().all(|b| b.name() != "Heroic Strike"),
-            "the queue marker is hidden"
+            queued.max_uptime() > 0.0 && queued.max_uptime() < 60.0,
+            "{queued:?}"
         );
 
         // Totals and the iteration.

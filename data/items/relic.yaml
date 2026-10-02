@@ -8,6 +8,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 135464
   req_lvl: 10
   item_lvl: 20
   stats:
@@ -20,6 +21,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: EPIC
+  icon: 134918
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -32,6 +34,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: EPIC
+  icon: 134913
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -44,6 +47,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: EPIC
+  icon: 134915
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -56,6 +60,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: EPIC
+  icon: 134913
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -68,6 +73,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: EPIC
+  icon: 134918
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -80,6 +86,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: EPIC
+  icon: 134915
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -92,6 +99,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 134914
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -105,6 +113,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 134919
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -118,6 +127,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 134917
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -131,6 +141,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 134912
   req_lvl: 55
   item_lvl: 60
   effects:
@@ -142,6 +153,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 134916
   req_lvl: 55
   item_lvl: 60
   effects:
@@ -153,6 +165,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 134920
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -164,6 +177,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 134532
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [DRUID]
@@ -176,6 +190,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 133745
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [PALADIN]
@@ -189,6 +204,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 310733
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [SHAMAN]
@@ -201,6 +217,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 136063
   req_lvl: 40
   item_lvl: 45
   class_restrictions: [DRUID]
@@ -213,6 +230,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 134916
   req_lvl: 40
   item_lvl: 45
   effects:
@@ -224,6 +242,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 134919
   req_lvl: 40
   item_lvl: 45
   effects:
@@ -235,6 +254,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 454045
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -246,6 +266,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 611424
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -257,6 +278,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 132848
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -268,6 +290,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: RARE
+  icon: 463485
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -279,6 +302,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 4667424
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -290,6 +314,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 1020304
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -301,6 +326,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: RARE
+  icon: 135829
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -312,6 +338,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 133744
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -323,6 +350,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 133736
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -334,6 +362,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: RARE
+  icon: 133743
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -345,6 +374,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: EPIC
+  icon: 134915
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -357,6 +387,7 @@ items:
   slot: RELIC
   type: LIBRAM
   quality: EPIC
+  icon: 133745
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -369,6 +400,7 @@ items:
   slot: RELIC
   type: TOTEM
   quality: EPIC
+  icon: 5927655
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -381,6 +413,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: EPIC
+  icon: 236162
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -393,6 +426,7 @@ items:
   slot: RELIC
   type: IDOL
   quality: EPIC
+  icon: 134233
   req_lvl: 60
   item_lvl: 65
   boe: true

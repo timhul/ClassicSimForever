@@ -8,6 +8,7 @@ spells:
   name: Restore Energy
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136235
   cooldown:
     category_recovery_ms: 60000
   categories:
@@ -29,6 +30,7 @@ spells:
   rank_text: Rank 4
   attributes: [65536, 98304, 524288, 0, 0, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 8
+  icon: 136033
   duration_ms: 40000
   range_yd: 30.0
   power:
@@ -64,6 +66,7 @@ spells:
   name: Rage of Ages
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136101
   duration_ms: 3600000
   cooldown:
     category_recovery_ms: 210000
@@ -87,6 +90,7 @@ spells:
   name: Strike of the Scorpok
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136036
   duration_ms: 3600000
   cooldown:
     category_recovery_ms: 210000
@@ -111,6 +115,7 @@ spells:
   name: Greater Agility
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134874
   duration_ms: 3600000
   levels:
     spell: 27
@@ -128,6 +133,7 @@ spells:
   name: Greater Strength
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134839
   duration_ms: 3600000
   levels:
     spell: 48
@@ -145,6 +151,7 @@ spells:
   rank_text: Rank 4
   attributes: [65536, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 32
+  icon: 136225
   duration_ms: 120000
   range_yd: 30.0
   power:
@@ -183,6 +190,7 @@ spells:
   rank_text: Rank 4
   attributes: [65536, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 136101
   duration_ms: 1800000
   range_yd: 30.0
   categories:
@@ -203,6 +211,7 @@ spells:
   name: Juju Power
   attributes: [65792, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 134313
   duration_ms: 1800000
   range_yd: 20.0
   categories:
@@ -225,6 +234,7 @@ spells:
   name: Juju Might
   attributes: [65792, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
+  icon: 134309
   duration_ms: 600000
   range_yd: 20.0
   cooldown:
@@ -255,6 +265,7 @@ spells:
   name: Armor Shatter
   attributes: [0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
+  icon: 132403
   duration_ms: 45000
   range_yd: 30.0
   categories:
@@ -274,6 +285,7 @@ spells:
   name: Winterfall Firewater
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134872
   duration_ms: 1200000
   categories:
     dispel_type: 1
@@ -294,6 +306,7 @@ spells:
   name: Elixir of Brute Force
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134820
   duration_ms: 3600000
   levels:
     spell: 47
@@ -316,6 +329,7 @@ spells:
   name: Elixir of the Mongoose
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134812
   duration_ms: 1800000
   levels:
     spell: 47
@@ -338,6 +352,7 @@ spells:
   name: Flask of the Titans
   attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134842
   duration_ms: 7200000
   levels:
     spell: 15
@@ -356,6 +371,7 @@ spells:
   name: Blessed Sunfruit
   attributes: [671088640, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135892
   duration_ms: 600000
   cooldown:
     start_recovery_ms: 1500
@@ -377,6 +393,7 @@ spells:
   name: Increased Agility
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132953
   duration_ms: 600000
   levels:
     spell: 16
@@ -397,6 +414,7 @@ spells:
   rank_text: Rank 3
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
+  icon: 132329
   duration_ms: 1800000
   power:
   - type: MANA
@@ -425,6 +443,7 @@ spells:
   rank_text: Rank 2
   attributes: [65536, 131072, 524288, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 136078
   duration_ms: 3600000
   range_yd: 40.0
   power:
@@ -510,6 +529,7 @@ spells:
   name: Battle Squawk
   attributes: [262160, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 133707
   duration_ms: 240000
   range_yd: 50000.0
   levels:
@@ -525,6 +545,7 @@ spells:
   name: Essence of the Red
   attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135819
   duration_ms: 180000
   effects:
   - index: 0
@@ -557,6 +578,7 @@ spells:
   name: Well Fed
   attributes: [134217984, 32, 2415935488, 5242880, 0, 0, 4, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136000
   duration_ms: 900000
   labels: [4530, 4697]
   effects:
@@ -571,6 +593,7 @@ spells:
   rank_text: Rank 5
   attributes: [320, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 136023
   categories:
     defense_type: MAGIC
   levels:
@@ -591,6 +614,7 @@ spells:
   name: Greater Blessing of Kings
   attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
+  icon: 135993
   duration_ms: 3600000
   range_yd: 40.0
   power:
@@ -623,6 +647,7 @@ spells:
   rank_text: Rank 2
   attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
+  icon: 135908
   duration_ms: 3600000
   range_yd: 40.0
   power:

@@ -9,13 +9,16 @@ use super::*;
 use crate::character::tests::{equipment_db, race};
 use crate::character::{Character, ClassDb, ClassSpec};
 use crate::character_loader::CharacterSetup;
+use crate::combat_log::{CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::data_bundle::DataBundle;
 use crate::engine::EventType;
 use crate::faction::PlayerClass;
+use crate::ids::SpellId;
 use crate::item::EquipmentSlot;
 use crate::phase::Phase;
 use crate::race::Race;
 use crate::rotation::RotationSpec;
+use crate::spell::SpellStatus;
 use crate::spell::record::SpellDb;
 use crate::statistics::ClassStatistics;
 use crate::talent::{CharacterTalents, TalentDb, TalentFile};
@@ -345,6 +348,148 @@ fn a_logged_iteration_is_the_one_thread_iteration_of_its_seed() {
 }
 
 #[test]
+fn a_stepped_iteration_is_the_logged_iteration_of_its_seed() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut logged_raid = data.raid(&settings, 2, true);
+    let logged = run_logged_iteration(&settings, 9, &mut logged_raid);
+
+    let mut raid = data.raid(&settings, 2, true);
+    let mut stepper = IterationStepper::new(&settings, 9, &mut raid);
+    assert!(stepper.start_at() < 0.0);
+    assert_eq!(raid.engine().current_time(), stepper.start_at());
+    let mut steps = 0;
+    while let Some(event) = stepper.step(&mut raid) {
+        assert_eq!(event.time, raid.engine().current_time());
+        steps += 1;
+    }
+    assert!(steps > 100, "{steps}");
+    assert!(stepper.is_done(&raid));
+    assert_eq!(stepper.next_event_time(&raid), None);
+    let log = stepper.finish(&mut raid);
+
+    assert_eq!(log, logged);
+    let results = |raid: &mut RaidControl| -> Vec<_> {
+        raid.take_statistics()
+            .iter()
+            .map(|s| s.personal_result())
+            .collect()
+    };
+    assert_eq!(results(&mut raid), results(&mut logged_raid));
+    assert!(!raid.engine().is_logging());
+}
+
+/// The rotation's decision trace: one decision per executor cast, and recording it changes
+/// nothing about the iteration.
+#[test]
+fn the_rotation_trace_names_every_cast_and_changes_nothing() {
+    use crate::rotation::DecidedBy;
+
+    let data = Data::load();
+    let settings = settings(1);
+    let mut untraced = data.raid(&settings, 2, false);
+    let untraced_log = run_logged_iteration(&settings, 8, &mut untraced);
+
+    let mut raid = data.raid(&settings, 2, false);
+    for id in raid.char_ids().collect::<Vec<_>>() {
+        raid.character_mut(id)
+            .rotation_mut()
+            .unwrap()
+            .enable_trace();
+    }
+    let log = run_logged_iteration(&settings, 8, &mut raid);
+    assert_eq!(log, untraced_log);
+
+    for character in raid.characters() {
+        let rotation = character.rotation().unwrap();
+        let trace = rotation.trace();
+        assert!(trace.is_sorted_by(|a, b| a.time <= b.time));
+        let precombat: Vec<_> = trace
+            .iter()
+            .filter(|d| d.by == DecidedBy::Precombat)
+            .map(|d| d.spell)
+            .collect();
+        assert_eq!(
+            precombat,
+            rotation.precombat_spells(),
+            "all available at the start"
+        );
+        assert!(
+            trace
+                .iter()
+                .all(|d| d.by != DecidedBy::Precombat || d.time < 0.0)
+        );
+
+        let mut casts = 0;
+        for (index, executor) in rotation.executors().iter().enumerate() {
+            let decisions: Vec<_> = trace
+                .iter()
+                .filter(|d| d.by == DecidedBy::Executor(index))
+                .collect();
+            assert_eq!(
+                decisions.len() as u64,
+                executor.statistics().successful_casts,
+                "{}",
+                executor.spell_name()
+            );
+            if let Some(linked) = executor.linked() {
+                assert!(decisions.iter().all(|d| d.spell == linked.spell));
+            }
+            casts += decisions.len();
+        }
+        // The untalented test rotation casts Execute, Whirlwind, the stances and the like.
+        assert!(casts >= 10, "{casts}");
+    }
+}
+
+#[test]
+fn stepping_until_a_time_runs_no_later_event() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let mut stepper = IterationStepper::new(&settings, 3, &mut raid);
+    let mut total = 0;
+    for time in [-0.5, 0.0, 0.25, 7.3, 7.3, 30.0] {
+        total += stepper.step_until(&mut raid, time);
+        assert!(raid.engine().current_time() <= time);
+        assert!(
+            stepper
+                .next_event_time(&raid)
+                .is_some_and(|next| next > time)
+        );
+    }
+    assert!(total > 10, "{total}");
+    assert_eq!(
+        stepper.step_until(&mut raid, 7.3),
+        0,
+        "nothing left before 7.3"
+    );
+    stepper.step_until(&mut raid, f64::INFINITY);
+    assert!(stepper.is_done(&raid));
+}
+
+/// A step only adds entries after the log's length at its start: what a viewer read of the log
+/// before a step stays as it was.
+#[test]
+fn a_step_leaves_the_log_before_it_untouched() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 2, false);
+    let mut stepper = IterationStepper::new(&settings, 4, &mut raid);
+    let mut seen: Vec<CombatLogEntry> = Vec::new();
+    loop {
+        let log = raid.engine().combat_log().unwrap().entries();
+        assert_eq!(&log[..seen.len()], &seen[..]);
+        seen = log.to_vec();
+        if stepper.step(&mut raid).is_none() {
+            break;
+        }
+    }
+    assert!(seen.len() > 100, "{}", seen.len());
+    assert_eq!(stepper.finish(&mut raid).entries(), &seen[..]);
+}
+
+#[test]
 fn the_encounter_length_varies_within_the_length_variance() {
     let mut control = SimControl::new(settings(1), 1);
     let lengths: Vec<f64> = (0..1000)
@@ -399,4 +544,213 @@ fn without_length_variance_every_encounter_lasts_the_combat_length() {
     let mut cruncher = NumberCruncher::new();
     SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
     assert_eq!(baseline(&cruncher).time_in_combat(), 600.0);
+}
+
+/// The player's casts in `log` as `(time, spell name)`.
+fn player_casts(log: &CombatLog) -> Vec<(f64, String)> {
+    log.entries()
+        .iter()
+        .filter_map(|entry| match &entry.event {
+            CombatLogEvent::SpellCastSuccess { spell, .. }
+                if entry.source == LogUnit::Character(CharId(0)) =>
+            {
+                Some((entry.time, spell.name.clone()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn a_character_played_by_input_casts_nothing_by_itself() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut rotation_raid = data.raid(&settings, 1, false);
+    let rotation_log = run_logged_iteration(&settings, 5, &mut rotation_raid);
+    assert!(player_casts(&rotation_log).len() > 10);
+
+    let mut raid = data.raid(&settings, 1, false);
+    raid.character_mut(CharId(0)).enable_manual_input();
+    let log = run_logged_iteration(&settings, 5, &mut raid);
+    assert_eq!(player_casts(&log), [], "no precombat actions, no rotation");
+    let swings = log
+        .entries()
+        .iter()
+        .filter(|entry| matches!(entry.event, CombatLogEvent::SwingDamage { .. }))
+        .count();
+    assert!(swings > 20, "the auto attacks still run: {swings}");
+}
+
+#[test]
+fn queued_input_is_cast_when_it_can_be_within_its_window() {
+    use crate::rotation::DecidedBy;
+
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let me = CharId(0);
+    raid.character_mut(me).enable_manual_input();
+    raid.character_mut(me)
+        .rotation_mut()
+        .unwrap()
+        .enable_trace();
+    let learned = |raid: &RaidControl, name: &str| {
+        let spells = raid.character(me).spells();
+        let group = spells.rank_group(name).unwrap();
+        group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap()
+    };
+    let hamstring = learned(&raid, "Hamstring");
+    let whirlwind = learned(&raid, "Whirlwind");
+    let mut stepper = IterationStepper::new(&settings, 5, &mut raid);
+    // A press at `at`, queued for 0.4 s: the caller wakes the character then.
+    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, spell, at: f64| {
+        stepper.step_until(raid, at);
+        raid.character_mut(me).queue_input(spell, at + 0.4);
+        let wake = Event::new(at, EventKind::PlayerAction { character: me });
+        raid.engine_mut().add_event(wake);
+        stepper.step_until(raid, at);
+    };
+
+    // Not in Berserker Stance (no precombat actions: Battle Stance): waiting cannot help,
+    // dropped at once.
+    press(&mut raid, &mut stepper, whirlwind, 9.0);
+    assert_eq!(raid.character(me).queued_input(), None);
+    let failure = raid.character_mut(me).take_input_failure();
+    assert_eq!(failure, Some((whirlwind, SpellStatus::InBattleStance)));
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "reported once"
+    );
+    // Castable: cast at the press. Hamstring triggers the global cooldown (1.5 s).
+    press(&mut raid, &mut stepper, hamstring, 10.0);
+    // Pressed 1 s into the GCD: it ends after the window, so the press is dropped.
+    press(&mut raid, &mut stepper, hamstring, 10.5);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "still waiting"
+    );
+    stepper.step_until(&mut raid, 12.0);
+    assert_eq!(raid.character(me).queued_input(), None, "dropped");
+    let failure = raid.character_mut(me).take_input_failure();
+    assert_eq!(failure, Some((hamstring, SpellStatus::OnGcd)));
+    // Castable again.
+    press(&mut raid, &mut stepper, hamstring, 13.0);
+    // Pressed 0.2 s before the GCD ends: cast when it does.
+    press(&mut raid, &mut stepper, hamstring, 14.3);
+    stepper.step_until(&mut raid, 16.0);
+    assert_eq!(raid.character_mut(me).take_input_failure(), None);
+
+    let casts = player_casts(raid.engine().combat_log().unwrap());
+    let expected = [
+        (10.0, "Hamstring"),
+        (13.0, "Hamstring"),
+        (14.5, "Hamstring"),
+    ];
+    let casts: Vec<(f64, &str)> = casts.iter().map(|(t, n)| (*t, n.as_str())).collect();
+    assert_eq!(casts.len(), expected.len(), "{casts:?}");
+    for ((time, name), (expected_time, expected_name)) in casts.iter().zip(expected) {
+        assert!((time - expected_time).abs() < 1e-9, "{casts:?}");
+        assert_eq!(*name, expected_name);
+    }
+
+    let trace = raid.character(me).rotation().unwrap().trace();
+    let inputs: Vec<f64> = trace
+        .iter()
+        .inspect(|decision| assert_eq!(decision.by, DecidedBy::Input))
+        .map(|decision| decision.time)
+        .collect();
+    assert_eq!(inputs.len(), 3, "{inputs:?}");
+}
+
+#[test]
+fn a_macro_casts_in_order_and_ends_at_the_global_cooldown() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let me = CharId(0);
+    raid.character_mut(me).enable_manual_input();
+    raid.character_mut(me)
+        .rotation_mut()
+        .unwrap()
+        .enable_trace();
+    let learned = |raid: &RaidControl, name: &str| {
+        let spells = raid.character(me).spells();
+        let group = spells.rank_group(name).unwrap();
+        group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap()
+    };
+    let [bloodrage, hamstring, heroic_strike, battle_shout] =
+        ["Bloodrage", "Hamstring", "Heroic Strike", "Battle Shout"]
+            .map(|name| learned(&raid, name));
+    let mut stepper = IterationStepper::new(&settings, 5, &mut raid);
+    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, spells: &[SpellId], at| {
+        stepper.step_until(raid, at);
+        raid.character_mut(me)
+            .queue_macro(spells.to_vec(), at + 0.4);
+        let wake = Event::new(at, EventKind::PlayerAction { character: me });
+        raid.engine_mut().add_event(wake);
+        stepper.step_until(raid, at);
+    };
+    // The input's casts, as the trace has them when cast (the log shows Heroic Strike's when
+    // its swing lands).
+    let casts_between = |raid: &RaidControl, from: f64, to: f64| -> Vec<(f64, String)> {
+        let character = raid.character(me);
+        character
+            .rotation()
+            .unwrap()
+            .trace()
+            .iter()
+            .filter(|decision| (from..to).contains(&decision.time))
+            .map(|d| (d.time, character.spells().spell(d.spell).name().to_owned()))
+            .collect()
+    };
+
+    // Off the GCD, on it, off it: the third never fires, the second's GCD ends the macro.
+    press(
+        &mut raid,
+        &mut stepper,
+        &[bloodrage, hamstring, heroic_strike],
+        10.0,
+    );
+    stepper.step_until(&mut raid, 11.0);
+    let casts = casts_between(&raid, 10.0, 11.0);
+    let names: Vec<&str> = casts.iter().map(|(_, name)| name.as_str()).collect();
+    assert_eq!(names, ["Bloodrage", "Hamstring"], "{casts:?}");
+    assert!(casts.iter().all(|(time, _)| *time == 10.0));
+    assert_eq!(raid.character(me).queued_input(), None);
+
+    // Pressed during the GCD (to 11.5): the first entry fires, the macro waits at the
+    // second and goes on when the GCD ends.
+    press(&mut raid, &mut stepper, &[heroic_strike, hamstring], 11.2);
+    stepper.step_until(&mut raid, 12.0);
+    let casts = casts_between(&raid, 11.0, 12.0);
+    let expected = [(11.2, "Heroic Strike"), (11.5, "Hamstring")];
+    assert_eq!(casts.len(), 2, "{casts:?}");
+    for ((time, name), (expected_time, expected_name)) in casts.iter().zip(expected) {
+        assert!((time - expected_time).abs() < 1e-9, "{casts:?}");
+        assert_eq!(name, expected_name);
+    }
+
+    // Bloodrage on its cooldown is skipped.
+    press(&mut raid, &mut stepper, &[bloodrage, battle_shout], 13.0);
+    let casts = casts_between(&raid, 12.0, 13.5);
+    let names: Vec<&str> = casts.iter().map(|(_, name)| name.as_str()).collect();
+    assert_eq!(names, ["Battle Shout"]);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "cast something"
+    );
+
+    // Casting nothing reports its first entry's failure.
+    press(&mut raid, &mut stepper, &[bloodrage], 16.0);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        Some((bloodrage, SpellStatus::OnCooldown))
+    );
 }

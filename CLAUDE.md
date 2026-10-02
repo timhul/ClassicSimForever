@@ -49,6 +49,30 @@ that seed:
 
 `cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --combat-log --seed 1`
 
+The same iteration, watched live in a browser (`csim-live` serves a page on
+http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
+is used as a library, as by the CLI; a Rotation pane lists each cast with the `cast_if` entry
+that returned true; a Breakdown pane below the stage shows the damage so far per spell and the buff uptimes, as `csim run` breaks them
+down). It takes the setup, `--seed`, `--length`,
+`--length-variance` and `--port`, one character only (no `--raid`):
+
+`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --seed 1`
+
+With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
+maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
+Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the
+spell is not castable yet waits 0.4 s for it (the game's spell queue window). A key can also
+cast a macro (`Name: {hotkey: T, cast: [Spell1, Spell2]}`), tried in order like the game's `/cast`
+lines: it stops after a spell that triggers the GCD. Examples are in `data/keybinds/`:
+
+`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
+
+Its spell and item icons come from `data/icons/` (a gitignored cache of the game's textures, by
+the `icon` FileDataIDs of the exported spells and items). Fetch them once, and again after a
+re-export; without them the page shows no icons:
+
+`python tools/fetch_icons.py`
+
 A Rogue is run the same way, with a rogue setup (`combat_swords_human`, `combat_axes_orc`,
 `combat_daggers_night_elf`, `mutilate_undead`, `mutilate_ea_gnome`, `hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):
@@ -100,3 +124,17 @@ Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
 - Raid DPS can be lower than solo DPS. This is because external debuffs are not applied in a raid
 context since they depend instead on the available raid members, meaning some debuffs are not
 applied if characters applying those debuffs are.
+
+# Class colors
+
+If class colors are referenced:
+
+Druid   255 124 10  1.00    0.49    0.04    #FF7C0A
+Hunter  170 211 114 0.67    0.83    0.45    #AAD372
+Mage    63  199 235 0.25    0.78    0.92    #3FC7EB
+Paladin 244 140 186 0.96    0.55    0.73    #F48CBA
+Priest  255 255 255 1.00    1.00    1.00    #FFFFFF
+Rogue   255 244 104 1.00    0.96    0.41    #FFF468
+Shaman  0   112 221 0.00    0.44    0.87    #0070DD
+Warlock 135 136 238 0.53    0.53    0.93    #8788EE
+Warrior 198 155 109 0.78    0.61    0.43    #C69B6D

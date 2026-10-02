@@ -11,6 +11,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136112
   labels: [5710]
   description: Total Health increased by $s1% and chance to hit increased by $s2%.
   effects:
@@ -40,6 +41,7 @@ spells:
   acquire_method: 2
   attributes: [272, 0, 0, 0, 8193, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 133938
   cooldown:
     start_recovery_ms: 1500
   categories:
@@ -63,6 +65,7 @@ spells:
   acquire_method: 2
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135727
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -97,6 +100,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134357
   labels: [5710]
   description: Damage dealt versus Beasts increased by $s1%.
   effects:
@@ -115,6 +119,7 @@ spells:
   acquire_method: 2
   attributes: [16, 32, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135726
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -147,6 +152,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132393
   equipped_items:
     class: 2
     subclass_mask: 3
@@ -167,6 +173,7 @@ spells:
   acquire_method: 2
   attributes: [16, 131072, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132278
   range_yd: 5.0
   cooldown:
     recovery_ms: 120000
@@ -191,6 +198,7 @@ spells:
   acquire_method: 2
   attributes: [169082896, 16, 2097152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132089
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -224,6 +232,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132279
   labels: [5710]
   description: Dodge chance increased by $s1% and movement speed increased by $s2%. Night Elf Rogues and Druids are harder to detect in Stealth as if they were 1 level higher.
   effects:
@@ -241,6 +250,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136116
   labels: [5710]
   description: Transform into a wisp upon death, increasing movement speed by $20584s1%.
   effects:
@@ -257,6 +267,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132864
   labels: [5710]
   description: Maximum Mana increased by $s1%.
   effects:
@@ -274,6 +285,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 134063
   labels: [5710]
   description: Your gnomish ingenuity reduces the rate of engineering devices failing or backfiring when you use them by $s1%.
   effects:
@@ -291,6 +303,7 @@ spells:
   acquire_method: 2
   attributes: [262160, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136225
   duration_ms: 8000
   cooldown:
     recovery_ms: 180000
@@ -320,6 +333,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132223
   equipped_items:
     class: 2
     subclass_mask: 384
@@ -340,6 +354,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132874
   labels: [5710]
   description: Spirit increased by $s1%.
   effects:
@@ -358,6 +373,7 @@ spells:
   acquire_method: 2
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 132845
   duration_ms: 10000
   cooldown:
     recovery_ms: 120000
@@ -386,6 +402,7 @@ spells:
   name: Walking on Air
   attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136235
   labels: [5710]
   effects:
   - index: 0
@@ -400,6 +417,7 @@ spells:
   acquire_method: 2
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
+  icon: 236219
   cast_time_ms: 2000
   cooldown:
     recovery_ms: 120000
@@ -427,6 +445,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 4630367
   description: Damage dealt versus Elementals increased by $s1%.
   effects:
   - index: 0
@@ -444,6 +463,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 463565
   description: Increases your spellcasting, melee, and ranged Haste by $s1%.
   effects:
   - index: 0
@@ -466,6 +486,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 133042
   equipped_items:
     class: 2
     subclass_mask: 48
@@ -486,6 +507,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 135614
   labels: [5710]
   description: Damage dealt versus Beasts increased by $s1%.
   effects:
@@ -504,6 +526,7 @@ spells:
   acquire_method: 2
   attributes: [16, 32, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136057
   duration_ms: 15000
   cooldown:
     recovery_ms: 180000
@@ -525,6 +548,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132864
   labels: [5710]
   description: Maximum Rage increased by $s1%.
   effects:
@@ -544,6 +568,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 132864
   labels: [5710]
   description: Maximum Energy increased by $s1%.
   effects:
@@ -563,6 +588,7 @@ spells:
   acquire_method: 2
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 4226119
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -614,6 +640,7 @@ spells:
   acquire_method: 2
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 4226119
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -665,6 +692,7 @@ spells:
   acquire_method: 2
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 4226119
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -716,6 +744,7 @@ spells:
   acquire_method: 2
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 4226119
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -767,6 +796,7 @@ spells:
   acquire_method: 2
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
+  icon: 4226119
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -817,6 +847,7 @@ spells:
   acquire_method: 2
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 236717
   categories:
     defense_type: MAGIC
   levels:
@@ -852,6 +883,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136157
   aura_options:
     proc_chance: 5
     proc_category_recovery_ms: 1000
@@ -868,6 +900,7 @@ spells:
   name: Touch of the Grave
   attributes: [65536, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
+  icon: 136169
   range_yd: 100.0
   categories:
     defense_type: MAGIC
@@ -890,6 +923,7 @@ spells:
   acquire_method: 2
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136157
   aura_options:
     proc_chance: 10
     proc_category_recovery_ms: 1000
@@ -909,6 +943,7 @@ spells:
   acquire_method: 2
   attributes: [0, 536870976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 1850550
   duration_ms: 6000
   cooldown:
     recovery_ms: 180000
@@ -925,6 +960,7 @@ spells:
   name: Energized
   attributes: [0, 0, 4, 0, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
+  icon: 135729
   duration_ms: 15000
   labels: [5710]
   effects:
@@ -942,6 +978,7 @@ spells:
   acquire_method: 2
   attributes: [262160, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
+  icon: 136082
   duration_ms: 8000
   cooldown:
     recovery_ms: 180000

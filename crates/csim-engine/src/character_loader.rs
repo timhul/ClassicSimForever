@@ -10,7 +10,7 @@
 //! level: 60                    # default 60
 //! phase: 3                     # optional; overrides the sim settings' content phase
 //! ruleset: STANDARD            # optional; STANDARD | VAELASTRASZ | LOATHEB
-//! rotation: DW Fury High Rage  # a rotation of data/rotations/<class>/, by name
+//! rotation: DW Fury            # a rotation of data/rotations/<class>/, by name
 //! tanking: false               # default false; a tank is attacked by the target
 //! talents:                     # tab name → talent name → rank; default none
 //!   Fury:

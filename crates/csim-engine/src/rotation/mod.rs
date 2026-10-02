@@ -17,6 +17,7 @@ pub use condition::{
     NextChange, Sentence, Test, Watched,
 };
 pub use executor::{
-    ExecutorStatistics, LinkedExecutor, Rotation, RotationExecutor, RotationHost, SkipReason,
+    DecidedBy, ExecutorStatistics, LinkedExecutor, Rotation, RotationDecision, RotationExecutor,
+    RotationHost, SkipReason,
 };
 pub use spec::{CastIfSpec, RotationDb, RotationSpec, RotationSpecError};

@@ -37,6 +37,8 @@ table_row! {
         school_mask: u32 = "SchoolMask",
         /// Missile speed.
         speed: f32 = "Speed",
+        /// The icon texture's `FileDataID`; 0 = none.
+        spell_icon_file_data_id: u32 = "SpellIconFileDataID",
         spell_id: u32 = "SpellID",
     }
 }

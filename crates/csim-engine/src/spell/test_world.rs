@@ -1255,13 +1255,20 @@ impl SpellHost for World {
     fn reset_swing_timers(&mut self) {
         self.attack_log.push("reset");
     }
-    fn queue_next_swing(&mut self, spell: SpellId) {
+    fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
+        if self.spells.queued_next_swing() != Some(spell) {
+            self.cancel_next_swing();
+        }
         self.attack_log.push("queue");
-        self.spells.queue_next_swing(spell);
+        self.spells.queue_next_swing(spell, marker);
     }
     fn cancel_next_swing(&mut self) {
+        let marker = self.spells.queued_next_swing_marker();
         if self.spells.cancel_next_swing().is_some() {
             self.attack_log.push("unqueue");
+        }
+        if let Some(marker) = marker {
+            self.cancel_buff(marker);
         }
     }
     fn queued_next_swing(&self) -> Option<SpellId> {

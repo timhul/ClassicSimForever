@@ -147,7 +147,8 @@ pub struct CharacterSpells {
     attack_mode_active: bool,
     mh_attack: AutoAttack,
     oh_attack: AutoAttack,
-    queued_next_swing: Option<SpellId>,
+    /// The queued on-next-swing spell and its marker buff.
+    queued_next_swing: Option<(SpellId, Option<BuffId>)>,
     cast_in_progress: bool,
     cast_id: u32,
 }
@@ -337,9 +338,6 @@ impl CharacterSpells {
         }
     }
 
-    /// Creates and registers the marker buff of a spell, if it applies auras. Shared buffs are
-    /// looked up in (or added to) the raid registry by canonical name. Port of the marker buff
-    /// setup in the `Spell` constructor.
     /// Builds the [`Spell`] of `setup` with its cooldown controls and marker buff, without
     /// registering it anywhere.
     fn build_spell(
@@ -512,6 +510,10 @@ impl CharacterSpells {
             .map(|(&key, &handle)| (key, handle))
     }
 
+    /// Creates and registers the marker buff of a spell, if it applies auras or replaces the
+    /// next swing ([`Buff::next_swing_queue`]). Shared buffs are looked up in (or added to) the
+    /// raid registry by canonical name. Port of the marker buff setup in the `Spell`
+    /// constructor.
     fn create_marker_buff(
         &mut self,
         setup: &SpellSetup,
@@ -520,7 +522,11 @@ impl CharacterSpells {
         shared: &mut impl SharedBuffs,
     ) -> Option<BuffId> {
         if !setup.has_buff() {
-            return None;
+            // An on-next-swing spell's marker is up while it is queued (Heroic Strike).
+            return setup.record.is_on_next_swing().then(|| {
+                let buff = Buff::next_swing_queue(&setup.record);
+                self.add_buff_slot(BuffSlot::Owned(Box::new(buff)))
+            });
         }
         let record = setup.buff_record();
         let kind = BuffKind::from_record(record, party, overrides.debuff_shared(record.id))?;
@@ -1040,15 +1046,20 @@ impl CharacterSpells {
     /// The spell queued to replace the next mainhand swing (Heroic Strike). Port of
     /// `WarriorSpells::is_heroic_strike_queued` generalised.
     pub fn queued_next_swing(&self) -> Option<SpellId> {
-        self.queued_next_swing
+        self.queued_next_swing.map(|(spell, _)| spell)
     }
 
-    pub fn queue_next_swing(&mut self, spell: SpellId) {
-        self.queued_next_swing = Some(spell);
+    /// The marker buff of the queued on-next-swing spell, up while it is queued.
+    pub fn queued_next_swing_marker(&self) -> Option<BuffId> {
+        self.queued_next_swing.and_then(|(_, marker)| marker)
+    }
+
+    pub fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
+        self.queued_next_swing = Some((spell, marker));
     }
 
     pub fn cancel_next_swing(&mut self) -> Option<SpellId> {
-        self.queued_next_swing.take()
+        self.queued_next_swing.take().map(|(spell, _)| spell)
     }
 
     // --- Iteration lifecycle ---

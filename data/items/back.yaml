@@ -8,6 +8,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133756
   req_lvl: 35
   item_lvl: 40
   boe: true
@@ -22,6 +23,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 132656
   req_lvl: 0
   item_lvl: 42
   stats:
@@ -33,6 +35,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -50,6 +53,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133757
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -66,6 +70,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 25
   item_lvl: 30
@@ -82,6 +87,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 40
   item_lvl: 45
@@ -98,6 +104,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -114,6 +121,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -126,6 +134,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -138,6 +147,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133758
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -150,6 +160,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -162,6 +173,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -174,6 +186,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -186,6 +199,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -198,6 +212,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133754
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -213,6 +228,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133753
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -228,6 +244,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133772
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -242,6 +259,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133768
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -255,6 +273,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -268,6 +287,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133768
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -281,6 +301,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -294,6 +315,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133769
   req_lvl: 0
   item_lvl: 51
   stats:
@@ -307,6 +329,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -322,6 +345,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -337,6 +361,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -352,6 +377,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -367,6 +393,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -382,6 +409,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -397,6 +425,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -412,6 +441,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -427,6 +457,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133754
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -440,6 +471,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133754
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -453,6 +485,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -466,6 +499,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133766
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -479,6 +513,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133770
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -494,6 +529,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133765
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -509,6 +545,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -521,6 +558,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133772
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [WARRIOR]
@@ -537,6 +575,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133766
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [PALADIN]
@@ -553,6 +592,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133768
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [SHAMAN]
@@ -569,6 +609,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133767
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [HUNTER]
@@ -584,6 +625,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133771
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [ROGUE]
@@ -599,6 +641,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133767
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [DRUID]
@@ -617,6 +660,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133768
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [PRIEST]
@@ -634,6 +678,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133771
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [MAGE]
@@ -650,6 +695,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133772
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [WARLOCK]
@@ -665,6 +711,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133754
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -680,6 +727,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133762
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -693,6 +741,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133755
   req_lvl: 0
   item_lvl: 52
   stats:
@@ -704,6 +753,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133768
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -717,6 +767,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133769
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -730,6 +781,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -743,6 +795,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133756
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -757,6 +810,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 134304
   unique: true
   req_lvl: 25
   item_lvl: 30
@@ -828,6 +882,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133758
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -842,6 +897,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -854,6 +910,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -869,6 +926,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133759
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -880,6 +938,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -895,6 +954,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133773
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -906,6 +966,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: RARE
+  icon: 133762
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -955,6 +1016,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133753
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -969,6 +1031,7 @@ items:
   slot: BACK
   type: CLOTH
   quality: EPIC
+  icon: 133765
   req_lvl: 60
   item_lvl: 65
   boe: true

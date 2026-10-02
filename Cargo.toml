@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/csim-engine", "crates/csim-cli", "crates/csim-tables"]
+members = ["crates/csim-engine", "crates/csim-cli", "crates/csim-tables", "crates/csim-live"]
 
 [workspace.package]
 version = "0.1.0"
@@ -11,7 +11,9 @@ repository = "https://github.com/timhul/ClassicSimForever"
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
+serde_json = "1"
 thiserror = "2"
 approx = "0.5"
 csv = "1"
 clap = { version = "4", features = ["derive"] }
+tiny_http = "0.12"
