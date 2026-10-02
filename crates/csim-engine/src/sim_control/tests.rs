@@ -9,7 +9,7 @@ use super::*;
 use crate::character::tests::{equipment_db, race};
 use crate::character::{Character, ClassDb, ClassSpec};
 use crate::character_loader::CharacterSetup;
-use crate::combat_log::CombatLogEntry;
+use crate::combat_log::{CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::data_bundle::DataBundle;
 use crate::engine::EventType;
 use crate::faction::PlayerClass;
@@ -542,4 +542,103 @@ fn without_length_variance_every_encounter_lasts_the_combat_length() {
     let mut cruncher = NumberCruncher::new();
     SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
     assert_eq!(baseline(&cruncher).time_in_combat(), 600.0);
+}
+
+/// The player's casts in `log` as `(time, spell name)`.
+fn player_casts(log: &CombatLog) -> Vec<(f64, String)> {
+    log.entries()
+        .iter()
+        .filter_map(|entry| match &entry.event {
+            CombatLogEvent::SpellCastSuccess { spell, .. }
+                if entry.source == LogUnit::Character(CharId(0)) =>
+            {
+                Some((entry.time, spell.name.clone()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn a_character_played_by_input_casts_nothing_by_itself() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut rotation_raid = data.raid(&settings, 1, false);
+    let rotation_log = run_logged_iteration(&settings, 5, &mut rotation_raid);
+    assert!(player_casts(&rotation_log).len() > 10);
+
+    let mut raid = data.raid(&settings, 1, false);
+    raid.character_mut(CharId(0)).enable_manual_input();
+    let log = run_logged_iteration(&settings, 5, &mut raid);
+    assert_eq!(player_casts(&log), [], "no precombat actions, no rotation");
+    let swings = log
+        .entries()
+        .iter()
+        .filter(|entry| matches!(entry.event, CombatLogEvent::SwingDamage { .. }))
+        .count();
+    assert!(swings > 20, "the auto attacks still run: {swings}");
+}
+
+#[test]
+fn queued_input_is_cast_when_it_can_be_within_its_window() {
+    use crate::rotation::DecidedBy;
+
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let me = CharId(0);
+    raid.character_mut(me).enable_manual_input();
+    raid.character_mut(me)
+        .rotation_mut()
+        .unwrap()
+        .enable_trace();
+    let hamstring = {
+        let spells = raid.character(me).spells();
+        let group = spells.rank_group("Hamstring").unwrap();
+        group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap()
+    };
+    let mut stepper = IterationStepper::new(&settings, 5, &mut raid);
+    // A press at `at`, queued for 0.4 s: the caller wakes the character then.
+    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, at: f64| {
+        stepper.step_until(raid, at);
+        raid.character_mut(me).queue_input(hamstring, at + 0.4);
+        let wake = Event::new(at, EventKind::PlayerAction { character: me });
+        raid.engine_mut().add_event(wake);
+        stepper.step_until(raid, at);
+    };
+
+    // Castable: cast at the press. Hamstring triggers the global cooldown (1.5 s).
+    press(&mut raid, &mut stepper, 10.0);
+    // Pressed 1 s into the GCD: it ends after the window, so the press is dropped.
+    press(&mut raid, &mut stepper, 10.5);
+    stepper.step_until(&mut raid, 12.0);
+    assert_eq!(raid.character(me).queued_input(), None, "dropped");
+    // Castable again.
+    press(&mut raid, &mut stepper, 13.0);
+    // Pressed 0.2 s before the GCD ends: cast when it does.
+    press(&mut raid, &mut stepper, 14.3);
+    stepper.step_until(&mut raid, 16.0);
+
+    let casts = player_casts(raid.engine().combat_log().unwrap());
+    let expected = [
+        (10.0, "Hamstring"),
+        (13.0, "Hamstring"),
+        (14.5, "Hamstring"),
+    ];
+    let casts: Vec<(f64, &str)> = casts.iter().map(|(t, n)| (*t, n.as_str())).collect();
+    assert_eq!(casts.len(), expected.len(), "{casts:?}");
+    for ((time, name), (expected_time, expected_name)) in casts.iter().zip(expected) {
+        assert!((time - expected_time).abs() < 1e-9, "{casts:?}");
+        assert_eq!(*name, expected_name);
+    }
+
+    let trace = raid.character(me).rotation().unwrap().trace();
+    let inputs: Vec<f64> = trace
+        .iter()
+        .inspect(|decision| assert_eq!(decision.by, DecidedBy::Input))
+        .map(|decision| decision.time)
+        .collect();
+    assert_eq!(inputs.len(), 3, "{inputs:?}");
 }

@@ -76,7 +76,8 @@ pub struct Decision {
     pub time: f64,
     pub spell: String,
     pub icon: Option<u32>,
-    /// `entry` (a `cast_if` entry returned true), `precombat` or `precast`.
+    /// `entry` (a `cast_if` entry returned true), `precombat`, `precast` or `input` (the
+    /// player's, in manual mode).
     pub by: &'static str,
     /// The 1-based position of the `cast_if` entry, for `by: entry`.
     pub entry: Option<usize>,
@@ -473,6 +474,7 @@ impl Session {
                     DecidedBy::Executor(index) => ("entry", Some(index + 1)),
                     DecidedBy::Precombat => ("precombat", None),
                     DecidedBy::Precast => ("precast", None),
+                    DecidedBy::Input => ("input", None),
                 };
                 Decision {
                     time: decision.time,

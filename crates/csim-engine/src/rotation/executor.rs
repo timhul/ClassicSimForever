@@ -174,6 +174,10 @@ pub enum DecidedBy {
     Precombat,
     /// The precast.
     Precast,
+    /// Not the rotation: the player's input ([`Character::queue_input`]).
+    ///
+    /// [`Character::queue_input`]: crate::character::Character::queue_input
+    Input,
 }
 
 /// One cast the rotation made, recorded while its trace is enabled.
@@ -273,6 +277,12 @@ impl Rotation {
     }
 
     /// Records a decision, when the trace is enabled.
+    /// Records a cast of the player's input in the trace (when it is enabled), so the trace
+    /// lists every cast of a character played by input too.
+    pub fn record_input(&mut self, time: f64, spell: SpellId) {
+        self.record(time, spell, DecidedBy::Input);
+    }
+
     fn record(&mut self, time: f64, spell: SpellId, by: DecidedBy) {
         if let Some(trace) = &mut self.trace {
             trace.push(RotationDecision { time, spell, by });

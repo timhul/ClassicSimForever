@@ -1750,10 +1750,16 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if self.character.regen_wake().is_some_and(|at| at <= now) {
             return;
         }
+        let manual = self.character.manual_input();
         let wake = match (
             self.character.resource().as_energy(),
             self.character.rotation(),
         ) {
+            // Played by input: every tick that gains energy while a spell is queued.
+            (Some(energy), _) if manual => self.character.queued_input().and_then(|_| {
+                let after_now = self.character.last_regen_reaction() == now;
+                energy.next_reaction(now, after_now, now, PLAYER_REACTION_DELAY)
+            }),
             (Some(energy), Some(rotation)) if now >= 0.0 => {
                 let not_before = match self.character.regen_reactions() {
                     RegenReactions::EveryTick => now,
@@ -2250,6 +2256,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// Evaluate player action according to current rotation.
     /// This is a no-op before combat start (T < 0).
     pub fn perform_rotation(&mut self) {
+        if self.character.manual_input() {
+            self.perform_input();
+            return;
+        }
         if self.now() < 0.0 {
             return;
         }
@@ -2259,9 +2269,33 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells.
+    /// Casts the queued input ([`Character::queue_input`]) if it can be cast now, and drops it
+    /// once its time is up. Also before the pull: the player may act before it.
+    fn perform_input(&mut self) {
+        let Some((spell, until)) = self.character.queued_input() else {
+            return;
+        };
+        let now = self.now();
+        if now > until {
+            self.character.clear_queued_input();
+            return;
+        }
+        if self.character.spells.spell(spell).status(self) != SpellStatus::Available {
+            return;
+        }
+        self.character.clear_queued_input();
+        self.cast(spell);
+        if let Some(rotation) = self.character.rotation_mut() {
+            rotation.record_input(now, spell);
+        }
+    }
+
+    /// Casts the rotation's precombat spells (none for a character played by input).
     /// Expected to run at T < 0, but not strictly enforced.
     pub fn run_precombat_actions(&mut self) {
+        if self.character.manual_input() {
+            return;
+        }
         if let Some(mut rotation) = self.character.take_rotation() {
             rotation.run_precombat_actions(self);
             self.character.put_rotation(Some(rotation));

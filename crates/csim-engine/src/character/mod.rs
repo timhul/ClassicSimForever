@@ -169,6 +169,10 @@ pub struct Character {
 
     /// The rotation, linked to the spells. Taken out by the context to run it.
     rotation: Option<Rotation>,
+    /// Played by input instead of the rotation ([`Character::enable_manual_input`]).
+    manual_input: bool,
+    /// The spell input asked for and not cast yet, with the last time it may be cast.
+    queued_input: Option<(SpellId, f64)>,
     player_name: String,
     /// The statistics of the current set of iterations (the context records into them).
     statistics: ClassStatistics,
@@ -255,6 +259,8 @@ impl Character {
             last_regen_reaction: f64::NEG_INFINITY,
             last_roll_context: None,
             rotation: None,
+            manual_input: false,
+            queued_input: None,
             statistics: ClassStatistics::new(&player_name, sim.combat_length),
             player_name,
             race: race.race,
@@ -373,6 +379,35 @@ impl Character {
 
     /// Takes the rotation out (to run it against the context); [`Self::put_rotation`] returns
     /// it.
+    /// Plays the character by input instead of its rotation: the rotation is no longer
+    /// performed and its precombat actions are not run; what would perform it casts the
+    /// queued input instead ([`Character::queue_input`]). For a player at the keyboard.
+    pub fn enable_manual_input(&mut self) {
+        self.manual_input = true;
+    }
+
+    /// Whether the character is played by input ([`Character::enable_manual_input`]).
+    pub fn manual_input(&self) -> bool {
+        self.manual_input
+    }
+
+    /// Asks for `spell` by input, replacing what was asked for before: it is cast at the first
+    /// wake-up of the character (the moments it would perform its rotation) at or before
+    /// `until` at which it can be, and dropped at the first one after `until` (the game's spell
+    /// queue window). The caller wakes the character at the input with a `PlayerAction`.
+    pub fn queue_input(&mut self, spell: SpellId, until: f64) {
+        self.queued_input = Some((spell, until));
+    }
+
+    /// The spell input asked for and not cast yet, with the last time it may be cast.
+    pub fn queued_input(&self) -> Option<(SpellId, f64)> {
+        self.queued_input
+    }
+
+    pub(crate) fn clear_queued_input(&mut self) {
+        self.queued_input = None;
+    }
+
     pub fn take_rotation(&mut self) -> Option<Rotation> {
         self.rotation.take()
     }
@@ -1181,6 +1216,7 @@ impl Character {
         self.combo_points = 0;
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
+        self.queued_input = None;
         self.clear_regen_wake();
         self.last_regen_reaction = f64::NEG_INFINITY;
         self.spells.reset_state();
