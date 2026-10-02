@@ -362,6 +362,11 @@ impl Character {
         self.rotation.as_ref()
     }
 
+    /// The external buffs and debuffs offered to the character, with which are selected.
+    pub fn general_buffs(&self) -> &GeneralBuffs {
+        &self.general_buffs
+    }
+
     pub fn rotation_mut(&mut self) -> Option<&mut Rotation> {
         self.rotation.as_mut()
     }

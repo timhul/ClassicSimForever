@@ -416,3 +416,31 @@ fn procs_are_in_the_feed() {
         assert_eq!(after.time, at, "{:?}", &feed[index..index + 4]);
     }
 }
+
+#[test]
+fn the_target_debuffs_are_the_sims_and_the_setups() {
+    let state = session_of("dw_fury_orc.yaml", 1).advance(20.0).state;
+    let names: Vec<&str> = state.debuffs.iter().map(|d| d.name.as_str()).collect();
+    assert_eq!(names, ["Deep Wound", "Sunder Armor", "Faerie Fire"]);
+    let deep_wound = &state.debuffs[0];
+    assert!(deep_wound.expires_at.unwrap() > 20.0);
+    let sunder = &state.debuffs[1];
+    assert_eq!(
+        (sunder.stacks, sunder.expires_at),
+        (5, None),
+        "external: permanent"
+    );
+    assert!(state.debuffs.iter().all(|debuff| debuff.icon.is_some()));
+    assert!(
+        !state
+            .buffs
+            .iter()
+            .any(|buff| names.contains(&buff.name.as_str()))
+    );
+
+    let rogue = session_of("combat_swords_human.yaml", 1)
+        .advance(20.0)
+        .state;
+    let names: Vec<&str> = rogue.debuffs.iter().map(|d| d.name.as_str()).collect();
+    assert_eq!(names, ["Sunder Armor", "Faerie Fire"]);
+}

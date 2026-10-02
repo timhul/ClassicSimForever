@@ -11,6 +11,7 @@
 
 use std::sync::Arc;
 
+use csim_engine::buff::Buff;
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
 use csim_engine::data_bundle::DataBundle;
@@ -139,6 +140,9 @@ pub struct CharacterState {
     pub offhand: Option<SwingState>,
     /// The visible buffs on the character.
     pub buffs: Vec<BuffState>,
+    /// The visible debuffs on the target: the character's own (Deep Wound), the raid's shared
+    /// ones, then the setup's external debuffs (Sunder Armor, Faerie Fire), one per name.
+    pub debuffs: Vec<BuffState>,
     /// The cooldowns of the rotation's spells, in rotation order.
     pub cooldowns: Vec<CooldownState>,
 }
@@ -558,7 +562,7 @@ impl Session {
                 next: attack.next_expected_use(now),
             }
         };
-        let buffs = spells
+        let shown: Vec<&Buff> = spells
             .buff_ids()
             .filter_map(|id| match spells.buff_slot(id) {
                 csim_engine::character_spells::BuffSlot::Owned(buff) => Some(&**buff),
@@ -566,16 +570,44 @@ impl Session {
                     self.raid.shared_buffs().buffs().get(shared.index())
                 }
             })
-            .filter(|buff| buff.is_active() && !buff.is_hidden() && !buff.is_debuff())
-            .map(|buff| BuffState {
-                name: buff.name().to_owned(),
-                stacks: buff.stacks(),
-                charges: buff.charges(),
-                expires_at: buff.duration().map(|_| now + buff.time_left(now)),
-                duration: buff.duration(),
-                icon: self.spell_icon(buff.spell()),
-            })
+            .filter(|buff| buff.is_active() && !buff.is_hidden())
             .collect();
+        let state = |buff: &Buff| BuffState {
+            name: buff.name().to_owned(),
+            stacks: buff.stacks(),
+            charges: buff.charges(),
+            expires_at: buff.duration().map(|_| now + buff.time_left(now)),
+            duration: buff.duration(),
+            icon: self.spell_icon(buff.spell()),
+        };
+        let buffs = shown
+            .iter()
+            .filter(|buff| !buff.is_debuff())
+            .map(|buff| state(buff))
+            .collect();
+        let mut debuffs: Vec<BuffState> = Vec::new();
+        let shared = self.raid.shared_buffs().buffs().iter();
+        for buff in shown.iter().copied().chain(shared) {
+            if buff.is_debuff()
+                && buff.is_active()
+                && !buff.is_hidden()
+                && !debuffs.iter().any(|known| known.name == buff.name())
+            {
+                debuffs.push(state(buff));
+            }
+        }
+        // The setup's external debuffs (hidden buffs of the character), after the sim's own.
+        for entry in character.general_buffs().entries() {
+            let Some(buff) = spells.owned_buff(entry.buff) else {
+                continue;
+            };
+            if entry.debuff
+                && buff.is_active()
+                && !debuffs.iter().any(|known| known.name == buff.name())
+            {
+                debuffs.push(state(buff));
+            }
+        }
 
         let mut cooldowns: Vec<CooldownState> = Vec::new();
         let linked = character
@@ -622,6 +654,7 @@ impl Session {
             mainhand: swing(Hand::Mainhand),
             offhand: character.is_dual_wielding().then(|| swing(Hand::Offhand)),
             buffs,
+            debuffs,
             cooldowns,
         }
     }
