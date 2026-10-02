@@ -31,7 +31,7 @@ use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
-use csim_engine::statistics::report::{SpellRow, spell_rows};
+use csim_engine::statistics::report::{BuffRow, SpellRow, buff_rows_so_far, spell_rows};
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
@@ -137,6 +137,9 @@ pub struct Frame {
     /// The damage so far per spell, by outcome, as `csim run` reports it (one iteration of the
     /// combat time so far; empty before the pull).
     pub breakdown: Vec<SpellRow>,
+    /// The buffs' (and debuffs') uptimes so far, as `csim run` reports them (empty before the
+    /// pull).
+    pub buff_uptimes: Vec<BuffRow>,
 }
 
 /// A key press that could not cast its spell, with why, as the game says it.
@@ -575,7 +578,32 @@ impl Session {
             input_error: self.input_error(),
             state: self.character_state(),
             breakdown: self.breakdown(),
+            buff_uptimes: self.buff_uptimes(),
         }
+    }
+
+    /// The character's buffs' uptimes over the combat so far.
+    fn buff_uptimes(&self) -> Vec<BuffRow> {
+        if self.time > 0.0 {
+            let statistics = self.raid.character(PLAYER).statistics();
+            buff_rows_so_far(statistics, self.buffs(), self.time)
+        } else {
+            Vec::new()
+        }
+    }
+
+    /// Every buff of the character: its own and the ones it shares.
+    fn buffs(&self) -> Vec<&Buff> {
+        let spells = self.raid.character(PLAYER).spells();
+        spells
+            .buff_ids()
+            .filter_map(|id| match spells.buff_slot(id) {
+                csim_engine::character_spells::BuffSlot::Owned(buff) => Some(&**buff),
+                csim_engine::character_spells::BuffSlot::Shared(shared) => {
+                    self.raid.shared_buffs().buffs().get(shared.index())
+                }
+            })
+            .collect()
     }
 
     /// The character's spell rows over the combat so far.
@@ -705,14 +733,9 @@ impl Session {
                 next: attack.next_expected_use(now),
             }
         };
-        let shown: Vec<&Buff> = spells
-            .buff_ids()
-            .filter_map(|id| match spells.buff_slot(id) {
-                csim_engine::character_spells::BuffSlot::Owned(buff) => Some(&**buff),
-                csim_engine::character_spells::BuffSlot::Shared(shared) => {
-                    self.raid.shared_buffs().buffs().get(shared.index())
-                }
-            })
+        let shown: Vec<&Buff> = self
+            .buffs()
+            .into_iter()
             .filter(|buff| buff.is_active() && !buff.is_hidden())
             .collect();
         let state = |buff: &Buff| BuffState {

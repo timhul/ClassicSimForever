@@ -84,6 +84,51 @@ fn the_session_shows_the_iteration_the_cli_logs() {
 }
 
 #[test]
+fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
+    let mut session = session_of("dw_fury_orc.yaml", 3);
+    assert!(
+        session.advance(0.0).buff_uptimes.is_empty(),
+        "before the pull"
+    );
+    let early = session.advance(20.0).buff_uptimes;
+    assert!(!early.is_empty());
+    assert!(
+        early
+            .iter()
+            .all(|row| row.uptime > 0.0 && row.uptime <= 1.0),
+        "{early:?}"
+    );
+    let last = play(&mut session, 7.0).pop().unwrap();
+
+    let setup = setup("dw_fury_orc.yaml");
+    let settings = settings(&setup);
+    let mut raid = setup.build_raid(data(), &settings).unwrap();
+    run_logged_iteration(&settings, 3, &mut raid);
+    let mut reported =
+        csim_engine::statistics::report::buff_rows(raid.character(PLAYER).statistics());
+    // Applied before the pull, they count from it.
+    for row in &mut reported {
+        row.uptime = row.uptime.min(1.0);
+    }
+    let uptimes = |rows: &[BuffRow]| -> Vec<(String, bool, f64)> {
+        let mut rows: Vec<_> = rows
+            .iter()
+            .map(|row| {
+                (
+                    row.name.clone(),
+                    row.debuff,
+                    (row.uptime * 1e6).round() / 1e6,
+                )
+            })
+            .collect();
+        rows.sort_by(|a, b| a.0.cmp(&b.0));
+        rows
+    };
+    assert!(reported.len() > 3, "{reported:?}");
+    assert_eq!(uptimes(&last.buff_uptimes), uptimes(&reported));
+}
+
+#[test]
 fn the_breakdown_adds_up_to_the_damage_so_far() {
     let mut session = session_of("dw_fury_orc.yaml", 3);
     assert!(session.advance(0.0).breakdown.is_empty(), "before the pull");
