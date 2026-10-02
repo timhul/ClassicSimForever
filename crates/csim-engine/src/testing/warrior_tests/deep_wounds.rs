@@ -271,16 +271,16 @@ fn damage_of_3_of_3_deep_wounds() {
     assert_eq!(damage(3, 1), (60, "12.000".to_string()));
 }
 
-/// Two crits at once add two stacks of four ticks: every tick deals both shares.
+/// Two crits at once pool two applications over the four ticks.
 #[test]
 fn damage_pools_when_multiple_crits_occur() {
     assert_eq!(damage(3, 2), (120, "12.000".to_string()));
 }
 
-/// A crit 6 s into the bleed adds a stack to the running ticks: 15 per tick on its own, 30
-/// while the two overlap, 15 again once the first falls off, and the bleed runs to 18 s.
+/// A crit 6 s into the bleed adds its 60 to the 30 left and spreads the 90 over four fresh
+/// ticks (22.5 each, the half carried to the next tick): the bleed runs to 18 s.
 #[test]
-fn a_later_crit_adds_a_stack_that_outlives_the_first() {
+fn a_later_crit_rolls_the_rest_of_the_bleed_into_fresh_ticks() {
     let mut test = test();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     given_deep_wounds(&mut test, 3);
@@ -301,10 +301,10 @@ fn a_later_crit_adds_a_stack_that_outlives_the_first() {
     let expected = [
         ("3.000", 15),
         ("6.000", 15),
-        ("9.000", 30),
-        ("12.000", 30),
-        ("15.000", 15),
-        ("18.000", 15),
+        ("9.000", 23),
+        ("12.000", 22),
+        ("15.000", 23),
+        ("18.000", 22),
     ];
     let expected: Vec<_> = expected.iter().map(|(t, d)| (t.to_string(), *d)).collect();
     assert_eq!(ticks, expected);

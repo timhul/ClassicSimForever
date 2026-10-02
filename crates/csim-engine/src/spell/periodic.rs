@@ -53,10 +53,10 @@ pub enum PeriodicKind {
     /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
     /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
-    /// in `ticks_per_application` equal ticks; every application adds an independent stack of
-    /// ticks, a tick deals one share per live stack (the stacks pool: the bleed weakens as they
-    /// fall off) and the rounding remainder is carried between ticks. Port of `DeepWounds`,
-    /// which dealt one share whatever the stack count.
+    /// in `ticks_per_application` ticks. An application while the bleed runs adds its damage to
+    /// what the bleed has left and spreads the pool over a fresh `ticks_per_application` ticks
+    /// (on the running tick chain); the rounding remainder is carried between ticks. Port of
+    /// `DeepWounds`, which instead kept the per-tick damage and a stack of ticks per application.
     WeaponDamage {
         percent: f64,
         ticks_per_application: u32,
@@ -157,8 +157,10 @@ pub struct Periodic {
     /// deals its value once per stack. Kept here because the tick due as the aura expires
     /// runs after the buff dropped its stacks.
     aura_stacks: u32,
-    // Deep-Wounds-style state.
-    stacks: Vec<u32>,
+    // Deep-Wounds-style state (ticks left in `ticks_left`).
+    /// The damage the bleed has left to deal, in applications (1 per application, less a share
+    /// per tick): scaled by the weapon damage on each tick.
+    pool: f64,
     previous_tick_rest: f64,
 }
 
@@ -177,7 +179,7 @@ impl Periodic {
             application_id: 0,
             ticks_left: 0,
             aura_stacks: 0,
-            stacks: Vec::new(),
+            pool: 0.0,
             previous_tick_rest: 0.0,
         }
     }
@@ -204,8 +206,9 @@ impl Periodic {
         self.ticks_left
     }
 
-    pub fn stacks(&self) -> &[u32] {
-        &self.stacks
+    /// The damage a bleed has left to deal, in applications.
+    pub fn pool(&self) -> f64 {
+        self.pool
     }
 
     /// Records the aura's stack count after an application or refresh.
@@ -240,7 +243,10 @@ impl Periodic {
             PeriodicKind::WeaponDamage {
                 ticks_per_application,
                 ..
-            } => self.stacks.push(ticks_per_application),
+            } => {
+                self.pool += 1.0;
+                self.ticks_left = ticks_per_application;
+            }
         }
     }
 
@@ -317,25 +323,18 @@ impl Periodic {
                     ..quiet
                 })
             }
-            PeriodicKind::WeaponDamage {
-                percent,
-                ticks_per_application,
-            } => {
-                if self.stacks.is_empty() {
+            PeriodicKind::WeaponDamage { percent, .. } => {
+                if self.ticks_left == 0 {
                     return None;
                 }
-                // The stacks pool: each live one deals its application's share of the tick.
-                let stacks = self.stacks.len() as f64;
-                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod
-                    / f64::from(ticks_per_application)
-                    * stacks;
+                let share = self.pool / f64::from(self.ticks_left);
+                self.pool -= share;
+                self.ticks_left -= 1;
+                let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod * share;
                 damage += self.previous_tick_rest;
                 self.previous_tick_rest = damage - damage.round();
-                for stack in &mut self.stacks {
-                    *stack -= 1;
-                }
-                self.stacks.retain(|stack| *stack > 0);
-                if self.stacks.is_empty() {
+                if self.ticks_left == 0 {
+                    self.pool = 0.0;
                     self.previous_tick_rest = 0.0;
                 } else {
                     self.schedule_tick(spell, host);
@@ -355,7 +354,7 @@ impl Periodic {
     pub fn is_exhausted(&self, kind: &PeriodicKind) -> bool {
         match kind {
             PeriodicKind::Damage { .. } => self.ticks_left == 0,
-            PeriodicKind::WeaponDamage { .. } => self.stacks.is_empty(),
+            PeriodicKind::WeaponDamage { .. } => self.ticks_left == 0,
             _ => false,
         }
     }
@@ -364,7 +363,7 @@ impl Periodic {
     pub fn reset_state(&mut self) {
         self.ticks_left = 0;
         self.aura_stacks = 0;
-        self.stacks.clear();
+        self.pool = 0.0;
         self.previous_tick_rest = 0.0;
     }
 
@@ -434,10 +433,12 @@ mod tests {
         assert!(periodic.is_exhausted(&kind));
         periodic.refresh(&kind);
         periodic.refresh(&kind);
-        assert_eq!(periodic.stacks(), [4, 4]);
+        assert_eq!(periodic.pool(), 2.0);
+        assert_eq!(periodic.ticks_left(), 4);
         assert!(!periodic.is_exhausted(&kind));
         periodic.reset_state();
-        assert!(periodic.stacks().is_empty());
+        assert_eq!(periodic.pool(), 0.0);
+        assert!(periodic.is_exhausted(&kind));
     }
 
     #[test]
