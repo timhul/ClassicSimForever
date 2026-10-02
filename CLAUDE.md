@@ -60,8 +60,9 @@ that returned true). It takes the setup, `--seed`, `--length`,
 With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
 maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
 Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the
-spell is not castable yet waits 0.4 s for it (the game's spell queue window). Examples are in
-`data/keybinds/`:
+spell is not castable yet waits 0.4 s for it (the game's spell queue window). A key can also
+cast a macro (`Name: {hotkey: T, cast: [Spell1, Spell2]}`), tried in order like the game's `/cast`
+lines: it stops after a spell that triggers the GCD. Examples are in `data/keybinds/`:
 
 `cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
 
