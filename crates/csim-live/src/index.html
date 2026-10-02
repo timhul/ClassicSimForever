@@ -137,7 +137,32 @@
     background: #000;
     border-radius: 8px;
     border: 1px solid var(--line);
+    container-type: inline-size;
   }
+  /* The swing timers, bottom centre, 20% of the width the Timers panel's bars had. */
+  #swings {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    display: grid;
+    justify-content: center;
+    gap: 4px;
+  }
+  .swing {
+    display: grid;
+    /* The old bar: the stage's width less the label and value columns (~230 px). */
+    grid-template-columns: 22px max(40px, calc((100cqw - 230px) * 0.2)) 34px;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .swing .bar { height: 6px; }
+  /* The floating numbers, over the swing timers. */
+  #floats { position: absolute; inset: 0; z-index: 1; }
+  .swing .value { text-align: left; }
   .float {
     position: absolute;
     left: 50%;
@@ -323,7 +348,21 @@
   </section>
 
   <section id="state">
-    <div id="stage" class="paused"></div>
+    <div id="stage" class="paused">
+      <div id="floats"></div>
+      <div id="swings">
+        <div class="swing">
+          <span>MH</span>
+          <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
+          <span class="value" id="mh-value"></span>
+        </div>
+        <div class="swing" id="oh-row">
+          <span>OH</span>
+          <div class="bar"><div id="oh-fill" style="background: var(--swing)"></div></div>
+          <span class="value" id="oh-value"></span>
+        </div>
+      </div>
+    </div>
     <div class="panel">
       <h2 id="resource-name">Resource</h2>
       <div class="row">
@@ -340,20 +379,6 @@
         <span class="label">Stance</span>
         <span id="stance"></span>
         <span></span>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Timers</h2>
-      <div class="row">
-        <span class="label">Main hand</span>
-        <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
-        <span class="value" id="mh-value"></span>
-      </div>
-      <div class="row" id="oh-row">
-        <span class="label">Off hand</span>
-        <div class="bar"><div id="oh-fill" style="background: var(--swing)"></div></div>
-        <span class="value" id="oh-value"></span>
       </div>
     </div>
 
@@ -429,7 +454,7 @@ function restart(seed) {
   return enqueue(async () => {
     info = await api("POST", "/api/restart", seed === null ? {} : { seed });
     $("feed").replaceChildren();
-    $("stage").replaceChildren();
+    $("floats").replaceChildren();
     $("status").textContent = "";
     $("last-event").textContent = "";
     $("name").textContent = info.name;
@@ -516,7 +541,7 @@ let floatSide = 1;
 
 /** The hits as damage numbers floating on the stage, as in the game. */
 function floatHits(hits) {
-  const stage = $("stage");
+  const stage = $("floats");
   for (const hit of hits) {
     if (hit.proc) {
       continue;
