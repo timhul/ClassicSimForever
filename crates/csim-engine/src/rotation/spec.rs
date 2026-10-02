@@ -412,7 +412,11 @@ cast_if:
         assert_eq!(spec.class, PlayerClass::Warrior);
         assert_eq!(spec.name, "DW Fury");
         assert_eq!(spec.attack_mode, AttackMode::MeleeAttack);
-        assert_eq!(spec.description, "A rotation for dual-wield fury.");
+        assert_eq!(
+            spec.description,
+            "A rotation for dual-wield fury that does not attempt to dump rage before \
+             switching to Battle Stance for Overpower."
+        );
         assert_eq!(
             spec.precombat_actions,
             ["Bloodrage", "Battle Shout", "Berserker Stance"]

@@ -88,7 +88,6 @@
 17223 Thunderstrike: req_lvl: 60 -> 58
 18399 Ocean's Breeze: unique: true -> false
 18399 Ocean's Breeze: req_lvl: 60 -> 0
-18403 Dragonslayer's Signet: unique: true -> false
 18403 Dragonslayer's Signet: req_lvl: 60 -> 0
 18403 Dragonslayer's Signet: item_lvl: 74 -> 65
 18403 Dragonslayer's Signet: stat INTELLECT: 12 -> 11

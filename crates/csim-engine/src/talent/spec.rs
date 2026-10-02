@@ -547,7 +547,7 @@ talents:
         let dual_wield = file
             .talent_by_name("Dual Wield Specialization", None)
             .unwrap();
-        assert_eq!(dual_wield.values_at(5), [(0, 25.0), (1, 100.0), (2, 10.0)]);
+        assert_eq!(dual_wield.values_at(5), [(0, 25.0), (1, 10.0), (2, 10.0)]);
     }
 
     #[test]

@@ -2,7 +2,7 @@
 # Do not edit: re-export from a new table dump instead. What a talent does is in its
 # spell (data/spells/<class>.yaml); the rank values here replace the spell's effect
 # base points at each rank (see data/TALENT_INSTRUCTIONS.md).
-build: 1.60.1.70009
+build: 1.60.1.70170
 class: WARRIOR
 tree: 1117
 points: 51
@@ -247,7 +247,7 @@ talents:
   max_ranks: 5
   rank_values:
     0: [5.0, 10.0, 15.0, 20.0, 25.0]
-    1: [20.0, 40.0, 60.0, 80.0, 100.0]
+    1: [2.0, 4.0, 6.0, 8.0, 10.0]
     2: [2.0, 4.0, 6.0, 8.0, 10.0]
 - node: 105977
   spell: 1310315

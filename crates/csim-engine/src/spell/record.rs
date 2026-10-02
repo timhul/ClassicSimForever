@@ -2224,7 +2224,7 @@ spells:
     fn shipped_spell_data_loads() {
         let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
         let db = SpellDb::load(&dir).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.70009"));
+        assert_eq!(db.build(), Some("1.60.1.70170"));
         assert!(db.len() > 240, "{}", db.len());
         assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
         assert!(db.ids_of_class(None).len() > 30, "racials");
@@ -2307,8 +2307,9 @@ spells:
         assert_eq!(
             pending,
             [
-                12299, 13567, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286, 402911,
-                403196, 1287808, 1295744, 1317432, 1318325, 1318470, 1318514
+                71, 12299, 13567, 13983, 14537, 18350, 24658, 24661, 28839, 29275, 29284, 29286,
+                402911, 403196, 1259813, 1287808, 1295744, 1317432, 1318325, 1318470, 1318514,
+                1322218
             ],
             "Toughness (aura 466), Raging Blow, Devastate, and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );
