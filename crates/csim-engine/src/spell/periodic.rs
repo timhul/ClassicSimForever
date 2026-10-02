@@ -16,10 +16,10 @@ use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
 use crate::resource::ResourceType;
-use crate::spell::SpellHost;
 use crate::spell::dbc::AuraType;
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::EffectRecord;
+use crate::spell::{Hand, SpellHost};
 
 /// The tick period of an aura effect in milliseconds, if it ticks: a periodic aura's
 /// `EffectAuraPeriod`, or the `period_ms` of a `PERIODIC_RESOURCE_GAIN` script on a `DUMMY`
@@ -53,7 +53,7 @@ pub enum PeriodicKind {
     /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
     /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base damage of the weapon that crit (as of
-    /// the crit) per application, dealt in `ticks_per_application` ticks, times the damage done
+    /// the crit; the off hand's with the off-hand penalty) per application, dealt in `ticks_per_application` ticks, times the damage done
     /// modifiers of each tick. An application while the bleed runs adds its damage to
     /// what the bleed has left and spreads the pool over a fresh `ticks_per_application` ticks
     /// (on the running tick chain); the rounding remainder is carried between ticks. Port of
@@ -244,7 +244,11 @@ impl Periodic {
                 percent,
                 ticks_per_application,
             } => {
-                let weapon = host.avg_weapon_damage(host.proc_hand());
+                let hand = host.proc_hand();
+                let mut weapon = host.avg_weapon_damage(hand);
+                if hand == Hand::Offhand {
+                    weapon *= host.offhand_penalty();
+                }
                 self.add_bleed(weapon * percent / 100.0, ticks_per_application);
             }
         }
