@@ -450,7 +450,7 @@ fn raid_runs_the_player_with_the_members() {
     for expected in [
         "Raid Horde melee: 5 players, DPS ",
         "Raid members",
-        "2H Fury Orc",
+        "DW Fury Orc",
         "Damage and threat",
     ] {
         assert!(
@@ -490,7 +490,7 @@ fn a_raid_of_the_other_faction_fails() {
     assert!(!output.status.success());
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
-        stderr.contains("2H Fury Orc is Horde, the raid is Alliance"),
+        stderr.contains("DW Fury Orc is Horde, the raid is Alliance"),
         "{stderr}"
     );
 }

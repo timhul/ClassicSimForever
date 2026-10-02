@@ -69,7 +69,7 @@ fn the_player_comes_first_and_the_members_fill_their_parties() {
             .iter()
             .map(|m| (m.party, m.setup.name.as_str()))
             .collect::<Vec<_>>(),
-        [(0, "2H Fury Orc"), (1, "DW Fury Orc"), (1, "2H Fury Orc")]
+        [(0, "DW Fury Orc"), (1, "DW Fury Orc"), (1, "DW Fury Orc")]
     );
     let player = character("dw_fury_orc.yaml");
     let raid = setup

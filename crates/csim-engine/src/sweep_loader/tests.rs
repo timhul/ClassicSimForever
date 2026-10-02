@@ -274,7 +274,7 @@ fn characters_replace_the_whole_setup() {
         .collect();
     assert_eq!(
         labels,
-        vec!["DW Fury Orc", "Human swords", "2H Fury Orc"],
+        vec!["DW Fury Orc", "Human swords", "DW Fury Orc"],
         "the label, else the setup's name; {:?}",
         expansion.invalid
     );
