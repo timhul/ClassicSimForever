@@ -5,7 +5,7 @@ use serde::Serialize;
 
 use super::{ClassStatistics, Outcome, SpellStatistics};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SpellRow {
     pub name: String,
     pub dps: f64,

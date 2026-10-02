@@ -84,6 +84,29 @@ fn the_session_shows_the_iteration_the_cli_logs() {
 }
 
 #[test]
+fn the_breakdown_adds_up_to_the_damage_so_far() {
+    let mut session = session_of("dw_fury_orc.yaml", 3);
+    assert!(session.advance(0.0).breakdown.is_empty(), "before the pull");
+    for time in [10.0, 30.0] {
+        let frame = session.advance(time);
+        let rows = &frame.breakdown;
+        assert!(rows.len() > 3, "{rows:?}");
+        let damage: f64 = rows.iter().map(|row| row.dps * frame.time).sum();
+        assert!(
+            (damage - frame.total_damage as f64).abs() < 1e-6 * damage,
+            "{damage} {}",
+            frame.total_damage
+        );
+        let share: f64 = rows.iter().map(|row| row.damage_share).sum();
+        assert!((share - 1.0).abs() < 1e-9, "{share}");
+        assert!(
+            rows.iter()
+                .any(|row| row.name.starts_with("Bloodthirst") && row.casts >= 1.0)
+        );
+    }
+}
+
+#[test]
 fn advancing_runs_nothing_past_the_time_shown() {
     let mut session = session_of("dw_fury_orc.yaml", 1);
     let mut shown = f64::NEG_INFINITY;

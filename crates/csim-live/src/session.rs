@@ -31,6 +31,7 @@ use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
+use csim_engine::statistics::report::{SpellRow, spell_rows};
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
@@ -133,6 +134,9 @@ pub struct Frame {
     /// From the keyboard: the last key press since the previous frame that was dropped uncast.
     pub input_error: Option<InputError>,
     pub state: CharacterState,
+    /// The damage so far per spell, by outcome, as `csim run` reports it (one iteration of the
+    /// combat time so far; empty before the pull).
+    pub breakdown: Vec<SpellRow>,
 }
 
 /// A key press that could not cast its spell, with why, as the game says it.
@@ -570,6 +574,16 @@ impl Session {
             dps,
             input_error: self.input_error(),
             state: self.character_state(),
+            breakdown: self.breakdown(),
+        }
+    }
+
+    /// The character's spell rows over the combat so far.
+    fn breakdown(&self) -> Vec<SpellRow> {
+        if self.time > 0.0 {
+            spell_rows(self.raid.character(PLAYER).statistics(), 1, self.time)
+        } else {
+            Vec::new()
         }
     }
 
