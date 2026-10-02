@@ -103,6 +103,34 @@ pub enum RegenReactions {
     EveryTick,
 }
 
+/// Input asked for and not done yet: one spell, or a macro's entries from the one it stopped at.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct QueuedInput {
+    pub(crate) spells: Vec<SpellId>,
+    /// The entry to try next.
+    pub(crate) next: usize,
+    /// The last time it may cast.
+    pub(crate) until: f64,
+    /// A macro: it skips what it cannot cast (but for the GCD), a spell waits for it.
+    pub(crate) is_macro: bool,
+    /// The first entry that could not be cast, with why: reported if nothing is cast.
+    pub(crate) first_failure: Option<(SpellId, SpellStatus)>,
+    pub(crate) cast_any: bool,
+}
+
+impl QueuedInput {
+    fn new(spells: Vec<SpellId>, until: f64, is_macro: bool) -> QueuedInput {
+        QueuedInput {
+            spells,
+            next: 0,
+            until,
+            is_macro,
+            first_failure: None,
+            cast_any: false,
+        }
+    }
+}
+
 /// One player character.
 #[derive(Debug)]
 pub struct Character {
@@ -171,8 +199,8 @@ pub struct Character {
     rotation: Option<Rotation>,
     /// Played by input instead of the rotation ([`Character::enable_manual_input`]).
     manual_input: bool,
-    /// The spell input asked for and not cast yet, with the last time it may be cast.
-    queued_input: Option<(SpellId, f64)>,
+    /// The input asked for and not done yet.
+    queued_input: Option<QueuedInput>,
     /// What the queued input last waited on (`Available` before its first wake-up).
     input_waiting_on: SpellStatus,
     /// The last input dropped uncast, with why it could not be cast.
@@ -383,8 +411,6 @@ impl Character {
         self.rotation.as_mut()
     }
 
-    /// Takes the rotation out (to run it against the context); [`Self::put_rotation`] returns
-    /// it.
     /// Plays the character by input instead of its rotation: the rotation is no longer
     /// performed and its precombat actions are not run; what would perform it casts the
     /// queued input instead ([`Character::queue_input`]). For a player at the keyboard.
@@ -400,15 +426,46 @@ impl Character {
     /// Asks for `spell` by input, replacing what was asked for before: it is cast at the first
     /// wake-up of the character (the moments it would perform its rotation) at or before
     /// `until` at which it can be, and dropped at the first one after `until` (the game's spell
-    /// queue window). The caller wakes the character at the input with a `PlayerAction`.
+    /// queue window), or at once when waiting cannot make it castable
+    /// ([`SpellStatus::passes_with_time`]). The caller wakes the character at the input with a
+    /// `PlayerAction`.
     pub fn queue_input(&mut self, spell: SpellId, until: f64) {
-        self.queued_input = Some((spell, until));
+        self.queue(QueuedInput::new(vec![spell], until, false));
+    }
+
+    /// Asks for a macro by input (the game's `/cast` lines), replacing what was asked for
+    /// before. At each wake-up of the character at or before `until` its entries are tried in
+    /// order from the one it stopped at: a castable entry is cast, and one that triggers the
+    /// global cooldown ends the macro; an entry blocked by the global or stance cooldown (or a
+    /// cast in progress) stops it there to wait; any other entry is skipped. A macro that casts
+    /// nothing reports its first entry's failure ([`Character::take_input_failure`]).
+    ///
+    /// # Panics
+    /// Panics if `spells` is empty.
+    pub fn queue_macro(&mut self, spells: Vec<SpellId>, until: f64) {
+        assert!(!spells.is_empty(), "a macro casts something");
+        self.queue(QueuedInput::new(spells, until, true));
+    }
+
+    fn queue(&mut self, input: QueuedInput) {
+        self.queued_input = Some(input);
         self.input_waiting_on = SpellStatus::Available;
     }
 
-    /// The spell input asked for and not cast yet, with the last time it may be cast.
+    /// The spell input waits to cast (a macro's entry it stopped at), with the last time it
+    /// may be cast.
     pub fn queued_input(&self) -> Option<(SpellId, f64)> {
         self.queued_input
+            .as_ref()
+            .map(|input| (input.spells[input.next], input.until))
+    }
+
+    pub(crate) fn queued(&self) -> Option<&QueuedInput> {
+        self.queued_input.as_ref()
+    }
+
+    pub(crate) fn queued_mut(&mut self) -> Option<&mut QueuedInput> {
+        self.queued_input.as_mut()
     }
 
     pub(crate) fn clear_queued_input(&mut self) {
@@ -424,11 +481,10 @@ impl Character {
         self.input_waiting_on = status;
     }
 
-    /// Drops the queued input uncast because of `status`.
-    pub(crate) fn fail_queued_input(&mut self, status: SpellStatus) {
-        if let Some((spell, _)) = self.queued_input.take() {
-            self.input_failure = Some((spell, status));
-        }
+    /// Drops the queued input: `spell` could not be cast because of `status`.
+    pub(crate) fn fail_queued_input(&mut self, spell: SpellId, status: SpellStatus) {
+        self.queued_input = None;
+        self.input_failure = Some((spell, status));
     }
 
     /// The last input dropped uncast, with why: its status when it could not wait any longer
@@ -438,6 +494,8 @@ impl Character {
         self.input_failure.take()
     }
 
+    /// Takes the rotation out (to run it against the context); [`Self::put_rotation`] returns
+    /// it.
     pub fn take_rotation(&mut self) -> Option<Rotation> {
         self.rotation.take()
     }

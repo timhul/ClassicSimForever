@@ -13,6 +13,7 @@ use crate::combat_log::{CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::data_bundle::DataBundle;
 use crate::engine::EventType;
 use crate::faction::PlayerClass;
+use crate::ids::SpellId;
 use crate::item::EquipmentSlot;
 use crate::phase::Phase;
 use crate::race::Race;
@@ -663,4 +664,93 @@ fn queued_input_is_cast_when_it_can_be_within_its_window() {
         .map(|decision| decision.time)
         .collect();
     assert_eq!(inputs.len(), 3, "{inputs:?}");
+}
+
+#[test]
+fn a_macro_casts_in_order_and_ends_at_the_global_cooldown() {
+    let data = Data::load();
+    let settings = settings(1);
+    let mut raid = data.raid(&settings, 1, false);
+    let me = CharId(0);
+    raid.character_mut(me).enable_manual_input();
+    raid.character_mut(me)
+        .rotation_mut()
+        .unwrap()
+        .enable_trace();
+    let learned = |raid: &RaidControl, name: &str| {
+        let spells = raid.character(me).spells();
+        let group = spells.rank_group(name).unwrap();
+        group
+            .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            .unwrap()
+    };
+    let [bloodrage, hamstring, heroic_strike, battle_shout] =
+        ["Bloodrage", "Hamstring", "Heroic Strike", "Battle Shout"]
+            .map(|name| learned(&raid, name));
+    let mut stepper = IterationStepper::new(&settings, 5, &mut raid);
+    let press = |raid: &mut RaidControl, stepper: &mut IterationStepper, spells: &[SpellId], at| {
+        stepper.step_until(raid, at);
+        raid.character_mut(me)
+            .queue_macro(spells.to_vec(), at + 0.4);
+        let wake = Event::new(at, EventKind::PlayerAction { character: me });
+        raid.engine_mut().add_event(wake);
+        stepper.step_until(raid, at);
+    };
+    // The input's casts, as the trace has them when cast (the log shows Heroic Strike's when
+    // its swing lands).
+    let casts_between = |raid: &RaidControl, from: f64, to: f64| -> Vec<(f64, String)> {
+        let character = raid.character(me);
+        character
+            .rotation()
+            .unwrap()
+            .trace()
+            .iter()
+            .filter(|decision| (from..to).contains(&decision.time))
+            .map(|d| (d.time, character.spells().spell(d.spell).name().to_owned()))
+            .collect()
+    };
+
+    // Off the GCD, on it, off it: the third never fires, the second's GCD ends the macro.
+    press(
+        &mut raid,
+        &mut stepper,
+        &[bloodrage, hamstring, heroic_strike],
+        10.0,
+    );
+    stepper.step_until(&mut raid, 11.0);
+    let casts = casts_between(&raid, 10.0, 11.0);
+    let names: Vec<&str> = casts.iter().map(|(_, name)| name.as_str()).collect();
+    assert_eq!(names, ["Bloodrage", "Hamstring"], "{casts:?}");
+    assert!(casts.iter().all(|(time, _)| *time == 10.0));
+    assert_eq!(raid.character(me).queued_input(), None);
+
+    // Pressed during the GCD (to 11.5): the first entry fires, the macro waits at the
+    // second and goes on when the GCD ends.
+    press(&mut raid, &mut stepper, &[heroic_strike, hamstring], 11.2);
+    stepper.step_until(&mut raid, 12.0);
+    let casts = casts_between(&raid, 11.0, 12.0);
+    let expected = [(11.2, "Heroic Strike"), (11.5, "Hamstring")];
+    assert_eq!(casts.len(), 2, "{casts:?}");
+    for ((time, name), (expected_time, expected_name)) in casts.iter().zip(expected) {
+        assert!((time - expected_time).abs() < 1e-9, "{casts:?}");
+        assert_eq!(name, expected_name);
+    }
+
+    // Bloodrage on its cooldown is skipped.
+    press(&mut raid, &mut stepper, &[bloodrage, battle_shout], 13.0);
+    let casts = casts_between(&raid, 12.0, 13.5);
+    let names: Vec<&str> = casts.iter().map(|(_, name)| name.as_str()).collect();
+    assert_eq!(names, ["Battle Shout"]);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        None,
+        "cast something"
+    );
+
+    // Casting nothing reports its first entry's failure.
+    press(&mut raid, &mut stepper, &[bloodrage], 16.0);
+    assert_eq!(
+        raid.character_mut(me).take_input_failure(),
+        Some((bloodrage, SpellStatus::OnCooldown))
+    );
 }

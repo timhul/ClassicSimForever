@@ -2273,33 +2273,73 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// when waiting cannot help or its time is up ([`Character::take_input_failure`]). Also
     /// before the pull: the player may act before it.
     fn perform_input(&mut self) {
-        let Some((spell, until)) = self.character.queued_input() else {
+        let Some(input) = self.character.queued() else {
             return;
         };
+        let (until, is_macro) = (input.until, input.is_macro);
         let now = self.now();
-        let status = self.character.spells.spell(spell).status(self);
-        if now > until {
-            // Too late, even if usable by now: why it had to wait.
-            let waited_on = if status.is_available() {
-                self.character.input_waiting_on()
-            } else {
-                status
+        loop {
+            let Some(input) = self.character.queued() else {
+                return;
             };
-            self.character.fail_queued_input(waited_on);
-            return;
-        }
-        if !status.is_available() {
-            if status.passes_with_time() {
-                self.character.set_input_waiting_on(status);
-            } else {
-                self.character.fail_queued_input(status);
+            let Some(&spell) = input.spells.get(input.next) else {
+                // A macro through its entries: nothing cast reports why.
+                match input.first_failure {
+                    Some((spell, status)) if !input.cast_any => {
+                        self.character.fail_queued_input(spell, status);
+                    }
+                    _ => self.character.clear_queued_input(),
+                }
+                return;
+            };
+            let status = self.character.spells.spell(spell).status(self);
+            if now > until {
+                // Too late, even if usable by now: why it had to wait.
+                let waited_on = if status.is_available() {
+                    self.character.input_waiting_on()
+                } else {
+                    status
+                };
+                self.character.fail_queued_input(spell, waited_on);
+                return;
             }
-            return;
-        }
-        self.character.clear_queued_input();
-        self.cast(spell);
-        if let Some(rotation) = self.character.rotation_mut() {
-            rotation.record_input(now, spell);
+            if status.is_available() {
+                let ends = self.character.spells.spell(spell).triggers_gcd();
+                let input = self.character.queued_mut().expect("queued");
+                input.next += 1;
+                input.cast_any = true;
+                if ends {
+                    // The global cooldown it starts ends a macro: nothing after it fires.
+                    self.character.clear_queued_input();
+                }
+                self.cast(spell);
+                if let Some(rotation) = self.character.rotation_mut() {
+                    rotation.record_input(now, spell);
+                }
+                continue;
+            }
+            let waits = if is_macro {
+                matches!(
+                    status,
+                    SpellStatus::OnGcd
+                        | SpellStatus::OnStanceCooldown
+                        | SpellStatus::CastInProgress
+                )
+            } else {
+                status.passes_with_time()
+            };
+            if waits {
+                self.character.set_input_waiting_on(status);
+                return;
+            }
+            if !is_macro {
+                self.character.fail_queued_input(spell, status);
+                return;
+            }
+            // A macro skips what it cannot cast.
+            let input = self.character.queued_mut().expect("queued");
+            input.first_failure.get_or_insert((spell, status));
+            input.next += 1;
         }
     }
 
