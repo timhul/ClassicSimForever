@@ -1,0 +1,12 @@
+# Keys for playing a Combat Rogue from the keyboard in csim-live:
+#   cargo run --release -p csim-live -- data/characters/combat_swords_human.yaml --keybinds data/keybinds/combat.yaml
+#
+# 'spell name': [Ctrl+][Shift+][Alt+]key. The key is a letter, a digit, F1..F12 or a key name
+# (Space, Tab, Minus, Numpad1, ...). A spell without a key cannot be cast.
+Sinister Strike: 1
+Eviscerate: 2
+Slice and Dice: 3
+Blade Flurry: Shift+1
+Adrenaline Rush: Shift+2
+Thistle Tea: Shift+3
+Earthstrike: Shift+4

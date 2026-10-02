@@ -57,6 +57,14 @@ that returned true). It takes the setup, `--seed`, `--length`,
 
 `cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --seed 1`
 
+With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
+maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
+Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the
+spell is not castable yet waits 0.4 s for it (the game's spell queue window). Examples are in
+`data/keybinds/`:
+
+`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
+
 Its spell and item icons come from `data/icons/` (a gitignored cache of the game's textures, by
 the `icon` FileDataIDs of the exported spells and items). Fetch them once, and again after a
 re-export; without them the page shows no icons:

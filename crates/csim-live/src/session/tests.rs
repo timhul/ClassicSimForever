@@ -553,3 +553,21 @@ fn an_unlearned_bound_spell_is_refused() {
         .unwrap();
     assert!(error.contains("Mortal Strike"), "{error}");
 }
+
+#[test]
+fn the_shipped_keybinds_bind_their_characters_spells() {
+    for (file, keybinds) in [
+        ("dw_fury_orc.yaml", "dw_fury.yaml"),
+        ("combat_swords_human.yaml", "combat.yaml"),
+    ] {
+        let path = DataBundle::repository_dir().join("keybinds").join(keybinds);
+        let text = std::fs::read_to_string(&path).unwrap();
+        let session = manual_session_of(file, 1, &text);
+        let info = session.info();
+        assert!(info.keybinds.len() > 5, "{keybinds}");
+        assert!(
+            info.keybinds.iter().all(|keybind| keybind.icon.is_some()),
+            "{keybinds}"
+        );
+    }
+}
