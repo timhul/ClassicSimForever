@@ -493,6 +493,24 @@ function addHits(hits) {
 }
 
 const FLOAT_LIMIT = 60;
+const CRIT_ROW_HEIGHT = 44;
+/** The crits' rows from the middle (0), in the order they fill: above (-1), below (1), ... */
+const CRIT_ROWS = [0, -1, 1, -2, 2];
+
+/**
+ * The first free row for a crit, in `CRIT_ROWS` order: a row frees when its crit fades out.
+ * With every row taken, the oldest crit makes room.
+ */
+function critRow(stage) {
+  const crits = [...stage.querySelectorAll(".float.crit")];
+  const taken = new Set(crits.map((crit) => Number(crit.dataset.row)));
+  const free = CRIT_ROWS.find((row) => !taken.has(row));
+  if (free !== undefined) {
+    return free;
+  }
+  crits[0].remove();
+  return Number(crits[0].dataset.row);
+}
 /** The side the next non-crit slides to: 1 right, -1 left. */
 let floatSide = 1;
 
@@ -510,7 +528,9 @@ function floatHits(hits) {
     }
     if (hit.critical) {
       number.classList.add("crit");
-      number.style.setProperty("--y", `${45 + (Math.random() - 0.5) * 10}%`);
+      const row = critRow(stage);
+      number.dataset.row = String(row);
+      number.style.setProperty("--y", `calc(50% + ${row * CRIT_ROW_HEIGHT}px)`);
     } else {
       number.classList.add("hit");
       number.style.setProperty("--y", `${15 + Math.random() * 70}%`);
