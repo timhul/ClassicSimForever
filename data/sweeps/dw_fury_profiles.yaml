@@ -6,12 +6,12 @@ name: DW Fury profiles
 iterations: 10000
 variations:
   - characters:
-      - ../characters/dw_fury_dwarf.yaml
-      - ../characters/dw_fury_gnome.yaml
-      - ../characters/dw_fury_human.yaml
-      - ../characters/dw_fury_night_elf.yaml
-      - ../characters/dw_fury_orc.yaml
-      - ../characters/dw_fury_skyborne.yaml
-      - ../characters/dw_fury_tauren.yaml
-      - ../characters/dw_fury_troll.yaml
-      - ../characters/dw_fury_undead.yaml
+      - ../characters/warrior_fury_dw_dwarf.yaml
+      - ../characters/warrior_fury_dw_gnome.yaml
+      - ../characters/warrior_fury_dw_human.yaml
+      - ../characters/warrior_fury_dw_night_elf.yaml
+      - ../characters/warrior_fury_dw_orc.yaml
+      - ../characters/warrior_fury_dw_skyborne.yaml
+      - ../characters/warrior_fury_dw_tauren.yaml
+      - ../characters/warrior_fury_dw_troll.yaml
+      - ../characters/warrior_fury_dw_undead.yaml

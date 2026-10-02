@@ -21,7 +21,6 @@ cast_if:
   # General heroic strike usage
   - name: Heroic Strike
     condition: resource "Rage" greater 50
-  - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: buff_duration "Death Wish" is true
   - name: Jom Gabbar

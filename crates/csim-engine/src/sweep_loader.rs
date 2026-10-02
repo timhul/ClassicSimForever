@@ -5,7 +5,7 @@
 //!
 //! ```yaml
 //! name: DW Fury last 3 points
-//! base: ../characters/dw_fury_orc.yaml  # a character setup, relative to this file
+//! base: ../characters/warrior_fury_dw_orc.yaml  # a character setup, relative to this file
 //! overrides:                            # optional; changes the base (see below)
 //!   talents: { Arms: { Deep Wounds: 3 }, Fury: { Cruelty: 5 } }
 //! iterations: 10000                     # optional; iterations per variant
@@ -34,8 +34,8 @@
 //! name: DW Fury profiles
 //! variations:
 //!   - characters:                         # the first variation point; no `base`
-//!       - ../characters/dw_fury_orc.yaml  # named by the setup's `name`
-//!       - { path: ../characters/dw_fury_human.yaml, label: Human swords }
+//!       - ../characters/warrior_fury_dw_orc.yaml  # named by the setup's `name`
+//!       - { path: ../characters/warrior_fury_dw_human.yaml, label: Human swords }
 //! ```
 //!
 //! `talent_points` spends points on top of the base, so it needs `base`.

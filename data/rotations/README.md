@@ -174,13 +174,13 @@ the character, so their lines stay unlinked.
 `rogue/` holds ports of the five ClassicSim rotations, adapted to the Forever talents; each is
 used by a setup of `data/characters/`:
 
-| file                      | name                              | C++ file             | setups                                              |
-|---------------------------|-----------------------------------|----------------------|-----------------------------------------------------|
-| `combat.yaml`             | Combat                            | `Combat.xml`         | `combat_swords_human.yaml`, `combat_axes_orc.yaml`  |
-| `combat_dagger.yaml`      | Combat Dagger                     | `CombatDagger.xml`   | `combat_daggers_night_elf.yaml`                     |
-| `seal_fate_mutilate.yaml` | Seal Fate Mutilate                | `SealFateDagger.xml` | `mutilate_undead.yaml`                              |
-| `seal_fate_ea.yaml`       | Seal Fate Mutilate Expose Armor   | `SealFateEA.xml`     | `mutilate_ea_gnome.yaml`                            |
-| `hemorrhage.yaml`         | Hemorrhage                        | `Hemorrhage.xml`     | `hemorrhage_troll.yaml`                             |
+| file                      | name                              | C++ file             | setups                                                         |
+|---------------------------|-----------------------------------|----------------------|----------------------------------------------------------------|
+| `combat.yaml`             | Combat                            | `Combat.xml`         | `rogue_combat_swords_human.yaml`, `rogue_combat_axes_orc.yaml` |
+| `combat_dagger.yaml`      | Combat Dagger                     | `CombatDagger.xml`   | `rogue_combat_daggers_night_elf.yaml`                          |
+| `seal_fate_mutilate.yaml` | Seal Fate Mutilate                | `SealFateDagger.xml` | `rogue_mutilate_undead.yaml`                                   |
+| `seal_fate_ea.yaml`       | Seal Fate Mutilate Expose Armor   | `SealFateEA.xml`     | `rogue_mutilate_ea_gnome.yaml`                                 |
+| `hemorrhage.yaml`         | Hemorrhage                        | `Hemorrhage.xml`     | `rogue_hemorrhage_troll.yaml`                                  |
 
 What the C++ files do is kept: a builder to five combo points (four with Seal Fate), Slice and
 Dice refreshed under 3 s, Eviscerate while Slice and Dice has more than 8 s left, Adrenaline

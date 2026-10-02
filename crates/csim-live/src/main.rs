@@ -33,7 +33,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
     about = "Watch one ClassicSimForever iteration live"
 )]
 struct Args {
-    /// The character setup (a YAML file, e.g. data/characters/dw_fury_orc.yaml).
+    /// The character setup (a YAML file, e.g. data/characters/warrior_fury_dw_orc.yaml).
     setup: PathBuf,
     /// The data directory (default: ./data, else the repository's data/).
     #[arg(long, value_name = "DIR")]

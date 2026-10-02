@@ -55,7 +55,10 @@ fn play(session: &mut Session, dt: f64) -> Vec<Frame> {
 
 #[test]
 fn the_session_shows_the_iteration_the_cli_logs() {
-    for (file, seed) in [("dw_fury_orc.yaml", 3), ("combat_swords_human.yaml", 4)] {
+    for (file, seed) in [
+        ("warrior_fury_dw_orc.yaml", 3),
+        ("rogue_combat_swords_human.yaml", 4),
+    ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
         let numbers: Vec<&DamageNumber> = frames
@@ -85,7 +88,7 @@ fn the_session_shows_the_iteration_the_cli_logs() {
 
 #[test]
 fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
-    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     assert!(
         session.advance(0.0).buff_uptimes.is_empty(),
         "before the pull"
@@ -100,7 +103,7 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
     );
     let last = play(&mut session, 7.0).pop().unwrap();
 
-    let setup = setup("dw_fury_orc.yaml");
+    let setup = setup("warrior_fury_dw_orc.yaml");
     let settings = settings(&setup);
     let mut raid = setup.build_raid(data(), &settings).unwrap();
     run_logged_iteration(&settings, 3, &mut raid);
@@ -136,7 +139,7 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
 
 #[test]
 fn a_spell_is_affordable_with_the_rage_it_costs() {
-    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     let mut seen = Vec::new();
     for frame in play(&mut session, 0.25) {
         let state = &frame.state;
@@ -159,7 +162,7 @@ fn a_spell_is_affordable_with_the_rage_it_costs() {
 
 #[test]
 fn a_spell_is_usable_when_its_demands_beyond_rage_hold() {
-    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     let end = session.info().end_at;
     let mut executable = Vec::new();
     for frame in play(&mut session, 0.25) {
@@ -180,7 +183,7 @@ fn a_spell_is_usable_when_its_demands_beyond_rage_hold() {
         }
         executable.push(usable("Execute"));
         // Overpower needs Battle Stance (and a dodge); Whirlwind is fine in Berserker Stance.
-        if state.stance.as_deref() == Some("Berserker Stance") {
+        if state.stance == Some("Berserker Stance") {
             assert!(!usable("Overpower"), "{}", frame.time);
             assert!(usable("Whirlwind"), "{}", frame.time);
         }
@@ -190,7 +193,7 @@ fn a_spell_is_usable_when_its_demands_beyond_rage_hold() {
 
 #[test]
 fn the_breakdown_adds_up_to_the_damage_so_far() {
-    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     assert!(session.advance(0.0).breakdown.is_empty(), "before the pull");
     for time in [10.0, 30.0] {
         let frame = session.advance(time);
@@ -213,7 +216,7 @@ fn the_breakdown_adds_up_to_the_damage_so_far() {
 
 #[test]
 fn advancing_runs_nothing_past_the_time_shown() {
-    let mut session = session_of("dw_fury_orc.yaml", 1);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
     let mut shown = f64::NEG_INFINITY;
     for frame in play(&mut session, 0.5) {
         assert!(frame.time >= shown);
@@ -223,7 +226,7 @@ fn advancing_runs_nothing_past_the_time_shown() {
         shown = frame.time;
     }
     // Going back shows the same time and nothing new.
-    let mut fresh = session_of("dw_fury_orc.yaml", 1);
+    let mut fresh = session_of("warrior_fury_dw_orc.yaml", 1);
     let ahead = fresh.advance(10.0);
     let back = fresh.advance(5.0);
     assert_eq!(back.time, ahead.time);
@@ -232,7 +235,7 @@ fn advancing_runs_nothing_past_the_time_shown() {
 
 #[test]
 fn white_swings_are_auto_attacks_and_spells_are_not() {
-    let mut session = session_of("dw_fury_orc.yaml", 2);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 2);
     let numbers: Vec<DamageNumber> = play(&mut session, 1.0)
         .into_iter()
         .flat_map(|frame| frame.damage)
@@ -258,7 +261,7 @@ fn white_swings_are_auto_attacks_and_spells_are_not() {
 
 #[test]
 fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
-    let mut warrior = session_of("dw_fury_orc.yaml", 1);
+    let mut warrior = session_of("warrior_fury_dw_orc.yaml", 1);
     let state = warrior.advance(20.0).state;
     assert_eq!(state.resource.kind, "Rage");
     assert_eq!(state.combo_points, None);
@@ -290,7 +293,9 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
     assert!(!on_gcd("Bloodrage"));
 
     // Before anything was used, every cooldown is ready (none counts down to the pull).
-    let fresh = session_of("dw_fury_orc.yaml", 1).advance(-1.0).state;
+    let fresh = session_of("warrior_fury_dw_orc.yaml", 1)
+        .advance(-1.0)
+        .state;
     // The rotation's spells without a cooldown too.
     for name in ["Heroic Strike", "Hamstring"] {
         let spell = fresh.rotation_spells.iter().find(|cd| cd.name == name);
@@ -312,7 +317,7 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
         "cast before the pull"
     );
 
-    let mut rogue = session_of("combat_swords_human.yaml", 1);
+    let mut rogue = session_of("rogue_combat_swords_human.yaml", 1);
     let state = rogue.advance(20.0).state;
     assert_eq!(state.resource.kind, "Energy");
     assert_eq!(state.resource.max, 100);
@@ -322,7 +327,7 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
 
 #[test]
 fn restarting_with_the_same_seed_shows_the_same_iteration() {
-    let mut session = session_of("combat_swords_human.yaml", 6);
+    let mut session = session_of("rogue_combat_swords_human.yaml", 6);
     let first = play(&mut session, 0.25);
     let info = session.info();
     session.restart(7);
@@ -335,7 +340,7 @@ fn restarting_with_the_same_seed_shows_the_same_iteration() {
 
 #[test]
 fn stepping_runs_one_event_or_up_to_a_cast() {
-    let mut session = session_of("dw_fury_orc.yaml", 1);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
     let frame = session.step_event();
     assert!(frame.event.is_some());
     let mut casts = 0;
@@ -359,7 +364,7 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
     // High Warlord's Bludgeon, in both hands.
     const BLUDGEON: Option<u32> = Some(133057);
 
-    let mut session = session_of("dw_fury_orc.yaml", 1);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
     let frames = play(&mut session, 1.0);
     let numbers: Vec<&DamageNumber> = frames.iter().flat_map(|f| &f.damage).collect();
     let icons_of = |name: &str| -> Vec<Option<u32>> {
@@ -379,7 +384,9 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
         "every hit has one"
     );
 
-    let state = session_of("dw_fury_orc.yaml", 1).advance(20.0).state;
+    let state = session_of("warrior_fury_dw_orc.yaml", 1)
+        .advance(20.0)
+        .state;
     let cooldown = state
         .rotation_spells
         .iter()
@@ -388,7 +395,7 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
     let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
     assert!(shout.unwrap().icon.is_some());
 
-    let state = session_of("combat_swords_human.yaml", 1)
+    let state = session_of("rogue_combat_swords_human.yaml", 1)
         .advance(20.0)
         .state;
     let slice = state
@@ -400,7 +407,7 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
 
 #[test]
 fn the_rotation_entries_and_decisions() {
-    for file in ["dw_fury_orc.yaml", "combat_swords_human.yaml"] {
+    for file in ["warrior_fury_dw_orc.yaml", "rogue_combat_swords_human.yaml"] {
         let mut session = session_of(file, 2);
         let info = session.info();
         assert!(info.cast_if.len() > 5, "{file}");
@@ -451,7 +458,7 @@ fn the_rotation_entries_and_decisions() {
     }
 
     // DW Fury: Bloodthirst is decided by its own entry, whose condition is as written.
-    let session = session_of("dw_fury_orc.yaml", 2);
+    let session = session_of("warrior_fury_dw_orc.yaml", 2);
     let info = session.info();
     let bloodrage = info
         .cast_if
@@ -472,7 +479,7 @@ fn the_rotation_entries_and_decisions() {
 fn avoided_attacks_are_in_the_feed() {
     let mut avoided = Vec::new();
     for seed in 1..=3 {
-        let mut session = session_of("dw_fury_orc.yaml", seed);
+        let mut session = session_of("warrior_fury_dw_orc.yaml", seed);
         let frames = play(&mut session, 1.0);
         let numbers: Vec<DamageNumber> = frames.into_iter().flat_map(|f| f.damage).collect();
         let shown = numbers.iter().filter(|hit| hit.miss.is_some()).count();
@@ -515,7 +522,10 @@ fn avoided_attacks_are_in_the_feed() {
 
 #[test]
 fn procs_are_in_the_feed() {
-    for (file, seed) in [("dw_fury_orc.yaml", 3), ("combat_swords_human.yaml", 4)] {
+    for (file, seed) in [
+        ("warrior_fury_dw_orc.yaml", 3),
+        ("rogue_combat_swords_human.yaml", 4),
+    ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
         let feed: Vec<DamageNumber> = frames.into_iter().flat_map(|f| f.damage).collect();
@@ -550,7 +560,7 @@ fn procs_are_in_the_feed() {
 
     // Windfury Totem: between the hit that procced it (a swing or a spell like Bloodthirst)
     // and the extra main-hand swing (a queued Heroic Strike when one is queued).
-    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     let feed: Vec<DamageNumber> = play(&mut session, 0.37)
         .into_iter()
         .flat_map(|f| f.damage)
@@ -573,7 +583,9 @@ fn procs_are_in_the_feed() {
 
 #[test]
 fn the_target_debuffs_are_the_sims_and_the_setups() {
-    let state = session_of("dw_fury_orc.yaml", 1).advance(20.0).state;
+    let state = session_of("warrior_fury_dw_orc.yaml", 1)
+        .advance(20.0)
+        .state;
     let names: Vec<&str> = state.debuffs.iter().map(|d| d.name.as_str()).collect();
     assert_eq!(names, ["Deep Wound", "Sunder Armor", "Faerie Fire"]);
     let deep_wound = &state.debuffs[0];
@@ -592,7 +604,7 @@ fn the_target_debuffs_are_the_sims_and_the_setups() {
             .any(|buff| names.contains(&buff.name.as_str()))
     );
 
-    let rogue = session_of("combat_swords_human.yaml", 1)
+    let rogue = session_of("rogue_combat_swords_human.yaml", 1)
         .advance(20.0)
         .state;
     let names: Vec<&str> = rogue.debuffs.iter().map(|d| d.name.as_str()).collect();
@@ -603,7 +615,7 @@ const KEYBINDS: &str = "Bloodthirst: 1\nHamstring: Shift+2\nBattle Shout: Ctrl+A
 
 #[test]
 fn played_from_the_keyboard_nothing_is_cast_without_input() {
-    let mut session = manual_session_of("dw_fury_orc.yaml", 3, KEYBINDS);
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, KEYBINDS);
     let info = session.info();
     assert!(info.manual);
     assert_eq!(info.precombat, Vec::<String>::new());
@@ -646,7 +658,7 @@ fn played_from_the_keyboard_nothing_is_cast_without_input() {
 
 #[test]
 fn a_key_press_casts_its_spell_now_or_within_the_queue_window() {
-    let mut session = manual_session_of("dw_fury_orc.yaml", 3, KEYBINDS);
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, KEYBINDS);
     session.advance(9.0);
     let frame = session.cast("Hamstring", 10.0).unwrap();
     assert_eq!(frame.time, 10.0);
@@ -667,13 +679,13 @@ fn a_key_press_casts_its_spell_now_or_within_the_queue_window() {
 
     let error = session.cast("Whirlwind", 13.0).unwrap_err();
     assert!(error.contains("not bound"), "{error}");
-    let error = session_of("dw_fury_orc.yaml", 3).cast("Hamstring", 1.0);
+    let error = session_of("warrior_fury_dw_orc.yaml", 3).cast("Hamstring", 1.0);
     assert!(error.is_err(), "played by the rotation");
 }
 
 #[test]
 fn an_unlearned_bound_spell_is_refused() {
-    let setup = setup("dw_fury_orc.yaml");
+    let setup = setup("warrior_fury_dw_orc.yaml");
     let settings = settings(&setup);
     let keybinds = crate::keybinds::parse("Mortal Strike: 1\n").unwrap();
     let error = Session::new(Arc::clone(data()), setup, settings, 1, keybinds)
@@ -685,8 +697,8 @@ fn an_unlearned_bound_spell_is_refused() {
 #[test]
 fn the_shipped_keybinds_bind_their_characters_spells() {
     for (file, keybinds) in [
-        ("dw_fury_orc.yaml", "dw_fury.yaml"),
-        ("combat_swords_human.yaml", "combat.yaml"),
+        ("warrior_fury_dw_orc.yaml", "dw_fury.yaml"),
+        ("rogue_combat_swords_human.yaml", "combat.yaml"),
     ] {
         let path = DataBundle::repository_dir().join("keybinds").join(keybinds);
         let text = std::fs::read_to_string(&path).unwrap();
@@ -702,7 +714,11 @@ fn the_shipped_keybinds_bind_their_characters_spells() {
 
 #[test]
 fn a_press_that_cannot_cast_says_why() {
-    let mut session = manual_session_of("dw_fury_orc.yaml", 3, "Whirlwind: 2\nHamstring: 4\n");
+    let mut session = manual_session_of(
+        "warrior_fury_dw_orc.yaml",
+        3,
+        "Whirlwind: 2\nHamstring: 4\n",
+    );
     // No precombat actions from the keyboard: still in Battle Stance.
     let frame = session.cast("Whirlwind", 3.0).unwrap();
     let error = frame.input_error.expect("dropped at once");
@@ -721,7 +737,7 @@ fn a_press_that_cannot_cast_says_why() {
 #[test]
 fn the_queue_window_covers_the_stance_cooldown_as_the_gcd() {
     let keybinds = "Whirlwind: 3\nBerserker Stance: Shift+2\n";
-    let mut session = manual_session_of("dw_fury_orc.yaml", 3, keybinds);
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, keybinds);
     let swap = session.cast("Berserker Stance", 4.0).unwrap();
     assert_eq!(swap.decisions[0].spell, "Berserker Stance");
     // The swap's stance cooldown ends at 5.0: 0.8 s after this press, beyond its window.
@@ -745,7 +761,7 @@ fn the_queue_window_covers_the_stance_cooldown_as_the_gcd() {
 #[test]
 fn a_macro_press_casts_its_entries_up_to_the_gcd() {
     let keybinds = "Burst:\n  hotkey: T\n  cast: [Bloodrage, Bloodthirst, Heroic Strike]\n";
-    let mut session = manual_session_of("dw_fury_orc.yaml", 3, keybinds);
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, keybinds);
     let info = session.info();
     let burst = &info.keybinds[0];
     assert!(burst.is_macro);

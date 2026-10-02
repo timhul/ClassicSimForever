@@ -4,5 +4,5 @@
 name: Horde melee
 player_party: 1
 parties:
-  - [2h_fury_orc, dw_fury_orc]  # party 1, with the player
-  - [dw_fury_orc, 2h_fury_orc]  # party 2
+  - [warrior_fury_2h_orc, warrior_fury_dw_orc]  # party 1, with the player
+  - [warrior_fury_dw_orc, warrior_fury_2h_orc]  # party 2

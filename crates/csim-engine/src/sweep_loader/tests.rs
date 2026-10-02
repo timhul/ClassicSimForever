@@ -1,4 +1,4 @@
-//! Sweep expansion tests against the shipped data and `data/characters/dw_fury_orc.yaml`.
+//! Sweep expansion tests against the shipped data and `data/characters/warrior_fury_dw_orc.yaml`.
 
 use std::sync::OnceLock;
 
@@ -10,11 +10,11 @@ fn data() -> &'static DataBundle {
     DATA.get_or_init(|| DataBundle::load(&DataBundle::repository_dir()).unwrap())
 }
 
-/// A sweep over `dw_fury_orc.yaml` from its YAML text, without `base`.
+/// A sweep over `warrior_fury_dw_orc.yaml` from its YAML text, without `base`.
 fn sweep(yaml: &str) -> SweepSetup {
     let base = DataBundle::repository_dir()
         .join("characters")
-        .join("dw_fury_orc.yaml");
+        .join("warrior_fury_dw_orc.yaml");
     let mut sweep: SweepSetup =
         serde_yaml::from_str(&format!("name: test\nbase: x\n{yaml}")).unwrap();
     sweep.base = Some(base);
@@ -127,7 +127,7 @@ fn the_last_3_points_of_the_48_point_build_have_46_variants() {
 
 #[test]
 fn variants_beyond_the_talent_points_are_invalid() {
-    // dw_fury_orc.yaml spends all 51 points already.
+    // warrior_fury_dw_orc.yaml spends all 51 points already.
     let expansion = sweep(
         "
 variations:
@@ -239,11 +239,11 @@ variations:
 #[test]
 fn the_base_is_relative_to_the_sweep_file() {
     let mut sweep = sweep("");
-    sweep.base = Some(PathBuf::from("../characters/dw_fury_orc.yaml"));
+    sweep.base = Some(PathBuf::from("../characters/warrior_fury_dw_orc.yaml"));
     sweep.path = Some(PathBuf::from("data/sweeps/x.yaml"));
     assert_eq!(
         sweep.base_path().unwrap(),
-        Path::new("data/characters/dw_fury_orc.yaml")
+        Path::new("data/characters/warrior_fury_dw_orc.yaml")
     );
 }
 
@@ -257,9 +257,9 @@ fn characters_sweep(yaml: &str) -> SweepSetup {
 const THREE_CHARACTERS: &str = "
 variations:
   - characters:
-      - ../characters/dw_fury_orc.yaml
-      - { path: ../characters/dw_fury_human.yaml, label: Human swords }
-      - { path: ../characters/2h_fury_orc.yaml }
+      - ../characters/warrior_fury_dw_orc.yaml
+      - { path: ../characters/warrior_fury_dw_human.yaml, label: Human swords }
+      - { path: ../characters/warrior_fury_2h_orc.yaml }
 ";
 
 #[test]
@@ -290,7 +290,7 @@ fn characters_replace_the_whole_setup() {
             .path
             .as_ref()
             .unwrap()
-            .ends_with("characters/dw_fury_human.yaml")
+            .ends_with("characters/warrior_fury_dw_human.yaml")
     );
     let two_hander = &expansion.variants[2].setup;
     assert!(
@@ -353,7 +353,7 @@ fn the_setups_come_from_either_base_or_characters() {
         "
 variations:
   - options: [{ race: ORC }]
-  - characters: [../characters/dw_fury_orc.yaml]
+  - characters: [../characters/warrior_fury_dw_orc.yaml]
   - talent_points: { points: 1, talents: { Arms: [Impale] } }
 ",
     )

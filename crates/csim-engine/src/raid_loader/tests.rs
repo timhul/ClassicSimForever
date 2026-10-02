@@ -61,7 +61,7 @@ fn every_shipped_raid_validates() {
 #[test]
 fn the_player_comes_first_and_the_members_fill_their_parties() {
     let setup = raid(
-        "name: R\nplayer_party: 2\nparties:\n  - [2h_fury_orc]\n  - [dw_fury_orc.yaml, 2h_fury_orc]\n",
+        "name: R\nplayer_party: 2\nparties:\n  - [warrior_fury_2h_orc]\n  - [warrior_fury_dw_orc.yaml, warrior_fury_2h_orc]\n",
     );
     let members = setup.resolve(&characters()).unwrap();
     assert_eq!(
@@ -71,7 +71,7 @@ fn the_player_comes_first_and_the_members_fill_their_parties() {
             .collect::<Vec<_>>(),
         [(0, "DW Fury Orc"), (1, "DW Fury Orc"), (1, "DW Fury Orc")]
     );
-    let player = character("dw_fury_orc.yaml");
+    let player = character("warrior_fury_dw_orc.yaml");
     let raid = setup
         .build_raid(Some(&player), &members, data(), &settings())
         .unwrap_or_else(|error| panic!("{error}"));
@@ -86,11 +86,11 @@ fn the_player_comes_first_and_the_members_fill_their_parties() {
 
 #[test]
 fn the_raid_provides_the_raid_buffs_and_debuffs() {
-    let player = character("dw_fury_orc.yaml");
+    let player = character("warrior_fury_dw_orc.yaml");
     let setup = raid(
         "name: R
 parties:
-  - [dw_fury_orc]
+  - [warrior_fury_dw_orc]
 ",
     );
     let members = setup.resolve(&characters()).unwrap();
@@ -120,7 +120,7 @@ parties:
 
 #[test]
 fn a_raid_simulates_with_a_result_per_member() {
-    let player = character("dw_fury_orc.yaml");
+    let player = character("warrior_fury_dw_orc.yaml");
     let setup =
         RaidSetup::load(&DataBundle::repository_dir().join("raids/horde_melee.yaml")).unwrap();
     let members = setup.resolve(&characters()).unwrap();
@@ -140,8 +140,8 @@ fn a_raid_simulates_with_a_result_per_member() {
 
 #[test]
 fn party_and_raid_sizes_are_checked() {
-    let full = "name: R\nparties:\n  - [dw_fury_orc, dw_fury_orc, dw_fury_orc, dw_fury_orc, dw_fury_orc]\n";
-    let player = character("dw_fury_orc.yaml");
+    let full = "name: R\nparties:\n  - [warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc]\n";
+    let player = character("warrior_fury_dw_orc.yaml");
     let found = issues(&raid(full), Some(&player));
     assert_eq!(contexts(&found), ["parties.1"]);
     assert!(
@@ -172,15 +172,15 @@ fn party_and_raid_sizes_are_checked() {
 
 #[test]
 fn a_full_raid_of_forty_builds() {
-    let party = "  - [dw_fury_orc, dw_fury_orc, dw_fury_orc, dw_fury_orc, dw_fury_orc]\n";
+    let party = "  - [warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc]\n";
     let setup = raid(&format!(
-        "name: R\nplayer_party: 8\nparties:\n{}  - [dw_fury_orc, dw_fury_orc, dw_fury_orc, dw_fury_orc]\n",
+        "name: R\nplayer_party: 8\nparties:\n{}  - [warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc, warrior_fury_dw_orc]\n",
         party.repeat(7)
     ));
     let members = setup.resolve(&characters()).unwrap();
     let raid = setup
         .build_raid(
-            Some(&character("dw_fury_orc.yaml")),
+            Some(&character("warrior_fury_dw_orc.yaml")),
             &members,
             data(),
             &settings(),
@@ -192,16 +192,17 @@ fn a_full_raid_of_forty_builds() {
 
 #[test]
 fn members_must_share_the_players_faction() {
-    let setup = raid("name: R\nparties:\n  - [arms_human, dw_fury_orc]\n");
-    let found = issues(&setup, Some(&character("dw_fury_orc.yaml")));
-    assert_eq!(contexts(&found), ["parties.1[0] (arms_human)"]);
+    let setup = raid("name: R\nparties:\n  - [warrior_arms_human, warrior_fury_dw_orc]\n");
+    let found = issues(&setup, Some(&character("warrior_fury_dw_orc.yaml")));
+    assert_eq!(contexts(&found), ["parties.1[0] (warrior_arms_human)"]);
     assert!(found[0].message.contains("Alliance"), "{found:?}");
 }
 
 #[test]
 fn unknown_references_are_reported_together() {
-    let setup =
-        raid("name: R\nparties:\n  - [nobody, ../characters/dw_fury_orc]\n  - [dw_fury_orc]\n");
+    let setup = raid(
+        "name: R\nparties:\n  - [nobody, ../characters/warrior_fury_dw_orc]\n  - [warrior_fury_dw_orc]\n",
+    );
     let Err(RaidSetupError::Invalid { issues, .. }) = setup.resolve(&characters()) else {
         panic!("the references resolved");
     };
@@ -209,17 +210,17 @@ fn unknown_references_are_reported_together() {
         contexts(&issues),
         [
             "parties.1[0] (nobody)",
-            "parties.1[1] (../characters/dw_fury_orc)"
+            "parties.1[1] (../characters/warrior_fury_dw_orc)"
         ]
     );
 }
 
 #[test]
 fn a_member_problem_names_the_member_and_its_field() {
-    let player = character("dw_fury_orc.yaml");
-    let mut broken = character("dw_fury_orc.yaml");
+    let player = character("warrior_fury_dw_orc.yaml");
+    let mut broken = character("warrior_fury_dw_orc.yaml");
     broken.rotation = "Nothing".to_string();
-    let setup = raid("name: R\nparties:\n  - [dw_fury_orc]\n");
+    let setup = raid("name: R\nparties:\n  - [warrior_fury_dw_orc]\n");
     let members = vec![RaidMember {
         party: 0,
         reference: "broken".to_string(),

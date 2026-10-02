@@ -4,7 +4,7 @@
 #
 # Venom is left out: kept up at four or more points (80 % uptime) it adds ~19 DPS of poison
 # damage but takes ~13 finishers a fight from Eviscerate, ~30 DPS less in total with
-# mutilate_undead.yaml.
+# rogue_mutilate_undead.yaml.
 #
 # Additions to the C++ file: the Stealth opener (Ambush), Cold Blood before an Eviscerate,
 # Renataki's Charm under its spell's name (`Burst of Energy`) and Zandalarian Hero Medallion as

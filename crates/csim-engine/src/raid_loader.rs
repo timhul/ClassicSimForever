@@ -7,8 +7,8 @@
 //! name: Horde melee        # display name
 //! player_party: 1          # the party the player joins (1-based, default 1)
 //! parties:                 # at most 8 parties of at most 5, counting the player
-//!   - [2h_fury_orc, dw_fury_orc]  # party 1: setups of data/characters/, `.yaml` optional
-//!   - [dw_fury_orc]               # party 2
+//!   - [warrior_fury_2h_orc, warrior_fury_dw_orc]  # party 1: setups of data/characters/, `.yaml` optional
+//!   - [warrior_fury_dw_orc]               # party 2
 //! ```
 //!
 //! The player is added first, at the first place of its party, so it is the raid's first
@@ -85,7 +85,7 @@ pub enum RaidSetupError {
     },
 }
 
-/// Where a member is in the raid file, e.g. `parties.2[1] (dw_fury_orc)` (1-based party).
+/// Where a member is in the raid file, e.g. `parties.2[1] (warrior_fury_dw_orc)` (1-based party).
 fn member_context(party: u8, index: usize, reference: &str) -> String {
     format!("parties.{}[{index}] ({reference})", party + 1)
 }

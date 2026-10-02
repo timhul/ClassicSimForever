@@ -8,24 +8,26 @@ phase: 3
 rotation: Mortal Strike
 talents:
   Arms:
-    Improved Heroic Strike: 3
+    Improved Heroic Strike: 2
     Improved Rend: 3
     Improved Tactical Mastery: 5
+    Improved Overpower: 2
     Anger Management: 1
     Deep Wounds: 3
+    Spearing Strike: 1
     Two-Handed Weapon Specialization: 3
     Impale: 2
+    Bloodthrill: 5
     Sweeping Strikes: 1
     Weaponmaster: 5
     Improved Slam: 2
-    Improved Hamstring: 2
     Mortal Strike: 1
   Fury:
     Cruelty: 5
+    Booming Voice: 2
     Unbridled Wrath: 5
-    Blood Craze: 3
-    Boundless Rage: 3
-    Enrage: 4
+    Piercing Howl: 1
+    Blood Craze: 2
 equipment:
   MAINHAND: { item: 18876, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # Grand Marshal's Claymore
   RANGED: { item: 18282 }                                          # Core Marksman Rifle

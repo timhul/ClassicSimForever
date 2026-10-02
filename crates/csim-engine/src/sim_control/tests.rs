@@ -200,9 +200,10 @@ fn a_full_sim_runs_each_option_and_takes_its_stat_back() {
 #[test]
 fn every_set_of_iterations_starts_from_the_same_stats() {
     let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
-    let setup =
-        CharacterSetup::load(&DataBundle::repository_dir().join("characters/dw_fury_orc.yaml"))
-            .unwrap();
+    let setup = CharacterSetup::load(
+        &DataBundle::repository_dir().join("characters/warrior_fury_dw_orc.yaml"),
+    )
+    .unwrap();
     let settings = settings(5);
     let mut raid = setup.build_raid(&data, &settings).unwrap();
     let mut control = SimControl::new(settings, 1);

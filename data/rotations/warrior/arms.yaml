@@ -1,24 +1,11 @@
-# Port of ClassicSim's Rotation/Rotations/Warrior/Arms.xml.
-#
-# Overpower readiness is the combo point the target's dodge grants (there is no "Overpower
-# Buff" here), so `buff_duration "Overpower Buff" is false/greater N` became
-# `variable "combo_points" eq 0` / `greater 0`. The rage dump before stancing read the swing
-# timer through `spell "Mainhand Attack" less 1.5`; auto attacks are not spells here, so it is
-# `variable "time_remaining_swing" less 1.5`.
-#
-# Not in ClassicSim: Rend (Battle Stance only) is refreshed in the Battle Stance window the
-# Overpower swap opens, and the swap back to Berserker Stance waits for it (unless there is no
-# rage for it or the execute phase is near). Rend on the target lets Bloodthrill proc.
-# Spearing Strike (a Forever talent) is only worth its GCD against giants and dragonkin, where
-# it deals 120 % weapon damage instead of 40 %.
 class: WARRIOR
 name: Mortal Strike
 attack_mode: melee
-description: A rotation for warriors with Mortal Strike.
+description: Arms rotation.
 precombat_actions:
   - Bloodrage
   - Battle Shout
-  - Berserker Stance
+  - Battle Stance
 cast_if:
   - name: Bloodrage
     condition: resource "Rage" less 70
@@ -32,7 +19,6 @@ cast_if:
     condition: |
       buff_stacks "Sunder Armor" less 5
       or buff_duration "Sunder Armor" less 4
-  - name: Haste  # Manual Crowd Pummeler
   - name: Kiss of the Spider
     condition: |
       variable "time_remaining_execute" greater 120
@@ -81,6 +67,7 @@ cast_if:
   - name: Rend
     condition: |
       buff_duration "Rend" less 1.5
+      or buff_duration "Rend" is false
       and variable "time_remaining_execute" greater 3
   - name: Mortal Strike
     condition: variable "time_remaining_execute" greater 0
@@ -91,31 +78,37 @@ cast_if:
       and variable "time_remaining_execute" greater 0
       or variable "target_is_type" eq "dragonkin"
       and variable "time_remaining_execute" greater 0
-  - name: Whirlwind
-    condition: spell "Mortal Strike" greater 1.5
-  # Special heroic strike usage: attempt to dump rage when Overpower is up.
-  - name: Heroic Strike
+  # - name: Whirlwind
+  #   condition: spell "Mortal Strike" greater 1.5
+  - name: Spearing Strike
     condition: |
-      variable "time_remaining_execute" greater 3
-      and resource "Rage" greater 30
-      and variable "combo_points" greater 0
-      and buff_duration "Battle Stance" is false
-      and variable "time_remaining_swing" less 1.5
+      variable "target_is_type" eq "giant"
+      and variable "time_remaining_execute" greater 0
+      or variable "target_is_type" eq "dragonkin"
+      and variable "time_remaining_execute" greater 0
+  - name: Thunder Clap
+    condition: |
+      resource "Rage" greater 50
+      and spell "Mortal Strike" greater 1.5
+  - name: Hamstring
+    condition: |
+      resource "Rage" greater 50
+      and spell "Mortal Strike" greater 1.5
   - name: Heroic Strike
-    condition: resource "Rage" greater 65
+    condition: resource "Rage" greater 70
   # Switch to Battle Stance
-  - name: Battle Stance
-    condition: |
-      variable "time_remaining_execute" greater 5
-      and variable "combo_points" greater 0
-      and spell "Mortal Strike" greater 3
-      and resource "Rage" less 50
-  - name: Berserker Stance
-    condition: |
-      variable "time_remaining_execute" less 3
-      and variable "combo_points" eq 0
-      or variable "time_remaining_execute" less 0
-      or variable "combo_points" eq 0
-      and buff_duration "Rend" greater 1.5
-      or variable "combo_points" eq 0
-      and resource "Rage" less 10
+  # - name: Battle Stance
+  #   condition: |
+  #     variable "time_remaining_execute" greater 5
+  #     and variable "combo_points" greater 0
+  #     and spell "Mortal Strike" greater 3
+  #     and resource "Rage" less 50
+  # - name: Berserker Stance
+  #   condition: |
+  #     variable "time_remaining_execute" less 3
+  #     and variable "combo_points" eq 0
+  #     or variable "time_remaining_execute" less 0
+  #     or variable "combo_points" eq 0
+  #     and buff_duration "Rend" greater 1.5
+  #     or variable "combo_points" eq 0
+  #     and resource "Rage" less 10

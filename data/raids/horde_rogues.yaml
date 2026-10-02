@@ -1,10 +1,10 @@
 # A Horde raid of rogues and warriors: the player joins party 1 with a dual-wield Fury warrior
 # (Battle Shout, Sunder Armor) and a Hemorrhage rogue, party 2 holds the other rogue builds
 # and a two-hander Fury warrior. Run with a rogue setup as the player, e.g.
-#   cargo run --release -p csim-cli -- run data/characters/combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml
+#   cargo run --release -p csim-cli -- run data/characters/rogue_combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml
 # Schema: crates/csim-engine/src/raid_loader.rs.
 name: Horde rogues
 player_party: 1
 parties:
-  - [dw_fury_orc, hemorrhage_troll]               # party 1, with the player
-  - [mutilate_undead, combat_axes_orc, 2h_fury_orc]  # party 2
+  - [warrior_fury_dw_orc, rogue_hemorrhage_troll]                        # party 1, with the player
+  - [rogue_mutilate_undead, rogue_combat_axes_orc, warrior_fury_2h_orc]  # party 2

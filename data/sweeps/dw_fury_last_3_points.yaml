@@ -3,7 +3,7 @@
 # Schema: crates/csim-engine/src/sweep_loader.rs. Run with
 #   cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml
 name: DW Fury last 3 points
-base: ../characters/dw_fury_orc.yaml
+base: ../characters/warrior_fury_dw_orc.yaml
 iterations: 10000
 overrides:
   talents:

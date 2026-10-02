@@ -37,17 +37,17 @@ Toolchain note: cargo/rustc are installed at `C:\Users\timhu\.cargo\bin` but are
 
 # Running the sim
 
-`cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --iterations 10000`
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --iterations 10000`
 
 The Forever race Skyborne is two races, one per faction: `HIGH_ORDER_SKYBORNE` (Alliance) and
 `WINDSHAPER_SKYBORNE` (Horde). Its DW Fury profile is the Horde one:
 
-`cargo run --release -p csim-cli -- run data/characters/dw_fury_skyborne.yaml --iterations 10000`
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_skyborne.yaml --iterations 10000`
 
 The combat log (`WoWCombatLog.txt` lines) of one iteration, the same one `-n 1 -t 1` simulates with
 that seed:
 
-`cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --combat-log --seed 1`
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --combat-log --seed 1`
 
 The same iteration, watched live in a browser (`csim-live` serves a page on
 http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
@@ -56,7 +56,7 @@ that returned true; a Breakdown pane below the stage shows the damage so far per
 down). It takes the setup, `--seed`, `--length`,
 `--length-variance` and `--port`, one character only (no `--raid`):
 
-`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --seed 1`
+`cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --seed 1`
 
 With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
 maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
@@ -65,7 +65,7 @@ spell is not castable yet waits 0.4 s for it (the game's spell queue window). A 
 cast a macro (`Name: {hotkey: T, cast: [Spell1, Spell2]}`), tried in order like the game's `/cast`
 lines: it stops after a spell that triggers the GCD. Examples are in `data/keybinds/`:
 
-`cargo run --release -p csim-live -- data/characters/dw_fury_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
+`cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
 
 Its spell and item icons come from `data/icons/` (a gitignored cache of the game's textures, by
 the `icon` FileDataIDs of the exported spells and items). Fetch them once, and again after a
@@ -73,22 +73,22 @@ re-export; without them the page shows no icons:
 
 `python tools/fetch_icons.py`
 
-A Rogue is run the same way, with a rogue setup (`combat_swords_human`, `combat_axes_orc`,
-`combat_daggers_night_elf`, `mutilate_undead`, `mutilate_ea_gnome`, `hemorrhage_troll`; their
+A Rogue is run the same way, with a rogue setup (`rogue_combat_swords_human`, `rogue_combat_axes_orc`,
+`rogue_combat_daggers_night_elf`, `rogue_mutilate_undead`, `rogue_mutilate_ea_gnome`, `rogue_hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):
 
-`cargo run --release -p csim-cli -- run data/characters/combat_swords_human.yaml --iterations 10000`
+`cargo run --release -p csim-cli -- run data/characters/rogue_combat_swords_human.yaml --iterations 10000`
 
 In a raid (`data/raids/`, members refer to `data/characters/`):
 
-`cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --raid data/raids/horde_melee.yaml`
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --raid data/raids/horde_melee.yaml`
 
-`cargo run --release -p csim-cli -- run data/characters/combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml`
+`cargo run --release -p csim-cli -- run data/characters/rogue_combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml`
 
 Stat weights per item stat point, then items ranked by them (static stats only; weapon damage,
 effects, set bonuses and suffixes are not scored):
 
-`cargo run --release -p csim-cli -- run data/characters/dw_fury_orc.yaml --scale --weights-file weights.yaml`
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --scale --weights-file weights.yaml`
 
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot gloves`
 

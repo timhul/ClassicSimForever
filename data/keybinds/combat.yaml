@@ -1,5 +1,5 @@
 # Keys for playing a Combat Rogue from the keyboard in csim-live:
-#   cargo run --release -p csim-live -- data/characters/combat_swords_human.yaml --keybinds data/keybinds/combat.yaml
+#   cargo run --release -p csim-live -- data/characters/rogue_combat_swords_human.yaml --keybinds data/keybinds/combat.yaml
 #
 # 'spell name': [Ctrl+][Shift+][Alt+]key. The key is a letter, a digit, F1..F12 or a key name
 # (Space, Tab, Minus, Numpad1, ...). A spell without a key cannot be cast.

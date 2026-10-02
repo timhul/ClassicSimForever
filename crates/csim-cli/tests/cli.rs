@@ -38,7 +38,7 @@ fn without_timing(report: &str) -> String {
 
 const RUN: [&str; 8] = [
     "run",
-    "data/characters/dw_fury_orc.yaml",
+    "data/characters/warrior_fury_dw_orc.yaml",
     "--iterations",
     "40",
     "--threads",
@@ -77,7 +77,7 @@ fn run_lists_the_rotation_lines_that_never_run() {
         .nth(1)
         .unwrap_or_else(|| panic!("no skipped lines section:\n{report}"));
     let section = section.split("\n\n").next().unwrap();
-    // DW Fury has no Spearing Strike talent and no Manual Crowd Pummeler.
+    // DW Fury has no Spearing Strike talent and no Kiss of the Spider.
     let line = |spell: &str| {
         section
             .lines()
@@ -90,7 +90,7 @@ fn run_lists_the_rotation_lines_that_never_run() {
         "{section}"
     );
     assert!(
-        line("Haste").ends_with("no spell of this name"),
+        line("Kiss of the Spider").ends_with("no spell of this name"),
         "{section}"
     );
     assert!(
@@ -481,7 +481,7 @@ fn raid_runs_the_player_with_the_members() {
 fn a_raid_of_the_other_faction_fails() {
     let output = csim(&[
         "run",
-        "data/characters/arms_human.yaml",
+        "data/characters/warrior_arms_human.yaml",
         "--raid",
         "data/raids/horde_melee.yaml",
         "--iterations",
@@ -652,7 +652,7 @@ fn sweep_ranks_every_variant_by_dps() {
 
 const COMBAT_LOG: [&str; 5] = [
     "run",
-    "data/characters/dw_fury_orc.yaml",
+    "data/characters/warrior_fury_dw_orc.yaml",
     "--length",
     "60",
     "--combat-log",
@@ -725,7 +725,7 @@ fn combat_log_damage_is_the_damage_of_the_same_seeds_iteration() {
 
     let yaml = stdout(&csim(&[
         "run",
-        "data/characters/dw_fury_orc.yaml",
+        "data/characters/warrior_fury_dw_orc.yaml",
         "--length",
         "60",
         "--length-variance",

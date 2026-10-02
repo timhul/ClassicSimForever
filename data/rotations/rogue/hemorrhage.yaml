@@ -2,7 +2,7 @@
 # dagger build: Hemorrhage (145 % weapon damage with a dagger) raises the Rupture damage the
 # target takes, Rupture's ticks stack Thousand Cuts' energy discount on the next Hemorrhage,
 # and Serrated Blades adds to Rupture. So Rupture is kept up next to Slice and Dice, which the
-# C++ rotation (Eviscerate only) did not do: ~22 DPS more with hemorrhage_troll.yaml, whose
+# C++ rotation (Eviscerate only) did not do: ~22 DPS more with rogue_hemorrhage_troll.yaml, whose
 # combo points go almost entirely to the two (Rupture ~60 % uptime); Eviscerate only spends
 # the rare surplus.
 #

@@ -3,7 +3,7 @@
 # keeping Expose Armor up at five combo points, for raids without a Warrior's Sunder Armor.
 # Improved Expose Armor lowers its cost and refunds two of the five points. Expose Armor and
 # Sunder Armor share one armor reduction (the stronger applies), so the setup must not select
-# the external Sunder Armor debuff (mutilate_ea_gnome.yaml).
+# the external Sunder Armor debuff (rogue_mutilate_ea_gnome.yaml).
 #
 # Additions to the C++ file: Expose Armor, the Stealth opener (Ambush), Cold Blood before an
 # Eviscerate, Renataki's Charm under its spell's name (`Burst of Energy`) and Zandalarian Hero

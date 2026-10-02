@@ -83,7 +83,7 @@ fn every_shipped_setup_builds() {
 /// 1 % attack speed; the High Order variant is the Alliance one.
 #[test]
 fn the_skyborne_setup_has_wind_blessed() {
-    let setup = shipped("dw_fury_skyborne.yaml");
+    let setup = shipped("warrior_fury_dw_skyborne.yaml");
     assert_eq!(setup.race, Race::WindshaperSkyborne);
     let attack_speed = |setup: &CharacterSetup| {
         let raid = setup.build_raid(data(), &settings()).unwrap();
@@ -100,7 +100,7 @@ fn the_skyborne_setup_has_wind_blessed() {
 
 #[test]
 fn the_dw_fury_setup_is_built_as_written() {
-    let setup = shipped("dw_fury_orc.yaml");
+    let setup = shipped("warrior_fury_dw_orc.yaml");
     let raid = setup.build_raid(data(), &settings()).unwrap();
     let character = raid.character(CharId(0));
     assert_eq!(character.race(), Race::Orc);
@@ -129,7 +129,7 @@ fn the_dw_fury_setup_is_built_as_written() {
 
 #[test]
 fn a_shipped_setup_simulates() {
-    let setup = shipped("dw_fury_orc.yaml");
+    let setup = shipped("warrior_fury_dw_orc.yaml");
     let settings = setup.sim_settings(&settings());
     let mut raid = setup.build_raid(data(), &settings).unwrap();
     let mut control = SimControl::new(settings, 1);
@@ -142,7 +142,7 @@ fn a_shipped_setup_simulates() {
 
 #[test]
 fn the_prot_setup_tanks_with_a_shield() {
-    let raid = shipped("prot_dwarf.yaml")
+    let raid = shipped("warrior_prot_dwarf.yaml")
         .build_raid(data(), &settings())
         .unwrap();
     let character = raid.character(CharId(0));
@@ -340,31 +340,41 @@ const ROGUE_ITEM_AND_RACIAL_LINES: [&str; 9] = [
 fn the_rogue_setups_run_their_rotations() {
     let cases = [
         (
-            "combat_swords_human.yaml",
+            "rogue_combat_swords_human.yaml",
             "Garrote",
             "Sinister Strike",
             "Eviscerate",
         ),
         (
-            "combat_axes_orc.yaml",
+            "rogue_combat_axes_orc.yaml",
             "Garrote",
             "Sinister Strike",
             "Eviscerate",
         ),
         (
-            "combat_daggers_night_elf.yaml",
+            "rogue_combat_daggers_night_elf.yaml",
             "Ambush",
             "Backstab",
             "Eviscerate",
         ),
-        ("mutilate_undead.yaml", "Ambush", "Mutilate", "Eviscerate"),
         (
-            "mutilate_ea_gnome.yaml",
+            "rogue_mutilate_undead.yaml",
+            "Ambush",
+            "Mutilate",
+            "Eviscerate",
+        ),
+        (
+            "rogue_mutilate_ea_gnome.yaml",
             "Ambush",
             "Mutilate",
             "Expose Armor",
         ),
-        ("hemorrhage_troll.yaml", "Ambush", "Hemorrhage", "Rupture"),
+        (
+            "rogue_hemorrhage_troll.yaml",
+            "Ambush",
+            "Hemorrhage",
+            "Rupture",
+        ),
     ];
     for (file, opener, builder, finisher) in cases {
         let setup = shipped(file);
@@ -415,9 +425,9 @@ fn the_rogue_setups_run_their_rotations() {
                 .map(|b| b.avg_uptime()),
         )
     };
-    let (hemorrhage_rupture, _) = rupture("hemorrhage_troll.yaml");
+    let (hemorrhage_rupture, _) = rupture("rogue_hemorrhage_troll.yaml");
     assert!(hemorrhage_rupture.unwrap() > 0.4, "{hemorrhage_rupture:?}");
-    let (_, expose_armor) = rupture("mutilate_ea_gnome.yaml");
+    let (_, expose_armor) = rupture("rogue_mutilate_ea_gnome.yaml");
     assert!(expose_armor.unwrap() > 0.5, "{expose_armor:?}");
 }
 
@@ -427,12 +437,12 @@ fn the_rogue_setups_run_their_rotations() {
 #[test]
 fn the_rogue_setups_fight_the_same_reacting_to_every_tick() {
     for file in [
-        "combat_swords_human.yaml",
-        "combat_axes_orc.yaml",
-        "combat_daggers_night_elf.yaml",
-        "mutilate_undead.yaml",
-        "mutilate_ea_gnome.yaml",
-        "hemorrhage_troll.yaml",
+        "rogue_combat_swords_human.yaml",
+        "rogue_combat_axes_orc.yaml",
+        "rogue_combat_daggers_night_elf.yaml",
+        "rogue_mutilate_undead.yaml",
+        "rogue_mutilate_ea_gnome.yaml",
+        "rogue_hemorrhage_troll.yaml",
     ] {
         let setup = shipped(file);
         let settings = SimSettings {
@@ -570,10 +580,10 @@ fn load_reports_the_file() {
     assert!(matches!(error, CharacterSetupError::Io { .. }));
     assert!(error.to_string().contains("missing.yaml"));
 
-    let mut setup = shipped("dw_fury_orc.yaml");
+    let mut setup = shipped("warrior_fury_dw_orc.yaml");
     setup.rotation = "No Such Rotation".to_string();
     let message = setup.validate(data()).unwrap_err().to_string();
-    assert!(message.contains("dw_fury_orc.yaml"), "{message}");
+    assert!(message.contains("warrior_fury_dw_orc.yaml"), "{message}");
 }
 
 /// A fresh directory holding `files` (relative path → contents).
