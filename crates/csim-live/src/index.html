@@ -321,6 +321,14 @@
     box-shadow: 0 0 0 1px #000;
   }
   .tile img { display: block; width: 100%; height: 100%; }
+  /* Not enough of the resource it costs: tinted blue, as the game does. */
+  .tile.unaffordable::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(110, 110, 255);
+    mix-blend-mode: multiply;
+  }
   .tile .initials {
     position: absolute;
     inset: 0;
@@ -1269,6 +1277,7 @@ function cooldownTile(cooldown, gcdLeft, gcd) {
     left: cooldown.left > 0 && !gcdLater ? tileSeconds(cooldown.left) : "",
     count: "",
     hotkey: hotkeys.has(cooldown.name) ? shortBinding(hotkeys.get(cooldown.name)) : "",
+    unaffordable: !cooldown.affordable,
   };
 }
 
@@ -1346,6 +1355,7 @@ function renderTiles(container, items, showEmpty = true) {
       view.root.title = title;
     }
     view.root.classList.toggle("debuff", item.debuff === true);
+    view.root.classList.toggle("unaffordable", item.unaffordable === true);
     if (view.sweepValue !== item.sweep) {
       view.sweepValue = item.sweep;
       view.sweep.style.background = item.sweep;

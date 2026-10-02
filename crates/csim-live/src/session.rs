@@ -243,6 +243,8 @@ pub struct CooldownState {
     pub icon: Option<u32>,
     /// The spell waits for the global cooldown too.
     pub on_gcd: bool,
+    /// The character has the resource it costs.
+    pub affordable: bool,
 }
 
 /// One iteration being watched. See the module documentation.
@@ -829,6 +831,10 @@ impl Session {
                 duration: longest.map_or(0.0, |cooldown| cooldown.base),
                 icon: icon(spell.record().icon),
                 on_gcd: spell.triggers_gcd(),
+                affordable: spell.resource_type().is_none_or(|resource| {
+                    character.resource_level(resource, now)
+                        >= spell.resource_cost_with(character.spell_modifiers())
+                }),
             });
         }
 

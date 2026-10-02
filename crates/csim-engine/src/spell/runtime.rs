@@ -32,6 +32,7 @@ use crate::mechanics::Mechanics;
 use crate::proc::ProcSource;
 use crate::resource::ResourceType;
 use crate::spell::dbc::{AuraState, AuraType, PowerType, SpellEffectName, SpellModOp};
+use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{
     EnablingAura, EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride,
     ThreatOverride,
@@ -1032,12 +1033,16 @@ impl Spell {
     /// Strike: −10 stored = −1 rage; Eureka! −10 %). Costs are whole units, so a fractional
     /// cost rounds to the nearest one. Port of `Spell::get_resource_cost`.
     pub fn resource_cost(&self, host: &impl SpellHost) -> u32 {
+        self.resource_cost_with(host.spell_modifiers())
+    }
+
+    /// [`Self::resource_cost`] under the caster's spell `modifiers`.
+    pub fn resource_cost_with(&self, modifiers: &SpellModifiers) -> u32 {
         let record = &self.setup.record;
         let Some(resource) = self.resource_type() else {
             return 0;
         };
         let stored = f64::from(record.power_cost(resource.power_type()));
-        let modifiers = host.spell_modifiers();
         let class = record.class_options.as_ref();
         let stored = modifiers.apply(class, SpellModOp::PowerCost0, stored)
             * modifiers.multiplier(class, SpellModOp::PowerCostPct);

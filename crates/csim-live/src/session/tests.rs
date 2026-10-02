@@ -135,6 +135,29 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
 }
 
 #[test]
+fn a_spell_is_affordable_with_the_rage_it_costs() {
+    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let mut seen = Vec::new();
+    for frame in play(&mut session, 0.25) {
+        let state = &frame.state;
+        let bloodthirst = state
+            .rotation_spells
+            .iter()
+            .find(|spell| spell.name == "Bloodthirst")
+            .expect("in the rotation");
+        // Bloodthirst costs 30 rage.
+        assert_eq!(
+            bloodthirst.affordable,
+            state.resource.current >= 30,
+            "{}",
+            frame.time
+        );
+        seen.push(bloodthirst.affordable);
+    }
+    assert!(seen.contains(&true) && seen.contains(&false));
+}
+
+#[test]
 fn the_breakdown_adds_up_to_the_damage_so_far() {
     let mut session = session_of("dw_fury_orc.yaml", 3);
     assert!(session.advance(0.0).breakdown.is_empty(), "before the pull");
