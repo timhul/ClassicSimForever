@@ -180,6 +180,8 @@ pub struct CooldownState {
     /// The cooldown length in seconds.
     pub duration: f64,
     pub icon: Option<u32>,
+    /// The spell waits for the global cooldown too.
+    pub on_gcd: bool,
 }
 
 /// One iteration being watched. See the module documentation.
@@ -599,6 +601,7 @@ impl Session {
                 ready_at: (cooldown.last_used != -cooldown.base).then(|| cooldown.next_use()),
                 duration: cooldown.base,
                 icon: icon(spell.record().icon),
+                on_gcd: spell.triggers_gcd(),
             });
         }
 

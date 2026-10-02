@@ -139,6 +139,16 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
         state.cooldowns
     );
     assert_eq!(state.gcd, 1.5);
+    let on_gcd = |name: &str| {
+        state
+            .cooldowns
+            .iter()
+            .find(|cd| cd.name == name)
+            .unwrap()
+            .on_gcd
+    };
+    assert!(on_gcd("Bloodthirst") && on_gcd("Whirlwind"));
+    assert!(!on_gcd("Bloodrage"));
 
     // Before anything was used, every cooldown is ready (none counts down to the pull).
     let fresh = session_of("dw_fury_orc.yaml", 1).advance(-1.0).state;
