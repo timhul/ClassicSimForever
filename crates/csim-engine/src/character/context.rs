@@ -1207,16 +1207,22 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.run_sources(&untriggered(&report.proc_sources));
     }
 
-    /// Runs the proc checks for `sources`, then uses the charges of the buffs that react to
-    /// them. The charges go after the procs: a landed swing consumes a charge when its damage
-    /// lands, one batch after the procs it triggered (the `classic-warrior` wiki on Windfury
-    /// Totem), so the swing that proc'd Windfury uses a charge of the aura it just applied.
-    /// A charged spell modifier aura reacts to the spells it modifies only, and loses at most
-    /// one charge to one event.
+    /// Runs the proc checks for `sources` and uses the charges of the buffs that react to them.
+    /// The charges go after the procs of the landed hit and before those of its result (a
+    /// crit): a landed swing consumes a charge when its damage lands, one batch after the procs
+    /// it triggered (the `classic-warrior` wiki on Windfury Totem), so the swing that proc'd
+    /// Windfury uses a charge of the aura it just applied; but a crit consumes a charge of the
+    /// Flurry already up before refreshing it, and the crit that applies Flurry keeps all three
+    /// charges (Classic Era combat logs).
     fn run_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
-        self.run_proc_checks_for(sources);
+        self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources));
         let plain: Vec<ProcSource> = sources.iter().map(|&(source, _)| source).collect();
         self.run_event_scripts(&plain);
+    }
+
+    /// Uses the charges of the buffs that react to `sources`. A charged spell modifier aura
+    /// reacts to the spells it modifies only, and loses at most one charge to one event.
+    fn use_charges(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
         let mut charged = Vec::new();
         for (source, trigger) in sources {
             let class = trigger.class_options;
@@ -1290,13 +1296,33 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         &mut self,
         sources: &[(ProcSource, ProcTrigger)],
     ) -> Vec<(ProcId, CastReport)> {
+        self.run_proc_checks_around(sources, |_| {})
+    }
+
+    /// [`Self::run_proc_checks_for`], running `between` inside the check after the sources of
+    /// the landed hit and before those of its critical result.
+    fn run_proc_checks_around(
+        &mut self,
+        sources: &[(ProcSource, ProcTrigger)],
+        between: impl FnOnce(&mut Self),
+    ) -> Vec<(ProcId, CastReport)> {
         let before = self.character.pending_extra_attacks();
         self.character.spells.procs_mut().begin_check();
         let mut fired = Vec::new();
-        for &(source, trigger) in sources {
+        let (crits, landed): (Vec<_>, Vec<_>) = sources.iter().partition(|(source, _)| {
+            matches!(
+                source,
+                ProcSource::MeleeCritical | ProcSource::SpellCritical
+            )
+        });
+        for &(source, trigger) in landed {
             if source == ProcSource::Manual {
                 continue;
             }
+            fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
+        }
+        between(self);
+        for &(source, trigger) in crits {
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
         for (id, report) in &fired {
