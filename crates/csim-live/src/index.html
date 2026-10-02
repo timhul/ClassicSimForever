@@ -521,6 +521,10 @@ const DECISION_LIMIT = 200;
 // From the keyboard: the binding of each bound spell, and the spell of each binding.
 let hotkeys = new Map();
 let bindings = new Map();
+// From the keyboard: the keybinds (a spell's, a macro's) casting each spell.
+let castBy = new Map();
+// From the keyboard: what a macro's tile says, its spells.
+let macroTitles = new Map();
 
 const RESOURCE_COLORS = { Rage: "--rage", Energy: "--energy", Mana: "--mana", Focus: "--focus" };
 // The class colours of CLAUDE.md.
@@ -587,8 +591,16 @@ function restart(seed) {
       `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
     // From the keyboard the rotation does not run: its entries are not what decides.
     $("entries").hidden = info.manual;
-    hotkeys = new Map(info.keybinds.map((keybind) => [keybind.spell, keybind.binding]));
-    bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.spell]));
+    hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
+    bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.name]));
+    castBy = new Map();
+    for (const keybind of info.keybinds) {
+      for (const spell of keybind.spells) {
+        castBy.set(spell, [...(castBy.get(spell) || []), keybind.name]);
+      }
+    }
+    macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
+      .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
     document.title = `${info.name} · csim-live`;
     renderEntries();
     simTime = info.start_at;
@@ -759,15 +771,20 @@ function flashCasts(decisions) {
   }
 }
 
-/** Flashes the icon of `spell` in the spells bar with `kind` (`cast` or `failed`). */
+/**
+ * Flashes the icons of `spell` in the spells bar with `kind` (`cast` or `failed`): its own,
+ * and those of the macros casting it.
+ */
 function flashTile(spell, kind) {
   const views = tileViews.get($("spells"));
-  const view = views && views.get(spell);
-  if (view) {
-    // Restart the animation when it flashes again before it ended.
-    view.root.classList.remove("cast", "failed");
-    void view.root.offsetWidth;
-    view.root.classList.add(kind);
+  for (const name of castBy.get(spell) || [spell]) {
+    const view = views && views.get(name);
+    if (view) {
+      // Restart the animation when it flashes again before it ended.
+      view.root.classList.remove("cast", "failed");
+      void view.root.offsetWidth;
+      view.root.classList.add(kind);
+    }
   }
 }
 
@@ -1005,6 +1022,7 @@ function cooldownTile(cooldown, gcdLeft, gcd) {
   return {
     key: cooldown.key,
     name: cooldown.name,
+    title: macroTitles.get(cooldown.name),
     icon: cooldown.icon,
     sweep: remainingSweep(fraction),
     left: cooldown.left > 0 && !gcdLater ? tileSeconds(cooldown.left) : "",
@@ -1046,7 +1064,10 @@ function elapsedSweep(fraction) {
 /** The tiles of each container, by key: kept from frame to frame so icons are not reloaded. */
 const tileViews = new Map();
 
-/** Shows `items` ({key, name, icon, sweep, left, count}) as the icon tiles of `container`. */
+/**
+ * Shows `items` ({key, name, title?, icon, sweep, left, count, hotkey?}) as the icon tiles of
+ * `container`.
+ */
 function renderTiles(container, items, showEmpty = true) {
   let views = tileViews.get(container);
   if (!views) {
@@ -1079,8 +1100,9 @@ function renderTiles(container, items, showEmpty = true) {
     if (container.children[index] !== view.root) {
       container.insertBefore(view.root, container.children[index] || null);
     }
-    if (view.root.title !== item.name) {
-      view.root.title = item.name;
+    const title = item.title || item.name;
+    if (view.root.title !== title) {
+      view.root.title = title;
     }
     view.root.classList.toggle("debuff", item.debuff === true);
     if (view.sweepValue !== item.sweep) {
@@ -1150,6 +1172,7 @@ document.addEventListener("keydown", (event) => {
   if (!info || !info.manual || event.repeat || inForm) {
     return;
   }
+  // A spell's name, or a macro's.
   const spell = bindings.get(pressedBinding(event));
   if (spell === undefined) {
     return;

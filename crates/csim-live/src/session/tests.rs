@@ -482,7 +482,7 @@ fn played_from_the_keyboard_nothing_is_cast_without_input() {
     let bound: Vec<(&str, &str)> = info
         .keybinds
         .iter()
-        .map(|keybind| (keybind.spell.as_str(), keybind.binding.as_str()))
+        .map(|keybind| (keybind.name.as_str(), keybind.binding.as_str()))
         .collect();
     assert_eq!(
         bound,
@@ -612,4 +612,29 @@ fn the_queue_window_covers_the_stance_cooldown_as_the_gcd() {
         .map(|decision| (decision.time, decision.spell.as_str()))
         .collect();
     assert_eq!(cast, [(5.0, "Whirlwind")]);
+}
+
+#[test]
+fn a_macro_press_casts_its_entries_up_to_the_gcd() {
+    let keybinds = "Burst:\n  hotkey: T\n  cast: [Bloodrage, Bloodthirst, Heroic Strike]\n";
+    let mut session = manual_session_of("dw_fury_orc.yaml", 3, keybinds);
+    let info = session.info();
+    let burst = &info.keybinds[0];
+    assert!(burst.is_macro);
+    assert_eq!(burst.spells, ["Bloodrage", "Bloodthirst", "Heroic Strike"]);
+    let bloodthirst_icon = Some(136012);
+    assert_eq!(burst.icon, bloodthirst_icon, "its first GCD spell's");
+
+    let frame = session.cast("Burst", 10.0).unwrap();
+    let cast: Vec<(f64, &str)> = frame
+        .decisions
+        .iter()
+        .map(|decision| (decision.time, decision.spell.as_str()))
+        .collect();
+    assert_eq!(cast, [(10.0, "Bloodrage"), (10.0, "Bloodthirst")]);
+    let later = session.advance(12.0);
+    assert!(later.decisions.is_empty(), "Heroic Strike never fires");
+    let tile = &later.state.rotation_spells[0];
+    assert_eq!(tile.name, "Burst");
+    assert_eq!(tile.duration, 6.0, "Bloodthirst's cooldown");
 }

@@ -43,8 +43,14 @@ fn a_file_is_a_map_of_spell_to_binding_in_file_order() {
     .unwrap();
     let pairs: Vec<(&str, &str)> = keybinds
         .iter()
-        .map(|keybind| (keybind.spell.as_str(), keybind.binding.as_str()))
+        .map(|keybind| (keybind.name.as_str(), keybind.binding.as_str()))
         .collect();
+    assert!(keybinds.iter().all(|keybind| !keybind.is_macro));
+    assert!(
+        keybinds
+            .iter()
+            .all(|keybind| keybind.spells == [keybind.name.clone()])
+    );
     assert_eq!(
         pairs,
         [
@@ -67,4 +73,38 @@ fn a_binding_used_twice_or_a_bad_file_is_refused() {
             .unwrap_err()
             .contains("Bloodthirst")
     );
+}
+
+#[test]
+fn a_macro_is_a_hotkey_and_the_spells_it_casts() {
+    let keybinds = parse(
+        "Bloodthirst: 1\n\
+         Burst:\n  hotkey: shift+t\n  cast:\n    - Bloodrage\n    - Bloodthirst\n    - Heroic Strike\n",
+    )
+    .unwrap();
+    let burst = &keybinds[1];
+    assert_eq!(burst.name, "Burst");
+    assert_eq!(burst.binding, "Shift+T");
+    assert_eq!(burst.spells, ["Bloodrage", "Bloodthirst", "Heroic Strike"]);
+    assert!(burst.is_macro);
+}
+
+#[test]
+fn malformed_macros_are_refused() {
+    for (text, says) in [
+        ("Burst:\n  hotkey: T\n  cast: []\n", "casts nothing"),
+        ("Burst:\n  cast: [Bloodrage]\n", "hotkey"),
+        ("Burst:\n  hotkey: T\n", "cast"),
+        (
+            "Burst:\n  hotkey: T\n  cast: [Bloodrage]\n  extra: 1\n",
+            "extra",
+        ),
+        (
+            "Burst:\n  hotkey: 1\n  cast: [Bloodrage]\nBloodthirst: 1\n",
+            "Burst's already",
+        ),
+    ] {
+        let error = parse(text).unwrap_err();
+        assert!(error.contains(says), "{text}: {error}");
+    }
 }

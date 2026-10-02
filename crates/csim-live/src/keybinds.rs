@@ -1,5 +1,5 @@
 //! The keybinds of a player playing a character from the keyboard: a YAML map of spell name to
-//! binding, in the order of the file.
+//! binding, or of macro name to macro, in the order of the file.
 //!
 //! ```yaml
 //! Bloodthirst: 1
@@ -7,6 +7,11 @@
 //! Heroic Strike: Q
 //! Execute: Shift+E
 //! Recklessness: Ctrl+Shift+Alt+F1
+//! Burst:                  # a macro: the game's /cast lines (see Character::queue_macro)
+//!   hotkey: T
+//!   cast:
+//!     - Bloodrage
+//!     - Bloodthirst
 //! ```
 //!
 //! A binding is `[Ctrl+][Shift+][Alt+]<key>`, the modifiers in any order and case. The key is a
@@ -17,12 +22,26 @@
 
 use std::path::Path;
 
-/// One spell bound to a key.
+use serde::Deserialize;
+
+/// A spell or a macro bound to a key.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Keybind {
-    pub spell: String,
+    /// The spell's name, or the macro's.
+    pub name: String,
     /// Normalised, see the module documentation.
     pub binding: String,
+    /// The spells it casts: the one, or the macro's entries in order.
+    pub spells: Vec<String>,
+    pub is_macro: bool,
+}
+
+/// A macro as written.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct MacroSpec {
+    hotkey: serde_yaml::Value,
+    cast: Vec<String>,
 }
 
 /// The named keys, as `KeyboardEvent.code` names them (without a `Key` / `Digit` prefix).
@@ -73,8 +92,8 @@ const NAMED_KEYS: &[&str] = &[
 /// Loads the keybinds of `path`.
 ///
 /// # Errors
-/// The file cannot be read or is not a map of names to bindings, a binding is malformed, or
-/// two spells share a binding.
+/// The file cannot be read or is not a map of names to bindings or macros, a binding is
+/// malformed, a macro casts nothing, or two keybinds share a binding.
 pub fn load(path: &Path) -> Result<Vec<Keybind>, String> {
     let text =
         std::fs::read_to_string(path).map_err(|error| format!("{}: {error}", path.display()))?;
@@ -89,15 +108,38 @@ pub fn parse(text: &str) -> Result<Vec<Keybind>, String> {
     let map: serde_yaml::Mapping = serde_yaml::from_str(text)
         .map_err(|error| format!("not a map of spell to key: {error}"))?;
     let mut keybinds: Vec<Keybind> = Vec::new();
-    for (spell, binding) in map {
-        let spell = scalar(&spell).ok_or("a spell name is not text")?;
-        let binding =
-            scalar(&binding).ok_or_else(|| format!("{spell}: the binding is not text"))?;
-        let binding = normalize(&binding).map_err(|error| format!("{spell}: {error}"))?;
+    for (name, value) in map {
+        let name = scalar(&name).ok_or("a spell name is not text")?;
+        let (binding, spells, is_macro) = match value {
+            serde_yaml::Value::Mapping(_) => {
+                let spec: MacroSpec = serde_yaml::from_value(value)
+                    .map_err(|error| format!("{name}: not a macro: {error}"))?;
+                if spec.cast.is_empty() {
+                    return Err(format!("{name}: the macro casts nothing"));
+                }
+                let binding = scalar(&spec.hotkey)
+                    .ok_or_else(|| format!("{name}: the hotkey is not text"))?;
+                (binding, spec.cast, true)
+            }
+            value => {
+                let binding =
+                    scalar(&value).ok_or_else(|| format!("{name}: the binding is not text"))?;
+                (binding, vec![name.clone()], false)
+            }
+        };
+        let binding = normalize(&binding).map_err(|error| format!("{name}: {error}"))?;
         if let Some(other) = keybinds.iter().find(|keybind| keybind.binding == binding) {
-            return Err(format!("{spell}: {binding} is {}'s already", other.spell));
+            return Err(format!("{name}: {binding} is {}'s already", other.name));
         }
-        keybinds.push(Keybind { spell, binding });
+        if keybinds.iter().any(|keybind| keybind.name == name) {
+            return Err(format!("{name}: bound twice"));
+        }
+        keybinds.push(Keybind {
+            name,
+            binding,
+            spells,
+            is_macro,
+        });
     }
     Ok(keybinds)
 }

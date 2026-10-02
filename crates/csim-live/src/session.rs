@@ -17,6 +17,7 @@ use std::sync::Arc;
 
 use csim_engine::buff::Buff;
 use csim_engine::character_loader::CharacterSetup;
+use csim_engine::character_spells::CharacterSpells;
 use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::{Event, EventKind};
@@ -28,8 +29,7 @@ use csim_engine::raid::RaidControl;
 use csim_engine::rotation::DecidedBy;
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
-use csim_engine::spell::Hand;
-use csim_engine::spell::SpellStatus;
+use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
 use serde::Serialize;
 
@@ -67,12 +67,18 @@ pub struct Info {
     pub keybinds: Vec<KeybindInfo>,
 }
 
-/// A spell bound to a key.
+/// A spell or a macro bound to a key.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct KeybindInfo {
-    pub spell: String,
+    /// The spell's name, or the macro's.
+    pub name: String,
     /// `Ctrl+Shift+Alt+KEY` (see `keybinds`).
     pub binding: String,
+    /// The spells it casts: the one, or the macro's entries in order.
+    pub spells: Vec<String>,
+    #[serde(rename = "macro")]
+    pub is_macro: bool,
+    /// The icon of its main spell (see [`main_spell`]).
     pub icon: Option<u32>,
 }
 
@@ -231,8 +237,8 @@ pub struct Session {
     seed: u64,
     /// The keybinds of the file; empty when the rotation plays.
     keybinds: Vec<Keybind>,
-    /// The bound spells, in `keybinds` order.
-    bound: Vec<SpellId>,
+    /// The spells of each keybind, in `keybinds` order.
+    bound: Vec<Vec<SpellId>>,
     raid: RaidControl,
     stepper: IterationStepper,
     /// The combat log entries already read into frames.
@@ -338,10 +344,18 @@ impl Session {
                 .keybinds
                 .iter()
                 .zip(&self.bound)
-                .map(|(keybind, &id)| KeybindInfo {
-                    spell: keybind.spell.clone(),
+                .map(|(keybind, ids)| KeybindInfo {
+                    name: keybind.name.clone(),
                     binding: keybind.binding.clone(),
-                    icon: icon(character.spells().spell(id).record().icon),
+                    spells: keybind.spells.clone(),
+                    is_macro: keybind.is_macro,
+                    icon: icon(
+                        character
+                            .spells()
+                            .spell(main_spell(character.spells(), ids))
+                            .record()
+                            .icon,
+                    ),
                 })
                 .collect(),
         }
@@ -352,30 +366,35 @@ impl Session {
         !self.keybinds.is_empty()
     }
 
-    /// A key press of the bound `spell` at `at` (the time shown, at the earliest): runs the
-    /// events up to then, queues the spell for [`INPUT_QUEUE_WINDOW`] and wakes the character,
-    /// which casts it now or as soon as it can within the window.
+    /// A key press of the keybind `name` (a spell or a macro) at `at` (the time shown, at the
+    /// earliest): runs the events up to then, queues its spell or macro for
+    /// [`INPUT_QUEUE_WINDOW`] and wakes the character, which casts it now or as soon as it can
+    /// within the window.
     ///
     /// # Errors
-    /// The character is played by its rotation, or `spell` is not bound.
-    pub fn cast(&mut self, spell: &str, at: f64) -> Result<Frame, String> {
+    /// The character is played by its rotation, or `name` is not bound.
+    pub fn cast(&mut self, name: &str, at: f64) -> Result<Frame, String> {
         if !self.manual() {
             return Err("played by the rotation: no keybinds".to_owned());
         }
         let index = self
             .keybinds
             .iter()
-            .position(|keybind| keybind.spell == spell)
-            .ok_or_else(|| format!("{spell} is not bound"))?;
+            .position(|keybind| keybind.name == name)
+            .ok_or_else(|| format!("{name} is not bound"))?;
         let at = at.max(self.time);
         let frame = self.advance(at);
         if frame.done {
             return Ok(frame);
         }
         let at = at.max(self.raid.engine().current_time());
-        self.raid
-            .character_mut(PLAYER)
-            .queue_input(self.bound[index], at + INPUT_QUEUE_WINDOW);
+        let character = self.raid.character_mut(PLAYER);
+        let spells = self.bound[index].clone();
+        if self.keybinds[index].is_macro {
+            character.queue_macro(spells, at + INPUT_QUEUE_WINDOW);
+        } else {
+            character.queue_input(spells[0], at + INPUT_QUEUE_WINDOW);
+        }
         // Woken at the press, and just after its window: a press still waiting is dropped then.
         for wake in [at, at + INPUT_QUEUE_WINDOW + 1e-6] {
             let wake = Event::new(wake, EventKind::PlayerAction { character: PLAYER });
@@ -719,25 +738,27 @@ impl Session {
             }
         }
 
-        // From the keyboard: the bound spells. Else those the rotation can cast.
-        let ids: Vec<SpellId> = if self.manual() {
-            self.bound.clone()
+        // From the keyboard: the keybinds, each named as bound with its main spell's cooldown.
+        // Else the spells the rotation can cast.
+        let ids: Vec<(String, SpellId)> = if self.manual() {
+            self.keybinds
+                .iter()
+                .zip(&self.bound)
+                .map(|(keybind, ids)| (keybind.name.clone(), main_spell(spells, ids)))
+                .collect()
         } else {
             character
                 .rotation()
                 .into_iter()
                 .flat_map(|rotation| rotation.active_executors())
                 .filter_map(|executor| executor.linked())
-                .map(|linked| linked.spell)
+                .map(|linked| (spells.spell(linked.spell).name().to_owned(), linked.spell))
                 .collect()
         };
         let mut rotation_spells: Vec<CooldownState> = Vec::new();
-        for id in ids {
+        for (name, id) in ids {
             let spell = spells.spell(id);
-            if rotation_spells
-                .iter()
-                .any(|known| known.name == spell.name())
-            {
+            if rotation_spells.iter().any(|known| known.name == name) {
                 continue;
             }
             // The longest of its cooldowns (its own or its category's); none for most.
@@ -746,7 +767,7 @@ impl Session {
                 .map(|id| spells.cooldowns().get(id))
                 .max_by(|a, b| a.next_use().total_cmp(&b.next_use()));
             rotation_spells.push(CooldownState {
-                name: spell.name().to_owned(),
+                name,
                 ready_at: longest
                     .filter(|cooldown| cooldown.last_used != -cooldown.base)
                     .map(|cooldown| cooldown.next_use()),
@@ -801,34 +822,50 @@ fn start(
     IterationStepper::new(settings, seed, raid)
 }
 
-/// The spell of each keybind: a rank group's highest learned rank, else an enabled spell of
-/// that name.
+/// The spells of each keybind, each a rank group's highest learned rank, else an enabled
+/// spell of that name.
 ///
 /// # Errors
 /// A bound spell the character has not learned.
-fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<SpellId>, String> {
+fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<Vec<SpellId>>, String> {
     let spells = raid.character(PLAYER).spells();
+    let learned = |name: &str| {
+        let ranked = spells.rank_group(name).and_then(|group| {
+            group.get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+        });
+        ranked.or_else(|| {
+            spells.spell_ids().find(|&id| {
+                let spell = spells.spell(id);
+                spell.is_enabled() && spell.name() == name
+            })
+        })
+    };
     keybinds
         .iter()
         .map(|keybind| {
-            let ranked = spells.rank_group(&keybind.spell).and_then(|group| {
-                group.get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
-            });
-            ranked
-                .or_else(|| {
-                    spells.spell_ids().find(|&id| {
-                        let spell = spells.spell(id);
-                        spell.is_enabled() && spell.name() == keybind.spell
+            keybind
+                .spells
+                .iter()
+                .map(|spell| {
+                    learned(spell).ok_or_else(|| {
+                        format!(
+                            "{} ({}): {spell} is not a learned spell",
+                            keybind.name, keybind.binding
+                        )
                     })
                 })
-                .ok_or_else(|| {
-                    format!(
-                        "{} ({}): not a learned spell",
-                        keybind.spell, keybind.binding
-                    )
-                })
+                .collect()
         })
         .collect()
+}
+
+/// The spell a keybind is shown as: a macro's first entry that triggers the GCD (what it is
+/// for), else its first.
+fn main_spell(spells: &CharacterSpells, ids: &[SpellId]) -> SpellId {
+    ids.iter()
+        .copied()
+        .find(|&id| spells.spell(id).triggers_gcd())
+        .unwrap_or(ids[0])
 }
 
 /// Why a key press could not cast its spell, as the game's error text says it.
