@@ -589,3 +589,27 @@ fn a_press_that_cannot_cast_says_why() {
     let dropped = session.advance(11.0).input_error.unwrap();
     assert_eq!(dropped.reason, "Ability is not ready yet");
 }
+
+#[test]
+fn the_queue_window_covers_the_stance_cooldown_as_the_gcd() {
+    let keybinds = "Whirlwind: 3\nBerserker Stance: Shift+2\n";
+    let mut session = manual_session_of("dw_fury_orc.yaml", 3, keybinds);
+    let swap = session.cast("Berserker Stance", 4.0).unwrap();
+    assert_eq!(swap.decisions[0].spell, "Berserker Stance");
+    // The swap's stance cooldown ends at 5.0: 0.8 s after this press, beyond its window.
+    let early = session.cast("Whirlwind", 4.2).unwrap();
+    assert!(early.decisions.is_empty());
+    let dropped = session.advance(4.7).input_error.expect("dropped");
+    assert_eq!(dropped.reason, "Ability is not ready yet");
+    // 0.3 s before it ends: cast when it does.
+    let pressed = session.cast("Whirlwind", 4.7).unwrap();
+    assert!(pressed.decisions.is_empty());
+    let later = session.advance(6.0);
+    assert_eq!(later.input_error, None);
+    let cast: Vec<(f64, &str)> = later
+        .decisions
+        .iter()
+        .map(|decision| (decision.time, decision.spell.as_str()))
+        .collect();
+    assert_eq!(cast, [(5.0, "Whirlwind")]);
+}
