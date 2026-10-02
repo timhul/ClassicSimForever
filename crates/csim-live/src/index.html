@@ -18,7 +18,6 @@
     --energy: #e6c229;
     --mana: #2f6fd6;
     --focus: #d2802a;
-    --gcd: #7f8aa3;
     --swing: #5aa469;
     --cooldown: #6b5bb5;
     --buff: #3f8fb0;
@@ -314,11 +313,6 @@
 
     <div class="panel">
       <h2>Timers</h2>
-      <div class="row">
-        <span class="label">Global cooldown</span>
-        <div class="bar"><div id="gcd-fill" style="background: var(--gcd)"></div></div>
-        <span class="value" id="gcd-value"></span>
-      </div>
       <div class="row">
         <span class="label">Main hand</span>
         <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
@@ -740,8 +734,6 @@ function render() {
   $("stance").textContent = state.stance || "";
 
   const gcdLeft = state.gcd_end - time;
-  fill("gcd-fill", gcdLeft / state.gcd);
-  $("gcd-value").textContent = seconds(gcdLeft);
   swing("mh", state.mainhand, time);
   $("oh-row").hidden = state.offhand === null;
   if (state.offhand !== null) {
