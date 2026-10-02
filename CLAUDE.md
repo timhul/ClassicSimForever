@@ -114,3 +114,17 @@ Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
 - Raid DPS can be lower than solo DPS. This is because external debuffs are not applied in a raid
 context since they depend instead on the available raid members, meaning some debuffs are not
 applied if characters applying those debuffs are.
+
+# Class colors
+
+If class colors are referenced:
+
+Druid   255 124 10  1.00    0.49    0.04    #FF7C0A
+Hunter  170 211 114 0.67    0.83    0.45    #AAD372
+Mage    63  199 235 0.25    0.78    0.92    #3FC7EB
+Paladin 244 140 186 0.96    0.55    0.73    #F48CBA
+Priest  255 255 255 1.00    1.00    1.00    #FFFFFF
+Rogue   255 244 104 1.00    0.96    0.41    #FFF468
+Shaman  0   112 221 0.00    0.44    0.87    #0070DD
+Warlock 135 136 238 0.53    0.53    0.93    #8788EE
+Warrior 198 155 109 0.78    0.61    0.43    #C69B6D
