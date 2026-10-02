@@ -813,7 +813,8 @@ function render() {
   // Nothing damages the target but the clock: full until the pull, empty at the end.
   const health = time <= 0 ? 1 : Math.max(0, 1 - time / info.end_at);
   fill("target-health", health);
-  setText($("target-percent"), `${Math.ceil(health * 100)}%`);
+  // Rounded up (0.0% only when dead), past float noise like 0.30000000000000004.
+  setText($("target-percent"), `${(Math.ceil(health * 1000 - 1e-9) / 10).toFixed(1)}%`);
   // The sim knows when the target dies: the end of the encounter.
   const toDeath = Math.max(0, info.end_at - Math.max(0, time));
   setText($("target-ttd"), `${Math.floor(toDeath / 60)}:${String(Math.floor(toDeath % 60)).padStart(2, "0")}`);
