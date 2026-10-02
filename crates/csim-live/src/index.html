@@ -130,6 +130,45 @@
   #feed li.miss { font-style: italic; }
   #feed li.proc { color: var(--proc-hit); font-size: 13px; }
   @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  #stage {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    background: #000;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .float {
+    position: absolute;
+    left: 50%;
+    top: var(--y);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+    transform: translate(-50%, -50%);
+  }
+  .float.auto { color: var(--white-hit); }
+  .float.spell { color: var(--yellow-hit); }
+  .float.miss { font-style: italic; }
+  .float.hit { font-size: 18px; animation: slide 1.5s ease-out forwards; }
+  .float.crit { font-size: 40px; animation: crit 3s ease-out forwards; }
+  #stage.paused .float { animation-play-state: paused; }
+  /* A hit slides from the middle out to one side (--dx), fading on the way. */
+  @keyframes slide {
+    from { opacity: 1; transform: translate(-50%, -50%); }
+    70% { opacity: 1; }
+    to { opacity: 0; transform: translate(calc(-50% + var(--dx)), -50%); }
+  }
+  /* A crit pops in, stays in the middle and fades out. */
+  @keyframes crit {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+    6% { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+    10% { transform: translate(-50%, -50%) scale(1); }
+    40% { opacity: 1; }
+    to { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  }
   #state { display: grid; gap: 16px; }
   .row { display: grid; grid-template-columns: 124px minmax(0, 1fr) 64px; gap: 8px; align-items: center; }
   .row + .row { margin-top: 6px; }
@@ -284,6 +323,7 @@
   </section>
 
   <section id="state">
+    <div id="stage" class="paused"></div>
     <div class="panel">
       <h2 id="resource-name">Resource</h2>
       <div class="row">
@@ -389,6 +429,7 @@ function restart(seed) {
   return enqueue(async () => {
     info = await api("POST", "/api/restart", seed === null ? {} : { seed });
     $("feed").replaceChildren();
+    $("stage").replaceChildren();
     $("status").textContent = "";
     $("last-event").textContent = "";
     $("name").textContent = info.name;
@@ -447,6 +488,40 @@ function addHits(hits) {
   }
   while (feed.childElementCount > FEED_LIMIT) {
     feed.lastElementChild.remove();
+  }
+  floatHits(hits);
+}
+
+const FLOAT_LIMIT = 60;
+/** The side the next non-crit slides to: 1 right, -1 left. */
+let floatSide = 1;
+
+/** The hits as damage numbers floating on the stage, as in the game. */
+function floatHits(hits) {
+  const stage = $("stage");
+  for (const hit of hits) {
+    if (hit.proc) {
+      continue;
+    }
+    const number = element("span", `float ${hit.auto ? "auto" : "spell"}`,
+      hit.miss || String(hit.amount));
+    if (hit.miss) {
+      number.classList.add("miss");
+    }
+    if (hit.critical) {
+      number.classList.add("crit");
+      number.style.setProperty("--y", `${45 + (Math.random() - 0.5) * 10}%`);
+    } else {
+      number.classList.add("hit");
+      number.style.setProperty("--y", `${15 + Math.random() * 70}%`);
+      number.style.setProperty("--dx", `${floatSide * (120 + Math.random() * 60)}px`);
+      floatSide = -floatSide;
+    }
+    number.addEventListener("animationend", () => number.remove(), { once: true });
+    stage.append(number);
+  }
+  while (stage.childElementCount > FLOAT_LIMIT) {
+    stage.firstElementChild.remove();
   }
 }
 
@@ -558,6 +633,7 @@ function scrollIntoList(list, item) {
 function setPlaying(on) {
   playing = on && !(frame && frame.done);
   $("play").textContent = playing ? "Pause" : "Play";
+  $("stage").classList.toggle("paused", !playing);
   lastWall = null;
 }
 
