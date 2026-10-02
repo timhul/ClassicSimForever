@@ -132,7 +132,7 @@
   @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   #stage {
     position: relative;
-    height: 240px;
+    height: 290px;
     overflow: hidden;
     background: #000;
     border-radius: 8px;
@@ -160,8 +160,8 @@
     font-variant-numeric: tabular-nums;
   }
   .swing .bar { height: 6px; }
-  /* The floating numbers, over the swing timers. */
-  #floats { position: absolute; inset: 0; z-index: 1; }
+  /* The floating numbers, above the swing timers. */
+  #floats { position: absolute; inset: 0 0 50px; z-index: 1; }
   .swing .value { text-align: left; }
   .float {
     position: absolute;
