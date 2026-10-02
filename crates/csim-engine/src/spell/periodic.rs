@@ -54,7 +54,9 @@ pub enum PeriodicKind {
     Damage { per_tick: f64, ticks: u32 },
     /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand damage per application, dealt
     /// in `ticks_per_application` equal ticks; every application adds an independent stack of
-    /// ticks and the rounding remainder is carried between ticks. Port of `DeepWounds`.
+    /// ticks, a tick deals one share per live stack (the stacks pool: the bleed weakens as they
+    /// fall off) and the rounding remainder is carried between ticks. Port of `DeepWounds`,
+    /// which dealt one share whatever the stack count.
     WeaponDamage {
         percent: f64,
         ticks_per_application: u32,
@@ -322,8 +324,11 @@ impl Periodic {
                 if self.stacks.is_empty() {
                     return None;
                 }
+                // The stacks pool: each live one deals its application's share of the tick.
+                let stacks = self.stacks.len() as f64;
                 let mut damage = host.avg_mh_weapon_damage() * percent / 100.0 * damage_mod
-                    / f64::from(ticks_per_application);
+                    / f64::from(ticks_per_application)
+                    * stacks;
                 damage += self.previous_tick_rest;
                 self.previous_tick_rest = damage - damage.round();
                 for stack in &mut self.stacks {

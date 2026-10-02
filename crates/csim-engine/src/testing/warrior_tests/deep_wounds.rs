@@ -271,9 +271,48 @@ fn damage_of_3_of_3_deep_wounds() {
     assert_eq!(damage(3, 1), (60, "12.000".to_string()));
 }
 
+/// Two crits at once add two stacks of four ticks: every tick deals both shares.
 #[test]
-fn damage_does_not_stack_when_multiple_crits_occur() {
-    assert_eq!(damage(3, 2), (60, "12.000".to_string()));
+fn damage_pools_when_multiple_crits_occur() {
+    assert_eq!(damage(3, 2), (120, "12.000".to_string()));
+}
+
+/// A crit 6 s into the bleed adds a stack to the running ticks: 15 per tick on its own, 30
+/// while the two overlap, 15 again once the first falls off, and the bleed runs to 18 s.
+#[test]
+fn a_later_crit_adds_a_stack_that_outlives_the_first() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    given_deep_wounds(&mut test, 3);
+    test.given_a_guaranteed_white_crit();
+    when_mh_attack_is_performed(&mut test);
+    let mut ticks = Vec::new();
+    let mut tick = |test: &mut WarriorTest| {
+        let before = test.damage_dealt_by(SPELL);
+        let time = test.when_running_until_event(EventType::DotTick);
+        ticks.push((format!("{time:.3}"), test.damage_dealt_by(SPELL) - before));
+    };
+    tick(&mut test);
+    tick(&mut test);
+    when_mh_attack_is_performed(&mut test);
+    for _ in 0..4 {
+        tick(&mut test);
+    }
+    let expected = [
+        ("3.000", 15),
+        ("6.000", 15),
+        ("9.000", 30),
+        ("12.000", 30),
+        ("15.000", 15),
+        ("18.000", 15),
+    ];
+    let expected: Vec<_> = expected.iter().map(|(t, d)| (t.to_string(), *d)).collect();
+    assert_eq!(ticks, expected);
+    assert_eq!(
+        deep_wounds_damage(&mut test),
+        120,
+        "no tick after the last stack"
+    );
 }
 
 /// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage, times
