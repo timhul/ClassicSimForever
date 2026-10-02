@@ -134,14 +134,17 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
     let expires_at = shout.expires_at.unwrap();
     assert!(expires_at > 20.0 && expires_at <= shout.duration.unwrap());
     assert!(
-        state.cooldowns.iter().any(|cd| cd.name == "Bloodthirst"),
+        state
+            .rotation_spells
+            .iter()
+            .any(|cd| cd.name == "Bloodthirst"),
         "{:?}",
-        state.cooldowns
+        state.rotation_spells
     );
     assert_eq!(state.gcd, 1.5);
     let on_gcd = |name: &str| {
         state
-            .cooldowns
+            .rotation_spells
             .iter()
             .find(|cd| cd.name == name)
             .unwrap()
@@ -152,9 +155,21 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
 
     // Before anything was used, every cooldown is ready (none counts down to the pull).
     let fresh = session_of("dw_fury_orc.yaml", 1).advance(-1.0).state;
-    let bloodthirst = fresh.cooldowns.iter().find(|cd| cd.name == "Bloodthirst");
+    // The rotation's spells without a cooldown too.
+    for name in ["Heroic Strike", "Hamstring"] {
+        let spell = fresh.rotation_spells.iter().find(|cd| cd.name == name);
+        let spell = spell.unwrap_or_else(|| panic!("{name}: {:?}", fresh.rotation_spells));
+        assert_eq!((spell.duration, spell.ready_at), (0.0, None), "{name}");
+    }
+    let bloodthirst = fresh
+        .rotation_spells
+        .iter()
+        .find(|cd| cd.name == "Bloodthirst");
     assert_eq!(bloodthirst.unwrap().ready_at, None);
-    let bloodrage = fresh.cooldowns.iter().find(|cd| cd.name == "Bloodrage");
+    let bloodrage = fresh
+        .rotation_spells
+        .iter()
+        .find(|cd| cd.name == "Bloodrage");
     assert_eq!(
         bloodrage.unwrap().ready_at,
         Some(-1.5 + 60.0),
@@ -229,7 +244,10 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
     );
 
     let state = session_of("dw_fury_orc.yaml", 1).advance(20.0).state;
-    let cooldown = state.cooldowns.iter().find(|cd| cd.name == "Bloodthirst");
+    let cooldown = state
+        .rotation_spells
+        .iter()
+        .find(|cd| cd.name == "Bloodthirst");
     assert_eq!(cooldown.unwrap().icon, BLOODTHIRST);
     let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
     assert!(shout.unwrap().icon.is_some());

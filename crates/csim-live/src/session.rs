@@ -143,8 +143,9 @@ pub struct CharacterState {
     /// The visible debuffs on the target: the character's own (Deep Wound), the raid's shared
     /// ones, then the setup's external debuffs (Sunder Armor, Faerie Fire), one per name.
     pub debuffs: Vec<BuffState>,
-    /// The cooldowns of the rotation's spells, in rotation order.
-    pub cooldowns: Vec<CooldownState>,
+    /// Every spell the rotation can cast, in rotation order, with its cooldown (`duration` 0
+    /// without one).
+    pub rotation_spells: Vec<CooldownState>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -609,7 +610,7 @@ impl Session {
             }
         }
 
-        let mut cooldowns: Vec<CooldownState> = Vec::new();
+        let mut rotation_spells: Vec<CooldownState> = Vec::new();
         let linked = character
             .rotation()
             .into_iter()
@@ -617,21 +618,23 @@ impl Session {
             .filter_map(|executor| executor.linked());
         for executor in linked {
             let spell = spells.spell(executor.spell);
+            if rotation_spells
+                .iter()
+                .any(|known| known.name == spell.name())
+            {
+                continue;
+            }
+            // The longest of its cooldowns (its own or its category's); none for most.
             let longest = spell
                 .cooldown_ids()
                 .map(|id| spells.cooldowns().get(id))
                 .max_by(|a, b| a.next_use().total_cmp(&b.next_use()));
-            let Some(cooldown) = longest else { continue };
-            // Stance swaps and the like are no longer than the global cooldown.
-            if cooldown.base <= character.global_cooldown()
-                || cooldowns.iter().any(|known| known.name == spell.name())
-            {
-                continue;
-            }
-            cooldowns.push(CooldownState {
+            rotation_spells.push(CooldownState {
                 name: spell.name().to_owned(),
-                ready_at: (cooldown.last_used != -cooldown.base).then(|| cooldown.next_use()),
-                duration: cooldown.base,
+                ready_at: longest
+                    .filter(|cooldown| cooldown.last_used != -cooldown.base)
+                    .map(|cooldown| cooldown.next_use()),
+                duration: longest.map_or(0.0, |cooldown| cooldown.base),
                 icon: icon(spell.record().icon),
                 on_gcd: spell.triggers_gcd(),
             });
@@ -655,7 +658,7 @@ impl Session {
             offhand: character.is_dual_wielding().then(|| swing(Hand::Offhand)),
             buffs,
             debuffs,
-            cooldowns,
+            rotation_spells,
         }
     }
 }
