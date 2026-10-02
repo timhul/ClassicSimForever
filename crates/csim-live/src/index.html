@@ -409,6 +409,36 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
+  /* Below the stage: the damage so far per spell, as `csim run` breaks it down. */
+  #breakdown-panel { margin-top: 16px; }
+  #breakdown-scroll { overflow-x: auto; }
+  #breakdown {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #breakdown th {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+    padding: 0 8px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  #breakdown td { text-align: right; padding: 3px 8px; }
+  #breakdown th:first-child, #breakdown td:first-child { text-align: left; padding-left: 0; }
+  #breakdown .name { display: flex; align-items: center; gap: 6px; }
+  #breakdown .expander { width: 10px; color: var(--muted); font-size: 10px; }
+  #breakdown tr.expandable { cursor: pointer; }
+  #breakdown tr.expandable:hover { background: rgba(255, 255, 255, 0.04); }
+  #breakdown tr.part { color: var(--muted); font-size: 12px; }
+  #breakdown tr.part .name { padding-left: 34px; }
+  #breakdown .share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  #breakdown .share-bar { width: 60px; height: 6px; background: var(--line); border-radius: 3px; }
+  #breakdown .share-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
+  #breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
+  #breakdown-empty { color: var(--muted); }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -499,6 +529,17 @@
         <div id="spells" class="tiles"></div>
       </div>
     </div>
+    <section id="breakdown-panel" class="panel">
+      <h2>Breakdown</h2>
+      <div id="breakdown-scroll">
+        <table id="breakdown">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="breakdown-empty">Nothing dealt yet.</div>
+    </section>
   </section>
 
   <section id="rotation-panel" class="panel">
@@ -541,6 +582,11 @@ const CLASS_COLORS = {
 };
 // Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
 const missingIcons = new Set();
+/** The icon of each spell that dealt damage, by name (without rank), for the breakdown. */
+const iconsByName = new Map();
+/** The breakdown's spells whose outcome rows are shown. */
+const expanded = new Set();
+let breakdownAt = 0;
 
 let info = null;     // the iteration (seed as a string)
 let frame = null;    // the latest frame from the server
@@ -629,6 +675,11 @@ function apply(next) {
   if (next.done) {
     setPlaying(false);
   }
+  // Rebuilt a few times a second while playing, at once otherwise.
+  if (!playing || next.done || performance.now() - breakdownAt >= 250) {
+    breakdownAt = performance.now();
+    renderBreakdown(next);
+  }
   $("dps").textContent = next.dps.toFixed(1);
   $("total").textContent = next.total_damage.toLocaleString("en-US");
   for (const id of ["play", "step-event", "step-cast"]) {
@@ -639,6 +690,9 @@ function apply(next) {
 function addHits(hits) {
   const feed = $("feed");
   for (const hit of hits) {
+    if (hit.icon !== null && !iconsByName.has(hit.name)) {
+      iconsByName.set(hit.name, hit.icon);
+    }
     const item = document.createElement("li");
     item.className = hit.proc ? "proc"
       : (hit.auto ? "auto" : "spell") + (hit.critical ? " crit" : "") + (hit.miss ? " miss" : "");
@@ -862,6 +916,9 @@ function setPlaying(on) {
   $("play").textContent = playing ? "Pause" : "Play";
   $("stage").classList.toggle("paused", !playing);
   lastWall = null;
+  if (!playing && frame) {
+    renderBreakdown(frame);
+  }
 }
 
 /** `m:ss.mmm`, negative before the pull. */
@@ -894,6 +951,137 @@ function swing(prefix, timer, time) {
 }
 
 /** An 18 px icon of `/icons/<id>.png`; null without an icon or when the server has none. */
+/**
+ * The breakdown's columns: a heading, the cell of a row (`time` is the combat so far) and
+ * whether it is shown although every row is 0 there.
+ */
+const BREAKDOWN_COLUMNS = [
+  { name: "Damage", cell: (row, time) => Math.round(row.dps * time).toLocaleString("en-US") },
+  { name: "Share", cell: (row) => shareCell(row.damage_share) },
+  { name: "DPS", cell: (row) => row.dps.toFixed(1) },
+  { name: "Casts", cell: (row) => String(Math.round(row.casts)) },
+  { name: "Min", cell: (row) => row.min_hit ?? "" },
+  { name: "Max", cell: (row) => row.max_hit ?? "" },
+  { name: "DPR", cell: (row) => row.damage_per_resource?.toFixed(1) ?? "",
+    key: "damage_per_resource" },
+  { name: "Hit", cell: (row) => percent(row.hit), key: "hit" },
+  { name: "Crit", cell: (row) => percent(row.crit), key: "crit" },
+  { name: "Glance", cell: (row) => percent(row.glance), key: "glance" },
+  { name: "Miss", cell: (row) => percent(row.miss), key: "miss" },
+  { name: "Dodge", cell: (row) => percent(row.dodge), key: "dodge" },
+  { name: "Parry", cell: (row) => percent(row.parry), key: "parry" },
+  { name: "Block", cell: (row) => percent(row.block), key: "block" },
+  { name: "Resist", cell: (row) => percent(row.resist), key: "resist" },
+];
+
+function percent(share) {
+  return `${(share * 100).toFixed(1)}%`;
+}
+
+function shareCell(share) {
+  const cell = document.createElement("span");
+  cell.className = "share";
+  const bar = document.createElement("span");
+  bar.className = "share-bar";
+  const fill = document.createElement("div");
+  fill.style.width = `${(share * 100).toFixed(1)}%`;
+  bar.append(fill);
+  cell.append(percent(share), bar);
+  return cell;
+}
+
+/**
+ * The damage so far per spell, by damage: a row each, its outcome rows below it when expanded
+ * (a click on it), and the total. A column only some spells have (`key`) shows when one does.
+ */
+function renderBreakdown(next) {
+  const rows = next.breakdown;
+  const time = next.time;
+  $("breakdown-empty").hidden = rows.length > 0;
+  $("breakdown").hidden = rows.length === 0;
+  const columns = BREAKDOWN_COLUMNS.filter((column) => !column.key ||
+    rows.some((row) => row[column.key]));
+  const heading = $("breakdown").tHead.rows[0];
+  const names = ["Spell", ...columns.map((column) => column.name)];
+  if (heading.textContent !== names.join("")) {
+    heading.replaceChildren(...names.map((name) => {
+      const th = document.createElement("th");
+      th.textContent = name;
+      return th;
+    }));
+  }
+  const line = (row, part) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const label = document.createElement("span");
+    label.className = "name";
+    if (part) {
+      tr.className = "part";
+      label.append(row.name);
+    } else {
+      const plain = row.name.replace(/ \(rank \d+\)$/, "");
+      const expander = document.createElement("span");
+      expander.className = "expander";
+      if (row.breakdown?.length) {
+        tr.className = "expandable";
+        tr.dataset.spell = row.name;
+        expander.textContent = expanded.has(row.name) ? "▼" : "▶";
+      }
+      const slot = document.createElement("span");
+      slot.className = "slot";
+      // The statistics name the swings and off-hand strikes otherwise than the damage does.
+      const iconName = { "Mainhand Attack": "Main hand", "Offhand Attack": "Off hand" }[plain]
+        ?? plain.replace(/ Off-Hand$/, "");
+      const icon = iconImage(iconsByName.get(iconName) ?? null);
+      if (icon) {
+        slot.append(icon);
+      }
+      label.append(expander, slot, plain);
+      label.title = row.name;
+    }
+    name.append(label);
+    tr.append(name, ...columns.map((column) => {
+      const td = document.createElement("td");
+      td.append(column.cell(row, time));
+      return td;
+    }));
+    return tr;
+  };
+  const body = [];
+  for (const row of rows) {
+    body.push(line(row, false));
+    if (expanded.has(row.name)) {
+      body.push(...(row.breakdown || []).map((part) => line(part, true)));
+    }
+  }
+  $("breakdown").tBodies[0].replaceChildren(...body);
+  const total = document.createElement("tr");
+  const totalDamage = rows.reduce((sum, row) => sum + row.dps * time, 0);
+  total.append(...["Total", ...columns.map((column) => column.name === "Damage"
+    ? Math.round(totalDamage).toLocaleString("en-US")
+    : column.name === "DPS" ? (time > 0 ? totalDamage / time : 0).toFixed(1) : "")]
+    .map((text) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      return td;
+    }));
+  $("breakdown").tFoot.replaceChildren(total);
+}
+
+$("breakdown").tBodies[0].addEventListener("click", (event) => {
+  const row = event.target instanceof Element && event.target.closest("tr.expandable");
+  if (!row) {
+    return;
+  }
+  const spell = row.dataset.spell;
+  if (!expanded.delete(spell)) {
+    expanded.add(spell);
+  }
+  if (frame) {
+    renderBreakdown(frame);
+  }
+});
+
 function iconImage(id) {
   if (id === null || missingIcons.has(id)) {
     return null;
