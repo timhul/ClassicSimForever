@@ -19,7 +19,7 @@ use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
-use csim_engine::statistics::report::{SpellRow, spell_rows};
+use csim_engine::statistics::report::{BuffRow, SpellRow, buff_rows, spell_rows};
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
 
@@ -388,15 +388,6 @@ pub struct RaidMemberRow {
     pub dps: f64,
     pub dps_share: f64,
     pub tps: f64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct BuffRow {
-    pub name: String,
-    pub debuff: bool,
-    pub uptime: f64,
-    pub shortest_seconds: f64,
-    pub longest_seconds: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -875,25 +866,6 @@ fn raid_summary(roster: &RaidRoster, cruncher: &NumberCruncher) -> RaidSummary {
             })
             .collect(),
     }
-}
-
-fn buff_rows(stats: &ClassStatistics) -> Vec<BuffRow> {
-    let mut buffs: Vec<_> = stats.buffs().filter(|b| b.avg_uptime() > 0.0).collect();
-    buffs.sort_by(|a, b| {
-        b.avg_uptime()
-            .total_cmp(&a.avg_uptime())
-            .then_with(|| a.name().cmp(b.name()))
-    });
-    buffs
-        .into_iter()
-        .map(|buff| BuffRow {
-            name: buff.name().to_string(),
-            debuff: buff.is_debuff(),
-            uptime: buff.avg_uptime(),
-            shortest_seconds: buff.min_uptime(),
-            longest_seconds: buff.max_uptime(),
-        })
-        .collect()
 }
 
 fn proc_rows(stats: &ClassStatistics) -> Vec<ProcRow> {

@@ -3,7 +3,8 @@
 
 use serde::Serialize;
 
-use super::{ClassStatistics, Outcome, SpellStatistics};
+use super::{BuffStatistics, ClassStatistics, Outcome, SpellStatistics};
+use crate::buff::{Buff, BuffKind};
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SpellRow {
@@ -174,6 +175,91 @@ fn outcome_row(
         resist: rate(&[Outcome::FullResist]),
         breakdown: Vec::new(),
     }
+}
+
+/// One buff's (or debuff's) uptime.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct BuffRow {
+    pub name: String,
+    pub debuff: bool,
+    /// The share of the combat it was up.
+    pub uptime: f64,
+    pub shortest_seconds: f64,
+    pub longest_seconds: f64,
+}
+
+/// The buffs that were up, by uptime then name, over the finished iterations.
+pub fn buff_rows(stats: &ClassStatistics) -> Vec<BuffRow> {
+    let mut buffs: Vec<_> = stats.buffs().filter(|b| b.avg_uptime() > 0.0).collect();
+    buffs.sort_by(|a, b| {
+        b.avg_uptime()
+            .total_cmp(&a.avg_uptime())
+            .then_with(|| a.name().cmp(b.name()))
+    });
+    buffs
+        .into_iter()
+        .map(|buff| BuffRow {
+            name: buff.name().to_string(),
+            debuff: buff.is_debuff(),
+            uptime: buff.avg_uptime(),
+            shortest_seconds: buff.min_uptime(),
+            longest_seconds: buff.max_uptime(),
+        })
+        .collect()
+}
+
+/// The buffs that were up in an iteration in progress, at `now` (after the pull): `buffs` are
+/// the character's (the statistics learn an iteration's uptime only when it ends). Each is up
+/// for its uptime this iteration and its running application, at most all of the combat so
+/// far; its shortest and longest applications are the ended ones in `stats`, the longest also
+/// the running one. By uptime then name, as [`buff_rows`].
+pub fn buff_rows_so_far<'a>(
+    stats: &ClassStatistics,
+    buffs: impl IntoIterator<Item = &'a Buff>,
+    now: f64,
+) -> Vec<BuffRow> {
+    let mut rows: Vec<BuffRow> = Vec::new();
+    for buff in buffs {
+        // As the statistics report them.
+        if buff.is_hidden() || buff.is_passive() || buff.kind() == BuffKind::External {
+            continue;
+        }
+        let running = if buff.is_active() {
+            now - buff.applied_at()
+        } else {
+            0.0
+        };
+        let seconds = buff.uptime() + running;
+        if seconds <= 0.0 {
+            continue;
+        }
+        let name = buff.statistics_name();
+        let ended = stats.buff_statistics(&name);
+        let shortest = ended.map_or(0.0, BuffStatistics::min_uptime);
+        let longest = ended.map_or(0.0, BuffStatistics::max_uptime).max(running);
+        match rows.iter_mut().find(|row| row.name == name) {
+            Some(row) => {
+                row.uptime += seconds;
+                row.longest_seconds = row.longest_seconds.max(longest);
+            }
+            None => rows.push(BuffRow {
+                name,
+                debuff: buff.is_debuff(),
+                uptime: seconds,
+                shortest_seconds: shortest,
+                longest_seconds: longest,
+            }),
+        }
+    }
+    for row in &mut rows {
+        row.uptime = (row.uptime / now).min(1.0);
+    }
+    rows.sort_by(|a, b| {
+        b.uptime
+            .total_cmp(&a.uptime)
+            .then_with(|| a.name.cmp(&b.name))
+    });
+    rows
 }
 
 /// `count` per `of` (0 for none).
