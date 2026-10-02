@@ -139,7 +139,7 @@ pub struct Frame {
     pub breakdown: Vec<SpellRow>,
     /// The buffs' (and debuffs') uptimes so far, as `csim run` reports them (empty before the
     /// pull).
-    pub buff_uptimes: Vec<BuffRow>,
+    pub buff_uptimes: Vec<BuffUptime>,
 }
 
 /// A key press that could not cast its spell, with why, as the game says it.
@@ -207,6 +207,15 @@ pub struct ResourceState {
 pub struct SwingState {
     pub last: f64,
     pub next: f64,
+}
+
+/// A buff's uptime so far, with its icon.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct BuffUptime {
+    #[serde(flatten)]
+    pub row: BuffRow,
+    /// The icon of the spell applying it; `None` for a buff made in code.
+    pub icon: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -583,13 +592,22 @@ impl Session {
     }
 
     /// The character's buffs' uptimes over the combat so far.
-    fn buff_uptimes(&self) -> Vec<BuffRow> {
-        if self.time > 0.0 {
-            let statistics = self.raid.character(PLAYER).statistics();
-            buff_rows_so_far(statistics, self.buffs(), self.time)
-        } else {
-            Vec::new()
+    fn buff_uptimes(&self) -> Vec<BuffUptime> {
+        if self.time <= 0.0 {
+            return Vec::new();
         }
+        let buffs = self.buffs();
+        let statistics = self.raid.character(PLAYER).statistics();
+        buff_rows_so_far(statistics, buffs.iter().copied(), self.time)
+            .into_iter()
+            .map(|row| {
+                let icon = buffs
+                    .iter()
+                    .find(|buff| buff.statistics_name() == row.name)
+                    .and_then(|buff| self.spell_icon(buff.spell()));
+                BuffUptime { row, icon }
+            })
+            .collect()
     }
 
     /// Every buff of the character: its own and the ones it shares.

@@ -52,7 +52,7 @@ that seed:
 The same iteration, watched live in a browser (`csim-live` serves a page on
 http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
 is used as a library, as by the CLI; a Rotation pane lists each cast with the `cast_if` entry
-that returned true; a Breakdown pane below the stage shows the damage so far per spell, as `csim run` breaks it
+that returned true; a Breakdown pane below the stage shows the damage so far per spell and the buff uptimes, as `csim run` breaks them
 down). It takes the setup, `--seed`, `--length`,
 `--length-variance` and `--port`, one character only (no `--raid`):
 

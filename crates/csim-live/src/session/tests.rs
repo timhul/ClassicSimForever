@@ -95,7 +95,7 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
     assert!(
         early
             .iter()
-            .all(|row| row.uptime > 0.0 && row.uptime <= 1.0),
+            .all(|uptime| uptime.row.uptime > 0.0 && uptime.row.uptime <= 1.0),
         "{early:?}"
     );
     let last = play(&mut session, 7.0).pop().unwrap();
@@ -125,7 +125,13 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
         rows
     };
     assert!(reported.len() > 3, "{reported:?}");
-    assert_eq!(uptimes(&last.buff_uptimes), uptimes(&reported));
+    let shown: Vec<BuffRow> = last
+        .buff_uptimes
+        .iter()
+        .map(|uptime| uptime.row.clone())
+        .collect();
+    assert_eq!(uptimes(&shown), uptimes(&reported));
+    assert!(last.buff_uptimes.iter().any(|uptime| uptime.icon.is_some()));
 }
 
 #[test]

@@ -411,14 +411,14 @@
   }
   /* Below the stage: the damage so far per spell, as `csim run` breaks it down. */
   #breakdown-panel { margin-top: 16px; }
-  #breakdown-scroll { overflow-x: auto; }
-  #breakdown {
+  .breakdown-scroll { overflow-x: auto; }
+  .breakdown {
     width: 100%;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  #breakdown th {
+  .breakdown th {
     color: var(--muted);
     font-size: 12px;
     font-weight: 600;
@@ -426,19 +426,21 @@
     padding: 0 8px 6px;
     border-bottom: 1px solid var(--line);
   }
-  #breakdown td { text-align: right; padding: 3px 8px; }
-  #breakdown th:first-child, #breakdown td:first-child { text-align: left; padding-left: 0; }
-  #breakdown .name { display: flex; align-items: center; gap: 6px; }
-  #breakdown .expander { width: 10px; color: var(--muted); font-size: 10px; }
-  #breakdown tr.expandable { cursor: pointer; }
-  #breakdown tr.expandable:hover { background: rgba(255, 255, 255, 0.04); }
-  #breakdown tr.part { color: var(--muted); font-size: 12px; }
-  #breakdown tr.part .name { padding-left: 34px; }
-  #breakdown .share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-  #breakdown .share-bar { width: 60px; height: 6px; background: var(--line); border-radius: 3px; }
-  #breakdown .share-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
-  #breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
-  #breakdown-empty { color: var(--muted); }
+  .breakdown td { text-align: right; padding: 3px 8px; }
+  .breakdown th:first-child, .breakdown td:first-child { text-align: left; padding-left: 0; }
+  .breakdown .name { display: flex; align-items: center; gap: 6px; }
+  .breakdown .expander { width: 10px; color: var(--muted); font-size: 10px; }
+  .breakdown tr.expandable { cursor: pointer; }
+  .breakdown tr.expandable:hover { background: rgba(255, 255, 255, 0.04); }
+  .breakdown tr.part { color: var(--muted); font-size: 12px; }
+  .breakdown tr.part .name { padding-left: 34px; }
+  .breakdown .share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .breakdown .share-bar { width: 60px; height: 6px; background: var(--line); border-radius: 3px; }
+  .breakdown .share-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
+  .breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
+  #buff-heading { margin-top: 16px; }
+  .breakdown .debuff-tag { color: #e05a4f; font-size: 11px; margin-left: 6px; }
+  #breakdown-empty, #buff-uptimes-empty { color: var(--muted); }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -531,14 +533,22 @@
     </div>
     <section id="breakdown-panel" class="panel">
       <h2>Breakdown</h2>
-      <div id="breakdown-scroll">
-        <table id="breakdown">
+      <div class="breakdown-scroll">
+        <table id="breakdown" class="breakdown">
           <thead><tr></tr></thead>
           <tbody></tbody>
           <tfoot></tfoot>
         </table>
       </div>
       <div id="breakdown-empty">Nothing dealt yet.</div>
+      <h2 id="buff-heading">Buffs</h2>
+      <div class="breakdown-scroll">
+        <table id="buff-uptimes" class="breakdown">
+          <thead><tr><th>Buff</th><th>Uptime</th><th>Shortest</th><th>Longest</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="buff-uptimes-empty">No buff up yet.</div>
     </section>
   </section>
 
@@ -679,6 +689,7 @@ function apply(next) {
   if (!playing || next.done || performance.now() - breakdownAt >= 250) {
     breakdownAt = performance.now();
     renderBreakdown(next);
+    renderBuffUptimes(next);
   }
   $("dps").textContent = next.dps.toFixed(1);
   $("total").textContent = next.total_damage.toLocaleString("en-US");
@@ -918,6 +929,7 @@ function setPlaying(on) {
   lastWall = null;
   if (!playing && frame) {
     renderBreakdown(frame);
+    renderBuffUptimes(frame);
   }
 }
 
@@ -1066,6 +1078,42 @@ function renderBreakdown(next) {
       return td;
     }));
   $("breakdown").tFoot.replaceChildren(total);
+}
+
+/** The buffs' uptimes so far: the share of the combat, shortest and longest application. */
+function renderBuffUptimes(next) {
+  const rows = next.buff_uptimes;
+  $("buff-uptimes-empty").hidden = rows.length > 0;
+  $("buff-uptimes").hidden = rows.length === 0;
+  const seconds = (value) => value > 0 ? `${value.toFixed(1)} s` : "";
+  $("buff-uptimes").tBodies[0].replaceChildren(...rows.map((row) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const label = document.createElement("span");
+    label.className = "name";
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    const icon = iconImage(row.icon);
+    if (icon) {
+      slot.append(icon);
+    }
+    label.append(slot, row.name);
+    if (row.debuff) {
+      const tag = document.createElement("span");
+      tag.className = "debuff-tag";
+      tag.textContent = "debuff";
+      label.append(tag);
+    }
+    name.append(label);
+    const cells = [shareCell(row.uptime), seconds(row.shortest_seconds),
+      seconds(row.longest_seconds)].map((content) => {
+      const td = document.createElement("td");
+      td.append(content);
+      return td;
+    });
+    tr.append(name, ...cells);
+    return tr;
+  }));
 }
 
 $("breakdown").tBodies[0].addEventListener("click", (event) => {
