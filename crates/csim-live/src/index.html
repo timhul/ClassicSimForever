@@ -764,11 +764,11 @@ function render() {
       value: left === null ? "" : `${left.toFixed(1)} s`,
     };
   }));
-  // The least time left first; the ready ones (0 left) stay in rotation order.
+  // A fixed order: the longest base cooldown first, then by name.
   const cooldowns = keyed(state.cooldowns).map((cooldown) => ({
     ...cooldown,
     left: cooldown.ready_at === null ? 0 : Math.max(0, cooldown.ready_at - time),
-  })).sort((a, b) => a.left - b.left);
+  })).sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0) || a.name.localeCompare(b.name));
   renderCooldowns(cooldowns, Math.max(0, gcdLeft), state.gcd);
 }
 
