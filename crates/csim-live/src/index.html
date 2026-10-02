@@ -152,13 +152,13 @@
   .float.auto { color: var(--white-hit); }
   .float.spell { color: var(--yellow-hit); }
   .float.miss { font-style: italic; }
-  .float.hit { font-size: 18px; animation: slide 1.5s ease-out forwards; }
+  .float.hit { font-size: 18px; animation: slide 2.5s ease-out forwards; }
   .float.crit { font-size: 40px; animation: crit 3s ease-out forwards; }
   #stage.paused .float { animation-play-state: paused; }
   /* A hit slides from the middle out to one side (--dx), fading on the way. */
   @keyframes slide {
     from { opacity: 1; transform: translate(-50%, -50%); }
-    70% { opacity: 1; }
+    60% { opacity: 1; }
     to { opacity: 0; transform: translate(calc(-50% + var(--dx)), -50%); }
   }
   /* A crit pops in, stays in the middle and fades out. */
