@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 
 use super::*;
-use crate::session::tests::session_of;
+use crate::session::tests::{manual_session_of, session_of};
 
 /// A directory of its own under the temp directory, removed when dropped.
 struct TempDir(PathBuf);
@@ -159,4 +159,33 @@ fn icons_are_served_from_the_icon_directory() {
         assert_eq!(reply.status, status, "{method} {path}: {}", text(&reply));
         assert_eq!(reply.cache_control, None);
     }
+}
+
+#[test]
+fn a_key_press_is_cast_when_played_from_the_keyboard_only() {
+    let mut manual = manual_session_of("dw_fury_orc.yaml", 3, "Hamstring: 1\n");
+    let info = json(&call(&mut manual, "GET", "/api/info", ""));
+    assert_eq!(info["manual"], true);
+    assert_eq!(info["keybinds"][0]["binding"], "1");
+    let body = r#"{"spell": "Hamstring", "at": 10}"#;
+    let frame = json(&call(&mut manual, "POST", "/api/cast", body));
+    assert_eq!(frame["decisions"][0]["by"], "input");
+    assert_eq!(frame["decisions"][0]["spell"], "Hamstring");
+
+    let unbound = call(
+        &mut manual,
+        "POST",
+        "/api/cast",
+        r#"{"spell": "Execute", "at": 11}"#,
+    );
+    assert_eq!(unbound.status, 400);
+    assert_eq!(call(&mut manual, "POST", "/api/cast", "{}").status, 400);
+    assert_eq!(call(&mut manual, "GET", "/api/cast", "").status, 405);
+
+    let mut rotation = session_of("dw_fury_orc.yaml", 3);
+    assert_eq!(
+        json(&call(&mut rotation, "GET", "/api/info", ""))["manual"],
+        false
+    );
+    assert_eq!(call(&mut rotation, "POST", "/api/cast", body).status, 400);
 }

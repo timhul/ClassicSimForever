@@ -8,6 +8,8 @@
 //!   frame.
 //! - `POST /api/restart {"seed": "S"}`: starts the iteration of seed `S` (a string: seeds do
 //!   not fit a JavaScript number), or of a new seed without one; the new info.
+//! - `POST /api/cast {"spell": "Bloodthirst", "at": t}`: a key press of a bound spell at sim
+//!   time `t` (played from the keyboard only); a frame.
 //! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon directory
 //!   (`<data>/icons/`, filled by `tools/fetch_icons.py`).
 
@@ -81,6 +83,13 @@ struct Restart {
     seed: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Cast {
+    spell: String,
+    at: f64,
+}
+
 /// Answers one request. Icons are read from `icons`; `new_seed` gives the seed of a restart
 /// that names none.
 pub fn route(
@@ -126,7 +135,14 @@ pub fn route(
             session.restart(seed);
             Reply::json(&session.info())
         }
-        (_, "/" | "/api/info" | "/api/advance" | "/api/step" | "/api/restart") => {
+        ("POST", "/api/cast") => match serde_json::from_str::<Cast>(body) {
+            Ok(Cast { spell, at }) => match session.cast(&spell, at) {
+                Ok(frame) => Reply::json(&frame),
+                Err(error) => Reply::error(400, error),
+            },
+            Err(error) => Reply::error(400, error.to_string()),
+        },
+        (_, "/" | "/api/info" | "/api/advance" | "/api/step" | "/api/restart" | "/api/cast") => {
             Reply::error(405, format!("{method} not allowed on {path}"))
         }
         _ => Reply::error(404, format!("no {path}")),

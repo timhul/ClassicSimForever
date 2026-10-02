@@ -27,7 +27,15 @@ fn settings(setup: &CharacterSetup) -> SimSettings {
 pub(crate) fn session_of(file: &str, seed: u64) -> Session {
     let setup = setup(file);
     let settings = settings(&setup);
-    Session::new(Arc::clone(data()), setup, settings, seed).unwrap()
+    Session::new(Arc::clone(data()), setup, settings, seed, Vec::new()).unwrap()
+}
+
+/// `file` played from the keyboard with the keybinds of the YAML `keybinds`.
+pub(crate) fn manual_session_of(file: &str, seed: u64, keybinds: &str) -> Session {
+    let setup = setup(file);
+    let settings = settings(&setup);
+    let keybinds = crate::keybinds::parse(keybinds).unwrap();
+    Session::new(Arc::clone(data()), setup, settings, seed, keybinds).unwrap()
 }
 
 /// Advances in steps of `dt` to the end and returns every frame.
@@ -461,4 +469,87 @@ fn the_target_debuffs_are_the_sims_and_the_setups() {
         .state;
     let names: Vec<&str> = rogue.debuffs.iter().map(|d| d.name.as_str()).collect();
     assert_eq!(names, ["Sunder Armor", "Faerie Fire"]);
+}
+
+const KEYBINDS: &str = "Bloodthirst: 1\nHamstring: Shift+2\nBattle Shout: Ctrl+Alt+B\n";
+
+#[test]
+fn played_from_the_keyboard_nothing_is_cast_without_input() {
+    let mut session = manual_session_of("dw_fury_orc.yaml", 3, KEYBINDS);
+    let info = session.info();
+    assert!(info.manual);
+    assert_eq!(info.precombat, Vec::<String>::new());
+    let bound: Vec<(&str, &str)> = info
+        .keybinds
+        .iter()
+        .map(|keybind| (keybind.spell.as_str(), keybind.binding.as_str()))
+        .collect();
+    assert_eq!(
+        bound,
+        [
+            ("Bloodthirst", "1"),
+            ("Hamstring", "Shift+2"),
+            ("Battle Shout", "Ctrl+Alt+B")
+        ]
+    );
+    assert!(info.keybinds.iter().all(|keybind| keybind.icon.is_some()));
+
+    let frames = play(&mut session, 0.5);
+    assert!(frames.iter().all(|frame| frame.decisions.is_empty()));
+    let state = &frames.last().unwrap().state;
+    let names: Vec<&str> = state
+        .rotation_spells
+        .iter()
+        .map(|s| s.name.as_str())
+        .collect();
+    assert_eq!(
+        names,
+        ["Bloodthirst", "Hamstring", "Battle Shout"],
+        "the bound spells"
+    );
+    let hits = frames.iter().flat_map(|frame| &frame.damage);
+    assert!(hits.clone().any(|hit| hit.auto), "the auto attacks run");
+    assert!(
+        !hits
+            .clone()
+            .any(|hit| !hit.auto && !hit.proc && hit.name == "Bloodthirst")
+    );
+}
+
+#[test]
+fn a_key_press_casts_its_spell_now_or_within_the_queue_window() {
+    let mut session = manual_session_of("dw_fury_orc.yaml", 3, KEYBINDS);
+    session.advance(9.0);
+    let frame = session.cast("Hamstring", 10.0).unwrap();
+    assert_eq!(frame.time, 10.0);
+    let inputs = |frame: &Frame| -> Vec<(f64, String)> {
+        frame
+            .decisions
+            .iter()
+            .inspect(|decision| assert_eq!(decision.by, "input"))
+            .map(|decision| (decision.time, decision.spell.clone()))
+            .collect()
+    };
+    assert_eq!(inputs(&frame), [(10.0, "Hamstring".to_owned())]);
+    // During its global cooldown (to 11.5): queued, cast once the GCD ends.
+    let queued = session.cast("Hamstring", 11.2).unwrap();
+    assert_eq!(inputs(&queued), []);
+    let later = session.advance(12.0);
+    assert_eq!(inputs(&later), [(11.5, "Hamstring".to_owned())]);
+
+    let error = session.cast("Whirlwind", 13.0).unwrap_err();
+    assert!(error.contains("not bound"), "{error}");
+    let error = session_of("dw_fury_orc.yaml", 3).cast("Hamstring", 1.0);
+    assert!(error.is_err(), "played by the rotation");
+}
+
+#[test]
+fn an_unlearned_bound_spell_is_refused() {
+    let setup = setup("dw_fury_orc.yaml");
+    let settings = settings(&setup);
+    let keybinds = crate::keybinds::parse("Mortal Strike: 1\n").unwrap();
+    let error = Session::new(Arc::clone(data()), setup, settings, 1, keybinds)
+        .err()
+        .unwrap();
+    assert!(error.contains("Mortal Strike"), "{error}");
 }

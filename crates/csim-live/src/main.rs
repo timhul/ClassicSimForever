@@ -4,7 +4,11 @@
 //! like `csim run` and serves a page that plays its iteration of the seed: the same iteration
 //! `csim run <character.yaml> --combat-log --seed S` logs. The engine is used as a library;
 //! the page drives the pace (see `session`).
+//!
+//! With `--keybinds <file.yaml>` the rotation does not run: the character is played from the
+//! keyboard, with the spells the file binds (see `keybinds`).
 
+mod keybinds;
 mod server;
 mod session;
 
@@ -46,6 +50,10 @@ struct Args {
     /// The local port to serve the page on.
     #[arg(long, default_value_t = 7878)]
     port: u16,
+    /// Play the character from the keyboard instead of its rotation: a YAML map of spell name
+    /// to key (`Bloodthirst: 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`).
+    #[arg(long, value_name = "FILE")]
+    keybinds: Option<PathBuf>,
 }
 
 fn main() -> ExitCode {
@@ -69,12 +77,19 @@ fn run(args: &Args) -> Result<()> {
         ..SimSettings::default()
     });
     let seed = args.seed.unwrap_or_else(clock_seed);
-    let session = Session::new(Arc::new(data), setup, settings, seed)?;
+    let keybinds = match &args.keybinds {
+        Some(path) => keybinds::load(path)?,
+        None => Vec::new(),
+    };
+    let session = Session::new(Arc::new(data), setup, settings, seed, keybinds)?;
     let info = session.info();
     println!(
         "Serving {} ({} {}, {}), seed {}, at http://127.0.0.1:{}",
         info.name, info.race, info.class, info.rotation, info.seed, args.port
     );
+    if info.manual {
+        println!("Played from the keyboard: {} keybinds", info.keybinds.len());
+    }
     let icons = data_dir.join("icons");
     if !icons.is_dir() {
         println!(

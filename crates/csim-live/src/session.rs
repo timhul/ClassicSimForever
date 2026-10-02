@@ -8,6 +8,10 @@
 //! (the log has no proc lines: each proc's count is compared after every event), the rotation's decisions
 //! since the last frame (its decision trace, enabled for the session) and the character's
 //! state. Every time in a frame is absolute sim time, so the page can animate between frames.
+//!
+//! With keybinds the character is played from the keyboard instead of its rotation (manual
+//! input, see `Character::enable_manual_input`): [`Session::cast`] queues a bound spell at the
+//! time shown, as the game's spell queue window does.
 
 use std::sync::Arc;
 
@@ -15,9 +19,9 @@ use csim_engine::buff::Buff;
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
 use csim_engine::data_bundle::DataBundle;
-use csim_engine::engine::Event;
+use csim_engine::engine::{Event, EventKind};
 use csim_engine::faction::PlayerClass;
-use csim_engine::ids::CharId;
+use csim_engine::ids::{CharId, SpellId};
 use csim_engine::item::EquipmentSlot;
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
@@ -27,6 +31,8 @@ use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::Hand;
 use csim_engine::stance::Stance;
 use serde::Serialize;
+
+use crate::keybinds::Keybind;
 
 /// The watched character: a setup builds a raid of one.
 const PLAYER: CharId = CharId(0);
@@ -51,9 +57,26 @@ pub struct Info {
     pub end_at: f64,
     /// The rotation's `cast_if` entries, in file order (empty without a rotation).
     pub cast_if: Vec<RotationEntry>,
-    /// The rotation's precombat actions the character can cast, in order.
+    /// The rotation's precombat actions the character can cast, in order (none when played
+    /// from the keyboard).
     pub precombat: Vec<String>,
+    /// Played from the keyboard: the rotation does not run.
+    pub manual: bool,
+    /// The bound spells, in the keybinds file's order (none without keybinds).
+    pub keybinds: Vec<KeybindInfo>,
 }
+
+/// A spell bound to a key.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct KeybindInfo {
+    pub spell: String,
+    /// `Ctrl+Shift+Alt+KEY` (see `keybinds`).
+    pub binding: String,
+    pub icon: Option<u32>,
+}
+
+/// How long a press waits for its spell to become castable (the game's spell queue window).
+pub const INPUT_QUEUE_WINDOW: f64 = 0.4;
 
 /// One `cast_if` entry of the rotation: an executor.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -144,8 +167,8 @@ pub struct CharacterState {
     /// The visible debuffs on the target: the character's own (Deep Wound), the raid's shared
     /// ones, then the setup's external debuffs (Sunder Armor, Faerie Fire), one per name.
     pub debuffs: Vec<BuffState>,
-    /// Every spell the rotation can cast, in rotation order, with its cooldown (`duration` 0
-    /// without one).
+    /// Every spell the rotation can cast, in rotation order (from the keyboard: the bound
+    /// spells, in the keybinds' order), with its cooldown (`duration` 0 without one).
     pub rotation_spells: Vec<CooldownState>,
 }
 
@@ -196,6 +219,10 @@ pub struct Session {
     setup: CharacterSetup,
     settings: SimSettings,
     seed: u64,
+    /// The keybinds of the file; empty when the rotation plays.
+    keybinds: Vec<Keybind>,
+    /// The bound spells, in `keybinds` order.
+    bound: Vec<SpellId>,
     raid: RaidControl,
     stepper: IterationStepper,
     /// The combat log entries already read into frames.
@@ -212,21 +239,25 @@ pub struct Session {
 }
 
 impl Session {
-    /// Builds the setup under `settings` and starts its iteration of `seed`.
+    /// Builds the setup under `settings` and starts its iteration of `seed`, played by its
+    /// rotation, or from the keyboard with `keybinds` (when there are any).
     ///
     /// # Errors
-    /// The setup does not build against the data, or the settings are invalid.
+    /// The setup does not build against the data, the settings are invalid, or a bound spell
+    /// is not one the character has learned.
     pub fn new(
         data: Arc<DataBundle>,
         setup: CharacterSetup,
         settings: SimSettings,
         seed: u64,
+        keybinds: Vec<Keybind>,
     ) -> Result<Session, String> {
         settings.validate().map_err(|error| error.to_string())?;
         let mut raid = setup
             .build_raid(&data, &settings)
             .map_err(|error| error.to_string())?;
-        let stepper = start(&settings, seed, &mut raid);
+        let bound = bound_spells(&raid, &keybinds)?;
+        let stepper = start(&settings, seed, &mut raid, !keybinds.is_empty());
         let time = stepper.start_at();
         let proc_counts = proc_counts(&raid);
         Ok(Session {
@@ -234,6 +265,8 @@ impl Session {
             setup,
             settings,
             seed,
+            keybinds,
+            bound,
             raid,
             stepper,
             read: 0,
@@ -254,7 +287,8 @@ impl Session {
             .setup
             .build_raid(&self.data, &self.settings)
             .expect("the setup built before");
-        self.stepper = start(&self.settings, seed, &mut raid);
+        self.bound = bound_spells(&raid, &self.keybinds).expect("they were bound before");
+        self.stepper = start(&self.settings, seed, &mut raid, self.manual());
         self.proc_counts = proc_counts(&raid);
         self.proc_marks.clear();
         self.raid = raid;
@@ -278,15 +312,63 @@ impl Session {
             start_at: self.stepper.start_at(),
             end_at: character.sim().combat_length,
             cast_if: self.rotation_entries(),
-            precombat: character.rotation().map_or_else(Vec::new, |rotation| {
-                let spells = character.spells();
-                rotation
-                    .precombat_spells()
-                    .iter()
-                    .map(|&id| spells.spell(id).name().to_owned())
-                    .collect()
-            }),
+            precombat: match character.rotation() {
+                Some(rotation) if !self.manual() => {
+                    let spells = character.spells();
+                    rotation
+                        .precombat_spells()
+                        .iter()
+                        .map(|&id| spells.spell(id).name().to_owned())
+                        .collect()
+                }
+                _ => Vec::new(),
+            },
+            manual: self.manual(),
+            keybinds: self
+                .keybinds
+                .iter()
+                .zip(&self.bound)
+                .map(|(keybind, &id)| KeybindInfo {
+                    spell: keybind.spell.clone(),
+                    binding: keybind.binding.clone(),
+                    icon: icon(character.spells().spell(id).record().icon),
+                })
+                .collect(),
         }
+    }
+
+    /// Whether the character is played from the keyboard.
+    pub fn manual(&self) -> bool {
+        !self.keybinds.is_empty()
+    }
+
+    /// A key press of the bound `spell` at `at` (the time shown, at the earliest): runs the
+    /// events up to then, queues the spell for [`INPUT_QUEUE_WINDOW`] and wakes the character,
+    /// which casts it now or as soon as it can within the window.
+    ///
+    /// # Errors
+    /// The character is played by its rotation, or `spell` is not bound.
+    pub fn cast(&mut self, spell: &str, at: f64) -> Result<Frame, String> {
+        if !self.manual() {
+            return Err("played by the rotation: no keybinds".to_owned());
+        }
+        let index = self
+            .keybinds
+            .iter()
+            .position(|keybind| keybind.spell == spell)
+            .ok_or_else(|| format!("{spell} is not bound"))?;
+        let at = at.max(self.time);
+        let frame = self.advance(at);
+        if frame.done {
+            return Ok(frame);
+        }
+        let at = at.max(self.raid.engine().current_time());
+        self.raid
+            .character_mut(PLAYER)
+            .queue_input(self.bound[index], at + INPUT_QUEUE_WINDOW);
+        let wake = Event::new(at, EventKind::PlayerAction { character: PLAYER });
+        self.raid.engine_mut().add_event(wake);
+        Ok(self.advance(at))
     }
 
     fn rotation_entries(&self) -> Vec<RotationEntry> {
@@ -612,14 +694,21 @@ impl Session {
             }
         }
 
+        // From the keyboard: the bound spells. Else those the rotation can cast.
+        let ids: Vec<SpellId> = if self.manual() {
+            self.bound.clone()
+        } else {
+            character
+                .rotation()
+                .into_iter()
+                .flat_map(|rotation| rotation.active_executors())
+                .filter_map(|executor| executor.linked())
+                .map(|linked| linked.spell)
+                .collect()
+        };
         let mut rotation_spells: Vec<CooldownState> = Vec::new();
-        let linked = character
-            .rotation()
-            .into_iter()
-            .flat_map(|rotation| rotation.active_executors())
-            .filter_map(|executor| executor.linked());
-        for executor in linked {
-            let spell = spells.spell(executor.spell);
+        for id in ids {
+            let spell = spells.spell(id);
             if rotation_spells
                 .iter()
                 .any(|known| known.name == spell.name())
@@ -671,11 +760,50 @@ fn as_string<S: serde::Serializer>(value: &u64, serializer: S) -> Result<S::Ok, 
 
 /// Enables the character's decision trace (the precombat actions are decided when the
 /// iteration starts) and starts the iteration of `seed`.
-fn start(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> IterationStepper {
-    if let Some(rotation) = raid.character_mut(PLAYER).rotation_mut() {
+fn start(
+    settings: &SimSettings,
+    seed: u64,
+    raid: &mut RaidControl,
+    manual: bool,
+) -> IterationStepper {
+    let character = raid.character_mut(PLAYER);
+    if manual {
+        character.enable_manual_input();
+    }
+    if let Some(rotation) = character.rotation_mut() {
         rotation.enable_trace();
     }
     IterationStepper::new(settings, seed, raid)
+}
+
+/// The spell of each keybind: a rank group's highest learned rank, else an enabled spell of
+/// that name.
+///
+/// # Errors
+/// A bound spell the character has not learned.
+fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<SpellId>, String> {
+    let spells = raid.character(PLAYER).spells();
+    keybinds
+        .iter()
+        .map(|keybind| {
+            let ranked = spells.rank_group(&keybind.spell).and_then(|group| {
+                group.get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+            });
+            ranked
+                .or_else(|| {
+                    spells.spell_ids().find(|&id| {
+                        let spell = spells.spell(id);
+                        spell.is_enabled() && spell.name() == keybind.spell
+                    })
+                })
+                .ok_or_else(|| {
+                    format!(
+                        "{} ({}): not a learned spell",
+                        keybind.spell, keybind.binding
+                    )
+                })
+        })
+        .collect()
 }
 
 /// An icon `FileDataID` of the data, `None` for 0 (no icon).
