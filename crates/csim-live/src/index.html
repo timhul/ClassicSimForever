@@ -712,7 +712,7 @@ function addHits(hits) {
       item.append(icon);
     }
     item.append(hit.proc ? hit.name
-      : hit.miss || (hit.critical ? `${hit.amount}*` : String(hit.amount)));
+      : hit.miss || (hit.critical ? `${amountText(hit)}*` : amountText(hit)));
     const how = [hit.proc && "proc", hit.miss && hit.miss.toLowerCase(), hit.critical && "critical",
       hit.glancing && "glancing"].filter(Boolean).join(", ");
     item.title = `${hit.name} at ${clock(hit.time)}${how ? ` (${how})` : ""}`;
@@ -746,6 +746,11 @@ function critRow(stage) {
 /** The side the next non-crit slides to: 1 right, -1 left. */
 let floatSide = 1;
 
+/** The damage of a hit, `~` in front for a glancing blow. */
+function amountText(hit) {
+  return `${hit.glancing ? "~" : ""}${hit.amount}`;
+}
+
 /** The hits as damage numbers floating on the stage, as in the game. */
 function floatHits(hits) {
   const stage = $("floats");
@@ -754,7 +759,7 @@ function floatHits(hits) {
       continue;
     }
     const number = element("span", `float ${hit.auto ? "auto" : "spell"}`,
-      hit.miss || String(hit.amount));
+      hit.miss || amountText(hit));
     if (hit.miss) {
       number.classList.add("miss");
     }
