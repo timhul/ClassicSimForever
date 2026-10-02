@@ -245,6 +245,8 @@ pub struct CooldownState {
     pub on_gcd: bool,
     /// The character has the resource it costs.
     pub affordable: bool,
+    /// Its demands beyond time and resource hold (stance, Overpower's dodge, execute range, ...).
+    pub usable: bool,
 }
 
 /// One iteration being watched. See the module documentation.
@@ -742,7 +744,36 @@ impl Session {
         equipment.item(slot).and_then(|item| icon(item.spec().icon))
     }
 
-    fn character_state(&self) -> CharacterState {
+    /// The spells bar: from the keyboard the keybinds, each named as bound with its main
+    /// spell; else the spells the rotation can cast.
+    fn bar_spells(&self) -> Vec<(String, SpellId)> {
+        let character = self.raid.character(PLAYER);
+        let spells = character.spells();
+        if self.manual() {
+            self.keybinds
+                .iter()
+                .zip(&self.bound)
+                .map(|(keybind, ids)| (keybind.name.clone(), main_spell(spells, ids)))
+                .collect()
+        } else {
+            character
+                .rotation()
+                .into_iter()
+                .flat_map(|rotation| rotation.active_executors())
+                .filter_map(|executor| executor.linked())
+                .map(|linked| (spells.spell(linked.spell).name().to_owned(), linked.spell))
+                .collect()
+        }
+    }
+
+    fn character_state(&mut self) -> CharacterState {
+        let bar = self.bar_spells();
+        let usable: Vec<bool> = {
+            let context = self.raid.context(PLAYER);
+            bar.iter()
+                .map(|&(_, id)| context.spell_requirements(id).is_available())
+                .collect()
+        };
         let now = self.raid.engine().current_time();
         let character = self.raid.character(PLAYER);
         let spells = character.spells();
@@ -795,25 +826,8 @@ impl Session {
             }
         }
 
-        // From the keyboard: the keybinds, each named as bound with its main spell's cooldown.
-        // Else the spells the rotation can cast.
-        let ids: Vec<(String, SpellId)> = if self.manual() {
-            self.keybinds
-                .iter()
-                .zip(&self.bound)
-                .map(|(keybind, ids)| (keybind.name.clone(), main_spell(spells, ids)))
-                .collect()
-        } else {
-            character
-                .rotation()
-                .into_iter()
-                .flat_map(|rotation| rotation.active_executors())
-                .filter_map(|executor| executor.linked())
-                .map(|linked| (spells.spell(linked.spell).name().to_owned(), linked.spell))
-                .collect()
-        };
         let mut rotation_spells: Vec<CooldownState> = Vec::new();
-        for (name, id) in ids {
+        for ((name, id), usable) in bar.into_iter().zip(usable) {
             let spell = spells.spell(id);
             if rotation_spells.iter().any(|known| known.name == name) {
                 continue;
@@ -835,6 +849,7 @@ impl Session {
                     character.resource_level(resource, now)
                         >= spell.resource_cost_with(character.spell_modifiers())
                 }),
+                usable,
             });
         }
 

@@ -1133,7 +1133,6 @@ impl Spell {
 
     /// Whether the spell can be cast now, and if not why. Port of `Spell::get_spell_status`.
     pub fn status(&self, host: &impl SpellHost) -> SpellStatus {
-        let record = &self.setup.record;
         if !self.enabled {
             return SpellStatus::NotEnabled;
         }
@@ -1162,6 +1161,31 @@ impl Spell {
         if (self.triggers_gcd() || self.is_stance_spell()) && host.on_stance_cooldown() {
             return SpellStatus::OnStanceCooldown;
         }
+        self.demands_status(host)
+    }
+
+    /// Whether the spell's demands beyond time and resource hold, and if not which: it is
+    /// enabled and supported, the combo points, the stance or form, out of combat, the target's
+    /// and caster's aura states (Overpower after a dodge, execute range), the weapons, from
+    /// behind. What [`Self::status`] reports past the global, own and stance cooldowns and the
+    /// resource: the spell is unusable for now, not just waiting.
+    pub fn requirements_status(&self, host: &impl SpellHost) -> SpellStatus {
+        if !self.enabled {
+            return SpellStatus::NotEnabled;
+        }
+        if self.is_ignored() {
+            return SpellStatus::NotSupported;
+        }
+        if host.combo_points() < self.combo_point_cost() {
+            return SpellStatus::InsufficientComboPoints;
+        }
+        self.demands_status(host)
+    }
+
+    /// The checks of [`Self::status`] from the stance on.
+    fn demands_status(&self, host: &impl SpellHost) -> SpellStatus {
+        let record = &self.setup.record;
+        let now = host.engine().current_time();
         // An `IGNORE_SHAPESHIFT` aura lifts the form requirement of the spells it names
         // (Cutthroat: the next Ambush without Stealth).
         if !host.stance().allowed_by_mask(record.shapeshift_mask)

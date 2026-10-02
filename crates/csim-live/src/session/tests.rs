@@ -158,6 +158,37 @@ fn a_spell_is_affordable_with_the_rage_it_costs() {
 }
 
 #[test]
+fn a_spell_is_usable_when_its_demands_beyond_rage_hold() {
+    let mut session = session_of("dw_fury_orc.yaml", 3);
+    let end = session.info().end_at;
+    let mut executable = Vec::new();
+    for frame in play(&mut session, 0.25) {
+        let state = &frame.state;
+        let usable = |name: &str| {
+            state
+                .rotation_spells
+                .iter()
+                .find(|spell| spell.name == name)
+                .expect("in the rotation")
+                .usable
+        };
+        // In execute range: the last 20 % of the fight (by the engine's clock, at the last event
+        // before the time shown: not checked right at the edge).
+        let in_range = (end - frame.time) / end <= 0.2;
+        if (frame.time - 0.8 * end).abs() > 0.3 {
+            assert_eq!(usable("Execute"), in_range, "{}", frame.time);
+        }
+        executable.push(usable("Execute"));
+        // Overpower needs Battle Stance (and a dodge); Whirlwind is fine in Berserker Stance.
+        if state.stance.as_deref() == Some("Berserker Stance") {
+            assert!(!usable("Overpower"), "{}", frame.time);
+            assert!(usable("Whirlwind"), "{}", frame.time);
+        }
+    }
+    assert!(executable.contains(&true) && executable.contains(&false));
+}
+
+#[test]
 fn the_breakdown_adds_up_to_the_damage_so_far() {
     let mut session = session_of("dw_fury_orc.yaml", 3);
     assert!(session.advance(0.0).breakdown.is_empty(), "before the pull");

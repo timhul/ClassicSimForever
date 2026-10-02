@@ -105,6 +105,12 @@ pub struct CharacterContext<'a, S: SharedBuffs> {
 }
 
 impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
+    /// Whether the demands of `spell` beyond time and resource hold
+    /// ([`crate::spell::Spell::requirements_status`]).
+    pub fn spell_requirements(&self, spell: SpellId) -> SpellStatus {
+        self.character.spells.spell(spell).requirements_status(self)
+    }
+
     pub fn new(
         character: &'a mut Character,
         engine: &'a mut Engine,

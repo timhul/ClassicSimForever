@@ -322,13 +322,16 @@
   }
   .tile img { display: block; width: 100%; height: 100%; }
   /* Not enough of the resource it costs: tinted blue, as the game does. */
-  .tile.unaffordable::before {
+  .tile.unaffordable::before, .tile.unusable::before {
     content: "";
     position: absolute;
     inset: 0;
     background: rgb(110, 110, 255);
     mix-blend-mode: multiply;
   }
+  /* Affordable but its other demands do not hold (Overpower without a dodge): grey. */
+  .tile.unusable img { filter: grayscale(1); }
+  .tile.unusable::before { background: rgb(120, 120, 120); }
   .tile .initials {
     position: absolute;
     inset: 0;
@@ -1278,6 +1281,8 @@ function cooldownTile(cooldown, gcdLeft, gcd) {
     count: "",
     hotkey: hotkeys.has(cooldown.name) ? shortBinding(hotkeys.get(cooldown.name)) : "",
     unaffordable: !cooldown.affordable,
+    // The resource first: blue over grey.
+    unusable: cooldown.affordable && !cooldown.usable,
   };
 }
 
@@ -1356,6 +1361,7 @@ function renderTiles(container, items, showEmpty = true) {
     }
     view.root.classList.toggle("debuff", item.debuff === true);
     view.root.classList.toggle("unaffordable", item.unaffordable === true);
+    view.root.classList.toggle("unusable", item.unusable === true);
     if (view.sweepValue !== item.sweep) {
       view.sweepValue = item.sweep;
       view.sweep.style.background = item.sweep;
