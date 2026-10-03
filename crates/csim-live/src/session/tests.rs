@@ -326,6 +326,38 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
 }
 
 #[test]
+fn energy_regenerates_between_events() {
+    let mut session = session_of("rogue_combat_swords_human.yaml", 1);
+    let mut regenerated_without_event = 0;
+    let mut previous: Option<(f64, u32)> = None;
+    let mut time = session.info().start_at;
+    loop {
+        let frame = session.advance(time);
+        if frame.done {
+            break;
+        }
+        time += 0.05;
+        let engine_time = session.raid.engine().current_time();
+        let energy = frame.state.resource.current;
+        assert_eq!(
+            energy,
+            session
+                .raid
+                .character(PLAYER)
+                .resource()
+                .current(frame.time),
+            "the energy at the time shown, {}",
+            frame.time
+        );
+        if previous.is_some_and(|(at, before)| at == engine_time && energy > before) {
+            regenerated_without_event += 1;
+        }
+        previous = Some((engine_time, energy));
+    }
+    assert!(regenerated_without_event > 0);
+}
+
+#[test]
 fn restarting_with_the_same_seed_shows_the_same_iteration() {
     let mut session = session_of("rogue_combat_swords_human.yaml", 6);
     let first = play(&mut session, 0.25);
