@@ -1390,7 +1390,7 @@ impl SpellHost for World {
     fn total_threat_mod(&self) -> f64 {
         self.stats.get_total_threat_mod()
     }
-    fn avg_mh_weapon_damage(&self) -> f64 {
+    fn avg_weapon_damage(&self, _: Hand) -> f64 {
         200.0
     }
     fn offhand_copy_active(&self, spell: u32) -> bool {

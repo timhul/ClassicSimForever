@@ -77,6 +77,8 @@ pub(crate) mod items {
     pub const TEST_3_SPEED_RANGED: u32 = 1_000_010;
     /// Bow, 100 - 100 damage, 2.0 speed.
     pub const TEST_2_SPEED_RANGED: u32 = 1_000_011;
+    /// One-hand sword, 50 - 50 damage, 2.6 speed.
+    pub const TEST_50_DMG: u32 = 1_000_012;
 }
 
 const TEST_ITEMS_YAML: &str = r#"
@@ -104,6 +106,8 @@ const TEST_ITEMS_YAML: &str = r#"
     damage: { min: 100, max: 100, speed: 3.0 } }
 - { id: 1000011, name: Test 2 Speed Ranged, phase: 1, slot: RANGED, type: BOW, quality: EPIC,
     damage: { min: 100, max: 100, speed: 2.0 } }
+- { id: 1000012, name: Test 50 dmg, phase: 1, slot: 1H, type: SWORD, quality: EPIC,
+    damage: { min: 50, max: 50, speed: 2.6 } }
 "#;
 
 /// The repository's `data/` bundle with the [`items`] added, loaded once per test binary.
@@ -566,6 +570,10 @@ impl SpellTest {
 
     pub fn given_an_offhand_weapon_with_100_min_max_dmg(&mut self) {
         self.equip_weapon(EquipmentSlot::Offhand, items::TEST_100_DMG, Some(100), 2.6);
+    }
+
+    pub fn given_an_offhand_weapon_with_50_min_max_dmg(&mut self) {
+        self.equip_weapon(EquipmentSlot::Offhand, items::TEST_50_DMG, Some(50), 2.6);
     }
 
     pub fn given_an_offhand_weapon_with_3_speed(&mut self) {

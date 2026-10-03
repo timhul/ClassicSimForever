@@ -45,8 +45,8 @@ overrides:
 
   # ----- Scripted (DUMMY) effects ------------------------------------------------------------
   - id: 12162
-    note: Deep Wounds payload; the bleed lasts as long as the Deep Wound aura 412609
-    effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
+    note: Deep Wounds payload; the bleed lasts as long as the Deep Wound aura 412609 and adds 2 % of the attack power (server side)
+    effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609, value: 2 } }]
   - id: 412609
     note: Deep Wound aura; DEEP_WOUNDS_BLEED schedules the ticks itself from this spell's duration and period
     effects: [{ index: 0, script: NO_OP }]

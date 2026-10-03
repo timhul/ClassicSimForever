@@ -253,31 +253,136 @@ fn damage(rank: u32, crits: u32) -> (u64, String) {
     (damage, format!("{:.3}", test.now()))
 }
 
-// total_deep_wounds_damage = avg_mh_wpn_dmg * deep_wounds_percent, attack power ignored
-// [20 / 40 / 60] = 100 * [0.2 / 0.4 / 0.6], over four ticks
+// total_deep_wounds_damage = avg_mh_wpn_dmg * deep_wounds_percent + 2 % of attack power
+// [40 / 60 / 80] = 100 * [0.2 / 0.4 / 0.6] + 1000 * 0.02, over four ticks
 
 #[test]
 fn damage_of_1_of_3_deep_wounds() {
-    assert_eq!(damage(1, 1), (20, "12.000".to_string()));
+    assert_eq!(damage(1, 1), (40, "12.000".to_string()));
 }
 
 #[test]
 fn damage_of_2_of_3_deep_wounds() {
-    assert_eq!(damage(2, 1), (40, "12.000".to_string()));
+    assert_eq!(damage(2, 1), (60, "12.000".to_string()));
 }
 
 #[test]
 fn damage_of_3_of_3_deep_wounds() {
-    assert_eq!(damage(3, 1), (60, "12.000".to_string()));
+    assert_eq!(damage(3, 1), (80, "12.000".to_string()));
 }
 
+/// Two crits at once pool two applications over the four ticks.
 #[test]
-fn damage_does_not_stack_when_multiple_crits_occur() {
-    assert_eq!(damage(3, 2), (60, "12.000".to_string()));
+fn damage_pools_when_multiple_crits_occur() {
+    assert_eq!(damage(3, 2), (160, "12.000".to_string()));
 }
 
-/// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage, times
-/// 1.2, not also to the weapon damage it is based on.
+/// A crit 6 s into the bleed adds its 80 to the 40 left and spreads the 120 over four fresh
+/// ticks: the bleed runs to 18 s.
+#[test]
+fn a_later_crit_rolls_the_rest_of_the_bleed_into_fresh_ticks() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    given_deep_wounds(&mut test, 3);
+    test.given_1000_melee_ap();
+    test.given_a_guaranteed_white_crit();
+    when_mh_attack_is_performed(&mut test);
+    let mut ticks = Vec::new();
+    let mut tick = |test: &mut WarriorTest| {
+        let before = test.damage_dealt_by(SPELL);
+        let time = test.when_running_until_event(EventType::DotTick);
+        ticks.push((format!("{time:.3}"), test.damage_dealt_by(SPELL) - before));
+    };
+    tick(&mut test);
+    tick(&mut test);
+    when_mh_attack_is_performed(&mut test);
+    for _ in 0..4 {
+        tick(&mut test);
+    }
+    let expected = [
+        ("3.000", 20),
+        ("6.000", 20),
+        ("9.000", 30),
+        ("12.000", 30),
+        ("15.000", 30),
+        ("18.000", 30),
+    ];
+    let expected: Vec<_> = expected.iter().map(|(t, d)| (t.to_string(), *d)).collect();
+    assert_eq!(ticks, expected);
+    assert_eq!(
+        deep_wounds_damage(&mut test),
+        160,
+        "no tick after the last stack"
+    );
+}
+
+/// Deep Wounds at rank 3 after critical swings of the 100 damage main hand and the 50 damage
+/// off hand, in `hands` order, with `dual_wield_specialization` ranks and 1000 attack power.
+fn damage_after_crits_of(hands: &[Hand], dual_wield_specialization: u32) -> u64 {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_50_min_max_dmg();
+    if dual_wield_specialization > 0 {
+        test.given_fury_talent_with_rank("Dual Wield Specialization", dual_wield_specialization);
+    }
+    given_deep_wounds(&mut test, 3);
+    test.given_1000_melee_ap();
+    test.given_a_guaranteed_white_crit();
+    for &hand in hands {
+        test.when_swing_is_performed(hand);
+    }
+    deep_wounds_damage(&mut test)
+}
+
+/// An off-hand crit bleeds for 60 % of the off-hand weapon's 50 average damage, halved by the
+/// off-hand penalty, plus the full 2 % of the attack power: 15 + 20.
+#[test]
+fn offhand_crit_bleeds_for_the_offhand_weapon_damage() {
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 0), 35);
+}
+
+/// Dual Wield Specialization raises the off-hand penalty to 62.5 %: 50 * 0.625 * 0.6 + 20 =
+/// 38.75.
+#[test]
+fn dual_wield_specialization_raises_the_offhand_bleed() {
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 5), 39);
+}
+
+/// Each crit adds its own weapon's share to the pool: 80 + 35.
+#[test]
+fn mainhand_and_offhand_crits_pool_their_own_weapon_damage() {
+    assert_eq!(
+        damage_after_crits_of(&[Hand::Mainhand, Hand::Offhand], 0),
+        115
+    );
+    assert_eq!(
+        damage_after_crits_of(&[Hand::Offhand, Hand::Mainhand], 0),
+        115
+    );
+}
+
+/// A critical Whirlwind with Raging Blows' off-hand strike: the main-hand crit adds 60 % of the
+/// main hand's 100, the off-hand strike's crit 60 % of half the off hand's 50, each plus 2 % of
+/// the 1000 attack power.
+#[test]
+fn offhand_strike_crit_bleeds_for_the_offhand_weapon_damage() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    test.given_an_offhand_weapon_with_50_min_max_dmg();
+    test.given_fury_talent_with_rank("Raging Blows", 1);
+    given_deep_wounds(&mut test, 3);
+    test.given_1000_melee_ap();
+    test.given_a_guaranteed_melee_ability_crit();
+    let report = test.cast("Whirlwind");
+    assert!(
+        report.offhand.is_some(),
+        "Whirlwind strikes with the off hand"
+    );
+    assert_eq!(deep_wounds_damage(&mut test), 115);
+}
+
+/// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage plus 2 %
+/// of the 1000 attack power, times 1.2, not also to the weapon damage it is based on.
 #[test]
 fn death_wish_increases_deep_wounds_damage_once() {
     let mut test = test();
@@ -289,17 +394,33 @@ fn death_wish_increases_deep_wounds_damage_once() {
     test.given_a_guaranteed_white_crit();
     test.given_1000_melee_ap();
     when_mh_attack_is_performed(&mut test);
-    assert_eq!(deep_wounds_damage(&mut test), 72);
+    assert_eq!(deep_wounds_damage(&mut test), 96);
 }
 
-/// The bleed ticks never crit, whatever the crit chance: 60 % of the 100 average weapon damage.
+/// The bleed ticks never crit, whatever the crit chance: 60 % of the 100 average weapon damage
+/// plus 2 % of the 1000 attack power.
 #[test]
 fn deep_wounds_cannot_crit() {
     let mut test = test();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     given_deep_wounds(&mut test, 3);
+    test.given_1000_melee_ap();
     test.given_a_guaranteed_white_crit();
     test.given_a_guaranteed_melee_ability_crit();
     when_mh_attack_is_performed(&mut test);
-    assert_eq!(deep_wounds_damage(&mut test), 60);
+    assert_eq!(deep_wounds_damage(&mut test), 80);
+}
+
+/// The attack power share is 2 % of the attack power as of the crit: 60 + 2000 * 0.02.
+#[test]
+fn deep_wounds_scales_with_attack_power() {
+    let mut test = test();
+    test.given_a_mainhand_weapon_with_100_min_max_dmg();
+    given_deep_wounds(&mut test, 3);
+    test.given_1000_melee_ap();
+    test.stats_mut().increase_melee_ap(1000);
+    test.given_a_guaranteed_white_crit();
+    when_mh_attack_is_performed(&mut test);
+    test.stats_mut().decrease_melee_ap(1000);
+    assert_eq!(deep_wounds_damage(&mut test), 100);
 }

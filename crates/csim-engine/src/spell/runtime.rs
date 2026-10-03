@@ -185,8 +185,14 @@ pub trait SpellHost: EffectHost {
         MagicResistResult::NoResist
     }
     fn total_threat_mod(&self) -> f64;
-    /// Average base mainhand damage, without attack power (Deep Wounds bleeds for a share of it).
-    fn avg_mh_weapon_damage(&self) -> f64;
+    /// Average base damage of the weapon in `hand`, without attack power (Deep Wounds bleeds
+    /// for a share of it).
+    fn avg_weapon_damage(&self, hand: Hand) -> f64;
+    /// The hand of the hit whose procs are being checked: a proc's payload acts for that
+    /// weapon (Deep Wounds). The main hand outside a proc check.
+    fn proc_hand(&self) -> Hand {
+        Hand::Mainhand
+    }
 
     /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
     /// names it and the character is dual wielding.
@@ -2004,7 +2010,7 @@ impl Spell {
                 periodic.set_aura_stacks(1);
             }
             BuffApplication::Refreshed { stacks } => {
-                periodic.refresh(&kind);
+                periodic.refresh(host, &kind);
                 periodic.set_aura_stacks(stacks);
             }
             BuffApplication::NotApplied => {}
@@ -2021,8 +2027,10 @@ impl Spell {
                 .iter()
                 .find(|e| e.script_kind() == Some(ScriptKind::DeepWoundsBleed))?;
             let percent = self.trigger_value.unwrap_or_else(|| script.value());
+            let ap_percent = script.script()?.params.value.unwrap_or(0.0);
             let duration = f64::from(aura.finite_duration_ms()?) / 1000.0;
-            return Some(PeriodicKind::weapon_damage(percent, duration, periodic.tick_rate()).0);
+            let tick_rate = periodic.tick_rate();
+            return Some(PeriodicKind::weapon_damage(percent, ap_percent, duration, tick_rate).0);
         }
         let buff = host.buff(self.marker_buff?);
         let kinds = periodic.effect_indices().iter().filter_map(|&index| {

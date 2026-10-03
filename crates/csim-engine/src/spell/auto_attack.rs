@@ -639,7 +639,7 @@ mod tests {
         fn total_threat_mod(&self) -> f64 {
             1.0
         }
-        fn avg_mh_weapon_damage(&self) -> f64 {
+        fn avg_weapon_damage(&self, _: Hand) -> f64 {
             self.random_non_normalized_mh_dmg_const()
         }
         fn offhand_copy_active(&self, _: u32) -> bool {
