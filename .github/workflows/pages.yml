@@ -1,0 +1,88 @@
+# Builds the browser version of csim-live (tools/build_web.py) and publishes it on GitHub Pages:
+# https://timhul.github.io/ClassicSimForever/live/ (the site root redirects there).
+#
+# One-time setup in the repository: Settings > Pages > Source: GitHub Actions.
+#
+# Pull requests only check that the WebAssembly build still compiles.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # A deployment in progress finishes; a superseded pull request check does not.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  # binaryen's wasm-opt shrinks the module (tools/build_web.py runs it when present).
+  BINARYEN_VERSION: "133"
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check -p csim-web --target wasm32-unknown-unknown
+
+  build:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Install wasm-bindgen (the version Cargo.toml pins) and binaryen
+        run: |
+          version=$(sed -n 's/^wasm-bindgen = "=\([0-9.]*\)"$/\1/p' Cargo.toml)
+          test -n "$version" || { echo "Cargo.toml pins no wasm-bindgen version"; exit 1; }
+          cd "$RUNNER_TEMP"
+
+          name=wasm-bindgen-$version-x86_64-unknown-linux-musl
+          base=https://github.com/wasm-bindgen/wasm-bindgen/releases/download/$version
+          curl -fsSLO "$base/$name.tar.gz"
+          curl -fsSLO "$base/$name.tar.gz.sha256sum"
+          # The checksum file names the archive by its path in the release build.
+          echo "$(cut -d' ' -f1 "$name.tar.gz.sha256sum")  $name.tar.gz" | sha256sum -c -
+          tar xzf "$name.tar.gz"
+          echo "$RUNNER_TEMP/$name" >> "$GITHUB_PATH"
+
+          name=binaryen-version_$BINARYEN_VERSION
+          base=https://github.com/WebAssembly/binaryen/releases/download/version_$BINARYEN_VERSION
+          curl -fsSLO "$base/$name-x86_64-linux.tar.gz"
+          curl -fsSLO "$base/$name-x86_64-linux.tar.gz.sha256"
+          sha256sum -c "$name-x86_64-linux.tar.gz.sha256"
+          tar xzf "$name-x86_64-linux.tar.gz"
+          echo "$RUNNER_TEMP/$name/bin" >> "$GITHUB_PATH"
+      - run: python3 tools/build_web.py
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}live/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
