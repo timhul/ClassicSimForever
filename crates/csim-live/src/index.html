@@ -51,13 +51,17 @@
   #sub { color: var(--muted); }
   #totals { font-variant-numeric: tabular-nums; }
   #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
+  /* Three groups: the playback options, Play and Edit keybinds in the middle, the clock. */
   #controls {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 8px 16px;
     margin: 12px 0 8px;
   }
+  #controls .group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #controls .options, #controls .time { flex: 1 1 0; }
+  #controls .time { justify-content: flex-end; }
   #setup-bar {
     display: flex;
     flex-wrap: wrap;
@@ -123,7 +127,6 @@
   #edit-keybinds:not(:disabled) { border-color: var(--accent); color: var(--accent); font-weight: 600; }
   #edit-keybinds:hover:not(:disabled) { background: rgb(224 176 74 / 0.12); }
   #clock {
-    margin-left: auto;
     font: 600 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
     font-variant-numeric: tabular-nums;
   }
@@ -598,7 +601,8 @@
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
-    #clock { margin-left: 0; }
+    #controls .group { flex-basis: 100%; }
+    #controls .time { justify-content: flex-start; }
     #last-event { text-align: left; }
   }
 </style>
@@ -615,7 +619,6 @@
 <form id="setup-bar" autocomplete="off">
   <select id="setup-select" aria-label="Character setup"></select>
   <select id="mode-select" aria-label="Played by"></select>
-  <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
   <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
   <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
   <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
@@ -674,23 +677,30 @@
 </dialog>
 
 <div id="controls">
-  <button id="play" type="button">Play</button>
-  <select id="speed" aria-label="Speed">
-    <option value="0.1">0.1×</option>
-    <option value="0.25">0.25×</option>
-    <option value="0.5">0.5×</option>
-    <option value="1" selected>1×</option>
-    <option value="2">2×</option>
-    <option value="5">5×</option>
-    <option value="10">10×</option>
-    <option value="50">50×</option>
-  </select>
-  <button id="step-event" type="button">Step event</button>
-  <button id="step-cast" type="button">Step to cast</button>
-  <button id="restart" type="button">Restart</button>
-  <button id="reseed" type="button">New seed</button>
-  <span id="last-event"></span>
-  <span id="clock">0:00.000</span>
+  <div class="group options">
+    <select id="speed" aria-label="Speed">
+      <option value="0.1">0.1×</option>
+      <option value="0.25">0.25×</option>
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+      <option value="5">5×</option>
+      <option value="10">10×</option>
+      <option value="50">50×</option>
+    </select>
+    <button id="step-event" type="button">Step event</button>
+    <button id="step-cast" type="button">Step to cast</button>
+    <button id="restart" type="button">Restart</button>
+    <button id="reseed" type="button">New seed</button>
+  </div>
+  <div class="group">
+    <button id="play" type="button">Play</button>
+    <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
+  </div>
+  <div class="group time">
+    <span id="last-event"></span>
+    <span id="clock">0:00.000</span>
+  </div>
 </div>
 <div id="timeline"><div id="timeline-fill"></div></div>
 
