@@ -14,6 +14,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::combat_log::UnitNames;
+use csim_engine::named_settings::SettingPairs;
 use csim_engine::raid::RaidControl;
 use csim_engine::raid_loader::RaidSetup;
 use csim_engine::resource::ResourceType;
@@ -55,6 +56,12 @@ pub struct RunArgs {
         value_name = "PERCENT"
     )]
     length_variance: f64,
+    /// Named settings, alternatives to the default behavior: `name:value` pairs separated by
+    /// commas; may be repeated. Known: rage_formula (forever, marrow_sigmoid), sigmoid_floor,
+    /// sigmoid_ceiling, sigmoid_midpoint, sigmoid_width. E.g.
+    /// `--setting=rage_formula:marrow_sigmoid,sigmoid_ceiling:46`.
+    #[arg(long = "setting", value_name = "NAME:VALUE,...")]
+    settings: Vec<SettingPairs>,
     /// Seed fixing every random roll of the run (default: from the clock; printed).
     #[arg(long)]
     seed: Option<u64>,
@@ -168,6 +175,7 @@ pub fn run(data_dir: &Path, args: &RunArgs) -> Result<()> {
         length_variance: args.length_variance,
         ..SimSettings::default()
     });
+    settings.apply_setting_flags(&args.settings)?;
     if let Some(threads) = args.threads {
         settings.set_threads(threads)?;
     }
@@ -356,6 +364,9 @@ pub struct RunInfo {
     pub combat_length: u32,
     /// Percent.
     pub length_variance: f64,
+    /// The named settings that are not the default (`--setting`), as `name:value,...`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub settings: Option<String>,
     pub threads: usize,
     pub seed: u64,
     pub elapsed_seconds: f64,
@@ -527,6 +538,7 @@ impl Results {
                 iterations: stats.iterations(),
                 combat_length: r.settings.combat_length,
                 length_variance: r.settings.length_variance,
+                settings: r.settings.named_settings_text(),
                 threads: r.settings.threads,
                 seed: r.seed,
                 elapsed_seconds: r.elapsed.as_secs_f64(),
@@ -580,6 +592,9 @@ impl Results {
             run.elapsed_seconds,
             run.events,
         );
+        if let Some(settings) = &run.settings {
+            let _ = writeln!(out, "Settings: {settings}");
+        }
         out.push('\n');
 
         let dps = &self.dps;
@@ -991,6 +1006,42 @@ fn stat_weight_rows(cruncher: &NumberCruncher) -> Vec<StatWeightRow> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[derive(Debug, clap::Parser)]
+    struct Wrapper {
+        #[command(flatten)]
+        run: RunArgs,
+    }
+
+    /// `--setting` takes comma-separated `name:value` pairs and may be repeated; the pairs of
+    /// every flag apply together.
+    #[test]
+    fn setting_flags_merge() {
+        use clap::Parser;
+        use csim_engine::rage_formula::{RageFormula, SigmoidParams};
+
+        let args = Wrapper::try_parse_from([
+            "csim",
+            "setup.yaml",
+            "--setting=rage_formula:marrow_sigmoid,sigmoid_floor:2",
+            "--setting",
+            "sigmoid_width:5",
+        ])
+        .unwrap()
+        .run;
+        assert_eq!(args.settings.len(), 2);
+        let mut settings = SimSettings::default();
+        settings.apply_setting_flags(&args.settings).unwrap();
+        assert_eq!(
+            settings.rage_formula,
+            RageFormula::MarrowSigmoid(SigmoidParams {
+                floor: 2.0,
+                width: 5.0,
+                ..SigmoidParams::default()
+            })
+        );
+        assert!(Wrapper::try_parse_from(["csim", "setup.yaml", "--setting=floor"]).is_err());
+    }
 
     #[test]
     fn scale_options_parse_by_name_and_alias() {

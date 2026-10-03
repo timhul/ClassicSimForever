@@ -953,3 +953,37 @@ Blood Fury: 3
     assert_eq!(casts(&fury), [(-593.0, "Blood Fury")]);
     assert!(fury.state.gcd_end.is_finite());
 }
+
+/// A named setting (`--setting`) holds across the keyboard pull's rebuild and a restart, and
+/// the page's info names it.
+#[test]
+fn named_settings_hold_across_the_pull_and_a_restart() {
+    use csim_engine::named_settings::parse_setting_pairs;
+
+    let setup = setup("warrior_fury_dw_orc.yaml");
+    let mut settings = settings(&setup);
+    settings
+        .apply_settings(&parse_setting_pairs("rage_formula:marrow_sigmoid").unwrap())
+        .unwrap();
+    let keybinds = crate::keybinds::parse(PULL_KEYBINDS).unwrap();
+    let mut session = Session::new(Arc::clone(data()), setup, settings, 3, keybinds).unwrap();
+    let scaled = |session: &Session| session.raid.character(PLAYER).swing_rage_factor() > 1.0;
+    assert!(scaled(&session));
+    assert_eq!(
+        session.info().settings.as_deref(),
+        Some(
+            "rage_formula:marrow_sigmoid,sigmoid_floor:0,sigmoid_ceiling:46,\
+             sigmoid_midpoint:58,sigmoid_width:3.8"
+        )
+    );
+
+    let charge = session.cast("Charge", -590.0).unwrap();
+    assert_eq!(charge.rebased_by, Some(-589.0));
+    assert!(scaled(&session), "after the pull's rebuild");
+    session.restart(3);
+    assert!(scaled(&session), "after a restart");
+
+    let forever = session_of("warrior_fury_dw_orc.yaml", 3);
+    assert_eq!(forever.raid.character(PLAYER).swing_rage_factor(), 1.0);
+    assert_eq!(forever.info().settings, None);
+}

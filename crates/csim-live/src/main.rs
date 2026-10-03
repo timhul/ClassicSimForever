@@ -20,6 +20,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use clap::Parser;
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::data_bundle::DataBundle;
+use csim_engine::named_settings::SettingPairs;
 use csim_engine::sim_settings::SimSettings;
 
 use crate::session::Session;
@@ -54,6 +55,10 @@ struct Args {
     /// to key (`Bloodthirst: 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`).
     #[arg(long, value_name = "FILE")]
     keybinds: Option<PathBuf>,
+    /// Named settings, as `csim run --setting`: `name:value` pairs separated by commas; may be
+    /// repeated. E.g. `--setting=rage_formula:marrow_sigmoid,sigmoid_ceiling:46`.
+    #[arg(long = "setting", value_name = "NAME:VALUE,...")]
+    settings: Vec<SettingPairs>,
 }
 
 fn main() -> ExitCode {
@@ -71,11 +76,12 @@ fn run(args: &Args) -> Result<()> {
     let data =
         DataBundle::load(&data_dir).map_err(|error| format!("{}: {error}", data_dir.display()))?;
     let setup = CharacterSetup::load(&args.setup)?;
-    let settings = setup.sim_settings(&SimSettings {
+    let mut settings = setup.sim_settings(&SimSettings {
         combat_length: args.length,
         length_variance: args.length_variance,
         ..SimSettings::default()
     });
+    settings.apply_setting_flags(&args.settings)?;
     let seed = args.seed.unwrap_or_else(clock_seed);
     let keybinds = match &args.keybinds {
         Some(path) => keybinds::load(path)?,
@@ -87,6 +93,9 @@ fn run(args: &Args) -> Result<()> {
         "Serving {} ({} {}, {}), seed {}, at http://127.0.0.1:{}",
         info.name, info.race, info.class, info.rotation, info.seed, args.port
     );
+    if let Some(settings) = &info.settings {
+        println!("Settings: {settings}");
+    }
     if info.manual {
         println!("Played from the keyboard: {} keybinds", info.keybinds.len());
     }

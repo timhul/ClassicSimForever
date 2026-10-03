@@ -59,6 +59,8 @@ pub struct Info {
     pub combat_length: u32,
     /// The length variance in percent.
     pub length_variance: f64,
+    /// The named settings that are not the default (`--setting`), as `name:value,...`.
+    pub settings: Option<String>,
     /// When the iteration starts: before the pull (0), for the precombat actions.
     pub start_at: f64,
     /// When this iteration's encounter ends (the drawn length).
@@ -404,6 +406,7 @@ impl Session {
             seed: self.seed,
             combat_length: self.settings.combat_length,
             length_variance: self.settings.length_variance,
+            settings: self.settings.named_settings_text(),
             start_at: self.stepper.start_at(),
             end_at: character.sim().combat_length,
             cast_if: self.rotation_entries(),

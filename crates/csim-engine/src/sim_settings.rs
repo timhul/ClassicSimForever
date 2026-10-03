@@ -19,6 +19,7 @@ use crate::item::rating::interim_chance;
 use crate::item::{ItemStat, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
+use crate::rage_formula::RageFormula;
 use crate::rulesets::Ruleset;
 use crate::stats::CharacterStats;
 
@@ -258,6 +259,9 @@ pub struct SimSettings {
     pub ruleset: Ruleset,
     /// The scaling options a full sim runs besides the baseline.
     pub options: BTreeSet<SimOption>,
+    /// How landed white swings generate rage (a named setting, `rage_formula`; see
+    /// [`crate::named_settings`]).
+    pub rage_formula: RageFormula,
 }
 
 impl Default for SimSettings {
@@ -275,6 +279,7 @@ impl Default for SimSettings {
             execute_threshold: 0.2,
             ruleset: Ruleset::Standard,
             options: BTreeSet::new(),
+            rage_formula: RageFormula::Forever,
         }
     }
 }
@@ -321,6 +326,7 @@ impl SimSettings {
             combat_length: f64::from(self.combat_length),
             execute_threshold: self.effective_execute_threshold(),
             ruleset: self.ruleset,
+            rage_formula: self.rage_formula,
         }
     }
 

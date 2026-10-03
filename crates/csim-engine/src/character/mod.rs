@@ -34,6 +34,7 @@ use crate::item::{EquipmentDb, EquipmentSlot, WeaponSlot, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
+use crate::rage_formula::RageFormula;
 use crate::resource::{Rage, Resource, ResourceType};
 use crate::rng::{Random, Xoroshiro128Plus};
 use crate::rotation::Rotation;
@@ -62,6 +63,8 @@ pub struct SimParams {
     /// The encounter ruleset (no glancing blows and extra crit under Loatheb, Essence of the
     /// Red under Vaelastrasz).
     pub ruleset: Ruleset,
+    /// How landed white swings generate rage.
+    pub rage_formula: RageFormula,
 }
 
 impl Default for SimParams {
@@ -70,6 +73,7 @@ impl Default for SimParams {
             combat_length: 300.0,
             execute_threshold: 0.2,
             ruleset: Ruleset::Standard,
+            rage_formula: RageFormula::Forever,
         }
     }
 }
@@ -1067,12 +1071,48 @@ impl Character {
             Hand::Mainhand => self.equipment.mainhand(),
             Hand::Offhand => self.equipment.offhand(),
         }?;
-        let rage = swing_rage(weapon.speed(), weapon.is_two_hand(), hand);
-        let rage = match hand {
+        let rage = self.forever_swing_rage(weapon.speed(), weapon.is_two_hand(), hand);
+        let rage = rage * self.swing_rage_factor();
+        Some(if crit { rage * CRIT_RAGE_FACTOR } else { rage })
+    }
+
+    /// Forever's rage of a landed non-crit swing of `hand` with a weapon of `base_speed`, the
+    /// off-hand rage percentage applied.
+    fn forever_swing_rage(&self, base_speed: f64, two_hand: bool, hand: Hand) -> f64 {
+        let rage = swing_rage(base_speed, two_hand, hand);
+        match hand {
             Hand::Mainhand => rage,
             Hand::Offhand => (rage * (1.0 + f64::from(self.offhand_rage_percent) / 100.0)).max(0.0),
-        };
-        Some(if crit { rage * CRIT_RAGE_FACTOR } else { rage })
+        }
+    }
+
+    /// Forever's white rage per second with every swing landing and none critting: the sum
+    /// over the equipped hands of their swing rage per second of base speed (6.92 dual wielding
+    /// one-handers with Dual Wield Specialization 5/5, 4.5 with a two-hander).
+    pub fn nominal_white_rage_per_second(&self) -> f64 {
+        [
+            (Hand::Mainhand, self.equipment.mainhand()),
+            (Hand::Offhand, self.equipment.offhand()),
+        ]
+        .into_iter()
+        .filter_map(|(hand, weapon)| {
+            let weapon = weapon?;
+            let speed = weapon.speed();
+            Some(self.forever_swing_rage(speed, weapon.is_two_hand(), hand) / speed)
+        })
+        .sum()
+    }
+
+    /// The factor the [`SimParams::rage_formula`] scales every landed white swing's Forever
+    /// rage by (see [`RageFormula::swing_rage_factor`]), from the main-hand weapon's DPS;
+    /// exactly 1 for Forever or without a main-hand weapon.
+    pub fn swing_rage_factor(&self) -> f64 {
+        match (self.sim.rage_formula, self.equipment.mainhand()) {
+            (RageFormula::Forever, _) | (_, None) => 1.0,
+            (formula, Some(mainhand)) => {
+                formula.swing_rage_factor(mainhand.dps(), self.nominal_white_rage_per_second())
+            }
+        }
     }
 
     /// Gains the rage of a landed white swing of `hand` (see [`Character::swing_rage`]);

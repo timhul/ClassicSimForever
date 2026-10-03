@@ -682,7 +682,8 @@ function restart(seed) {
     $("sub").textContent =
       `${info.race} ${info.class} · ` +
       (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
-      `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)`;
+      `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)` +
+      (info.settings ? ` · ${info.settings}` : "");
     // From the keyboard the rotation does not run: its entries are not what decides.
     $("entries").hidden = info.manual;
     hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
