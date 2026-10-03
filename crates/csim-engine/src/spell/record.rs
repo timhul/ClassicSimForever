@@ -2235,7 +2235,7 @@ spells:
     fn shipped_spell_data_loads() {
         let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
         let db = SpellDb::load(&dir).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.70170"));
+        assert_eq!(db.build(), Some("1.60.1.70205"));
         assert!(db.len() > 240, "{}", db.len());
         assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
         assert!(db.ids_of_class(None).len() > 30, "racials");
