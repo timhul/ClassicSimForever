@@ -1,5 +1,3 @@
-# Schema: crates/csim-engine/src/character_loader.rs.
-# Combat with axes: Hack and Slash's axe/sword branch, and the Orc's Axe Specialization.
 include: common/base_target.yaml
 include: common/base_rogue_buffs.yaml
 include: common/base_rogue_combat_18_33.yaml

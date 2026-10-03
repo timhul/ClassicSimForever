@@ -1,7 +1,3 @@
-# Schema: crates/csim-engine/src/character_loader.rs.
-# Seal Fate Mutilate providing Expose Armor: the talents of base_rogue_mutilate_33_18.yaml with
-# Improved Expose Armor for Improved Poisons, and no external Sunder Armor (Expose Armor and
-# Sunder Armor share one armor reduction).
 include: common/base_target.yaml
 include: common/base_rogue_buffs.yaml
 include: common/base_rogue_mutilate_33_18.yaml
