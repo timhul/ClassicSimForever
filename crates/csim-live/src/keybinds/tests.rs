@@ -108,3 +108,17 @@ fn malformed_macros_are_refused() {
         assert!(error.contains(says), "{text}: {error}");
     }
 }
+
+#[test]
+fn the_bundled_keybinds_load_from_memory() {
+    let mut files = csim_engine::files::MemFiles::new();
+    files.insert(
+        "keybinds/dw_fury.yaml",
+        "Bloodthirst: 1\nExecute: Shift+E\n",
+    );
+    let keybinds = load_from(&files, Path::new("keybinds/dw_fury.yaml")).unwrap();
+    assert_eq!(keybinds.len(), 2);
+    assert_eq!(keybinds[1].binding, "Shift+E");
+    let error = load_from(&files, Path::new("keybinds/missing.yaml")).unwrap_err();
+    assert!(error.starts_with("keybinds/missing.yaml: "), "{error}");
+}

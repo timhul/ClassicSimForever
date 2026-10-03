@@ -10,13 +10,13 @@
 //! `TraitCond`, prerequisites from `TraitEdge`.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::PlayerClass;
+use crate::files::{Files, FsFiles, yaml_files};
 
 /// Talent points a character has (`TraitCurrency.SourcedMax` for the classes' currency).
 pub const DEFAULT_POINTS: u32 = 51;
@@ -137,7 +137,12 @@ pub enum TalentSpecError {
 impl TalentFile {
     /// Loads and validates one file.
     pub fn load(path: &Path) -> Result<Self, TalentSpecError> {
-        let text = fs::read_to_string(path).map_err(|source| TalentSpecError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, TalentSpecError> {
+        let text = files.read(path).map_err(|source| TalentSpecError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -302,24 +307,18 @@ impl TalentDb {
 
     /// Loads every `*.yaml` / `*.yml` file directly in `dir`.
     pub fn load(dir: &Path) -> Result<Self, TalentSpecError> {
-        let mut paths: Vec<PathBuf> = fs::read_dir(dir)
-            .map_err(|source| TalentSpecError::Io {
-                path: dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.is_file()
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
+        Self::load_from(&FsFiles, dir)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, dir: &Path) -> Result<Self, TalentSpecError> {
+        let paths = yaml_files(files, dir).map_err(|source| TalentSpecError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
         let mut db = TalentDb::new();
         for path in paths {
-            db.add(TalentFile::load(&path)?)?;
+            db.add(TalentFile::load_from(files, &path)?)?;
         }
         Ok(db)
     }
@@ -355,6 +354,7 @@ impl TalentDb {
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;
+    use std::fs;
 
     /// Four Arms talents (the `csim-tables` fixture nodes) plus Cruelty in Fury.
     pub(crate) const ARMS_YAML: &str = r#"

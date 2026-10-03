@@ -4,13 +4,13 @@
 //! id has one version; a lookup for a phase returns it when the item is available in that phase.
 
 use std::collections::HashMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use super::set_bonus::{SetBonusDb, SetBonusError};
 use super::{EquipmentSlot, Item, ItemError, ItemFile, ItemSetFile, ItemSetSpec, ItemSpec};
 use crate::enchant::{EnchantDb, EnchantDbError};
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::phase::Phase;
 
 /// Errors while loading the item database.
@@ -79,18 +79,32 @@ impl EquipmentDb {
         item_sets: Option<&Path>,
         enchants: Option<&Path>,
     ) -> Result<Self, EquipmentDbError> {
+        Self::load_from(&FsFiles, items_dir, item_sets, enchants)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(
+        files: &dyn Files,
+        items_dir: &Path,
+        item_sets: Option<&Path>,
+        enchants: Option<&Path>,
+    ) -> Result<Self, EquipmentDbError> {
         let mut db = Self::new();
 
-        for path in yaml_files(items_dir)? {
-            db.load_item_file(&path)?;
+        let paths = yaml_files(files, items_dir).map_err(|source| EquipmentDbError::Io {
+            path: items_dir.to_path_buf(),
+            source,
+        })?;
+        for path in paths {
+            db.load_item_file_from(files, &path)?;
         }
 
         if let Some(path) = item_sets {
-            db.load_item_set_file(path)?;
+            db.load_item_set_file_from(files, path)?;
         }
 
         if let Some(path) = enchants {
-            db.set_enchants(EnchantDb::load(path)?);
+            db.set_enchants(EnchantDb::load_from(files, path)?);
         }
 
         Ok(db)
@@ -98,18 +112,31 @@ impl EquipmentDb {
 
     /// Adds the items of one exported item file ([`ItemFile`]).
     pub fn load_item_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
-        for spec in self.read_item_file(path)? {
+        self.load_item_file_from(&FsFiles, path)
+    }
+
+    /// [`Self::load_item_file`] from `files`.
+    pub fn load_item_file_from(
+        &mut self,
+        files: &dyn Files,
+        path: &Path,
+    ) -> Result<(), EquipmentDbError> {
+        for spec in self.read_item_file(files, path)? {
             self.add_item(Item::from_spec(spec)?)?;
         }
         Ok(())
     }
 
-    fn read_item_file(&mut self, path: &Path) -> Result<Vec<ItemSpec>, EquipmentDbError> {
+    fn read_item_file(
+        &mut self,
+        files: &dyn Files,
+        path: &Path,
+    ) -> Result<Vec<ItemSpec>, EquipmentDbError> {
         let yaml_error = |source| EquipmentDbError::Yaml {
             path: path.to_path_buf(),
             source,
         };
-        let text = fs::read_to_string(path).map_err(|source| EquipmentDbError::Io {
+        let text = files.read(path).map_err(|source| EquipmentDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -139,7 +166,16 @@ impl EquipmentDb {
 
     /// Replaces the item sets with those of an exported [`ItemSetFile`].
     pub fn load_item_set_file(&mut self, path: &Path) -> Result<(), EquipmentDbError> {
-        let text = fs::read_to_string(path).map_err(|source| EquipmentDbError::Io {
+        self.load_item_set_file_from(&FsFiles, path)
+    }
+
+    /// [`Self::load_item_set_file`] from `files`.
+    pub fn load_item_set_file_from(
+        &mut self,
+        files: &dyn Files,
+        path: &Path,
+    ) -> Result<(), EquipmentDbError> {
+        let text = files.read(path).map_err(|source| EquipmentDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -233,31 +269,12 @@ impl EquipmentDb {
     }
 }
 
-/// The `*.yaml` / `*.yml` files directly in `dir`, sorted by name.
-fn yaml_files(dir: &Path) -> Result<Vec<PathBuf>, EquipmentDbError> {
-    let mut paths: Vec<PathBuf> = fs::read_dir(dir)
-        .map_err(|source| EquipmentDbError::Io {
-            path: dir.to_path_buf(),
-            source,
-        })?
-        .filter_map(Result::ok)
-        .map(|entry| entry.path())
-        .filter(|path| {
-            path.is_file()
-                && path
-                    .extension()
-                    .is_some_and(|ext| ext == "yaml" || ext == "yml")
-        })
-        .collect();
-    paths.sort();
-    Ok(paths)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::item::{ItemSlot, ItemStat, ItemType, Quality, WeaponDamageSpec};
     use crate::magic_school::MagicSchool;
+    use std::fs;
 
     fn spec(id: u32, name: &str, phase: Phase, slot: ItemSlot, item_type: ItemType) -> ItemSpec {
         ItemSpec {

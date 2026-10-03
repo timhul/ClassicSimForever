@@ -11,13 +11,13 @@
 //! Sword Specialization is a crit aura, The Human Spirit a spirit aura), never from this module.
 
 use std::collections::HashMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::Faction;
+use crate::files::{Files, FsFiles};
 use crate::spell::record::{SpellDb, SpellRecord};
 use crate::stats::RaceStats;
 
@@ -212,7 +212,12 @@ impl RaceDb {
 
     /// Loads a YAML file holding a list of race specs.
     pub fn load(path: &Path) -> Result<Self, RaceDbError> {
-        let text = fs::read_to_string(path).map_err(|source| RaceDbError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, RaceDbError> {
+        let text = files.read(path).map_err(|source| RaceDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;

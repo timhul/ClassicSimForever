@@ -8,12 +8,12 @@
 //! data (Phase 4).
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::{Faction, PlayerClass};
+use crate::files::{Files, FsFiles};
 use crate::item::{EquipmentSlot, ItemStat, WeaponData, WeaponSlot, WeaponType};
 use crate::stats::{Stats, UnsupportedItemStat};
 
@@ -374,7 +374,12 @@ impl EnchantDb {
 
     /// Loads a YAML file holding a list of enchant specs.
     pub fn load(path: &Path) -> Result<Self, EnchantDbError> {
-        let text = fs::read_to_string(path).map_err(|source| EnchantDbError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, EnchantDbError> {
+        let text = files.read(path).map_err(|source| EnchantDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;

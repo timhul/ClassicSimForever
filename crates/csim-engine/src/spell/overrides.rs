@@ -40,11 +40,11 @@
 //! the table row and the override is consulted next to it.
 
 use std::collections::{BTreeMap, HashMap};
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::proc::ProcSource;
 use crate::spell::Hand;
 use crate::spell::dbc::{PowerType, dbc_flags};
@@ -673,34 +673,33 @@ impl Overrides {
     /// Loads every `*.yaml` / `*.yml` file directly in `dir` (sorted by name). A missing
     /// directory means "no overrides".
     pub fn load(dir: &Path) -> Result<Self, OverrideError> {
+        Self::load_from(&FsFiles, dir)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, dir: &Path) -> Result<Self, OverrideError> {
         let mut overrides = Self::new();
-        if !dir.exists() {
+        if !files.is_dir(dir) {
             return Ok(overrides);
         }
-        let mut paths: Vec<PathBuf> = fs::read_dir(dir)
-            .map_err(|source| OverrideError::Io {
-                path: dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.is_file()
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
+        let paths = yaml_files(files, dir).map_err(|source| OverrideError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
         for path in paths {
-            overrides.load_file(&path)?;
+            overrides.load_file_from(files, &path)?;
         }
         Ok(overrides)
     }
 
     /// Adds the overrides of one YAML file.
     pub fn load_file(&mut self, path: &Path) -> Result<(), OverrideError> {
-        let text = fs::read_to_string(path).map_err(|source| OverrideError::Io {
+        self.load_file_from(&FsFiles, path)
+    }
+
+    /// [`Self::load_file`] from `files`.
+    pub fn load_file_from(&mut self, files: &dyn Files, path: &Path) -> Result<(), OverrideError> {
+        let text = files.read(path).map_err(|source| OverrideError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -844,6 +843,7 @@ impl Overrides {
 mod tests {
     use super::*;
     use crate::target::CreatureType;
+    use std::fs;
 
     const WARRIOR: &str = r#"
 defaults:

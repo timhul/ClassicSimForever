@@ -1,10 +1,12 @@
 //! Character loader tests against the shipped data and the example setups of
 //! `data/characters/`.
 
+use std::fs;
 use std::sync::OnceLock;
 
 use super::*;
 use crate::character::RegenReactions;
+use crate::files::{MemFiles, Overlay};
 use crate::ids::CharId;
 use crate::sim_control::{SimControl, run_logged_iteration};
 use crate::statistics::NumberCruncher;
@@ -782,4 +784,90 @@ fn the_marrow_sigmoid_setting_adds_white_rage() {
         .unwrap();
     let (forever, sigmoid) = (offhand_rage(forever), offhand_rage(sigmoid));
     assert!(sigmoid > forever * 1.02, "{sigmoid} vs {forever}");
+}
+
+/// The setup files of `setup_dir` held in memory instead, by the same relative paths.
+fn mem_files(files: &[(&str, &str)]) -> MemFiles {
+    files.iter().copied().collect()
+}
+
+#[test]
+fn nested_includes_load_from_memory_as_from_disk() {
+    let files = [
+        ("parts/base.yaml", BASE),
+        ("parts/level.yaml", "level: 55\n"),
+        ("parts/nested.yaml", "include: level.yaml\nrace: TAUREN\n"),
+        (
+            "list.yaml",
+            "include: [parts/base.yaml, parts/nested.yaml]\nname: List\n",
+        ),
+    ];
+    let dir = setup_dir("memory", &files);
+    let mut disk = CharacterSetup::load(&dir.join("list.yaml")).unwrap();
+    let mut memory = CharacterSetup::load_from(&mem_files(&files), Path::new("list.yaml")).unwrap();
+    assert_eq!(memory.path.as_deref(), Some(Path::new("list.yaml")));
+    assert_eq!((memory.level, memory.race), (55, Race::Tauren));
+    disk.path = None;
+    memory.path = None;
+    assert_eq!(memory, disk);
+}
+
+#[test]
+fn a_missing_include_in_memory_fails_as_on_disk() {
+    let files = [("a.yaml", "include: parts/missing.yaml\nname: A\n")];
+    let dir = setup_dir("missing-memory", &files);
+    let disk = CharacterSetup::load(&dir.join("a.yaml")).unwrap_err();
+    let memory = CharacterSetup::load_from(&mem_files(&files), Path::new("a.yaml")).unwrap_err();
+    for error in [&disk, &memory] {
+        assert!(
+            matches!(error, CharacterSetupError::Include { .. }),
+            "{error}"
+        );
+        let message = error.to_string();
+        assert!(message.contains("cannot read"), "{message}");
+        assert!(message.contains("missing.yaml"), "{message}");
+    }
+    let missing = CharacterSetup::load_from(&mem_files(&files), Path::new("b.yaml")).unwrap_err();
+    assert!(
+        matches!(missing, CharacterSetupError::Io { .. }),
+        "{missing}"
+    );
+}
+
+#[test]
+fn an_include_cycle_in_memory_is_caught_through_any_path() {
+    let files = mem_files(&[
+        ("a.yaml", "include: parts/../b.yaml\n"),
+        ("b.yaml", "include: a.yaml\n"),
+    ]);
+    let error = CharacterSetup::load_from(&files, Path::new("a.yaml")).unwrap_err();
+    assert!(error.to_string().contains("includes itself"), "{error}");
+}
+
+#[test]
+fn a_pasted_setup_includes_the_bundled_files() {
+    let bundled = crate::files::yaml_tree(&DataBundle::repository_dir());
+    let pasted = mem_files(&[(
+        "characters/pasted.yaml",
+        "include: warrior_fury_dw_orc.yaml\nname: Pasted\nlevel: 59\n",
+    )]);
+    let files = Overlay {
+        top: &pasted,
+        base: &bundled,
+    };
+    let setup = CharacterSetup::load_from(&files, Path::new("characters/pasted.yaml")).unwrap();
+    let shipped = shipped("warrior_fury_dw_orc.yaml");
+    assert_eq!((setup.name.as_str(), setup.level), ("Pasted", 59));
+    assert_eq!(setup.equipment, shipped.equipment);
+    assert_eq!(setup.talents, shipped.talents);
+    setup.validate(data()).unwrap();
+    let all = CharacterSetup::load_dir_from(&files, Path::new("characters")).unwrap();
+    assert!(all.iter().any(|setup| setup.name == "Pasted"));
+    assert_eq!(
+        all.len(),
+        CharacterSetup::load_dir(&DataBundle::repository_dir().join("characters"))
+            .unwrap()
+            .len()
+            + 1
+    );
 }

@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use crate::buff::external::{ExternalBuffDb, ExternalBuffError};
 use crate::character::{ClassDb, ClassSpecError};
+use crate::files::{Files, FsFiles};
 use crate::item::{EquipmentDb, EquipmentDbError};
 use crate::race::{RaceDb, RaceDbError};
 use crate::rotation::{RotationDb, RotationSpecError};
@@ -49,18 +50,24 @@ impl DataBundle {
     /// `items/`, `item_sets.yaml`, `enchants.yaml`, `classes/`, `races.yaml`, `talents/`,
     /// `external_buffs.yaml` and `rotations/`.
     pub fn load(dir: &Path) -> Result<Self, DataBundleError> {
-        let spells = SpellDb::load(&dir.join("spells"))?;
-        let equipment = EquipmentDb::load(
+        Self::load_from(&FsFiles, dir)
+    }
+
+    /// [`Self::load`] from `files` (`dir` is `""` for files rooted at the data directory).
+    pub fn load_from(files: &dyn Files, dir: &Path) -> Result<Self, DataBundleError> {
+        let spells = SpellDb::load_from(files, &dir.join("spells"))?;
+        let equipment = EquipmentDb::load_from(
+            files,
             &dir.join("items"),
             Some(&dir.join("item_sets.yaml")),
             Some(&dir.join("enchants.yaml")),
         )?;
-        let classes = ClassDb::load(&dir.join("classes"), Some(equipment.enchants()))?;
-        let races = RaceDb::load(&dir.join("races.yaml"))?;
-        let talents = TalentDb::load(&dir.join("talents"))?;
-        let external_buffs = ExternalBuffDb::load(&dir.join("external_buffs.yaml"))?;
+        let classes = ClassDb::load_from(files, &dir.join("classes"), Some(equipment.enchants()))?;
+        let races = RaceDb::load_from(files, &dir.join("races.yaml"))?;
+        let talents = TalentDb::load_from(files, &dir.join("talents"))?;
+        let external_buffs = ExternalBuffDb::load_from(files, &dir.join("external_buffs.yaml"))?;
         external_buffs.validate(&spells)?;
-        let rotations = RotationDb::load(&dir.join("rotations"))?;
+        let rotations = RotationDb::load_from(files, &dir.join("rotations"))?;
         Ok(DataBundle {
             spells,
             equipment: Arc::new(equipment),
@@ -96,5 +103,26 @@ mod tests {
         let bludgeon = data.equipment.item(18866).unwrap().spec();
         assert_eq!(bludgeon.icon, 133057);
         assert_eq!(bludgeon.icon_name.as_deref(), Some("inv_hammer_20"));
+    }
+
+    #[test]
+    fn the_data_loads_from_memory_as_from_disk() {
+        let dir = DataBundle::repository_dir();
+        let disk = DataBundle::load(&dir).unwrap();
+        let files = crate::files::yaml_tree(&dir);
+        let memory = DataBundle::load_from(&files, Path::new("")).unwrap();
+        assert_eq!(memory.spells.len(), disk.spells.len());
+        assert_eq!(memory.equipment.len(), disk.equipment.len());
+        assert_eq!(memory.classes.len(), disk.classes.len());
+        assert_eq!(memory.races.specs(), disk.races.specs());
+        assert_eq!(memory.talents.len(), disk.talents.len());
+        assert_eq!(memory.rotations.len(), disk.rotations.len());
+        assert_eq!(
+            memory.spells.get(23894).unwrap(),
+            disk.spells.get(23894).unwrap()
+        );
+        // A missing directory fails as on disk.
+        let error = DataBundle::load_from(&files, Path::new("nowhere")).unwrap_err();
+        assert!(error.to_string().contains("nowhere"), "{error}");
     }
 }

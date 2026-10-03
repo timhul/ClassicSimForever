@@ -22,6 +22,7 @@
 
 use std::path::Path;
 
+use csim_engine::files::{Files, FsFiles};
 use serde::Deserialize;
 
 /// A spell or a macro bound to a key.
@@ -95,8 +96,17 @@ const NAMED_KEYS: &[&str] = &[
 /// The file cannot be read or is not a map of names to bindings or macros, a binding is
 /// malformed, a macro casts nothing, or two keybinds share a binding.
 pub fn load(path: &Path) -> Result<Vec<Keybind>, String> {
-    let text =
-        std::fs::read_to_string(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    load_from(&FsFiles, path)
+}
+
+/// [`load`] from `files`.
+///
+/// # Errors
+/// See [`load`].
+pub fn load_from(files: &dyn Files, path: &Path) -> Result<Vec<Keybind>, String> {
+    let text = files
+        .read(path)
+        .map_err(|error| format!("{}: {error}", path.display()))?;
     parse(&text).map_err(|error| format!("{}: {error}", path.display()))
 }
 

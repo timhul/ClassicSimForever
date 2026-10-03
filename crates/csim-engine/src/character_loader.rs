@@ -53,7 +53,6 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
-use std::fs;
 use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
@@ -65,6 +64,7 @@ use crate::character::{Character, ClassSpec};
 use crate::data_bundle::DataBundle;
 use crate::enchant::EnchantName;
 use crate::faction::{Faction, PlayerClass};
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::ids::CharId;
 use crate::item::EquipmentSlot;
 use crate::magic_school::MagicSchool;
@@ -304,8 +304,8 @@ impl Issues {
 /// The key that includes other setup files.
 const INCLUDE: &str = "include";
 
-fn read(path: &Path) -> Result<String, CharacterSetupError> {
-    fs::read_to_string(path).map_err(|source| CharacterSetupError::Io {
+fn read(files: &dyn Files, path: &Path) -> Result<String, CharacterSetupError> {
+    files.read(path).map_err(|source| CharacterSetupError::Io {
         path: path.to_path_buf(),
         source,
     })
@@ -341,6 +341,7 @@ impl<'de> Deserialize<'de> for Entries {
 /// The setup file at `path` (with contents `text`) as a mapping, its includes merged in
 /// place, and whether it had any. `stack` holds the files being included, to catch cycles.
 fn resolve(
+    files: &dyn Files,
     path: &Path,
     text: &str,
     stack: &mut Vec<PathBuf>,
@@ -349,7 +350,7 @@ fn resolve(
         path: path.to_path_buf(),
         message,
     };
-    let canonical = fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    let canonical = files.canonical(path);
     if stack.contains(&canonical) {
         return Err(include_error("the file includes itself".to_string()));
     }
@@ -367,9 +368,9 @@ fn resolve(
             continue;
         }
         included = true;
-        let files = match value {
+        let includes = match value {
             Value::String(file) => vec![file],
-            Value::Sequence(files) => files
+            Value::Sequence(includes) => includes
                 .into_iter()
                 .map(|file| match file {
                     Value::String(file) => Ok(file),
@@ -383,12 +384,12 @@ fn resolve(
             }
         };
         let dir = path.parent().unwrap_or(Path::new(""));
-        for file in files {
+        for file in includes {
             let file = normalize(&dir.join(file));
-            let text = fs::read_to_string(&file).map_err(|error| {
+            let text = files.read(&file).map_err(|error| {
                 include_error(format!("cannot read {}: {error}", file.display()))
             })?;
-            let (other, _) = resolve(&file, &text, stack)?;
+            let (other, _) = resolve(files, &file, &text, stack)?;
             merge(&mut mapping, other);
         }
     }
@@ -462,8 +463,13 @@ impl CharacterSetup {
     /// Parses a setup file. Checking it against the data is left to
     /// [`build_raid`](Self::build_raid) / [`validate`](Self::validate).
     pub fn load(path: &Path) -> Result<Self, CharacterSetupError> {
-        let text = read(path)?;
-        let (mapping, included) = resolve(path, &text, &mut Vec::new())?;
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`: the includes are read from `files` too.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, CharacterSetupError> {
+        let text = read(files, path)?;
+        let (mapping, included) = resolve(files, path, &text, &mut Vec::new())?;
         // Without includes the text is parsed directly, so errors keep their line numbers.
         let parsed = if included {
             serde_yaml::from_value(Value::Mapping(mapping))
@@ -481,28 +487,33 @@ impl CharacterSetup {
     /// The setup file at `path` as a YAML mapping, its includes resolved but not checked
     /// against the setup schema.
     pub fn load_mapping(path: &Path) -> Result<Mapping, CharacterSetupError> {
-        let text = read(path)?;
-        Ok(resolve(path, &text, &mut Vec::new())?.0)
+        Self::load_mapping_from(&FsFiles, path)
+    }
+
+    /// [`Self::load_mapping`] from `files`.
+    pub fn load_mapping_from(
+        files: &dyn Files,
+        path: &Path,
+    ) -> Result<Mapping, CharacterSetupError> {
+        let text = read(files, path)?;
+        Ok(resolve(files, path, &text, &mut Vec::new())?.0)
     }
 
     /// Parses every `*.yaml` setup of `dir`, sorted by file name.
     pub fn load_dir(dir: &Path) -> Result<Vec<Self>, CharacterSetupError> {
-        let mut paths: Vec<PathBuf> = fs::read_dir(dir)
-            .map_err(|source| CharacterSetupError::Io {
-                path: dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.is_file()
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
-        paths.iter().map(|path| Self::load(path)).collect()
+        Self::load_dir_from(&FsFiles, dir)
+    }
+
+    /// [`Self::load_dir`] from `files`.
+    pub fn load_dir_from(files: &dyn Files, dir: &Path) -> Result<Vec<Self>, CharacterSetupError> {
+        let paths = yaml_files(files, dir).map_err(|source| CharacterSetupError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
+        paths
+            .iter()
+            .map(|path| Self::load_from(files, path))
+            .collect()
     }
 
     /// `settings` with the setup's phase and ruleset, when it names them.

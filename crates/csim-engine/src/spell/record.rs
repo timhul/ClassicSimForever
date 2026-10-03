@@ -38,13 +38,13 @@
 //! always the table row, and [`SpellDb::overrides`] answers what the sim adds to it.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::PlayerClass;
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::item::spec::{EffectTrigger, ItemEffect};
 use crate::spell::Hand;
 use crate::spell::dbc::{
@@ -1081,25 +1081,19 @@ impl SpellDb {
     /// Loads every `*.yaml` / `*.yml` file directly in `spells_dir` (sorted by name), then the
     /// overrides in `spells_dir/overrides/`, and checks cross references.
     pub fn load(spells_dir: &Path) -> Result<Self, SpellDbError> {
+        Self::load_from(&FsFiles, spells_dir)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, spells_dir: &Path) -> Result<Self, SpellDbError> {
         let mut db = Self::new();
-        db.overrides = Overrides::load(&spells_dir.join(OVERRIDES_DIR))?;
-        let mut paths: Vec<PathBuf> = fs::read_dir(spells_dir)
-            .map_err(|source| SpellDbError::Io {
-                path: spells_dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.is_file()
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
+        db.overrides = Overrides::load_from(files, &spells_dir.join(OVERRIDES_DIR))?;
+        let paths = yaml_files(files, spells_dir).map_err(|source| SpellDbError::Io {
+            path: spells_dir.to_path_buf(),
+            source,
+        })?;
         for path in paths {
-            db.load_file(&path)?;
+            db.load_file_from(files, &path)?;
         }
         db.check_references()?;
         Ok(db)
@@ -1107,7 +1101,12 @@ impl SpellDb {
 
     /// Adds the records of one YAML file.
     pub fn load_file(&mut self, path: &Path) -> Result<(), SpellDbError> {
-        let text = fs::read_to_string(path).map_err(|source| SpellDbError::Io {
+        self.load_file_from(&FsFiles, path)
+    }
+
+    /// [`Self::load_file`] from `files`.
+    pub fn load_file_from(&mut self, files: &dyn Files, path: &Path) -> Result<(), SpellDbError> {
+        let text = files.read(path).map_err(|source| SpellDbError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -1592,6 +1591,7 @@ impl SpellDb {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     const WARRIOR_YAML: &str = r#"
 build: 1.60.1.70009

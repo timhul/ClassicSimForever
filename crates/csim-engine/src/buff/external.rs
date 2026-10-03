@@ -17,12 +17,12 @@
 //! ones applied across iterations as the C++ did.
 
 use std::collections::BTreeSet;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
 use crate::faction::{Faction, PlayerClass};
+use crate::files::{Files, FsFiles};
 use crate::ids::BuffId;
 use crate::spell::record::SpellDb;
 
@@ -162,7 +162,12 @@ impl ExternalBuffDb {
     /// Loads `data/external_buffs.yaml` (structure only; [`ExternalBuffDb::validate`] checks
     /// it against a spell db).
     pub fn load(path: &Path) -> Result<Self, ExternalBuffError> {
-        let text = fs::read_to_string(path).map_err(|source| ExternalBuffError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, ExternalBuffError> {
+        let text = files.read(path).map_err(|source| ExternalBuffError::Io {
             path: path.to_path_buf(),
             source,
         })?;

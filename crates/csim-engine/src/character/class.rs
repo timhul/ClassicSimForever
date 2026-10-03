@@ -6,13 +6,13 @@
 //! `PlayerExpectedStat` numbers; the enchant lists per slot are the C++ `<Class>Enchants.cpp`.
 
 use std::collections::BTreeMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
 use crate::enchant::{EnchantContext, EnchantDb, EnchantName, EnchantSpec};
 use crate::faction::PlayerClass;
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::item::{ArmorType, EquipmentSlot, Item, WeaponType};
 use crate::race::{BaseStats, Race};
 use crate::resource::ResourceType;
@@ -196,7 +196,12 @@ pub enum ClassSpecError {
 
 impl ClassSpec {
     pub fn load(path: &Path) -> Result<Self, ClassSpecError> {
-        let text = fs::read_to_string(path).map_err(|source| ClassSpecError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, ClassSpecError> {
+        let text = files.read(path).map_err(|source| ClassSpecError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -396,24 +401,22 @@ pub struct ClassDb {
 impl ClassDb {
     /// Loads every `<class>.yaml` of `dir` and validates it (against `enchants` when given).
     pub fn load(dir: &Path, enchants: Option<&EnchantDb>) -> Result<Self, ClassSpecError> {
-        let mut paths: Vec<PathBuf> = fs::read_dir(dir)
-            .map_err(|source| ClassSpecError::Io {
-                path: dir.to_path_buf(),
-                source,
-            })?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| {
-                path.is_file()
-                    && path
-                        .extension()
-                        .is_some_and(|ext| ext == "yaml" || ext == "yml")
-            })
-            .collect();
-        paths.sort();
+        Self::load_from(&FsFiles, dir, enchants)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(
+        files: &dyn Files,
+        dir: &Path,
+        enchants: Option<&EnchantDb>,
+    ) -> Result<Self, ClassSpecError> {
+        let paths = yaml_files(files, dir).map_err(|source| ClassSpecError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
         let mut db = Self::default();
         for path in paths {
-            let spec = ClassSpec::load(&path)?;
+            let spec = ClassSpec::load_from(files, &path)?;
             if let Some(enchants) = enchants {
                 spec.validate_enchants(enchants)?;
             }

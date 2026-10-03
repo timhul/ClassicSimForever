@@ -17,6 +17,7 @@ pub mod enchant;
 pub mod engine;
 pub mod equipment;
 pub mod faction;
+pub mod files;
 pub mod ids;
 pub mod item;
 pub mod magic_school;

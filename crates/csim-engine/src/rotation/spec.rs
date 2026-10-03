@@ -11,7 +11,6 @@
 //! ([`RotationDb::load`]), which replaces the C++ `rotation_paths.xml`.
 
 use std::collections::BTreeMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -19,6 +18,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::attack_mode::AttackMode;
 use crate::faction::PlayerClass;
+use crate::files::{Files, FsFiles, yaml_files};
 use crate::rotation::condition::{Condition, ConditionParseError};
 use crate::spell::MAX_RANK;
 
@@ -174,7 +174,12 @@ pub enum RotationSpecError {
 impl RotationSpec {
     /// Loads and validates one rotation file.
     pub fn load(path: &Path) -> Result<Self, RotationSpecError> {
-        let text = fs::read_to_string(path).map_err(|source| RotationSpecError::Io {
+        Self::load_from(&FsFiles, path)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, path: &Path) -> Result<Self, RotationSpecError> {
+        let text = files.read(path).map_err(|source| RotationSpecError::Io {
             path: path.to_path_buf(),
             source,
         })?;
@@ -268,15 +273,21 @@ impl RotationDb {
     /// for determinism); a file whose `class` does not match its directory or that repeats a
     /// `(class, name)` is an error. Other directories and files are ignored.
     pub fn load(dir: &Path) -> Result<Self, RotationSpecError> {
+        Self::load_from(&FsFiles, dir)
+    }
+
+    /// [`Self::load`] from `files`.
+    pub fn load_from(files: &dyn Files, dir: &Path) -> Result<Self, RotationSpecError> {
         let io = |path: &Path, source| RotationSpecError::Io {
             path: path.to_path_buf(),
             source,
         };
-        let mut class_dirs: Vec<(PlayerClass, PathBuf)> = fs::read_dir(dir)
+        let mut class_dirs: Vec<(PlayerClass, PathBuf)> = files
+            .entries(dir)
             .map_err(|source| io(dir, source))?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| path.is_dir())
+            .into_iter()
+            .filter(|entry| entry.is_dir)
+            .map(|entry| entry.path)
             .filter_map(|path| {
                 let class = path
                     .file_name()
@@ -290,20 +301,9 @@ impl RotationDb {
         class_dirs.sort();
         let mut db = Self::default();
         for (expected, class_dir) in class_dirs {
-            let mut paths: Vec<PathBuf> = fs::read_dir(&class_dir)
-                .map_err(|source| io(&class_dir, source))?
-                .filter_map(Result::ok)
-                .map(|entry| entry.path())
-                .filter(|path| {
-                    path.is_file()
-                        && path
-                            .extension()
-                            .is_some_and(|ext| ext == "yaml" || ext == "yml")
-                })
-                .collect();
-            paths.sort();
+            let paths = yaml_files(files, &class_dir).map_err(|source| io(&class_dir, source))?;
             for path in paths {
-                let spec = RotationSpec::load(&path)?;
+                let spec = RotationSpec::load_from(files, &path)?;
                 if spec.class != expected {
                     return Err(RotationSpecError::ClassMismatch {
                         path,
@@ -369,6 +369,7 @@ impl RotationDb {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     const DW_FURY: &str = r#"
 class: WARRIOR
