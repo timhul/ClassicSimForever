@@ -640,7 +640,7 @@ fn the_target_debuffs_are_the_sims_and_the_setups() {
         .advance(20.0)
         .state;
     let names: Vec<&str> = rogue.debuffs.iter().map(|d| d.name.as_str()).collect();
-    assert_eq!(names, ["Sunder Armor", "Faerie Fire"]);
+    assert_eq!(names, ["Deadly Poison V", "Sunder Armor", "Faerie Fire"]);
 }
 
 const KEYBINDS: &str = "Bloodthirst: 1\nHamstring: Shift+2\nBattle Shout: Ctrl+Alt+B\n";
