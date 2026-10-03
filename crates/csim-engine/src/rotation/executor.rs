@@ -226,6 +226,8 @@ pub struct Rotation {
     active: Vec<usize>,
     precombat_spells: Vec<SpellId>,
     precast_spell: Option<SpellId>,
+    /// The spec's prerequisites the character lacks at the last link, with why.
+    missing_prerequisites: Vec<(String, SkipReason)>,
     /// The decisions since the set of iterations started, when the trace is enabled.
     trace: Option<Vec<RotationDecision>>,
 }
@@ -260,6 +262,7 @@ impl Rotation {
             active: Vec::new(),
             precombat_spells: Vec::new(),
             precast_spell: None,
+            missing_prerequisites: Vec::new(),
             trace: None,
         }
     }
@@ -326,6 +329,12 @@ impl Rotation {
         self.precast_spell
     }
 
+    /// The spec's prerequisites the character lacked at the last link, with why, in file
+    /// order. The rotation is not valid for the character when there is any.
+    pub fn missing_prerequisites(&self) -> &[(String, SkipReason)] {
+        &self.missing_prerequisites
+    }
+
     /// Links the executors, precombat spells and the precast to the character's spells.
     /// Port of `Rotation::link_spells` (+ `add_conditionals`, `link_precombat_spells`,
     /// `link_precast_spell`). An executor is active when its spell exists at the requested
@@ -360,20 +369,31 @@ impl Rotation {
             .as_deref()
             .and_then(|name| host.spell_by_name(name, crate::spell::MAX_RANK))
             .filter(|&spell| host.spell_has_cast_time(spell));
+
+        self.missing_prerequisites = self
+            .spec
+            .prerequisites
+            .iter()
+            .filter_map(|name| {
+                Self::available_spell(name, crate::spell::MAX_RANK, host)
+                    .err()
+                    .map(|reason| (name.clone(), reason))
+            })
+            .collect();
     }
 
-    fn link_executor(
-        executor: &RotationExecutor,
+    /// The enabled spell `name` at `rank`, or why the character cannot cast it.
+    fn available_spell(
+        name: &str,
+        rank: u32,
         host: &impl RotationHost,
-    ) -> Result<LinkedExecutor, SkipReason> {
+    ) -> Result<SpellId, SkipReason> {
         use crate::spell::MAX_RANK;
 
-        let name = &executor.spell_name;
-        let Some(spell) = host.spell_by_name(name, executor.spell_rank) else {
-            let other_rank =
-                executor.spell_rank != MAX_RANK && host.spell_by_name(name, MAX_RANK).is_some();
+        let Some(spell) = host.spell_by_name(name, rank) else {
+            let other_rank = rank != MAX_RANK && host.spell_by_name(name, MAX_RANK).is_some();
             return Err(if other_rank {
-                SkipReason::RankNotLearned(executor.spell_rank)
+                SkipReason::RankNotLearned(rank)
             } else {
                 SkipReason::UnknownSpell
             });
@@ -383,6 +403,16 @@ impl Rotation {
                 .missing_talent(spell)
                 .map_or(SkipReason::NotEnabled, SkipReason::TalentNotTaken));
         }
+        Ok(spell)
+    }
+
+    fn link_executor(
+        executor: &RotationExecutor,
+        host: &impl RotationHost,
+    ) -> Result<LinkedExecutor, SkipReason> {
+        use crate::spell::MAX_RANK;
+
+        let spell = Self::available_spell(&executor.spell_name, executor.spell_rank, host)?;
         let Some(condition) = &executor.condition else {
             return Ok(LinkedExecutor {
                 spell,
@@ -674,6 +704,7 @@ mod tests {
             precombat_actions: vec!["Bloodrage".to_string(), "Battle Shout".to_string()],
             precast: None,
             cast_if,
+            prerequisites: Vec::new(),
         })
     }
 
@@ -790,6 +821,42 @@ mod tests {
             "Death Wish buff active"
         );
         let _ = (dw_buff, bloodthirst);
+    }
+
+    #[test]
+    fn linking_records_the_prerequisites_the_character_lacks() {
+        let mut host = Mock::default();
+        host.spell("Bloodthirst", 1, 1);
+        let mortal_strike = host.spell("Mortal Strike", 1, 2);
+        host.enabled.insert(mortal_strike, false);
+        host.talents
+            .insert(mortal_strike, "Mortal Strike".to_string());
+        let mut spec = Arc::unwrap_or_clone(spec(vec![CastIfSpec::always("Bloodthirst")]));
+        spec.prerequisites = vec![
+            "Bloodthirst".to_string(),
+            "Mortal Strike".to_string(),
+            "Rampage".to_string(),
+        ];
+        let mut rotation = Rotation::new(Arc::new(spec));
+        assert!(
+            rotation.missing_prerequisites().is_empty(),
+            "not linked yet"
+        );
+        rotation.link(&host);
+        assert_eq!(
+            rotation.missing_prerequisites(),
+            [
+                (
+                    "Mortal Strike".to_string(),
+                    SkipReason::TalentNotTaken("Mortal Strike".to_string())
+                ),
+                ("Rampage".to_string(), SkipReason::UnknownSpell),
+            ]
+        );
+        host.enabled.insert(mortal_strike, true);
+        host.spell("Rampage", 1, 3);
+        rotation.link(&host);
+        assert!(rotation.missing_prerequisites().is_empty());
     }
 
     #[test]

@@ -107,7 +107,7 @@ pub struct EquippedSetup {
 }
 
 /// A list, or a single value as a list of one.
-fn one_or_many<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+pub(crate) fn one_or_many<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
 where
     D: serde::Deserializer<'de>,
     T: Deserialize<'de>,
@@ -796,6 +796,16 @@ impl CharacterSetup {
             ctx.sync_ruleset_spells(db);
             if let Some(rotation) = rotation {
                 ctx.set_rotation(Arc::clone(rotation));
+                let linked = ctx.character.rotation().expect("the rotation was just set");
+                for (spell, reason) in linked.missing_prerequisites() {
+                    issues.push(
+                        "rotation",
+                        format!(
+                            "{:?} is not valid for this character: prerequisite {spell:?}: {reason}",
+                            self.rotation
+                        ),
+                    );
+                }
             }
         });
 

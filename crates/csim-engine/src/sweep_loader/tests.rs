@@ -147,6 +147,33 @@ variations:
 }
 
 #[test]
+fn variants_lacking_a_rotation_prerequisite_are_invalid() {
+    // warrior_fury_dw_orc.yaml has no Mortal Strike, which the arms rotation cannot do without.
+    let expansion = sweep(
+        "
+variations:
+  - options:
+      - { label: fury, rotation: DW Fury }
+      - { label: arms, rotation: Mortal Strike }
+",
+    )
+    .expand(data())
+    .unwrap();
+    assert_eq!(expansion.combinations(), 2);
+    assert_eq!(expansion.variants.len(), 1);
+    assert_eq!(expansion.variants[0].label, "fury");
+    assert_eq!(expansion.invalid.len(), 1);
+    assert_eq!(expansion.invalid[0].0, "arms");
+    assert!(
+        expansion.invalid[0]
+            .1
+            .contains("prerequisite \"Mortal Strike\""),
+        "{}",
+        expansion.invalid[0].1
+    );
+}
+
+#[test]
 fn options_and_talent_points_multiply() {
     let expansion = sweep(&format!(
         "{BUILD_48}{LAST_3_POINTS}
@@ -176,6 +203,7 @@ fn equipment_overrides_replace_and_empty_slots() {
         "
 overrides:
   talents: {}
+  rotation: Protection
 variations:
   - options:
       - { label: one hand, equipment: { OFFHAND: null } }
@@ -376,7 +404,10 @@ fn a_missing_character_file_is_an_error() {
 
 #[test]
 fn wildcards_match_any_characters() {
-    assert!(wildcard_match("warrior_*.yaml", "warrior_arms_human_swords.yaml"));
+    assert!(wildcard_match(
+        "warrior_*.yaml",
+        "warrior_arms_human_swords.yaml"
+    ));
     assert!(wildcard_match("warrior_*.yaml", "warrior_.yaml"));
     assert!(wildcard_match("*", "anything"));
     assert!(wildcard_match("w*_*_orc*", "warrior_fury_dw_orc.yaml"));
@@ -384,7 +415,10 @@ fn wildcards_match_any_characters() {
         "warrior_*.yaml",
         "rogue_mutilate_undead.yaml"
     ));
-    assert!(!wildcard_match("warrior_*.yaml", "warrior_arms_human_swords.yml"));
+    assert!(!wildcard_match(
+        "warrior_*.yaml",
+        "warrior_arms_human_swords.yml"
+    ));
     assert!(
         !wildcard_match("a*a", "a"),
         "the prefix and suffix do not overlap"

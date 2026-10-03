@@ -1,6 +1,7 @@
 class: WARRIOR
 name: Mortal Strike
 attack_mode: melee
+prerequisite: Mortal Strike
 description: Arms rotation.
 precombat_actions:
   - Bloodrage

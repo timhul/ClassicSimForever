@@ -44,7 +44,7 @@ const MINIMAL: &str = r#"
 name: Minimal
 class: WARRIOR
 race: ORC
-rotation: DW Fury
+rotation: Protection
 "#;
 
 fn minimal() -> CharacterSetup {
@@ -176,6 +176,21 @@ fn the_setup_overrides_the_phase_and_ruleset_of_the_settings() {
 
     let raid = setup.build_raid(data(), &base).unwrap();
     assert_eq!(raid.character(CharId(0)).sim().ruleset, Ruleset::Loatheb);
+}
+
+#[test]
+fn a_rotation_whose_prerequisite_the_character_lacks_is_an_issue() {
+    // DW Fury cannot do without Bloodthirst, a talent the minimal setup does not take.
+    let mut setup = minimal();
+    setup.rotation = "DW Fury".to_string();
+    let issues = issues(&setup);
+    assert_eq!(contexts(&issues), ["rotation"], "{issues:?}");
+    assert!(
+        issues[0]
+            .message
+            .contains("prerequisite \"Bloodthirst\": talent Bloodthirst not taken"),
+        "{issues:?}"
+    );
 }
 
 #[test]

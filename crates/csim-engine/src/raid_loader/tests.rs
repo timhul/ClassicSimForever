@@ -194,7 +194,10 @@ fn a_full_raid_of_forty_builds() {
 fn members_must_share_the_players_faction() {
     let setup = raid("name: R\nparties:\n  - [warrior_arms_human_swords, warrior_fury_dw_orc]\n");
     let found = issues(&setup, Some(&character("warrior_fury_dw_orc.yaml")));
-    assert_eq!(contexts(&found), ["parties.1[0] (warrior_arms_human_swords)"]);
+    assert_eq!(
+        contexts(&found),
+        ["parties.1[0] (warrior_arms_human_swords)"]
+    );
     assert!(found[0].message.contains("Alliance"), "{found:?}");
 }
 

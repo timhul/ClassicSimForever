@@ -1,6 +1,7 @@
 class: WARRIOR
 name: DW Fury
 attack_mode: melee
+prerequisite: Bloodthirst
 description: >-
   A rotation for dual-wield fury.
 precombat_actions:

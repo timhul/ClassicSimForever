@@ -2,4 +2,11 @@ name: DW Fury profiles
 iterations: 10000
 variations:
   - characters:
-      - ../characters/warrior_fury_dw_*.yaml
+      - ../characters/warrior_fury_dw_dwarf.yaml
+      - ../characters/warrior_arms_human_swords.yaml
+  # Rotations mush have unique 'name' values.
+  - options:
+      - { label: fury, rotation: DW Fury }
+      # - { label: fury_base, rotation: DW Fury Base }
+      - { label: arms, rotation: Mortal Strike }
+      # - { label: arms_base, rotation: Mortal Strike Base }

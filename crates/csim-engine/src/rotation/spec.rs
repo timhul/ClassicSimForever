@@ -110,6 +110,16 @@ pub struct RotationSpec {
     /// The executors, in priority order.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub cast_if: Vec<CastIfSpec>,
+    /// Spells the rotation cannot do without (`prerequisite:`, one name or a list): the
+    /// rotation is not valid for a character that lacks one of them, e.g. an arms rotation
+    /// (`Mortal Strike`) on a character without the talent.
+    #[serde(
+        default,
+        rename = "prerequisite",
+        deserialize_with = "crate::character_loader::one_or_many",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub prerequisites: Vec<String>,
 }
 
 fn default_attack_mode() -> AttackMode {
@@ -198,6 +208,13 @@ impl RotationSpec {
         }
         if self.precast.as_deref().is_some_and(|s| s.trim().is_empty()) {
             return Err(invalid("precast has no name".to_string()));
+        }
+        if let Some(index) = self
+            .prerequisites
+            .iter()
+            .position(|name| name.trim().is_empty())
+        {
+            return Err(invalid(format!("prerequisite {index} has no name")));
         }
         for (index, executor) in self.cast_if.iter().enumerate() {
             if executor.name.trim().is_empty() {
@@ -462,6 +479,34 @@ cast_if:
         assert!(spec.precombat_actions.is_empty());
         assert_eq!(spec.precast, None);
         assert!(spec.cast_if.is_empty());
+        assert!(spec.prerequisites.is_empty());
+    }
+
+    #[test]
+    fn prerequisite_is_one_spell_or_a_list() {
+        let spec = parse(
+            "class: WARRIOR
+name: X
+prerequisite: Mortal Strike
+",
+        )
+        .unwrap();
+        assert_eq!(spec.prerequisites, ["Mortal Strike"]);
+        let spec = parse(
+            "class: WARRIOR
+name: X
+prerequisite: [Bloodthirst, Death Wish]
+",
+        )
+        .unwrap();
+        assert_eq!(spec.prerequisites, ["Bloodthirst", "Death Wish"]);
+        assert!(matches!(
+            parse("class: WARRIOR
+name: X
+prerequisite: ' '
+"),
+            Err(RotationSpecError::Invalid { message, .. }) if message.contains("prerequisite 0")
+        ));
     }
 
     #[test]
@@ -490,6 +535,7 @@ cast_if:
                 },
                 CastIfSpec::always("Overpower"),
             ],
+            prerequisites: vec!["Overpower".to_string()],
         };
         let text = serde_yaml::to_string(&spec).unwrap();
         let back: RotationSpec = serde_yaml::from_str(&text).unwrap();
