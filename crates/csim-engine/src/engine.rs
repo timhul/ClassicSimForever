@@ -60,6 +60,10 @@ pub enum EventKind {
     PlayerAction {
         character: CharId,
     },
+    /// The rotation's precast starts, its cast time before the pull so it lands at T=0.
+    Precast {
+        character: CharId,
+    },
     /// The player notices regenerated energy (a `PlayerAction` scheduled from the energy grid,
     /// see `RegenReactions`); only the character's current one `wake` is acted on.
     RegenReaction {
@@ -81,6 +85,7 @@ impl EventKind {
             | EventKind::OffhandMeleeHit { character, .. }
             | EventKind::PeriodicRefreshBuff { character, .. }
             | EventKind::PlayerAction { character }
+            | EventKind::Precast { character }
             | EventKind::RegenReaction { character, .. } => Some(character),
             EventKind::EncounterEnd => None,
         }
@@ -99,6 +104,7 @@ impl EventKind {
             EventKind::OffhandMeleeHit { .. } => EventType::OffhandMeleeHit,
             EventKind::PeriodicRefreshBuff { .. } => EventType::PeriodicRefreshBuff,
             EventKind::PlayerAction { .. } => EventType::PlayerAction,
+            EventKind::Precast { .. } => EventType::Precast,
             EventKind::RegenReaction { .. } => EventType::RegenReaction,
         }
     }
@@ -117,11 +123,12 @@ pub enum EventType {
     OffhandMeleeHit,
     PeriodicRefreshBuff,
     PlayerAction,
+    Precast,
     RegenReaction,
 }
 
 impl EventType {
-    pub const ALL: [EventType; 11] = [
+    pub const ALL: [EventType; 12] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
         EventType::DotTick,
@@ -132,6 +139,7 @@ impl EventType {
         EventType::OffhandMeleeHit,
         EventType::PeriodicRefreshBuff,
         EventType::PlayerAction,
+        EventType::Precast,
         EventType::RegenReaction,
     ];
 
@@ -152,6 +160,7 @@ impl EventType {
             EventType::OffhandMeleeHit => "Offhand melee hit",
             EventType::PeriodicRefreshBuff => "Periodic buff refresh",
             EventType::PlayerAction => "Player action",
+            EventType::Precast => "Precast",
             EventType::RegenReaction => "Regeneration reaction",
         }
     }

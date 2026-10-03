@@ -1714,6 +1714,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             EventKind::PlayerAction { character } if character == me => {
                 self.perform_rotation();
             }
+            EventKind::Precast { character } if character == me => {
+                self.cast_precast();
+            }
             EventKind::RegenReaction { character, wake } if character == me => {
                 // A reaction replaced by a later plan is not handled.
                 if !self.character.is_current_regen_wake(wake) {
@@ -2389,14 +2392,36 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells (none for a character played by input).
-    /// Expected to run at T < 0, but not strictly enforced.
+    /// Casts the rotation's precombat spells, then starts its precast so that it lands at T=0:
+    /// now, or by a `Precast` event when its cast time is shorter than the time left before
+    /// the pull (none for a character played by input). Expected to run at T < 0, but not
+    /// strictly enforced.
     pub fn run_precombat_actions(&mut self) {
         if self.character.manual_input() {
             return;
         }
+        let Some(mut rotation) = self.character.take_rotation() else {
+            return;
+        };
+        rotation.run_precombat_actions(self);
+        let precast = rotation.precast_spell();
+        self.character.put_rotation(Some(rotation));
+        if let Some(spell) = precast {
+            let at = -self.spell_cast_time(spell);
+            if at > self.now() {
+                let character = self.character.id();
+                self.engine
+                    .add_event(Event::new(at, EventKind::Precast { character }));
+            } else {
+                self.cast_precast();
+            }
+        }
+    }
+
+    /// Starts the rotation's precast.
+    fn cast_precast(&mut self) {
         if let Some(mut rotation) = self.character.take_rotation() {
-            rotation.run_precombat_actions(self);
+            rotation.cast_precast(self);
             self.character.put_rotation(Some(rotation));
         }
     }

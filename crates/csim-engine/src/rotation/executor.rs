@@ -455,30 +455,35 @@ impl Rotation {
     }
 
     /// Casts the precombat spells that are available (or merely on cooldown, which the
-    /// precombat time ignores), then starts the precast if it is enabled and castable the same
-    /// way (Charge needs Battle Stance). Port of `Rotation::run_precombat_actions` and the
-    /// precast lines of `SimControl::run_sim`.
+    /// precombat time ignores). Port of `Rotation::run_precombat_actions`.
     pub fn run_precombat_actions(&mut self, host: &mut impl RotationHost) {
-        fn castable(host: &impl RotationHost, spell: SpellId) -> bool {
-            matches!(
-                host.spell_status(spell),
-                SpellStatus::Available | SpellStatus::OnCooldown
-            )
-        }
         for index in 0..self.precombat_spells.len() {
             let spell = self.precombat_spells[index];
-            if castable(host, spell) {
+            if Self::precombat_castable(host, spell) {
                 self.record(host.now(), spell, DecidedBy::Precombat);
                 host.cast_spell(spell);
             }
         }
+    }
+
+    /// Starts the precast if it is enabled and castable as a precombat spell (Charge needs
+    /// Battle Stance). The caller starts it its cast time before the pull. Port of the precast
+    /// lines of `SimControl::run_sim`.
+    pub fn cast_precast(&mut self, host: &mut impl RotationHost) {
         if let Some(spell) = self.precast_spell
             && host.spell_is_enabled(spell)
-            && castable(host, spell)
+            && Self::precombat_castable(host, spell)
         {
             self.record(host.now(), spell, DecidedBy::Precast);
             host.cast_spell(spell);
         }
+    }
+
+    fn precombat_castable(host: &impl RotationHost, spell: SpellId) -> bool {
+        matches!(
+            host.spell_status(spell),
+            SpellStatus::Available | SpellStatus::OnCooldown
+        )
     }
 
     /// Lets every active executor attempt its cast, in priority order. Nothing happens
@@ -1029,6 +1034,7 @@ mod tests {
         assert_eq!(rotation.time_required_to_run_precombat(&host), 3.0);
 
         rotation.run_precombat_actions(&mut host);
+        rotation.cast_precast(&mut host);
         assert_eq!(host.casts, [bloodrage, shout, aimed]);
 
         // Not available (GCD) precombat spells and a disabled precast are skipped.
@@ -1036,7 +1042,15 @@ mod tests {
         host.statuses.insert(shout, SpellStatus::OnGcd);
         host.enabled.insert(aimed, false);
         rotation.run_precombat_actions(&mut host);
+        rotation.cast_precast(&mut host);
         assert_eq!(host.casts, [bloodrage]);
+
+        // So is a precast that cannot be cast (Charge outside Battle Stance).
+        host.casts.clear();
+        host.enabled.insert(aimed, true);
+        host.statuses.insert(aimed, SpellStatus::InBerserkerStance);
+        rotation.cast_precast(&mut host);
+        assert!(host.casts.is_empty());
 
         // A precast shorter than the global cooldown leaves the precombat time at one GCD.
         host.cast_times.insert(aimed, 1.0);
