@@ -1,9 +1,3 @@
-# The Rogue profiles (data/characters/: Combat swords, axes and daggers, Seal Fate Mutilate with
-# and without Expose Armor, Hemorrhage) against each other: each is simmed as is, with its own
-# race, talents, weapons and gear, and ranked by DPS. The Expose Armor setup brings its own armor
-# debuff instead of the external Sunder Armor.
-# Schema: crates/csim-engine/src/sweep_loader.rs. Run with
-#   cargo run --release -p csim-cli -- sweep data/sweeps/dw_rogue_profiles.yaml
 name: DW Rogue profiles
 iterations: 10000
 variations:
@@ -14,3 +8,7 @@ variations:
       - ../characters/rogue_mutilate_undead.yaml
       - ../characters/rogue_mutilate_ea_gnome.yaml
       - ../characters/rogue_hemorrhage_troll.yaml
+  # Rotations mush have unique 'name' values.
+  # - options:
+  #     - { label: combat, rotation: Combat }
+  #     - { label: combat_exp, rotation: Combat (exp) }

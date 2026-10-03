@@ -1,0 +1,11 @@
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_combat_18_33.yaml
+include: common/base_rogue_alliance.yaml
+name: Combat Swords Gnome
+race: GNOME
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 12584, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # Grand Marshal's Longsword
+  OFFHAND: { item: 23456, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }   # Grand Marshal's Swiftblade
