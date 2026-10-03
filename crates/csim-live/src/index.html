@@ -637,7 +637,10 @@ const CLASS_COLORS = {
   Warlock: "#8788EE",
   Warrior: "#C69B6D",
 };
-// Icons the server does not have (tools/fetch_icons.py not run): not asked for again.
+/** Wowhead's CDN: the game's icons by texture name, `medium` (36 px) or `large` (56 px). */
+const ICON_CDN = "https://wow.zamimg.com/images/wow/icons";
+// Icon URLs that failed (Wowhead lacks the texture, offline, tools/fetch_icons.py not run):
+// not asked for again.
 const missingIcons = new Set();
 /** The icon of each spell that dealt damage, by name (without rank), for the breakdown. */
 const iconsByName = new Map();
@@ -1031,7 +1034,6 @@ function swing(prefix, timer, time) {
   $(`${prefix}-value`).textContent = started ? seconds(timer.next - time) : "";
 }
 
-/** An 18 px icon of `/icons/<id>.png`; null without an icon or when the server has none. */
 /**
  * The breakdown's columns: a heading, the cell of a row (`time` is the combat so far) and
  * whether it is shown although every row is 0 there.
@@ -1268,8 +1270,21 @@ $("breakdown").tBodies[0].addEventListener("click", (event) => {
   }
 });
 
-function iconImage(id) {
-  if (id === null || missingIcons.has(id)) {
+/**
+ * An 18 px image of `icon` ({id, name}): Wowhead's copy by name (`size` `medium` or `large`),
+ * else the native server's local copy (`icons/<id>.png`, from tools/fetch_icons.py), tried in
+ * turn as they fail. Null without an icon or when every source failed before; when the last
+ * one fails, the image dispatches `icon-missing` and removes itself.
+ */
+function iconImage(icon, size = "medium") {
+  if (!icon) {
+    return null;
+  }
+  const sources = [
+    ...(icon.name ? [`${ICON_CDN}/${size}/${icon.name}.jpg`] : []),
+    `icons/${icon.id}.png`,
+  ].filter((source) => !missingIcons.has(source));
+  if (sources.length === 0) {
     return null;
   }
   const image = document.createElement("img");
@@ -1277,11 +1292,20 @@ function iconImage(id) {
   image.alt = "";
   image.width = 18;
   image.height = 18;
-  image.src = `/icons/${id}.png`;
+  let next = 0;
+  const load = () => {
+    image.src = sources[next++];
+  };
   image.addEventListener("error", () => {
-    missingIcons.add(id);
-    image.remove();
-  }, { once: true });
+    missingIcons.add(sources[next - 1]);
+    if (next < sources.length) {
+      load();
+    } else {
+      image.dispatchEvent(new Event("icon-missing"));
+      image.remove();
+    }
+  });
+  load();
   return image;
 }
 
@@ -1496,11 +1520,11 @@ function renderTiles(container, items, showEmpty = true) {
 
 function tile(item) {
   const root = element("div", "tile");
-  const image = iconImage(item.icon);
+  const image = iconImage(item.icon, "large");
   const initials = element("span", "initials",
     item.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 3));
   if (image) {
-    image.addEventListener("error", () => root.prepend(initials), { once: true });
+    image.addEventListener("icon-missing", () => root.prepend(initials), { once: true });
     root.append(image);
   } else {
     root.append(initials);

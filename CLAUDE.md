@@ -70,9 +70,11 @@ page then shows every time again with the pull at 0. Examples are in `data/keybi
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
 
-Its spell and item icons come from `data/icons/` (a gitignored cache of the game's textures, by
-the `icon` FileDataIDs of the exported spells and items). Fetch them once, and again after a
-re-export; without them the page shows no icons:
+Its spell and item icons come from Wowhead's CDN, by the `icon_name` of the exported spells and
+items (texture names from the community listfile, see `tools/fetch_listfile.py`). An icon
+without a name, or one that does not load (offline), falls back to `data/icons/`: a gitignored
+local cache of the game's textures, by their `icon` FileDataIDs. Fill it once, and again after
+a re-export, when needed:
 
 `python tools/fetch_icons.py`
 

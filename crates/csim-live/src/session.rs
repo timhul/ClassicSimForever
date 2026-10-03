@@ -28,13 +28,14 @@ use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::{Event, EventKind};
 use csim_engine::faction::PlayerClass;
 use csim_engine::ids::{CharId, SpellId};
-use csim_engine::item::EquipmentSlot;
+use csim_engine::item::{EquipmentSlot, ItemSpec};
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
 use csim_engine::resource::ResourceType;
 use csim_engine::rotation::{DecidedBy, RotationHost};
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
+use csim_engine::spell::record::SpellRecord;
 use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
 use csim_engine::statistics::report::{
@@ -91,7 +92,7 @@ pub struct KeybindInfo {
     #[serde(rename = "macro")]
     pub is_macro: bool,
     /// The icon of its main spell (see [`main_spell`]).
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
 }
 
 /// How long a press waits for its spell to become castable (the game's spell queue window).
@@ -109,7 +110,7 @@ pub struct RotationEntry {
     pub spell: String,
     /// The rank asked for; `None` for the highest learned.
     pub rank: Option<u32>,
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
     /// The condition as written in the rotation file; `None` without one.
     pub condition: Option<String>,
     /// Why the entry never casts; `None` when it is active.
@@ -121,7 +122,7 @@ pub struct RotationEntry {
 pub struct Decision {
     pub time: f64,
     pub spell: String,
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
     /// `entry` (a `cast_if` entry returned true), `precombat`, `precast` or `input` (the
     /// player's, in manual mode).
     pub by: &'static str,
@@ -194,8 +195,8 @@ pub struct DamageNumber {
     pub auto: bool,
     /// The spell, or the hand of a swing.
     pub name: String,
-    /// The icon (a texture `FileDataID`, see [`icon`]): the spell's, or the weapon's for a swing.
-    pub icon: Option<u32>,
+    /// The icon: the spell's, or the weapon's for a swing.
+    pub icon: Option<Icon>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -242,7 +243,7 @@ pub struct ProcCount {
     #[serde(flatten)]
     pub row: ProcRow,
     /// The icon of the proc's spell, or of a spell it casts.
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
 }
 
 /// A source's resource gain so far, with its icon.
@@ -251,7 +252,7 @@ pub struct ResourceGain {
     #[serde(flatten)]
     pub row: ResourceRow,
     /// The icon of the spell or proc gaining it, or of the weapon for a swing.
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
 }
 
 /// A buff's uptime so far, with its icon.
@@ -260,7 +261,7 @@ pub struct BuffUptime {
     #[serde(flatten)]
     pub row: BuffRow,
     /// The icon of the spell applying it; `None` for a buff made in code.
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -274,7 +275,7 @@ pub struct BuffState {
     /// The length of the application in seconds; `None` without a duration.
     pub duration: Option<f64>,
     /// The icon of the spell applying it; `None` for a buff made in code.
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -285,7 +286,7 @@ pub struct CooldownState {
     pub ready_at: Option<f64>,
     /// The cooldown length in seconds.
     pub duration: f64,
-    pub icon: Option<u32>,
+    pub icon: Option<Icon>,
     /// The spell waits for the global cooldown too.
     pub on_gcd: bool,
     /// The character has the resource it costs.
@@ -448,12 +449,11 @@ impl Session {
                     binding: keybind.binding.clone(),
                     spells: keybind.spells.clone(),
                     is_macro: keybind.is_macro,
-                    icon: icon(
+                    icon: Icon::of_spell(
                         character
                             .spells()
                             .spell(main_spell(character.spells(), ids))
-                            .record()
-                            .icon,
+                            .record(),
                     ),
                 })
                 .collect(),
@@ -582,7 +582,7 @@ impl Session {
                 rank: written.rank,
                 icon: executor
                     .linked()
-                    .and_then(|linked| icon(spells.spell(linked.spell).record().icon)),
+                    .and_then(|linked| Icon::of_spell(spells.spell(linked.spell).record())),
                 condition: written
                     .condition
                     .as_deref()
@@ -686,7 +686,7 @@ impl Session {
                         glancing: false,
                         auto: false,
                         name: proc.name().to_owned(),
-                        icon,
+                        icon: icon.clone(),
                     },
                 });
             }
@@ -830,7 +830,7 @@ impl Session {
 
     /// The icon of a resource source (`" (rank N)"` appended above rank 1): a swing's weapon,
     /// a spell's or a proc's.
-    fn source_icon(&self, source: &str) -> Option<u32> {
+    fn source_icon(&self, source: &str) -> Option<Icon> {
         let name = source
             .rsplit_once(" (rank ")
             .map_or(source, |(name, _)| name);
@@ -910,7 +910,7 @@ impl Session {
                 Decision {
                     time: decision.time,
                     spell: spell.name().to_owned(),
-                    icon: icon(spell.record().icon),
+                    icon: Icon::of_spell(spell.record()),
                     by,
                     entry,
                 }
@@ -968,21 +968,23 @@ impl Session {
     }
 
     /// The icon of the game spell `id` (0 for spells made in code: none).
-    fn spell_icon(&self, id: u32) -> Option<u32> {
+    fn spell_icon(&self, id: u32) -> Option<Icon> {
         self.data
             .spells
             .get(id)
-            .and_then(|record| icon(record.icon))
+            .and_then(|record| Icon::of_spell(record))
     }
 
     /// The icon of the weapon in `hand`.
-    fn weapon_icon(&self, hand: Hand) -> Option<u32> {
+    fn weapon_icon(&self, hand: Hand) -> Option<Icon> {
         let slot = match hand {
             Hand::Mainhand => EquipmentSlot::Mainhand,
             Hand::Offhand => EquipmentSlot::Offhand,
         };
         let equipment = self.raid.character(PLAYER).equipment();
-        equipment.item(slot).and_then(|item| icon(item.spec().icon))
+        equipment
+            .item(slot)
+            .and_then(|item| Icon::of_item(item.spec()))
     }
 
     /// The spells bar: from the keyboard the keybinds, each named as bound with its main
@@ -1087,7 +1089,7 @@ impl Session {
                     .filter(|cooldown| cooldown.was_used())
                     .map(|cooldown| cooldown.next_use()),
                 duration: longest.map_or(0.0, |cooldown| cooldown.base),
-                icon: icon(spell.record().icon),
+                icon: Icon::of_spell(spell.record()),
                 on_gcd: spell.triggers_gcd(),
                 affordable: spell.resource_type().is_none_or(|resource| {
                     character.resource_level(resource, shown_at)
@@ -1220,9 +1222,33 @@ fn input_reason(status: SpellStatus, resource: &str) -> String {
     }
 }
 
-/// An icon `FileDataID` of the data, `None` for 0 (no icon).
-pub fn icon(file_data_id: u32) -> Option<u32> {
-    Some(file_data_id).filter(|&id| id != 0)
+/// An icon of the data: its texture's `FileDataID`, by which the native server serves its local
+/// copy (`icons/<id>.png`, from `tools/fetch_icons.py`), and its name, by which Wowhead's CDN
+/// serves it (`None` when the community listfile has no name for it).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Icon {
+    pub id: u32,
+    pub name: Option<String>,
+}
+
+impl Icon {
+    /// The icon `id` named `name`; `None` for 0 (no icon).
+    pub fn new(id: u32, name: Option<&str>) -> Option<Icon> {
+        (id != 0).then(|| Icon {
+            id,
+            name: name.map(str::to_owned),
+        })
+    }
+
+    /// The icon of a spell.
+    pub fn of_spell(record: &SpellRecord) -> Option<Icon> {
+        Icon::new(record.icon, record.icon_name.as_deref())
+    }
+
+    /// The icon of an item.
+    pub fn of_item(spec: &ItemSpec) -> Option<Icon> {
+        Icon::new(spec.icon, spec.icon_name.as_deref())
+    }
 }
 
 /// A proc that fired, to show before the log line `at`.

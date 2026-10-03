@@ -102,7 +102,8 @@ fn run(args: &Args) -> Result<()> {
     let icons = data_dir.join("icons");
     if !icons.is_dir() {
         println!(
-            "No icons in {}: run `python tools/fetch_icons.py` to show them",
+            "No icons in {}: icons come from Wowhead's CDN only (offline, or for an icon \
+             without a name: run `python tools/fetch_icons.py`)",
             icons.display()
         );
     }

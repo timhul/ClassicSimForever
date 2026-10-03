@@ -4,7 +4,9 @@ Run from anywhere: `python tools/fetch_icons.py [options]`. Collects every non-z
 (a texture `FileDataID`: `SpellMisc.SpellIconFileDataID` / `Item.IconFileDataID`) of
 `data/spells/*.yaml` and `data/items/*.yaml`, downloads each missing one from
 https://wago.tools/api/casc/<FileDataID> (the client's BLP2 texture), decodes it and writes
-`data/icons/<FileDataID>.png`. `csim-live` serves the directory.
+`data/icons/<FileDataID>.png`. `csim-live` serves the directory. Its page loads icons from
+Wowhead's CDN by `icon_name` first, so the cache is only needed offline or for an icon without
+a name (a texture only Forever has).
 
 The icons are Blizzard's assets: `data/icons/` is a local cache, ignored by git like
 `data/tables/`. Run again after a re-export to fetch the new ones.

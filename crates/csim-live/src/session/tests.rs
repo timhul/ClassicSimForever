@@ -491,28 +491,34 @@ fn stepping_runs_one_event_or_up_to_a_cast() {
 
 #[test]
 fn hits_buffs_and_cooldowns_carry_their_icons() {
-    const BLOODTHIRST: Option<u32> = Some(136012);
+    let bloodthirst = Icon::new(136012, Some("spell_nature_bloodlust"));
     // High Warlord's Bludgeon, in both hands.
-    const BLUDGEON: Option<u32> = Some(133057);
+    let bludgeon = Icon::new(133057, Some("inv_hammer_20"));
 
     let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
     let frames = play(&mut session, 1.0);
     let numbers: Vec<&DamageNumber> = frames.iter().flat_map(|f| &f.damage).collect();
-    let icons_of = |name: &str| -> Vec<Option<u32>> {
+    let icons_of = |name: &str| -> Vec<Option<Icon>> {
         let mut icons: Vec<_> = numbers
             .iter()
             .filter(|hit| hit.name == name)
-            .map(|hit| hit.icon)
+            .map(|hit| hit.icon.clone())
             .collect();
         icons.dedup();
         icons
     };
-    assert_eq!(icons_of("Bloodthirst"), [BLOODTHIRST]);
-    assert_eq!(icons_of("Main hand"), [BLUDGEON]);
-    assert_eq!(icons_of("Off hand"), [BLUDGEON]);
+    assert_eq!(icons_of("Bloodthirst"), std::slice::from_ref(&bloodthirst));
+    assert_eq!(icons_of("Main hand"), std::slice::from_ref(&bludgeon));
+    assert_eq!(icons_of("Off hand"), [bludgeon]);
     assert!(
-        numbers.iter().all(|hit| hit.icon.is_some()),
-        "every hit has one"
+        numbers
+            .iter()
+            .all(|hit| hit.icon.as_ref().is_some_and(|icon| icon.name.is_some())),
+        "every hit has one, named"
+    );
+    assert_eq!(
+        serde_json::to_string(&Icon::new(133057, Some("inv_hammer_20"))).unwrap(),
+        r#"{"id":133057,"name":"inv_hammer_20"}"#
     );
 
     let state = session_of("warrior_fury_dw_orc.yaml", 1)
@@ -522,7 +528,7 @@ fn hits_buffs_and_cooldowns_carry_their_icons() {
         .rotation_spells
         .iter()
         .find(|cd| cd.name == "Bloodthirst");
-    assert_eq!(cooldown.unwrap().icon, BLOODTHIRST);
+    assert_eq!(cooldown.unwrap().icon, bloodthirst);
     let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
     assert!(shout.unwrap().icon.is_some());
 
@@ -904,7 +910,7 @@ fn a_macro_press_casts_its_entries_up_to_the_gcd() {
     let burst = &info.keybinds[0];
     assert!(burst.is_macro);
     assert_eq!(burst.spells, ["Bloodrage", "Bloodthirst", "Heroic Strike"]);
-    let bloodthirst_icon = Some(136012);
+    let bloodthirst_icon = Icon::new(136012, Some("spell_nature_bloodlust"));
     assert_eq!(burst.icon, bloodthirst_icon, "its first GCD spell's");
 
     let frame = session.cast("Burst", 10.0).unwrap();
