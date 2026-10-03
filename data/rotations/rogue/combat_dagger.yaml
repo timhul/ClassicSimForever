@@ -30,7 +30,17 @@ cast_if:
   - name: Blade Flurry
     condition: resource "Energy" leq 60
   - name: Backstab
-    condition: variable "combo_points" less 5
+    # If AR is active then ignore MH swing timer
+    # Else wait slightly for MH swing, unless encounter is about to end
+    condition: |
+      variable "combo_points" less 5
+      and buff_duration "Adrenaline Rush" is true
+      or variable "combo_points" less 5
+      and buff_duration "Adrenaline Rush" is false
+      and resource "Energy" greater 80
+      and variable "time_remaining_swing" greater 1.0
+      or variable "combo_points" less 5
+      and variable "time_remaining_encounter" less 2.0
   - name: Eviscerate
     condition: |
       variable "combo_points" eq 5

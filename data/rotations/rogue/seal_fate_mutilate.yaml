@@ -35,7 +35,12 @@ cast_if:
   - name: Slice and Dice
     condition: buff_duration "Slice and Dice" less 3
   - name: Mutilate
-    condition: variable "combo_points" less 4
+    # Wait slightly for MH swing, unless encounter is about to end
+    condition: |
+      variable "combo_points" less 4
+      and variable "time_remaining_swing" greater 0.8
+      or variable "combo_points" less 4
+      and variable "time_remaining_encounter" less 2.0
   - name: Cold Blood
     condition: |
       variable "combo_points" geq 4

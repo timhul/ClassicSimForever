@@ -31,7 +31,12 @@ cast_if:
   - name: Ghostly Strike
     condition: variable "combo_points" less 5
   - name: Hemorrhage
-    condition: variable "combo_points" less 5
+    # Wait slightly for MH swing, unless encounter is about to end
+    condition: |
+      variable "combo_points" less 5
+      and variable "time_remaining_swing" greater 0.8
+      or variable "combo_points" less 5
+      and variable "time_remaining_encounter" less 2.0
   - name: Eviscerate
     condition: |
       variable "combo_points" eq 5
