@@ -32,9 +32,6 @@ building works and source code passes linting.
 
 Commit each defined task once complete.
 
-Toolchain note: cargo/rustc are installed at `C:\Users\timhu\.cargo\bin` but are not on the shell
-`PATH` in this environment; invoke via full path or add to PATH.
-
 # Running the sim
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --iterations 10000`
