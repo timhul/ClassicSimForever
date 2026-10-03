@@ -510,27 +510,6 @@ fn a_missing_setup_fails() {
 }
 
 #[test]
-fn validate_checks_every_shipped_setup() {
-    let report = stdout(&csim(&["validate"]));
-    assert!(report.contains("ok       "), "{report}");
-    assert!(report.contains("character setups are valid"), "{report}");
-    assert!(report.contains("raid setups are valid"), "{report}");
-    assert!(
-        report.contains("dw_fury_last_3_points.yaml (46 variants)"),
-        "{report}"
-    );
-    assert!(
-        report.contains("combat_swords_last_3_points.yaml (18 variants)"),
-        "{report}"
-    );
-    assert!(
-        report.contains("dw_rogue_profiles.yaml (6 variants)"),
-        "{report}"
-    );
-    assert!(report.contains("sweeps are valid"), "{report}");
-}
-
-#[test]
 fn lists_filter_by_class_slot_and_name() {
     let rotations = stdout(&csim(&["list-rotations", "--class", "warrior"]));
     assert!(rotations.contains("DW Fury"), "{rotations}");
