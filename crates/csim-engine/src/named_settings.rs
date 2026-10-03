@@ -18,7 +18,7 @@ pub struct NamedSetting {
 }
 
 /// Every setting [`SimSettings::apply_settings`] knows.
-pub const NAMED_SETTINGS: [NamedSetting; 5] = [
+pub const NAMED_SETTINGS: [NamedSetting; 6] = [
     NamedSetting {
         name: "rage_formula",
         help: "white swing rage: forever (default) or marrow_sigmoid",
@@ -38,6 +38,10 @@ pub const NAMED_SETTINGS: [NamedSetting; 5] = [
     NamedSetting {
         name: "sigmoid_width",
         help: "marrow_sigmoid: how spread out the climb is, in weapon DPS (default 3.8)",
+    },
+    NamedSetting {
+        name: "initial_rage",
+        help: "rage at the start of every iteration, capped at the maximum (default 0)",
     },
 ];
 
@@ -175,8 +179,17 @@ impl SimSettings {
         if let RageFormula::MarrowSigmoid(params) = &formula {
             params.validate()?;
         }
+        let initial_rage = match values.get("initial_rage") {
+            None => self.initial_rage,
+            Some(value) => value.parse().map_err(|_| SettingError::InvalidValue {
+                name: "initial_rage".to_string(),
+                value: value.to_string(),
+                expected: "a whole number of rage",
+            })?,
+        };
 
         self.rage_formula = formula;
+        self.initial_rage = initial_rage;
         Ok(())
     }
 
@@ -190,7 +203,7 @@ impl SimSettings {
     /// The named settings that differ from the default, as `(name, value)` pairs in the order
     /// of [`NAMED_SETTINGS`] (a non-default formula lists all its knobs).
     pub fn named_settings(&self) -> Vec<(&'static str, String)> {
-        match self.rage_formula {
+        let mut settings = match self.rage_formula {
             RageFormula::Forever => Vec::new(),
             RageFormula::MarrowSigmoid(params) => vec![
                 ("rage_formula", self.rage_formula.name().to_string()),
@@ -199,7 +212,11 @@ impl SimSettings {
                 ("sigmoid_midpoint", params.midpoint.to_string()),
                 ("sigmoid_width", params.width.to_string()),
             ],
+        };
+        if self.initial_rage != 0 {
+            settings.push(("initial_rage", self.initial_rage.to_string()));
         }
+        settings
     }
 
     /// [`named_settings`](Self::named_settings) as `name:value,name:value`, the form
@@ -325,6 +342,33 @@ mod tests {
         assert_eq!(settings.rage_formula, RageFormula::Forever);
         assert!(settings.named_settings().is_empty());
         assert_eq!(settings.named_settings_text(), None);
+    }
+
+    #[test]
+    fn initial_rage_is_a_whole_number() {
+        let settings = applied("initial_rage:50").unwrap();
+        assert_eq!(settings.initial_rage, 50);
+        assert_eq!(settings.sim_params().initial_rage, 50);
+        assert_eq!(settings.named_settings_text().unwrap(), "initial_rage:50");
+        assert_eq!(
+            applied("rage_formula:marrow_sigmoid,initial_rage:20")
+                .unwrap()
+                .named_settings()
+                .last(),
+            Some(&("initial_rage", "20".to_string()))
+        );
+        for bad in ["initial_rage:-1", "initial_rage:12.5", "initial_rage:lots"] {
+            assert!(
+                matches!(applied(bad), Err(SettingError::InvalidValue { .. })),
+                "{bad}"
+            );
+        }
+        assert!(
+            applied("initial_rage:0")
+                .unwrap()
+                .named_settings()
+                .is_empty()
+        );
     }
 
     #[test]

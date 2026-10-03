@@ -2392,11 +2392,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells, then starts its precast so that it lands at T=0:
+    /// Gives the initial rage (the `initial_rage` setting), casts the rotation's precombat
+    /// spells, then starts its precast so that it lands at T=0:
     /// now, or by a `Precast` event when its cast time is shorter than the time left before
     /// the pull (none for a character played by input). Expected to run at T < 0, but not
     /// strictly enforced.
     pub fn run_precombat_actions(&mut self) {
+        self.character.gain_initial_rage();
         if self.character.manual_input() {
             return;
         }

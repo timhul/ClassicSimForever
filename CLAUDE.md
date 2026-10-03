@@ -81,6 +81,11 @@ comma-separated `name:value` pairs and may be repeated.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=rage_formula:marrow_sigmoid,sigmoid_floor:0,sigmoid_ceiling:46,sigmoid_midpoint:58,sigmoid_width:3.8`
 
+`initial_rage:N` starts every iteration with N rage (before the precombat actions; ignored by a
+character without rage):
+
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=initial_rage:50`
+
 A Rogue is run the same way, with a rogue setup (`rogue_combat_swords_human`, `rogue_combat_axes_orc`,
 `rogue_combat_daggers_night_elf`, `rogue_mutilate_undead`, `rogue_mutilate_ea_gnome`, `rogue_hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):

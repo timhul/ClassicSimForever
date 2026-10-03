@@ -941,6 +941,40 @@ fn reset_clears_the_iteration_state_and_keeps_passives() {
     assert!((f.character.stats().get_total_threat_mod() - 0.8).abs() < 1e-9);
 }
 
+/// The `initial_rage` setting is the rage every iteration starts with, before the precombat
+/// actions, capped at the maximum. Entering the first stance from the reset's caster form
+/// keeps it; a later stance change keeps only the Tactical Mastery remainder.
+#[test]
+fn the_iteration_starts_with_the_initial_rage() {
+    let mut f = Fixture::orc_warrior();
+    f.learn(BATTLE_STANCE);
+    f.learn(BERSERKER_STANCE);
+    f.ctx().reset();
+    f.ctx().run_precombat_actions();
+    assert_eq!(f.rage(), 0);
+
+    for (initial, expected) in [(50, 50), (150, 100)] {
+        f.character.set_sim(SimParams {
+            initial_rage: initial,
+            ..SimParams::default()
+        });
+        f.ctx().reset();
+        assert_eq!(f.rage(), 0);
+        f.ctx().run_precombat_actions();
+        assert_eq!(f.rage(), expected, "initial_rage:{initial}");
+    }
+
+    let battle = f.spell_id(BATTLE_STANCE);
+    f.ctx().cast(battle);
+    assert_eq!(f.character.stance(), Stance::Battle);
+    assert_eq!(f.rage(), 100, "out of caster form");
+    f.engine.prepare_iteration(2.0);
+    let berserker = f.spell_id(BERSERKER_STANCE);
+    f.ctx().cast(berserker);
+    assert_eq!(f.character.stance(), Stance::Berserker);
+    assert!(f.rage() < 100, "a stance change keeps the remainder only");
+}
+
 #[test]
 fn encounter_start_begins_attacking() {
     let mut f = Fixture::orc_warrior();

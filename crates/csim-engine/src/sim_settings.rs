@@ -262,6 +262,9 @@ pub struct SimSettings {
     /// How landed white swings generate rage (a named setting, `rage_formula`; see
     /// [`crate::named_settings`]).
     pub rage_formula: RageFormula,
+    /// Rage at the start of every iteration, for characters with rage (a named setting,
+    /// `initial_rage`).
+    pub initial_rage: u32,
 }
 
 impl Default for SimSettings {
@@ -280,6 +283,7 @@ impl Default for SimSettings {
             ruleset: Ruleset::Standard,
             options: BTreeSet::new(),
             rage_formula: RageFormula::Forever,
+            initial_rage: 0,
         }
     }
 }
@@ -327,6 +331,7 @@ impl SimSettings {
             execute_threshold: self.effective_execute_threshold(),
             ruleset: self.ruleset,
             rage_formula: self.rage_formula,
+            initial_rage: self.initial_rage,
         }
     }
 
