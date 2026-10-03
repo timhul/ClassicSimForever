@@ -274,7 +274,7 @@ fn characters_replace_the_whole_setup() {
         .collect();
     assert_eq!(
         labels,
-        vec!["DW Fury Orc", "Human swords", "DW Fury Orc"],
+        vec!["DW Fury Orc", "Human swords", "2h Fury Orc"],
         "the label, else the setup's name; {:?}",
         expansion.invalid
     );
@@ -372,4 +372,69 @@ fn a_missing_character_file_is_an_error() {
         .expand(data())
         .unwrap_err();
     assert!(matches!(error, SweepError::Io { .. }), "{error}");
+}
+
+#[test]
+fn wildcards_match_any_characters() {
+    assert!(wildcard_match("warrior_*.yaml", "warrior_arms_human_swords.yaml"));
+    assert!(wildcard_match("warrior_*.yaml", "warrior_.yaml"));
+    assert!(wildcard_match("*", "anything"));
+    assert!(wildcard_match("w*_*_orc*", "warrior_fury_dw_orc.yaml"));
+    assert!(!wildcard_match(
+        "warrior_*.yaml",
+        "rogue_mutilate_undead.yaml"
+    ));
+    assert!(!wildcard_match("warrior_*.yaml", "warrior_arms_human_swords.yml"));
+    assert!(
+        !wildcard_match("a*a", "a"),
+        "the prefix and suffix do not overlap"
+    );
+    assert!(!wildcard_match("plain.yaml", "plain.yaml.bak"));
+}
+
+#[test]
+fn a_glob_stands_for_every_matching_character_file_in_name_order() {
+    let expansion = characters_sweep(
+        "variations: [{ characters: [../characters/warrior_fury_dw_*.yaml, ../characters/warrior_fury_2h_orc.yaml] }]",
+    )
+    .expand(data())
+    .unwrap();
+    let mut expected: Vec<PathBuf> = fs::read_dir(DataBundle::repository_dir().join("characters"))
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|path| {
+            let name = path.file_name().unwrap().to_str().unwrap();
+            name.starts_with("warrior_fury_dw_") && name.ends_with(".yaml")
+        })
+        .collect();
+    expected.sort();
+    expected.push(DataBundle::repository_dir().join("characters/warrior_fury_2h_orc.yaml"));
+    let paths: Vec<&Path> = expansion
+        .variants
+        .iter()
+        .map(|v| v.setup.path.as_deref().unwrap())
+        .collect();
+    assert!(expected.len() > 2);
+    assert_eq!(paths.len(), expected.len(), "{:?}", expansion.invalid);
+    for (path, expected) in paths.iter().zip(&expected) {
+        assert!(path.ends_with(expected.file_name().unwrap()), "{path:?}");
+    }
+    assert_eq!(
+        expansion.points,
+        vec![(format!("{} characters", expected.len()), expected.len())]
+    );
+}
+
+#[test]
+fn a_glob_matching_nothing_or_labelled_is_an_error() {
+    let error = characters_sweep("variations: [{ characters: [../characters/nobody_*.yaml] }]")
+        .expand(data())
+        .unwrap_err();
+    assert_eq!(issue_contexts(error), vec!["variations[0].characters[0]"]);
+    let error = characters_sweep(
+        "variations: [{ characters: [{ path: ../characters/warrior_*.yaml, label: All }] }]",
+    )
+    .expand(data())
+    .unwrap_err();
+    assert_eq!(issue_contexts(error), vec!["variations[0].characters[0]"]);
 }

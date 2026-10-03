@@ -481,7 +481,7 @@ fn raid_runs_the_player_with_the_members() {
 fn a_raid_of_the_other_faction_fails() {
     let output = csim(&[
         "run",
-        "data/characters/warrior_arms_human.yaml",
+        "data/characters/warrior_arms_human_swords.yaml",
         "--raid",
         "data/raids/horde_melee.yaml",
         "--iterations",

@@ -36,6 +36,7 @@
 //!   - characters:                         # the first variation point; no `base`
 //!       - ../characters/warrior_fury_dw_orc.yaml  # named by the setup's `name`
 //!       - { path: ../characters/warrior_fury_dw_human.yaml, label: Human swords }
+//!       - ../characters/warrior_fury_2h_*.yaml  # `*` in the file name: every match
 //! ```
 //!
 //! `talent_points` spends points on top of the base, so it needs `base`.
@@ -95,7 +96,8 @@ pub enum VariationPoint {
 }
 
 /// A character file of a `characters` variation point: its path, relative to the sweep
-/// file, or `{ path, label }`.
+/// file, or `{ path, label }`. A `*` in the path's file name matches any characters, and
+/// the path then stands for every matching file (in name order); a glob takes no label.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CharacterRef {
@@ -327,7 +329,7 @@ impl SweepSetup {
             if found.is_empty() && issues.len() == known {
                 issues.push(issue(&context, "has no alternatives"));
             }
-            points.push((point.describe(), found.len()));
+            points.push((point.describe(found.len()), found.len()));
             alternatives.push(found);
         }
         if !issues.is_empty() {
@@ -427,26 +429,41 @@ impl SweepSetup {
         }
     }
 
-    /// One alternative per character file, labelled by its `label`, else the setup's name.
+    /// One alternative per character file (a glob's every match), labelled by its `label`,
+    /// else the setup's name.
     fn character_alternatives(
         &self,
         characters: &[CharacterRef],
         context: &str,
     ) -> Result<Vec<Alternative>, SweepError> {
-        characters
-            .iter()
-            .enumerate()
-            .map(|(index, character)| {
-                let context = format!("{context}.characters[{index}]");
-                let setup = self.load_setup(&self.resolve(character.path()), &context)?;
-                Ok(Alternative {
+        let mut alternatives = Vec::new();
+        for (index, character) in characters.iter().enumerate() {
+            let context = format!("{context}.characters[{index}]");
+            let path = self.resolve(character.path());
+            let paths = match glob(&path)? {
+                None => vec![path],
+                Some(_) if character.label().is_some() => {
+                    return Err(self.invalid(vec![issue(context, "a glob takes no label")]));
+                }
+                Some(paths) if paths.is_empty() => {
+                    return Err(self.invalid(vec![issue(
+                        context,
+                        format!("{} matches no file", path.display()),
+                    )]));
+                }
+                Some(paths) => paths,
+            };
+            for path in paths {
+                let setup = self.load_setup(&path, &context)?;
+                alternatives.push(Alternative {
                     label: character
                         .label()
                         .map_or_else(|| setup.name.clone(), str::to_string),
                     change: Change::Replace(Box::new(setup)),
-                })
-            })
-            .collect()
+                });
+            }
+        }
+        Ok(alternatives)
     }
 
     fn invalid(&self, issues: Vec<SetupIssue>) -> SweepError {
@@ -461,8 +478,9 @@ impl SweepSetup {
 }
 
 impl VariationPoint {
-    /// A one-line description, e.g. `3 talent points over Precision, Impale`.
-    pub fn describe(&self) -> String {
+    /// A one-line description, e.g. `3 talent points over Precision, Impale`, given the
+    /// number of `alternatives` it expanded to.
+    pub fn describe(&self, alternatives: usize) -> String {
         match self {
             VariationPoint::TalentPoints(spec) => format!(
                 "{} talent points over {}",
@@ -475,9 +493,7 @@ impl VariationPoint {
                     .join(", ")
             ),
             VariationPoint::Options(options) => format!("{} options", options.len()),
-            VariationPoint::Characters(characters) => {
-                format!("{} characters", characters.len())
-            }
+            VariationPoint::Characters(_) => format!("{alternatives} characters"),
         }
     }
 }
@@ -487,6 +503,56 @@ fn read(path: &Path) -> Result<String, SweepError> {
         path: path.to_path_buf(),
         source,
     })
+}
+
+/// The files `path` matches when its file name has a `*` (any characters, also none), sorted;
+/// `None` for a plain path.
+fn glob(path: &Path) -> Result<Option<Vec<PathBuf>>, SweepError> {
+    let Some(pattern) = path.file_name().and_then(|name| name.to_str()) else {
+        return Ok(None);
+    };
+    if !pattern.contains('*') {
+        return Ok(None);
+    }
+    let dir = path.parent().unwrap_or(Path::new("."));
+    let io = |source| SweepError::Io {
+        path: dir.to_path_buf(),
+        source,
+    };
+    let mut paths = Vec::new();
+    for entry in fs::read_dir(dir).map_err(io)? {
+        let entry = entry.map_err(io)?;
+        let name = entry.file_name();
+        if entry.file_type().map_err(io)?.is_file()
+            && name
+                .to_str()
+                .is_some_and(|name| wildcard_match(pattern, name))
+        {
+            paths.push(dir.join(name));
+        }
+    }
+    paths.sort();
+    Ok(Some(paths))
+}
+
+/// Whether `name` matches `pattern`, where `*` matches any characters (also none).
+fn wildcard_match(pattern: &str, name: &str) -> bool {
+    let mut parts = pattern.split('*');
+    let first = parts.next().unwrap_or_default();
+    let Some(mut rest) = name.strip_prefix(first) else {
+        return false;
+    };
+    let mut parts: Vec<&str> = parts.collect();
+    let Some(last) = parts.pop() else {
+        return rest.is_empty();
+    };
+    for part in parts {
+        match rest.find(part) {
+            Some(at) => rest = &rest[at + part.len()..],
+            None => return false,
+        }
+    }
+    rest.len() >= last.len() && rest.ends_with(last)
 }
 
 fn issue(context: impl Into<String>, message: impl Into<String>) -> SetupIssue {

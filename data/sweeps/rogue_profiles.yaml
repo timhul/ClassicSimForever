@@ -2,12 +2,7 @@ name: DW Rogue profiles
 iterations: 10000
 variations:
   - characters:
-      - ../characters/rogue_combat_swords_human.yaml
-      - ../characters/rogue_combat_axes_orc.yaml
-      - ../characters/rogue_combat_daggers_night_elf.yaml
-      - ../characters/rogue_mutilate_undead.yaml
-      - ../characters/rogue_mutilate_ea_gnome.yaml
-      - ../characters/rogue_hemorrhage_troll.yaml
+      - ../characters/rogue_*.yaml
   # Rotations mush have unique 'name' values.
   # - options:
   #     - { label: combat, rotation: Combat }

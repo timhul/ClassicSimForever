@@ -2,7 +2,7 @@ name: Warrior profiles
 iterations: 10000
 variations:
   - characters:
-      - ../characters/warrior_arms_human.yaml
+      - ../characters/warrior_*.yaml
   # Rotations mush have unique 'name' values.
   # - options:
   #     - { label: arms, rotation: Mortal Strike }

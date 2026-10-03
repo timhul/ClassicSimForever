@@ -69,7 +69,7 @@ fn the_player_comes_first_and_the_members_fill_their_parties() {
             .iter()
             .map(|m| (m.party, m.setup.name.as_str()))
             .collect::<Vec<_>>(),
-        [(0, "DW Fury Orc"), (1, "DW Fury Orc"), (1, "DW Fury Orc")]
+        [(0, "2h Fury Orc"), (1, "DW Fury Orc"), (1, "2h Fury Orc")]
     );
     let player = character("warrior_fury_dw_orc.yaml");
     let raid = setup
@@ -192,9 +192,9 @@ fn a_full_raid_of_forty_builds() {
 
 #[test]
 fn members_must_share_the_players_faction() {
-    let setup = raid("name: R\nparties:\n  - [warrior_arms_human, warrior_fury_dw_orc]\n");
+    let setup = raid("name: R\nparties:\n  - [warrior_arms_human_swords, warrior_fury_dw_orc]\n");
     let found = issues(&setup, Some(&character("warrior_fury_dw_orc.yaml")));
-    assert_eq!(contexts(&found), ["parties.1[0] (warrior_arms_human)"]);
+    assert_eq!(contexts(&found), ["parties.1[0] (warrior_arms_human_swords)"]);
     assert!(found[0].message.contains("Alliance"), "{found:?}");
 }
 

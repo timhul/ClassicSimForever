@@ -1,0 +1,5 @@
+name: DW Fury profiles
+iterations: 10000
+variations:
+  - characters:
+      - ../characters/warrior_fury_dw_*.yaml

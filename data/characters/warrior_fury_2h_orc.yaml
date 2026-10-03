@@ -1,7 +1,7 @@
 # Schema: crates/csim-engine/src/character_loader.rs.
 include: common/base_target.yaml
 include: common/base_buffs.yaml
-name: DW Fury Orc
+name: 2h Fury Orc
 class: WARRIOR
 race: ORC
 phase: 3
