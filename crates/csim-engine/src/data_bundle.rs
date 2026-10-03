@@ -85,9 +85,16 @@ mod tests {
     #[test]
     fn spells_and_items_carry_their_icons() {
         let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
-        // Bloodthirst (rank 4): `SpellMisc.SpellIconFileDataID`.
-        assert_eq!(data.spells.get(23894).unwrap().icon, 136012);
+        // Bloodthirst (rank 4): `SpellMisc.SpellIconFileDataID`, named by the listfile.
+        let bloodthirst = data.spells.get(23894).unwrap();
+        assert_eq!(bloodthirst.icon, 136012);
+        assert_eq!(
+            bloodthirst.icon_name.as_deref(),
+            Some("spell_nature_bloodlust")
+        );
         // High Warlord's Bludgeon: `Item.IconFileDataID`.
-        assert_eq!(data.equipment.item(18866).unwrap().spec().icon, 133057);
+        let bludgeon = data.equipment.item(18866).unwrap().spec();
+        assert_eq!(bludgeon.icon, 133057);
+        assert_eq!(bludgeon.icon_name.as_deref(), Some("inv_hammer_20"));
     }
 }
