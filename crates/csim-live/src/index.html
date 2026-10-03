@@ -69,8 +69,8 @@
   #setup-select { max-width: 100%; }
   #seed-input { width: 13ch; }
   #length-input, #variance-input { width: 7ch; }
-  #settings summary { cursor: pointer; color: var(--muted); }
-  #settings[open] { flex-basis: 100%; order: 1; }
+  #settings { flex-basis: 100%; }
+  #settings summary { cursor: pointer; color: var(--muted); width: max-content; max-width: 100%; }
   #settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -112,7 +112,16 @@
   }
   button:hover:not(:disabled), select:hover { border-color: var(--muted); }
   button:disabled { opacity: 0.4; cursor: default; }
-  #play { min-width: 76px; font-weight: 600; }
+  #play {
+    min-width: 88px;
+    font-weight: 700;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1406;
+  }
+  #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
+  #edit-keybinds:not(:disabled) { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  #edit-keybinds:hover:not(:disabled) { background: rgb(224 176 74 / 0.12); }
   #clock {
     margin-left: auto;
     font: 600 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -610,11 +619,11 @@
   <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
   <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
   <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
+  <button id="load" type="submit">Load</button>
   <details id="settings">
     <summary>Settings</summary>
     <div id="settings-grid"></div>
   </details>
-  <button id="load" type="submit">Load</button>
   <details id="custom">
     <summary>Paste or upload YAML</summary>
     <div class="custom-grid">
