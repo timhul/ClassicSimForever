@@ -395,6 +395,15 @@
     font-weight: 600;
   }
   .tile .sweep { position: absolute; inset: 0; }
+  /* Its key held down: tinted white, as the game's action buttons show a press. */
+  .tile .press {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    opacity: 0;
+  }
+  .tile.pressed .press { opacity: 1; }
   .tile .left, .tile .count {
     position: absolute;
     color: #fff;
@@ -892,6 +901,7 @@ async function begin(next) {
     .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
   document.title = `${info.name} · csim-live`;
   $("edit-keybinds").disabled = false;
+  releaseKeys();
   renderEntries();
   syncForm();
   updateUrl();
@@ -2319,10 +2329,11 @@ function tile(item) {
     root.append(initials);
   }
   const sweep = element("div", "sweep");
+  const press = element("span", "press");
   const left = element("span", "left");
   const count = element("span", "count");
   const hotkey = element("span", "hotkey");
-  root.append(sweep, left, count, hotkey);
+  root.append(sweep, press, left, count, hotkey);
   return { root, sweep, left, count, hotkey, sweepValue: null };
 }
 
@@ -2358,11 +2369,37 @@ function pressedBinding(event) {
   return [...modifiers.filter(Boolean), key].join("+");
 }
 
+/**
+ * The keys held down, by `event.code`, with the keybind each pressed: its tile in the spells
+ * bar is tinted while the key is down. By code, as the modifiers may be released first.
+ */
+const heldKeys = new Map();
+
+/** Tints the tile of the keybind `name` while its key is held, or not. */
+function showHeld(name, held) {
+  tileViews.get($("spells"))?.get(name)?.root.classList.toggle("pressed", held);
+}
+
+function releaseKey(code) {
+  const name = heldKeys.get(code);
+  if (name !== undefined) {
+    heldKeys.delete(code);
+    // Another held key may press the same keybind (Shift+1 held, then 1).
+    showHeld(name, [...heldKeys.values()].includes(name));
+  }
+}
+
+function releaseKeys() {
+  for (const code of [...heldKeys.keys()]) {
+    releaseKey(code);
+  }
+}
+
 // From the keyboard: a press of a bound key casts its spell at the time shown.
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || event.repeat || inForm || $("keybinds-editor").open) {
+  if (!info || !info.manual || inForm || $("keybinds-editor").open) {
     return;
   }
   // A spell's name, or a macro's.
@@ -2371,9 +2408,17 @@ document.addEventListener("keydown", (event) => {
     return;
   }
   event.preventDefault();
+  heldKeys.set(event.code, spell);
+  showHeld(spell, true);
+  if (event.repeat) {
+    return;
+  }
   const at = simTime;
   enqueue(async () => apply(await api("POST", "api/cast", { spell, at })));
 });
+document.addEventListener("keyup", (event) => releaseKey(event.code));
+// A key released while the page is not focused sends no keyup.
+window.addEventListener("blur", releaseKeys);
 $("step-event").addEventListener("click", () => step("event"));
 $("step-cast").addEventListener("click", () => step("cast"));
 $("restart").addEventListener("click", () => restart(info ? info.seed : null));
