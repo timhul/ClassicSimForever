@@ -113,6 +113,19 @@ overrides:
   - id: 440488
     note: Shockwave; E2 is 50 % of attack power as damage (frontal cone, one target here)
     effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]
+  - id: 6343
+    note: Thunder Clap r1; the damage adds 3 % of attack power (server side, BonusCoefficientFromAP is 0)
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 8198
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 8204
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 8205
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 11580
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 11581
+    effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
 
   # ----- Sim-only threat (the client has no threat table) --------------------------------------
   - id: 78
