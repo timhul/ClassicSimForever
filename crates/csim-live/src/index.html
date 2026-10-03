@@ -30,7 +30,7 @@
     color: var(--text);
     font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  header, #controls, main, footer { padding: 0 16px; }
+  header, #setup-bar, #controls, main, footer { padding: 0 16px; }
   header {
     display: flex;
     flex-wrap: wrap;
@@ -58,6 +58,40 @@
     gap: 8px;
     margin: 12px 0 8px;
   }
+  #setup-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 0;
+  }
+  #setup-bar label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  #setup-select { max-width: 100%; }
+  #seed-input { width: 13ch; }
+  #length-input, #variance-input { width: 7ch; }
+  #settings-input { width: 26ch; max-width: 100%; }
+  #custom { flex-basis: 100%; }
+  #custom summary { cursor: pointer; color: var(--muted); width: max-content; }
+  #custom .custom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 8px 16px;
+    margin-top: 8px;
+  }
+  #custom .custom-grid > div { display: grid; gap: 6px; }
+  #custom textarea { width: 100%; min-height: 7em; resize: vertical; }
+  #custom .hint { color: var(--muted); margin: 6px 0 0; font-size: 12px; }
+  #custom code { font-size: 12px; }
+  input, textarea {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font: inherit;
+  }
+  textarea { font: 12px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; }
+  input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); outline-offset: 0; }
   button, select {
     background: var(--panel);
     color: var(--text);
@@ -488,6 +522,36 @@
   <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
 </header>
 
+<form id="setup-bar" autocomplete="off">
+  <select id="setup-select" aria-label="Character setup"></select>
+  <select id="mode-select" aria-label="Played by"></select>
+  <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
+  <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
+  <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
+  <input id="settings-input" placeholder="settings: name:value,&hellip;" aria-label="Named settings">
+  <button id="load" type="submit">Load</button>
+  <details id="custom">
+    <summary>Paste or upload YAML</summary>
+    <div class="custom-grid">
+      <div>
+        <label for="setup-yaml">Character setup</label>
+        <textarea id="setup-yaml" spellcheck="false"
+          placeholder="include: warrior_fury_dw_orc.yaml&#10;name: My Fury"></textarea>
+        <input id="setup-file" type="file" accept=".yaml,.yml" aria-label="Setup file">
+      </div>
+      <div>
+        <label for="keybinds-yaml">Keybinds</label>
+        <textarea id="keybinds-yaml" spellcheck="false"
+          placeholder="Bloodthirst: 1&#10;Whirlwind: 2&#10;Execute: Shift+E"></textarea>
+        <input id="keybinds-file" type="file" accept=".yaml,.yml" aria-label="Keybinds file">
+      </div>
+    </div>
+    <p class="hint">Text here replaces the selection above. A setup's <code>include:</code> lines
+      name the bundled files, relative to <code>characters/</code>: a whole setup
+      (<code>warrior_fury_dw_orc.yaml</code>) or its parts (<code>common/base_buffs.yaml</code>).</p>
+  </details>
+</form>
+
 <div id="controls">
   <button id="play" type="button">Play</button>
   <select id="speed" aria-label="Speed">
@@ -671,7 +735,9 @@ async function api(method, path, body) {
   }
   const response = await fetch(path, options);
   if (!response.ok) {
-    throw new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
+    const error = new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
@@ -684,35 +750,237 @@ function fail(error) {
 /** Starts the iteration of `seed` (a string) over, or of a new seed when it is null. */
 function restart(seed) {
   setPlaying(false);
-  return enqueue(async () => {
-    info = await api("POST", "/api/restart", seed === null ? {} : { seed });
-    $("feed").replaceChildren();
-    $("floats").replaceChildren();
-    $("status").textContent = "";
-    $("last-event").textContent = "";
-    $("name").textContent = info.name;
-    $("sub").textContent =
-      `${info.race} ${info.class} · ` +
-      (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
-      `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)` +
-      (info.settings ? ` · ${info.settings}` : "");
-    // From the keyboard the rotation does not run: its entries are not what decides.
-    $("entries").hidden = info.manual;
-    hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
-    bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.name]));
-    castBy = new Map();
-    for (const keybind of info.keybinds) {
-      for (const spell of keybind.spells) {
-        castBy.set(spell, [...(castBy.get(spell) || []), keybind.name]);
-      }
+  return enqueue(async () => begin(await api("POST", "/api/restart", seed === null ? {} : { seed })));
+}
+
+/** Loads the session `request` asks for (see `api/load`); the current one stays on failure. */
+function load(request) {
+  setPlaying(false);
+  return enqueue(async () => begin(await api("POST", "/api/load", request)));
+}
+
+/** Shows the iteration `next` (the info of a load or a restart) from its start. */
+async function begin(next) {
+  info = next;
+  $("feed").replaceChildren();
+  $("floats").replaceChildren();
+  $("status").textContent = "";
+  $("last-event").textContent = "";
+  $("name").textContent = info.name;
+  $("sub").textContent =
+    `${info.race} ${info.class} · ` +
+    (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
+    `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)` +
+    (info.settings ? ` · ${info.settings}` : "");
+  // From the keyboard the rotation does not run: its entries are not what decides.
+  $("entries").hidden = info.manual;
+  hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
+  bindings = new Map(info.keybinds.map((keybind) => [keybind.binding, keybind.name]));
+  castBy = new Map();
+  for (const keybind of info.keybinds) {
+    for (const spell of keybind.spells) {
+      castBy.set(spell, [...(castBy.get(spell) || []), keybind.name]);
     }
-    macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
-      .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
-    document.title = `${info.name} · csim-live`;
-    renderEntries();
-    simTime = info.start_at;
-    apply(await api("POST", "/api/advance", { to: info.start_at }));
+  }
+  macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
+    .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
+  document.title = `${info.name} · csim-live`;
+  renderEntries();
+  syncForm();
+  updateUrl();
+  simTime = info.start_at;
+  apply(await api("POST", "/api/advance", { to: info.start_at }));
+}
+
+// ----- The setup bar ----------------------------------------------------------------------
+
+/** What the page can load (`api/catalog`). */
+let catalog = null;
+/** The setup the page loads when neither the address nor the server names one. */
+const DEFAULT_SETUP = "warrior_fury_dw_orc";
+
+/** Fills the setup bar's choices from the catalog. */
+function fillForm() {
+  const setups = $("setup-select");
+  setups.replaceChildren(...catalog.setups.map((setup) => {
+    const option = element("option", "", setup.error
+      ? `${setup.name} (does not load)`
+      : `${setup.title} · ${setup.race} ${setup.class}`);
+    option.value = setup.name;
+    option.disabled = setup.error !== null;
+    option.title = setup.error || setup.rotation;
+    return option;
+  }));
+  fillModes();
+  $("length-input").placeholder = catalog.length;
+  $("variance-input").placeholder = catalog.length_variance;
+  $("settings-input").title = "Named settings, name:value pairs separated by commas:\n" +
+    catalog.settings.map((setting) => `${setting.name}: ${setting.help}`).join("\n");
+}
+
+/** The "played by" choices: the selected setup's rotation, or one of the keybind files. */
+function fillModes() {
+  const modes = $("mode-select");
+  const chosen = modes.value;
+  const setup = catalog.setups.find((entry) => entry.name === $("setup-select").value);
+  const rotation = element("option", "", setup ? `Rotation: ${setup.rotation}` : "Rotation");
+  rotation.value = "";
+  modes.replaceChildren(rotation, ...catalog.keybinds.map((name) => {
+    const option = element("option", "", `Keyboard: ${name}`);
+    option.value = name;
+    return option;
+  }));
+  modes.value = chosen;
+  if (modes.selectedIndex < 0) {
+    modes.value = "";
+  }
+}
+
+/** The setup bar shows what is loaded: its setup and keybinds, seed, length and settings. */
+function syncForm() {
+  if (!catalog) {
+    return;
+  }
+  const setups = $("setup-select");
+  setups.querySelector("option.custom")?.remove();
+  if (info.source.setup) {
+    setups.value = info.source.setup;
+  } else {
+    // Pasted text, or a file outside the data directory: not one of the choices.
+    const custom = element("option", "custom", `${info.name} (custom)`);
+    custom.value = "";
+    setups.prepend(custom);
+    setups.value = "";
+  }
+  fillModes();
+  $("mode-select").value = info.source.keybinds || "";
+  $("seed-input").value = info.seed;
+  $("length-input").value = info.combat_length;
+  $("variance-input").value = info.length_variance;
+  $("settings-input").value = info.settings || "";
+}
+
+/** The `api/load` request of the setup bar: pasted text wins over the selection. */
+function formRequest() {
+  const request = {};
+  const setupYaml = $("setup-yaml").value.trim();
+  if (setupYaml) {
+    request.setup_yaml = setupYaml;
+  } else if ($("setup-select").value) {
+    request.setup = $("setup-select").value;
+  }
+  const keybindsYaml = $("keybinds-yaml").value.trim();
+  if (keybindsYaml) {
+    request.keybinds_yaml = keybindsYaml;
+  } else if ($("mode-select").value) {
+    request.keybinds = $("mode-select").value;
+  }
+  const seed = $("seed-input").value.trim();
+  if (seed) {
+    request.seed = seed;
+  }
+  for (const [field, key] of [["length-input", "length"], ["variance-input", "length_variance"]]) {
+    const value = $(field).value.trim();
+    if (value) {
+      request[key] = Number(value);
+    }
+  }
+  const settings = $("settings-input").value.trim();
+  if (settings) {
+    request.settings = settings;
+  }
+  return request;
+}
+
+/**
+ * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
+ * &setting=…`), so a link reproduces it. Without a bundled setup (pasted) there is nothing to
+ * name: no query.
+ */
+function updateUrl() {
+  const query = new URLSearchParams();
+  if (info.source.setup) {
+    query.set("setup", info.source.setup);
+    if (info.source.keybinds) {
+      query.set("keybinds", info.source.keybinds);
+    }
+    query.set("seed", info.seed);
+    if (catalog && info.combat_length !== catalog.length) {
+      query.set("length", info.combat_length);
+    }
+    if (catalog && info.length_variance !== catalog.length_variance) {
+      query.set("variance", info.length_variance);
+    }
+    if (info.settings) {
+      query.set("setting", info.settings);
+    }
+  }
+  const search = query.size ? `?${query}` : "";
+  if (location.search !== search) {
+    history.replaceState(null, "", `${location.pathname}${search}`);
+  }
+}
+
+/** The setup bar filled from the address's query, when it names a setup. */
+function formFromQuery() {
+  const query = new URLSearchParams(location.search);
+  if (!query.has("setup")) {
+    return false;
+  }
+  $("setup-select").value = query.get("setup");
+  fillModes();
+  $("mode-select").value = query.get("keybinds") || "";
+  $("seed-input").value = query.get("seed") || "";
+  $("length-input").value = query.get("length") || "";
+  $("variance-input").value = query.get("variance") || "";
+  $("settings-input").value = query.get("setting") || "";
+  return true;
+}
+
+/** The text of an uploaded file into `textarea`. */
+function upload(input, textarea) {
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (file) {
+      $(textarea).value = await file.text();
+    }
+    input.value = "";
   });
+}
+
+$("setup-select").addEventListener("change", fillModes);
+$("setup-bar").addEventListener("submit", (event) => {
+  event.preventDefault();
+  load(formRequest());
+});
+upload($("setup-file"), "setup-yaml");
+upload($("keybinds-file"), "keybinds-yaml");
+
+/**
+ * The first iteration: the one the address names, else the server's (the command line's),
+ * else the default setup.
+ */
+async function startPage() {
+  catalog = await api("GET", "/api/catalog");
+  fillForm();
+  if (formFromQuery()) {
+    return load(formRequest());
+  }
+  try {
+    const current = await api("GET", "/api/info");
+    // A fresh start of the server's iteration, whatever an earlier page left of it.
+    return restart(current.seed);
+  } catch (error) {
+    if (error.status !== 409) {
+      throw error;
+    }
+  }
+  const loadable = catalog.setups.filter((setup) => setup.error === null);
+  const setup = loadable.find((entry) => entry.name === DEFAULT_SETUP) || loadable[0];
+  if (!setup) {
+    throw new Error("no setup loads: see api/catalog");
+  }
+  return load({ setup: setup.name });
 }
 
 function step(kind) {
@@ -1571,7 +1839,8 @@ function pressedBinding(event) {
 
 // From the keyboard: a press of a bound key casts its spell at the time shown.
 document.addEventListener("keydown", (event) => {
-  const inForm = event.target instanceof Element && event.target.closest("select, input");
+  const inForm = event.target instanceof Element &&
+    event.target.closest("select, input, textarea, summary");
   if (!info || !info.manual || event.repeat || inForm) {
     return;
   }
@@ -1589,8 +1858,7 @@ $("step-cast").addEventListener("click", () => step("cast"));
 $("restart").addEventListener("click", () => restart(info ? info.seed : null));
 $("reseed").addEventListener("click", () => restart(null));
 
-// A fresh start of the server's iteration, whatever an earlier page left of it.
-api("GET", "/api/info").then((current) => restart(current.seed), fail);
+startPage().catch(fail);
 requestAnimationFrame(tick);
 </script>
 </body>

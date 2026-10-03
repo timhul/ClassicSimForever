@@ -30,6 +30,26 @@ pub(crate) fn session_of(file: &str, seed: u64) -> Session {
     Session::new(Arc::clone(data()), setup, settings, seed, Vec::new()).unwrap()
 }
 
+/// An app over the shipped data watching `session`.
+pub(crate) fn app_of(session: Session) -> crate::app::App {
+    let mut app = crate::app::App::new(
+        Box::new(csim_engine::files::FsFiles),
+        DataBundle::repository_dir(),
+        Arc::clone(data()),
+    );
+    app.set_session(session, crate::app::Source::default());
+    app
+}
+
+/// An app over the shipped data with no session loaded.
+pub(crate) fn empty_app() -> crate::app::App {
+    crate::app::App::new(
+        Box::new(csim_engine::files::FsFiles),
+        DataBundle::repository_dir(),
+        Arc::clone(data()),
+    )
+}
+
 /// `file` played from the keyboard with the keybinds of the YAML `keybinds`.
 pub(crate) fn manual_session_of(file: &str, seed: u64, keybinds: &str) -> Session {
     let setup = setup(file);

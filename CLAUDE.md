@@ -58,6 +58,15 @@ PPM) and the resource gained per source, as `csim run` breaks them down). It tak
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --seed 1`
 
+The flags only load the first iteration. A setup bar on the page loads another: a bundled setup
+(`data/characters/`), played by its rotation or with bundled keybinds (`data/keybinds/`), with a
+seed, length, variance and named settings. A setup or keybinds can also be pasted or uploaded as
+YAML; a pasted setup's `include:` lines name the bundled files. The address mirrors what is
+loaded (`?setup=warrior_fury_dw_orc&keybinds=dw_fury&seed=1&setting=...`), so a link reproduces
+the iteration. Without a setup argument the page picks one:
+
+`cargo run --release -p csim-live`
+
 With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
 maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
 Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the

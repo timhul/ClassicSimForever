@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 
 use super::*;
-use crate::session::tests::{manual_session_of, session_of};
+use crate::session::tests::{app_of, empty_app, manual_session_of, session_of};
 
 /// A directory of its own under the temp directory, removed when dropped.
 struct TempDir(PathBuf);
@@ -24,12 +24,12 @@ impl Drop for TempDir {
     }
 }
 
-fn call_with(session: &mut Session, icons: Icons, method: &str, path: &str) -> Reply {
-    route(session, icons, method, path, "", || 42)
+fn call_with(app: &mut App, icons: Icons, method: &str, path: &str) -> Reply {
+    route(app, icons, method, path, "", || 42)
 }
 
-fn call(session: &mut Session, method: &str, path: &str, body: &str) -> Reply {
-    route(session, &|_| None, method, path, body, || 42)
+fn call(app: &mut App, method: &str, path: &str, body: &str) -> Reply {
+    route(app, &|_| None, method, path, body, || 42)
 }
 
 fn text(reply: &Reply) -> String {
@@ -44,7 +44,10 @@ fn json(reply: &Reply) -> Value {
 
 #[test]
 fn the_page_and_the_info() {
-    let mut session = session_of("warrior_fury_dw_orc.yaml", 12_345_678_901_234_567_890);
+    let mut session = app_of(session_of(
+        "warrior_fury_dw_orc.yaml",
+        12_345_678_901_234_567_890,
+    ));
     let page = call(&mut session, "GET", "/", "");
     assert_eq!(page.status, 200);
     assert!(page.content_type.starts_with("text/html"));
@@ -62,7 +65,7 @@ fn the_page_and_the_info() {
 
 #[test]
 fn advancing_and_stepping_answer_frames() {
-    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
+    let mut session = app_of(session_of("warrior_fury_dw_orc.yaml", 1));
     let frame = json(&call(
         &mut session,
         "POST",
@@ -93,7 +96,7 @@ fn advancing_and_stepping_answer_frames() {
 
 #[test]
 fn restarting_takes_the_seed_given_or_a_new_one() {
-    let mut session = session_of("rogue_combat_swords_human.yaml", 1);
+    let mut session = app_of(session_of("rogue_combat_swords_human.yaml", 1));
     let info = json(&call(
         &mut session,
         "POST",
@@ -101,14 +104,14 @@ fn restarting_takes_the_seed_given_or_a_new_one() {
         r#"{"seed": "77"}"#,
     ));
     assert_eq!(info["seed"], "77");
-    assert_eq!(session.info().seed, 77);
+    assert_eq!(session.session().unwrap().info().seed, 77);
     let info = json(&call(&mut session, "POST", "/api/restart", "{}"));
     assert_eq!(info["seed"], "42");
 }
 
 #[test]
 fn bad_requests_are_refused() {
-    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
+    let mut session = app_of(session_of("warrior_fury_dw_orc.yaml", 1));
     for (method, path, body, status) in [
         ("POST", "/api/advance", "", 400),
         ("POST", "/api/advance", r#"{"to": "soon"}"#, 400),
@@ -128,7 +131,11 @@ fn bad_requests_are_refused() {
             text(&reply)
         );
     }
-    assert_eq!(session.info().seed, 1, "nothing restarted");
+    assert_eq!(
+        session.session().unwrap().info().seed,
+        1,
+        "nothing restarted"
+    );
 }
 
 #[test]
@@ -137,7 +144,7 @@ fn icons_are_served_from_the_icon_directory() {
     let png = b"PNG, as far as the route cares".to_vec();
     std::fs::write(icons.0.join("136012.png"), &png).unwrap();
     std::fs::write(icons.0.join("secret.png"), b"no").unwrap();
-    let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
+    let mut session = app_of(session_of("warrior_fury_dw_orc.yaml", 1));
 
     let lookup = icon_dir(&icons.0);
     let reply = call_with(&mut session, &lookup, "GET", "/icons/136012.png");
@@ -164,7 +171,11 @@ fn icons_are_served_from_the_icon_directory() {
 
 #[test]
 fn a_key_press_is_cast_when_played_from_the_keyboard_only() {
-    let mut manual = manual_session_of("warrior_fury_dw_orc.yaml", 3, "Hamstring: 1\n");
+    let mut manual = app_of(manual_session_of(
+        "warrior_fury_dw_orc.yaml",
+        3,
+        "Hamstring: 1\n",
+    ));
     let info = json(&call(&mut manual, "GET", "/api/info", ""));
     assert_eq!(info["manual"], true);
     assert_eq!(info["keybinds"][0]["binding"], "1");
@@ -183,10 +194,145 @@ fn a_key_press_is_cast_when_played_from_the_keyboard_only() {
     assert_eq!(call(&mut manual, "POST", "/api/cast", "{}").status, 400);
     assert_eq!(call(&mut manual, "GET", "/api/cast", "").status, 405);
 
-    let mut rotation = session_of("warrior_fury_dw_orc.yaml", 3);
+    let mut rotation = app_of(session_of("warrior_fury_dw_orc.yaml", 3));
     assert_eq!(
         json(&call(&mut rotation, "GET", "/api/info", ""))["manual"],
         false
     );
     assert_eq!(call(&mut rotation, "POST", "/api/cast", body).status, 400);
+}
+
+#[test]
+fn before_a_load_only_the_page_catalog_and_load_answer() {
+    let mut app = empty_app();
+    assert_eq!(call(&mut app, "GET", "/", "").status, 200);
+    let catalog = json(&call(&mut app, "GET", "/api/catalog", ""));
+    assert!(catalog["setups"].as_array().unwrap().len() > 3);
+    assert_eq!(
+        catalog["keybinds"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|name| *name == "dw_fury")
+            .count(),
+        1
+    );
+    for (method, path, body) in [
+        ("GET", "/api/info", ""),
+        ("POST", "/api/advance", r#"{"to": 1}"#),
+        ("POST", "/api/step", r#"{"kind": "event"}"#),
+        ("POST", "/api/restart", "{}"),
+        ("POST", "/api/cast", r#"{"spell": "Bloodthirst", "at": 1}"#),
+    ] {
+        let reply = call(&mut app, method, path, body);
+        assert_eq!(reply.status, 409, "{method} {path}: {}", text(&reply));
+    }
+    assert_eq!(call(&mut app, "GET", "/api/advance", "").status, 405);
+    assert_eq!(call(&mut app, "GET", "/api/load", "").status, 405);
+    assert_eq!(call(&mut app, "POST", "/api/catalog", "").status, 405);
+}
+
+#[test]
+fn a_setup_loads_by_name_with_its_seed_length_and_settings() {
+    let mut app = empty_app();
+    let body = r#"{"setup": "warrior_fury_dw_orc", "seed": "7", "length": 60,
+        "length_variance": 0, "settings": "initial_rage:30"}"#;
+    let info = json(&call(&mut app, "POST", "/api/load", body));
+    assert_eq!(info["name"], "DW Fury Orc");
+    assert_eq!(info["seed"], "7");
+    assert_eq!(info["combat_length"], 60);
+    assert_eq!(info["end_at"], 60.0);
+    assert_eq!(info["settings"], "initial_rage:30");
+    assert_eq!(info["manual"], false);
+    assert_eq!(info["source"]["setup"], "warrior_fury_dw_orc");
+    assert_eq!(info["source"]["keybinds"], Value::Null);
+    assert_eq!(json(&call(&mut app, "GET", "/api/info", "")), info);
+    let frame = json(&call(&mut app, "POST", "/api/advance", r#"{"to": 5}"#));
+    assert!(!frame["damage"].as_array().unwrap().is_empty());
+
+    // A restart keeps the setup and the settings.
+    let restarted = json(&call(&mut app, "POST", "/api/restart", r#"{"seed": "8"}"#));
+    assert_eq!(restarted["seed"], "8");
+    assert_eq!(restarted["settings"], "initial_rage:30");
+    assert_eq!(restarted["source"], info["source"]);
+    let restarted = json(&call(&mut app, "POST", "/api/restart", "{}"));
+    assert_eq!(restarted["seed"], "42");
+    assert_eq!(restarted["combat_length"], 60);
+}
+
+#[test]
+fn pasted_setups_and_keybinds_load() {
+    let mut app = empty_app();
+    let body = serde_json::json!({
+        "setup_yaml": "include: warrior_fury_dw_orc.yaml\nname: Pasted Fury\n",
+        "keybinds": "dw_fury",
+    })
+    .to_string();
+    let info = json(&call(&mut app, "POST", "/api/load", &body));
+    assert_eq!(
+        info["name"], "Pasted Fury",
+        "the include resolves to the bundled setup"
+    );
+    assert_eq!(info["race"], "Orc");
+    assert_eq!(info["manual"], true);
+    assert_eq!(info["source"]["setup"], Value::Null);
+    assert_eq!(info["source"]["keybinds"], "dw_fury");
+
+    let body = serde_json::json!({
+        "setup": "warrior_fury_dw_orc",
+        "keybinds_yaml": "Bloodthirst: 1\n",
+    })
+    .to_string();
+    let info = json(&call(&mut app, "POST", "/api/load", &body));
+    assert_eq!(info["keybinds"][0]["name"], "Bloodthirst");
+    assert_eq!(info["source"]["keybinds"], Value::Null);
+}
+
+#[test]
+fn bad_loads_are_refused_and_keep_the_session() {
+    let mut app = empty_app();
+    call(
+        &mut app,
+        "POST",
+        "/api/load",
+        r#"{"setup": "rogue_combat_swords_human", "seed": "3"}"#,
+    );
+    for (body, says) in [
+        ("", "EOF"),
+        ("{}", "no setup"),
+        (r#"{"setup": "a", "setup_yaml": "b"}"#, "both"),
+        (r#"{"setup": "../../Cargo"}"#, "no characters entry"),
+        (r#"{"setup": "missing"}"#, "missing.yaml"),
+        (r#"{"setup_yaml": "name: [unclosed"}"#, "pasted.yaml"),
+        (
+            r#"{"setup_yaml": "include: nowhere.yaml\n"}"#,
+            "nowhere.yaml",
+        ),
+        (
+            r#"{"setup": "warrior_fury_dw_orc", "keybinds": "missing"}"#,
+            "missing.yaml",
+        ),
+        (
+            r#"{"setup": "warrior_fury_dw_orc", "keybinds_yaml": "Bloodthirst: [1]"}"#,
+            "pasted keybinds",
+        ),
+        (
+            r#"{"setup": "warrior_fury_dw_orc", "settings": "sigmoid_celing:3"}"#,
+            "unknown setting",
+        ),
+        (
+            r#"{"setup": "warrior_fury_dw_orc", "seed": "-1"}"#,
+            "invalid seed",
+        ),
+        (r#"{"setup": "warrior_fury_dw_orc", "extra": 1}"#, "extra"),
+    ] {
+        let reply = call(&mut app, "POST", "/api/load", body);
+        assert_eq!(reply.status, 400, "{body}: {}", text(&reply));
+        assert!(text(&reply).contains(says), "{body}: {}", text(&reply));
+    }
+    let info = json(&call(&mut app, "GET", "/api/info", ""));
+    assert_eq!(
+        (info["race"].as_str(), info["seed"].as_str()),
+        (Some("Human"), Some("3"))
+    );
 }

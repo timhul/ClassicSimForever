@@ -5,6 +5,7 @@
 //! The native `csim-live` binary serves [`server::route`] over HTTP (feature `server`, on by
 //! default); the browser build calls it directly, without the `server` feature.
 
+pub mod app;
 pub mod keybinds;
 pub mod server;
 pub mod session;
