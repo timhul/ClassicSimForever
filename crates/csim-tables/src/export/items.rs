@@ -69,6 +69,8 @@ pub struct DerivedItem {
     pub quality: Quality,
     /// `Item.IconFileDataID`.
     pub icon: u32,
+    /// The icon texture's name, from the listfile.
+    pub icon_name: Option<String>,
     pub item_level: u32,
     pub required_level: u32,
     /// Binds when equipped (`Bonding` 2).
@@ -687,6 +689,7 @@ pub fn derive_item(
         item_type,
         quality,
         icon: item.icon_file_data_id,
+        icon_name: tables.icon_name(item.icon_file_data_id),
         item_level: sparse.item_level,
         required_level: sparse.required_level,
         boe: sparse.bonding == 2,
@@ -745,6 +748,7 @@ impl DerivedItem {
             item_type: self.item_type,
             quality: self.quality,
             icon: self.icon,
+            icon_name: self.icon_name.clone(),
             unique: self.unique,
             req_lvl: self.required_level,
             item_lvl: self.item_level,

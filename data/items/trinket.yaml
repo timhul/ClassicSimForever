@@ -9,6 +9,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134084
+  icon_name: inv_misc_gem_bloodstone_01
   unique: true
   req_lvl: 56
   item_lvl: 61
@@ -23,6 +24,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   unique: true
   req_lvl: 50
   item_lvl: 60
@@ -42,6 +44,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133431
+  icon_name: inv_jewelry_stormpiketrinket_03
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -61,6 +64,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133432
+  icon_name: inv_jewelry_stormpiketrinket_04
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -80,6 +84,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133433
+  icon_name: inv_jewelry_stormpiketrinket_05
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -100,6 +105,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133285
+  icon_name: inv_jewelry_frostwolftrinket_03
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -119,6 +125,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133286
+  icon_name: inv_jewelry_frostwolftrinket_04
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -138,6 +145,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133287
+  icon_name: inv_jewelry_frostwolftrinket_05
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -158,6 +166,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133293
+  icon_name: inv_jewelry_necklace_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -171,6 +180,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 136168
+  icon_name: spell_shadow_lifedrain
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -190,6 +200,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133860
+  icon_name: inv_misc_enggizmos_02
   unique: true
   req_lvl: 47
   item_lvl: 52
@@ -207,6 +218,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133862
+  icon_name: inv_misc_enggizmos_04
   unique: true
   req_lvl: 53
   item_lvl: 58
@@ -224,6 +236,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133874
+  icon_name: inv_misc_enggizmos_16
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -241,6 +254,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135933
+  icon_name: spell_holy_mindsooth
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -256,6 +270,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 136224
+  icon_name: spell_shadow_unholyfrenzy
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -268,6 +283,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135805
+  icon_name: spell_fire_fire
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -281,6 +297,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134465
+  icon_name: inv_misc_stonetablet_11
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -297,6 +314,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -312,6 +330,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -327,6 +346,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -342,6 +362,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -357,6 +378,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -372,6 +394,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -387,6 +410,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -402,6 +426,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -417,6 +442,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -432,6 +458,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -447,6 +474,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -462,6 +490,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -477,6 +506,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -492,6 +522,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -507,6 +538,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -522,6 +554,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -537,6 +570,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133599
+  icon_name: inv_misc_armorkit_04
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -560,6 +594,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134488
+  icon_name: inv_misc_ticket_tarot_heroism_01
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -573,6 +608,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134484
+  icon_name: inv_misc_ticket_tarot_bluedragon_01
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -586,6 +622,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134491
+  icon_name: inv_misc_ticket_tarot_maelstrom_01
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -599,6 +636,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134495
+  icon_name: inv_misc_ticket_tarot_twistingnether_01
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -612,6 +650,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 136116
+  icon_name: spell_nature_wispsplode
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -629,6 +668,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133738
+  icon_name: inv_misc_book_06
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -646,6 +686,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 136115
+  icon_name: spell_nature_wispheal
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -663,6 +704,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134419
+  icon_name: inv_misc_rune_06
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -678,6 +720,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134124
+  icon_name: inv_misc_gem_pearl_05
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -693,6 +736,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134232
+  icon_name: inv_misc_idol_03
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -710,6 +754,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134944
+  icon_name: inv_scroll_08
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -727,6 +772,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134073
+  icon_name: inv_misc_gem_03
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -744,6 +790,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135880
+  icon_name: spell_holy_blessingofprotection
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -759,6 +806,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135241
+  icon_name: inv_stone_15
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -773,6 +821,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134136
+  icon_name: inv_misc_gem_topaz_02
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -786,6 +835,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133723
+  icon_name: inv_misc_bone_06
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -800,6 +850,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133605
+  icon_name: inv_misc_armorkit_10
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -814,6 +865,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -828,6 +880,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -844,6 +897,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -860,6 +914,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -878,6 +933,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -896,6 +952,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -914,6 +971,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -932,6 +990,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -948,6 +1007,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -966,6 +1026,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -984,6 +1045,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1000,6 +1062,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133306
+  icon_name: inv_jewelry_necklace_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1018,6 +1081,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 136245
+  icon_name: trade_fishing
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -1031,6 +1095,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1052,6 +1117,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1073,6 +1139,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 136069
+  icon_name: spell_nature_nullward
   req_lvl: 0
   item_lvl: 52
   effects:
@@ -1086,6 +1153,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134134
+  icon_name: inv_misc_gem_stone_01
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -1100,6 +1168,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1121,6 +1190,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1142,6 +1212,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1163,6 +1234,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1184,6 +1256,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1205,6 +1278,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133438
+  icon_name: inv_jewelry_talisman_05
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1226,6 +1300,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 136006
+  icon_name: spell_nature_abolishmagic
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1242,6 +1317,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134182
+  icon_name: inv_misc_herb_02
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1256,6 +1332,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134227
+  icon_name: inv_misc_horn_01
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -1275,6 +1352,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133884
+  icon_name: inv_misc_eye_01
   unique: true
   req_lvl: 60
   item_lvl: 74
@@ -1291,6 +1369,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133571
+  icon_name: inv_misc_ahnqirajtrinket_02
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1306,6 +1385,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134418
+  icon_name: inv_misc_rune_05
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -1326,6 +1406,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134418
+  icon_name: inv_misc_rune_05
   req_lvl: 20
   item_lvl: 25
   stats:
@@ -1346,6 +1427,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134415
+  icon_name: inv_misc_rune_02
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -1366,6 +1448,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134415
+  icon_name: inv_misc_rune_02
   req_lvl: 20
   item_lvl: 25
   stats:
@@ -1386,6 +1469,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133574
+  icon_name: inv_misc_ahnqirajtrinket_05
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1400,6 +1484,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133575
+  icon_name: inv_misc_ahnqirajtrinket_06
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1414,6 +1499,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133572
+  icon_name: inv_misc_ahnqirajtrinket_03
   unique: true
   req_lvl: 60
   item_lvl: 77
@@ -1428,6 +1514,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133573
+  icon_name: inv_misc_ahnqirajtrinket_04
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1442,6 +1529,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133570
+  icon_name: inv_misc_ahnqirajtrinket_01
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1456,6 +1544,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133573
+  icon_name: inv_misc_ahnqirajtrinket_04
   req_lvl: 60
   item_lvl: 75
   effects:
@@ -1469,6 +1558,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134123
+  icon_name: inv_misc_gem_pearl_04
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -1485,6 +1575,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135442
+  icon_name: inv_trinket_naxxramas04
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1504,6 +1595,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135440
+  icon_name: inv_trinket_naxxramas02
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1520,6 +1612,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135439
+  icon_name: inv_trinket_naxxramas01
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1536,6 +1629,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135443
+  icon_name: inv_trinket_naxxramas05
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1553,6 +1647,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135441
+  icon_name: inv_trinket_naxxramas03
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1571,6 +1666,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135443
+  icon_name: inv_trinket_naxxramas05
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1591,6 +1687,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135444
+  icon_name: inv_trinket_naxxramas06
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1609,6 +1706,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135439
+  icon_name: inv_trinket_naxxramas01
   unique: true
   req_lvl: 60
   item_lvl: 90
@@ -1625,6 +1723,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134500
+  icon_name: inv_misc_token_argentdawn2
   unique: true
   req_lvl: 0
   item_lvl: 90
@@ -1638,6 +1737,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134501
+  icon_name: inv_misc_token_argentdawn3
   unique: true
   req_lvl: 0
   item_lvl: 90
@@ -1651,6 +1751,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134969
+  icon_name: inv_shield_23
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1665,6 +1766,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 133877
+  icon_name: inv_misc_enggizmos_19
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1681,6 +1783,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 135441
+  icon_name: inv_trinket_naxxramas03
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -1694,6 +1797,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1709,6 +1813,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1724,6 +1829,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1739,6 +1845,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1754,6 +1861,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1769,6 +1877,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1784,6 +1893,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1799,6 +1909,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1814,6 +1925,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1829,6 +1941,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1844,6 +1957,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1859,6 +1973,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1874,6 +1989,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1889,6 +2005,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1904,6 +2021,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1919,6 +2037,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -1934,6 +2053,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 136091
+  icon_name: spell_nature_slow
   req_lvl: 50
   item_lvl: 50
   stats:
@@ -1951,6 +2071,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134932
+  icon_name: inv_scarab_crystal
   req_lvl: 1
   item_lvl: 1
   effects:
@@ -1963,6 +2084,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134131
+  icon_name: inv_misc_gem_sapphire_01
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -1985,6 +2107,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134128
+  icon_name: inv_misc_gem_ruby_01
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -2007,6 +2130,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134094
+  icon_name: inv_misc_gem_diamond_01
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -2025,6 +2149,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133864
+  icon_name: inv_misc_enggizmos_06
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -2039,6 +2164,7 @@ items:
   type: TRINKET
   quality: EPIC
   icon: 134228
+  icon_name: inv_misc_horn_02
   unique: true
   req_lvl: 55
   item_lvl: 62
@@ -2058,6 +2184,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134419
+  icon_name: inv_misc_rune_06
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2078,6 +2205,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134421
+  icon_name: inv_misc_rune_08
   req_lvl: 33
   item_lvl: 38
   stats:
@@ -2098,6 +2226,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134419
+  icon_name: inv_misc_rune_06
   req_lvl: 33
   item_lvl: 38
   stats:
@@ -2118,6 +2247,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134421
+  icon_name: inv_misc_rune_08
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2138,6 +2268,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134419
+  icon_name: inv_misc_rune_06
   req_lvl: 33
   item_lvl: 38
   stats:
@@ -2158,6 +2289,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134421
+  icon_name: inv_misc_rune_08
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2178,6 +2310,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134419
+  icon_name: inv_misc_rune_06
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -2198,6 +2331,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 134421
+  icon_name: inv_misc_rune_08
   req_lvl: 33
   item_lvl: 38
   stats:
@@ -2218,6 +2352,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 3610508
+  icon_name: inv_engineering_90_lightningbox
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2239,6 +2374,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 321487
+  icon_name: inv_misc_blizzcon09_graphicscard
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2260,6 +2396,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 465877
+  icon_name: inv_misc_enggizmos_36
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2282,6 +2419,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 4620673
+  icon_name: ui_profession_engineering
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2303,6 +2441,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133453
+  icon_name: inv_jewelry_trinketpvp_02
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -2317,6 +2456,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133452
+  icon_name: inv_jewelry_trinketpvp_01
   unique: true
   req_lvl: 0
   item_lvl: 1
@@ -2331,6 +2471,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133874
+  icon_name: inv_misc_enggizmos_16
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2352,6 +2493,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133861
+  icon_name: inv_misc_enggizmos_03
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2373,6 +2515,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133863
+  icon_name: inv_misc_enggizmos_05
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -2396,6 +2539,7 @@ items:
   type: TRINKET
   quality: RARE
   icon: 133633
+  icon_name: inv_misc_bag_08
   req_lvl: 1
   item_lvl: 33
   effects:

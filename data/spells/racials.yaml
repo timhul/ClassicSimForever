@@ -12,6 +12,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136112
+  icon_name: spell_nature_unyeildingstamina
   labels: [5710]
   description: Total Health increased by $s1% and chance to hit increased by $s2%.
   effects:
@@ -42,6 +43,7 @@ spells:
   attributes: [272, 0, 0, 0, 8193, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133938
+  icon_name: inv_misc_flower_01
   cooldown:
     start_recovery_ms: 1500
   categories:
@@ -66,6 +68,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135727
+  icon_name: racial_troll_berserk
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -101,6 +104,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134357
+  icon_name: inv_misc_pelt_bear_ruin_02
   labels: [5710]
   description: Damage dealt versus Beasts increased by $s1%.
   effects:
@@ -120,6 +124,7 @@ spells:
   attributes: [16, 32, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135726
+  icon_name: racial_orc_berserkerstrength
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -153,6 +158,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132393
+  icon_name: inv_axe_02
   equipped_items:
     class: 2
     subclass_mask: 3
@@ -174,6 +180,7 @@ spells:
   attributes: [16, 131072, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132278
+  icon_name: ability_racial_cannibalize
   range_yd: 5.0
   cooldown:
     recovery_ms: 120000
@@ -199,6 +206,7 @@ spells:
   attributes: [169082896, 16, 2097152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132089
+  icon_name: ability_ambush
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -233,6 +241,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132279
+  icon_name: ability_racial_shadowmeld
   labels: [5710]
   description: Dodge chance increased by $s1% and movement speed increased by $s2%. Night Elf Rogues and Druids are harder to detect in Stealth as if they were 1 level higher.
   effects:
@@ -251,6 +260,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136116
+  icon_name: spell_nature_wispsplode
   labels: [5710]
   description: Transform into a wisp upon death, increasing movement speed by $20584s1%.
   effects:
@@ -268,6 +278,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132864
+  icon_name: inv_enchant_essenceeternallarge
   labels: [5710]
   description: Maximum Mana increased by $s1%.
   effects:
@@ -286,6 +297,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134063
+  icon_name: inv_misc_gear_01
   labels: [5710]
   description: Your gnomish ingenuity reduces the rate of engineering devices failing or backfiring when you use them by $s1%.
   effects:
@@ -304,6 +316,7 @@ spells:
   attributes: [262160, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136225
+  icon_name: spell_shadow_unholystrength
   duration_ms: 8000
   cooldown:
     recovery_ms: 180000
@@ -334,6 +347,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   equipped_items:
     class: 2
     subclass_mask: 384
@@ -355,6 +369,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132874
+  icon_name: inv_enchant_shardbrilliantsmall
   labels: [5710]
   description: Spirit increased by $s1%.
   effects:
@@ -374,6 +389,7 @@ spells:
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 132845
+  icon_name: inv_elemental_primal_air
   duration_ms: 10000
   cooldown:
     recovery_ms: 120000
@@ -403,6 +419,7 @@ spells:
   attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   labels: [5710]
   effects:
   - index: 0
@@ -418,6 +435,7 @@ spells:
   attributes: [0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 236219
+  icon_name: ability_mage_incantersabsorbtion
   cast_time_ms: 2000
   cooldown:
     recovery_ms: 120000
@@ -446,6 +464,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 4630367
+  icon_name: achievement_raidprimalist_windelemental
   description: Damage dealt versus Elementals increased by $s1%.
   effects:
   - index: 0
@@ -464,6 +483,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 463565
+  icon_name: inv_misc_volatileair
   description: Increases your spellcasting, melee, and ranged Haste by $s1%.
   effects:
   - index: 0
@@ -487,6 +507,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133042
+  icon_name: inv_hammer_05
   equipped_items:
     class: 2
     subclass_mask: 48
@@ -508,6 +529,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135614
+  icon_name: inv_weapon_rifle_05
   labels: [5710]
   description: Damage dealt versus Beasts increased by $s1%.
   effects:
@@ -527,6 +549,7 @@ spells:
   attributes: [16, 32, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136057
+  icon_name: spell_nature_moonglow
   duration_ms: 15000
   cooldown:
     recovery_ms: 180000
@@ -549,6 +572,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132864
+  icon_name: inv_enchant_essenceeternallarge
   labels: [5710]
   description: Maximum Rage increased by $s1%.
   effects:
@@ -569,6 +593,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132864
+  icon_name: inv_enchant_essenceeternallarge
   labels: [5710]
   description: Maximum Energy increased by $s1%.
   effects:
@@ -589,6 +614,7 @@ spells:
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
   icon: 4226119
+  icon_name: inv_gnometoy
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -639,6 +665,7 @@ spells:
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
   icon: 4226119
+  icon_name: inv_gnometoy
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -689,6 +716,7 @@ spells:
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
   icon: 4226119
+  icon_name: inv_gnometoy
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -740,6 +768,7 @@ spells:
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
   icon: 4226119
+  icon_name: inv_gnometoy
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -792,6 +821,7 @@ spells:
   attributes: [262144, 0, 0, 67108864, 0, 0, 0, 0, 4096, 0, 0, 0, 2, 0, 0, 8192, 0]
   school_mask: 8
   icon: 4226119
+  icon_name: inv_gnometoy
   duration_ms: 15000
   cooldown:
     recovery_ms: 120000
@@ -843,6 +873,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236717
+  icon_name: achievement_zone_barrens_01
   categories:
     defense_type: MAGIC
   levels:
@@ -879,6 +910,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136157
+  icon_name: spell_shadow_fingerofdeath
   aura_options:
     proc_chance: 5
     proc_category_recovery_ms: 1000
@@ -896,6 +928,7 @@ spells:
   attributes: [65536, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136169
+  icon_name: spell_shadow_lifedrain02
   range_yd: 100.0
   categories:
     defense_type: MAGIC
@@ -919,6 +952,7 @@ spells:
   attributes: [80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136157
+  icon_name: spell_shadow_fingerofdeath
   aura_options:
     proc_chance: 10
     proc_category_recovery_ms: 1000
@@ -939,6 +973,7 @@ spells:
   attributes: [0, 536870976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 1850550
+  icon_name: ability_racial_regeneratin
   duration_ms: 6000
   cooldown:
     recovery_ms: 180000
@@ -956,6 +991,7 @@ spells:
   attributes: [0, 0, 4, 0, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135729
+  icon_name: spell_arcane_arcane02
   duration_ms: 15000
   labels: [5710]
   effects:
@@ -974,6 +1010,7 @@ spells:
   attributes: [262160, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136082
+  icon_name: spell_nature_removecurse
   duration_ms: 8000
   cooldown:
     recovery_ms: 180000

@@ -654,6 +654,10 @@ pub struct SpellRecord {
     /// `SpellMisc.SpellIconFileDataID`: the `FileDataID` of the icon texture; 0 = none.
     #[serde(default, skip_serializing_if = "is_default")]
     pub icon: u32,
+    /// The icon texture's file name (`inv_sword_39`), from the community listfile: Wowhead's
+    /// CDN serves the icon by it. Absent when unknown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
     /// `SpellCastTimes.Base`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub cast_time_ms: u32,
@@ -720,6 +724,7 @@ impl SpellRecord {
             attributes: [0; 17],
             school_mask: SpellSchoolMask::PHYSICAL,
             icon: 0,
+            icon_name: None,
             cast_time_ms: 0,
             duration_ms: None,
             duration_per_resource_ms: 0,

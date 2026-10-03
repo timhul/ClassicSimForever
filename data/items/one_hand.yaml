@@ -9,6 +9,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135327
+  icon_name: inv_sword_26
   req_lvl: 15
   item_lvl: 20
   boe: true
@@ -25,6 +26,7 @@ items:
   type: MACE
   quality: RARE
   icon: 133043
+  icon_name: inv_hammer_06
   unique: true
   req_lvl: 20
   item_lvl: 25
@@ -43,6 +45,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135638
+  icon_name: inv_weapon_shortblade_02
   unique: true
   req_lvl: 20
   item_lvl: 25
@@ -61,6 +64,7 @@ items:
   type: MACE
   quality: RARE
   icon: 133055
+  icon_name: inv_hammer_18
   req_lvl: 42
   item_lvl: 47
   boe: true
@@ -78,6 +82,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135350
+  icon_name: inv_sword_40
   req_lvl: 44
   item_lvl: 49
   boe: true
@@ -95,6 +100,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135280
+  icon_name: inv_sword_10
   req_lvl: 33
   item_lvl: 38
   boe: true
@@ -112,6 +118,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135291
+  icon_name: inv_sword_11
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -129,6 +136,7 @@ items:
   type: AXE
   quality: RARE
   icon: 132396
+  icon_name: inv_axe_05
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -145,6 +153,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135340
+  icon_name: inv_sword_30
   req_lvl: 51
   item_lvl: 56
   boe: true
@@ -162,6 +171,7 @@ items:
   type: MACE
   quality: RARE
   icon: 133477
+  icon_name: inv_mace_02
   unique: true
   req_lvl: 52
   item_lvl: 57
@@ -180,6 +190,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135315
+  icon_name: inv_sword_17
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -198,6 +209,7 @@ items:
   type: MACE
   quality: RARE
   icon: 133041
+  icon_name: inv_hammer_04
   req_lvl: 57
   item_lvl: 63
   boe: true
@@ -215,6 +227,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135291
+  icon_name: inv_sword_11
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -233,6 +246,7 @@ items:
   type: AXE
   quality: RARE
   icon: 132403
+  icon_name: inv_axe_12
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -253,6 +267,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135327
+  icon_name: inv_sword_26
   req_lvl: 15
   item_lvl: 20
   boe: true
@@ -270,6 +285,7 @@ items:
   type: AXE
   quality: RARE
   icon: 135578
+  icon_name: inv_weapon_halberd_08
   req_lvl: 18
   item_lvl: 23
   boe: true
@@ -287,6 +303,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135291
+  icon_name: inv_sword_11
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -304,6 +321,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135358
+  icon_name: inv_sword_48
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -321,6 +339,7 @@ items:
   type: AXE
   quality: RARE
   icon: 132403
+  icon_name: inv_axe_12
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -338,6 +357,7 @@ items:
   type: DAGGER
   quality: LEGENDARY
   icon: 135271
+  icon_name: inv_sword_01
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -358,6 +378,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132418
+  icon_name: inv_axe_24
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -375,6 +396,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132393
+  icon_name: inv_axe_02
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -392,6 +414,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135662
+  icon_name: inv_weapon_shortblade_26
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -409,6 +432,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135649
+  icon_name: inv_weapon_shortblade_13
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -426,6 +450,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133488
+  icon_name: inv_mace_13
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -443,6 +468,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133057
+  icon_name: inv_hammer_20
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -460,6 +486,7 @@ items:
   type: SWORD
   quality: LEGENDARY
   icon: 135349
+  icon_name: inv_sword_39
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -482,6 +509,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135642
+  icon_name: inv_weapon_shortblade_06
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -501,6 +529,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -520,6 +549,7 @@ items:
   type: AXE
   quality: RARE
   icon: 132416
+  icon_name: inv_axe_22
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -536,6 +566,7 @@ items:
   type: MACE
   quality: RARE
   icon: 133058
+  icon_name: inv_hammer_21
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -552,6 +583,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135648
+  icon_name: inv_weapon_shortblade_12
   req_lvl: 60
   item_lvl: 66
   boe: true
@@ -569,6 +601,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135349
+  icon_name: inv_sword_39
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -586,6 +619,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133056
+  icon_name: inv_hammer_19
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -606,6 +640,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135330
+  icon_name: inv_sword_29
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -623,6 +658,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -640,6 +676,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -657,6 +694,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -674,6 +712,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -691,6 +730,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135650
+  icon_name: inv_weapon_shortblade_14
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -708,6 +748,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135650
+  icon_name: inv_weapon_shortblade_14
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -725,6 +766,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135650
+  icon_name: inv_weapon_shortblade_14
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -742,6 +784,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135650
+  icon_name: inv_weapon_shortblade_14
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -759,6 +802,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135341
+  icon_name: inv_sword_31
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -776,6 +820,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135341
+  icon_name: inv_sword_31
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -793,6 +838,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135341
+  icon_name: inv_sword_31
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -810,6 +856,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135341
+  icon_name: inv_sword_31
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -827,6 +874,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135328
+  icon_name: inv_sword_27
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -844,6 +892,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135328
+  icon_name: inv_sword_27
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -861,6 +910,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135328
+  icon_name: inv_sword_27
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -878,6 +928,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135328
+  icon_name: inv_sword_27
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -895,6 +946,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135341
+  icon_name: inv_sword_31
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -912,6 +964,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135328
+  icon_name: inv_sword_27
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -929,6 +982,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135651
+  icon_name: inv_weapon_shortblade_15
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -946,6 +1000,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135650
+  icon_name: inv_weapon_shortblade_14
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -963,6 +1018,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135669
+  icon_name: inv_weapon_shortblade_33
   unique: true
   req_lvl: 60
   item_lvl: 84
@@ -981,6 +1037,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132420
+  icon_name: inv_axe_26
   req_lvl: 60
   item_lvl: 79
   damage:
@@ -1000,6 +1057,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135671
+  icon_name: inv_weapon_shortblade_35
   req_lvl: 60
   item_lvl: 79
   damage:
@@ -1019,6 +1077,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133501
+  icon_name: inv_mace_24
   req_lvl: 60
   item_lvl: 79
   damage:
@@ -1038,6 +1097,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132406
+  icon_name: inv_axe_15
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1059,6 +1119,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132406
+  icon_name: inv_axe_15
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1079,6 +1140,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135663
+  icon_name: inv_weapon_shortblade_27
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1099,6 +1161,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135663
+  icon_name: inv_weapon_shortblade_27
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1119,6 +1182,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135359
+  icon_name: inv_sword_49
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1137,6 +1201,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135661
+  icon_name: inv_weapon_shortblade_25
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1155,6 +1220,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135369
+  icon_name: inv_sword_59
   req_lvl: 60
   item_lvl: 77
   damage:
@@ -1172,6 +1238,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135315
+  icon_name: inv_sword_17
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -1189,6 +1256,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135348
+  icon_name: inv_sword_38
   req_lvl: 0
   item_lvl: 65
   damage:
@@ -1205,6 +1273,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133045
+  icon_name: inv_hammer_08
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1223,6 +1292,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133039
+  icon_name: inv_hammer_02
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1240,6 +1310,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135275
+  icon_name: inv_sword_05
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1257,6 +1328,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133039
+  icon_name: inv_hammer_02
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1274,6 +1346,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135275
+  icon_name: inv_sword_05
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1291,6 +1364,7 @@ items:
   type: DAGGER
   quality: RARE
   icon: 135302
+  icon_name: inv_sword_12
   req_lvl: 0
   item_lvl: 69
   damage:
@@ -1320,6 +1394,7 @@ items:
   type: FIST
   quality: RARE
   icon: 134296
+  icon_name: inv_misc_monsterclaw_03
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -1337,6 +1412,7 @@ items:
   type: AXE
   quality: RARE
   icon: 132392
+  icon_name: inv_axe_01
   req_lvl: 0
   item_lvl: 33
   damage:
@@ -1370,6 +1446,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135291
+  icon_name: inv_sword_11
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1387,6 +1464,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132393
+  icon_name: inv_axe_02
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1404,6 +1482,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135649
+  icon_name: inv_weapon_shortblade_13
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1421,6 +1500,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133057
+  icon_name: inv_hammer_20
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1438,6 +1518,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135275
+  icon_name: inv_sword_05
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1455,6 +1536,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135291
+  icon_name: inv_sword_11
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1472,6 +1554,7 @@ items:
   type: AXE
   quality: EPIC
   icon: 132418
+  icon_name: inv_axe_24
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1489,6 +1572,7 @@ items:
   type: DAGGER
   quality: EPIC
   icon: 135662
+  icon_name: inv_weapon_shortblade_26
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1506,6 +1590,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 133488
+  icon_name: inv_mace_13
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1523,6 +1608,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135275
+  icon_name: inv_sword_05
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1619,6 +1705,7 @@ items:
   type: SWORD
   quality: EPIC
   icon: 135277
+  icon_name: inv_sword_07
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1638,6 +1725,7 @@ items:
   type: MACE
   quality: EPIC
   icon: 7957558
+  icon_name: inv_mace_1h_raidhyjalc60_d_01
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1657,6 +1745,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135325
+  icon_name: inv_sword_24
   req_lvl: 0
   item_lvl: 30
   damage:
@@ -1670,6 +1759,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135325
+  icon_name: inv_sword_24
   req_lvl: 0
   item_lvl: 30
   damage:
@@ -1714,6 +1804,7 @@ items:
   type: SWORD
   quality: RARE
   icon: 135349
+  icon_name: inv_sword_39
   req_lvl: 0
   item_lvl: 52
   class_restrictions: [PALADIN]

@@ -9,6 +9,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135471
+  icon_name: inv_wand_09
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -27,6 +28,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135467
+  icon_name: inv_wand_05
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -45,6 +47,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135469
+  icon_name: inv_wand_07
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -63,6 +66,7 @@ items:
   type: GUN
   quality: RARE
   icon: 135617
+  icon_name: inv_weapon_rifle_08
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -80,6 +84,7 @@ items:
   type: GUN
   quality: RARE
   icon: 135612
+  icon_name: inv_weapon_rifle_03
   req_lvl: 56
   item_lvl: 61
   boe: true
@@ -97,6 +102,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135492
+  icon_name: inv_weapon_bow_04
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -114,6 +120,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135467
+  icon_name: inv_wand_05
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -131,6 +138,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135614
+  icon_name: inv_weapon_rifle_05
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -148,6 +156,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135489
+  icon_name: inv_weapon_bow_01
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -166,6 +175,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135500
+  icon_name: inv_weapon_bow_12
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -182,6 +192,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135496
+  icon_name: inv_weapon_bow_08
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -198,6 +209,7 @@ items:
   type: CROSSBOW
   quality: EPIC
   icon: 135533
+  icon_name: inv_weapon_crossbow_04
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -214,6 +226,7 @@ items:
   type: CROSSBOW
   quality: EPIC
   icon: 135539
+  icon_name: inv_weapon_crossbow_10
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -230,6 +243,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135617
+  icon_name: inv_weapon_rifle_08
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -246,6 +260,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135615
+  icon_name: inv_weapon_rifle_06
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -262,6 +277,7 @@ items:
   type: CROSSBOW
   quality: RARE
   icon: 135536
+  icon_name: inv_weapon_crossbow_07
   req_lvl: 0
   item_lvl: 63
   damage:
@@ -278,6 +294,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135463
+  icon_name: inv_wand_01
   req_lvl: 0
   item_lvl: 63
   damage:
@@ -294,6 +311,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135494
+  icon_name: inv_weapon_bow_06
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -310,6 +328,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135494
+  icon_name: inv_weapon_bow_06
   req_lvl: 48
   item_lvl: 53
   damage:
@@ -326,6 +345,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135494
+  icon_name: inv_weapon_bow_06
   req_lvl: 38
   item_lvl: 43
   damage:
@@ -342,6 +362,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135494
+  icon_name: inv_weapon_bow_06
   req_lvl: 28
   item_lvl: 33
   damage:
@@ -358,6 +379,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135490
+  icon_name: inv_weapon_bow_02
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -374,6 +396,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135490
+  icon_name: inv_weapon_bow_02
   req_lvl: 48
   item_lvl: 53
   damage:
@@ -390,6 +413,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135490
+  icon_name: inv_weapon_bow_02
   req_lvl: 38
   item_lvl: 43
   damage:
@@ -406,6 +430,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135490
+  icon_name: inv_weapon_bow_02
   req_lvl: 28
   item_lvl: 33
   damage:
@@ -422,6 +447,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135494
+  icon_name: inv_weapon_bow_06
   req_lvl: 18
   item_lvl: 23
   damage:
@@ -438,6 +464,7 @@ items:
   type: BOW
   quality: RARE
   icon: 135490
+  icon_name: inv_weapon_bow_02
   req_lvl: 18
   item_lvl: 23
   damage:
@@ -454,6 +481,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135489
+  icon_name: inv_weapon_bow_01
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -472,6 +500,7 @@ items:
   type: THROWN
   quality: RARE
   icon: 135424
+  icon_name: inv_throwingaxe_06
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -487,6 +516,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135620
+  icon_name: inv_weapon_rifle_11
   unique: true
   req_lvl: 60
   item_lvl: 79
@@ -505,6 +535,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135502
+  icon_name: inv_weapon_bow_14
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -520,6 +551,7 @@ items:
   type: CROSSBOW
   quality: RARE
   icon: 135533
+  icon_name: inv_weapon_crossbow_04
   req_lvl: 0
   item_lvl: 65
   damage:
@@ -536,6 +568,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135615
+  icon_name: inv_weapon_rifle_06
   req_lvl: 0
   item_lvl: 60
   damage:
@@ -551,6 +584,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135619
+  icon_name: inv_weapon_rifle_10
   req_lvl: 60
   item_lvl: 81
   damage:
@@ -567,6 +601,7 @@ items:
   type: WAND
   quality: RARE
   icon: 135469
+  icon_name: inv_wand_07
   req_lvl: 55
   item_lvl: 60
   damage:
@@ -584,6 +619,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135496
+  icon_name: inv_weapon_bow_08
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -600,6 +636,7 @@ items:
   type: CROSSBOW
   quality: EPIC
   icon: 135539
+  icon_name: inv_weapon_crossbow_10
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -616,6 +653,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135615
+  icon_name: inv_weapon_rifle_06
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -632,6 +670,7 @@ items:
   type: BOW
   quality: EPIC
   icon: 135500
+  icon_name: inv_weapon_bow_12
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -648,6 +687,7 @@ items:
   type: CROSSBOW
   quality: EPIC
   icon: 135533
+  icon_name: inv_weapon_crossbow_04
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -664,6 +704,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135617
+  icon_name: inv_weapon_rifle_08
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -713,6 +754,7 @@ items:
   type: WAND
   quality: EPIC
   icon: 135432
+  icon_name: inv_torch_lit
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -732,6 +774,7 @@ items:
   type: GUN
   quality: EPIC
   icon: 135614
+  icon_name: inv_weapon_rifle_05
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -750,6 +793,7 @@ items:
   type: THROWN
   quality: RARE
   icon: 133057
+  icon_name: inv_hammer_20
   req_lvl: 49
   item_lvl: 54
   damage:

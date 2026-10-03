@@ -9,6 +9,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cooldown:
     category_recovery_ms: 60000
   categories:
@@ -31,6 +32,7 @@ spells:
   attributes: [65536, 98304, 524288, 0, 0, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 8
   icon: 136033
+  icon_name: spell_nature_faeriefire
   duration_ms: 40000
   range_yd: 30.0
   power:
@@ -67,6 +69,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136101
+  icon_name: spell_nature_strength
   duration_ms: 3600000
   cooldown:
     category_recovery_ms: 210000
@@ -91,6 +94,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136036
+  icon_name: spell_nature_forceofnature
   duration_ms: 3600000
   cooldown:
     category_recovery_ms: 210000
@@ -116,6 +120,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134874
+  icon_name: inv_potion_94
   duration_ms: 3600000
   levels:
     spell: 27
@@ -134,6 +139,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134839
+  icon_name: inv_potion_59
   duration_ms: 3600000
   levels:
     spell: 48
@@ -152,6 +158,7 @@ spells:
   attributes: [65536, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 32
   icon: 136225
+  icon_name: spell_shadow_unholystrength
   duration_ms: 120000
   range_yd: 30.0
   power:
@@ -191,6 +198,7 @@ spells:
   attributes: [65536, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136101
+  icon_name: spell_nature_strength
   duration_ms: 1800000
   range_yd: 30.0
   categories:
@@ -212,6 +220,7 @@ spells:
   attributes: [65792, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 134313
+  icon_name: inv_misc_monsterscales_11
   duration_ms: 1800000
   range_yd: 20.0
   categories:
@@ -235,6 +244,7 @@ spells:
   attributes: [65792, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 134309
+  icon_name: inv_misc_monsterscales_07
   duration_ms: 600000
   range_yd: 20.0
   cooldown:
@@ -266,6 +276,7 @@ spells:
   attributes: [0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 132403
+  icon_name: inv_axe_12
   duration_ms: 45000
   range_yd: 30.0
   categories:
@@ -286,6 +297,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134872
+  icon_name: inv_potion_92
   duration_ms: 1200000
   categories:
     dispel_type: 1
@@ -307,6 +319,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134820
+  icon_name: inv_potion_40
   duration_ms: 3600000
   levels:
     spell: 47
@@ -330,6 +343,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134812
+  icon_name: inv_potion_32
   duration_ms: 1800000
   levels:
     spell: 47
@@ -353,6 +367,7 @@ spells:
   attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134842
+  icon_name: inv_potion_62
   duration_ms: 7200000
   levels:
     spell: 15
@@ -372,6 +387,7 @@ spells:
   attributes: [671088640, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135892
+  icon_name: spell_holy_devotion
   duration_ms: 600000
   cooldown:
     start_recovery_ms: 1500
@@ -394,6 +410,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132953
+  icon_name: inv_gauntlets_19
   duration_ms: 600000
   levels:
     spell: 16
@@ -415,6 +432,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 132329
+  icon_name: ability_trueshot
   duration_ms: 1800000
   power:
   - type: MANA
@@ -444,6 +462,7 @@ spells:
   attributes: [65536, 131072, 524288, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136078
+  icon_name: spell_nature_regeneration
   duration_ms: 3600000
   range_yd: 40.0
   power:
@@ -530,6 +549,7 @@ spells:
   attributes: [262160, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133707
+  icon_name: inv_misc_birdbeck_01
   duration_ms: 240000
   range_yd: 50000.0
   levels:
@@ -546,6 +566,7 @@ spells:
   attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135819
+  icon_name: spell_fire_lavaspawn
   duration_ms: 180000
   effects:
   - index: 0
@@ -579,6 +600,7 @@ spells:
   attributes: [134217984, 32, 2415935488, 5242880, 0, 0, 4, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136000
+  icon_name: spell_misc_food
   duration_ms: 900000
   labels: [4530, 4697]
   effects:
@@ -594,6 +616,7 @@ spells:
   attributes: [320, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136023
+  icon_name: spell_nature_earthbindtotem
   categories:
     defense_type: MAGIC
   levels:
@@ -615,6 +638,7 @@ spells:
   attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135993
+  icon_name: spell_magic_greaterblessingofkings
   duration_ms: 3600000
   range_yd: 40.0
   power:
@@ -648,6 +672,7 @@ spells:
   attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135908
+  icon_name: spell_holy_greaterblessingofkings
   duration_ms: 3600000
   range_yd: 40.0
   power:

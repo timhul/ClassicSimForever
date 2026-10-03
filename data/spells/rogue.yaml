@@ -12,6 +12,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -56,6 +57,7 @@ spells:
   attributes: [327696, 134480384, 0, 1024, 8, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132298
+  icon_name: ability_rogue_kidneyshot
   duration_ms: 0
   duration_per_resource_ms: 1000
   max_duration_ms: 5000
@@ -103,6 +105,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -142,6 +145,7 @@ spells:
   attributes: [196624, 2232352, 268435456, 131072, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133644
+  icon_name: inv_misc_bag_11
   range_yd: 5.0
   categories:
     defense_type: MAGIC
@@ -165,6 +169,7 @@ spells:
   attributes: [1074003984, 132384, 268435456, 131072, 0, 0, 4, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132289
+  icon_name: ability_rogue_distract
   duration_ms: 10000
   range_yd: 30.0
   power:
@@ -201,6 +206,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -242,6 +248,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -283,6 +290,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -324,6 +332,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -365,6 +374,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -406,6 +416,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132219
+  icon_name: ability_kick
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -441,6 +452,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132219
+  icon_name: ability_kick
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -476,6 +488,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132219
+  icon_name: ability_kick
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -511,6 +524,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132219
+  icon_name: ability_kick
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -545,6 +559,7 @@ spells:
   attributes: [1376272, 201588736, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -591,6 +606,7 @@ spells:
   attributes: [1376272, 201588736, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -636,6 +652,7 @@ spells:
   attributes: [437583888, 16, 2097152, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -672,6 +689,7 @@ spells:
   attributes: [437583888, 16, 2097152, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -708,6 +726,7 @@ spells:
   attributes: [437583888, 16, 2097152, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -744,6 +763,7 @@ spells:
   attributes: [437583888, 16, 2097152, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   duration_ms: -1
   cooldown:
     category_recovery_ms: 10000
@@ -778,6 +798,7 @@ spells:
   attributes: [2555920, 201588736, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132092
+  icon_name: ability_cheapshot
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -816,6 +837,7 @@ spells:
   attributes: [65552, 131104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136162
+  icon_name: spell_shadow_grimward
   cast_time_ms: 2000
   range_yd: 5.0
   levels:
@@ -841,6 +863,7 @@ spells:
   attributes: [135594000, 32, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132331
+  icon_name: ability_vanish
   power:
   - type: ENERGY
   cooldown:
@@ -873,6 +896,7 @@ spells:
   attributes: [135594000, 32, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132331
+  icon_name: ability_vanish
   power:
   - type: ENERGY
   cooldown:
@@ -904,6 +928,7 @@ spells:
   attributes: [262224, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132914
+  icon_name: inv_feather_01
   duration_ms: -1
   levels:
     spell: 40
@@ -925,6 +950,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -974,6 +1000,7 @@ spells:
   attributes: [327696, 134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1009,6 +1036,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1051,6 +1079,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1096,6 +1125,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1141,6 +1171,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1185,6 +1216,7 @@ spells:
   attributes: [537198608, 134218752, 4, 1342439424, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132306
+  icon_name: ability_rogue_slicedice
   duration_ms: 6000
   duration_per_resource_ms: 3000
   max_duration_ms: 21000
@@ -1223,6 +1255,7 @@ spells:
   attributes: [65552, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136205
+  icon_name: spell_shadow_shadowward
   duration_ms: 15000
   power:
   - type: ENERGY
@@ -1255,6 +1288,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1297,6 +1331,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1339,6 +1374,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1381,6 +1417,7 @@ spells:
   attributes: [327696, 134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1416,6 +1453,7 @@ spells:
   attributes: [537198608, 134218752, 4, 1342439424, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132306
+  icon_name: ability_rogue_slicedice
   duration_ms: 6000
   duration_per_resource_ms: 3000
   max_duration_ms: 21000
@@ -1456,6 +1494,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1498,6 +1537,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1540,6 +1580,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1582,6 +1623,7 @@ spells:
   attributes: [1376272, 201588736, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -1628,6 +1670,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -1669,6 +1712,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -1710,6 +1754,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -1751,6 +1796,7 @@ spells:
   attributes: [327696, 134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -1786,6 +1832,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -1836,6 +1883,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -1886,6 +1934,7 @@ spells:
   attributes: [327696, 134480384, 0, 1024, 8, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132298
+  icon_name: ability_rogue_kidneyshot
   duration_ms: 1000
   duration_per_resource_ms: 1000
   max_duration_ms: 6000
@@ -1933,6 +1982,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048584, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1977,6 +2027,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048584, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2021,6 +2072,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048584, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2064,6 +2116,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2110,6 +2163,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2155,6 +2209,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2201,6 +2256,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2247,6 +2303,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048584, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2291,6 +2348,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048584, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2335,6 +2393,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2381,6 +2440,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2427,6 +2487,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2473,6 +2534,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -2523,6 +2585,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -2573,6 +2636,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 6000
   duration_per_resource_ms: 2000
   max_duration_ms: 16000
@@ -2623,6 +2687,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2668,6 +2733,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2713,6 +2779,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2758,6 +2825,7 @@ spells:
   attributes: [1376272, 201588736, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -2804,6 +2872,7 @@ spells:
   attributes: [1376272, 201588736, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -2850,6 +2919,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -2891,6 +2961,7 @@ spells:
   attributes: [2555920, 201327104, 1048576, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -2932,6 +3003,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -2974,6 +3046,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -3016,6 +3089,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -3058,6 +3132,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -3100,6 +3175,7 @@ spells:
   attributes: [327696, 134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -3132,6 +3208,7 @@ spells:
   attributes: [169148688, 32, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132331
+  icon_name: ability_vanish
   duration_ms: 10000
   power:
   - type: ENERGY
@@ -3159,6 +3236,7 @@ spells:
   attributes: [169148688, 32, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132331
+  icon_name: ability_vanish
   duration_ms: 10000
   power:
   - type: ENERGY
@@ -3186,6 +3264,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132222
+  icon_name: ability_marksmanship
   equipped_items:
     class: 2
     subclass_mask: 173555
@@ -3210,6 +3289,7 @@ spells:
   attributes: [400, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135641
+  icon_name: inv_weapon_shortblade_05
   duration_ms: -1
   levels:
     base: 1
@@ -3232,6 +3312,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: -1
   levels:
     spell: 1
@@ -3253,6 +3334,7 @@ spells:
   attributes: [400, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133476
+  icon_name: inv_mace_01
   duration_ms: -1
   levels:
     spell: 1
@@ -3272,6 +3354,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136047
+  icon_name: spell_nature_invisibilty
   labels: [20]
   description: Increases your Dodge chance by $s1%.
   effects:
@@ -3287,6 +3370,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132269
+  icon_name: ability_parry
   labels: [20]
   description: Increases your Parry chance by $s1%.
   effects:
@@ -3302,6 +3386,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132147
+  icon_name: ability_dualwield
   class_options:
     set: 8
   labels: [20]
@@ -3319,6 +3404,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
   power:
   - type: ENERGY
   class_options:
@@ -3340,6 +3426,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   class_options:
     set: 8
   labels: [20]
@@ -3359,6 +3446,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136205
+  icon_name: spell_shadow_shadowward
   class_options:
     set: 8
   labels: [20]
@@ -3377,6 +3465,7 @@ spells:
   attributes: [65552, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136206
+  icon_name: spell_shadow_shadowworddominate
   duration_ms: 15000
   power:
   - type: ENERGY
@@ -3406,6 +3495,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 15000
   power:
   - type: ENERGY
@@ -3438,6 +3528,7 @@ spells:
   attributes: [464, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135328
+  icon_name: inv_sword_27
   levels:
     base: 1
     spell: 1
@@ -3470,6 +3561,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: -1
   levels:
     spell: 1
@@ -3492,6 +3584,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: -1
   levels:
     spell: 1
@@ -3514,6 +3607,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: -1
   levels:
     spell: 1
@@ -3536,6 +3630,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: -1
   levels:
     spell: 1
@@ -3557,6 +3652,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   class_options:
     set: 8
   labels: [20]
@@ -3583,6 +3679,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136159
+  icon_name: spell_shadow_fumble
   aura_options:
     proc_chance: 100
     proc_type_mask: 16
@@ -3604,6 +3701,7 @@ spells:
   attributes: [16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136159
+  icon_name: spell_shadow_fumble
   range_yd: 100.0
   labels: [20]
   effects:
@@ -3621,6 +3719,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
   class_options:
     set: 8
   labels: [20]
@@ -3640,6 +3739,7 @@ spells:
   attributes: [448, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136056
+  icon_name: spell_nature_mirrorimage
   aura_options:
     proc_chance: 100
     proc_category_recovery_ms: 1000
@@ -3659,6 +3759,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   class_options:
     set: 8
   labels: [20]
@@ -3686,6 +3787,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132310
+  icon_name: ability_sap
   aura_options:
     proc_chance: 30
     proc_type_mask: 69648
@@ -3707,6 +3809,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   class_options:
     set: 8
   labels: [20]
@@ -3726,6 +3829,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136220
+  icon_name: spell_shadow_summonsuccubus
   class_options:
     set: 8
   labels: [20]
@@ -3744,6 +3848,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132289
+  icon_name: ability_rogue_distract
   class_options:
     set: 8
   description: Increases the radius of your Distract ability by $s1 yds, and further reduces the Stealth detection of distracted enemies as though they were an additional ${$m2/-5} $Llevel:levels; lower.
@@ -3771,6 +3876,7 @@ spells:
   attributes: [128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132331
+  icon_name: ability_vanish
   aura_options:
     proc_chance: 101
   effects:
@@ -3785,6 +3891,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132310
+  icon_name: ability_sap
   aura_options:
     proc_chance: 60
     proc_type_mask: 69648
@@ -3807,6 +3914,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132310
+  icon_name: ability_sap
   aura_options:
     proc_chance: 90
     proc_type_mask: 69648
@@ -3828,6 +3936,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132273
+  icon_name: ability_poisons
   class_options:
     set: 8
   labels: [20]
@@ -3852,6 +3961,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132109
+  icon_name: ability_criticalstrike
   class_options:
     set: 8
   labels: [20]
@@ -3871,6 +3981,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132277
+  icon_name: ability_racial_bloodrage
   labels: [20]
   description: Increases your critical strike chance with all attacks and Poisons by $s1%.
   effects:
@@ -3886,6 +3997,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132151
+  icon_name: ability_fiegndead
   aura_options:
     proc_chance: 100
     proc_type_mask: 2
@@ -3903,6 +4015,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132122
+  icon_name: ability_druid_disembowel
   aura_options:
     proc_chance: 100
     proc_category_recovery_ms: 500
@@ -3924,6 +4037,7 @@ spells:
   attributes: [16, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   labels: [20]
   effects:
@@ -3941,6 +4055,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136147
+  icon_name: spell_shadow_deathscream
   class_options:
     set: 8
   labels: [20]
@@ -3959,6 +4074,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   class_options:
     set: 8
   labels: [20]
@@ -3977,6 +4093,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132306
+  icon_name: ability_rogue_slicedice
   class_options:
     set: 8
   labels: [20]
@@ -3996,6 +4113,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132354
+  icon_name: ability_warrior_riposte
   aura_options:
     proc_chance: 100
     proc_category_recovery_ms: 500
@@ -4032,6 +4150,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135315
+  icon_name: inv_sword_17
   class_options:
     set: 8
   labels: [20]
@@ -4056,6 +4175,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132298
+  icon_name: ability_rogue_kidneyshot
   class_options:
     set: 8
   labels: [20]
@@ -4075,6 +4195,7 @@ spells:
   attributes: [33882128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135988
+  icon_name: spell_ice_lament
   duration_ms: -1
   cooldown:
     recovery_ms: 180000
@@ -4102,6 +4223,7 @@ spells:
   attributes: [464, 1048576, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   class_options:
     set: 8
   labels: [20]
@@ -4120,6 +4242,7 @@ spells:
   attributes: [0, 0, 0, 1073741824, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 33554432, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   labels: [20]
   description: $s1 Energy restored.
   effects:
@@ -4134,6 +4257,7 @@ spells:
   attributes: [327696, 268567584, 0, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136183
+  icon_name: spell_shadow_possession
   duration_ms: 20000
   range_yd: 20.0
   cooldown:
@@ -4168,6 +4292,7 @@ spells:
   attributes: [262160, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136121
+  icon_name: spell_shadow_antishadow
   cooldown:
     recovery_ms: 600000
     start_recovery_ms: 1000
@@ -4188,6 +4313,7 @@ spells:
   attributes: [464, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136130
+  icon_name: spell_shadow_chilltouch
   levels:
     base: 1
     spell: 1
@@ -4209,6 +4335,7 @@ spells:
   attributes: [16, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136130
+  icon_name: spell_shadow_chilltouch
   range_yd: 50000.0
   levels:
     base: 1
@@ -4232,6 +4359,7 @@ spells:
   attributes: [327696, 131584, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132336
+  icon_name: ability_warrior_challange
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -4264,6 +4392,7 @@ spells:
   attributes: [327696, 201327104, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136136
+  icon_name: spell_shadow_curse
   duration_ms: 7000
   range_yd: 5.0
   power:
@@ -4311,6 +4440,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136023
+  icon_name: spell_nature_earthbindtotem
   class_options:
     set: 8
   labels: [20]
@@ -4328,6 +4458,7 @@ spells:
   attributes: [0, 1024, 0, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136159
+  icon_name: spell_shadow_fumble
   range_yd: 50000.0
   labels: [20]
   effects:
@@ -4344,6 +4475,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135328
+  icon_name: inv_sword_27
   labels: [20]
   effects:
   - index: 0
@@ -4358,6 +4490,7 @@ spells:
   attributes: [67436560, 201327104, 0, 1026, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136168
+  icon_name: spell_shadow_lifedrain
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -4414,6 +4547,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132293
+  icon_name: ability_rogue_feigndeath
   class_options:
     set: 8
   labels: [20]
@@ -4447,6 +4581,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132275
+  icon_name: ability_racial_avatar
   class_options:
     set: 8
   labels: [20]
@@ -4467,6 +4602,7 @@ spells:
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132320
+  icon_name: ability_stealth
   duration_ms: -1
   levels:
     spell: 1
@@ -4489,6 +4625,7 @@ spells:
   attributes: [327696, 201327104, 1048576, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -4534,6 +4671,7 @@ spells:
   attributes: [327696, 134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -4566,6 +4704,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132294
+  icon_name: ability_rogue_feint
   class_options:
     set: 8
   labels: [20]
@@ -4589,6 +4728,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132089
+  icon_name: ability_ambush
   labels: [20]
   description: Increases your Stealth detection as if you were ${$m1/5} $llevel:levels; higher and reduces your chance to be hit by spells and ranged attacks by $m2%.
   effects:
@@ -4609,6 +4749,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135540
+  icon_name: inv_weapon_crossbow_11
   labels: [20]
   description: Increases your Attack Power by $s1%.
   effects:
@@ -4628,6 +4769,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135882
+  icon_name: spell_holy_blessingofstrength
   labels: [20]
   description: Reduces the chance for your attacks to be Dodged or Parried by $m1%.
   effects:
@@ -4645,6 +4787,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -4686,6 +4829,7 @@ spells:
   attributes: [4259858, 0, 131328, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134536
+  icon_name: inv_musket_02
   duration_ms: 6000
   range_yd: 20.0
   power:
@@ -4725,6 +4869,7 @@ spells:
   attributes: [327696, 201327104, 1048832, 16778240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -4772,6 +4917,7 @@ spells:
   attributes: [327696, 0, 0, 1536, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -4805,6 +4951,7 @@ spells:
   attributes: [327696, 0, 0, 16777728, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -4837,6 +4984,7 @@ spells:
   attributes: [2555920, 134218272, 1048832, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132323
+  icon_name: ability_theblackarrow
   range_yd: 25.0
   power:
   - type: ENERGY
@@ -4885,6 +5033,7 @@ spells:
   attributes: [4259856, 0, 131328, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132330
+  icon_name: ability_upgrademoonglaive
   range_yd: 25.0
   power:
   - type: ENERGY
@@ -4920,6 +5069,7 @@ spells:
   attributes: [327698, 1048576, 1179904, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135610
+  icon_name: inv_weapon_rifle_01
   duration_ms: 0
   duration_per_resource_ms: 1000
   max_duration_ms: 5000
@@ -4964,6 +5114,7 @@ spells:
   attributes: [537198608, 4195328, 260, 1342439424, 16, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132269
+  icon_name: ability_parry
   duration_ms: 10000
   duration_per_resource_ms: 4000
   max_duration_ms: 30000
@@ -5011,6 +5162,7 @@ spells:
   attributes: [327696, 134218240, 256, 1152, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132375
+  icon_name: inv_1h_haremmatron_d_01
   duration_ms: 12000
   range_yd: 5.0
   power:
@@ -5069,6 +5221,7 @@ spells:
   attributes: [327696, 134217728, 1048832, 17235968, 8389632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135428
+  icon_name: inv_throwingknife_04
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -5103,6 +5256,7 @@ spells:
   attributes: [327696, 134218240, 256, 16777218, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 237531
+  icon_name: spell_deathknight_spelldeflection
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -5156,6 +5310,7 @@ spells:
   attributes: [327696, 134217728, 1048832, 17235968, 8388608, 0, 0, 25165824, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135694
+  icon_name: inv_weapon_shortblade_59
   range_yd: 25.0
   power:
   - type: ENERGY
@@ -5195,6 +5350,7 @@ spells:
   attributes: [262144, 0, 0, 1090519552, 0, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135694
+  icon_name: inv_weapon_shortblade_59
   range_yd: 100.0
   categories:
     defense_type: MELEE
@@ -5224,6 +5380,7 @@ spells:
   attributes: [16, 1049632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135425
+  icon_name: inv_throwingknife_01
   duration_ms: 15000
   range_yd: 5.0
   cooldown:
@@ -5251,6 +5408,7 @@ spells:
   attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   duration_ms: -1
   effects:
   - index: 0
@@ -5262,6 +5420,7 @@ spells:
   attributes: [327696, 0, 0, 1073741824, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236281
+  icon_name: ability_rogue_stayofexecution
   duration_ms: 10000
   categories:
     defense_type: MELEE
@@ -5287,6 +5446,7 @@ spells:
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 626005
+  icon_name: classicon_rogue
   aura_options:
     proc_chance: 100
     proc_type_mask: 16
@@ -5307,6 +5467,7 @@ spells:
   attributes: [464, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   levels:
     base: 1
     spell: 1
@@ -5343,6 +5504,7 @@ spells:
   attributes: [64, 0, 256, 0, 0, 0, 0, 0, 4096, 4194304, 32768, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132310
+  icon_name: ability_sap
   levels:
     base: 1
     spell: 1
@@ -5367,6 +5529,7 @@ spells:
   attributes: [327696, 201327104, 1048832, 16778240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -5414,6 +5577,7 @@ spells:
   attributes: [327696, 201327104, 1048832, 16778240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -5461,6 +5625,7 @@ spells:
   attributes: [327696, 0, 0, 1536, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5494,6 +5659,7 @@ spells:
   attributes: [327696, 0, 0, 1536, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5527,6 +5693,7 @@ spells:
   attributes: [327696, 0, 0, 16777728, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5560,6 +5727,7 @@ spells:
   attributes: [327696, 0, 0, 16777728, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5589,6 +5757,7 @@ spells:
   attributes: [400, 16, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135328
+  icon_name: inv_sword_27
   duration_ms: -1
   levels:
     base: 1
@@ -5614,6 +5783,7 @@ spells:
   attributes: [16, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   labels: [20]
   effects:
@@ -5632,6 +5802,7 @@ spells:
   attributes: [537198608, 134218752, 4, 1342439424, 16, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135341
+  icon_name: inv_sword_31
   duration_ms: 6000
   duration_per_resource_ms: 3000
   max_duration_ms: 21000
@@ -5692,6 +5863,7 @@ spells:
   attributes: [327696, 0, 0, 16777728, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5725,6 +5897,7 @@ spells:
   attributes: [327696, 0, 0, 1536, 1, 0, 0, 58720256, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   categories:
     defense_type: MELEE
@@ -5757,6 +5930,7 @@ spells:
   attributes: [327696, 201327104, 1048832, 16778240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236270
+  icon_name: ability_rogue_deadlybrew
   range_yd: 5.0
   power:
   - type: ENERGY
@@ -5801,6 +5975,7 @@ spells:
   attributes: [464, 0, 0, 1073741824, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132290
+  icon_name: ability_rogue_dualweild
   range_yd: 100.0
   levels:
     base: 30
@@ -5822,6 +5997,7 @@ spells:
   attributes: [16, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   labels: [20]
   effects:
@@ -5839,6 +6015,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135345
+  icon_name: inv_sword_35
   power:
   - type: ENERGY
   class_options:
@@ -5859,6 +6036,7 @@ spells:
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   aura_options:
     proc_chance: 100
     proc_category_recovery_ms: 1900
@@ -5879,6 +6057,7 @@ spells:
   attributes: [262160, 0, 0, 1073741824, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132302
+  icon_name: ability_rogue_rupture
   duration_ms: 10000
   aura_options:
     proc_chance: 100
@@ -5901,6 +6080,7 @@ spells:
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132297
+  icon_name: ability_rogue_garrote
   class_options:
     set: 8
   labels: [20]
@@ -5923,6 +6103,7 @@ spells:
   attributes: [0, 0, 0, 1073741824, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 33554432, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   labels: [20]
   description: Restores $s1 Energy.
   effects:

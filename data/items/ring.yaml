@@ -9,6 +9,7 @@ items:
   type: RING
   quality: RARE
   icon: 133347
+  icon_name: inv_jewelry_ring_05
   req_lvl: 0
   item_lvl: 31
   stats:
@@ -24,6 +25,7 @@ items:
   type: RING
   quality: RARE
   icon: 133368
+  icon_name: inv_jewelry_ring_26
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -35,6 +37,7 @@ items:
   type: RING
   quality: RARE
   icon: 133343
+  icon_name: inv_jewelry_ring_01
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -46,6 +49,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -60,6 +64,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -74,6 +79,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133369
+  icon_name: inv_jewelry_ring_27
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -90,6 +96,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   req_lvl: 60
   item_lvl: 66
   stats:
@@ -104,6 +111,7 @@ items:
   type: RING
   quality: RARE
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -116,6 +124,7 @@ items:
   type: RING
   quality: RARE
   icon: 133355
+  icon_name: inv_jewelry_ring_13
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -129,6 +138,7 @@ items:
   type: RING
   quality: RARE
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   unique: true
   req_lvl: 57
   item_lvl: 62
@@ -142,6 +152,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133349
+  icon_name: inv_jewelry_ring_07
   unique: true
   req_lvl: 60
   item_lvl: 67
@@ -157,6 +168,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133356
+  icon_name: inv_jewelry_ring_14
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -171,6 +183,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133356
+  icon_name: inv_jewelry_ring_14
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -182,6 +195,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133368
+  icon_name: inv_jewelry_ring_26
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -193,6 +207,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133347
+  icon_name: inv_jewelry_ring_05
   req_lvl: 0
   item_lvl: 60
   effects:
@@ -205,6 +220,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133357
+  icon_name: inv_jewelry_ring_15
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -216,6 +232,7 @@ items:
   type: RING
   quality: RARE
   icon: 133379
+  icon_name: inv_jewelry_ring_37
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -228,6 +245,7 @@ items:
   type: RING
   quality: RARE
   icon: 133377
+  icon_name: inv_jewelry_ring_35
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -241,6 +259,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133378
+  icon_name: inv_jewelry_ring_36
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -255,6 +274,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133381
+  icon_name: inv_jewelry_ring_39
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -269,6 +289,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133380
+  icon_name: inv_jewelry_ring_38
   req_lvl: 60
   item_lvl: 66
   stats:
@@ -280,6 +301,7 @@ items:
   type: RING
   quality: RARE
   icon: 133376
+  icon_name: inv_jewelry_ring_34
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -292,6 +314,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133377
+  icon_name: inv_jewelry_ring_35
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -307,6 +330,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -320,6 +344,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133384
+  icon_name: inv_jewelry_ring_42
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -336,6 +361,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133383
+  icon_name: inv_jewelry_ring_41
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -350,6 +376,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133385
+  icon_name: inv_jewelry_ring_43
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -363,6 +390,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133376
+  icon_name: inv_jewelry_ring_34
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -378,6 +406,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133379
+  icon_name: inv_jewelry_ring_37
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -392,6 +421,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133366
+  icon_name: inv_jewelry_ring_24
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -406,6 +436,7 @@ items:
   type: RING
   quality: RARE
   icon: 133363
+  icon_name: inv_jewelry_ring_21
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -420,6 +451,7 @@ items:
   type: RING
   quality: RARE
   icon: 133363
+  icon_name: inv_jewelry_ring_21
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -434,6 +466,7 @@ items:
   type: RING
   quality: RARE
   icon: 133363
+  icon_name: inv_jewelry_ring_21
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -448,6 +481,7 @@ items:
   type: RING
   quality: RARE
   icon: 133363
+  icon_name: inv_jewelry_ring_21
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -462,6 +496,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -476,6 +511,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -490,6 +526,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -504,6 +541,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -518,6 +556,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -532,6 +571,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -546,6 +586,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -560,6 +601,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -574,6 +616,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -588,6 +631,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -602,6 +646,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -616,6 +661,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -630,6 +676,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -644,6 +691,7 @@ items:
   type: RING
   quality: RARE
   icon: 133363
+  icon_name: inv_jewelry_ring_21
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -658,6 +706,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -672,6 +721,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -686,6 +736,7 @@ items:
   type: RING
   quality: RARE
   icon: 133368
+  icon_name: inv_jewelry_ring_26
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -697,6 +748,7 @@ items:
   type: RING
   quality: RARE
   icon: 133368
+  icon_name: inv_jewelry_ring_26
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -708,6 +760,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133379
+  icon_name: inv_jewelry_ring_37
   unique: true
   req_lvl: 60
   item_lvl: 72
@@ -721,6 +774,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133380
+  icon_name: inv_jewelry_ring_38
   unique: true
   req_lvl: 60
   item_lvl: 72
@@ -734,6 +788,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133346
+  icon_name: inv_jewelry_ring_04
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -749,6 +804,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133365
+  icon_name: inv_jewelry_ring_23
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -763,6 +819,7 @@ items:
   type: RING
   quality: RARE
   icon: 133369
+  icon_name: inv_jewelry_ring_27
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -778,6 +835,7 @@ items:
   type: RING
   quality: RARE
   icon: 133360
+  icon_name: inv_jewelry_ring_18
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -792,6 +850,7 @@ items:
   type: RING
   quality: RARE
   icon: 133361
+  icon_name: inv_jewelry_ring_19
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -806,6 +865,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133383
+  icon_name: inv_jewelry_ring_41
   unique: true
   req_lvl: 0
   item_lvl: 62
@@ -820,6 +880,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -833,6 +894,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -852,6 +914,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -871,6 +934,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -890,6 +954,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -909,6 +974,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -928,6 +994,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -947,6 +1014,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -966,6 +1034,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -985,6 +1054,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1004,6 +1074,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -1023,6 +1094,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 60
@@ -1043,6 +1115,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1063,6 +1136,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 70
@@ -1083,6 +1157,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1103,6 +1178,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133382
+  icon_name: inv_jewelry_ring_40
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -1123,6 +1199,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1139,6 +1216,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1156,6 +1234,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1174,6 +1253,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1190,6 +1270,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1206,6 +1287,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1225,6 +1307,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1241,6 +1324,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1257,6 +1341,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133425
+  icon_name: inv_jewelry_ring_ahnqiraj_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1274,6 +1359,7 @@ items:
   type: RING
   quality: RARE
   icon: 133426
+  icon_name: inv_jewelry_ring_ahnqiraj_04
   unique: true
   req_lvl: 60
   item_lvl: 74
@@ -1288,6 +1374,7 @@ items:
   type: RING
   quality: RARE
   icon: 133427
+  icon_name: inv_jewelry_ring_ahnqiraj_05
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1303,6 +1390,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133377
+  icon_name: inv_jewelry_ring_35
   unique: true
   req_lvl: 60
   item_lvl: 77
@@ -1319,6 +1407,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133376
+  icon_name: inv_jewelry_ring_34
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1334,6 +1423,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133428
+  icon_name: inv_jewelry_ring_ahnqiraj_06
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1347,6 +1437,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133423
+  icon_name: inv_jewelry_ring_ahnqiraj_01
   unique: true
   req_lvl: 60
   item_lvl: 81
@@ -1362,6 +1453,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133423
+  icon_name: inv_jewelry_ring_ahnqiraj_01
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1376,6 +1468,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133423
+  icon_name: inv_jewelry_ring_ahnqiraj_01
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1390,6 +1483,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133427
+  icon_name: inv_jewelry_ring_ahnqiraj_05
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -1405,6 +1499,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133366
+  icon_name: inv_jewelry_ring_24
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -1419,6 +1514,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133426
+  icon_name: inv_jewelry_ring_ahnqiraj_04
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1434,6 +1530,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133426
+  icon_name: inv_jewelry_ring_ahnqiraj_04
   unique: true
   req_lvl: 60
   item_lvl: 73
@@ -1447,6 +1544,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133424
+  icon_name: inv_jewelry_ring_ahnqiraj_02
   unique: true
   req_lvl: 60
   item_lvl: 88
@@ -1462,6 +1560,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133376
+  icon_name: inv_jewelry_ring_34
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -1476,6 +1575,7 @@ items:
   type: RING
   quality: RARE
   icon: 133343
+  icon_name: inv_jewelry_ring_01
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1489,6 +1589,7 @@ items:
   type: RING
   quality: RARE
   icon: 133375
+  icon_name: inv_jewelry_ring_33
   unique: true
   req_lvl: 0
   item_lvl: 66
@@ -1505,6 +1606,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133377
+  icon_name: inv_jewelry_ring_35
   unique: true
   req_lvl: 0
   item_lvl: 80
@@ -1519,6 +1621,7 @@ items:
   type: RING
   quality: RARE
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   unique: true
   req_lvl: 0
   item_lvl: 70
@@ -1532,6 +1635,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133392
+  icon_name: inv_jewelry_ring_50naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1547,6 +1651,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133391
+  icon_name: inv_jewelry_ring_49naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1559,6 +1664,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133392
+  icon_name: inv_jewelry_ring_50naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1573,6 +1679,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133390
+  icon_name: inv_jewelry_ring_48naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1588,6 +1695,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133377
+  icon_name: inv_jewelry_ring_35
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1602,6 +1710,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133395
+  icon_name: inv_jewelry_ring_53naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1615,6 +1724,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133394
+  icon_name: inv_jewelry_ring_52naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1629,6 +1739,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133390
+  icon_name: inv_jewelry_ring_48naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 85
@@ -1643,6 +1754,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1659,6 +1771,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1676,6 +1789,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1692,6 +1806,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1709,6 +1824,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1724,6 +1840,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1741,6 +1858,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1758,6 +1876,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1775,6 +1894,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133393
+  icon_name: inv_jewelry_ring_51naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 92
@@ -1790,6 +1910,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133390
+  icon_name: inv_jewelry_ring_48naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1804,6 +1925,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133380
+  icon_name: inv_jewelry_ring_38
   req_lvl: 1
   item_lvl: 6
   stats:
@@ -1815,6 +1937,7 @@ items:
   type: RING
   quality: RARE
   icon: 133354
+  icon_name: inv_jewelry_ring_12
   unique: true
   req_lvl: 0
   item_lvl: 33
@@ -1829,6 +1952,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1842,6 +1966,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1855,6 +1980,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1868,6 +1994,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1881,6 +2008,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1894,6 +2022,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1907,6 +2036,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1920,6 +2050,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1933,6 +2064,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1946,6 +2078,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1959,6 +2092,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1972,6 +2106,7 @@ items:
   type: RING
   quality: RARE
   icon: 133362
+  icon_name: inv_jewelry_ring_20
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1985,6 +2120,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1998,6 +2134,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -2011,6 +2148,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -2024,6 +2162,7 @@ items:
   type: RING
   quality: RARE
   icon: 133370
+  icon_name: inv_jewelry_ring_28
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -2037,6 +2176,7 @@ items:
   type: RING
   quality: RARE
   icon: 133366
+  icon_name: inv_jewelry_ring_24
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -2051,6 +2191,7 @@ items:
   type: RING
   quality: RARE
   icon: 133402
+  icon_name: inv_jewelry_ring_60
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -2067,6 +2208,7 @@ items:
   type: RING
   quality: RARE
   icon: 133343
+  icon_name: inv_jewelry_ring_01
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -2081,6 +2223,7 @@ items:
   type: RING
   quality: RARE
   icon: 133343
+  icon_name: inv_jewelry_ring_01
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -2095,6 +2238,7 @@ items:
   type: RING
   quality: RARE
   icon: 134066
+  icon_name: inv_misc_gear_04
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -2108,6 +2252,7 @@ items:
   type: RING
   quality: RARE
   icon: 133367
+  icon_name: inv_jewelry_ring_25
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -2121,6 +2266,7 @@ items:
   type: RING
   quality: RARE
   icon: 133346
+  icon_name: inv_jewelry_ring_04
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -2134,6 +2280,7 @@ items:
   type: RING
   quality: RARE
   icon: 133722
+  icon_name: inv_misc_bone_05
   req_lvl: 0
   item_lvl: 45
   stats:
@@ -2148,6 +2295,7 @@ items:
   type: RING
   quality: RARE
   icon: 133358
+  icon_name: inv_jewelry_ring_16
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -2161,6 +2309,7 @@ items:
   type: RING
   quality: RARE
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -2175,6 +2324,7 @@ items:
   type: RING
   quality: RARE
   icon: 133367
+  icon_name: inv_jewelry_ring_25
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2192,6 +2342,7 @@ items:
   type: RING
   quality: RARE
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2209,6 +2360,7 @@ items:
   type: RING
   quality: RARE
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2227,6 +2379,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   req_lvl: 60
   item_lvl: 63
   stats:
@@ -2244,6 +2397,7 @@ items:
   type: RING
   quality: RARE
   icon: 133367
+  icon_name: inv_jewelry_ring_25
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2261,6 +2415,7 @@ items:
   type: RING
   quality: RARE
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2278,6 +2433,7 @@ items:
   type: RING
   quality: RARE
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2296,6 +2452,7 @@ items:
   type: RING
   quality: RARE
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -2313,6 +2470,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133367
+  icon_name: inv_jewelry_ring_25
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2330,6 +2488,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2347,6 +2506,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2365,6 +2525,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   req_lvl: 60
   item_lvl: 60
   stats:
@@ -2382,6 +2543,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133367
+  icon_name: inv_jewelry_ring_25
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2399,6 +2561,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133351
+  icon_name: inv_jewelry_ring_09
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2416,6 +2579,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133353
+  icon_name: inv_jewelry_ring_11
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2434,6 +2598,7 @@ items:
   type: RING
   quality: EPIC
   icon: 133352
+  icon_name: inv_jewelry_ring_10
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -2451,6 +2616,7 @@ items:
   type: RING
   quality: RARE
   icon: 133343
+  icon_name: inv_jewelry_ring_01
   req_lvl: 1
   item_lvl: 38
   stats:
@@ -2463,6 +2629,7 @@ items:
   type: RING
   quality: RARE
   icon: 133344
+  icon_name: inv_jewelry_ring_02
   req_lvl: 0
   item_lvl: 25
   class_restrictions: [ROGUE]
@@ -2477,6 +2644,7 @@ items:
   type: RING
   quality: RARE
   icon: 133357
+  icon_name: inv_jewelry_ring_15
   req_lvl: 0
   item_lvl: 32
   stats:
@@ -2488,6 +2656,7 @@ items:
   type: RING
   quality: RARE
   icon: 133344
+  icon_name: inv_jewelry_ring_02
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -2500,6 +2669,7 @@ items:
   type: RING
   quality: RARE
   icon: 133356
+  icon_name: inv_jewelry_ring_14
   req_lvl: 0
   item_lvl: 35
   stats:
@@ -2512,6 +2682,7 @@ items:
   type: RING
   quality: RARE
   icon: 1769008
+  icon_name: spell_nature_thorns_iron
   req_lvl: 1
   item_lvl: 32
   stats:

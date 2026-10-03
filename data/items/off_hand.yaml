@@ -9,6 +9,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134335
+  icon_name: inv_misc_orb_03
   req_lvl: 0
   item_lvl: 25
   class_restrictions: [WARLOCK]
@@ -30,6 +31,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134335
+  icon_name: inv_misc_orb_03
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -51,6 +53,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134335
+  icon_name: inv_misc_orb_03
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARLOCK]
@@ -72,6 +75,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134335
+  icon_name: inv_misc_orb_03
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARLOCK]
@@ -93,6 +97,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 135148
+  icon_name: inv_staff_11
   req_lvl: 0
   item_lvl: 60
   damage:
@@ -110,6 +115,7 @@ items:
   type: SHIELD
   quality: RARE
   icon: 134952
+  icon_name: inv_shield_06
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -127,6 +133,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 135741
+  icon_name: spell_arcane_portaldarnassus
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -149,6 +156,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 133738
+  icon_name: inv_misc_book_06
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -168,6 +176,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134430
+  icon_name: inv_misc_shadowegg
   req_lvl: 0
   item_lvl: 54
   damage:
@@ -184,6 +193,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134951
+  icon_name: inv_shield_05
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -204,6 +214,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134965
+  icon_name: inv_shield_19
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -224,6 +235,7 @@ items:
   type: FIST
   quality: EPIC
   icon: 132302
+  icon_name: ability_rogue_rupture
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -241,6 +253,7 @@ items:
   type: FIST
   quality: EPIC
   icon: 134297
+  icon_name: inv_misc_monsterclaw_04
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -258,6 +271,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133733
+  icon_name: inv_misc_book_01
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -275,6 +289,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133738
+  icon_name: inv_misc_book_06
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -292,6 +307,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133743
+  icon_name: inv_misc_book_11
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -309,6 +325,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133741
+  icon_name: inv_misc_book_09
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -325,6 +342,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133941
+  icon_name: inv_misc_flower_04
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -344,6 +362,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133749
+  icon_name: inv_misc_branch_01
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -360,6 +379,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 135835
+  icon_name: spell_frost_chillingarmor
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -378,6 +398,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 134335
+  icon_name: inv_misc_orb_03
   req_lvl: 60
   item_lvl: 83
   damage:
@@ -395,6 +416,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 133743
+  icon_name: inv_misc_book_11
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -412,6 +434,7 @@ items:
   type: FIST
   quality: RARE
   icon: 134295
+  icon_name: inv_misc_monsterclaw_02
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -431,6 +454,7 @@ items:
   type: SHIELD
   quality: RARE
   icon: 134957
+  icon_name: inv_shield_11
   req_lvl: 0
   item_lvl: 52
   damage:
@@ -448,6 +472,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 134125
+  icon_name: inv_misc_gem_pearl_06
   req_lvl: 0
   item_lvl: 62
   damage:
@@ -466,6 +491,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134969
+  icon_name: inv_shield_23
   unique: true
   req_lvl: 60
   item_lvl: 79
@@ -487,6 +513,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 135472
+  icon_name: inv_wand_10
   req_lvl: 60
   item_lvl: 81
   damage:
@@ -506,6 +533,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134970
+  icon_name: inv_shield_24
   req_lvl: 60
   item_lvl: 81
   damage:
@@ -526,6 +554,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134968
+  icon_name: inv_shield_22
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -547,6 +576,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133744
+  icon_name: inv_misc_book_12
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -564,6 +594,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133745
+  icon_name: inv_misc_book_13
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -582,6 +613,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133747
+  icon_name: inv_misc_book_15
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -599,6 +631,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133746
+  icon_name: inv_misc_book_14
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -617,6 +650,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 133743
+  icon_name: inv_misc_book_11
   unique: true
   req_lvl: 0
   item_lvl: 55
@@ -635,6 +669,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 1769010
+  icon_name: inv_misc_orb_blue
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -651,6 +686,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134336
+  icon_name: inv_misc_orb_04
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -668,6 +704,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 134922
+  icon_name: inv_rod_enchantedadamantite
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -685,6 +722,7 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   icon: 4638472
+  icon_name: inv_10_misc_dragonorb_color1
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -736,6 +774,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134965
+  icon_name: inv_shield_19
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -756,6 +795,7 @@ items:
   type: FIST
   quality: EPIC
   icon: 134297
+  icon_name: inv_misc_monsterclaw_04
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -773,6 +813,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133747
+  icon_name: inv_misc_book_15
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -790,6 +831,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133746
+  icon_name: inv_misc_book_14
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -809,6 +851,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134951
+  icon_name: inv_shield_05
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -829,6 +872,7 @@ items:
   type: FIST
   quality: EPIC
   icon: 132302
+  icon_name: ability_rogue_rupture
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -905,6 +949,7 @@ items:
   type: SHIELD
   quality: RARE
   icon: 134959
+  icon_name: inv_shield_13
   req_lvl: 0
   item_lvl: 55
   damage:
@@ -1018,6 +1063,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133745
+  icon_name: inv_misc_book_13
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1037,6 +1083,7 @@ items:
   type: CASTER_OFFHAND
   quality: EPIC
   icon: 133744
+  icon_name: inv_misc_book_12
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1054,6 +1101,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134951
+  icon_name: inv_shield_05
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1073,6 +1121,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 134965
+  icon_name: inv_shield_19
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1092,6 +1141,7 @@ items:
   type: SHIELD
   quality: EPIC
   icon: 7956963
+  icon_name: inv_shield_1h_raidhyjalc60_d_01
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -1112,6 +1162,7 @@ items:
   type: SHIELD
   quality: RARE
   icon: 134955
+  icon_name: inv_shield_09
   req_lvl: 1
   item_lvl: 40
   damage:

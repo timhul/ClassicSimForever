@@ -9,6 +9,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 44
   item_lvl: 49
   boe: true
@@ -25,6 +26,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -41,6 +43,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132601
+  icon_name: inv_bracer_02
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -56,6 +59,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132601
+  icon_name: inv_bracer_02
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -71,6 +75,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132616
+  icon_name: inv_bracer_17
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -86,6 +91,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -102,6 +108,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -118,6 +125,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -134,6 +142,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -150,6 +159,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132616
+  icon_name: inv_bracer_17
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -166,6 +176,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -182,6 +193,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -198,6 +210,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -213,6 +226,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -228,6 +242,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -243,6 +258,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -258,6 +274,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -273,6 +290,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -289,6 +307,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132618
+  icon_name: inv_bracer_19
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -305,6 +324,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -321,6 +341,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -337,6 +358,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -353,6 +375,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -369,6 +392,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -383,6 +407,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -399,6 +424,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -415,6 +441,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -431,6 +458,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -447,6 +475,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -463,6 +492,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -479,6 +509,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -495,6 +526,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -511,6 +543,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 60
   item_lvl: 64
   boe: true
@@ -526,6 +559,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132618
+  icon_name: inv_bracer_19
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -541,6 +575,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132618
+  icon_name: inv_bracer_19
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -556,6 +591,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -571,6 +607,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -586,6 +623,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -601,6 +639,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -616,6 +655,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -631,6 +671,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -646,6 +687,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -661,6 +703,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132605
+  icon_name: inv_bracer_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -676,6 +719,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132605
+  icon_name: inv_bracer_06
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -691,6 +735,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -706,6 +751,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -721,6 +767,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -736,6 +783,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -751,6 +799,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -766,6 +815,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -781,6 +831,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132604
+  icon_name: inv_bracer_05
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -795,6 +846,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132614
+  icon_name: inv_bracer_15
   req_lvl: 27
   item_lvl: 32
   boe: true
@@ -810,6 +862,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132605
+  icon_name: inv_bracer_06
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -825,6 +878,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132605
+  icon_name: inv_bracer_06
   unique: true
   req_lvl: 50
   item_lvl: 55
@@ -840,6 +894,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132605
+  icon_name: inv_bracer_06
   unique: true
   req_lvl: 40
   item_lvl: 45
@@ -855,6 +910,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -870,6 +926,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -885,6 +942,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -900,6 +958,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -914,6 +973,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -928,6 +988,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -942,6 +1003,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -957,6 +1019,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -972,6 +1035,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -987,6 +1051,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -1003,6 +1068,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132613
+  icon_name: inv_bracer_14
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [WARRIOR]
@@ -1019,6 +1085,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132613
+  icon_name: inv_bracer_14
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PALADIN]
@@ -1037,6 +1104,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132614
+  icon_name: inv_bracer_15
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [SHAMAN]
@@ -1054,6 +1122,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [HUNTER]
@@ -1071,6 +1140,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132613
+  icon_name: inv_bracer_14
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [ROGUE]
@@ -1087,6 +1157,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132607
+  icon_name: inv_bracer_08
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [DRUID]
@@ -1104,6 +1175,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [PRIEST]
@@ -1121,6 +1193,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [MAGE]
@@ -1138,6 +1211,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 0
   item_lvl: 61
   class_restrictions: [WARLOCK]
@@ -1154,6 +1228,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -1168,6 +1243,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132604
+  icon_name: inv_bracer_05
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -1184,6 +1260,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -1198,6 +1275,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -1212,6 +1290,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1225,6 +1304,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132618
+  icon_name: inv_bracer_19
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1241,6 +1321,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132613
+  icon_name: inv_bracer_14
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1256,6 +1337,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132610
+  icon_name: inv_bracer_11
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1271,6 +1353,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1286,6 +1369,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1301,6 +1385,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1315,6 +1400,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 78
   stats:
@@ -1328,6 +1414,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1344,6 +1431,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1359,6 +1447,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132616
+  icon_name: inv_bracer_17
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1374,6 +1463,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133365
+  icon_name: inv_jewelry_ring_23
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1390,6 +1480,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1405,6 +1496,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132520
+  icon_name: inv_belt_31
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1422,6 +1514,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132613
+  icon_name: inv_bracer_14
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1438,6 +1531,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1454,6 +1548,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -1472,6 +1567,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132614
+  icon_name: inv_bracer_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1487,6 +1583,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1503,6 +1600,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1518,6 +1616,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1534,6 +1633,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132614
+  icon_name: inv_bracer_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1549,6 +1649,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1565,6 +1666,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1581,6 +1683,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1596,6 +1699,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132612
+  icon_name: inv_bracer_13
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1612,6 +1716,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1627,6 +1732,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1642,6 +1748,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1657,6 +1764,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1673,6 +1781,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132603
+  icon_name: inv_bracer_04
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1687,6 +1796,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -1703,6 +1813,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 236968
+  icon_name: inv_bracer_25a
   req_lvl: 25
   item_lvl: 30
   boe: true
@@ -2007,6 +2118,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132603
+  icon_name: inv_bracer_04
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -2021,6 +2133,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132609
+  icon_name: inv_bracer_10
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -2048,6 +2161,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -2063,6 +2177,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2079,6 +2194,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2093,6 +2209,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2108,6 +2225,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2123,6 +2241,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -2138,6 +2257,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132618
+  icon_name: inv_bracer_19
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -2152,6 +2272,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2167,6 +2288,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -2181,6 +2303,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -2196,6 +2319,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2211,6 +2335,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2226,6 +2351,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -2241,6 +2367,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2256,6 +2383,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2271,6 +2399,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132618
+  icon_name: inv_bracer_19
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2285,6 +2414,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132618
+  icon_name: inv_bracer_19
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -2300,6 +2430,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -2315,6 +2446,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2330,6 +2462,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -2345,6 +2478,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2359,6 +2493,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2374,6 +2509,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2389,6 +2525,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -2404,6 +2541,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2419,6 +2557,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -2433,6 +2572,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132616
+  icon_name: inv_bracer_17
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -2448,6 +2588,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2463,6 +2604,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -2477,6 +2619,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2492,6 +2635,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -2507,6 +2651,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2522,6 +2667,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2537,6 +2683,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2551,6 +2698,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132605
+  icon_name: inv_bracer_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2566,6 +2714,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2582,6 +2731,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2597,6 +2747,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2613,6 +2764,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2628,6 +2780,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2644,6 +2797,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2659,6 +2813,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2675,6 +2830,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2691,6 +2847,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2706,6 +2863,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2721,6 +2879,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2737,6 +2896,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2752,6 +2912,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132602
+  icon_name: inv_bracer_03
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2768,6 +2929,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2784,6 +2946,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132606
+  icon_name: inv_bracer_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2800,6 +2963,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2816,6 +2980,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132608
+  icon_name: inv_bracer_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2832,6 +2997,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2847,6 +3013,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2862,6 +3029,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2877,6 +3045,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2893,6 +3062,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2908,6 +3078,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132615
+  icon_name: inv_bracer_16
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2924,6 +3095,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2939,6 +3111,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2954,6 +3127,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -2970,6 +3144,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132617
+  icon_name: inv_bracer_18
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -2986,6 +3161,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132611
+  icon_name: inv_bracer_12
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -3000,6 +3176,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132601
+  icon_name: inv_bracer_02
   req_lvl: 60
   item_lvl: 65
   boe: true

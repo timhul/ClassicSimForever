@@ -6,17 +6,17 @@ use std::path::Path;
 
 use csim_engine::faction::PlayerClass;
 use csim_engine::item::{
-    EquipmentDb, ItemFile, ItemSetFile, ItemSlot, ItemStat, ItemType, Quality,
+    EquipmentDb, ItemFile, ItemSetFile, ItemSlot, ItemSpec, ItemStat, ItemType, Quality,
 };
 use csim_engine::magic_school::MagicSchool;
 use csim_engine::phase::Phase;
-use csim_tables::Tables;
 use csim_tables::export;
 use csim_tables::export::items::{
     DerivedItem, EffectTrigger, ItemEffect, LimitCategory, Skip, StatKind, WeaponDamage,
     class_restrictions, damage_school, derive_item, derive_items, newest_versions, stat_kind,
     stat_value,
 };
+use csim_tables::{IconNames, Tables};
 
 fn tables() -> Tables {
     Tables::load_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tables")).unwrap()
@@ -426,4 +426,29 @@ fn comparison_converts_ratings_and_names_each_difference() {
             "12640 Lionheart Helm: stat STRENGTH: 20 -> 18".to_owned(),
         ]
     );
+}
+
+#[test]
+fn icon_names_come_from_the_listfile() {
+    let mut t = tables();
+    let item = derive(&t, 19019);
+    assert_eq!((item.icon, item.icon_name.as_deref()), (135349, None));
+    let yaml = serde_yaml::to_string(&item.to_spec()).unwrap();
+    assert!(!yaml.contains("icon_name"), "no listfile, no name: {yaml}");
+
+    let listfile = "135349;interface/icons/inv_sword_39.blp";
+    t.set_icon_names(IconNames::parse(listfile, Path::new("listfile-icons.csv")).unwrap());
+    let item = derive(&t, 19019);
+    assert_eq!(item.icon_name.as_deref(), Some("inv_sword_39"));
+    let spec = item.to_spec();
+    let yaml = serde_yaml::to_string(&spec).unwrap();
+    assert!(
+        yaml.contains("icon: 135349\nicon_name: inv_sword_39\n"),
+        "{yaml}"
+    );
+    assert_eq!(serde_yaml::from_str::<ItemSpec>(&yaml).unwrap(), spec);
+    // An icon the listfile does not name.
+    let helm = derive(&t, 12640);
+    assert_ne!(helm.icon, 0);
+    assert_eq!(helm.icon_name, None);
 }

@@ -9,6 +9,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133042
+  icon_name: inv_hammer_05
   req_lvl: 0
   item_lvl: 31
   class_restrictions: [PALADIN]
@@ -30,6 +31,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 132403
+  icon_name: inv_axe_12
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARRIOR]
@@ -47,6 +49,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133045
+  icon_name: inv_hammer_08
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARRIOR]
@@ -64,6 +67,7 @@ items:
   type: TWOHAND_SWORD
   quality: RARE
   icon: 135313
+  icon_name: inv_sword_15
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [WARRIOR]
@@ -81,6 +85,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135130
+  icon_name: inv_spear_07
   req_lvl: 45
   item_lvl: 50
   boe: true
@@ -98,6 +103,7 @@ items:
   type: TWOHAND_SWORD
   quality: RARE
   icon: 135317
+  icon_name: inv_sword_19
   req_lvl: 47
   item_lvl: 52
   boe: true
@@ -115,6 +121,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135151
+  icon_name: inv_staff_14
   req_lvl: 0
   item_lvl: 40
   class_restrictions: [MAGE]
@@ -131,6 +138,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133053
+  icon_name: inv_hammer_16
   req_lvl: 0
   item_lvl: 42
   damage:
@@ -146,6 +154,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 135572
+  icon_name: inv_weapon_halberd_02
   req_lvl: 52
   item_lvl: 57
   boe: true
@@ -163,6 +172,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133046
+  icon_name: inv_hammer_09
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -180,6 +190,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 132418
+  icon_name: inv_axe_24
   req_lvl: 49
   item_lvl: 54
   boe: true
@@ -200,6 +211,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133042
+  icon_name: inv_hammer_05
   req_lvl: 51
   item_lvl: 56
   boe: true
@@ -218,6 +230,7 @@ items:
   type: TWOHAND_SWORD
   quality: RARE
   icon: 135277
+  icon_name: inv_sword_07
   req_lvl: 53
   item_lvl: 58
   damage:
@@ -234,6 +247,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 132400
+  icon_name: inv_axe_09
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -251,6 +265,7 @@ items:
   type: TWOHAND_SWORD
   quality: RARE
   icon: 135349
+  icon_name: inv_sword_39
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -268,6 +283,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133046
+  icon_name: inv_hammer_09
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -287,6 +303,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135131
+  icon_name: inv_spear_08
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -304,6 +321,7 @@ items:
   type: TWOHAND_SWORD
   quality: LEGENDARY
   icon: 135358
+  icon_name: inv_sword_48
   unique: true
   req_lvl: 60
   item_lvl: 76
@@ -322,6 +340,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135146
+  icon_name: inv_staff_09
   req_lvl: 0
   item_lvl: 25
   class_restrictions: [WARLOCK]
@@ -340,6 +359,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133041
+  icon_name: inv_hammer_04
   req_lvl: 60
   item_lvl: 66
   damage:
@@ -358,6 +378,7 @@ items:
   type: TWOHAND_MACE
   quality: LEGENDARY
   icon: 133066
+  icon_name: inv_hammer_unique_sulfuras
   unique: true
   req_lvl: 60
   item_lvl: 80
@@ -381,6 +402,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133066
+  icon_name: inv_hammer_unique_sulfuras
   req_lvl: 60
   item_lvl: 67
   boe: true
@@ -398,6 +420,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135131
+  icon_name: inv_spear_08
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -418,6 +441,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135167
+  icon_name: inv_staff_30
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -445,6 +469,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135149
+  icon_name: inv_staff_12
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -471,6 +496,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135158
+  icon_name: inv_staff_21
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -492,6 +518,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132401
+  icon_name: inv_axe_10
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -509,6 +536,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132415
+  icon_name: inv_axe_21
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -526,6 +554,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133040
+  icon_name: inv_hammer_03
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -543,6 +572,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133047
+  icon_name: inv_hammer_10
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -560,6 +590,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135131
+  icon_name: inv_spear_08
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -577,6 +608,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135124
+  icon_name: inv_spear_01
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -594,6 +626,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135151
+  icon_name: inv_staff_14
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -612,6 +645,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 133729
+  icon_name: inv_misc_bone_elfskull_01
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -629,6 +663,7 @@ items:
   type: TWOHAND_SWORD
   quality: EPIC
   icon: 135349
+  icon_name: inv_sword_39
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -646,6 +681,7 @@ items:
   type: TWOHAND_SWORD
   quality: EPIC
   icon: 135358
+  icon_name: inv_sword_48
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -663,6 +699,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135167
+  icon_name: inv_staff_30
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -680,6 +717,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135157
+  icon_name: inv_staff_20
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -697,6 +735,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135127
+  icon_name: inv_spear_04
   req_lvl: 0
   item_lvl: 63
   damage:
@@ -714,6 +753,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135131
+  icon_name: inv_spear_08
   req_lvl: 60
   item_lvl: 66
   boe: true
@@ -733,6 +773,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132403
+  icon_name: inv_axe_12
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -750,6 +791,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133050
+  icon_name: inv_hammer_13
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -771,6 +813,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135162
+  icon_name: inv_staff_25
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -788,6 +831,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135162
+  icon_name: inv_staff_25
   req_lvl: 48
   item_lvl: 53
   damage:
@@ -805,6 +849,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135162
+  icon_name: inv_staff_25
   req_lvl: 38
   item_lvl: 43
   damage:
@@ -822,6 +867,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135162
+  icon_name: inv_staff_25
   req_lvl: 28
   item_lvl: 33
   damage:
@@ -839,6 +885,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135165
+  icon_name: inv_staff_28
   req_lvl: 58
   item_lvl: 63
   damage:
@@ -856,6 +903,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135165
+  icon_name: inv_staff_28
   req_lvl: 48
   item_lvl: 53
   damage:
@@ -873,6 +921,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135165
+  icon_name: inv_staff_28
   req_lvl: 38
   item_lvl: 43
   damage:
@@ -890,6 +939,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135165
+  icon_name: inv_staff_28
   req_lvl: 28
   item_lvl: 33
   damage:
@@ -907,6 +957,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135170
+  icon_name: inv_staff_33
   req_lvl: 60
   item_lvl: 66
   damage:
@@ -925,6 +976,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135466
+  icon_name: inv_wand_04
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -943,6 +995,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135466
+  icon_name: inv_wand_04
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -961,6 +1014,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135166
+  icon_name: inv_staff_29
   req_lvl: 60
   item_lvl: 90
   boe: true
@@ -983,6 +1037,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135166
+  icon_name: inv_staff_29
   req_lvl: 60
   item_lvl: 77
   boe: true
@@ -1005,6 +1060,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135162
+  icon_name: inv_staff_25
   req_lvl: 18
   item_lvl: 23
   damage:
@@ -1022,6 +1078,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135165
+  icon_name: inv_staff_28
   req_lvl: 18
   item_lvl: 23
   damage:
@@ -1039,6 +1096,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135158
+  icon_name: inv_staff_21
   unique: true
   req_lvl: 60
   item_lvl: 75
@@ -1060,6 +1118,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135157
+  icon_name: inv_staff_20
   unique: true
   req_lvl: 0
   item_lvl: 52
@@ -1078,6 +1137,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132418
+  icon_name: inv_axe_24
   unique: true
   req_lvl: 60
   item_lvl: 84
@@ -1099,6 +1159,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133060
+  icon_name: inv_hammer_23
   req_lvl: 60
   item_lvl: 66
   damage:
@@ -1115,6 +1176,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135157
+  icon_name: inv_staff_20
   unique: true
   req_lvl: 60
   item_lvl: 79
@@ -1135,6 +1197,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135157
+  icon_name: inv_staff_20
   unique: true
   req_lvl: 60
   item_lvl: 79
@@ -1154,6 +1217,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133047
+  icon_name: inv_hammer_10
   req_lvl: 0
   item_lvl: 65
   damage:
@@ -1171,6 +1235,7 @@ items:
   type: STAFF
   quality: LEGENDARY
   icon: 135226
+  icon_name: inv_staff_medivh
   req_lvl: 60
   item_lvl: 90
   damage:
@@ -1195,6 +1260,7 @@ items:
   type: STAFF
   quality: LEGENDARY
   icon: 135226
+  icon_name: inv_staff_medivh
   req_lvl: 60
   item_lvl: 90
   damage:
@@ -1218,6 +1284,7 @@ items:
   type: STAFF
   quality: LEGENDARY
   icon: 135226
+  icon_name: inv_staff_medivh
   req_lvl: 60
   item_lvl: 90
   damage:
@@ -1242,6 +1309,7 @@ items:
   type: STAFF
   quality: LEGENDARY
   icon: 135226
+  icon_name: inv_staff_medivh
   req_lvl: 60
   item_lvl: 90
   damage:
@@ -1267,6 +1335,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133060
+  icon_name: inv_hammer_23
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1285,6 +1354,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133484
+  icon_name: inv_mace_09
   req_lvl: 60
   item_lvl: 78
   damage:
@@ -1303,6 +1373,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135574
+  icon_name: inv_weapon_halberd_04
   req_lvl: 59
   item_lvl: 64
   damage:
@@ -1319,6 +1390,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135574
+  icon_name: inv_weapon_halberd_04
   req_lvl: 58
   item_lvl: 66
   damage:
@@ -1335,6 +1407,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133042
+  icon_name: inv_hammer_05
   req_lvl: 0
   item_lvl: 56
   damage:
@@ -1352,6 +1425,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135156
+  icon_name: inv_staff_19
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -1368,6 +1442,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135168
+  icon_name: inv_staff_31
   req_lvl: 25
   item_lvl: 30
   damage:
@@ -1384,6 +1459,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135150
+  icon_name: inv_staff_13
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -1400,6 +1476,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135151
+  icon_name: inv_staff_14
   req_lvl: 45
   item_lvl: 50
   damage:
@@ -1481,6 +1558,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133053
+  icon_name: inv_hammer_16
   req_lvl: 0
   item_lvl: 33
   damage:
@@ -1498,6 +1576,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133046
+  icon_name: inv_hammer_09
   req_lvl: 0
   item_lvl: 33
   damage:
@@ -1515,6 +1594,7 @@ items:
   type: STAFF
   quality: RARE
   icon: 135147
+  icon_name: inv_staff_10
   req_lvl: 0
   item_lvl: 33
   damage:
@@ -1579,6 +1659,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132415
+  icon_name: inv_axe_21
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1596,6 +1677,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133047
+  icon_name: inv_hammer_10
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1613,6 +1695,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135124
+  icon_name: inv_spear_01
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1630,6 +1713,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 133729
+  icon_name: inv_misc_bone_elfskull_01
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1647,6 +1731,7 @@ items:
   type: TWOHAND_SWORD
   quality: EPIC
   icon: 135358
+  icon_name: inv_sword_48
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1664,6 +1749,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133484
+  icon_name: inv_mace_09
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1682,6 +1768,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 132401
+  icon_name: inv_axe_10
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1699,6 +1786,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133040
+  icon_name: inv_hammer_03
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1716,6 +1804,7 @@ items:
   type: POLEARM
   quality: EPIC
   icon: 135131
+  icon_name: inv_spear_08
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1733,6 +1822,7 @@ items:
   type: STAFF
   quality: EPIC
   icon: 135151
+  icon_name: inv_staff_14
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1750,6 +1840,7 @@ items:
   type: TWOHAND_SWORD
   quality: EPIC
   icon: 135349
+  icon_name: inv_sword_39
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1767,6 +1858,7 @@ items:
   type: TWOHAND_MACE
   quality: EPIC
   icon: 133060
+  icon_name: inv_hammer_23
   req_lvl: 60
   item_lvl: 65
   damage:
@@ -1817,6 +1909,7 @@ items:
   type: POLEARM
   quality: RARE
   icon: 135129
+  icon_name: inv_spear_06
   req_lvl: 0
   item_lvl: 44
   damage:
@@ -1833,6 +1926,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 132453
+  icon_name: inv_axe_66
   req_lvl: 1
   item_lvl: 48
   damage:
@@ -1880,6 +1974,7 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   icon: 132408
+  icon_name: inv_axe_17
   req_lvl: 1
   item_lvl: 23
   damage:
@@ -1896,6 +1991,7 @@ items:
   type: TWOHAND_AXE
   quality: EPIC
   icon: 7957675
+  icon_name: inv_axe_2h_raidhyjalc60_d_01
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -1914,6 +2010,7 @@ items:
   type: TWOHAND_MACE
   quality: RARE
   icon: 133522
+  icon_name: inv_mace_42
   req_lvl: 1
   item_lvl: 40
   damage:

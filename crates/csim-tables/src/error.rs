@@ -47,6 +47,20 @@ pub enum TableError {
         value: String,
         ty: &'static str,
     },
+    /// The icon listfile could not be read.
+    #[error("cannot read listfile {path}: {source}")]
+    ReadListfile {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    /// A listfile line is not `FileDataID;path`.
+    #[error("{path} line {line}: not `FileDataID;path`: {text:?}")]
+    Listfile {
+        path: PathBuf,
+        line: usize,
+        text: String,
+    },
 }
 
 /// Convenience alias used throughout the crate.

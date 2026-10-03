@@ -6,6 +6,7 @@ use std::path::Path;
 
 use crate::dir::TableDir;
 use crate::error::Result;
+use crate::listfile::{IconNames, listfile_path};
 use crate::row::TableRow;
 use crate::tables::*;
 
@@ -119,6 +120,9 @@ pub struct Tables {
     item_bonus_tree_nodes: HashMap<u32, Vec<ItemBonusTreeNodeRow>>,
     /// By bonus list id, sorted by (order index, id).
     item_bonuses: HashMap<u32, Vec<ItemBonusRow>>,
+
+    /// The icon texture names, from the listfile next to the tables (empty without one).
+    icon_names: IconNames,
 }
 
 /// Reads one `ItemDamage*` table into the shared row layout.
@@ -131,7 +135,9 @@ fn slice<'a, K: Eq + Hash, R>(map: &'a HashMap<K, Vec<R>>, key: &K) -> &'a [R] {
 }
 
 impl Tables {
-    /// Loads and indexes every table of [`ALL_TABLES`] from `dir`.
+    /// Loads and indexes every table of [`ALL_TABLES`] from `dir`, and the icon names of the
+    /// listfile in the same directory when there is one
+    /// ([`LISTFILE_NAME`](crate::listfile::LISTFILE_NAME)).
     pub fn load(dir: &TableDir) -> Result<Self> {
         let spell_effects = {
             let mut effects = group_by(
@@ -425,6 +431,14 @@ impl Tables {
             bonus_trees_by_item,
             item_bonus_tree_nodes,
             item_bonuses,
+            icon_names: {
+                let listfile = listfile_path(dir.dir());
+                if listfile.is_file() {
+                    IconNames::load(&listfile)?
+                } else {
+                    IconNames::default()
+                }
+            },
         })
     }
 
@@ -436,6 +450,21 @@ impl Tables {
     /// The build the tables belong to.
     pub fn build(&self) -> &str {
         &self.build
+    }
+
+    /// The icon texture names (empty when the table directory has no listfile).
+    pub fn icon_names(&self) -> &IconNames {
+        &self.icon_names
+    }
+
+    /// Replaces the icon texture names (another listfile than the table directory's).
+    pub fn set_icon_names(&mut self, icon_names: IconNames) {
+        self.icon_names = icon_names;
+    }
+
+    /// The name of icon texture `file_data_id`, owned for a data file.
+    pub fn icon_name(&self, file_data_id: u32) -> Option<String> {
+        self.icon_names.get(file_data_id).map(str::to_owned)
     }
 
     // ----- Spell* --------------------------------------------------------------------------

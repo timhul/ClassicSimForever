@@ -9,6 +9,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 20
   item_lvl: 25
   boe: true
@@ -24,6 +25,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132582
+  icon_name: inv_boots_plate_01
   req_lvl: 0
   item_lvl: 54
   stats:
@@ -38,6 +40,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 51
   item_lvl: 56
   boe: true
@@ -54,6 +57,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -70,6 +74,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -88,6 +93,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -107,6 +113,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -123,6 +130,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -139,6 +147,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -156,6 +165,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132560
+  icon_name: inv_boots_cloth_03
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -174,6 +184,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -192,6 +203,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -211,6 +223,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132588
+  icon_name: inv_boots_plate_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -228,6 +241,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -246,6 +260,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -263,6 +278,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -280,6 +296,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -299,6 +316,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -318,6 +336,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -334,6 +353,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -353,6 +373,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -369,6 +390,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -387,6 +409,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -404,6 +427,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -423,6 +447,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -441,6 +466,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -458,6 +484,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -478,6 +505,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 0
   item_lvl: 27
   stats:
@@ -491,6 +519,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -506,6 +535,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 56
   item_lvl: 61
   boe: true
@@ -521,6 +551,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132536
+  icon_name: inv_boots_02
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -537,6 +568,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -553,6 +585,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -569,6 +602,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -585,6 +619,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -601,6 +636,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -617,6 +653,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -634,6 +671,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -650,6 +688,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -664,6 +703,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132553
+  icon_name: inv_boots_chain_10
   req_lvl: 56
   item_lvl: 61
   boe: true
@@ -678,6 +718,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132565
+  icon_name: inv_boots_cloth_08
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -693,6 +734,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132560
+  icon_name: inv_boots_cloth_03
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -708,6 +750,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132559
+  icon_name: inv_boots_cloth_02
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -724,6 +767,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132551
+  icon_name: inv_boots_chain_08
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -789,6 +833,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -808,6 +853,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -828,6 +874,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -847,6 +894,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -866,6 +914,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -885,6 +934,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -905,6 +955,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -924,6 +975,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -942,6 +994,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -960,6 +1013,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -977,6 +1031,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -995,6 +1050,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1013,6 +1069,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1030,6 +1087,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1049,6 +1107,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1068,6 +1127,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1086,6 +1146,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1105,6 +1166,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1124,6 +1186,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1143,6 +1206,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1161,6 +1225,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1179,6 +1244,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1196,6 +1262,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1214,6 +1281,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1232,6 +1300,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1249,6 +1318,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1267,6 +1337,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1285,6 +1356,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1303,6 +1375,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1322,6 +1395,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1340,6 +1414,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1358,6 +1433,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1375,6 +1451,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1394,6 +1471,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1412,6 +1490,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1430,6 +1509,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132564
+  icon_name: inv_boots_cloth_07
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1447,6 +1527,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1467,6 +1548,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1486,6 +1568,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1504,6 +1587,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1523,6 +1607,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1542,6 +1627,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1561,6 +1647,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1580,6 +1667,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1599,6 +1687,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1618,6 +1707,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -1636,6 +1726,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1653,6 +1744,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132562
+  icon_name: inv_boots_cloth_05
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1671,6 +1763,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1690,6 +1783,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1708,6 +1802,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1725,6 +1820,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132545
+  icon_name: inv_boots_chain_02
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1743,6 +1839,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -1762,6 +1859,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 40
   item_lvl: 43
@@ -1780,6 +1878,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -1798,6 +1897,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132585
+  icon_name: inv_boots_plate_04
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -1816,6 +1916,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132536
+  icon_name: inv_boots_02
   req_lvl: 60
   item_lvl: 90
   stats:
@@ -1832,6 +1933,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -1847,6 +1949,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132583
+  icon_name: inv_boots_plate_02
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1860,6 +1963,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132583
+  icon_name: inv_boots_plate_02
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1876,6 +1980,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1891,6 +1996,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1905,6 +2011,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132586
+  icon_name: inv_boots_plate_05
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [WARRIOR]
@@ -1922,6 +2029,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132559
+  icon_name: inv_boots_cloth_02
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [WARLOCK]
@@ -1940,6 +2048,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132560
+  icon_name: inv_boots_cloth_03
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [MAGE]
@@ -1959,6 +2068,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132564
+  icon_name: inv_boots_cloth_07
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [PRIEST]
@@ -1977,6 +2087,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132564
+  icon_name: inv_boots_cloth_07
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [DRUID]
@@ -1998,6 +2109,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [ROGUE]
@@ -2015,6 +2127,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132551
+  icon_name: inv_boots_chain_08
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [HUNTER]
@@ -2033,6 +2146,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132550
+  icon_name: inv_boots_chain_07
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [SHAMAN]
@@ -2054,6 +2168,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132550
+  icon_name: inv_boots_chain_07
   req_lvl: 60
   item_lvl: 78
   class_restrictions: [PALADIN]
@@ -2074,6 +2189,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -2089,6 +2205,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132562
+  icon_name: inv_boots_cloth_05
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -2103,6 +2220,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132551
+  icon_name: inv_boots_chain_08
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -2119,6 +2237,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132538
+  icon_name: inv_boots_04
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -2133,6 +2252,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132538
+  icon_name: inv_boots_04
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -2147,6 +2267,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132564
+  icon_name: inv_boots_cloth_07
   req_lvl: 60
   item_lvl: 76
   stats:
@@ -2162,6 +2283,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2177,6 +2299,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2194,6 +2317,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132588
+  icon_name: inv_boots_plate_07
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2211,6 +2335,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132536
+  icon_name: inv_boots_02
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2227,6 +2352,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2242,6 +2368,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2259,6 +2386,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2277,6 +2405,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132592
+  icon_name: inv_boots_wolf
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2295,6 +2424,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -2314,6 +2444,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2330,6 +2461,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132548
+  icon_name: inv_boots_chain_05
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2347,6 +2479,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132548
+  icon_name: inv_boots_chain_05
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2363,6 +2496,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132548
+  icon_name: inv_boots_chain_05
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2379,6 +2513,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2395,6 +2530,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132548
+  icon_name: inv_boots_chain_05
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2412,6 +2548,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132579
+  icon_name: inv_boots_fabric_01
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2429,6 +2566,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132579
+  icon_name: inv_boots_fabric_01
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2445,6 +2583,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132579
+  icon_name: inv_boots_fabric_01
   req_lvl: 60
   item_lvl: 86
   stats:
@@ -2462,6 +2601,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132561
+  icon_name: inv_boots_cloth_04
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -2476,6 +2616,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2492,6 +2633,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2511,6 +2653,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2528,6 +2671,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2546,6 +2690,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2566,6 +2711,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2583,6 +2729,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2600,6 +2747,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2618,6 +2766,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2636,6 +2785,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2652,6 +2802,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2671,6 +2822,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2688,6 +2840,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2707,6 +2860,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2724,6 +2878,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -2740,6 +2895,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   unique: true
   req_lvl: 60
   item_lvl: 66
@@ -3282,6 +3438,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132547
+  icon_name: inv_boots_chain_04
   req_lvl: 40
   item_lvl: 45
   stats:
@@ -3621,6 +3778,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -3637,6 +3795,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3654,6 +3813,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -3670,6 +3830,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3690,6 +3851,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -3707,6 +3869,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -3723,6 +3886,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132585
+  icon_name: inv_boots_plate_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -3739,6 +3903,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3756,6 +3921,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -3774,6 +3940,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -3791,6 +3958,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3811,6 +3979,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -3827,6 +3996,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -3843,6 +4013,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3859,6 +4030,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3875,6 +4047,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3893,6 +4066,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -3911,6 +4085,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3931,6 +4106,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3949,6 +4125,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -3965,6 +4142,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -3983,6 +4161,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -4000,6 +4179,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -4017,6 +4197,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -4033,6 +4214,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -4050,6 +4232,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132560
+  icon_name: inv_boots_cloth_03
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -4066,6 +4249,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -4084,6 +4268,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -4101,6 +4286,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132588
+  icon_name: inv_boots_plate_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -4118,6 +4304,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -4135,6 +4322,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -4151,6 +4339,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132536
+  icon_name: inv_boots_02
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -4167,6 +4356,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -4183,6 +4373,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -4199,6 +4390,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -4215,6 +4407,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -4233,6 +4426,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -4253,6 +4447,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -4273,6 +4468,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -4293,6 +4489,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -4310,6 +4507,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -4326,6 +4524,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -4344,6 +4543,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -4360,6 +4560,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -4376,6 +4577,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -4394,6 +4596,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -4410,6 +4613,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 132542
+  icon_name: inv_boots_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -4428,6 +4632,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -4446,6 +4651,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132539
+  icon_name: inv_boots_05
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -4464,6 +4670,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -4482,6 +4689,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -4502,6 +4710,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -4522,6 +4731,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -4542,6 +4752,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -4562,6 +4773,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 132587
+  icon_name: inv_boots_plate_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -4582,6 +4794,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 132541
+  icon_name: inv_boots_07
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -4602,6 +4815,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -4619,6 +4833,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -4636,6 +4851,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132590
+  icon_name: inv_boots_plate_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -4654,6 +4870,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 132584
+  icon_name: inv_boots_plate_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -4799,6 +5016,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 133821
+  icon_name: inv_misc_desecrated_mailboots
   req_lvl: 60
   item_lvl: 61
   boe: true
@@ -4816,6 +5034,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 132583
+  icon_name: inv_boots_plate_02
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -4831,6 +5050,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 132576
+  icon_name: inv_boots_cloth_19
   req_lvl: 60
   item_lvl: 65
   boe: true

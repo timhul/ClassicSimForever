@@ -9,6 +9,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134317
+  icon_name: inv_misc_monsterscales_15
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -22,6 +23,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133298
+  icon_name: inv_jewelry_necklace_11
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -35,6 +37,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133444
+  icon_name: inv_jewelry_talisman_11
   unique: true
   req_lvl: 50
   item_lvl: 63
@@ -49,6 +52,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134317
+  icon_name: inv_misc_monsterscales_15
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -62,6 +66,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133434
+  icon_name: inv_jewelry_talisman_01
   req_lvl: 60
   item_lvl: 68
   stats:
@@ -78,6 +83,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134128
+  icon_name: inv_misc_gem_ruby_01
   req_lvl: 54
   item_lvl: 59
   boe: true
@@ -93,6 +99,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133296
+  icon_name: inv_jewelry_necklace_09
   req_lvl: 0
   item_lvl: 65
   stats:
@@ -108,6 +115,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134317
+  icon_name: inv_misc_monsterscales_15
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -121,6 +129,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134311
+  icon_name: inv_misc_monsterscales_09
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -134,6 +143,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134311
+  icon_name: inv_misc_monsterscales_09
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -147,6 +157,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134311
+  icon_name: inv_misc_monsterscales_09
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -160,6 +171,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133280
+  icon_name: inv_jewelry_amulet_05
   req_lvl: 60
   item_lvl: 78
   stats:
@@ -173,6 +185,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133303
+  icon_name: inv_jewelry_necklace_16
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -185,6 +198,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133294
+  icon_name: inv_jewelry_necklace_07
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -198,6 +212,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133302
+  icon_name: inv_jewelry_necklace_15
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -210,6 +225,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -223,6 +239,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134196
+  icon_name: inv_misc_herb_15
   req_lvl: 0
   item_lvl: 51
   stats:
@@ -236,6 +253,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133298
+  icon_name: inv_jewelry_necklace_11
   req_lvl: 50
   item_lvl: 55
   stats:
@@ -248,6 +266,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133299
+  icon_name: inv_jewelry_necklace_12
   req_lvl: 60
   item_lvl: 74
   stats:
@@ -261,6 +280,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133304
+  icon_name: inv_jewelry_necklace_17
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -273,6 +293,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133305
+  icon_name: inv_jewelry_necklace_18
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -287,6 +308,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133303
+  icon_name: inv_jewelry_necklace_16
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -300,6 +322,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -313,6 +336,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -326,6 +350,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -339,6 +364,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -352,6 +378,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -365,6 +392,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -378,6 +406,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -391,6 +420,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -404,6 +434,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -417,6 +448,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -433,6 +465,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -449,6 +482,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -470,6 +504,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -486,6 +521,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -502,6 +538,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -522,6 +559,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -538,6 +576,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -554,6 +593,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -574,6 +614,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -590,6 +631,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -606,6 +648,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -626,6 +669,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -641,6 +685,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -656,6 +701,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -675,6 +721,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -691,6 +738,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -707,6 +755,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -727,6 +776,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -743,6 +793,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -759,6 +810,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -779,6 +831,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -794,6 +847,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -809,6 +863,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -828,6 +883,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133311
+  icon_name: inv_jewelry_necklace_24
   unique: true
   req_lvl: 0
   item_lvl: 60
@@ -843,6 +899,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133312
+  icon_name: inv_jewelry_necklace_25
   unique: true
   req_lvl: 0
   item_lvl: 68
@@ -858,6 +915,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133313
+  icon_name: inv_jewelry_necklace_26
   unique: true
   req_lvl: 0
   item_lvl: 65
@@ -877,6 +935,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -890,6 +949,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133300
+  icon_name: inv_jewelry_necklace_13
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -903,6 +963,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133305
+  icon_name: inv_jewelry_necklace_18
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -917,6 +978,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133308
+  icon_name: inv_jewelry_necklace_21
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -932,6 +994,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133291
+  icon_name: inv_jewelry_necklace_04
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -945,6 +1008,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133341
+  icon_name: inv_jewelry_necklace_ahnqiraj_03
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -958,6 +1022,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133341
+  icon_name: inv_jewelry_necklace_ahnqiraj_03
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -970,6 +1035,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133341
+  icon_name: inv_jewelry_necklace_ahnqiraj_03
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -983,6 +1049,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133341
+  icon_name: inv_jewelry_necklace_ahnqiraj_03
   req_lvl: 60
   item_lvl: 70
   stats:
@@ -995,6 +1062,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133304
+  icon_name: inv_jewelry_necklace_17
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -1008,6 +1076,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133309
+  icon_name: inv_jewelry_necklace_22
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -1022,6 +1091,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133339
+  icon_name: inv_jewelry_necklace_ahnqiraj_01
   req_lvl: 60
   item_lvl: 81
   stats:
@@ -1036,6 +1106,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133340
+  icon_name: inv_jewelry_necklace_ahnqiraj_02
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -1049,6 +1120,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133342
+  icon_name: inv_jewelry_necklace_ahnqiraj_04
   req_lvl: 60
   item_lvl: 76
   stats:
@@ -1063,6 +1135,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133307
+  icon_name: inv_jewelry_necklace_20
   req_lvl: 60
   item_lvl: 75
   stats:
@@ -1077,6 +1150,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133339
+  icon_name: inv_jewelry_necklace_ahnqiraj_01
   req_lvl: 60
   item_lvl: 73
   stats:
@@ -1091,6 +1165,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133299
+  icon_name: inv_jewelry_necklace_12
   req_lvl: 60
   item_lvl: 73
   stats:
@@ -1104,6 +1179,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133340
+  icon_name: inv_jewelry_necklace_ahnqiraj_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1117,6 +1193,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133301
+  icon_name: inv_jewelry_necklace_14
   req_lvl: 60
   item_lvl: 71
   stats:
@@ -1130,6 +1207,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133280
+  icon_name: inv_jewelry_amulet_05
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1143,6 +1221,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133280
+  icon_name: inv_jewelry_amulet_05
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -1156,6 +1235,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133279
+  icon_name: inv_jewelry_amulet_04
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1169,6 +1249,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133279
+  icon_name: inv_jewelry_amulet_04
   req_lvl: 0
   item_lvl: 60
   stats:
@@ -1182,6 +1263,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133342
+  icon_name: inv_jewelry_necklace_ahnqiraj_04
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1196,6 +1278,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133279
+  icon_name: inv_jewelry_amulet_04
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1209,6 +1292,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133319
+  icon_name: inv_jewelry_necklace_29naxxramas
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1223,6 +1307,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133317
+  icon_name: inv_jewelry_necklace_28naxxramas
   req_lvl: 60
   item_lvl: 85
   stats:
@@ -1236,6 +1321,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133315
+  icon_name: inv_jewelry_necklace_27naxxramas
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -1250,6 +1336,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133319
+  icon_name: inv_jewelry_necklace_29naxxramas
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1263,6 +1350,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133321
+  icon_name: inv_jewelry_necklace_30naxxramas
   req_lvl: 60
   item_lvl: 83
   stats:
@@ -1277,6 +1365,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133317
+  icon_name: inv_jewelry_necklace_28naxxramas
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1290,6 +1379,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133319
+  icon_name: inv_jewelry_necklace_29naxxramas
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1304,6 +1394,7 @@ items:
   type: AMULET
   quality: EPIC
   icon: 133321
+  icon_name: inv_jewelry_necklace_30naxxramas
   req_lvl: 60
   item_lvl: 92
   stats:
@@ -1316,6 +1407,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 132507
+  icon_name: inv_belt_18
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1327,6 +1419,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133290
+  icon_name: inv_jewelry_necklace_03
   req_lvl: 30
   item_lvl: 35
   stats:
@@ -1340,6 +1433,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1352,6 +1446,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1364,6 +1459,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1376,6 +1472,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1388,6 +1485,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 58
   item_lvl: 63
   stats:
@@ -1400,6 +1498,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 48
   item_lvl: 53
   stats:
@@ -1412,6 +1511,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 38
   item_lvl: 43
   stats:
@@ -1424,6 +1524,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133295
+  icon_name: inv_jewelry_necklace_08
   req_lvl: 28
   item_lvl: 33
   stats:
@@ -1436,6 +1537,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133292
+  icon_name: inv_jewelry_necklace_05
   req_lvl: 1
   item_lvl: 43
   stats:
@@ -1448,6 +1550,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133293
+  icon_name: inv_jewelry_necklace_06
   req_lvl: 1
   item_lvl: 43
   stats:
@@ -1460,6 +1563,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133297
+  icon_name: inv_jewelry_necklace_10
   req_lvl: 30
   item_lvl: 35
   stats:
@@ -1472,6 +1576,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134317
+  icon_name: inv_misc_monsterscales_15
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1484,6 +1589,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134311
+  icon_name: inv_misc_monsterscales_09
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -1496,6 +1602,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 134229
+  icon_name: inv_misc_horn_03
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -1509,6 +1616,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 458247
+  icon_name: trade_archaeology_pendant of the aqir
   req_lvl: 0
   item_lvl: 58
   stats:
@@ -1522,6 +1630,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133302
+  icon_name: inv_jewelry_necklace_15
   req_lvl: 0
   item_lvl: 32
   stats:
@@ -1533,6 +1642,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 454054
+  icon_name: trade_archaeology_mithrilnecklace
   req_lvl: 0
   item_lvl: 58
   stats:
@@ -1546,6 +1656,7 @@ items:
   type: AMULET
   quality: RARE
   icon: 133298
+  icon_name: inv_jewelry_necklace_11
   req_lvl: 36
   item_lvl: 41
   stats:

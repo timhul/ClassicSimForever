@@ -962,3 +962,41 @@ mod export {
         ));
     }
 }
+
+#[test]
+fn the_listfile_next_to_the_tables_gives_the_icon_names() {
+    assert!(
+        tables().icon_names().is_empty(),
+        "the fixtures have no listfile"
+    );
+    assert_eq!(
+        csim_tables::export::spells::record(&tables(), 12294, None).icon_name,
+        None
+    );
+
+    let scratch = Scratch::new("listfile_icons");
+    for entry in std::fs::read_dir(fixtures()).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_file() {
+            std::fs::copy(&path, scratch.0.join(path.file_name().unwrap())).unwrap();
+        }
+    }
+    scratch.write(
+        "listfile-icons.csv",
+        "132355;interface/icons/ability_warrior_savageblow.blp\n",
+    );
+    let t = Tables::load_dir(&scratch.0).unwrap();
+    assert_eq!(t.build(), BUILD, "the listfile is not a table");
+    assert_eq!(t.icon_names().len(), 1);
+    let record = csim_tables::export::spells::record(&t, 12294, None);
+    assert_eq!(
+        (record.icon, record.icon_name.as_deref()),
+        (132355, Some("ability_warrior_savageblow"))
+    );
+
+    scratch.write("listfile-icons.csv", "nonsense\n");
+    assert!(matches!(
+        Tables::load_dir(&scratch.0),
+        Err(TableError::Listfile { line: 1, .. })
+    ));
+}

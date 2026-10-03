@@ -13,7 +13,7 @@ use csim_engine::spell::overrides::Overrides;
 use csim_engine::spell::record::{OVERRIDES_DIR, SpellDb};
 use csim_tables::export::{self, ExportError};
 use csim_tables::tables::ALL_TABLES;
-use csim_tables::{TableDir, TableError, Tables, dir::missing_tables};
+use csim_tables::{IconNames, TableDir, TableError, Tables, dir::missing_tables};
 
 #[derive(Debug, thiserror::Error)]
 enum CliError {
@@ -71,6 +71,10 @@ struct Cli {
     /// Build to use when the directory holds several (e.g. `1.60.1.70009`).
     #[arg(long, global = true)]
     build: Option<String>,
+    /// The icon names the exports write as `icon_name` (default:
+    /// `<tables>/listfile-icons.csv`, written by `tools/fetch_listfile.py`).
+    #[arg(long, global = true)]
+    listfile: Option<PathBuf>,
     #[command(subcommand)]
     command: Command,
 }
@@ -312,6 +316,13 @@ fn export_spells(
         }
     };
     let text = export::render(&file, &command)?;
+    warn_unnamed_icons(
+        tables,
+        file.spells
+            .iter()
+            .filter(|spell| spell.icon_name.is_none())
+            .map(|spell| spell.icon),
+    );
     eprintln!(
         "pruned {} effects and {} spells: {}",
         pruned.effects.len(),
@@ -392,6 +403,24 @@ fn export_talents(
     Ok(())
 }
 
+/// Warns about the exported icons (`FileDataID`s, 0 = none) the listfile has no name for: a
+/// texture only Forever has, or a listfile older than the dump. Silent without a listfile
+/// ([`load_tables`] warned already).
+fn warn_unnamed_icons(tables: &Tables, icons: impl Iterator<Item = u32>) {
+    if tables.icon_names().is_empty() {
+        return;
+    }
+    let unnamed: std::collections::BTreeSet<u32> = icons.filter(|&icon| icon != 0).collect();
+    if !unnamed.is_empty() {
+        let ids: Vec<String> = unnamed.iter().map(u32::to_string).collect();
+        eprintln!(
+            "warning: {} icons have no name in the listfile, no icon_name: {}",
+            unnamed.len(),
+            ids.join(" ")
+        );
+    }
+}
+
 fn write(path: &Path, text: &str) -> Result<(), CliError> {
     std::fs::write(path, text).map_err(|source| CliError::Write {
         path: path.to_path_buf(),
@@ -401,6 +430,14 @@ fn write(path: &Path, text: &str) -> Result<(), CliError> {
 
 fn export_items(tables: &Tables, items_dir: &Path, sets_path: &Path) -> Result<(), CliError> {
     let report = export::items::derive_items(tables);
+    warn_unnamed_icons(
+        tables,
+        report
+            .items
+            .iter()
+            .filter(|item| item.icon_name.is_none())
+            .map(|item| item.icon),
+    );
     for (file_name, file) in export::item_files(tables, &report.items) {
         let path = items_dir.join(format!("{file_name}.yaml"));
         write(&path, &export::render_items(&file, "export-items")?)?;
@@ -439,42 +476,41 @@ struct ExportAllPaths<'a> {
 /// Runs every export in the order their inputs need: the item spells exclude what the other
 /// spell files carry and read the exported items and sets, so they come last; `check` loads
 /// the result.
-fn export_all(dir: &TableDir, paths: &ExportAllPaths, strict: bool) -> Result<(), CliError> {
-    let tables = Tables::load(dir)?;
+fn export_all(tables: &Tables, paths: &ExportAllPaths, strict: bool) -> Result<(), CliError> {
     for &class in EXPORTED_CLASSES {
         eprintln!("== export-spells --class {class}");
         export_spells(
-            &tables,
+            tables,
             ExportTarget::Class(class.to_owned()),
             paths.spells,
             None,
         )?;
     }
     eprintln!("== export-spells --racials");
-    export_spells(&tables, ExportTarget::Racials, paths.spells, None)?;
+    export_spells(tables, ExportTarget::Racials, paths.spells, None)?;
     eprintln!("== export-spells --externals");
     export_spells(
-        &tables,
+        tables,
         ExportTarget::Externals(paths.external_buffs.to_path_buf()),
         paths.spells,
         None,
     )?;
     eprintln!("== export-spells --enchants");
     export_spells(
-        &tables,
+        tables,
         ExportTarget::Enchants(paths.enchant_data.to_path_buf()),
         paths.spells,
         None,
     )?;
     for &class in EXPORTED_CLASSES {
         eprintln!("== export-talents --class {class}");
-        export_talents(&tables, class, paths.talents, None)?;
+        export_talents(tables, class, paths.talents, None)?;
     }
     eprintln!("== export-items");
-    export_items(&tables, paths.items, paths.item_sets)?;
+    export_items(tables, paths.items, paths.item_sets)?;
     eprintln!("== export-spells --items");
     export_spells(
-        &tables,
+        tables,
         ExportTarget::Items {
             items: paths.items.to_path_buf(),
             sets: paths.item_sets.to_path_buf(),
@@ -550,6 +586,22 @@ fn check(spells_dir: &Path, strict: bool) -> Result<(), CliError> {
         return Err(CliError::Unsupported(unsupported.len()));
     }
     Ok(())
+}
+
+/// The tables of an export, with the icon names of `--listfile` or the table directory's
+/// listfile; warns when there are none (the exports then write no `icon_name`).
+fn load_tables(cli: &Cli) -> Result<Tables, CliError> {
+    let mut tables = Tables::load(&open(cli)?)?;
+    if let Some(listfile) = &cli.listfile {
+        tables.set_icon_names(IconNames::load(listfile)?);
+    }
+    if tables.icon_names().is_empty() {
+        eprintln!(
+            "warning: no icon names (run `python tools/fetch_listfile.py`): the exports write no \
+             icon_name"
+        );
+    }
+    Ok(tables)
 }
 
 fn open(cli: &Cli) -> Result<TableDir, TableError> {
@@ -878,16 +930,14 @@ fn run(cli: Cli) -> Result<(), CliError> {
                     "clap requires --class, --racials, --externals, --enchants or --items"
                 ),
             };
-            export_spells(&Tables::load(&open(&cli)?)?, target, spells, out.clone())
+            export_spells(&load_tables(&cli)?, target, spells, out.clone())
         }
         Command::ExportTalents {
             class,
             talents,
             out,
-        } => export_talents(&Tables::load(&open(&cli)?)?, class, talents, out.clone()),
-        Command::ExportItems { items, sets } => {
-            export_items(&Tables::load(&open(&cli)?)?, items, sets)
-        }
+        } => export_talents(&load_tables(&cli)?, class, talents, out.clone()),
+        Command::ExportItems { items, sets } => export_items(&load_tables(&cli)?, items, sets),
         Command::ExportAll {
             spells,
             talents,
@@ -897,7 +947,7 @@ fn run(cli: Cli) -> Result<(), CliError> {
             enchant_data,
             strict,
         } => export_all(
-            &open(&cli)?,
+            &load_tables(&cli)?,
             &ExportAllPaths {
                 spells,
                 talents,

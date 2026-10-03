@@ -21,12 +21,14 @@ pub mod db;
 pub mod dir;
 pub mod error;
 pub mod export;
+pub mod listfile;
 pub mod row;
 pub mod tables;
 
 pub use db::Tables;
 pub use dir::TableDir;
 pub use error::TableError;
+pub use listfile::IconNames;
 pub use row::{Field, Row, TableRow};
 
 /// Crate version.

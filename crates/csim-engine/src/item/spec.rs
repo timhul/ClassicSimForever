@@ -73,6 +73,10 @@ pub struct ItemSpec {
     /// `Item.IconFileDataID`: the `FileDataID` of the icon texture; 0 = none.
     #[serde(default, skip_serializing_if = "is_no_icon")]
     pub icon: u32,
+    /// The icon texture's file name (`inv_sword_39`), from the community listfile: Wowhead's
+    /// CDN serves the icon by it. Absent when unknown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
     #[serde(default, skip_serializing_if = "is_false")]
     pub unique: bool,
     #[serde(default)]

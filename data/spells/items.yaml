@@ -9,6 +9,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -25,6 +26,7 @@ spells:
   attributes: [192, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to get a critical strike with melee attacks by ${$s1}.1%.
   effects:
   - index: 0
@@ -37,6 +39,7 @@ spells:
   attributes: [192, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to get a critical strike with melee attacks by ${$s1}.1%.
   effects:
   - index: 0
@@ -49,6 +52,7 @@ spells:
   attributes: [448, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -65,6 +69,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 136197
+  icon_name: spell_shadow_shadowbolt
   range_yd: 30.0
   categories:
     defense_type: MAGIC
@@ -83,6 +88,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 136197
+  icon_name: spell_shadow_shadowbolt
   range_yd: 30.0
   categories:
     defense_type: MAGIC
@@ -99,6 +105,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_type_mask: 20
@@ -114,6 +121,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -134,6 +142,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135915
+  icon_name: spell_holy_heal
   range_yd: 40.0
   cooldown:
     start_recovery_ms: 1500
@@ -153,6 +162,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 132277
+  icon_name: ability_racial_bloodrage
   range_yd: 40.0
   cooldown:
     start_recovery_ms: 1500
@@ -171,6 +181,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134134
+  icon_name: inv_misc_gem_stone_01
   cooldown:
     category_recovery_ms: 60000
   categories:
@@ -192,6 +203,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -212,6 +224,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -232,6 +245,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -248,6 +262,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -264,6 +279,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135915
+  icon_name: spell_holy_heal
   aura_options:
     proc_chance: 101
   effects:
@@ -277,6 +293,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 3
@@ -294,6 +311,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136066
+  icon_name: spell_nature_nullifydisease
   duration_ms: 60000
   range_yd: 30.0
   categories:
@@ -316,6 +334,7 @@ spells:
   attributes: [0, 98304, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136033
+  icon_name: spell_nature_faeriefire
   duration_ms: 20000
   range_yd: 30.0
   cooldown:
@@ -340,6 +359,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135915
+  icon_name: spell_holy_heal
   range_yd: 40.0
   cooldown:
     start_recovery_ms: 1500
@@ -361,6 +381,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135812
+  icon_name: spell_fire_flamebolt
   duration_ms: 8000
   range_yd: 40.0
   categories:
@@ -387,6 +408,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 30000
   range_yd: 5.0
   categories:
@@ -409,6 +431,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 16
   icon: 135846
+  icon_name: spell_frost_frostbolt02
   duration_ms: 5000
   range_yd: 100.0
   categories:
@@ -432,6 +455,7 @@ spells:
   attributes: [384, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   aura_options:
     proc_chance: 101
@@ -445,6 +469,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -460,6 +485,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -475,6 +501,7 @@ spells:
   attributes: [192, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 5
@@ -491,6 +518,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -507,6 +535,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -527,6 +556,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -543,6 +573,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -559,6 +590,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -575,6 +607,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -591,6 +624,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136129
+  icon_name: spell_shadow_charm
   range_yd: 30.0
   levels:
     spell: 54
@@ -607,6 +641,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -623,6 +658,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -639,6 +675,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132355
+  icon_name: ability_warrior_savageblow
   duration_ms: 20000
   range_yd: 30.0
   categories:
@@ -660,6 +697,7 @@ spells:
   attributes: [192, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to hit by ${$s1}.1%.
   effects:
   - index: 0
@@ -672,6 +710,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -688,6 +727,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   range_yd: 30.0
   categories:
     defense_type: MAGIC
@@ -706,6 +746,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -722,6 +763,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136048
+  icon_name: spell_nature_lightning
   range_yd: 30.0
   categories:
     defense_type: MAGIC
@@ -741,6 +783,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136160
+  icon_name: spell_shadow_gathershadows
   duration_ms: 60000
   range_yd: 30.0
   categories:
@@ -762,6 +805,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135818
+  icon_name: spell_fire_incinerate
   duration_ms: 30000
   range_yd: 30.0
   categories:
@@ -780,6 +824,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135349
+  icon_name: inv_sword_39
   duration_ms: 30000
   range_yd: 40.0
   categories:
@@ -801,6 +846,7 @@ spells:
   attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136048
+  icon_name: spell_nature_lightning
   range_yd: 30.0
   cooldown:
     start_recovery_ms: 1500
@@ -824,6 +870,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 16
   icon: 135864
+  icon_name: spell_frost_wisp
   duration_ms: 5000
   range_yd: 30.0
   categories:
@@ -843,6 +890,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 135131
+  icon_name: inv_spear_08
   duration_ms: 20000
   range_yd: 30.0
   categories:
@@ -862,6 +910,7 @@ spells:
   attributes: [134545408, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135893
+  icon_name: spell_holy_devotionaura
   duration_ms: 240000
   categories:
     start_recovery_category: 133
@@ -885,6 +934,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135817
+  icon_name: spell_fire_immolation
   duration_ms: 300000
   levels:
     spell: 50
@@ -903,6 +953,7 @@ spells:
   attributes: [192, 2048, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 7
   description: You gain an additional ${$m1/10} Rage from activating Enrage and an additional $m2 Energy from activating Shifting Power.
@@ -924,6 +975,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135810
+  icon_name: spell_fire_firebolt02
   cast_time_ms: 3000
   range_yd: 30.0
   power:
@@ -946,6 +998,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -962,6 +1015,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136197
+  icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
   power:
@@ -984,6 +1038,7 @@ spells:
   attributes: [384, 268435456, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   aura_options:
     proc_chance: 101
@@ -997,6 +1052,7 @@ spells:
   attributes: [2048, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135806
+  icon_name: spell_fire_firearmor
   duration_ms: 15000
   aura_options:
     proc_chance: 101
@@ -1014,6 +1070,7 @@ spells:
   attributes: [0, 0, 4194304, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 101
   effects:
@@ -1027,6 +1084,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to get a critical strike with spells by ${$s1}.1%.
   effects:
   - index: 0
@@ -1039,6 +1097,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to get a critical strike with spells by ${$s1}.1%.
   effects:
   - index: 0
@@ -1051,6 +1110,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134134
+  icon_name: inv_misc_gem_stone_01
   cooldown:
     category_recovery_ms: 60000
   categories:
@@ -1072,6 +1132,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135915
+  icon_name: spell_holy_heal
   range_yd: 40.0
   cooldown:
     start_recovery_ms: 1500
@@ -1093,6 +1154,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1112,6 +1174,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 16
   icon: 135846
+  icon_name: spell_frost_frostbolt02
   range_yd: 30.0
   power:
   - type: MANA
@@ -1138,6 +1201,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1154,6 +1218,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1170,6 +1235,7 @@ spells:
   attributes: [192, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135934
+  icon_name: spell_holy_mindvision
   categories:
     defense_type: MAGIC
     dispel_type: 1
@@ -1191,6 +1257,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   range_yd: 20.0
   categories:
     defense_type: MAGIC
@@ -1210,6 +1277,7 @@ spells:
   attributes: [33554560, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   duration_ms: 60000
   cooldown:
     recovery_ms: 3600000
@@ -1230,6 +1298,7 @@ spells:
   attributes: [0, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136172
+  icon_name: spell_shadow_metamorphosis
   duration_ms: -1
   effects:
   - index: 0
@@ -1243,6 +1312,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135810
+  icon_name: spell_fire_firebolt02
   cast_time_ms: 2000
   duration_ms: 8000
   range_yd: 35.0
@@ -1272,6 +1342,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135810
+  icon_name: spell_fire_firebolt02
   cast_time_ms: 2000
   duration_ms: 10000
   range_yd: 35.0
@@ -1304,6 +1375,7 @@ spells:
   attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136048
+  icon_name: spell_nature_lightning
   range_yd: 30.0
   cooldown:
     start_recovery_ms: 1500
@@ -1327,6 +1399,7 @@ spells:
   attributes: [256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cast_time_ms: 10000
   aura_options:
     proc_chance: 101
@@ -1339,6 +1412,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1355,6 +1429,7 @@ spells:
   attributes: [448, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136235
+  icon_name: temp
   description: Restores $s1 mana per 5 sec.
   effects:
   - index: 0
@@ -1367,6 +1442,7 @@ spells:
   attributes: [448, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136235
+  icon_name: temp
   description: Restores $s1 mana per 5 sec.
   effects:
   - index: 0
@@ -1379,6 +1455,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1394,6 +1471,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136018
+  icon_name: spell_nature_cyclone
   duration_ms: 12000
   range_yd: 5.0
   categories:
@@ -1425,6 +1503,7 @@ spells:
   attributes: [32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cast_time_ms: 10000
   categories:
     category: 1091
@@ -1440,6 +1519,7 @@ spells:
   attributes: [32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cast_time_ms: 10000
   categories:
     category: 1091
@@ -1455,6 +1535,7 @@ spells:
   attributes: [16777216, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   range_yd: 10.0
   categories:
     defense_type: MAGIC
@@ -1476,6 +1557,7 @@ spells:
   attributes: [16777360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   duration_ms: -1
   range_yd: 10.0
   categories:
@@ -1497,6 +1579,7 @@ spells:
   attributes: [16777232, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   categories:
     defense_type: MAGIC
   aura_options:
@@ -1513,6 +1596,7 @@ spells:
   attributes: [16777360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   duration_ms: -1
   range_yd: 10.0
   categories:
@@ -1533,6 +1617,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1549,6 +1634,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1570,6 +1656,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132316
+  icon_name: ability_shockwave
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1590,6 +1677,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1610,6 +1698,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136026
+  icon_name: spell_nature_earthshock
   class_options:
     set: 11
   labels: [24]
@@ -1628,6 +1717,7 @@ spells:
   attributes: [16777616, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132996
+  icon_name: inv_gizmo_02
   aura_options:
     proc_chance: 101
   effects:
@@ -1640,6 +1730,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132091
+  icon_name: ability_bullrush
   class_options:
     set: 9
   labels: [23]
@@ -1659,6 +1750,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135736
+  icon_name: spell_arcane_blink
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1679,6 +1771,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136153
+  icon_name: spell_shadow_detectlesserinvisibility
   duration_ms: -1
   levels:
     spell: 1
@@ -1700,6 +1793,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cast_time_ms: 1000
   cooldown:
     category_recovery_ms: 1800000
@@ -1717,6 +1811,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cast_time_ms: 1000
   cooldown:
     category_recovery_ms: 1800000
@@ -1734,6 +1829,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136224
+  icon_name: spell_shadow_unholyfrenzy
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1753,6 +1849,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136184
+  icon_name: spell_shadow_psychicscream
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1773,6 +1870,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135827
+  icon_name: spell_fire_soulburn
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1792,6 +1890,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135817
+  icon_name: spell_fire_immolation
   class_options:
     set: 5
   description: Reduces the casting time of your Immolate spell by 0.2  sec.
@@ -1817,6 +1916,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1837,6 +1937,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1856,6 +1957,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132218
+  icon_name: ability_impalingbolt
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1875,6 +1977,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135860
+  icon_name: spell_frost_stun
   duration_ms: -1
   aura_options:
     proc_chance: 4
@@ -1896,6 +1999,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135967
+  icon_name: spell_holy_sealofsalvation
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1915,6 +2019,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135934
+  icon_name: spell_holy_mindvision
   duration_ms: 15000
   range_yd: 40.0
   categories:
@@ -1934,6 +2039,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135924
+  icon_name: spell_holy_holysmite
   duration_ms: -1
   class_options:
     set: 10
@@ -1951,6 +2057,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135963
+  icon_name: spell_holy_sealofmight
   duration_ms: -1
   class_options:
     set: 10
@@ -1969,6 +2076,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135967
+  icon_name: spell_holy_sealofsalvation
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -1988,6 +2096,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136048
+  icon_name: spell_nature_lightning
   cast_time_ms: 1600
   range_yd: 30.0
   power:
@@ -2008,6 +2117,7 @@ spells:
   attributes: [0, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132270
+  icon_name: ability_physical_taunt
   range_yd: 30.0
   aura_options:
     proc_chance: 101
@@ -2022,6 +2132,7 @@ spells:
   attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135900
+  icon_name: spell_holy_elunesgrace
   duration_ms: 5000
   range_yd: 5.0
   power:
@@ -2044,6 +2155,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135953
+  icon_name: spell_holy_renew
   categories:
     start_recovery_category: 133
   levels:
@@ -2062,6 +2174,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134155
+  icon_name: inv_misc_head_dragon_blue
   duration_ms: 15000
   aura_options:
     proc_chance: 100
@@ -2079,6 +2192,7 @@ spells:
   attributes: [192, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135934
+  icon_name: spell_holy_mindvision
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -2099,6 +2213,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   range_yd: 20.0
   categories:
     defense_type: MAGIC
@@ -2118,6 +2233,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136208
+  icon_name: spell_shadow_siphonmana
   aura_options:
     proc_chance: 2
     proc_type_mask: 81920
@@ -2134,6 +2250,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135953
+  icon_name: spell_holy_renew
   duration_ms: -1
   categories:
     start_recovery_category: 133
@@ -2154,6 +2271,7 @@ spells:
   attributes: [64, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136210
+  icon_name: spell_shadow_soulgem
   duration_ms: -1
   levels:
     spell: 60
@@ -2168,6 +2286,7 @@ spells:
   attributes: [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136224
+  icon_name: spell_shadow_unholyfrenzy
   duration_ms: 30000
   range_yd: 100.0
   categories:
@@ -2193,6 +2312,7 @@ spells:
   attributes: [0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136116
+  icon_name: spell_nature_wispsplode
   duration_ms: 10000
   categories:
     defense_type: MAGIC
@@ -2216,6 +2336,7 @@ spells:
   attributes: [0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135753
+  icon_name: spell_arcane_starfire
   range_yd: 100.0
   categories:
     defense_type: MAGIC
@@ -2234,6 +2355,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136115
+  icon_name: spell_nature_wispheal
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2252,6 +2374,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 134419
+  icon_name: inv_misc_rune_06
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2273,6 +2396,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134124
+  icon_name: inv_misc_gem_pearl_05
   description: Heals yourself for 15% of your maximum health, and increases your maximum health by 15% for 20 sec.
   effects:
   - index: 0
@@ -2284,6 +2408,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136232
+  icon_name: spell_totem_wardofdraining
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2304,6 +2429,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135972
+  icon_name: spell_holy_searinglight
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2328,6 +2454,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136094
+  icon_name: spell_nature_spiritarmor
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2352,6 +2479,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135880
+  icon_name: spell_holy_blessingofprotection
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -2378,6 +2506,7 @@ spells:
   attributes: [0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136235
+  icon_name: temp
   categories:
     defense_type: MAGIC
   aura_options:
@@ -2393,6 +2522,7 @@ spells:
   attributes: [192, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135934
+  icon_name: spell_holy_mindvision
   aura_options:
     proc_chance: 4
     proc_type_mask: 20
@@ -2408,6 +2538,7 @@ spells:
   attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   aura_options:
     proc_chance: 101
   description: Revitalized - $s1 Energy restored.
@@ -2422,6 +2553,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2438,6 +2570,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2457,6 +2590,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2476,6 +2610,7 @@ spells:
   attributes: [0, 1056, 0, 0, 0, 0, 0, 0, 4096, 0, 8388608, 0, 0, 268435456, 0, 8192, 0]
   school_mask: 1
   icon: 133890
+  icon_name: inv_misc_fish_04
   duration_ms: -1
   cooldown:
     recovery_ms: 5000
@@ -2494,6 +2629,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2510,6 +2646,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2530,6 +2667,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2549,6 +2687,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2568,6 +2707,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 4
   labels: [25]
@@ -2586,6 +2726,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2605,6 +2746,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2624,6 +2766,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2643,6 +2786,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -2662,6 +2806,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 4
   labels: [25]
@@ -2680,6 +2825,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 10
   labels: [26]
@@ -2698,6 +2844,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 10
   labels: [26]
@@ -2716,6 +2863,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 11
   labels: [24]
@@ -2734,6 +2882,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 11
   labels: [24]
@@ -2752,6 +2901,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 9
   labels: [23]
@@ -2770,6 +2920,7 @@ spells:
   attributes: [536871104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 9
   labels: [23]
@@ -2788,6 +2939,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 8
   labels: [20]
@@ -2806,6 +2958,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 8
   labels: [20]
@@ -2824,6 +2977,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 7
   labels: [21]
@@ -2842,6 +2996,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 7
   labels: [21]
@@ -2860,6 +3015,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 6
   labels: [18]
@@ -2878,6 +3034,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 6
   labels: [18]
@@ -2896,6 +3053,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   labels: [19]
@@ -2914,6 +3072,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   labels: [19]
@@ -2932,6 +3091,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 3
   labels: [17]
@@ -2950,6 +3110,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 3
   labels: [17]
@@ -2968,6 +3129,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135934
+  icon_name: spell_holy_mindvision
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -2984,6 +3146,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136014
+  icon_name: spell_nature_callstorm
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3004,6 +3167,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132212
+  icon_name: ability_hunter_snipershot
   categories:
     defense_type: MAGIC
   description: Instantly clears the cooldowns of Aimed Shot, Multishot, Volley, and Arcane Shot.
@@ -3016,6 +3180,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135871
+  icon_name: spell_holy_ashestoashes
   categories:
     defense_type: MAGIC
   description: Instantly increases your energy by $s1.
@@ -3031,6 +3196,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136077
+  icon_name: spell_nature_regenerate
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -3062,6 +3228,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135831
+  icon_name: spell_fire_windsofwoe
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3083,6 +3250,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135753
+  icon_name: spell_arcane_starfire
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3112,6 +3280,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135917
+  icon_name: spell_holy_healingaura
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -3141,6 +3310,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136168
+  icon_name: spell_shadow_lifedrain
   categories:
     defense_type: MAGIC
   description: Instantly increases your rage by $/10;s1.
@@ -3156,6 +3326,7 @@ spells:
   attributes: [262400, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3178,6 +3349,7 @@ spells:
   attributes: [150995200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136162
+  icon_name: spell_shadow_grimward
   aura_options:
     proc_chance: 101
     max_stacks: 20
@@ -3191,6 +3363,7 @@ spells:
   attributes: [262400, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3210,6 +3383,7 @@ spells:
   attributes: [262400, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3227,6 +3401,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   shapeshift_mask: 145
   shapeshift_exclude: 671588450
@@ -3244,6 +3419,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   shapeshift_mask: 145
   shapeshift_exclude: 671588450
@@ -3261,6 +3437,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136057
+  icon_name: spell_nature_moonglow
   duration_ms: 10000
   categories:
     dispel_type: 1
@@ -3279,6 +3456,7 @@ spells:
   attributes: [16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136006
+  icon_name: spell_nature_abolishmagic
   duration_ms: 20000
   aura_options:
     proc_chance: 101
@@ -3299,6 +3477,7 @@ spells:
   attributes: [0, 268436480, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132270
+  icon_name: ability_physical_taunt
   aura_options:
     proc_chance: 101
   description: Reduces your threat to enemy targets within $a1 yards, making them less likely to attack you.
@@ -3313,6 +3492,7 @@ spells:
   attributes: [192, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136208
+  icon_name: spell_shadow_siphonmana
   aura_options:
     proc_chance: 5
     proc_type_mask: 65536
@@ -3329,6 +3509,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   duration_ms: 10000
   range_yd: 100.0
   levels:
@@ -3348,6 +3529,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132183
+  icon_name: ability_hunter_pet_bear
   duration_ms: 20000
   cooldown:
     category_recovery_ms: 60000
@@ -3369,6 +3551,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3388,6 +3571,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -3406,6 +3590,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3425,6 +3610,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3444,6 +3630,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3463,6 +3650,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3482,6 +3670,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3500,6 +3689,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3519,6 +3709,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   description: $s1% increased damage on your Immolate spell.
@@ -3535,6 +3726,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   description: Reduces the mana cost of Shadow Bolt by $s1%.
@@ -3551,6 +3743,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3575,6 +3768,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 20
@@ -3594,6 +3788,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136096
+  icon_name: spell_nature_starfall
   duration_ms: 8000
   categories:
     defense_type: MAGIC
@@ -3614,6 +3809,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3633,6 +3829,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -3653,6 +3850,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2147483648, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_type_mask: 65536
@@ -3671,6 +3869,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136011
+  icon_name: spell_nature_astralrecalgroup
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3690,6 +3889,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136011
+  icon_name: spell_nature_astralrecalgroup
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -3713,6 +3913,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136011
+  icon_name: spell_nature_astralrecalgroup
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -3735,6 +3936,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136011
+  icon_name: spell_nature_astralrecalgroup
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -3758,6 +3960,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   shapeshift_mask: 145
   shapeshift_exclude: 671588450
@@ -3775,6 +3978,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 133573
+  icon_name: inv_misc_ahnqirajtrinket_04
   duration_ms: 30000
   categories:
     defense_type: MAGIC
@@ -3799,6 +4003,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 20
@@ -3817,6 +4022,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136081
+  icon_name: spell_nature_rejuvenation
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3836,6 +4042,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136081
+  icon_name: spell_nature_rejuvenation
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3855,6 +4062,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 20
@@ -3875,6 +4083,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 20
@@ -3895,6 +4104,7 @@ spells:
   attributes: [192, 0, 0, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -3915,6 +4125,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133574
+  icon_name: inv_misc_ahnqirajtrinket_05
   duration_ms: 30000
   categories:
     defense_type: MAGIC
@@ -3931,6 +4142,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -3950,6 +4162,7 @@ spells:
   attributes: [262400, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: 60000
   categories:
     defense_type: MAGIC
@@ -3972,6 +4185,7 @@ spells:
   attributes: [150995200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136162
+  icon_name: spell_shadow_grimward
   aura_options:
     proc_chance: 101
     max_stacks: 20
@@ -3985,6 +4199,7 @@ spells:
   attributes: [16, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133575
+  icon_name: inv_misc_ahnqirajtrinket_06
   duration_ms: 30000
   categories:
     defense_type: MAGIC
@@ -4005,6 +4220,7 @@ spells:
   attributes: [16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133573
+  icon_name: inv_misc_ahnqirajtrinket_04
   duration_ms: 30000
   categories:
     defense_type: MAGIC
@@ -4023,6 +4239,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134899
+  icon_name: inv_qirajidol_death
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -4042,6 +4259,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 135808
+  icon_name: spell_fire_fireball02
   range_yd: 30.0
   aura_options:
     proc_chance: 101
@@ -4058,6 +4276,7 @@ spells:
   attributes: [537133056, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135960
+  icon_name: spell_holy_righteousnessaura
   range_yd: 100.0
   effects:
   - index: 0
@@ -4069,6 +4288,7 @@ spells:
   attributes: [537133056, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 132115
+  icon_name: ability_druid_catform
   range_yd: 100.0
   effects:
   - index: 0
@@ -4081,6 +4301,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   description: Increases your pet's maximum health by 3%.
   effects:
   - index: 0
@@ -4094,6 +4315,7 @@ spells:
   attributes: [384, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: 4000
   range_yd: 100.0
   aura_options:
@@ -4111,6 +4333,7 @@ spells:
   attributes: [384, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: 4000
   range_yd: 100.0
   description: Increases your pet's critical strike chance by $1%.
@@ -4126,6 +4349,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4142,6 +4366,7 @@ spells:
   attributes: [384, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: 4000
   range_yd: 100.0
   aura_options:
@@ -4162,6 +4387,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   description: Increases damage dealt by your pet by 3%.
   effects:
   - index: 0
@@ -4176,6 +4402,7 @@ spells:
   attributes: [384, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: 4000
   range_yd: 100.0
   aura_options:
@@ -4194,6 +4421,7 @@ spells:
   attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4210,6 +4438,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135953
+  icon_name: spell_holy_renew
   categories:
     start_recovery_category: 133
   levels:
@@ -4228,6 +4457,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135953
+  icon_name: spell_holy_renew
   duration_ms: -1
   categories:
     start_recovery_category: 133
@@ -4249,6 +4479,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -4268,6 +4499,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136039
+  icon_name: spell_nature_groundingtotem
   duration_ms: 10000
   categories:
     defense_type: MAGIC
@@ -4285,6 +4517,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136208
+  icon_name: spell_shadow_siphonmana
   duration_ms: -1
   aura_options:
     proc_chance: 100
@@ -4302,6 +4535,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 30
@@ -4318,6 +4552,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 136018
+  icon_name: spell_nature_cyclone
   duration_ms: 12000
   range_yd: 50000.0
   categories:
@@ -4338,6 +4573,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 4
@@ -4357,6 +4593,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136014
+  icon_name: spell_nature_callstorm
   duration_ms: 10000
   categories:
     defense_type: MAGIC
@@ -4374,6 +4611,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135923
+  icon_name: spell_holy_holyprotection
   levels:
     spell: 60
   aura_options:
@@ -4392,6 +4630,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 4
     proc_type_mask: 64
@@ -4411,6 +4650,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136039
+  icon_name: spell_nature_groundingtotem
   categories:
     defense_type: MAGIC
     dispel_type: 1
@@ -4428,6 +4668,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_type_mask: 4
@@ -4447,6 +4688,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136039
+  icon_name: spell_nature_groundingtotem
   categories:
     defense_type: MAGIC
     dispel_type: 1
@@ -4463,6 +4705,7 @@ spells:
   attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 133439
+  icon_name: inv_jewelry_talisman_06
   categories:
     dispel_type: 1
   levels:
@@ -4479,6 +4722,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [21]
@@ -4497,6 +4741,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
     mask: [4096, 0, 0, 0]
@@ -4516,6 +4761,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136057
+  icon_name: spell_nature_moonglow
   duration_ms: -1
   levels:
     spell: 40
@@ -4536,6 +4782,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136057
+  icon_name: spell_nature_moonglow
   duration_ms: -1
   levels:
     spell: 40
@@ -4557,6 +4804,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 136057
+  icon_name: spell_nature_moonglow
   duration_ms: -1
   levels:
     spell: 40
@@ -4577,6 +4825,7 @@ spells:
   attributes: [268501248, 268566528, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135751
+  icon_name: spell_arcane_portalundercity
   cast_time_ms: 10000
   duration_ms: 60000
   range_yd: 10.0
@@ -4604,6 +4853,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   shapeshift_mask: 145
   shapeshift_exclude: 671588450
@@ -4621,6 +4871,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134123
+  icon_name: inv_misc_gem_pearl_04
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -4639,6 +4890,7 @@ spells:
   attributes: [0, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -4658,6 +4910,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132218
+  icon_name: ability_impalingbolt
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4677,6 +4930,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   aura_options:
     proc_chance: 100
@@ -4695,6 +4949,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135900
+  icon_name: spell_holy_elunesgrace
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4715,6 +4970,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135900
+  icon_name: spell_holy_elunesgrace
   class_options:
     set: 5
   description: Your spell critical hits generate $s1% less threat.  In addition, Corruption, Immolate, Curse of Agony, and Siphon Life generate $s2% less threat.
@@ -4737,6 +4993,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 101
   class_options:
@@ -4755,6 +5012,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_type_mask: 320
@@ -4773,6 +5031,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 133439
+  icon_name: inv_jewelry_talisman_06
   categories:
     dispel_type: 1
   levels:
@@ -4791,6 +5050,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 101
   class_options:
@@ -4809,6 +5069,7 @@ spells:
   attributes: [64, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: -1
   description: Increases Attack Power by $28758s1 for both you and your pet.
   effects:
@@ -4824,6 +5085,7 @@ spells:
   attributes: [384, 1024, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136095
+  icon_name: spell_nature_spiritwolf
   duration_ms: 4000
   range_yd: 100.0
   effects:
@@ -4837,6 +5099,7 @@ spells:
   attributes: [134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   cooldown:
     category_recovery_ms: 60000
   categories:
@@ -4856,6 +5119,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 15
@@ -4875,6 +5139,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135894
+  icon_name: spell_holy_dispelmagic
   duration_ms: 8000
   categories:
     dispel_type: 1
@@ -4898,6 +5163,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4917,6 +5183,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 20
@@ -4933,6 +5200,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135443
+  icon_name: inv_trinket_naxxramas05
   duration_ms: 20000
   aura_options:
     proc_chance: 101
@@ -4948,6 +5216,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4967,6 +5236,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -4985,6 +5255,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135441
+  icon_name: inv_trinket_naxxramas03
   duration_ms: 20000
   aura_options:
     proc_chance: 101
@@ -5005,6 +5276,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135443
+  icon_name: inv_trinket_naxxramas05
   duration_ms: 20000
   aura_options:
     proc_chance: 101
@@ -5021,6 +5293,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135444
+  icon_name: inv_trinket_naxxramas06
   duration_ms: 20000
   aura_options:
     proc_chance: 101
@@ -5037,6 +5310,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5056,6 +5330,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135930
+  icon_name: spell_holy_lesserheal02
   range_yd: 50000.0
   power:
   - type: MANA
@@ -5078,6 +5353,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 10
@@ -5096,6 +5372,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 5
@@ -5116,6 +5393,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 136075
+  icon_name: spell_nature_purge
   duration_ms: 30000
   range_yd: 50000.0
   categories:
@@ -5137,6 +5415,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5156,6 +5435,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5175,6 +5455,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   range_yd: 50000.0
   aura_options:
     proc_chance: 100
@@ -5193,6 +5474,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 8
   description: Reduces the threat from your Backstab, Sinister Strike, Hemorrhage, and Eviscerate abilities.
@@ -5209,6 +5491,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_category_recovery_ms: 500
@@ -5229,6 +5512,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136039
+  icon_name: spell_nature_groundingtotem
   categories:
     defense_type: MAGIC
     dispel_type: 1
@@ -5247,6 +5531,7 @@ spells:
   attributes: [464, 1048576, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5267,6 +5552,7 @@ spells:
   attributes: [33882128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   duration_ms: -1
   cooldown:
     recovery_ms: 180000
@@ -5292,6 +5578,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   aura_options:
     proc_chance: 100
     proc_type_mask: 4
@@ -5311,6 +5598,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135930
+  icon_name: spell_holy_lesserheal02
   range_yd: 50000.0
   categories:
     defense_type: MAGIC
@@ -5331,6 +5619,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5350,6 +5639,7 @@ spells:
   attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135977
+  icon_name: spell_holy_spiritualguidence
   duration_ms: -1
   range_yd: 50000.0
   categories:
@@ -5377,6 +5667,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5396,6 +5687,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 10
@@ -5414,6 +5706,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   description: Increases damage caused by your Corruption by $s1%.
@@ -5430,6 +5723,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5449,6 +5743,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   class_options:
     set: 5
   description: Your Shadow Bolts now have a chance to heal you for $28839s1.
@@ -5465,6 +5760,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135930
+  icon_name: spell_holy_lesserheal02
   range_yd: 50000.0
   categories:
     defense_type: MAGIC
@@ -5488,6 +5784,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5507,6 +5804,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5526,6 +5824,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5544,6 +5843,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   aura_options:
     proc_chance: 100
     proc_type_mask: 16384
@@ -5563,6 +5863,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   aura_options:
     proc_chance: 100
     proc_type_mask: 16384
@@ -5582,6 +5883,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -5598,6 +5900,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
     mask: [4096, 0, 0, 0]
@@ -5623,6 +5926,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -5642,6 +5946,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135442
+  icon_name: inv_trinket_naxxramas04
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -5668,6 +5973,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5684,6 +5990,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   duration_ms: -1
   aura_options:
     proc_chance: 101
@@ -5703,6 +6010,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132133
+  icon_name: ability_druid_mangle
   duration_ms: 4000
   range_yd: 50000.0
   aura_options:
@@ -5723,6 +6031,7 @@ spells:
   attributes: [328064, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136076
+  icon_name: spell_nature_ravenform
   shapeshift_exclude: 1073741824
   levels:
     spell: 1
@@ -5740,6 +6049,7 @@ spells:
   attributes: [328064, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136076
+  icon_name: spell_nature_ravenform
   shapeshift_exclude: 1073741824
   levels:
     spell: 1
@@ -5757,6 +6067,7 @@ spells:
   attributes: [328064, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136076
+  icon_name: spell_nature_ravenform
   shapeshift_exclude: 1073741824
   levels:
     spell: 1
@@ -5774,6 +6085,7 @@ spells:
   attributes: [262272, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133877
+  icon_name: inv_misc_enggizmos_19
   duration_ms: 20000
   categories:
     defense_type: MAGIC
@@ -5794,6 +6106,7 @@ spells:
   attributes: [0, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132273
+  icon_name: ability_poisons
   duration_ms: -1
   categories:
     defense_type: MAGIC
@@ -5817,6 +6130,7 @@ spells:
   attributes: [16, 0, 0, 65536, 8388608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 135990
+  icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
   categories:
     defense_type: RANGED
@@ -5834,6 +6148,7 @@ spells:
   attributes: [0, 0, 0, 128, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 136091
+  icon_name: spell_nature_slow
   duration_ms: 12000
   range_yd: 30.0
   cooldown:
@@ -5858,6 +6173,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136096
+  icon_name: spell_nature_starfall
   class_options:
     set: 7
   labels: [21]
@@ -5893,6 +6209,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236261
+  icon_name: ability_paladin_sacredcleansing
   duration_ms: 10000
   aura_options:
     proc_chance: 100
@@ -5914,6 +6231,7 @@ spells:
   attributes: [192, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Improves your chance to hit by ${$s1}.1%.
   effects:
   - index: 0
@@ -5948,6 +6266,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Increases healing done by up to $s1 and damage done by up to $s2 for all magical spells and effects.
   effects:
   - index: 1
@@ -5961,6 +6280,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Increases Spirit by $s1%.
   effects:
   - index: 0
@@ -5973,6 +6293,7 @@ spells:
   attributes: [448, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136096
+  icon_name: spell_nature_starfall
   aura_options:
     proc_chance: 50
     proc_type_mask: 65536
@@ -5990,6 +6311,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6008,6 +6330,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   categories:
     defense_type: MAGIC
   class_options:
@@ -6027,6 +6350,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 134131
+  icon_name: inv_misc_gem_sapphire_01
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -6045,6 +6369,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 134128
+  icon_name: inv_misc_gem_ruby_01
   duration_ms: 15000
   categories:
     defense_type: MAGIC
@@ -6067,6 +6392,7 @@ spells:
   attributes: [64, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 2
   icon: 135915
+  icon_name: spell_holy_heal
   aura_options:
     proc_chance: 100
     proc_type_mask: 16384
@@ -6083,6 +6409,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 64
   icon: 134094
+  icon_name: inv_misc_gem_diamond_01
   duration_ms: 15000
   range_yd: 40.0
   categories:
@@ -6103,6 +6430,7 @@ spells:
   attributes: [68157440, 8, 0, 196608, 8454144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133028
+  icon_name: inv_gizmo_poltryiser_01
   range_yd: 30.0
   levels:
     base: 1
@@ -6118,6 +6446,7 @@ spells:
   attributes: [134479888, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136168
+  icon_name: spell_shadow_lifedrain
   duration_ms: 15000
   description: Reduces your magic damage taken from Dragon Breath spells by $s2% for $d.
   effects:
@@ -6132,6 +6461,7 @@ spells:
   attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 32
   icon: 136125
+  icon_name: spell_shadow_brainwash
   duration_ms: 30000
   range_yd: 5.0
   categories:
@@ -6162,6 +6492,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [21]
@@ -6180,6 +6511,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [21]
@@ -6198,6 +6530,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [21]
@@ -6216,6 +6549,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [21]
@@ -6232,6 +6566,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 11
   labels: [24]
@@ -6250,6 +6585,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 11
   labels: [24]
@@ -6268,6 +6604,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 11
   labels: [24]
@@ -6284,6 +6621,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6301,6 +6639,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6317,6 +6656,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6334,6 +6674,7 @@ spells:
   attributes: [150994944, 32, 16384, 65536, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 0, 8192, 0]
   school_mask: 1
   icon: 135934
+  icon_name: spell_holy_mindvision
   duration_ms: 20000
   aura_options:
     proc_chance: 100
@@ -6352,6 +6693,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 5771177
+  icon_name: inv_babyfireflypet_blue
   duration_ms: 15000
   categories:
     dispel_type: 1
@@ -6370,6 +6712,7 @@ spells:
   attributes: [0, 0, 0, 0, 4096, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236307
+  icon_name: ability_warrior_criticalblock
   duration_ms: 15000
   description: Increases your Block chance by $s1% for $d. This effect is doubled in Strongholds and Cities.
   effects:
@@ -6383,6 +6726,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135907
+  icon_name: spell_holy_flashheal
   class_options:
     set: 6
   description: Gives you a $s1% chance to avoid interruption caused by damage while casting Flash Heal.
@@ -6399,6 +6743,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1073807360, 131072, 0, 0, 0, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   class_options:
     set: 10
   description: "Increases the critical strike chance of your Flash of Light by $s1%.\r\n"
@@ -6415,6 +6760,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132183
+  icon_name: ability_hunter_pet_bear
   duration_ms: 20000
   cooldown:
     category_recovery_ms: 60000
@@ -6436,6 +6782,7 @@ spells:
   attributes: [536870912, 1056, 16384, 4456448, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 1509622
+  icon_name: inv_misc_bearpaw_red
   duration_ms: 15000
   description: Increases your Attack Power by $s1.
   effects:
@@ -6454,6 +6801,7 @@ spells:
   attributes: [150995136, 32, 268976128, 4391424, 8388608, 393224, 4100, 0, 32, 2048, 12582912, 67108864, 0, 268435458, 16, 0, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   aura_options:
     proc_chance: 10
     proc_type_mask: 340
@@ -6469,6 +6817,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133874
+  icon_name: inv_misc_enggizmos_16
   range_yd: 8.0
   categories:
     defense_type: MAGIC
@@ -6491,6 +6840,7 @@ spells:
   attributes: [16, 0, 268435456, 197248, 8388608, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133861
+  icon_name: inv_misc_enggizmos_03
   duration_ms: 20000
   range_yd: 30.0
   aura_options:
@@ -6515,6 +6865,7 @@ spells:
   name: Parachute-Priest Pager
   school_mask: 1
   icon: 133863
+  icon_name: inv_misc_enggizmos_05
   range_yd: 100.0
   description: Page Everlook Emergency Services for a Parachute-Priest that will assist in healing allies for $1295661d.
   effects:
@@ -6528,6 +6879,7 @@ spells:
   attributes: [262144, 0, 0, 196608, 8388608, 0, 0, 0, 0, 0, 4, 2048, 0, 0, 0, 0, 0]
   school_mask: 1
   icon: 135611
+  icon_name: inv_weapon_rifle_02
   cast_time_ms: 3000
   range_yd: 40.0
   cooldown:
@@ -6547,6 +6899,7 @@ spells:
   attributes: [0, 0, 536870916, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 133861
+  icon_name: inv_misc_enggizmos_03
   range_yd: 100.0
   categories:
     defense_type: MAGIC
@@ -6561,6 +6914,7 @@ spells:
   attributes: [150994944, 1056, 805847040, 4653568, 8392704, 393224, 1028, 0, 32, 2048, 12582912, 67108864, 0, 268435458, 16, 0, 0]
   school_mask: 1
   icon: 133863
+  icon_name: inv_misc_enggizmos_05
   duration_ms: 15000
   range_yd: 100.0
   description: $@spelldesc1295272
@@ -6578,6 +6932,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 512, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 8
   icon: 135914
+  icon_name: spell_holy_harmundeadaura
   duration_ms: 7000
   range_yd: 100.0
   categories:
@@ -6605,6 +6960,7 @@ spells:
   attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   levels:
     spell: 1
   class_options:
@@ -6626,6 +6982,7 @@ spells:
   attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   levels:
     spell: 1
   class_options:
@@ -6644,6 +7001,7 @@ spells:
   attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   levels:
     spell: 1
   class_options:
@@ -6661,6 +7019,7 @@ spells:
   attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   levels:
     spell: 1
   class_options:
@@ -6679,6 +7038,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136096
+  icon_name: spell_nature_starfall
   categories:
     defense_type: MAGIC
   levels:
@@ -6694,6 +7054,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   description: Increases your damage against Undead by $s1%.
   effects:
   - index: 0
@@ -6707,6 +7068,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6724,6 +7086,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 10
   labels: [26]
@@ -6739,6 +7102,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 11
   labels: [26]
@@ -6756,6 +7120,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   aura_options:
     proc_chance: 10
     proc_type_mask: 16
@@ -6774,6 +7139,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136052
+  icon_name: spell_nature_magicimmunity
   class_options:
     set: 7
   labels: [26]
@@ -6791,6 +7157,7 @@ spells:
   attributes: [150995392, 32, 540672, 0, 0, 393224, 4096, 0, 32, 2056, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   class_options:
     set: 11
   description: Increases the damage dealt by your Stormstrike ability by $m1%.
@@ -6806,6 +7173,7 @@ spells:
   attributes: [150995392, 32, 540672, 0, 0, 393224, 4096, 0, 32, 2056, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   class_options:
     set: 11
   description: Increases the critical strike chance of your Lightning Bolt spell by $m1%.
@@ -6822,6 +7190,7 @@ spells:
   attributes: [150995392, 32, 540672, 0, 0, 393224, 4096, 0, 32, 2056, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   class_options:
     set: 11
   description: Increases the critical strike chance of your Healing Wave and Lesser Healing Wave spells by $m1%.
@@ -6838,6 +7207,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 4
   icon: 136243
+  icon_name: trade_engineering
   cooldown:
     recovery_ms: 600000
   description: Reach into the bag and hope for the best.
@@ -6860,6 +7230,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   categories:
     defense_type: MAGIC
   levels:
@@ -6877,6 +7248,7 @@ spells:
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136235
+  icon_name: temp
   categories:
     defense_type: MAGIC
   levels:
@@ -6893,6 +7265,7 @@ spells:
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 0, 0, 268435456, 0, 0, 0]
   school_mask: 1
   icon: 136243
+  icon_name: trade_engineering
   aura_options:
     proc_chance: 5
     proc_category_recovery_ms: 60000
@@ -6909,6 +7282,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134418
+  icon_name: inv_misc_rune_05
   description: Your spells pierce $s1 Magical Resistances. Gain an additional $1315971s1 Spell Piercing in Forest and Grassland areas.
   effects:
   - index: 0
@@ -6922,6 +7296,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134418
+  icon_name: inv_misc_rune_05
   duration_ms: -1
   effects:
   - index: 0
@@ -6935,6 +7310,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134415
+  icon_name: inv_misc_rune_02
   description: Increases all Resistances by $s1. Gain an additional $1315990s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -6948,6 +7324,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134415
+  icon_name: inv_misc_rune_02
   duration_ms: -1
   effects:
   - index: 0
@@ -6961,6 +7338,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   description: Increases all Resistances by $s1. Gain an additional $1316052s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -6974,6 +7352,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   duration_ms: -1
   effects:
   - index: 0
@@ -6987,6 +7366,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   description: Restores $s1 Mana per 5 sec. Restores an additional $1316054s1 Mana per 5 sec in Forest and Grassland areas.
   effects:
   - index: 0
@@ -6999,6 +7379,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   duration_ms: -1
   effects:
   - index: 0
@@ -7011,6 +7392,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   description: Restores $s1 Mana per 5 sec. Restores an additional $1316054s1 Mana per 5 sec in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7023,6 +7405,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   duration_ms: -1
   effects:
   - index: 0
@@ -7035,6 +7418,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   description: Increases all Resistances by $s1. Gain an additional $1316058s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7048,6 +7432,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   duration_ms: -1
   effects:
   - index: 0
@@ -7061,6 +7446,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135924
+  icon_name: spell_holy_holysmite
   class_options:
     set: 10
   description: Increases the duration of your Repentance by ${$m1/1000} sec.
@@ -7078,6 +7464,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136025
+  icon_name: spell_nature_earthquake
   range_yd: 100.0
   categories:
     defense_type: MELEE
@@ -7096,6 +7483,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134415
+  icon_name: inv_misc_rune_02
   description: Increases all Resistances by $s1. Gain an additional $1317442s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7109,6 +7497,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134415
+  icon_name: inv_misc_rune_02
   duration_ms: -1
   effects:
   - index: 0
@@ -7122,6 +7511,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134418
+  icon_name: inv_misc_rune_05
   description: Your spells pierce $s1 Magical Resistances. Gain an additional $1317444s1 Spell Piercing in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7135,6 +7525,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134418
+  icon_name: inv_misc_rune_05
   duration_ms: -1
   effects:
   - index: 0
@@ -7148,6 +7539,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   description: Increases all Resistances by $s1. Gain an additional $1318103s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7161,6 +7553,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   duration_ms: -1
   effects:
   - index: 0
@@ -7174,6 +7567,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   description: Restores $s1 Mana per 5 sec. Restores an additional $1318125s1 Mana per 5 sec in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7186,6 +7580,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   duration_ms: -1
   effects:
   - index: 0
@@ -7198,6 +7593,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   description: Increases all Resistances by $s1. Gain an additional $1318103s1 to all Resistances in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7211,6 +7607,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 4128, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134421
+  icon_name: inv_misc_rune_08
   duration_ms: -1
   effects:
   - index: 0
@@ -7224,6 +7621,7 @@ spells:
   attributes: [159383872, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   description: Restores $s1 Mana per 5 sec. Restores an additional $1318125s1 Mana per 5 sec in Forest and Grassland areas.
   effects:
   - index: 0
@@ -7236,6 +7634,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 134419
+  icon_name: inv_misc_rune_06
   duration_ms: -1
   effects:
   - index: 0
@@ -7248,6 +7647,7 @@ spells:
   attributes: [448, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   range_yd: 50000.0
   effects:
   - index: 0
@@ -7260,6 +7660,7 @@ spells:
   attributes: [159383808, 32, 540673, 1048576, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
   school_mask: 1
   icon: 133598
+  icon_name: inv_misc_armorkit_03
   duration_ms: -1
   description: Reduces your damage taken by $s1% in the Battle Ring and The Maul.
   effects:
@@ -7274,6 +7675,7 @@ spells:
   attributes: [448, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   range_yd: 50000.0
   effects:
   - index: 0
@@ -7285,6 +7687,7 @@ spells:
   attributes: [448, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   range_yd: 50000.0
   effects:
   - index: 0
@@ -7296,6 +7699,7 @@ spells:
   attributes: [448, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134153
+  icon_name: inv_misc_head_dragon_01
   range_yd: 50000.0
   effects:
   - index: 0
@@ -7307,6 +7711,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 6
   icon: 135902
+  icon_name: spell_holy_excorcism
   range_yd: 30.0
   categories:
     defense_type: MAGIC

@@ -17,6 +17,24 @@ use csim_tables::{TableDir, Tables};
 /// The classes whose spell and talent files are exported (`csim-tables export-all`).
 const EXPORTED_CLASSES: [PlayerClass; 2] = [PlayerClass::Warrior, PlayerClass::Rogue];
 
+/// A shipped spell or item file as a fresh export of `tables` renders it: LF line ends, and
+/// without its `icon_name` lines when the table directory has no listfile (the export then
+/// writes none).
+fn shipped_file(path: &Path, tables: &Tables) -> String {
+    let text = std::fs::read_to_string(path).unwrap().replace("\r\n", "\n");
+    if !tables.icon_names().is_empty() {
+        return text;
+    }
+    eprintln!(
+        "no listfile in data/tables/: comparing {} without icon_name",
+        path.display()
+    );
+    text.lines()
+        .filter(|line| !line.trim_start().starts_with("icon_name: "))
+        .flat_map(|line| [line, "\n"])
+        .collect()
+}
+
 #[test]
 fn shipped_spell_files_match_a_fresh_export() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -40,18 +58,18 @@ fn shipped_spell_files_match_a_fresh_export() {
         let name = class.name().to_lowercase();
         let file = export::export_class(&tables, class, &overrides).unwrap();
         let rendered = export::render(&file, &format!("export-spells --class {name}")).unwrap();
-        let shipped = std::fs::read_to_string(spells_dir.join(format!("{name}.yaml"))).unwrap();
+        let shipped = shipped_file(&spells_dir.join(format!("{name}.yaml")), &tables);
         assert!(
-            rendered == shipped.replace("\r\n", "\n"),
+            rendered == shipped,
             "data/spells/{name}.yaml is stale: re-run `csim-tables export-spells --class {name}`"
         );
     }
 
     let racials = export::export_racials(&tables, &overrides).unwrap();
     let rendered = export::render(&racials, "export-spells --racials").unwrap();
-    let shipped = std::fs::read_to_string(spells_dir.join("racials.yaml")).unwrap();
+    let shipped = shipped_file(&spells_dir.join("racials.yaml"), &tables);
     assert!(
-        rendered == shipped.replace("\r\n", "\n"),
+        rendered == shipped,
         "data/spells/racials.yaml is stale: re-run `csim-tables export-spells --racials`"
     );
 
@@ -79,9 +97,9 @@ fn shipped_spell_files_match_a_fresh_export() {
     )
     .unwrap();
     let rendered = export::render(&externals, "export-spells --externals").unwrap();
-    let shipped = std::fs::read_to_string(spells_dir.join("externals.yaml")).unwrap();
+    let shipped = shipped_file(&spells_dir.join("externals.yaml"), &tables);
     assert!(
-        rendered == shipped.replace("\r\n", "\n"),
+        rendered == shipped,
         "data/spells/externals.yaml is stale: re-run `csim-tables export-spells --externals`"
     );
 
@@ -96,9 +114,9 @@ fn shipped_spell_files_match_a_fresh_export() {
     )
     .unwrap();
     let rendered = export::render(&enchants_file, "export-spells --enchants").unwrap();
-    let shipped = std::fs::read_to_string(spells_dir.join("enchants.yaml")).unwrap();
+    let shipped = shipped_file(&spells_dir.join("enchants.yaml"), &tables);
     assert!(
-        rendered == shipped.replace("\r\n", "\n"),
+        rendered == shipped,
         "data/spells/enchants.yaml is stale: re-run `csim-tables export-spells --enchants`"
     );
 
@@ -116,9 +134,9 @@ fn shipped_spell_files_match_a_fresh_export() {
     .unwrap();
     assert_eq!(missing, [469141], "item spells the dump lacks");
     let rendered = export::render(&items_file, "export-spells --items").unwrap();
-    let shipped = std::fs::read_to_string(spells_dir.join("items.yaml")).unwrap();
+    let shipped = shipped_file(&spells_dir.join("items.yaml"), &tables);
     assert!(
-        rendered == shipped.replace("\r\n", "\n"),
+        rendered == shipped,
         "data/spells/items.yaml is stale: re-run `csim-tables export-spells --items`"
     );
 }
@@ -352,9 +370,9 @@ fn shipped_item_files_match_a_fresh_export() {
     let items_dir = root.join("data/items");
     for (name, file) in &files {
         let rendered = export::render_items(file, "export-items").unwrap();
-        let shipped = std::fs::read_to_string(items_dir.join(format!("{name}.yaml"))).unwrap();
+        let shipped = shipped_file(&items_dir.join(format!("{name}.yaml")), &tables);
         assert!(
-            rendered == shipped.replace("\r\n", "\n"),
+            rendered == shipped,
             "data/items/{name}.yaml is stale: re-run `csim-tables export-items`"
         );
     }

@@ -512,6 +512,7 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
         record.attributes = misc.attributes;
         record.school_mask = SpellSchoolMask::from_bits(misc.school_mask);
         record.icon = misc.spell_icon_file_data_id;
+        record.icon_name = tables.icon_name(record.icon);
         record.cast_time_ms = tables
             .spell_cast_times(misc.casting_time_index)
             .map_or(0, |c| c.base.max(0) as u32);

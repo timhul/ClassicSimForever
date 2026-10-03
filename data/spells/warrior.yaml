@@ -11,6 +11,7 @@ spells:
   attributes: [151322640, 268435456, 256, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132341
+  icon_name: ability_warrior_defensivestance
   duration_ms: -1
   power:
   - type: RAGE
@@ -46,6 +47,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132357
+  icon_name: ability_warrior_shieldbash
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -85,6 +87,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -116,6 +119,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -150,6 +154,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -182,6 +187,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -213,6 +219,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -253,6 +260,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 9000
   range_yd: 5.0
   power:
@@ -291,6 +299,7 @@ spells:
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   range_yd: 5.0
   power:
   - type: RAGE
@@ -322,6 +331,7 @@ spells:
   attributes: [327696, 131072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132362
+  icon_name: ability_warrior_shieldwall
   duration_ms: 12000
   power:
   - type: RAGE
@@ -360,6 +370,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   duration_ms: 45000
   power:
   - type: RAGE
@@ -397,6 +408,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -435,6 +447,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -467,6 +480,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132357
+  icon_name: ability_warrior_shieldbash
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -506,6 +520,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132357
+  icon_name: ability_warrior_shieldbash
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -542,6 +557,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132369
+  icon_name: ability_whirlwind
   power:
   - type: RAGE
     cost: 250
@@ -579,6 +595,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132316
+  icon_name: ability_shockwave
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -614,6 +631,7 @@ spells:
   attributes: [327696, 229376, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132109
+  icon_name: ability_criticalstrike
   duration_ms: 15000
   power:
   - type: RAGE
@@ -654,6 +672,7 @@ spells:
   attributes: [151322640, 2415919104, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 32768, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132349
+  icon_name: ability_warrior_offensivestance
   duration_ms: -1
   power:
   - type: RAGE
@@ -685,6 +704,7 @@ spells:
   attributes: [151322640, 268435456, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132275
+  icon_name: ability_racial_avatar
   duration_ms: -1
   power:
   - type: RAGE
@@ -716,6 +736,7 @@ spells:
   attributes: [327696, 0, 0, 2, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132110
+  icon_name: ability_defend
   duration_ms: 7000
   power:
   - type: RAGE
@@ -751,6 +772,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132277
+  icon_name: ability_racial_bloodrage
   power:
   - type: HEALTH
     cost_pct: 20.0
@@ -783,6 +805,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -817,6 +840,7 @@ spells:
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 5.0
   power:
   - type: RAGE
@@ -860,6 +884,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -894,6 +919,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   duration_ms: 45000
   power:
   - type: RAGE
@@ -931,6 +957,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -965,6 +992,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 10000
   power:
   - type: RAGE
@@ -1007,6 +1035,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 12000
   range_yd: 5.0
   power:
@@ -1046,6 +1075,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1085,6 +1115,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 18000
   range_yd: 5.0
   power:
@@ -1123,6 +1154,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -1159,6 +1191,7 @@ spells:
   attributes: [327696, 134218240, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   duration_ms: 4000
   range_yd: 5.0
   power:
@@ -1194,6 +1227,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1235,6 +1269,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1275,6 +1310,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -1310,6 +1346,7 @@ spells:
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1343,6 +1380,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132316
+  icon_name: ability_shockwave
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1380,6 +1418,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132316
+  icon_name: ability_shockwave
   duration_ms: 15000
   range_yd: 5.0
   power:
@@ -1415,6 +1454,7 @@ spells:
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132341
+  icon_name: ability_warrior_defensivestance
   levels:
     base: 10
     spell: 10
@@ -1452,6 +1492,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1491,6 +1532,7 @@ spells:
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132275
+  icon_name: ability_racial_avatar
   power:
   - type: RAGE
   levels:
@@ -1531,6 +1573,7 @@ spells:
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1570,6 +1613,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1614,6 +1658,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -1655,6 +1700,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -1696,6 +1742,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1740,6 +1787,7 @@ spells:
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   range_yd: 5.0
   power:
   - type: RAGE
@@ -1780,6 +1828,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 14000
   power:
   - type: RAGE
@@ -1822,6 +1871,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 18000
   power:
   - type: RAGE
@@ -1864,6 +1914,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 22000
   power:
   - type: RAGE
@@ -1906,6 +1957,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -1950,6 +2002,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -1988,6 +2041,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -2023,6 +2077,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -2058,6 +2113,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -2093,6 +2149,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2130,6 +2187,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2167,6 +2225,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   duration_ms: 45000
   power:
   - type: RAGE
@@ -2204,6 +2263,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2236,6 +2296,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2268,6 +2329,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2300,6 +2362,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2332,6 +2395,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2371,6 +2435,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2410,6 +2475,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 8388608, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   duration_ms: 21000
   range_yd: 5.0
   power:
@@ -2449,6 +2515,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -2483,6 +2550,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 26000
   power:
   - type: RAGE
@@ -2525,6 +2593,7 @@ spells:
   attributes: [327696, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 136105
+  icon_name: spell_nature_thunderclap
   duration_ms: 30000
   power:
   - type: RAGE
@@ -2567,6 +2636,7 @@ spells:
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2607,6 +2677,7 @@ spells:
   attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2647,6 +2718,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2691,6 +2763,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 1048576, 0, 8388608, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   duration_ms: 30000
   range_yd: 5.0
   power:
@@ -2735,6 +2808,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2776,6 +2850,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2817,6 +2892,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -2855,6 +2931,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -2893,6 +2970,7 @@ spells:
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2926,6 +3004,7 @@ spells:
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   range_yd: 5.0
   power:
   - type: RAGE
@@ -2955,6 +3034,7 @@ spells:
   attributes: [262544, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   range_yd: 50000.0
   categories:
     mechanic: BLEED
@@ -2972,6 +3052,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132400
+  icon_name: inv_axe_09
   levels:
     base: 1
     spell: 1
@@ -2993,6 +3074,7 @@ spells:
   attributes: [400, 16, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135328
+  icon_name: inv_sword_27
   duration_ms: -1
   levels:
     base: 1
@@ -3018,6 +3100,7 @@ spells:
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   levels:
     base: 1
     spell: 1
@@ -3039,6 +3122,7 @@ spells:
   attributes: [400, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 133476
+  icon_name: inv_mace_01
   duration_ms: -1
   levels:
     base: 1
@@ -3060,6 +3144,7 @@ spells:
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   levels:
     base: 1
     spell: 1
@@ -3081,6 +3166,7 @@ spells:
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132155
+  icon_name: ability_gouge
   levels:
     base: 1
     spell: 1
@@ -3102,6 +3188,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132326
+  icon_name: ability_thunderclap
   levels:
     base: 1
     spell: 1
@@ -3124,6 +3211,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   levels:
     base: 1
     spell: 1
@@ -3146,6 +3234,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135275
+  icon_name: inv_sword_05
   levels:
     base: 1
     spell: 1
@@ -3167,6 +3256,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132306
+  icon_name: ability_rogue_slicedice
   duration_ms: 20000
   power:
   - type: RAGE
@@ -3199,6 +3289,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132355
+  icon_name: ability_warrior_savageblow
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -3234,6 +3325,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136031
+  icon_name: spell_nature_enchantarmor
   levels:
     base: 1
     spell: 1
@@ -3253,6 +3345,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135881
+  icon_name: spell_holy_blessingofstamina
   levels:
     base: 1
     spell: 1
@@ -3286,6 +3379,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136056
+  icon_name: spell_nature_mirrorimage
   levels:
     base: 1
     spell: 1
@@ -3304,6 +3398,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134952
+  icon_name: inv_shield_06
   levels:
     base: 1
     spell: 1
@@ -3330,6 +3425,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135892
+  icon_name: spell_holy_devotion
   levels:
     base: 1
     spell: 1
@@ -3353,6 +3449,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132277
+  icon_name: ability_racial_bloodrage
   levels:
     base: 1
     spell: 1
@@ -3375,6 +3472,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136080
+  icon_name: spell_nature_reincarnation
   levels:
     base: 1
     spell: 1
@@ -3397,6 +3495,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132110
+  icon_name: ability_defend
   levels:
     base: 1
     spell: 1
@@ -3425,6 +3524,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132363
+  icon_name: ability_warrior_sunder
   levels:
     base: 1
     spell: 1
@@ -3446,6 +3546,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132362
+  icon_name: ability_warrior_shieldwall
   levels:
     base: 1
     spell: 1
@@ -3467,6 +3568,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132343
+  icon_name: ability_warrior_disarm
   levels:
     base: 1
     spell: 1
@@ -3488,6 +3590,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136224
+  icon_name: spell_shadow_unholyfrenzy
   levels:
     spell: 1
   aura_options:
@@ -3506,6 +3609,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   levels:
     base: 1
     spell: 1
@@ -3527,6 +3631,7 @@ spells:
   attributes: [262336, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132152
+  icon_name: ability_ghoulfrenzy
   levels:
     base: 1
     spell: 1
@@ -3547,6 +3652,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132292
+  icon_name: ability_rogue_eviscerate
   levels:
     base: 1
     spell: 1
@@ -3567,6 +3673,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136075
+  icon_name: spell_nature_purge
   levels:
     base: 1
     spell: 1
@@ -3589,6 +3696,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136097
+  icon_name: spell_nature_stoneclawtotem
   levels:
     base: 1
     spell: 1
@@ -3613,6 +3721,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   levels:
     base: 1
     spell: 1
@@ -3635,6 +3744,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132336
+  icon_name: ability_warrior_challange
   levels:
     base: 1
     spell: 1
@@ -3656,6 +3766,7 @@ spells:
   attributes: [201588752, 98304, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136146
+  icon_name: spell_shadow_deathpact
   duration_ms: 30000
   power:
   - type: RAGE
@@ -3692,6 +3803,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   levels:
     base: 1
     spell: 1
@@ -3715,6 +3827,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   levels:
     spell: 1
   aura_options:
@@ -3733,6 +3846,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   levels:
     spell: 1
   aura_options:
@@ -3749,6 +3863,7 @@ spells:
   attributes: [262544, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132397
+  icon_name: inv_axe_06
   duration_ms: -1
   levels:
     base: 1
@@ -3771,6 +3886,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132938
+  icon_name: inv_gauntlets_04
   levels:
     base: 1
     spell: 1
@@ -3793,6 +3909,7 @@ spells:
   attributes: [262160, 0, 541065344, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132306
+  icon_name: ability_rogue_slicedice
   range_yd: 100.0
   levels:
     base: 1
@@ -3812,6 +3929,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136080
+  icon_name: spell_nature_reincarnation
   levels:
     base: 1
     spell: 1
@@ -3833,6 +3951,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 16, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132347
+  icon_name: ability_warrior_innerrage
   shapeshift_mask: 131072
   levels:
     spell: 1
@@ -3853,6 +3972,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   levels:
     base: 1
     spell: 1
@@ -3876,6 +3996,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   levels:
     base: 1
     spell: 1
@@ -3902,6 +4023,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   levels:
     base: 1
     spell: 1
@@ -3924,6 +4046,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   levels:
     base: 1
     spell: 1
@@ -3946,6 +4069,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   levels:
     base: 1
     spell: 1
@@ -3968,6 +4092,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   levels:
     base: 1
     spell: 1
@@ -3989,6 +4114,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   levels:
     base: 1
     spell: 1
@@ -4055,6 +4181,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   levels:
     base: 1
     spell: 1
@@ -4077,6 +4204,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   levels:
     base: 1
     spell: 1
@@ -4099,6 +4227,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   levels:
     base: 1
     spell: 1
@@ -4121,6 +4250,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132366
+  icon_name: ability_warrior_warcry
   levels:
     base: 1
     spell: 1
@@ -4141,6 +4271,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136224
+  icon_name: spell_shadow_unholyfrenzy
   duration_ms: 12000
   categories:
     category: 21
@@ -4162,6 +4293,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132336
+  icon_name: ability_warrior_challange
   levels:
     base: 1
     spell: 1
@@ -4184,6 +4316,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132110
+  icon_name: ability_defend
   levels:
     base: 1
     spell: 1
@@ -4213,6 +4346,7 @@ spells:
   attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132110
+  icon_name: ability_defend
   levels:
     base: 1
     spell: 1
@@ -4242,6 +4376,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135275
+  icon_name: inv_sword_05
   levels:
     base: 1
     spell: 1
@@ -4263,6 +4398,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136097
+  icon_name: spell_nature_stoneclawtotem
   levels:
     base: 1
     spell: 1
@@ -4280,6 +4416,7 @@ spells:
   attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132152
+  icon_name: ability_ghoulfrenzy
   duration_ms: 15000
   levels:
     base: 1
@@ -4301,6 +4438,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135871
+  icon_name: spell_holy_ashestoashes
   cooldown:
     recovery_ms: 180000
   levels:
@@ -4322,6 +4460,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135871
+  icon_name: spell_holy_ashestoashes
   duration_ms: 20000
   levels:
     spell: 1
@@ -4339,6 +4478,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132269
+  icon_name: ability_parry
   labels: [25]
   description: Increases your Parry chance by $s1%.
   effects:
@@ -4354,6 +4494,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136218
+  icon_name: spell_shadow_summonimp
   aura_options:
     proc_chance: 100
     proc_type_mask: 139960
@@ -4371,6 +4512,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132312
+  icon_name: ability_searingarrow
   class_options:
     set: 4
   labels: [25]
@@ -4390,6 +4532,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134950
+  icon_name: inv_shield_04
   levels:
     base: 1
     spell: 1
@@ -4412,6 +4555,7 @@ spells:
   attributes: [327696, 32768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136009
+  icon_name: spell_nature_ancestralguardian
   duration_ms: 10000
   power:
   - type: RAGE
@@ -4439,6 +4583,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132154
+  icon_name: ability_golemthunderclap
   class_options:
     set: 4
   labels: [25]
@@ -4459,6 +4604,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132154
+  icon_name: ability_golemthunderclap
   class_options:
     set: 4
   labels: [25]
@@ -4479,6 +4625,7 @@ spells:
   attributes: [327696, 131072, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132336
+  icon_name: ability_warrior_challange
   duration_ms: 15000
   power:
   - type: RAGE
@@ -4515,6 +4662,7 @@ spells:
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4548,6 +4696,7 @@ spells:
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 135860
+  icon_name: spell_frost_stun
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4572,6 +4721,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136009
+  icon_name: spell_nature_ancestralguardian
   aura_options:
     proc_chance: 100
     proc_type_mask: 87376
@@ -4596,6 +4746,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   class_options:
     set: 4
   labels: [25]
@@ -4615,6 +4766,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   class_options:
     set: 4
   labels: [25]
@@ -4637,6 +4789,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -4678,6 +4831,7 @@ spells:
   attributes: [327696, 134218240, 0, 1032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132350
+  icon_name: ability_warrior_punishingblow
   duration_ms: 6000
   range_yd: 5.0
   power:
@@ -4719,6 +4873,7 @@ spells:
   attributes: [327700, 512, 4096, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132338
+  icon_name: ability_warrior_cleave
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4749,6 +4904,7 @@ spells:
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 135860
+  icon_name: spell_frost_stun
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4773,6 +4929,7 @@ spells:
   attributes: [327696, 512, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 135860
+  icon_name: spell_frost_stun
   duration_ms: 3000
   range_yd: 25.0
   power:
@@ -4800,6 +4957,7 @@ spells:
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4836,6 +4994,7 @@ spells:
   attributes: [537198608, 1024, 0, 0, 0, 0, 0, 262144, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132307
+  icon_name: ability_rogue_sprint
   range_yd: 25.0
   power:
   - type: RAGE
@@ -4871,6 +5030,7 @@ spells:
   attributes: [262160, 512, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 100.0
   power:
   - type: RAGE
@@ -4901,6 +5061,7 @@ spells:
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4944,6 +5105,7 @@ spells:
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 5.0
   power:
   - type: RAGE
@@ -4987,6 +5149,7 @@ spells:
   attributes: [327952, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5030,6 +5193,7 @@ spells:
   attributes: [327952, 134218240, 0, 197632, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135358
+  icon_name: inv_sword_48
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5071,6 +5235,7 @@ spells:
   attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132349
+  icon_name: ability_warrior_offensivestance
   duration_ms: -1
   levels:
     spell: 1
@@ -5093,6 +5258,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132355
+  icon_name: ability_warrior_savageblow
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5131,6 +5297,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132355
+  icon_name: ability_warrior_savageblow
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5169,6 +5336,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132355
+  icon_name: ability_warrior_savageblow
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5205,6 +5373,7 @@ spells:
   attributes: [448, 0, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132147
+  icon_name: ability_dualwield
   class_options:
     set: 4
   equipped_items:
@@ -5230,6 +5399,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132359
+  icon_name: ability_warrior_shieldguard
   levels:
     base: 1
     spell: 1
@@ -5249,6 +5419,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136012
+  icon_name: spell_nature_bloodlust
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5289,6 +5460,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136012
+  icon_name: spell_nature_bloodlust
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5329,6 +5501,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136012
+  icon_name: spell_nature_bloodlust
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5369,6 +5542,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136012
+  icon_name: spell_nature_bloodlust
   duration_ms: 10000
   range_yd: 5.0
   power:
@@ -5408,6 +5582,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134951
+  icon_name: inv_shield_05
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5446,6 +5621,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134951
+  icon_name: inv_shield_05
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5484,6 +5660,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134951
+  icon_name: inv_shield_05
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5522,6 +5699,7 @@ spells:
   attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134951
+  icon_name: inv_shield_05
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5560,6 +5738,7 @@ spells:
   attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132282
+  icon_name: ability_rogue_ambush
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5592,6 +5771,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132353
+  icon_name: ability_warrior_revenge
   range_yd: 5.0
   power:
   - type: RAGE
@@ -5633,6 +5813,7 @@ spells:
   attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132333
+  icon_name: ability_warrior_battleshout
   duration_ms: 180000
   power:
   - type: RAGE
@@ -5664,6 +5845,7 @@ spells:
   attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135724
+  icon_name: mail_gmicon
   duration_ms: 1000
   shapeshift_mask: 1
   class_options:
@@ -5682,6 +5864,7 @@ spells:
   attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132277
+  icon_name: ability_racial_bloodrage
   duration_ms: 10000
   power:
   - type: HEALTH
@@ -5705,6 +5888,7 @@ spells:
   attributes: [464, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132345
+  icon_name: ability_warrior_focusedrage
   class_options:
     set: 4
   labels: [25]
@@ -5725,6 +5909,7 @@ spells:
   attributes: [327696, 134218240, 256, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132215
+  icon_name: ability_hunter_swiftstrike
   range_yd: 5.0
   cooldown:
     recovery_ms: 8000
@@ -5765,6 +5950,7 @@ spells:
   attributes: [327696, 0, 256, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132175
+  icon_name: ability_hunter_harass
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -5796,6 +5982,7 @@ spells:
   attributes: [327696, 512, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132342
+  icon_name: ability_warrior_devastate
   range_yd: 5.0
   cooldown:
     recovery_ms: 30000
@@ -5836,6 +6023,7 @@ spells:
   attributes: [2424848, 0, 0, 1073742336, 0, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135291
+  icon_name: inv_sword_11
   range_yd: 50000.0
   categories:
     defense_type: MELEE
@@ -5868,6 +6056,7 @@ spells:
   attributes: [327696, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132351
+  icon_name: ability_warrior_rallyingcry
   duration_ms: 300000
   cooldown:
     start_recovery_ms: 1500
@@ -5898,6 +6087,7 @@ spells:
   attributes: [0, 524288, 1048896, 0, 0, 0, 276824064, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132507
+  icon_name: inv_belt_18
   range_yd: 30.0
   power:
   - type: RAGE
@@ -5926,6 +6116,7 @@ spells:
   attributes: [16, 0, 4, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
   school_mask: 1
   icon: 132090
+  icon_name: ability_backstab
   duration_ms: 12000
   range_yd: 50000.0
   categories:
@@ -5955,6 +6146,7 @@ spells:
   attributes: [262160, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132339
+  icon_name: ability_warrior_commandingshout
   duration_ms: 10000
   cooldown:
     recovery_ms: 180000
@@ -5979,6 +6171,7 @@ spells:
   attributes: [327696, 134217728, 256, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132394
+  icon_name: inv_axe_03
   range_yd: 5.0
   power:
   - type: RAGE
@@ -6012,6 +6205,7 @@ spells:
   attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236312
+  icon_name: ability_warrior_shockwave
   duration_ms: 4000
   power:
   - type: RAGE
@@ -6053,6 +6247,7 @@ spells:
   attributes: [0, 0, 260, 0, 0, 393224, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132347
+  icon_name: ability_warrior_innerrage
   duration_ms: 7200000
   range_yd: 100.0
   cooldown:
@@ -6101,6 +6296,7 @@ spells:
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132222
+  icon_name: ability_marksmanship
   labels: [25]
   description: Improves your chance to hit by $s1%.
   effects:
@@ -6124,6 +6320,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6159,6 +6356,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -6190,6 +6388,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -6221,6 +6420,7 @@ spells:
   attributes: [805634064, 1024, 0, 0, 0, 0, 0, 262144, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132337
+  icon_name: ability_warrior_charge
   range_yd: 25.0
   power:
   - type: RAGE
@@ -6251,6 +6451,7 @@ spells:
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135328
+  icon_name: inv_sword_27
   labels: [20]
   effects:
   - index: 0
@@ -6263,6 +6464,7 @@ spells:
   attributes: [400, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132223
+  icon_name: ability_meleedamage
   duration_ms: 5000
   range_yd: 50000.0
   levels:
@@ -6288,6 +6490,7 @@ spells:
   attributes: [464, 0, 0, 1024, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135271
+  icon_name: inv_sword_01
   levels:
     spell: 1
   aura_options:
@@ -6309,6 +6512,7 @@ spells:
   attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 1085608
+  icon_name: garrison_weaponupgrade
   levels:
     base: 1
     spell: 1
@@ -6339,6 +6543,7 @@ spells:
   attributes: [336, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 136031
+  icon_name: spell_nature_enchantarmor
   levels:
     base: 14
     spell: 14
@@ -6358,6 +6563,7 @@ spells:
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6393,6 +6599,7 @@ spells:
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6428,6 +6635,7 @@ spells:
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6463,6 +6671,7 @@ spells:
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6498,6 +6707,7 @@ spells:
   attributes: [327696, 134218240, 131072, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132340
+  icon_name: ability_warrior_decisivestrike
   cast_time_ms: 1500
   range_yd: 5.0
   power:
@@ -6534,6 +6744,7 @@ spells:
   attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 135124
+  icon_name: inv_spear_01
   range_yd: 5.0
   power:
   - type: RAGE
@@ -6578,6 +6789,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 236310
+  icon_name: ability_warrior_intensifyrage
   labels: [25]
   description: Increases your maximum Rage by ${$m1/10}.
   effects:
@@ -6593,6 +6805,7 @@ spells:
   attributes: [464, 0, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132369
+  icon_name: ability_whirlwind
   class_options:
     set: 4
   labels: [25]
@@ -6615,6 +6828,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 132359
+  icon_name: ability_warrior_shieldguard
   levels:
     base: 1
     spell: 1
@@ -6634,6 +6848,7 @@ spells:
   attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 4194304, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 4667427
+  icon_name: ability_warrior_shieldcharge
   class_options:
     set: 4
   labels: [25]
@@ -6662,6 +6877,7 @@ spells:
   attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
   school_mask: 1
   icon: 134952
+  icon_name: inv_shield_06
   levels:
     base: 1
     spell: 1

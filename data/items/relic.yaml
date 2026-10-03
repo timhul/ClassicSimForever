@@ -9,6 +9,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 135464
+  icon_name: inv_wand_02
   req_lvl: 10
   item_lvl: 20
   stats:
@@ -22,6 +23,7 @@ items:
   type: TOTEM
   quality: EPIC
   icon: 134918
+  icon_name: inv_relics_totemoflife
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -35,6 +37,7 @@ items:
   type: IDOL
   quality: EPIC
   icon: 134913
+  icon_name: inv_relics_idolofhealth
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -48,6 +51,7 @@ items:
   type: LIBRAM
   quality: EPIC
   icon: 134915
+  icon_name: inv_relics_libramofgrace
   unique: true
   req_lvl: 60
   item_lvl: 78
@@ -61,6 +65,7 @@ items:
   type: IDOL
   quality: EPIC
   icon: 134913
+  icon_name: inv_relics_idolofhealth
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -74,6 +79,7 @@ items:
   type: TOTEM
   quality: EPIC
   icon: 134918
+  icon_name: inv_relics_totemoflife
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -87,6 +93,7 @@ items:
   type: LIBRAM
   quality: EPIC
   icon: 134915
+  icon_name: inv_relics_libramofgrace
   unique: true
   req_lvl: 60
   item_lvl: 83
@@ -100,6 +107,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 134914
+  icon_name: inv_relics_idolofrejuvenation
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -114,6 +122,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 134919
+  icon_name: inv_relics_totemofrage
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -128,6 +137,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 134917
+  icon_name: inv_relics_libramoftruth
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -142,6 +152,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 134912
+  icon_name: inv_relics_idolofferocity
   req_lvl: 55
   item_lvl: 60
   effects:
@@ -154,6 +165,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 134916
+  icon_name: inv_relics_libramofhope
   req_lvl: 55
   item_lvl: 60
   effects:
@@ -166,6 +178,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 134920
+  icon_name: inv_relics_totemofrebirth
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -178,6 +191,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 134532
+  icon_name: inv_mushroom_11
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [DRUID]
@@ -191,6 +205,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 133745
+  icon_name: inv_misc_book_13
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [PALADIN]
@@ -205,6 +220,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 310733
+  icon_name: spell_shaman_totemrecall
   req_lvl: 20
   item_lvl: 25
   class_restrictions: [SHAMAN]
@@ -218,6 +234,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 136063
+  icon_name: spell_nature_natureswrath
   req_lvl: 40
   item_lvl: 45
   class_restrictions: [DRUID]
@@ -231,6 +248,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 134916
+  icon_name: inv_relics_libramofhope
   req_lvl: 40
   item_lvl: 45
   effects:
@@ -243,6 +261,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 134919
+  icon_name: inv_relics_totemofrage
   req_lvl: 40
   item_lvl: 45
   effects:
@@ -255,6 +274,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 454045
+  icon_name: trade_archaeology_catstatueemeraldeyes
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -267,6 +287,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 611424
+  icon_name: talentspec_druid_feral_bear
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -279,6 +300,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 132848
+  icon_name: inv_elemental_primal_life
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -291,6 +313,7 @@ items:
   type: IDOL
   quality: RARE
   icon: 463485
+  icon_name: trade_archaeology_insect in amber
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -303,6 +326,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 4667424
+  icon_name: ability_shaman_manatidetotem
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -315,6 +339,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 1020304
+  icon_name: spell_shaman_stormtotem
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -327,6 +352,7 @@ items:
   type: TOTEM
   quality: RARE
   icon: 135829
+  icon_name: spell_fire_totemofwrath
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -339,6 +365,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 133744
+  icon_name: inv_misc_book_12
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -351,6 +378,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 133736
+  icon_name: inv_misc_book_04
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -363,6 +391,7 @@ items:
   type: LIBRAM
   quality: RARE
   icon: 133743
+  icon_name: inv_misc_book_11
   req_lvl: 60
   item_lvl: 65
   effects:
@@ -375,6 +404,7 @@ items:
   type: LIBRAM
   quality: EPIC
   icon: 134915
+  icon_name: inv_relics_libramofgrace
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -388,6 +418,7 @@ items:
   type: LIBRAM
   quality: EPIC
   icon: 133745
+  icon_name: inv_misc_book_13
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -401,6 +432,7 @@ items:
   type: TOTEM
   quality: EPIC
   icon: 5927655
+  icon_name: inv_ability_totemicshaman_surgingtotem
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -414,6 +446,7 @@ items:
   type: IDOL
   quality: EPIC
   icon: 236162
+  icon_name: ability_druid_nourish
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -427,6 +460,7 @@ items:
   type: IDOL
   quality: EPIC
   icon: 134233
+  icon_name: inv_misc_idol_04
   req_lvl: 60
   item_lvl: 65
   boe: true

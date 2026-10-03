@@ -9,6 +9,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133756
+  icon_name: inv_misc_cape_04
   req_lvl: 35
   item_lvl: 40
   boe: true
@@ -24,6 +25,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 132656
+  icon_name: inv_chest_cloth_15
   req_lvl: 0
   item_lvl: 42
   stats:
@@ -36,6 +38,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -54,6 +57,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133757
+  icon_name: inv_misc_cape_05
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -71,6 +75,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 25
   item_lvl: 30
@@ -88,6 +93,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 40
   item_lvl: 45
@@ -105,6 +111,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 55
   item_lvl: 60
@@ -122,6 +129,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -135,6 +143,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -148,6 +157,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133758
+  icon_name: inv_misc_cape_06
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -161,6 +171,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -174,6 +185,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 30
   item_lvl: 35
@@ -187,6 +199,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -200,6 +213,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -213,6 +227,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133754
+  icon_name: inv_misc_cape_02
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -229,6 +244,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133753
+  icon_name: inv_misc_cape_01
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -245,6 +261,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133772
+  icon_name: inv_misc_cape_20
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -260,6 +277,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133768
+  icon_name: inv_misc_cape_16
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -274,6 +292,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -288,6 +307,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133768
+  icon_name: inv_misc_cape_16
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -302,6 +322,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -316,6 +337,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133769
+  icon_name: inv_misc_cape_17
   req_lvl: 0
   item_lvl: 51
   stats:
@@ -330,6 +352,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -346,6 +369,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -362,6 +386,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -378,6 +403,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -394,6 +420,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -410,6 +437,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   unique: true
   req_lvl: 48
   item_lvl: 53
@@ -426,6 +454,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   unique: true
   req_lvl: 38
   item_lvl: 43
@@ -442,6 +471,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   unique: true
   req_lvl: 28
   item_lvl: 33
@@ -458,6 +488,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133754
+  icon_name: inv_misc_cape_02
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -472,6 +503,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133754
+  icon_name: inv_misc_cape_02
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -486,6 +518,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -500,6 +533,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133766
+  icon_name: inv_misc_cape_14
   req_lvl: 0
   item_lvl: 59
   stats:
@@ -514,6 +548,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133770
+  icon_name: inv_misc_cape_18
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -530,6 +565,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133765
+  icon_name: inv_misc_cape_13
   unique: true
   req_lvl: 18
   item_lvl: 23
@@ -546,6 +582,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   req_lvl: 0
   item_lvl: 62
   stats:
@@ -559,6 +596,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133772
+  icon_name: inv_misc_cape_20
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [WARRIOR]
@@ -576,6 +614,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133766
+  icon_name: inv_misc_cape_14
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [PALADIN]
@@ -593,6 +632,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133768
+  icon_name: inv_misc_cape_16
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [SHAMAN]
@@ -610,6 +650,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133767
+  icon_name: inv_misc_cape_15
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [HUNTER]
@@ -626,6 +667,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133771
+  icon_name: inv_misc_cape_19
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [ROGUE]
@@ -642,6 +684,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133767
+  icon_name: inv_misc_cape_15
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [DRUID]
@@ -661,6 +704,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133768
+  icon_name: inv_misc_cape_16
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [PRIEST]
@@ -679,6 +723,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133771
+  icon_name: inv_misc_cape_19
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [MAGE]
@@ -696,6 +741,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133772
+  icon_name: inv_misc_cape_20
   req_lvl: 60
   item_lvl: 67
   class_restrictions: [WARLOCK]
@@ -712,6 +758,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133754
+  icon_name: inv_misc_cape_02
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -728,6 +775,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133762
+  icon_name: inv_misc_cape_10
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -742,6 +790,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133755
+  icon_name: inv_misc_cape_03
   req_lvl: 0
   item_lvl: 52
   stats:
@@ -754,6 +803,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133768
+  icon_name: inv_misc_cape_16
   req_lvl: 60
   item_lvl: 80
   boe: true
@@ -768,6 +818,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133769
+  icon_name: inv_misc_cape_17
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -782,6 +833,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -796,6 +848,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133756
+  icon_name: inv_misc_cape_04
   req_lvl: 0
   item_lvl: 33
   stats:
@@ -811,6 +864,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134304
+  icon_name: inv_misc_monsterscales_02
   unique: true
   req_lvl: 25
   item_lvl: 30
@@ -883,6 +937,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133758
+  icon_name: inv_misc_cape_06
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -898,6 +953,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   unique: true
   req_lvl: 45
   item_lvl: 50
@@ -911,6 +967,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -927,6 +984,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133759
+  icon_name: inv_misc_cape_07
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -939,6 +997,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -955,6 +1014,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133773
+  icon_name: inv_misc_cape_21
   req_lvl: 55
   item_lvl: 60
   stats:
@@ -967,6 +1027,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 133762
+  icon_name: inv_misc_cape_10
   req_lvl: 0
   item_lvl: 61
   stats:
@@ -1017,6 +1078,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133753
+  icon_name: inv_misc_cape_01
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -1032,6 +1094,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 133765
+  icon_name: inv_misc_cape_13
   req_lvl: 60
   item_lvl: 65
   boe: true

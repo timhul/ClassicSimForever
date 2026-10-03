@@ -9,6 +9,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134593
+  icon_name: inv_pants_13
   req_lvl: 0
   item_lvl: 54
   stats:
@@ -23,6 +24,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -38,6 +40,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134593
+  icon_name: inv_pants_13
   req_lvl: 53
   item_lvl: 58
   boe: true
@@ -54,6 +57,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134585
+  icon_name: inv_pants_05
   req_lvl: 49
   item_lvl: 54
   boe: true
@@ -71,6 +75,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 57
   item_lvl: 62
   boe: true
@@ -87,6 +92,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 50
   item_lvl: 55
   boe: true
@@ -102,6 +108,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134585
+  icon_name: inv_pants_05
   req_lvl: 52
   item_lvl: 57
   boe: true
@@ -119,6 +126,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134706
+  icon_name: inv_pants_wolf
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -135,6 +143,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134706
+  icon_name: inv_pants_wolf
   req_lvl: 52
   item_lvl: 57
   boe: true
@@ -150,6 +159,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -167,6 +177,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -183,6 +194,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -203,6 +215,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134590
+  icon_name: inv_pants_10
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -220,6 +233,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134584
+  icon_name: inv_pants_04
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -236,6 +250,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -252,6 +267,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134588
+  icon_name: inv_pants_08
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -270,6 +286,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -289,6 +306,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -306,6 +324,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134669
+  icon_name: inv_pants_mail_17
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -323,6 +342,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -341,6 +361,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -358,6 +379,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -376,6 +398,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -396,6 +419,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -413,6 +437,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -429,6 +454,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -446,6 +472,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -463,6 +490,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -481,6 +509,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -498,6 +527,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -517,6 +547,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -534,6 +565,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134668
+  icon_name: inv_pants_mail_16
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -551,6 +583,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -568,6 +601,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -582,6 +616,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -598,6 +633,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -614,6 +650,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134603
+  icon_name: inv_pants_cloth_09
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -630,6 +667,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -646,6 +684,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -663,6 +702,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -680,6 +720,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 58
   item_lvl: 63
@@ -698,6 +739,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   unique: true
   req_lvl: 60
   item_lvl: 71
@@ -715,6 +757,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 70
   boe: true
@@ -730,6 +773,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134608
+  icon_name: inv_pants_cloth_14
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -746,6 +790,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134697
+  icon_name: inv_pants_plate_21
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -761,6 +806,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -777,6 +823,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134599
+  icon_name: inv_pants_cloth_05
   req_lvl: 0
   item_lvl: 52
   stats:
@@ -792,6 +839,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134599
+  icon_name: inv_pants_cloth_05
   req_lvl: 58
   item_lvl: 63
   boe: true
@@ -807,6 +855,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134681
+  icon_name: inv_pants_plate_05
   req_lvl: 60
   item_lvl: 72
   stats:
@@ -824,6 +873,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134694
+  icon_name: inv_pants_plate_18
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -838,6 +888,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134694
+  icon_name: inv_pants_plate_18
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -852,6 +903,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134660
+  icon_name: inv_pants_mail_08
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -866,6 +918,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134660
+  icon_name: inv_pants_mail_08
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -880,6 +933,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134626
+  icon_name: inv_pants_leather_01
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -894,6 +948,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134626
+  icon_name: inv_pants_leather_01
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -909,6 +964,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134600
+  icon_name: inv_pants_cloth_06
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -923,6 +979,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134600
+  icon_name: inv_pants_cloth_06
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -937,6 +994,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134600
+  icon_name: inv_pants_cloth_06
   req_lvl: 0
   item_lvl: 63
   stats:
@@ -952,6 +1010,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134679
+  icon_name: inv_pants_plate_03
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [WARRIOR]
@@ -970,6 +1029,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134596
+  icon_name: inv_pants_cloth_02
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [WARLOCK]
@@ -988,6 +1048,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134602
+  icon_name: inv_pants_cloth_08
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [MAGE]
@@ -1007,6 +1068,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134601
+  icon_name: inv_pants_cloth_07
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [PRIEST]
@@ -1025,6 +1087,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134626
+  icon_name: inv_pants_leather_01
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [DRUID]
@@ -1046,6 +1109,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134632
+  icon_name: inv_pants_leather_07
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [ROGUE]
@@ -1063,6 +1127,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134663
+  icon_name: inv_pants_mail_11
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [HUNTER]
@@ -1082,6 +1147,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134662
+  icon_name: inv_pants_mail_10
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [SHAMAN]
@@ -1103,6 +1169,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134678
+  icon_name: inv_pants_plate_02
   req_lvl: 60
   item_lvl: 81
   class_restrictions: [PALADIN]
@@ -1124,6 +1191,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134656
+  icon_name: inv_pants_mail_04
   req_lvl: 60
   item_lvl: 77
   stats:
@@ -1139,6 +1207,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134687
+  icon_name: inv_pants_plate_11
   req_lvl: 60
   item_lvl: 76
   stats:
@@ -1155,6 +1224,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1171,6 +1241,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134582
+  icon_name: inv_pants_02
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1186,6 +1257,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1201,6 +1273,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1217,6 +1290,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1232,6 +1306,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1249,6 +1324,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1266,6 +1342,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1283,6 +1360,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1301,6 +1379,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 55
   item_lvl: 60
   boe: true
@@ -1316,6 +1395,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134681
+  icon_name: inv_pants_plate_05
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1333,6 +1413,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1350,6 +1431,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1367,6 +1449,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1383,6 +1466,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134681
+  icon_name: inv_pants_plate_05
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1400,6 +1484,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1417,6 +1502,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134599
+  icon_name: inv_pants_cloth_05
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1434,6 +1520,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134599
+  icon_name: inv_pants_cloth_05
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1451,6 +1538,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134599
+  icon_name: inv_pants_cloth_05
   req_lvl: 60
   item_lvl: 88
   stats:
@@ -1467,6 +1555,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134696
+  icon_name: inv_pants_plate_20
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1482,6 +1571,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134696
+  icon_name: inv_pants_plate_20
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1497,6 +1587,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1512,6 +1603,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1528,6 +1620,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 0
   item_lvl: 66
   stats:
@@ -1543,6 +1636,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 0
   item_lvl: 80
   stats:
@@ -1558,6 +1652,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 0
   item_lvl: 80
   stats:
@@ -1572,6 +1667,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134646
+  icon_name: inv_pants_leather_21
   req_lvl: 0
   item_lvl: 80
   stats:
@@ -1586,6 +1682,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 0
   item_lvl: 80
   stats:
@@ -1600,6 +1697,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134637
+  icon_name: inv_pants_leather_12
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1614,6 +1712,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1631,6 +1730,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134599
+  icon_name: inv_pants_cloth_05
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1647,6 +1747,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1662,6 +1763,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134637
+  icon_name: inv_pants_leather_12
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1676,6 +1778,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1693,6 +1796,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134599
+  icon_name: inv_pants_cloth_05
   unique: true
   req_lvl: 60
   item_lvl: 65
@@ -1709,6 +1813,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134691
+  icon_name: inv_pants_plate_15
   req_lvl: 60
   item_lvl: 65
   stats:
@@ -1725,6 +1830,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1742,6 +1848,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1760,6 +1867,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1780,6 +1888,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1797,6 +1906,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1814,6 +1924,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1832,6 +1943,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1851,6 +1963,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1869,6 +1982,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1887,6 +2001,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1905,6 +2020,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1925,6 +2041,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1942,6 +2059,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1960,6 +2078,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1977,6 +2096,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -1994,6 +2114,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   unique: true
   req_lvl: 60
   item_lvl: 68
@@ -2051,6 +2172,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134669
+  icon_name: inv_pants_mail_17
   req_lvl: 20
   item_lvl: 25
   stats:
@@ -2567,6 +2689,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -2583,6 +2706,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2600,6 +2724,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2616,6 +2741,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2632,6 +2758,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2649,6 +2776,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134583
+  icon_name: inv_pants_03
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2666,6 +2794,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -2683,6 +2812,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -2699,6 +2829,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -2716,6 +2847,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -2732,6 +2864,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134668
+  icon_name: inv_pants_mail_16
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -2749,6 +2882,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -2766,6 +2900,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -2782,6 +2917,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2798,6 +2934,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -2815,6 +2952,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2833,6 +2971,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2849,6 +2988,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -2866,6 +3006,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2883,6 +3024,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARLOCK]
@@ -2899,6 +3041,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -2916,6 +3059,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [MAGE]
@@ -2932,6 +3076,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134591
+  icon_name: inv_pants_11
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [ROGUE]
@@ -2948,6 +3093,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -2965,6 +3111,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134590
+  icon_name: inv_pants_10
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [HUNTER]
@@ -2982,6 +3129,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [WARRIOR]
@@ -2998,6 +3146,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3015,6 +3164,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134588
+  icon_name: inv_pants_08
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [MAGE]
@@ -3032,6 +3182,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3049,6 +3200,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [ROGUE]
@@ -3065,6 +3217,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134669
+  icon_name: inv_pants_mail_17
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [HUNTER]
@@ -3082,6 +3235,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3099,6 +3253,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARRIOR]
@@ -3115,6 +3270,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134603
+  icon_name: inv_pants_cloth_09
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [WARLOCK]
@@ -3131,6 +3287,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3147,6 +3304,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3164,6 +3322,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3181,6 +3340,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3199,6 +3359,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3216,6 +3377,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3234,6 +3396,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3252,6 +3415,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3270,6 +3434,7 @@ items:
   type: LEATHER
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [DRUID]
@@ -3287,6 +3452,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3304,6 +3470,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3322,6 +3489,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3339,6 +3507,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [DRUID]
@@ -3357,6 +3526,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3375,6 +3545,7 @@ items:
   type: CLOTH
   quality: EPIC
   icon: 134587
+  icon_name: inv_pants_07
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PRIEST]
@@ -3393,6 +3564,7 @@ items:
   type: CLOTH
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PRIEST]
@@ -3410,6 +3582,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3427,6 +3600,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3444,6 +3618,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3461,6 +3636,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3478,6 +3654,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 134667
+  icon_name: inv_pants_mail_15
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [SHAMAN]
@@ -3496,6 +3673,7 @@ items:
   type: MAIL
   quality: RARE
   icon: 134589
+  icon_name: inv_pants_09
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [SHAMAN]
@@ -3514,6 +3692,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3531,6 +3710,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3548,6 +3728,7 @@ items:
   type: PLATE
   quality: RARE
   icon: 134586
+  icon_name: inv_pants_06
   req_lvl: 55
   item_lvl: 60
   class_restrictions: [PALADIN]
@@ -3565,6 +3746,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134584
+  icon_name: inv_pants_04
   req_lvl: 60
   item_lvl: 65
   class_restrictions: [PALADIN]
@@ -3583,6 +3765,7 @@ items:
   type: MAIL
   quality: EPIC
   icon: 133826
+  icon_name: inv_misc_desecrated_mailpants
   req_lvl: 60
   item_lvl: 61
   boe: true
@@ -3600,6 +3783,7 @@ items:
   type: LEATHER
   quality: EPIC
   icon: 134602
+  icon_name: inv_pants_cloth_08
   req_lvl: 60
   item_lvl: 65
   boe: true
@@ -3616,6 +3800,7 @@ items:
   type: PLATE
   quality: EPIC
   icon: 134691
+  icon_name: inv_pants_plate_15
   req_lvl: 60
   item_lvl: 65
   boe: true

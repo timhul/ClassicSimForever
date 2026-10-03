@@ -105,6 +105,9 @@ csim_engine::talent::TalentDb::load("data/talents")
    the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each
    icon FileDataID, by which Wowhead's CDN serves the icon. The client tables do not have
    these names. The script ends by counting the exported `icon:` ids that have a name.
+   `csim-tables` loads the file with the tables (or the one `--listfile` names). The spell and
+   item exports then write `icon_name: inv_sword_39` after each `icon:`. Without the file they
+   warn and write no names, and they warn about icons the listfile does not name.
 2. Run, from the repository root:
    ```
    cargo run -p csim-tables -- export-all

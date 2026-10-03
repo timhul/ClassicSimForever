@@ -268,6 +268,7 @@ mod tests {
             item_type,
             quality: Quality::Rare,
             icon: 0,
+            icon_name: None,
             unique: false,
             req_lvl: 60,
             item_lvl: 60,
