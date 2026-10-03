@@ -63,7 +63,10 @@ maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness:
 Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the
 spell is not castable yet waits 0.4 s for it (the game's spell queue window). A key can also
 cast a macro (`Name: {hotkey: T, cast: [Spell1, Spell2]}`), tried in order like the game's `/cast`
-lines: it stops after a spell that triggers the GCD. Examples are in `data/keybinds/`:
+lines: it stops after a spell that triggers the GCD. The player pulls: the iteration starts 10 min
+before the encounter, and the first offensive spell (one hitting the target: Charge, Bloodthirst;
+not Bloodrage, Battle Shout or a stance) starts it when that spell lands (Charge's 1 s run). The
+page then shows every time again with the pull at 0. Examples are in `data/keybinds/`:
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
 

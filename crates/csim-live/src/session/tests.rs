@@ -510,7 +510,14 @@ fn the_rotation_entries_and_decisions() {
             .filter(|d| d.by == "precombat")
             .map(|d| d.spell.as_str())
             .collect();
-        assert_eq!(precombat, info.precombat, "{file}");
+        // Not the stance the character starts in: a stance spell does nothing in its stance.
+        let expected: Vec<&str> = info
+            .precombat
+            .iter()
+            .map(String::as_str)
+            .filter(|&spell| spell != "Battle Stance")
+            .collect();
+        assert_eq!(precombat, expected, "{file}");
         let by_entry: Vec<&Decision> = decisions.iter().filter(|d| d.by == "entry").collect();
         // A minute: the rogue is energy bound (~30 casts), the warrior casts more.
         assert!(by_entry.len() > 20, "{file}: {}", by_entry.len());
@@ -852,4 +859,79 @@ fn a_macro_press_casts_its_entries_up_to_the_gcd() {
     let tile = &later.state.rotation_spells[0];
     assert_eq!(tile.name, "Burst");
     assert_eq!(tile.duration, 6.0, "Bloodthirst's cooldown");
+}
+
+const PULL_KEYBINDS: &str = "Bloodrage: 1
+Charge: 2
+";
+const CHARGE: u32 = 11578;
+
+/// The decisions of `frame` as (time, spell).
+fn casts(frame: &Frame) -> Vec<(f64, &str)> {
+    frame
+        .decisions
+        .iter()
+        .map(|decision| (decision.time, decision.spell.as_str()))
+        .collect()
+}
+
+#[test]
+fn from_the_keyboard_the_player_has_minutes_to_pull() {
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, PULL_KEYBINDS);
+    assert_eq!(session.info().start_at, -MANUAL_PRE_PULL);
+    // Bloodrage does not pull.
+    let bloodrage = session.cast("Bloodrage", -595.0).unwrap();
+    assert_eq!(casts(&bloodrage), [(-595.0, "Bloodrage")]);
+    let later = session.advance(-500.0);
+    assert_eq!(later.rebased_by, None);
+    assert_eq!(later.time, -500.0);
+    assert_eq!(session.info().start_at, -MANUAL_PRE_PULL);
+}
+
+#[test]
+fn an_offensive_press_pulls_when_it_lands() {
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, PULL_KEYBINDS);
+    session.cast("Bloodrage", -595.0).unwrap();
+    // Charge's 1 s cast lands at -589: the pull, which moves every time by 589 s.
+    let charge = session.cast("Charge", -590.0).unwrap();
+    assert_eq!(charge.rebased_by, Some(-589.0));
+    assert_eq!(charge.time, -1.0);
+    assert_eq!(session.info().start_at, -11.0);
+    // The frame holds the iteration since its start again: the replayed presses.
+    assert_eq!(casts(&charge), [(-6.0, "Bloodrage"), (-1.0, "Charge")]);
+
+    let pulled = session.advance(0.5);
+    assert_eq!(pulled.rebased_by, None, "shown once");
+    let charge_lands = session.log().iter().find(|entry| {
+        matches!(entry.event, CombatLogEvent::SpellCastSuccess { .. })
+            && logged_spell(&entry.event) == Some(CHARGE)
+    });
+    assert_eq!(charge_lands.unwrap().time, 0.0, "Charge lands at the pull");
+    let first_swing = pulled.damage.iter().find(|hit| hit.auto).unwrap();
+    assert_eq!(first_swing.time, 0.0, "the auto attacks start at the pull");
+    // Bloodrage's 10 s, from 6 s before the pull.
+    let bloodrage = pulled
+        .state
+        .buffs
+        .iter()
+        .find(|buff| buff.name == "Bloodrage")
+        .unwrap();
+    assert_eq!(bloodrage.expires_at, Some(4.0));
+
+    // A press in combat does not pull again.
+    let again = session.cast("Bloodrage", 2.0).unwrap();
+    assert_eq!(again.rebased_by, None);
+}
+
+#[test]
+fn restarting_brings_the_pre_pull_back() {
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, PULL_KEYBINDS);
+    // Charge pressed 300 s after the start lands at -299: 301 s after it.
+    session.cast("Charge", -300.0).unwrap();
+    assert_eq!(session.info().start_at, -301.0);
+    session.restart(3);
+    assert_eq!(session.info().start_at, -MANUAL_PRE_PULL);
+    let charge = session.cast("Charge", -100.0).unwrap();
+    assert_eq!(charge.rebased_by, Some(-99.0));
+    assert_eq!(casts(&charge), [(-1.0, "Charge")]);
 }

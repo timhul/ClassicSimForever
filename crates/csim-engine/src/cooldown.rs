@@ -18,7 +18,8 @@ use crate::ids::{CharId, CooldownId};
 pub struct CooldownControl {
     /// Cooldown length in seconds.
     pub base: f64,
-    /// Time the cooldown was last started; `-base` when never used so it is ready at time 0.
+    /// Time the cooldown was last started; `-inf` when never used, so it is ready from the
+    /// start of the iteration on (a player pulling minutes after it).
     pub last_used: f64,
 }
 
@@ -26,7 +27,7 @@ impl CooldownControl {
     pub fn new(base: f64) -> Self {
         CooldownControl {
             base,
-            last_used: -base,
+            last_used: f64::NEG_INFINITY,
         }
     }
 
@@ -57,7 +58,12 @@ impl CooldownControl {
 
     /// Makes the cooldown ready as if it had never been used.
     pub fn reset(&mut self) {
-        self.last_used = -self.base;
+        self.last_used = f64::NEG_INFINITY;
+    }
+
+    /// Whether the cooldown was started since it was created or reset.
+    pub fn was_used(&self) -> bool {
+        self.last_used.is_finite()
     }
 
     /// Schedules a player action for `character` when the cooldown is over. Port of
@@ -166,14 +172,14 @@ mod tests {
     #[test]
     fn cooldown_is_ready_at_start_and_tracks_use() {
         let mut cd = CooldownControl::new(30.0);
-        assert_eq!(cd.last_used, -30.0);
-        assert_eq!(cd.next_use(), 0.0);
+        assert!(!cd.was_used());
         assert!(cd.is_ready(0.0));
-        assert!(!cd.is_ready(-1.0));
-        assert_eq!(cd.remaining(-1.0), 1.0);
+        assert!(cd.is_ready(-600.0), "ready before the pull too");
+        assert_eq!(cd.remaining(-1.0), 0.0);
         assert_eq!(cd.remaining(5.0), 0.0);
 
         cd.start(10.0);
+        assert!(cd.was_used());
         assert_eq!(cd.next_use(), 40.0);
         assert!(!cd.is_ready(39.9));
         assert!(cd.is_ready(40.0));

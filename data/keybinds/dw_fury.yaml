@@ -8,8 +8,9 @@
 # triggers the global cooldown, waits (0.4 s) at one the global cooldown blocks, and skips one
 # that cannot be cast otherwise.
 #
-# Without the rotation nothing is cast before the pull either: swap to Berserker Stance
-# (Whirlwind, Berserker Rage) and shout yourself.
+# Without the rotation nothing is cast before the pull either: shout and Bloodrage yourself,
+# then Charge (or any other attack) to pull, and swap to Berserker Stance (Whirlwind, Berserker
+# Rage).
 Bloodthirst: 2
 Whirlwind: 3
 Execute: F

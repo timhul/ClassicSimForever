@@ -805,6 +805,12 @@ impl SpellRecord {
             .contains(SpellAttr0::NOT_IN_COMBAT_ONLY_PEACEFUL)
     }
 
+    /// An action against the enemy, which starts combat: an effect hits it (Charge,
+    /// Bloodthirst; not Battle Shout, Bloodrage or a stance).
+    pub fn is_offensive(&self) -> bool {
+        self.effects.iter().any(EffectRecord::targets_enemy)
+    }
+
     /// Passive aura (talents, stance passives, proc auras).
     pub fn is_passive(&self) -> bool {
         self.attr0().contains(SpellAttr0::PASSIVE)
@@ -2253,6 +2259,17 @@ spells:
             9
         );
         assert!(db.get(412609).is_some(), "reached through the overrides");
+        // What starts combat: Charge and Bloodthirst hit the enemy, the others do not.
+        for (id, offensive) in [
+            (11578, true),
+            (23894, true),
+            (25289, false),
+            (2687, false),
+            (2458, false),
+        ] {
+            let record = db.get(id).unwrap();
+            assert_eq!(record.is_offensive(), offensive, "{}", record.name);
+        }
         assert!(db.get(7381).is_some(), "stance passive");
         assert_eq!(db.overrides().stance_passive(2458), Some(7381));
         // Shield Slam strikes with the shield, Heroic Strike with the main-hand weapon.

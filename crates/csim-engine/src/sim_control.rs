@@ -344,12 +344,27 @@ impl IterationStepper {
     /// # Panics
     /// Panics if a character was set up for another combat length than `settings`'.
     pub fn new(settings: &SimSettings, seed: u64, raid: &mut RaidControl) -> Self {
+        Self::with_pre_pull(settings, seed, raid, 0.0)
+    }
+
+    /// As [`IterationStepper::new`], with the iteration starting at least `pre_pull` seconds
+    /// before the pull (a player choosing when to pull).
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length than `settings`'.
+    pub fn with_pre_pull(
+        settings: &SimSettings,
+        seed: u64,
+        raid: &mut RaidControl,
+        pre_pull: f64,
+    ) -> Self {
         let mut seeds = Xoroshiro128Plus::from_seed(seed);
         let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
         raid.set_seed(raid_seed);
         raid.engine_mut().enable_combat_log();
         let mut control = SimControl::new(settings.clone(), shuffle_seed);
         let mut set = control.begin_set_of_iterations(raid, settings.combat_length);
+        set.start_at = set.start_at.max(pre_pull);
         control.begin_iteration(raid, &mut set);
         IterationStepper { set }
     }

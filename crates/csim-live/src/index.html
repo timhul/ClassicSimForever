@@ -713,9 +713,21 @@ function step(kind) {
 
 function apply(next) {
   frame = next;
+  const pulled = next.rebased_by !== null;
+  if (pulled) {
+    // The player pulled: every time moved so that the pull is 0, and the frame holds
+    // everything since the start of the rebuilt iteration again.
+    info.start_at -= next.rebased_by;
+    simTime -= next.rebased_by;
+    $("feed").replaceChildren();
+    $("floats").replaceChildren();
+    $("decisions").replaceChildren();
+  }
   addHits(next.damage);
   addDecisions(next.decisions);
-  flashCasts(next.decisions);
+  if (!pulled) {
+    flashCasts(next.decisions);
+  }
   showInputError(next.input_error);
   if (!playing || next.done) {
     simTime = next.time;

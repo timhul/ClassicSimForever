@@ -11,7 +11,11 @@
 //!
 //! With keybinds the character is played from the keyboard instead of its rotation (manual
 //! input, see `Character::enable_manual_input`): [`Session::cast`] queues a bound spell at the
-//! time shown, as the game's spell queue window does.
+//! time shown, as the game's spell queue window does. The player pulls: the iteration starts
+//! [`MANUAL_PRE_PULL`] before the encounter, and the first offensive spell cast (one hitting the
+//! enemy: Charge, not Battle Shout) moves the pull to when it lands. The session then rebuilds
+//! the iteration with its pull there and replays the key presses before it; the sim being
+//! deterministic, the pre-pull is the same at times shifted so that the pull is at 0.
 
 use std::sync::Arc;
 
@@ -26,7 +30,7 @@ use csim_engine::ids::{CharId, SpellId};
 use csim_engine::item::EquipmentSlot;
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
-use csim_engine::rotation::DecidedBy;
+use csim_engine::rotation::{DecidedBy, RotationHost};
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::{Hand, SpellStatus};
@@ -88,6 +92,10 @@ pub struct KeybindInfo {
 /// How long a press waits for its spell to become castable (the game's spell queue window).
 pub const INPUT_QUEUE_WINDOW: f64 = 0.4;
 
+/// Played from the keyboard: how long before the encounter the iteration starts, the time the
+/// player has to pull (with an offensive spell) before the encounter starts by itself.
+pub const MANUAL_PRE_PULL: f64 = 600.0;
+
 /// One `cast_if` entry of the rotation: an executor.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct RotationEntry {
@@ -145,6 +153,10 @@ pub struct Frame {
     /// The procs tried so far, with their rate and procs per minute, as `csim run` reports them
     /// (empty before the pull).
     pub procs: Vec<ProcCount>,
+    /// From the keyboard: the player pulled since the previous frame, which moved every time
+    /// by this many seconds (the pull, before the encounter, is the new 0). The iteration was
+    /// rebuilt: the frame holds everything since its start again.
+    pub rebased_by: Option<f64>,
 }
 
 /// A key press that could not cast its spell, with why, as the game says it.
@@ -286,6 +298,16 @@ pub struct Session {
     total_damage: u64,
     /// The latest time shown.
     time: f64,
+    /// The iteration starts at least this many seconds before the pull.
+    pre_pull: f64,
+    /// From the keyboard, the key presses before the pull: keybind index and time.
+    presses: Vec<(usize, f64)>,
+    /// Whether the pull is decided (always when the rotation plays).
+    pulled: bool,
+    /// The decisions already looked at for the pull.
+    pull_scan: usize,
+    /// The time shift of a pull not shown in a frame yet.
+    rebased_by: Option<f64>,
 }
 
 impl Session {
@@ -307,7 +329,9 @@ impl Session {
             .build_raid(&data, &settings)
             .map_err(|error| error.to_string())?;
         let bound = bound_spells(&raid, &keybinds)?;
-        let stepper = start(&settings, seed, &mut raid, !keybinds.is_empty());
+        let manual = !keybinds.is_empty();
+        let pre_pull = initial_pre_pull(manual);
+        let stepper = start(&settings, seed, &mut raid, manual, pre_pull);
         let time = stepper.start_at();
         let proc_counts = proc_counts(&raid);
         Ok(Session {
@@ -325,6 +349,11 @@ impl Session {
             proc_marks: Vec::new(),
             total_damage: 0,
             time,
+            pre_pull,
+            presses: Vec::new(),
+            pulled: !manual,
+            pull_scan: 0,
+            rebased_by: None,
         })
     }
 
@@ -333,18 +362,34 @@ impl Session {
     /// # Panics
     /// Panics if the setup no longer builds (it built when the session was created).
     pub fn restart(&mut self, seed: u64) {
+        self.pre_pull = initial_pre_pull(self.manual());
+        self.presses.clear();
+        self.rebased_by = None;
+        self.rebuild(seed);
+        self.pulled = !self.manual();
+    }
+
+    /// Builds the iteration of `seed` again, starting `pre_pull` before the pull.
+    fn rebuild(&mut self, seed: u64) {
         let mut raid = self
             .setup
             .build_raid(&self.data, &self.settings)
             .expect("the setup built before");
         self.bound = bound_spells(&raid, &self.keybinds).expect("they were bound before");
-        self.stepper = start(&self.settings, seed, &mut raid, self.manual());
+        self.stepper = start(
+            &self.settings,
+            seed,
+            &mut raid,
+            self.manual(),
+            self.pre_pull,
+        );
         self.proc_counts = proc_counts(&raid);
         self.proc_marks.clear();
         self.raid = raid;
         self.seed = seed;
         self.read = 0;
         self.decisions_read = 0;
+        self.pull_scan = 0;
         self.total_damage = 0;
         self.time = self.stepper.start_at();
     }
@@ -416,12 +461,21 @@ impl Session {
             .iter()
             .position(|keybind| keybind.name == name)
             .ok_or_else(|| format!("{name} is not bound"))?;
-        let at = at.max(self.time);
-        let frame = self.advance(at);
-        if frame.done {
-            return Ok(frame);
+        // A pull while running up to the press moves the press with every other time.
+        let at = self.run_until(at.max(self.time));
+        if self.done() {
+            return Ok(self.advance(at));
         }
         let at = at.max(self.raid.engine().current_time());
+        if !self.pulled {
+            self.presses.push((index, at));
+        }
+        self.press(index, at);
+        Ok(self.advance(at))
+    }
+
+    /// Queues the spell or macro of keybind `index` pressed at `at` and wakes the character.
+    fn press(&mut self, index: usize, at: f64) {
         let character = self.raid.character_mut(PLAYER);
         let spells = self.bound[index].clone();
         if self.keybinds[index].is_macro {
@@ -434,7 +488,61 @@ impl Session {
             let wake = Event::new(wake, EventKind::PlayerAction { character: PLAYER });
             self.raid.engine_mut().add_event(wake);
         }
-        Ok(self.advance(at))
+    }
+
+    /// From the keyboard, before the pull: when the player's last cast was offensive, the
+    /// pull is when it lands. A pull before the encounter's start rebuilds the iteration with
+    /// its pull there (see [`Session::rebase`]).
+    fn check_pull(&mut self) {
+        if self.pulled {
+            return;
+        }
+        if self.raid.engine().current_time() >= 0.0 {
+            self.pulled = true;
+            return;
+        }
+        let character = self.raid.character(PLAYER);
+        let Some(rotation) = character.rotation() else {
+            return;
+        };
+        let spells = character.spells();
+        let trace = rotation.trace();
+        let offensive = trace[self.pull_scan..]
+            .iter()
+            .find(|decision| {
+                matches!(decision.by, DecidedBy::Input)
+                    && spells.spell(decision.spell).record().is_offensive()
+            })
+            .map(|decision| (decision.time, decision.spell));
+        self.pull_scan = trace.len();
+        let Some((time, spell)) = offensive else {
+            return;
+        };
+        self.pulled = true;
+        let pull = time + self.raid.context(PLAYER).spell_cast_time(spell);
+        if pull < 0.0 {
+            self.rebase(pull);
+        }
+    }
+
+    /// Rebuilds the iteration with its pull at `pull` (the present iteration's time, before
+    /// its encounter starts) and replays the key presses before it: every time moves by
+    /// `-pull`, so the pull is at 0.
+    fn rebase(&mut self, pull: f64) {
+        let shown = self.time - pull;
+        let now = self.raid.engine().current_time() - pull;
+        let presses = std::mem::take(&mut self.presses);
+        self.pre_pull += pull;
+        self.rebuild(self.seed);
+        self.pulled = true;
+        for (index, at) in presses {
+            let at = at - pull;
+            self.run_until(at);
+            self.press(index, at);
+        }
+        self.run_until(now);
+        self.time = shown;
+        self.rebased_by = Some(self.rebased_by.unwrap_or(0.0) + pull);
     }
 
     fn rotation_entries(&self) -> Vec<RotationEntry> {
@@ -467,14 +575,7 @@ impl Session {
     /// Runs every event up to `time` and shows `time` (the end of the encounter once every
     /// event ran). A time before the one shown runs nothing.
     pub fn advance(&mut self, time: f64) -> Frame {
-        // One event at a time, for the procs each fires.
-        while self
-            .stepper
-            .next_event_time(&self.raid)
-            .is_some_and(|next| next <= time)
-        {
-            self.step();
-        }
+        let time = self.run_until(time);
         let now = self.raid.engine().current_time();
         self.time = if self.done() {
             now
@@ -506,11 +607,28 @@ impl Session {
         self.frame(last.map(|event| event.kind.event_type().name()))
     }
 
+    /// Runs every event up to `time`, one at a time for the procs each fires. Returns `time`,
+    /// moved with every other time by a pull on the way.
+    fn run_until(&mut self, time: f64) -> f64 {
+        let mut time = time;
+        while self
+            .stepper
+            .next_event_time(&self.raid)
+            .is_some_and(|next| next <= time)
+        {
+            let before = self.rebased_by.unwrap_or(0.0);
+            self.step();
+            time -= self.rebased_by.unwrap_or(0.0) - before;
+        }
+        time
+    }
+
     fn step(&mut self) -> Option<Event> {
         let start = self.log().len();
         let event = self.stepper.step(&mut self.raid)?;
         self.time = event.time;
         self.mark_procs(start, event.time);
+        self.check_pull();
         Some(event)
     }
 
@@ -607,6 +725,7 @@ impl Session {
             breakdown: self.breakdown(),
             buff_uptimes: self.buff_uptimes(),
             procs: self.proc_counts_so_far(),
+            rebased_by: self.rebased_by.take(),
         }
     }
 
@@ -877,7 +996,7 @@ impl Session {
             rotation_spells.push(CooldownState {
                 name,
                 ready_at: longest
-                    .filter(|cooldown| cooldown.last_used != -cooldown.base)
+                    .filter(|cooldown| cooldown.was_used())
                     .map(|cooldown| cooldown.next_use()),
                 duration: longest.map_or(0.0, |cooldown| cooldown.base),
                 icon: icon(spell.record().icon),
@@ -919,11 +1038,17 @@ fn as_string<S: serde::Serializer>(value: &u64, serializer: S) -> Result<S::Ok, 
 
 /// Enables the character's decision trace (the precombat actions are decided when the
 /// iteration starts) and starts the iteration of `seed`.
+/// The pre-pull a session starts with: the precombat actions' own, or the player's to pull.
+fn initial_pre_pull(manual: bool) -> f64 {
+    if manual { MANUAL_PRE_PULL } else { 0.0 }
+}
+
 fn start(
     settings: &SimSettings,
     seed: u64,
     raid: &mut RaidControl,
     manual: bool,
+    pre_pull: f64,
 ) -> IterationStepper {
     let character = raid.character_mut(PLAYER);
     if manual {
@@ -932,7 +1057,7 @@ fn start(
     if let Some(rotation) = character.rotation_mut() {
         rotation.enable_trace();
     }
-    IterationStepper::new(settings, seed, raid)
+    IterationStepper::with_pre_pull(settings, seed, raid, pre_pull)
 }
 
 /// The spells of each keybind, each a rank group's highest learned rank, else an enabled
