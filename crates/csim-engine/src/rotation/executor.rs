@@ -444,31 +444,37 @@ impl Rotation {
     }
 
     /// Seconds before the pull the iteration has to start at so the precombat actions fit:
-    /// the precast's cast time, else one global cooldown. Port of
+    /// one global cooldown, or the precast's cast time when longer (a shorter precast, Charge,
+    /// must not leave a precombat global cooldown running into the pull). Port of
     /// `Rotation::get_time_required_to_run_precombat`.
     pub fn time_required_to_run_precombat(&self, host: &impl RotationHost) -> f64 {
-        match self.precast_spell {
-            Some(spell) => host.spell_cast_time(spell),
-            None => host.gcd_length(),
-        }
+        let precast = self
+            .precast_spell
+            .map_or(0.0, |spell| host.spell_cast_time(spell));
+        precast.max(host.gcd_length())
     }
 
     /// Casts the precombat spells that are available (or merely on cooldown, which the
-    /// precombat time ignores), then starts the precast if it is enabled. Port of
-    /// `Rotation::run_precombat_actions` and the precast lines of `SimControl::run_sim`.
+    /// precombat time ignores), then starts the precast if it is enabled and castable the same
+    /// way (Charge needs Battle Stance). Port of `Rotation::run_precombat_actions` and the
+    /// precast lines of `SimControl::run_sim`.
     pub fn run_precombat_actions(&mut self, host: &mut impl RotationHost) {
-        for index in 0..self.precombat_spells.len() {
-            let spell = self.precombat_spells[index];
-            if matches!(
+        fn castable(host: &impl RotationHost, spell: SpellId) -> bool {
+            matches!(
                 host.spell_status(spell),
                 SpellStatus::Available | SpellStatus::OnCooldown
-            ) {
+            )
+        }
+        for index in 0..self.precombat_spells.len() {
+            let spell = self.precombat_spells[index];
+            if castable(host, spell) {
                 self.record(host.now(), spell, DecidedBy::Precombat);
                 host.cast_spell(spell);
             }
         }
         if let Some(spell) = self.precast_spell
             && host.spell_is_enabled(spell)
+            && castable(host, spell)
         {
             self.record(host.now(), spell, DecidedBy::Precast);
             host.cast_spell(spell);
@@ -1031,6 +1037,10 @@ mod tests {
         host.enabled.insert(aimed, false);
         rotation.run_precombat_actions(&mut host);
         assert_eq!(host.casts, [bloodrage]);
+
+        // A precast shorter than the global cooldown leaves the precombat time at one GCD.
+        host.cast_times.insert(aimed, 1.0);
+        assert_eq!(rotation.time_required_to_run_precombat(&host), 1.5);
 
         // A precast without a cast time is not a precast; the precombat time is one GCD.
         host.cast_times.clear();

@@ -14,7 +14,8 @@ precombat_actions:            # cast before the pull in the specified order
   - Bloodrage
   - Battle Shout
   - Berserker Stance
-precast: Aimed Shot           # optional: a cast (with timer) started early so it completes at t = 0
+precast: Aimed Shot           # optional: a cast (with timer) started after the precombat actions,
+                              #   one global cooldown or its cast time (the longer) before t = 0
 cast_if:                      # cast_if's are evaluated in order with no early return
   - name: Bloodrage
     condition: resource "Rage" less 70

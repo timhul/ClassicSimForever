@@ -439,6 +439,13 @@ impl SpellSetup {
         self.overrides.has_sim_flag(flag)
     }
 
+    /// The base cast time: the override's, else the table's.
+    pub fn cast_time_ms(&self) -> u32 {
+        self.overrides
+            .cast_time_ms
+            .unwrap_or(self.record.cast_time_ms)
+    }
+
     /// Whether the spell needs a buff: it has aura effects, or a bleed script with an aura.
     pub fn has_buff(&self) -> bool {
         self.record.applies_aura() || self.bleed_aura.is_some()
@@ -794,7 +801,7 @@ impl Spell {
 
     /// Whether the spell has a cast time (as opposed to being instant).
     pub fn has_cast_time(&self) -> bool {
-        self.setup.record.cast_time_ms > 0
+        self.setup.cast_time_ms() > 0
     }
 
     /// Whether this spell's cast is in progress.
@@ -819,7 +826,7 @@ impl Spell {
         let ms = host.spell_modifiers().apply(
             record.class_options.as_ref(),
             SpellModOp::ChangeCastTime,
-            f64::from(record.cast_time_ms),
+            f64::from(self.setup.cast_time_ms()),
         );
         let flat_reduction = f64::from(host.casting_speed_flat_reduction()) / 1000.0;
         let after_mod = ms.max(0.0) / 1000.0 / host.casting_speed_mod();

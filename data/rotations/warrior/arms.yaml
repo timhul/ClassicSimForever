@@ -7,7 +7,7 @@ precombat_actions:
   - Bloodrage
   - Battle Shout
   - Battle Stance
-  - Charge
+precast: Charge
 cast_if:
   - name: Bloodrage
     condition: resource "Rage" less 70

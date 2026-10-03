@@ -2474,14 +2474,18 @@ cast_if:
         f.ctx().run_precombat_actions();
         assert!(f.ctx().aura_active(BLOODRAGE_BUFF), "Bloodrage");
         assert!(f.ctx().aura_active(BATTLE_SHOUT), "Battle Shout");
-        assert_eq!(f.character.stance(), Stance::Berserker);
+        // Charge, the precast, needs Battle Stance; Berserker Stance waits for the pull.
+        assert_eq!(f.character.stance(), Stance::Battle);
+        assert!(f.character.spells.cast_in_progress(), "Charge");
         // Precombat casts do not start the global cooldown (negative time); the stance swap
         // lag pushed it to -1.0.
         assert!(f.character.on_global_cooldown(-1.25));
-        assert!(f.character.action_ready(-1.0));
+        assert!(!f.character.on_global_cooldown(-1.0));
         // The player actions scheduled before the pull (the stance cooldown ending, the
-        // Bloodrage rage) do not run the rotation.
+        // Bloodrage rage, Charge landing) do not run the rotation.
         f.run(-0.001);
+        assert!(f.character.action_ready(-0.001), "Charge landed");
+        assert_eq!(f.character.stance(), Stance::Battle);
         let stats = f.character.rotation().unwrap().statistics_by_spell();
         assert!(
             stats.values().all(|s| s.attempts() == 0),

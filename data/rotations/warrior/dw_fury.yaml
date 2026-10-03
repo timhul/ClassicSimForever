@@ -7,9 +7,10 @@ description: >-
 precombat_actions:
   - Bloodrage
   - Battle Shout
-  - Charge
-  - Berserker Stance
+  - Battle Stance
+precast: Charge
 cast_if:
+  - name: Berserker Stance
   - name: Bloodrage
     condition: resource "Rage" less 70
   - name: Berserker Rage

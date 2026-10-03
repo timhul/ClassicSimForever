@@ -2401,8 +2401,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Seconds before the pull the precombat actions need: the precast's cast time, else one
-    /// global cooldown (also without a rotation).
+    /// Seconds before the pull the precombat actions need: one global cooldown, or the
+    /// precast's cast time when longer (one global cooldown also without a rotation).
     pub fn time_required_to_run_precombat(&self) -> f64 {
         match self.character.rotation() {
             Some(rotation) => rotation.time_required_to_run_precombat(self),

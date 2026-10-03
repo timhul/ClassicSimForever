@@ -247,3 +247,16 @@ overrides:
   - id: 11596
     note: Sunder Armor r4, see r5
     effects: [{ index: 0, script: EXCLUSIVE_ARMOR_REDUCTION }]
+
+  # ----- Cast times the tables leave instant ---------------------------------------------------
+  - id: 11578
+    note: >-
+      Charge r3: the run to the target, which cannot be charged from melee range, as a 1 s cast
+      (a rotation's precast, so it lands at the pull)
+    cast_time_ms: 1000
+  - id: 6178
+    note: Charge r2, see r3
+    cast_time_ms: 1000
+  - id: 100
+    note: Charge r1, see r3
+    cast_time_ms: 1000

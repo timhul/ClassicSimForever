@@ -526,6 +526,10 @@ pub struct SpellOverride {
     /// permanent attack power stacks with the trinket's aura).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub ends_auras: Vec<u32>,
+    /// A cast time in place of `SpellCastTimes.Base`, for what the tables leave instant but
+    /// takes time in the sim (Charge's run to the target).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cast_time_ms: Option<u32>,
 }
 
 impl SpellOverride {
