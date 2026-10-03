@@ -852,6 +852,7 @@ async function api(method, path, body) {
   if (status < 200 || status >= 300) {
     const error = new Error(`${method} ${path}: ${status} ${answer}`);
     error.status = status;
+    error.reason = answer;
     throw error;
   }
   return JSON.parse(answer);
@@ -1082,18 +1083,57 @@ function upload(input, textarea) {
   });
 }
 
-$("setup-select").addEventListener("change", fillModes);
+/**
+ * Loads `request`, played by the rotation instead when its keybinds do not fit the setup (a
+ * warrior's keys for a rogue): the status says so.
+ */
+function loadOrRotation(request) {
+  setPlaying(false);
+  return enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      if (!request.keybinds && !request.keybinds_yaml) {
+        throw error;
+      }
+      const reason = error.reason;
+      const keybinds = request.keybinds
+        ? `The keybinds ${request.keybinds}`
+        : "The pasted or edited keybinds";
+      delete request.keybinds;
+      delete request.keybinds_yaml;
+      next = await api("POST", "api/load", request);
+      $("keybinds-yaml").value = "";
+      await begin(next);
+      $("status").textContent =
+        `${keybinds} do not fit ${next.name} (${reason}): played by the rotation`;
+      return;
+    }
+    await begin(next);
+  });
+}
+
+// Choosing a setup loads it (with the seed, length and settings in the bar), as does choosing
+// how it is played; the text fields and pasted YAML wait for Load (or Enter).
+$("setup-select").addEventListener("change", () => {
+  // Pasted setup text would win over the choice.
+  $("setup-yaml").value = "";
+  fillModes();
+  loadOrRotation(formRequest());
+});
 $("setup-bar").addEventListener("submit", (event) => {
   event.preventDefault();
   load(formRequest());
 });
 upload($("setup-file"), "setup-yaml");
 upload($("keybinds-file"), "keybinds-yaml");
-// Choosing how the setup is played drops pasted keybinds, which would win over the choice.
 $("mode-select").addEventListener("change", () => {
+  // Pasted keybinds would win over the choice.
   if ($("mode-select").value !== EDITED) {
     $("keybinds-yaml").value = "";
   }
+  load(formRequest());
 });
 
 // ----- The keybinds editor ----------------------------------------------------------------

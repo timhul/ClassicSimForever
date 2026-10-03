@@ -59,7 +59,9 @@ PPM) and the resource gained per source, as `csim run` breaks them down). It tak
 
 The flags only load the first iteration. A setup bar on the page loads another: a bundled setup
 (`data/characters/`), played by its rotation or with bundled keybinds (`data/keybinds/`), with a
-seed, length, variance and named settings. A setup or keybinds can also be pasted or uploaded as
+seed, length, variance and named settings. Choosing a setup or how it is played loads it right
+away, with the bar's seed; keybinds that do not fit the new setup fall back to its rotation. The
+text fields and pasted YAML wait for Load. A setup or keybinds can also be pasted or uploaded as
 YAML; a pasted setup's `include:` lines name the bundled files. The address mirrors what is
 loaded (`?setup=warrior_fury_dw_orc&keybinds=dw_fury&seed=1&setting=...`), so a link reproduces
 the iteration. "Edit keybinds" opens an editor: click a spell's key, then press the new one
