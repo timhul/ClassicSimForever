@@ -32,7 +32,6 @@ const BLOODRAGE: u32 = 2687;
 const BLOODRAGE_BUFF: u32 = 29131;
 const BATTLE_SHOUT_7: u32 = 25289;
 const OVERPOWER_4: u32 = 11585;
-const THUNDER_CLAP_6: u32 = 11581;
 
 fn shipped() -> World {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
@@ -255,16 +254,6 @@ fn revenge_rank_6_and_whirlwind_and_overpower_use_their_table_values() {
     assert_eq!(world.combo_points, 0);
     let included = world.spell(OVERPOWER_4).effects()[0].included_outcomes();
     assert!(!included.dodge && !included.parry && !included.block && included.miss);
-}
-
-#[test]
-fn thunder_clap_adds_3_percent_of_attack_power() {
-    // Thunder Clap r6: 103 plus 3 % of the 1000 attack power (server side, the tables have 0).
-    let mut world = shipped();
-    world.learn(THUNDER_CLAP_6);
-    world.stance = Stance::Battle;
-    let report = world.perform(THUNDER_CLAP_6);
-    assert_eq!(report.attack.unwrap().damage, 103 + 30);
 }
 
 #[test]

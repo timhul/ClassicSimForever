@@ -35,6 +35,7 @@ mod slam;
 mod spearing_strike;
 mod sword_specialization;
 mod talent_tree;
+mod thunder_clap;
 mod touch_of_the_grave;
 mod two_handed_weapon_specialization;
 mod unbridled_wrath;

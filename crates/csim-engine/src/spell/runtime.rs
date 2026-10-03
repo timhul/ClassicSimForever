@@ -1566,7 +1566,9 @@ impl Spell {
                 report.combo_points_spent = combo_points;
             }
             report.attack = match first_spell {
-                Some(roll) => self.collect_spell_damage(host, roll, innate_threat),
+                Some(roll) => {
+                    self.collect_spell_damage(host, roll, innate_threat, &mut report.proc_sources)
+                }
                 None => {
                     self.collect_damage(host, first_roll, innate_threat, &mut report.proc_sources)
                 }
@@ -1647,17 +1649,25 @@ impl Spell {
 
     /// The attack outcome of a spell that landed on the magic table: its damage with the spell
     /// crit multiplier, less its partial resist. A spell on the magic table is no melee attack:
-    /// it adds no proc sources of its own. A landed damage-over-time without direct damage
-    /// reports nothing (its ticks do).
+    /// its damage is reported as a magic spell, a crit additionally by its result (Deep Wounds
+    /// on a critical Thunder Clap). See `ProcSource::from_masks`. A landed damage-over-time
+    /// without direct damage reports nothing (its ticks do).
     fn collect_spell_damage(
         &mut self,
         host: &mut impl SpellHost,
         roll: SpellRoll,
         innate_threat: f64,
+        proc_sources: &mut Vec<ProcSource>,
     ) -> Option<AttackOutcome> {
         let raw_damage = self.take_raw_damage(host);
         if raw_damage <= 0.0 && innate_threat == 0.0 {
             return None;
+        }
+        if raw_damage > 0.0 {
+            proc_sources.push(ProcSource::MagicSpell);
+            if roll.is_critical() {
+                proc_sources.push(ProcSource::SpellCritical);
+            }
         }
         let mut damage = self.damage_after_modifiers(host, raw_damage, Hand::Mainhand);
         if roll.is_critical() {
