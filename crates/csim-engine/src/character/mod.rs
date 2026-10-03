@@ -273,9 +273,9 @@ impl Character {
             sim,
             stance: class.default_stance,
             stance_spells: Vec::new(),
-            next_gcd: -class.global_cooldown,
+            next_gcd: f64::NEG_INFINITY,
             next_stance_cd: f64::NEG_INFINITY,
-            next_trinket_cd: -1.0,
+            next_trinket_cd: f64::NEG_INFINITY,
             defensive_until: -1.0,
             combo_points: 0,
             combo_points_until: -1.0,
@@ -1314,10 +1314,12 @@ impl Character {
     /// The state part of `Character::reset`; the context resets spells, buffs and procs and
     /// leaves the stance.
     pub(crate) fn reset_state(&mut self) {
-        self.next_gcd = -self.global_cooldown();
-        // Never swapped: a precombat stance swap (negative time) must not read as on cooldown.
+        // Never started: ready from the start of the iteration, however long before the pull
+        // (a player pulling minutes later), and a precombat stance swap or trinket must not
+        // read as on cooldown.
+        self.next_gcd = f64::NEG_INFINITY;
         self.next_stance_cd = f64::NEG_INFINITY;
-        self.next_trinket_cd = -1.0;
+        self.next_trinket_cd = f64::NEG_INFINITY;
         self.defensive_until = -1.0;
         self.combo_points = 0;
         self.combo_points_until = -1.0;

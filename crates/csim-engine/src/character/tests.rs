@@ -856,9 +856,11 @@ fn reset_clears_the_iteration_state_and_keeps_passives() {
     assert_eq!(f.character.stance(), Stance::Caster);
     assert_eq!(f.rage(), 0);
     assert_eq!(f.character.combo_points(-2.0), 0);
-    assert!(!f.character.on_trinket_cooldown(0.0));
-    assert!(!f.character.action_ready(-2.0), "the GCD is armed at -1.5");
-    assert!(f.character.action_ready(-1.5));
+    assert!(!f.character.on_trinket_cooldown(-600.0));
+    assert!(
+        f.character.action_ready(-600.0),
+        "the GCD is ready however long before the pull"
+    );
     assert!(!f.character.spells().is_melee_attacking());
     f.engine.prepare_iteration(0.0);
     assert_eq!(

@@ -935,3 +935,21 @@ fn restarting_brings_the_pre_pull_back() {
     assert_eq!(charge.rebased_by, Some(-99.0));
     assert_eq!(casts(&charge), [(-1.0, "Charge")]);
 }
+
+#[test]
+fn before_the_pull_nothing_waits_for_it() {
+    let keybinds = "Bloodrage: 1
+Battle Shout: 2
+Blood Fury: 3
+";
+    let mut session = manual_session_of("warrior_fury_dw_orc.yaml", 3, keybinds);
+    // Bloodrage's rage pays for Battle Shout minutes before the pull: no cooldown, global
+    // cooldown or trinket cooldown waits for it.
+    session.cast("Bloodrage", -595.0).unwrap();
+    let shout = session.cast("Battle Shout", -594.0).unwrap();
+    assert_eq!(shout.input_error, None);
+    assert_eq!(casts(&shout), [(-594.0, "Battle Shout")]);
+    let fury = session.cast("Blood Fury", -593.0).unwrap();
+    assert_eq!(casts(&fury), [(-593.0, "Blood Fury")]);
+    assert!(fury.state.gcd_end.is_finite());
+}

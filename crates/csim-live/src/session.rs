@@ -1021,7 +1021,8 @@ impl Session {
             stance: Some(character.stance())
                 .filter(|&stance| stance != Stance::Caster)
                 .map(Stance::name),
-            gcd_end: character.next_gcd(),
+            // Never started: the start of the iteration (JSON has no infinity).
+            gcd_end: character.next_gcd().max(self.stepper.start_at()),
             gcd: character.global_cooldown(),
             mainhand: swing(Hand::Mainhand),
             offhand: character.is_dual_wielding().then(|| swing(Hand::Offhand)),
