@@ -7,7 +7,8 @@ an override.
 
 ```
 data/
-├── tables/               DB2 → CSV dumps, one file per table and build (gitignored, see below)
+├── tables/               DB2 → CSV dumps, one file per table and build (gitignored, see below),
+│                         and listfile-icons.csv: the icon texture names by FileDataID
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
@@ -99,6 +100,11 @@ csim_engine::talent::TalentDb::load("data/talents")
 
 1. Drop the CSV files in `data/tables/` (`<Table>.<build>.csv`; `csim-tables info` lists what
    is there and what is missing).
+   `python tools/fetch_tables.py` downloads them, and `python tools/fetch_listfile.py`
+   refreshes `data/tables/listfile-icons.csv`. That file holds the `interface/icons/` rows of
+   the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each
+   icon FileDataID, by which Wowhead's CDN serves the icon. The client tables do not have
+   these names. The script ends by counting the exported `icon:` ids that have a name.
 2. Run, from the repository root:
    ```
    cargo run -p csim-tables -- export-all
