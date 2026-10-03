@@ -31,6 +31,8 @@ cast_if:
   - name: Earthstrike
   - name: Restless Strength  # Zandalarian Hero Medallion
   - name: Blood Fury
+  - name: Eureka!
+  - name: Elune's Light
   - name: Berserking
   - name: Slice and Dice
     condition: buff_duration "Slice and Dice" less 3

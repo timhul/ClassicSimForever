@@ -321,7 +321,7 @@ consumables: [Thistle Tea]
 
 /// The item uses and racials the Rogue rotations name, which only link when equipped or of the
 /// right race.
-const ROGUE_ITEM_AND_RACIAL_LINES: [&str; 9] = [
+const ROGUE_ITEM_AND_RACIAL_LINES: [&str; 11] = [
     "Burst of Energy",
     "Kiss of the Spider",
     "Jom Gabbar",
@@ -329,6 +329,8 @@ const ROGUE_ITEM_AND_RACIAL_LINES: [&str; 9] = [
     "Slayer's Crest",
     "Earthstrike",
     "Restless Strength",
+    "Eureka!",
+    "Elune's Light",
     "Blood Fury",
     "Berserking",
 ];

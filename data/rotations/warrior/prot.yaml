@@ -37,14 +37,14 @@ cast_if:
     condition: buff_duration "Death Wish" is true
   - name: Heaven's Blessing  # Cloudkeeper Legplates
     condition: buff_duration "Death Wish" is true
-  - name: Death Wish
-    condition: |
-      variable "time_remaining_encounter" less 33
-      or variable "time_remaining_encounter" greater 210
   - name: Blood Fury
   - name: Eureka!
   - name: Elune's Light
   - name: Berserking
+  - name: Death Wish
+    condition: |
+      variable "time_remaining_encounter" less 33
+      or variable "time_remaining_encounter" greater 210
   - name: Bloodthirst
   - name: Shield Slam
   - name: Revenge

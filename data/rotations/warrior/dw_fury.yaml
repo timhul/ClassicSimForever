@@ -48,18 +48,19 @@ cast_if:
       variable "time_remaining_encounter" less 33
       or variable "time_remaining_execute" less 3
       or variable "time_remaining_execute" greater 180
-  - name: Elune's Light
-  - name: Recklessness
-    condition: |
-      variable "time_remaining_execute" less 0
-      or variable "time_remaining_encounter" less 20
   - name: Blood Fury
+  - name: Eureka!
+  - name: Elune's Light
   - name: Berserking
     condition: |
       variable "time_remaining_execute" less 0
       and resource "Rage" less 50
       or variable "time_remaining_execute" greater 180
-  - name: Eureka!
+  - name: Recklessness
+    condition: |
+      variable "time_remaining_execute" less 0
+      or variable "time_remaining_encounter" less 20
+  - name: Berserking
   - name: Execute
     condition: |
       variable "melee_ap" leq 2220

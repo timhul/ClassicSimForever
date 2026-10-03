@@ -20,6 +20,8 @@ cast_if:
   - name: Earthstrike
   - name: Restless Strength  # Zandalarian Hero Medallion
   - name: Blood Fury
+  - name: Eureka!
+  - name: Elune's Light
   - name: Berserking
     condition: resource "Energy" leq 40
   - name: Slice and Dice
