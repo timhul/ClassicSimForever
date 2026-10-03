@@ -31,7 +31,9 @@ use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
-use csim_engine::statistics::report::{BuffRow, SpellRow, buff_rows_so_far, spell_rows};
+use csim_engine::statistics::report::{
+    BuffRow, ProcRow, SpellRow, buff_rows_so_far, proc_rows_so_far, spell_rows,
+};
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
@@ -140,6 +142,9 @@ pub struct Frame {
     /// The buffs' (and debuffs') uptimes so far, as `csim run` reports them (empty before the
     /// pull).
     pub buff_uptimes: Vec<BuffUptime>,
+    /// The procs tried so far, with their rate and procs per minute, as `csim run` reports them
+    /// (empty before the pull).
+    pub procs: Vec<ProcCount>,
 }
 
 /// A key press that could not cast its spell, with why, as the game says it.
@@ -207,6 +212,15 @@ pub struct ResourceState {
 pub struct SwingState {
     pub last: f64,
     pub next: f64,
+}
+
+/// A proc's count so far, with its icon.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ProcCount {
+    #[serde(flatten)]
+    pub row: ProcRow,
+    /// The icon of the proc's spell, or of a spell it casts.
+    pub icon: Option<u32>,
 }
 
 /// A buff's uptime so far, with its icon.
@@ -592,6 +606,7 @@ impl Session {
             state: self.character_state(),
             breakdown: self.breakdown(),
             buff_uptimes: self.buff_uptimes(),
+            procs: self.proc_counts_so_far(),
         }
     }
 
@@ -610,6 +625,25 @@ impl Session {
                     .find(|buff| buff.statistics_name() == row.name)
                     .and_then(|buff| self.spell_icon(buff.spell()));
                 BuffUptime { row, icon }
+            })
+            .collect()
+    }
+
+    /// The character's procs' counts over the combat so far.
+    fn proc_counts_so_far(&self) -> Vec<ProcCount> {
+        if self.time <= 0.0 {
+            return Vec::new();
+        }
+        let procs = self.raid.character(PLAYER).spells().procs().procs();
+        proc_rows_so_far(procs, self.time)
+            .into_iter()
+            .map(|row| {
+                let icon = procs
+                    .iter()
+                    .filter(|proc| proc.name() == row.name)
+                    .flat_map(|proc| std::iter::once(proc.game_id()).chain(proc.payload_spells()))
+                    .find_map(|id| self.spell_icon(id));
+                ProcCount { row, icon }
             })
             .collect()
     }

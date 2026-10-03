@@ -470,7 +470,7 @@
   .breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
   #buff-heading { margin-top: 16px; }
   .breakdown .debuff-tag { color: #e05a4f; font-size: 11px; margin-left: 6px; }
-  #breakdown-empty, #buff-uptimes-empty { color: var(--muted); }
+  #breakdown-empty, #buff-uptimes-empty, #procs-empty { color: var(--muted); }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -579,6 +579,14 @@
         </table>
       </div>
       <div id="buff-uptimes-empty">No buff up yet.</div>
+      <h2 id="proc-heading">Procs</h2>
+      <div class="breakdown-scroll">
+        <table id="procs" class="breakdown">
+          <thead><tr><th>Proc</th><th>Count</th><th>Proc rate</th><th>PPM</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="procs-empty">No proc tried yet.</div>
     </section>
   </section>
 
@@ -720,6 +728,7 @@ function apply(next) {
     breakdownAt = performance.now();
     renderBreakdown(next);
     renderBuffUptimes(next);
+    renderProcs(next);
   }
   $("dps").textContent = next.dps.toFixed(1);
   $("total").textContent = next.total_damage.toLocaleString("en-US");
@@ -965,6 +974,7 @@ function setPlaying(on) {
   if (!playing && frame) {
     renderBreakdown(frame);
     renderBuffUptimes(frame);
+    renderProcs(frame);
   }
 }
 
@@ -1113,6 +1123,35 @@ function renderBreakdown(next) {
       return td;
     }));
   $("breakdown").tFoot.replaceChildren(total);
+}
+
+/** The procs so far: how many fired, the share of the attempts and the procs per minute. */
+function renderProcs(next) {
+  const rows = next.procs;
+  $("procs-empty").hidden = rows.length > 0;
+  $("procs").hidden = rows.length === 0;
+  $("procs").tBodies[0].replaceChildren(...rows.map((row) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const label = document.createElement("span");
+    label.className = "name";
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    const icon = iconImage(row.icon);
+    if (icon) {
+      slot.append(icon);
+    }
+    label.append(slot, row.name);
+    name.append(label);
+    const cells = [String(Math.round(row.per_fight)), `${(row.proc_rate * 100).toFixed(1)}%`,
+      row.ppm.toFixed(2)].map((text) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      return td;
+    });
+    tr.append(name, ...cells);
+    return tr;
+  }));
 }
 
 /** The buffs' uptimes so far: the share of the combat, shortest and longest application. */

@@ -138,6 +138,45 @@ fn the_buff_uptimes_at_the_end_are_the_ones_csim_run_reports() {
 }
 
 #[test]
+fn the_procs_at_the_end_are_the_ones_csim_run_reports() {
+    for (file, seed) in [
+        ("warrior_fury_dw_orc.yaml", 3),
+        ("rogue_combat_swords_human.yaml", 4),
+    ] {
+        let mut session = session_of(file, seed);
+        assert!(session.advance(0.0).procs.is_empty(), "before the pull");
+        let last = play(&mut session, 7.0).pop().unwrap();
+
+        let setup = setup(file);
+        let settings = settings(&setup);
+        let mut raid = setup.build_raid(data(), &settings).unwrap();
+        run_logged_iteration(&settings, seed, &mut raid);
+        let statistics = raid.take_statistics();
+        let reported = csim_engine::statistics::report::proc_rows(&statistics[0]);
+        let rounded = |rows: &[ProcRow]| -> Vec<(String, f64, f64, f64)> {
+            let round = |value: f64| (value * 1e6).round() / 1e6;
+            rows.iter()
+                .map(|row| {
+                    (
+                        row.name.clone(),
+                        row.per_fight,
+                        round(row.proc_rate),
+                        round(row.ppm),
+                    )
+                })
+                .collect()
+        };
+        assert!(reported.len() > 1, "{file}: {reported:?}");
+        let shown: Vec<ProcRow> = last.procs.iter().map(|count| count.row.clone()).collect();
+        assert_eq!(rounded(&shown), rounded(&reported), "{file}");
+        assert!(
+            last.procs.iter().any(|count| count.icon.is_some()),
+            "{file}"
+        );
+    }
+}
+
+#[test]
 fn a_spell_is_affordable_with_the_rage_it_costs() {
     let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     let mut seen = Vec::new();

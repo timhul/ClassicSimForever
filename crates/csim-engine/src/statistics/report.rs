@@ -5,6 +5,7 @@ use serde::Serialize;
 
 use super::{BuffStatistics, ClassStatistics, Outcome, SpellStatistics};
 use crate::buff::{Buff, BuffKind};
+use crate::proc::Proc;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SpellRow {
@@ -260,6 +261,67 @@ pub fn buff_rows_so_far<'a>(
             .then_with(|| a.name.cmp(&b.name))
     });
     rows
+}
+
+/// One proc's successes.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ProcRow {
+    pub name: String,
+    /// Procs per iteration.
+    pub per_fight: f64,
+    /// The share of the attempts that procced.
+    pub proc_rate: f64,
+    /// Procs per minute of combat.
+    pub ppm: f64,
+}
+
+/// The procs that were tried, by procs then name, over the finished iterations.
+pub fn proc_rows(stats: &ClassStatistics) -> Vec<ProcRow> {
+    let rows = stats
+        .procs()
+        .map(|proc| (proc.name().to_string(), proc.attempts(), proc.procs()));
+    sorted_proc_rows(rows, stats.iterations(), stats.time_in_combat())
+}
+
+/// The procs that were tried in an iteration in progress, at `now` (after the pull): `procs`
+/// are the character's (the statistics learn an iteration's counts only when it ends). Procs
+/// of the same name (a poison on each weapon) add up. As [`proc_rows`], for one iteration.
+pub fn proc_rows_so_far<'a>(procs: impl IntoIterator<Item = &'a Proc>, now: f64) -> Vec<ProcRow> {
+    let mut counts: Vec<(String, u64, u64)> = Vec::new();
+    for proc in procs {
+        let (attempts, procs) = (u64::from(proc.attempts()), u64::from(proc.procs()));
+        match counts.iter_mut().find(|(name, _, _)| name == proc.name()) {
+            Some((_, a, p)) => {
+                *a += attempts;
+                *p += procs;
+            }
+            None => counts.push((proc.name().to_string(), attempts, procs)),
+        }
+    }
+    sorted_proc_rows(counts, 1, now)
+}
+
+/// The rows of the procs' `(name, attempts, procs)` with attempts, over `iterations`
+/// iterations lasting `time` seconds of combat in all.
+fn sorted_proc_rows(
+    counts: impl IntoIterator<Item = (String, u64, u64)>,
+    iterations: u64,
+    time: f64,
+) -> Vec<ProcRow> {
+    let mut counts: Vec<_> = counts
+        .into_iter()
+        .filter(|(_, attempts, _)| *attempts > 0)
+        .collect();
+    counts.sort_by(|(a_name, _, a), (b_name, _, b)| b.cmp(a).then_with(|| a_name.cmp(b_name)));
+    counts
+        .into_iter()
+        .map(|(name, attempts, procs)| ProcRow {
+            name,
+            per_fight: per(procs, iterations),
+            proc_rate: per(procs, attempts),
+            ppm: per_second(procs, time) * 60.0,
+        })
+        .collect()
 }
 
 /// `count` per `of` (0 for none).
