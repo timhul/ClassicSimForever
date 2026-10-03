@@ -6,6 +6,7 @@ use serde::Serialize;
 use super::{BuffStatistics, ClassStatistics, Outcome, SpellStatistics};
 use crate::buff::{Buff, BuffKind};
 use crate::proc::Proc;
+use crate::resource::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SpellRow {
@@ -320,6 +321,129 @@ fn sorted_proc_rows(
             per_fight: per(procs, iterations),
             proc_rate: per(procs, attempts),
             ppm: per_second(procs, time) * 60.0,
+        })
+        .collect()
+}
+
+/// One source's gain of one resource.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ResourceRow {
+    pub source: String,
+    pub resource: String,
+    /// Gained per iteration.
+    pub per_fight: f64,
+    /// Gained per second of combat.
+    pub per_second: f64,
+}
+
+/// The sum of the [`ResourceRow`]s of one resource (rage and mana do not add up).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ResourceTotal {
+    pub resource: String,
+    pub per_fight: f64,
+    pub per_second: f64,
+    /// Regeneration lost because the resource was full, per fight and per second.
+    pub lost_at_cap_per_fight: f64,
+    pub lost_at_cap_per_second: f64,
+}
+
+/// The resource gains, by resource then gain then source, over the finished iterations.
+pub fn resource_rows(stats: &ClassStatistics) -> Vec<ResourceRow> {
+    sorted_resource_rows(
+        resource_gains(stats),
+        stats.iterations(),
+        stats.time_in_combat(),
+    )
+}
+
+/// The resource gains of an iteration in progress, at `now` (after the pull): the statistics'
+/// plus `extra` (`(source, resource, gain)`: the regeneration so far, which the statistics
+/// learn only when the iteration ends). As [`resource_rows`], for one iteration.
+pub fn resource_rows_so_far(
+    stats: &ClassStatistics,
+    extra: impl IntoIterator<Item = (String, ResourceType, f64)>,
+    now: f64,
+) -> Vec<ResourceRow> {
+    let mut gains: Vec<_> = resource_gains(stats).collect();
+    for (source, kind, gain) in extra {
+        match gains
+            .iter_mut()
+            .find(|(name, k, _)| *name == source && *k == kind)
+        {
+            Some((_, _, sum)) => *sum += gain,
+            None => gains.push((source, kind, gain)),
+        }
+    }
+    sorted_resource_rows(gains, 1, now)
+}
+
+/// The totals of `rows` (grouped by resource, as the rows functions sort them), with `lost` of
+/// each resource lost at the cap, over `iterations` iterations lasting `time` seconds of combat
+/// in all.
+pub fn resource_totals(
+    rows: &[ResourceRow],
+    lost: impl Fn(ResourceType) -> f64,
+    iterations: u64,
+    time: f64,
+) -> Vec<ResourceTotal> {
+    rows.chunk_by(|a, b| a.resource == b.resource)
+        .map(|rows| {
+            let lost = ResourceType::ALL
+                .into_iter()
+                .find(|kind| kind.name() == rows[0].resource)
+                .map_or(0.0, &lost);
+            ResourceTotal {
+                resource: rows[0].resource.clone(),
+                per_fight: rows.iter().map(|r| r.per_fight).sum(),
+                per_second: rows.iter().map(|r| r.per_second).sum(),
+                lost_at_cap_per_fight: if iterations == 0 {
+                    0.0
+                } else {
+                    lost / iterations as f64
+                },
+                lost_at_cap_per_second: if time > 0.0 { lost / time } else { 0.0 },
+            }
+        })
+        .collect()
+}
+
+/// Every `(source, resource, gain)` of the statistics.
+fn resource_gains(stats: &ClassStatistics) -> impl Iterator<Item = (String, ResourceType, f64)> {
+    stats.resources().flat_map(|(key, resource)| {
+        ResourceType::ALL
+            .into_iter()
+            .map(move |kind| (key.display_name(), kind, resource.gain(kind)))
+    })
+}
+
+/// The rows of the `(source, resource, gain)` with a gain, over `iterations` iterations lasting
+/// `time` seconds of combat in all.
+fn sorted_resource_rows(
+    gains: impl IntoIterator<Item = (String, ResourceType, f64)>,
+    iterations: u64,
+    time: f64,
+) -> Vec<ResourceRow> {
+    let mut gains: Vec<_> = gains
+        .into_iter()
+        .filter(|(_, _, gain)| *gain > 0.0)
+        .collect();
+    gains.sort_by(|a, b| {
+        (a.1 as u8)
+            .cmp(&(b.1 as u8))
+            .then(b.2.total_cmp(&a.2))
+            .then_with(|| a.0.cmp(&b.0))
+    });
+    gains
+        .into_iter()
+        .map(|(source, kind, gain)| ResourceRow {
+            source,
+            resource: kind.name().to_string(),
+            per_fight: if iterations == 0 {
+                0.0
+            } else {
+                gain / iterations as f64
+            },
+            per_second: if time > 0.0 { gain / time } else { 0.0 },
         })
         .collect()
 }

@@ -468,9 +468,9 @@
   .breakdown .share-bar { width: 60px; height: 6px; background: var(--line); border-radius: 3px; }
   .breakdown .share-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
   .breakdown tfoot td { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
-  #buff-heading { margin-top: 16px; }
+  #buff-heading, #proc-heading, #resource-heading { margin-top: 16px; }
   .breakdown .debuff-tag { color: #e05a4f; font-size: 11px; margin-left: 6px; }
-  #breakdown-empty, #buff-uptimes-empty, #procs-empty { color: var(--muted); }
+  #breakdown-empty, #buff-uptimes-empty, #procs-empty, #resources-empty { color: var(--muted); }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -587,6 +587,15 @@
         </table>
       </div>
       <div id="procs-empty">No proc tried yet.</div>
+      <h2 id="resource-heading">Resources</h2>
+      <div class="breakdown-scroll">
+        <table id="resources" class="breakdown">
+          <thead><tr><th>Source</th><th>Resource</th><th>Per fight</th><th>Per s</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="resources-empty">No resource gained yet.</div>
     </section>
   </section>
 
@@ -742,6 +751,7 @@ function apply(next) {
     renderBreakdown(next);
     renderBuffUptimes(next);
     renderProcs(next);
+    renderResources(next);
   }
   $("dps").textContent = next.dps.toFixed(1);
   $("total").textContent = next.total_damage.toLocaleString("en-US");
@@ -988,6 +998,7 @@ function setPlaying(on) {
     renderBreakdown(frame);
     renderBuffUptimes(frame);
     renderProcs(frame);
+    renderResources(frame);
   }
 }
 
@@ -1165,6 +1176,46 @@ function renderProcs(next) {
     tr.append(name, ...cells);
     return tr;
   }));
+}
+
+/** The resource gained so far per source, then the totals per resource and what was lost at the cap. */
+function renderResources(next) {
+  const rows = next.resources;
+  $("resources-empty").hidden = rows.length > 0;
+  $("resources").hidden = rows.length === 0;
+  const line = (label, row, icon) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const text = document.createElement("span");
+    text.className = "name";
+    if (icon !== undefined) {
+      const slot = document.createElement("span");
+      slot.className = "slot";
+      const image = iconImage(icon);
+      if (image) {
+        slot.append(image);
+      }
+      text.append(slot);
+    }
+    text.append(label);
+    name.append(text);
+    const cells = [row.resource, row.per_fight.toFixed(1), row.per_second.toFixed(2)].map((value) => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      return td;
+    });
+    tr.append(name, ...cells);
+    return tr;
+  };
+  $("resources").tBodies[0].replaceChildren(...rows.map((row) => line(row.source, row, row.icon)));
+  const totals = next.resource_totals.map((sum) => line("Total", sum));
+  const lost = next.resource_totals.filter((sum) => sum.lost_at_cap_per_fight > 0).map((sum) =>
+    line("Lost at the cap", {
+      resource: sum.resource,
+      per_fight: sum.lost_at_cap_per_fight,
+      per_second: sum.lost_at_cap_per_second,
+    }));
+  $("resources").tFoot.replaceChildren(...totals, ...lost);
 }
 
 /** The buffs' uptimes so far: the share of the combat, shortest and longest application. */

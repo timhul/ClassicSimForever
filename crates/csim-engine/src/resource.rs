@@ -545,6 +545,11 @@ impl Energy {
         }
     }
 
+    /// The counters since they were last taken, settled up to `now`, without taking them.
+    pub fn regen_counters(&self, now: f64) -> (u64, u64) {
+        self.clone().take_regen_counters(now)
+    }
+
     /// Takes the counters since they were last taken, settled up to `now`: the energy
     /// regenerated and the ticks lost at the cap.
     pub fn take_regen_counters(&mut self, now: f64) -> (u64, u64) {

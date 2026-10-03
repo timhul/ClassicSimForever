@@ -17,11 +17,11 @@ use csim_engine::combat_log::UnitNames;
 use csim_engine::named_settings::SettingPairs;
 use csim_engine::raid::RaidControl;
 use csim_engine::raid_loader::RaidSetup;
-use csim_engine::resource::ResourceType;
 use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
 use csim_engine::statistics::report::{
-    BuffRow, ProcRow, SpellRow, buff_rows, proc_rows, spell_rows,
+    BuffRow, ProcRow, ResourceRow, ResourceTotal, SpellRow, buff_rows, proc_rows, resource_rows,
+    resource_totals, spell_rows,
 };
 use csim_engine::statistics::{ClassStatistics, NumberCruncher};
 use serde::Serialize;
@@ -403,14 +403,6 @@ pub struct RaidMemberRow {
     pub tps: f64,
 }
 
-#[derive(Debug, Serialize)]
-pub struct ResourceRow {
-    pub source: String,
-    pub resource: String,
-    pub per_fight: f64,
-    pub per_second: f64,
-}
-
 /// A finisher's casts per fight by the combo points they spent.
 #[derive(Debug, Serialize)]
 pub struct FinisherRow {
@@ -438,40 +430,6 @@ impl SpellTotal {
             tps: sum(|s| s.tps),
             casts: sum(|s| s.casts),
         })
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct ResourceTotal {
-    pub resource: String,
-    pub per_fight: f64,
-    pub per_second: f64,
-    /// Regeneration lost because the resource was full, per fight and per second.
-    pub lost_at_cap_per_fight: f64,
-    pub lost_at_cap_per_second: f64,
-}
-
-impl ResourceTotal {
-    /// One total per resource, as rage and mana do not add up; `gains` are grouped by resource.
-    fn of(gains: &[ResourceRow], stats: &ClassStatistics) -> Vec<ResourceTotal> {
-        let iterations = stats.iterations().max(1) as f64;
-        let time = stats.time_in_combat();
-        gains
-            .chunk_by(|a, b| a.resource == b.resource)
-            .map(|rows| {
-                let lost = ResourceType::ALL
-                    .into_iter()
-                    .find(|kind| kind.name() == rows[0].resource)
-                    .map_or(0.0, |kind| stats.lost_at_cap(kind));
-                ResourceTotal {
-                    resource: rows[0].resource.clone(),
-                    per_fight: rows.iter().map(|r| r.per_fight).sum(),
-                    per_second: rows.iter().map(|r| r.per_second).sum(),
-                    lost_at_cap_per_fight: lost / iterations,
-                    lost_at_cap_per_second: if time > 0.0 { lost / time } else { 0.0 },
-                }
-            })
-            .collect()
     }
 }
 
@@ -558,7 +516,12 @@ impl Results {
             spells,
             buffs: buff_rows(&stats),
             procs: proc_rows(&stats),
-            resource_totals: ResourceTotal::of(&resources, &stats),
+            resource_totals: resource_totals(
+                &resources,
+                |kind| stats.lost_at_cap(kind),
+                stats.iterations(),
+                stats.time_in_combat(),
+            ),
             resources,
             finishers: finisher_rows(&stats),
             rotation: executor_rows(&stats),
@@ -889,39 +852,6 @@ fn finisher_rows(stats: &ClassStatistics) -> Vec<FinisherRow> {
                 per_fight: counts.map(|n| n as f64 / iterations),
                 average: points as f64 / casts.max(1) as f64,
             }
-        })
-        .collect()
-}
-
-fn resource_rows(stats: &ClassStatistics) -> Vec<ResourceRow> {
-    let iterations = stats.iterations();
-    let time = stats.time_in_combat();
-    let mut gains: Vec<_> = stats
-        .resources()
-        .flat_map(|(key, resource)| {
-            ResourceType::ALL
-                .into_iter()
-                .map(move |kind| (key, resource, kind, resource.gain(kind)))
-        })
-        .filter(|&(_, _, _, gain)| gain > 0.0)
-        .collect();
-    gains.sort_by(|a, b| {
-        (a.2 as u8)
-            .cmp(&(b.2 as u8))
-            .then(b.3.total_cmp(&a.3))
-            .then(a.0.cmp(b.0))
-    });
-    gains
-        .into_iter()
-        .map(|(key, resource, kind, gain)| ResourceRow {
-            source: key.display_name(),
-            resource: kind.name().to_string(),
-            per_fight: if iterations == 0 {
-                0.0
-            } else {
-                gain / iterations as f64
-            },
-            per_second: resource.gain_per_5(kind, time) / 5.0,
         })
         .collect()
 }

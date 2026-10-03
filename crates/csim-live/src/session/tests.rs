@@ -177,6 +177,66 @@ fn the_procs_at_the_end_are_the_ones_csim_run_reports() {
 }
 
 #[test]
+fn the_resources_at_the_end_are_the_ones_csim_run_reports() {
+    use csim_engine::statistics::report::{ResourceRow, resource_rows, resource_totals};
+    for (file, seed) in [
+        ("warrior_fury_dw_orc.yaml", 3),
+        ("rogue_combat_swords_human.yaml", 4),
+    ] {
+        let mut session = session_of(file, seed);
+        let first = session.advance(0.0);
+        assert!(first.resources.is_empty(), "before the pull");
+        assert!(first.resource_totals.is_empty(), "before the pull");
+        let last = play(&mut session, 7.0).pop().unwrap();
+
+        let setup = setup(file);
+        let settings = settings(&setup);
+        let mut raid = setup.build_raid(data(), &settings).unwrap();
+        run_logged_iteration(&settings, seed, &mut raid);
+        let statistics = &raid.take_statistics()[0];
+        let reported = resource_rows(statistics);
+        let rounded = |rows: &[ResourceRow]| -> Vec<(String, String, f64, f64)> {
+            let round = |value: f64| (value * 1e6).round() / 1e6;
+            rows.iter()
+                .map(|row| {
+                    let (source, resource) = (row.source.clone(), row.resource.clone());
+                    (
+                        source,
+                        resource,
+                        round(row.per_fight),
+                        round(row.per_second),
+                    )
+                })
+                .collect()
+        };
+        assert!(reported.len() > 1, "{file}: {reported:?}");
+        let shown: Vec<ResourceRow> = last.resources.iter().map(|gain| gain.row.clone()).collect();
+        assert_eq!(rounded(&shown), rounded(&reported), "{file}");
+        let totals = resource_totals(
+            &reported,
+            |kind| statistics.lost_at_cap(kind),
+            statistics.iterations(),
+            statistics.time_in_combat(),
+        );
+        let round = |value: f64| (value * 1e6).round() / 1e6;
+        for (shown, reported) in last.resource_totals.iter().zip(&totals) {
+            assert_eq!(shown.resource, reported.resource, "{file}");
+            assert_eq!(round(shown.per_fight), round(reported.per_fight), "{file}");
+            assert_eq!(
+                round(shown.lost_at_cap_per_fight),
+                round(reported.lost_at_cap_per_fight),
+                "{file}"
+            );
+        }
+        assert_eq!(last.resource_totals.len(), totals.len(), "{file}");
+        assert!(
+            last.resources.iter().any(|gain| gain.icon.is_some()),
+            "{file}"
+        );
+    }
+}
+
+#[test]
 fn a_spell_is_affordable_with_the_rage_it_costs() {
     let mut session = session_of("warrior_fury_dw_orc.yaml", 3);
     let mut seen = Vec::new();
