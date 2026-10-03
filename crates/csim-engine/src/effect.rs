@@ -961,23 +961,6 @@ impl Effect {
             }
             return;
         }
-        // Crit with spells and melee abilities, not auto attacks (Axe/Sword Specialization).
-        if self.script_kind() == Some(ScriptKind::AbilityCritPercent) {
-            let crit = signed_of(hundredths, apply);
-            adjust(
-                host.stats_mut(),
-                crit,
-                |s, v| s.increase_melee_ability_crit(v),
-                |s, v| s.decrease_melee_ability_crit(v),
-            );
-            adjust(
-                host.stats_mut(),
-                crit,
-                |s, v| s.increase_spell_crit(v),
-                |s, v| s.decrease_spell_crit(v),
-            );
-            return;
-        }
         match self.record.aura {
             A::ModAttackPower => adjust(
                 host.stats_mut(),

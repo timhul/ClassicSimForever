@@ -1,4 +1,3 @@
-# Schema: crates/csim-engine/src/character_loader.rs.
 include: common/base_target.yaml
 include: common/base_rogue_buffs.yaml
 include: common/base_rogue_mutilate_33_18.yaml

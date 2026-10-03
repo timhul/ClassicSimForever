@@ -198,9 +198,28 @@
   .unit .health .fill { background: var(--health); }
   /* The combo points just under the target frame, in the stage's bottom margin. */
   .target { position: relative; }
-  #pips { position: absolute; top: calc(100% + 2px); right: 0; display: flex; gap: 2px; }
-  .pip { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 0, 0, 0.55); }
-  .pip.on { background: var(--accent); box-shadow: 0 0 0 1px #000; }
+  #pips {
+    position: absolute;
+    top: calc(100% + 2px);
+    inset-inline: 0;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+  /* An empty point is an outlined slot, a point held is lit red, as the game's. */
+  .pip {
+    width: 10px;
+    height: 10px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.55);
+  }
+  .pip.on {
+    border-color: #ffb199;
+    background: radial-gradient(circle at 35% 35%, #ff8a66, #d42a10 70%);
+    box-shadow: 0 0 4px rgba(255, 80, 40, 0.8);
+  }
   .unit .text {
     position: absolute;
     inset: 0;

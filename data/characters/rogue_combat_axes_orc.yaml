@@ -1,5 +1,3 @@
-# Schema: crates/csim-engine/src/character_loader.rs.
-# Combat with axes: Hack and Slash's axe/sword branch, and the Orc's Axe Specialization.
 include: common/base_target.yaml
 include: common/base_rogue_buffs.yaml
 include: common/base_rogue_combat_18_33.yaml
@@ -9,5 +7,5 @@ race: ORC
 level: 60
 phase: 3
 equipment:
-  MAINHAND: { item: 18828, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # High Warlord's Cleaver
+  MAINHAND: { item: 18828, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, DeadlyPoison] }  # High Warlord's Cleaver
   OFFHAND: { item: 18828, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }                  # High Warlord's Cleaver

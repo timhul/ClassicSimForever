@@ -775,6 +775,9 @@ impl Session {
                 .collect()
         };
         let now = self.raid.engine().current_time();
+        // The resources at the time shown: energy regenerates without events, and no event
+        // between the last one run and the time shown changes it.
+        let shown_at = self.time.max(now);
         let character = self.raid.character(PLAYER);
         let spells = character.spells();
         let swing = |hand: Hand| {
@@ -846,7 +849,7 @@ impl Session {
                 icon: icon(spell.record().icon),
                 on_gcd: spell.triggers_gcd(),
                 affordable: spell.resource_type().is_none_or(|resource| {
-                    character.resource_level(resource, now)
+                    character.resource_level(resource, shown_at)
                         >= spell.resource_cost_with(character.spell_modifiers())
                 }),
                 usable,
@@ -857,11 +860,11 @@ impl Session {
         CharacterState {
             resource: ResourceState {
                 kind: resource.resource_type().name(),
-                current: resource.current(now),
+                current: resource.current(shown_at),
                 max: resource.max(),
             },
             combo_points: (character.class_kind() == PlayerClass::Rogue)
-                .then(|| character.combo_points(now)),
+                .then(|| character.combo_points(shown_at)),
             stance: Some(character.stance())
                 .filter(|&stance| stance != Stance::Caster)
                 .map(Stance::name),

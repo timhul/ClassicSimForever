@@ -1,0 +1,11 @@
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_combat_18_33.yaml
+include: common/base_rogue_alliance.yaml
+name: Combat Maces Dwarf
+race: DWARF
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18865, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, DeadlyPoison] }  # Grand Marshal's Punisher
+  OFFHAND: { item: 18865, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }   # Grand Marshal's Punisher

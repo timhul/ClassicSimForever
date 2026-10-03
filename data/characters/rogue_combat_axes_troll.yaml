@@ -1,0 +1,8 @@
+include: common/base_target.yaml
+include: common/base_rogue_buffs.yaml
+include: common/base_rogue_combat_18_33.yaml
+include: common/base_rogue_horde.yaml
+name: Combat Axes Troll
+race: TROLL
+level: 60
+phase: 3

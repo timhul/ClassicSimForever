@@ -1,7 +1,4 @@
-//! The crit racials of Forever: Axe Specialization (Orc, 1 %) and Sword Specialization (Human,
-//! 2 %). Their `MOD_CRIT_PCT` aura counts for abilities and spells, not for auto attacks, while
-//! a weapon of the type is equipped.
-
+use crate::magic_school::MagicSchool;
 use crate::race::Race;
 use crate::testing::SpellTest;
 use crate::testing::warrior::WarriorTest;
@@ -15,81 +12,111 @@ fn test(race: Race, given: fn(&mut SpellTest)) -> WarriorTest {
     test
 }
 
-/// (auto attack, ability) crit of the main hand and the off hand.
-fn crits(test: &WarriorTest) -> [(u32, u32); 2] {
+/// Main-hand auto attack, main-hand ability, off-hand auto attack, off-hand ability and spell
+/// crit.
+fn crits(test: &WarriorTest) -> [u32; 5] {
     [
-        (
-            test.stat(|s, c| s.get_mh_crit_chance(c)),
-            test.stat(|s, c| s.get_mh_ability_crit_chance(c)),
-        ),
-        (
-            test.stat(|s, c| s.get_oh_crit_chance(c)),
-            test.stat(|s, c| s.get_oh_ability_crit_chance(c)),
-        ),
+        test.stat(|s, c| s.get_mh_crit_chance(c)),
+        test.stat(|s, c| s.get_mh_ability_crit_chance(c)),
+        test.stat(|s, c| s.get_oh_crit_chance(c)),
+        test.stat(|s, c| s.get_oh_ability_crit_chance(c)),
+        test.stat(|s, c| s.get_spell_crit_chance(c, MagicSchool::Fire)),
     ]
 }
 
-/// The ability crit the racial adds with the weapons `given` equips.
-fn ability_bonus(race: Race, given: fn(&mut SpellTest)) -> u32 {
-    let [(auto, ability), _] = crits(&test(race, given));
-    ability - auto
+/// The crit `race` gains by equipping `given` instead of `baseline`.
+fn gain(race: Race, given: fn(&mut SpellTest), baseline: fn(&mut SpellTest)) -> [i64; 5] {
+    let (with, without) = (crits(&test(race, given)), crits(&test(race, baseline)));
+    std::array::from_fn(|i| i64::from(with[i]) - i64::from(without[i]))
+}
+
+/// The crit the racial of `race` adds with the weapons `given` equips over `baseline`: the
+/// gain of `race` less a Troll's (no weapon racial), which cancels the weapon skill and the
+/// race's attributes.
+fn bonus_over(race: Race, given: fn(&mut SpellTest), baseline: fn(&mut SpellTest)) -> [i64; 5] {
+    let (racial, control) = (
+        gain(race, given, baseline),
+        gain(Race::Troll, given, baseline),
+    );
+    std::array::from_fn(|i| racial[i] - control[i])
+}
+
+/// [`bonus_over`] a main-hand dagger.
+fn bonus(race: Race, given: fn(&mut SpellTest)) -> [i64; 5] {
+    bonus_over(race, given, SpellTest::given_dagger_equipped_in_mainhand)
+}
+
+/// `crit` for the main hand (auto attacks and abilities) and spells; nothing for the empty off
+/// hand.
+fn main_hand_and_spells(crit: i64) -> [i64; 5] {
+    [crit, crit, 0, 0, crit]
 }
 
 #[test]
-fn axe_specialization_adds_1_percent_ability_crit_with_axes() {
+fn axe_specialization_adds_1_percent_crit_with_axes() {
     for given in [
         SpellTest::given_1h_axe_equipped_in_mainhand as fn(&mut SpellTest),
         SpellTest::given_2h_axe_equipped,
     ] {
-        assert_eq!(ability_bonus(Race::Orc, given), 100);
+        assert_eq!(bonus(Race::Orc, given), main_hand_and_spells(100));
     }
 }
 
 #[test]
-fn sword_specialization_adds_2_percent_ability_crit_with_swords() {
+fn sword_specialization_adds_2_percent_crit_with_swords() {
     for given in [
         SpellTest::given_1h_sword_equipped_in_mainhand as fn(&mut SpellTest),
         SpellTest::given_2h_sword_equipped,
     ] {
-        assert_eq!(ability_bonus(Race::Human, given), 200);
+        assert_eq!(bonus(Race::Human, given), main_hand_and_spells(200));
     }
 }
 
 #[test]
-fn no_ability_crit_with_other_weapons() {
+fn mace_specialization_adds_1_percent_crit_with_maces() {
+    for given in [
+        SpellTest::given_1h_mace_equipped_in_mainhand as fn(&mut SpellTest),
+        SpellTest::given_2h_mace_equipped,
+    ] {
+        assert_eq!(bonus(Race::Dwarf, given), main_hand_and_spells(100));
+    }
+}
+
+#[test]
+fn no_crit_with_other_weapons() {
     for (race, given) in [
         (
             Race::Orc,
             SpellTest::given_1h_sword_equipped_in_mainhand as fn(&mut SpellTest),
         ),
-        (Race::Orc, SpellTest::given_dagger_equipped_in_mainhand),
+        (Race::Orc, SpellTest::given_2h_mace_equipped),
         (Race::Human, SpellTest::given_1h_axe_equipped_in_mainhand),
         (Race::Human, SpellTest::given_2h_mace_equipped),
+        (Race::Dwarf, SpellTest::given_1h_sword_equipped_in_mainhand),
+        (Race::Dwarf, SpellTest::given_2h_axe_equipped),
     ] {
-        assert_eq!(ability_bonus(race, given), 0, "{race:?}");
+        assert_eq!(bonus(race, given), [0; 5], "{race:?}");
     }
 }
 
 #[test]
-fn auto_attack_crit_is_unchanged() {
-    // Same character and test weapons without crit: only the weapon type differs.
-    let axe = crits(&test(
-        Race::Orc,
-        SpellTest::given_1h_axe_equipped_in_mainhand,
-    ));
-    let sword = crits(&test(
-        Race::Orc,
-        SpellTest::given_1h_sword_equipped_in_mainhand,
-    ));
-    assert_eq!(axe[0].0, sword[0].0);
-    assert_eq!(axe[0].1, sword[0].1 + 100);
-}
-
-#[test]
-fn an_off_hand_axe_also_counts_for_off_hand_abilities() {
-    let mut test = test(Race::Orc, SpellTest::given_dagger_equipped_in_mainhand);
-    test.given_1h_axe_equipped_in_offhand();
-    let [(mh_auto, mh_ability), (oh_auto, oh_ability)] = crits(&test);
-    assert_eq!(mh_ability - mh_auto, 100);
-    assert_eq!(oh_ability - oh_auto, 100);
+fn an_off_hand_weapon_of_the_type_counts_for_both_hands() {
+    fn dagger_and_off_hand_axe(test: &mut SpellTest) {
+        test.given_dagger_equipped_in_mainhand();
+        test.given_1h_axe_equipped_in_offhand();
+    }
+    fn dagger_and_off_hand_mace(test: &mut SpellTest) {
+        test.given_dagger_equipped_in_mainhand();
+        test.given_1h_mace_equipped_in_offhand();
+    }
+    fn dual_daggers(test: &mut SpellTest) {
+        test.given_dagger_equipped_in_mainhand();
+        test.given_dagger_equipped_in_offhand();
+    }
+    for (race, given) in [
+        (Race::Orc, dagger_and_off_hand_axe as fn(&mut SpellTest)),
+        (Race::Dwarf, dagger_and_off_hand_mace),
+    ] {
+        assert_eq!(bonus_over(race, given, dual_daggers), [100; 5], "{race:?}");
+    }
 }
