@@ -10,7 +10,8 @@
 //!
 //! The wiki documents WoW Classic; where the Forever client tables carry rebalanced numbers
 //! (Windfury Totem's attack power, duration and internal cooldown) the tests use the table
-//! values and say so. These tests document the expected behaviour: a failing test here is a
+//! values and say so; the hit suppression above a defense difference of 10 is not in Forever
+//! (confirmed by Magey), so the tests assert its absence. These tests document the expected behaviour: a failing test here is a
 //! deviation of the simulator from the ground truth, not a broken test.
 
 mod attack_table;

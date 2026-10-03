@@ -166,29 +166,27 @@ fn crit_is_reduced_by_1_percent_per_level_above() {
 /// effect 9% rather than 8% for a player with 300 Weapon Skill fighting a level 63 monster with
 /// a Defense Skill of 315. With a Weapon Skill of 305 ... this hit modifier is no longer in
 /// place."
+///
+/// Forever differs: Magey confirmed the hit suppression is no longer in the game, so every
+/// point of hit counts whatever the defense difference and the cap is the miss chance itself.
 #[test]
-fn first_1_percent_of_hit_is_ignored_when_defense_exceeds_skill_by_more_than_10() {
-    // 300 skill: 8 % miss, the first 1 % of hit does nothing.
+fn hit_is_not_suppressed_when_defense_exceeds_skill_by_more_than_10() {
+    // 300 skill: 8 % miss, every point of hit counts.
     assert_eq!(white_miss_percent(63, 300, 0.0, false), 8.0, "no hit");
     assert_eq!(
         white_miss_percent(63, 300, 1.0, false),
-        8.0,
-        "1 % hit is ignored"
+        7.0,
+        "1 % hit counts"
     );
     assert_eq!(
-        white_miss_percent(63, 300, 2.0, false),
-        7.0,
-        "2 % hit removes 1 %"
+        white_miss_percent(63, 300, 7.0, false),
+        1.0,
+        "7 % hit leaves 1 % miss"
     );
     assert_eq!(
         white_miss_percent(63, 300, 8.0, false),
-        1.0,
-        "8 % hit leaves 1 % miss"
-    );
-    assert_eq!(
-        white_miss_percent(63, 300, 9.0, false),
         0.0,
-        "9 % hit is the cap"
+        "8 % hit is the cap"
     );
     // 305 skill: 6 % miss, every point of hit counts.
     assert_eq!(white_miss_percent(63, 305, 0.0, false), 6.0, "305: no hit");
@@ -210,6 +208,7 @@ fn first_1_percent_of_hit_is_ignored_when_defense_exceeds_skill_by_more_than_10(
 /// ```text
 /// defense - skill >= 11: MissChance = 5% + (TargetLevel*5 - AttackerSkill) * 0.2%
 ///                         HitSuppression = (TargetLevel*5 - AttackerSkill - 10) * 0.2%
+///                         (not on Forever)
 /// defense - skill <= 10: MissChance = 5% + (TargetLevel*5 - AttackerSkill) * 0.1%
 /// ```
 /// The "Miss chance" column of the weapon skill table.
@@ -247,16 +246,17 @@ fn miss_chance_follows_the_defense_minus_skill_difference() {
     assert!(failures.is_empty(), "miss chance:\n{}", failures.join("\n"));
 }
 
-/// The "Hit cap" column of the weapon skill table: the +hit that removes the last miss, which
-/// is the miss chance plus the hit suppression above a difference of 10.
+/// The "Hit cap" column of the weapon skill table: the +hit that removes the last miss. The
+/// wiki's column adds the Classic hit suppression above a difference of 10 (9 % at 15); on
+/// Forever there is none, so the cap is the miss chance.
 #[test]
 fn hit_cap_follows_the_defense_minus_skill_difference() {
     let expected_cap = [
-        (15, 9.0),
-        (14, 8.6),
-        (13, 8.2),
-        (12, 7.8),
-        (11, 7.4),
+        (15, 8.0),
+        (14, 7.8),
+        (13, 7.6),
+        (12, 7.4),
+        (11, 7.2),
         (10, 6.0),
         (9, 5.9),
         (8, 5.8),
@@ -335,11 +335,12 @@ fn dual_wield_adds_a_flat_19_percent_miss() {
 }
 
 /// Bimmy's PTR data: dual wielding with 300 skill and +27 % hit vs a +3 level mob missed a flat
-/// 1 % (8 % + 19 % − (27 % − 1 % suppressed)); with +28 % hit nothing missed.
+/// 1 % (8 % + 19 % − (27 % − 1 % suppressed)); with +28 % hit nothing missed. Forever has no
+/// hit suppression, so the cap is 27 %: 26 % leaves the 1 %.
 #[test]
-fn dual_wield_misses_1_percent_with_27_percent_hit_and_nothing_with_28() {
-    assert_eq!(white_miss_percent(63, 300, 27.0, true), 1.0, "+27 % hit");
-    assert_eq!(white_miss_percent(63, 300, 28.0, true), 0.0, "+28 % hit");
+fn dual_wield_misses_1_percent_with_26_percent_hit_and_nothing_with_27() {
+    assert_eq!(white_miss_percent(63, 300, 26.0, true), 1.0, "+26 % hit");
+    assert_eq!(white_miss_percent(63, 300, 27.0, true), 0.0, "+27 % hit");
 }
 
 // ------------------------------------------------------------------ glancing blows
@@ -751,7 +752,8 @@ fn breakdown_target_plus_three_levels_plus_five_weapon_skill() {
 
 /// Dual wield, +3 levels, 300 skill, +27 % hit, from behind (n=48445). The rogue's 26.90 %
 /// spellbook crit is corrected by the 1.8 % aura suppression the wiki concluded (the log's
-/// "crit difference" is ~5.10 %).
+/// "crit difference" is ~5.10 %). Classic suppressed the first 1 % of the hit, Forever does
+/// not: the simulator gets the 26 % that counted.
 #[test]
 fn breakdown_dual_wield_plus_three_levels_27_percent_hit() {
     check_breakdown(&Breakdown {
@@ -759,7 +761,7 @@ fn breakdown_dual_wield_plus_three_levels_27_percent_hit() {
         clvl: 60,
         target_level: 63,
         wpn_skill: 300,
-        hit_percent: 27.0,
+        hit_percent: 26.0,
         dual_wielding: true,
         from_behind: true,
         crit_percent: 26.90 - 1.8,
@@ -773,7 +775,8 @@ fn breakdown_dual_wield_plus_three_levels_27_percent_hit() {
     });
 }
 
-/// Dual wield, +3 levels, 300 skill, +28 % hit, from behind (n=5398).
+/// Dual wield, +3 levels, 300 skill, +28 % hit, from behind (n=5398). As above, the 27 % that
+/// counted on Classic.
 #[test]
 fn breakdown_dual_wield_plus_three_levels_28_percent_hit() {
     check_breakdown(&Breakdown {
@@ -781,7 +784,7 @@ fn breakdown_dual_wield_plus_three_levels_28_percent_hit() {
         clvl: 60,
         target_level: 63,
         wpn_skill: 300,
-        hit_percent: 28.0,
+        hit_percent: 27.0,
         dual_wielding: true,
         from_behind: true,
         crit_percent: 26.90 - 1.8,

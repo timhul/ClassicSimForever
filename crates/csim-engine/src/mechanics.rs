@@ -68,20 +68,6 @@ impl Mechanics {
         }
     }
 
-    /// Hit chance from talents and gear that is ignored against a mob whose defense exceeds
-    /// the weapon skill by more than 10: 0.2 % per point beyond that (the first 1 % with 300
-    /// skill against a level 63 mob, which puts the hit cap at 9 % rather than 8 %). The
-    /// counterpart of [`Self::melee_crit_suppression`] for hit.
-    pub fn hit_suppression(&self, wpn_skill: u32) -> f64 {
-        let diff = self.defense_minus_wpn_skill(wpn_skill);
-
-        if diff > 10 {
-            f64::from(diff - 10) * 0.002
-        } else {
-            0.0
-        }
-    }
-
     /// Chance for a white melee attack to be a glancing blow.
     ///
     /// Non-melee classes do not follow this formula.
@@ -350,23 +336,6 @@ mod tests {
         assert_close(0.05, mechanics.block_chance(300));
         assert_close(0.04, mechanics.block_chance(310));
         assert_close(0.0, mechanics.block_chance(400));
-    }
-
-    #[test]
-    fn hit_suppression_above_a_defense_difference_of_10() {
-        let mechanics = Mechanics::new(63);
-
-        assert_close(0.010, mechanics.hit_suppression(300));
-        assert_close(0.008, mechanics.hit_suppression(301));
-        assert_close(0.006, mechanics.hit_suppression(302));
-        assert_close(0.004, mechanics.hit_suppression(303));
-        assert_close(0.002, mechanics.hit_suppression(304));
-        assert_close(0.0, mechanics.hit_suppression(305));
-        assert_close(0.0, mechanics.hit_suppression(315));
-        assert_close(0.0, mechanics.hit_suppression(320));
-
-        assert_close(0.0, Mechanics::new(60).hit_suppression(300));
-        assert_close(0.002, Mechanics::new(62).hit_suppression(299));
     }
 
     #[test]
