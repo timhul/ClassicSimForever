@@ -17,5 +17,5 @@ equipment:
   RING2: { item: 18821 }                                            # Quick Strike Ring
   TRINKET1: { item: 19406 }                                         # Drake Fang Talisman
   TRINKET2: { item: 21180 }                                         # Earthstrike
-  MAINHAND: { item: 18828, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # High Warlord's Cleaver
+  MAINHAND: { item: 18828, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, DeadlyPoison] }  # High Warlord's Cleaver
   OFFHAND: { item: 18828, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }                  # High Warlord's Cleaver

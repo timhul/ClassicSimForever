@@ -7,5 +7,5 @@ race: NIGHT_ELF
 level: 60
 phase: 3
 equipment:
-  MAINHAND: { item: 12584, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, InstantPoison] }  # Grand Marshal's Longsword
+  MAINHAND: { item: 12584, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone, DeadlyPoison] }  # Grand Marshal's Longsword
   OFFHAND: { item: 23456, enchant: Crusader, temp_enchants: [ElementalSharpeningStone, InstantPoison] }   # Grand Marshal's Swiftblade
