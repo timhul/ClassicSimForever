@@ -218,14 +218,18 @@ impl EffectOutcome {
 }
 
 /// Royalgiraffe's classification of a spell on the magic table: non-binary when it only deals
-/// damage (direct or periodic; dummies and empty effects aside), binary when it does anything
-/// else too (a slow, a debuff, a drain), which makes it land fully or not at all.
+/// damage (direct or periodic, a health leech included; dummies and empty effects aside),
+/// binary when it does anything else too (a slow, a debuff), which makes it land fully or not
+/// at all.
 pub fn spell_resist_kind(spell: &SpellRecord) -> SpellResistKind {
     let only_damage = spell.effects.iter().all(|effect| match effect.effect {
-        SpellEffectName::SchoolDamage | SpellEffectName::Dummy | SpellEffectName::None => true,
+        SpellEffectName::SchoolDamage
+        | SpellEffectName::HealthLeech
+        | SpellEffectName::Dummy
+        | SpellEffectName::None => true,
         _ if effect.is_apply_aura() => matches!(
             effect.aura,
-            AuraType::PeriodicDamage | AuraType::Dummy | AuraType::None
+            AuraType::PeriodicDamage | AuraType::PeriodicLeech | AuraType::Dummy | AuraType::None
         ),
         _ => false,
     });
@@ -1779,10 +1783,10 @@ mod tests {
         assert!(outcome.success);
         assert_eq!(outcome.spell_roll, Some(SpellRoll::HIT));
         assert_eq!(drain.damage_dealt, 200.0, "5 % of 4000");
-        // A drain is a binary spell: it lands fully or not at all.
+        // A drain only deals damage: a non-binary spell, partially resisted.
         assert_eq!(
             host.spell_rolled_with,
-            [(MagicSchool::Shadow, SpellResistKind::Binary, true)]
+            [(MagicSchool::Shadow, SpellResistKind::NonBinary, true)]
         );
     }
 
@@ -1812,8 +1816,8 @@ mod tests {
         assert_eq!(copy.damage_dealt, 50.0);
     }
 
-    /// Royalgiraffe: a spell that only deals damage is non-binary; any other effect makes it
-    /// binary.
+    /// Royalgiraffe: a spell that only deals damage (a health leech too) is non-binary; any
+    /// other effect makes it binary.
     #[test]
     fn spell_resist_kinds() {
         let mut spell = magic_spell(SpellSchoolMask::FIRE, DefenseType::Magic);
@@ -1834,7 +1838,11 @@ mod tests {
         spell.effects = vec![damage, debuff];
         assert_eq!(spell_resist_kind(&spell), SpellResistKind::Binary);
         spell.effects = vec![effect_record(0, SpellEffectName::HealthLeech, 5.0)];
-        assert_eq!(spell_resist_kind(&spell), SpellResistKind::Binary);
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::NonBinary);
+        let mut leech = effect_record(0, SpellEffectName::ApplyAura, 10.0);
+        leech.aura = AuraType::PeriodicLeech;
+        spell.effects = vec![leech];
+        assert_eq!(spell_resist_kind(&spell), SpellResistKind::NonBinary);
     }
 
     /// A damage-over-time of a spell on the magic table rolls its hit (it cannot crit); a

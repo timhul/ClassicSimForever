@@ -1,8 +1,9 @@
 //! Touch of the Grave, the Undead racial: melee swings and abilities have a 5 % chance (1 s
 //! internal cooldown) to drain 5 % of the warrior's maximum health from the target as shadow
-//! damage (1260198, `HEALTH_LEECH`). The drain rolls the magic table: a binary spell (it also
-//! heals), it misses a boss 17 % of the time less the spell hit, is fully resisted by the
-//! target's shadow resistance, and crits with the spell crit chance.
+//! damage (1260198, `HEALTH_LEECH`). The drain rolls the magic table: a non-binary spell (its
+//! one effect is damage, like Shadow Bolt's), it misses a boss 17 % of the time less the spell
+//! hit, is partially resisted by the target's shadow resistance, and crits with the spell crit
+//! chance.
 
 use crate::combat_roll::{MagicAttackResult, MagicResistResult, SpellRoll};
 use crate::magic_school::MagicSchool;
@@ -109,15 +110,22 @@ fn drains_roll_the_magic_table() {
     let expected = 0.83 * f64::from(crit_chance) / 10_000.0;
     assert!((crits - expected).abs() < 0.01, "crits {crits}");
 
-    // 150 shadow resistance of the 300 cap: 83 % × (1 − 37.5 %) lands, never partially.
+    // 150 shadow resistance and the boss's 24 level-based resistance (a non-binary spell's),
+    // 58 % of the 300 cap: the hits are partially resisted, 43.5 % of their damage on average.
     test.target_mut().set_resistance(MagicSchool::Shadow, 150);
-    let resisted = share(&mut test, &|roll| roll == SpellRoll::FULL_RESIST);
-    assert!(
-        (resisted - 0.83 * 0.375).abs() < 0.01,
-        "resisted {resisted}"
-    );
     let partial = share(&mut test, &|roll| {
         roll.landed() && roll.resist != MagicResistResult::NoResist
     });
-    assert_eq!(partial, 0.0, "a binary spell is never partially resisted");
+    assert!(partial > 0.4, "partially resisted {partial}");
+    let n = 20_000;
+    let hits: Vec<SpellRoll> = (0..n)
+        .map(|_| drain(&mut test).spell.expect("on the magic table").roll)
+        .filter(|roll| roll.result != MagicAttackResult::Miss)
+        .collect();
+    let resisted = hits
+        .iter()
+        .map(|roll| 1.0 - roll.resist.damage_modifier())
+        .sum::<f64>()
+        / hits.len() as f64;
+    assert!((resisted - 0.435).abs() < 0.01, "resisted {resisted}");
 }
