@@ -32,6 +32,8 @@ building works and source code passes linting.
 
 Commit each defined task once complete.
 
+**NEVER PUSH ANYTHING TO THE REMOTE REPOSITORY.**
+
 # Running the sim
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --iterations 10000`
