@@ -7,6 +7,7 @@ description: >-
 precombat_actions:
   - Bloodrage
   - Battle Shout
+  - Charge
   - Berserker Stance
 cast_if:
   - name: Bloodrage
