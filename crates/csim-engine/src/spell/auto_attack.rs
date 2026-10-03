@@ -554,7 +554,10 @@ mod tests {
         fn cast_in_progress(&self) -> bool {
             false
         }
-        fn start_cast(&mut self) -> u32 {
+        fn running_to_target(&self) -> bool {
+            false
+        }
+        fn start_cast(&mut self, _: bool) -> u32 {
             1
         }
         fn complete_cast(&mut self, _: u32) {}

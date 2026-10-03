@@ -65,6 +65,9 @@ pub struct SimParams {
     pub ruleset: Ruleset,
     /// How landed white swings generate rage.
     pub rage_formula: RageFormula,
+    /// Rage at the start of every iteration, before the precombat actions (capped at the
+    /// maximum); ignored by characters without rage.
+    pub initial_rage: u32,
 }
 
 impl Default for SimParams {
@@ -74,6 +77,7 @@ impl Default for SimParams {
             execute_threshold: 0.2,
             ruleset: Ruleset::Standard,
             rage_formula: RageFormula::Forever,
+            initial_rage: 0,
         }
     }
 }
@@ -712,9 +716,10 @@ impl Character {
     }
 
     /// Whether an action can be started at `now`: off the global cooldown (within a rounding
-    /// tolerance) and not casting. Port of `Character::action_ready`.
+    /// tolerance) and not casting (running to the target does not count: what can be cast on
+    /// the way may start the global cooldown). Port of `Character::action_ready`.
     pub fn action_ready(&self, now: f64) -> bool {
-        self.next_gcd - now < GCD_EPSILON && !self.spells.cast_in_progress()
+        self.next_gcd - now < GCD_EPSILON && !self.spells.blocking_cast_in_progress()
     }
 
     pub fn on_global_cooldown(&self, now: f64) -> bool {
@@ -770,9 +775,15 @@ impl Character {
 
     /// Records the stance without touching spells; `CharacterContext::swap_stance` does the
     /// rest. Port of the state part of `Character::swap_stance` + `Warrior::new_stance_effect`.
+    ///
+    /// Leaving caster form keeps the rage: it is the reset's stand-in for the stance the warrior
+    /// is already in before the fight (with its initial rage), not a stance change.
     pub(crate) fn set_stance(&mut self, stance: Stance) {
+        let leaving_caster = self.stance == Stance::Caster;
         self.stance = stance;
-        if let Some(rage) = self.resource.as_rage_mut() {
+        if let Some(rage) = self.resource.as_rage_mut()
+            && !leaving_caster
+        {
             rage.retain_at_most(self.stance_rage_retained);
         }
     }
@@ -1370,6 +1381,14 @@ impl Character {
         self.last_regen_reaction = f64::NEG_INFINITY;
         self.spells.reset_state();
         self.resource.reset();
+    }
+
+    /// Gives a character with rage the [`SimParams::initial_rage`] it starts the iteration with
+    /// (capped at the maximum), before its precombat actions.
+    pub(crate) fn gain_initial_rage(&mut self) {
+        if let Some(rage) = self.resource.as_rage_mut() {
+            rage.gain(self.sim.initial_rage);
+        }
     }
 
     /// The state part of `Character::prepare_set_of_combat_iterations`.

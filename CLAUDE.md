@@ -52,8 +52,8 @@ that seed:
 The same iteration, watched live in a browser (`csim-live` serves a page on
 http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
 is used as a library, as by the CLI; a Rotation pane lists each cast with the `cast_if` entry
-that returned true; a Breakdown pane below the stage shows the damage so far per spell, the buff uptimes and the procs (count, proc rate,
-PPM), as `csim run` breaks them down). It takes the setup, `--seed`, `--length`,
+that returned true; a Breakdown pane below the stage shows the damage so far per spell, the buff uptimes, the procs (count, proc rate,
+PPM) and the resource gained per source, as `csim run` breaks them down). It takes the setup, `--seed`, `--length`,
 `--length-variance` and `--port`, one character only (no `--raid`):
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --seed 1`
@@ -80,6 +80,11 @@ Named settings switch to alternatives that are not the default behavior: `--sett
 comma-separated `name:value` pairs and may be repeated.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=rage_formula:marrow_sigmoid,sigmoid_floor:0,sigmoid_ceiling:46,sigmoid_midpoint:58,sigmoid_width:3.8`
+
+`initial_rage:N` starts every iteration with N rage (before the precombat actions; ignored by a
+character without rage):
+
+`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=initial_rage:50`
 
 A Rogue is run the same way, with a rogue setup (`rogue_combat_swords_human`, `rogue_combat_axes_orc`,
 `rogue_combat_daggers_night_elf`, `rogue_mutilate_undead`, `rogue_mutilate_ea_gnome`, `rogue_hemorrhage_troll`; their

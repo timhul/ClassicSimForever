@@ -1232,8 +1232,11 @@ impl SpellHost for World {
     fn cast_in_progress(&self) -> bool {
         self.casting || self.spells.cast_in_progress()
     }
-    fn start_cast(&mut self) -> u32 {
-        self.spells.start_cast()
+    fn running_to_target(&self) -> bool {
+        self.spells.running_to_target()
+    }
+    fn start_cast(&mut self, running_to_target: bool) -> u32 {
+        self.spells.start_cast(running_to_target)
     }
     fn complete_cast(&mut self, cast_id: u32) {
         self.spells.complete_cast(cast_id);

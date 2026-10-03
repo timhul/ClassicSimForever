@@ -2392,11 +2392,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Casts the rotation's precombat spells, then starts its precast so that it lands at T=0:
+    /// Gives the initial rage (the `initial_rage` setting), casts the rotation's precombat
+    /// spells, then starts its precast so that it lands at T=0:
     /// now, or by a `Precast` event when its cast time is shorter than the time left before
     /// the pull (none for a character played by input). Expected to run at T < 0, but not
     /// strictly enforced.
     pub fn run_precombat_actions(&mut self) {
+        self.character.gain_initial_rage();
         if self.character.manual_input() {
             return;
         }
@@ -2555,7 +2557,7 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
     }
 
     fn is_casting(&self) -> bool {
-        self.character.spells.cast_in_progress()
+        self.character.spells.blocking_cast_in_progress()
     }
 
     fn gcd_length(&self) -> f64 {
@@ -2836,8 +2838,12 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.spells().cast_in_progress()
     }
 
-    fn start_cast(&mut self) -> u32 {
-        self.character.spells_mut().start_cast()
+    fn running_to_target(&self) -> bool {
+        self.character.spells().running_to_target()
+    }
+
+    fn start_cast(&mut self, running_to_target: bool) -> u32 {
+        self.character.spells_mut().start_cast(running_to_target)
     }
 
     fn complete_cast(&mut self, cast_id: u32) {

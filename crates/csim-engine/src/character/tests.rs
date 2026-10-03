@@ -941,6 +941,40 @@ fn reset_clears_the_iteration_state_and_keeps_passives() {
     assert!((f.character.stats().get_total_threat_mod() - 0.8).abs() < 1e-9);
 }
 
+/// The `initial_rage` setting is the rage every iteration starts with, before the precombat
+/// actions, capped at the maximum. Entering the first stance from the reset's caster form
+/// keeps it; a later stance change keeps only the Tactical Mastery remainder.
+#[test]
+fn the_iteration_starts_with_the_initial_rage() {
+    let mut f = Fixture::orc_warrior();
+    f.learn(BATTLE_STANCE);
+    f.learn(BERSERKER_STANCE);
+    f.ctx().reset();
+    f.ctx().run_precombat_actions();
+    assert_eq!(f.rage(), 0);
+
+    for (initial, expected) in [(50, 50), (150, 100)] {
+        f.character.set_sim(SimParams {
+            initial_rage: initial,
+            ..SimParams::default()
+        });
+        f.ctx().reset();
+        assert_eq!(f.rage(), 0);
+        f.ctx().run_precombat_actions();
+        assert_eq!(f.rage(), expected, "initial_rage:{initial}");
+    }
+
+    let battle = f.spell_id(BATTLE_STANCE);
+    f.ctx().cast(battle);
+    assert_eq!(f.character.stance(), Stance::Battle);
+    assert_eq!(f.rage(), 100, "out of caster form");
+    f.engine.prepare_iteration(2.0);
+    let berserker = f.spell_id(BERSERKER_STANCE);
+    f.ctx().cast(berserker);
+    assert_eq!(f.character.stance(), Stance::Berserker);
+    assert!(f.rage() < 100, "a stance change keeps the remainder only");
+}
+
 #[test]
 fn encounter_start_begins_attacking() {
     let mut f = Fixture::orc_warrior();
@@ -2557,6 +2591,37 @@ cast_if:
             stats.values().all(|s| s.attempts() == 0),
             "no rotation before the pull: {stats:?}"
         );
+    }
+
+    #[test]
+    fn non_offensive_spells_are_cast_while_charging() {
+        const CHARGE: u32 = 11578;
+        const BATTLE_SHOUT: u32 = 25289;
+        let mut f = shipped_orc_warrior();
+        f.engine.prepare_iteration(-2.0);
+        f.ctx().swap_stance(Stance::Battle);
+        f.run(-1.5);
+        let charge = f.spell_id(CHARGE);
+        assert!(
+            f.ctx().cast(charge).cast_started,
+            "Charge runs to the target"
+        );
+        assert!(f.character.spells().running_to_target());
+        // What hits the enemy waits for the run; the rest is cast on the way.
+        f.set_rage(100);
+        assert_eq!(f.status(HEROIC_STRIKE), SpellStatus::CastInProgress);
+        assert_eq!(f.status(BLOODRAGE), SpellStatus::Available);
+        assert_eq!(f.status(BATTLE_SHOUT), SpellStatus::Available);
+        assert_eq!(f.status(BERSERKER_STANCE), SpellStatus::Available);
+        let shout = f.spell_id(BATTLE_SHOUT);
+        f.ctx().cast(shout);
+        assert!(f.ctx().aura_active(BATTLE_SHOUT));
+        let berserker = f.spell_id(BERSERKER_STANCE);
+        f.ctx().cast(berserker);
+        assert_eq!(f.character.stance(), Stance::Berserker);
+        f.run(-0.4);
+        assert!(!f.character.spells().cast_in_progress(), "Charge landed");
+        assert!(!f.character.spells().running_to_target());
     }
 
     /// A rotation whose casts do not depend on talents: Whirlwind whenever it is up, Heroic

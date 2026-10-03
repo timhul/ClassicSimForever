@@ -175,6 +175,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
 - **`threat`** — innate threat (`flat`) and a multiplier; the client has no threat table.
 - **`sim_flags`** — how the simulator treats the spell: `IGNORED` (loads, never cast),
   `RESETS_SWING_TIMERS` / `STOPS_ATTACK_DURING_CAST` / `CANCELS_NEXT_SWING_QUEUE` (Slam),
+  `RUN_TO_TARGET` (Charge: its cast time is the run, during which only offensive and cast-time
+  spells wait),
   `START_OF_COMBAT` (Anger Management), `CANNOT_CRIT`, `ENRAGE` (Enrage: the `ENRAGED` aura state).
 - **`stance_passive`** — the hidden passive carrying a stance's numbers
   (`SpellShapeshiftForm.PresetSpellID` is empty in the dump).

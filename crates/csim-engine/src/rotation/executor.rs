@@ -209,7 +209,8 @@ pub trait RotationHost: ConditionContext<BuffId, SpellId> {
     fn spell_status(&self, spell: SpellId) -> SpellStatus;
     /// Casts the spell (statuses were checked by the caller).
     fn cast_spell(&mut self, spell: SpellId);
-    /// Whether a cast with casting time is in progress.
+    /// Whether a cast with casting time is in progress, but for a run to the target (Charge),
+    /// during which the spell statuses say what can be cast.
     fn is_casting(&self) -> bool;
     /// The character's global cooldown length in seconds.
     fn gcd_length(&self) -> f64;

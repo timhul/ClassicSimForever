@@ -252,11 +252,15 @@ overrides:
   - id: 11578
     note: >-
       Charge r3: the run to the target, which cannot be charged from melee range, as a 1 s cast
-      (a rotation's precast, so it lands at the pull)
+      (a rotation's precast, so it lands at the pull); not a cast, so what does not hit the
+      enemy (a stance, a shout, Bloodrage) can be cast on the way
     cast_time_ms: 1000
+    sim_flags: [RUN_TO_TARGET]
   - id: 6178
     note: Charge r2, see r3
     cast_time_ms: 1000
+    sim_flags: [RUN_TO_TARGET]
   - id: 100
     note: Charge r1, see r3
     cast_time_ms: 1000
+    sim_flags: [RUN_TO_TARGET]

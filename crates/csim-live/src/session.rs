@@ -20,6 +20,7 @@
 use std::sync::Arc;
 
 use csim_engine::buff::Buff;
+use csim_engine::character::context::REGENERATION;
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::character_spells::CharacterSpells;
 use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
@@ -30,13 +31,15 @@ use csim_engine::ids::{CharId, SpellId};
 use csim_engine::item::EquipmentSlot;
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
+use csim_engine::resource::ResourceType;
 use csim_engine::rotation::{DecidedBy, RotationHost};
 use csim_engine::sim_control::IterationStepper;
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::spell::{Hand, SpellStatus};
 use csim_engine::stance::Stance;
 use csim_engine::statistics::report::{
-    BuffRow, ProcRow, SpellRow, buff_rows_so_far, proc_rows_so_far, spell_rows,
+    BuffRow, ProcRow, ResourceRow, ResourceTotal, SpellRow, buff_rows_so_far, proc_rows_so_far,
+    resource_rows_so_far, resource_totals, spell_rows,
 };
 use serde::Serialize;
 
@@ -155,6 +158,11 @@ pub struct Frame {
     /// The procs tried so far, with their rate and procs per minute, as `csim run` reports them
     /// (empty before the pull).
     pub procs: Vec<ProcCount>,
+    /// The resource gained so far per source, as `csim run` reports it (empty before the
+    /// pull).
+    pub resources: Vec<ResourceGain>,
+    /// The sums over `resources`, one per resource, with the regeneration lost at the cap.
+    pub resource_totals: Vec<ResourceTotal>,
     /// From the keyboard: the player pulled since the previous frame, which moved every time
     /// by this many seconds (the pull, before the encounter, is the new 0). The iteration was
     /// rebuilt: the frame holds everything since its start again.
@@ -234,6 +242,15 @@ pub struct ProcCount {
     #[serde(flatten)]
     pub row: ProcRow,
     /// The icon of the proc's spell, or of a spell it casts.
+    pub icon: Option<u32>,
+}
+
+/// A source's resource gain so far, with its icon.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ResourceGain {
+    #[serde(flatten)]
+    pub row: ResourceRow,
+    /// The icon of the spell or proc gaining it, or of the weapon for a swing.
     pub icon: Option<u32>,
 }
 
@@ -715,6 +732,7 @@ impl Session {
         } else {
             0.0
         };
+        let (resources, resource_totals) = self.resources_so_far();
         Frame {
             time: self.time,
             done: self.done(),
@@ -728,6 +746,8 @@ impl Session {
             breakdown: self.breakdown(),
             buff_uptimes: self.buff_uptimes(),
             procs: self.proc_counts_so_far(),
+            resources,
+            resource_totals,
             rebased_by: self.rebased_by.take(),
         }
     }
@@ -768,6 +788,71 @@ impl Session {
                 ProcCount { row, icon }
             })
             .collect()
+    }
+
+    /// The character's resource gains over the combat so far, with their totals. The energy
+    /// regenerated since the pull is read from the energy: the statistics learn it at the end.
+    fn resources_so_far(&self) -> (Vec<ResourceGain>, Vec<ResourceTotal>) {
+        if self.time <= 0.0 {
+            return (Vec::new(), Vec::new());
+        }
+        let character = self.raid.character(PLAYER);
+        let shown_at = self.time.max(self.raid.engine().current_time());
+        let (regenerated, lost) = character
+            .resource()
+            .as_energy()
+            .map_or((0, 0), |energy| energy.regen_counters(shown_at));
+        let statistics = character.statistics();
+        let regeneration = (
+            REGENERATION.to_string(),
+            ResourceType::Energy,
+            regenerated as f64,
+        );
+        let rows = resource_rows_so_far(statistics, [regeneration], self.time);
+        let lost_at_cap = |kind| {
+            let lost = if kind == ResourceType::Energy {
+                lost as f64
+            } else {
+                0.0
+            };
+            statistics.lost_at_cap(kind) + lost
+        };
+        let totals = resource_totals(&rows, lost_at_cap, 1, self.time);
+        let rows = rows
+            .into_iter()
+            .map(|row| {
+                let icon = self.source_icon(&row.source);
+                ResourceGain { row, icon }
+            })
+            .collect();
+        (rows, totals)
+    }
+
+    /// The icon of a resource source (`" (rank N)"` appended above rank 1): a swing's weapon,
+    /// a spell's or a proc's.
+    fn source_icon(&self, source: &str) -> Option<u32> {
+        let name = source
+            .rsplit_once(" (rank ")
+            .map_or(source, |(name, _)| name);
+        let spells = self.raid.character(PLAYER).spells();
+        if name == spells.mh_attack().name() {
+            return self.weapon_icon(Hand::Mainhand);
+        }
+        if name == spells.oh_attack().name() {
+            return self.weapon_icon(Hand::Offhand);
+        }
+        let spell = spells
+            .spell_ids()
+            .map(|id| spells.spell(id))
+            .filter(|spell| spell.name() == name)
+            .map(|spell| spell.game_id());
+        let procs = spells
+            .procs()
+            .procs()
+            .iter()
+            .filter(|proc| proc.name() == name)
+            .flat_map(|proc| std::iter::once(proc.game_id()).chain(proc.payload_spells()));
+        spell.chain(procs).find_map(|id| self.spell_icon(id))
     }
 
     /// Every buff of the character: its own and the ones it shares.
