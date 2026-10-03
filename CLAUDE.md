@@ -86,6 +86,22 @@ a re-export, when needed:
 
 `python tools/fetch_icons.py`
 
+The same page also runs without a server, at https://timhul.github.io/ClassicSimForever/live/:
+the `csim-web` crate compiles the server side (and the data it needs) to WebAssembly, and the
+page calls it in place of HTTP. `.github/workflows/pages.yml` builds and deploys it on each push
+to `main`. The site has no `data/icons/` fallback. Build it locally into `site/` (gitignored;
+needs the `wasm32-unknown-unknown` target and the `wasm-bindgen-cli` version that Cargo.toml
+pins, `wasm-opt` optional):
+
+`python tools/build_web.py`
+
+`python -m http.server -d site 8000`
+
+then open http://localhost:8000/ (it redirects to `/live/`). That the wasm build still compiles
+(what the workflow checks on pull requests):
+
+`cargo check -p csim-web --target wasm32-unknown-unknown`
+
 Named settings switch to alternatives that are not the default behavior: `--setting` takes
 comma-separated `name:value` pairs and may be repeated.
 
@@ -147,6 +163,10 @@ https://ppach-warriorcompendium.share.connect.posit.cloud/
 Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
 
 # Known issues
+
+- The browser viewer hotlinks its icons from Wowhead's CDN, which is not ours to guarantee: if it
+breaks, the site shows empty icon slots. Forever-only textures have no name in the listfile, so
+they show no icon on the site either.
 
 - Raid DPS can be lower than solo DPS. This is because external debuffs are not applied in a raid
 context since they depend instead on the available raid members, meaning some debuffs are not
