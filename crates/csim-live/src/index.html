@@ -69,7 +69,16 @@
   #setup-select { max-width: 100%; }
   #seed-input { width: 13ch; }
   #length-input, #variance-input { width: 7ch; }
-  #settings-input { width: 26ch; max-width: 100%; }
+  #settings summary { cursor: pointer; color: var(--muted); }
+  #settings[open] { flex-basis: 100%; order: 1; }
+  #settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 6px 16px;
+    margin-top: 8px;
+  }
+  #settings-grid label { justify-content: space-between; }
+  #settings-grid input { width: 10ch; }
   #custom { flex-basis: 100%; }
   #custom summary { cursor: pointer; color: var(--muted); width: max-content; }
   #custom .custom-grid {
@@ -601,7 +610,10 @@
   <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
   <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
   <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
-  <input id="settings-input" placeholder="settings: name:value,&hellip;" aria-label="Named settings">
+  <details id="settings">
+    <summary>Settings</summary>
+    <div id="settings-grid"></div>
+  </details>
   <button id="load" type="submit">Load</button>
   <details id="custom">
     <summary>Paste or upload YAML</summary>
@@ -934,8 +946,100 @@ function fillForm() {
   fillModes();
   $("length-input").placeholder = catalog.length;
   $("variance-input").placeholder = catalog.length_variance;
-  $("settings-input").title = "Named settings, name:value pairs separated by commas:\n" +
-    catalog.settings.map((setting) => `${setting.name}: ${setting.help}`).join("\n");
+  fillSettings();
+}
+
+// ----- Named settings ----------------------------------------------------------------------
+
+/** Each named setting's control (a select for a choice, a number field), by name. */
+const settingControls = new Map();
+
+/**
+ * One control per named setting of the catalog, labelled and titled with its help. A choice
+ * loads when changed, as the setup does; a number waits for Load (or Enter).
+ */
+function fillSettings() {
+  settingControls.clear();
+  $("settings-grid").replaceChildren(...catalog.settings.map((setting) => {
+    const label = element("label", "", setting.name.replace(/_/g, " "));
+    label.title = setting.help;
+    let control;
+    if (setting.kind.type === "choice") {
+      control = element("select");
+      control.append(...setting.kind.options.map((option) => element("option", "", option)));
+      control.value = setting.kind.default;
+      control.addEventListener("change", () => {
+        showRequiredSettings();
+        load(formRequest());
+      });
+    } else {
+      control = element("input");
+      control.type = "number";
+      control.step = setting.kind.whole ? "1" : "any";
+      if (setting.kind.whole) {
+        control.min = "0";
+      }
+      control.placeholder = setting.kind.default;
+    }
+    control.setAttribute("aria-label", setting.name);
+    settingControls.set(setting.name, { setting, control, label });
+    label.append(control);
+    return label;
+  }));
+  showRequiredSettings();
+}
+
+/** Whether `setting`'s requirement (another setting's value) holds in the controls. */
+function settingApplies(setting) {
+  const requires = setting.requires;
+  return !requires || settingControls.get(requires.name)?.control.value === requires.value;
+}
+
+/** Shows only the settings whose requirement holds (the sigmoid knobs with the sigmoid). */
+function showRequiredSettings() {
+  for (const { setting, label } of settingControls.values()) {
+    label.hidden = !settingApplies(setting);
+  }
+}
+
+/**
+ * The controls as `name:value,…` (what `--setting` takes): the ones that apply and are not their
+ * default; null when there are none. The summary lists them.
+ */
+function settingsText() {
+  const pairs = [];
+  for (const { setting, control } of settingControls.values()) {
+    const value = control.value.trim();
+    const isDefault = value === "" || (setting.kind.type === "number"
+      ? Number(value) === setting.kind.default
+      : value === setting.kind.default);
+    if (!isDefault && settingApplies(setting)) {
+      pairs.push(`${setting.name}:${value}`);
+    }
+  }
+  $("settings").querySelector("summary").textContent = pairs.length
+    ? `Settings: ${pairs.map((pair) => pair.replace(":", " ")).join(", ")}`
+    : "Settings";
+  return pairs.length ? pairs.join(",") : null;
+}
+
+/** Sets the controls to the settings `text` (`name:value,…`), the others to their default. */
+function setSettings(text) {
+  const values = new Map((text || "").split(",").filter(Boolean).map((pair) => {
+    const at = pair.indexOf(":");
+    return [pair.slice(0, at).trim(), pair.slice(at + 1).trim()];
+  }));
+  for (const [name, { setting, control }] of settingControls) {
+    const value = values.get(name);
+    if (setting.kind.type === "choice") {
+      control.value = value ?? setting.kind.default;
+    } else {
+      // A default shows as the empty field's placeholder.
+      control.value = value !== undefined && Number(value) !== setting.kind.default ? value : "";
+    }
+  }
+  showRequiredSettings();
+  settingsText();
 }
 
 /** The "played by" choices: the selected setup's rotation, or one of the keybind files. */
@@ -983,7 +1087,7 @@ function syncForm() {
   $("seed-input").value = info.seed;
   $("length-input").value = info.combat_length;
   $("variance-input").value = info.length_variance;
-  $("settings-input").value = info.settings || "";
+  setSettings(info.settings);
 }
 
 /** The `api/load` request of the setup bar: pasted text wins over the selection. */
@@ -1011,7 +1115,7 @@ function formRequest() {
       request[key] = Number(value);
     }
   }
-  const settings = $("settings-input").value.trim();
+  const settings = settingsText();
   if (settings) {
     request.settings = settings;
   }
@@ -1068,7 +1172,7 @@ function formFromQuery() {
   $("seed-input").value = query.get("seed") || "";
   $("length-input").value = query.get("length") || "";
   $("variance-input").value = query.get("variance") || "";
-  $("settings-input").value = query.get("setting") || "";
+  setSettings(query.get("setting"));
   return true;
 }
 

@@ -8,40 +8,100 @@
 
 use std::collections::BTreeMap;
 
+use serde::Serialize;
+
 use crate::rage_formula::{RageFormula, SigmoidParams, SigmoidParamsError};
 use crate::sim_settings::SimSettings;
 
-/// A known setting: its name and what it takes.
+/// A known setting: its name, what it takes and what it depends on.
 pub struct NamedSetting {
     pub name: &'static str,
     pub help: &'static str,
+    pub kind: SettingKind,
+    /// The setting it is given only with (the sigmoid knobs need the sigmoid formula).
+    pub requires: Option<SettingRequirement>,
 }
+
+/// What a setting's value is, with its default (what the setting is when not given).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SettingKind {
+    /// One of `options`.
+    Choice {
+        options: &'static [&'static str],
+        default: &'static str,
+    },
+    /// A number; `whole` when it has no fraction and is not negative.
+    Number { default: f64, whole: bool },
+}
+
+/// Another setting's value, which a setting depends on.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+pub struct SettingRequirement {
+    pub name: &'static str,
+    pub value: &'static str,
+}
+
+const SIGMOID: Option<SettingRequirement> = Some(SettingRequirement {
+    name: "rage_formula",
+    value: "marrow_sigmoid",
+});
 
 /// Every setting [`SimSettings::apply_settings`] knows.
 pub const NAMED_SETTINGS: [NamedSetting; 6] = [
     NamedSetting {
         name: "rage_formula",
         help: "white swing rage: forever (default) or marrow_sigmoid",
+        kind: SettingKind::Choice {
+            options: &["forever", "marrow_sigmoid"],
+            default: "forever",
+        },
+        requires: None,
     },
     NamedSetting {
         name: "sigmoid_floor",
         help: "marrow_sigmoid: extra rage per minute with a bad weapon (default 0)",
+        kind: SettingKind::Number {
+            default: 0.0,
+            whole: false,
+        },
+        requires: SIGMOID,
     },
     NamedSetting {
         name: "sigmoid_ceiling",
         help: "marrow_sigmoid: extra rage per minute where the curve levels off (default 46)",
+        kind: SettingKind::Number {
+            default: 46.0,
+            whole: false,
+        },
+        requires: SIGMOID,
     },
     NamedSetting {
         name: "sigmoid_midpoint",
         help: "marrow_sigmoid: main-hand weapon DPS where the curve climbs fastest (default 58)",
+        kind: SettingKind::Number {
+            default: 58.0,
+            whole: false,
+        },
+        requires: SIGMOID,
     },
     NamedSetting {
         name: "sigmoid_width",
         help: "marrow_sigmoid: how spread out the climb is, in weapon DPS (default 3.8)",
+        kind: SettingKind::Number {
+            default: 3.8,
+            whole: false,
+        },
+        requires: SIGMOID,
     },
     NamedSetting {
         name: "initial_rage",
         help: "rage at the start of every iteration, capped at the maximum (default 0)",
+        kind: SettingKind::Number {
+            default: 0.0,
+            whole: true,
+        },
+        requires: None,
     },
 ];
 
@@ -236,6 +296,50 @@ impl SimSettings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The kinds' defaults are the defaults the sim runs with, and the help says the same.
+    #[test]
+    fn the_settings_defaults_are_the_sims() {
+        let params = SigmoidParams::default();
+        let defaults = SimSettings::default();
+        for setting in &NAMED_SETTINGS {
+            let (default, text) = match setting.kind {
+                SettingKind::Choice { options, default } => {
+                    assert!(options.contains(&default), "{}", setting.name);
+                    (None, default.to_string())
+                }
+                SettingKind::Number { default, .. } => (Some(default), default.to_string()),
+            };
+            assert!(
+                setting.help.contains(&format!("{text} (default)"))
+                    || setting.help.contains(&format!("(default {text})")),
+                "{}: {}",
+                setting.name,
+                setting.help
+            );
+            let expected = match setting.name {
+                "sigmoid_floor" => Some(params.floor),
+                "sigmoid_ceiling" => Some(params.ceiling),
+                "sigmoid_midpoint" => Some(params.midpoint),
+                "sigmoid_width" => Some(params.width),
+                "initial_rage" => Some(f64::from(defaults.initial_rage)),
+                _ => None,
+            };
+            assert_eq!(default, expected, "{}", setting.name);
+            if let Some(requires) = setting.requires {
+                assert!(
+                    NAMED_SETTINGS
+                        .iter()
+                        .any(|other| other.name == requires.name
+                            && matches!(other.kind, SettingKind::Choice { options, .. }
+                            if options.contains(&requires.value))),
+                    "{}",
+                    setting.name
+                );
+            }
+        }
+        assert_eq!(defaults.rage_formula, RageFormula::Forever);
+    }
 
     fn pairs(text: &str) -> Vec<(String, String)> {
         parse_setting_pairs(text).unwrap()

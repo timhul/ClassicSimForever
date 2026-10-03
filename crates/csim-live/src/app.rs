@@ -10,7 +10,9 @@ use std::sync::Arc;
 use csim_engine::character_loader::CharacterSetup;
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::files::{Files, MemFiles, Overlay, yaml_files};
-use csim_engine::named_settings::{NAMED_SETTINGS, parse_setting_pairs};
+use csim_engine::named_settings::{
+    NAMED_SETTINGS, SettingKind, SettingRequirement, parse_setting_pairs,
+};
 use csim_engine::sim_settings::SimSettings;
 use serde::{Deserialize, Serialize};
 
@@ -87,6 +89,9 @@ pub struct SetupEntry {
 pub struct SettingEntry {
     pub name: &'static str,
     pub help: &'static str,
+    /// What it takes, for the page's control (a select, a number field).
+    pub kind: SettingKind,
+    pub requires: Option<SettingRequirement>,
 }
 
 /// An `api/load` request.
@@ -202,6 +207,8 @@ impl App {
                 .map(|setting| SettingEntry {
                     name: setting.name,
                     help: setting.help,
+                    kind: setting.kind,
+                    requires: setting.requires,
                 })
                 .collect(),
             length: defaults.combat_length,

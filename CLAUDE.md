@@ -61,7 +61,9 @@ The flags only load the first iteration. A setup bar on the page loads another: 
 (`data/characters/`), played by its rotation or with bundled keybinds (`data/keybinds/`), with a
 seed, length, variance and named settings. Choosing a setup or how it is played loads it right
 away, with the bar's seed; keybinds that do not fit the new setup fall back to its rotation. The
-text fields and pasted YAML wait for Load. A setup or keybinds can also be pasted or uploaded as
+named settings get a control each, by their kind in `named_settings.rs` (a choice a dropdown,
+which loads right away; a number a number field; a setting that requires another's value shows
+only with it). The text fields and pasted YAML wait for Load. A setup or keybinds can also be pasted or uploaded as
 YAML; a pasted setup's `include:` lines name the bundled files. The address mirrors what is
 loaded (`?setup=warrior_fury_dw_orc&keybinds=dw_fury&seed=1&setting=...`), so a link reproduces
 the iteration. "Edit keybinds" opens an editor: click a spell's key, then press the new one
