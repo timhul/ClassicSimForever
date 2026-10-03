@@ -9,8 +9,6 @@ precombat_actions:
 cast_if:
   # Only from Stealth: the opener at the pull.
   - name: Ambush
-  # TODO: Should cast garrote if ambush isn't available.
-  - name: Garrote
   - name: Thistle Tea
     condition: resource "Energy" less 10
   - name: Burst of Energy  # Renataki's Charm of Trickery
