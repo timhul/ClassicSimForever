@@ -24,12 +24,12 @@ impl Drop for TempDir {
     }
 }
 
-fn call_with(session: &mut Session, icons: &Path, method: &str, path: &str) -> Reply {
+fn call_with(session: &mut Session, icons: Icons, method: &str, path: &str) -> Reply {
     route(session, icons, method, path, "", || 42)
 }
 
 fn call(session: &mut Session, method: &str, path: &str, body: &str) -> Reply {
-    route(session, Path::new("no-icons"), method, path, body, || 42)
+    route(session, &|_| None, method, path, body, || 42)
 }
 
 fn text(reply: &Reply) -> String {
@@ -139,7 +139,8 @@ fn icons_are_served_from_the_icon_directory() {
     std::fs::write(icons.0.join("secret.png"), b"no").unwrap();
     let mut session = session_of("warrior_fury_dw_orc.yaml", 1);
 
-    let reply = call_with(&mut session, &icons.0, "GET", "/icons/136012.png");
+    let lookup = icon_dir(&icons.0);
+    let reply = call_with(&mut session, &lookup, "GET", "/icons/136012.png");
     assert_eq!(reply.status, 200);
     assert_eq!(reply.content_type, "image/png");
     assert_eq!(reply.cache_control, Some(ICON_CACHE));
@@ -155,7 +156,7 @@ fn icons_are_served_from_the_icon_directory() {
         ("GET", "/icons/99999999999.png", 404),
         ("POST", "/icons/136012.png", 405),
     ] {
-        let reply = call_with(&mut session, &icons.0, method, path);
+        let reply = call_with(&mut session, &lookup, method, path);
         assert_eq!(reply.status, status, "{method} {path}: {}", text(&reply));
         assert_eq!(reply.cache_control, None);
     }

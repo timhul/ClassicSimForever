@@ -1,5 +1,5 @@
-//! The HTTP server: the page and a small JSON API over one [`Session`], answered one request at
-//! a time on 127.0.0.1.
+//! The page and a small JSON API over one [`Session`]: [`route`] answers one request. The
+//! native `csim-live` serves it over HTTP on 127.0.0.1; the browser build calls it directly.
 //!
 //! - `GET /`: the page.
 //! - `GET /api/info`: the iteration's [`Info`](crate::session::Info).
@@ -10,16 +10,17 @@
 //!   not fit a JavaScript number), or of a new seed without one; the new info.
 //! - `POST /api/cast {"spell": "Bloodthirst", "at": t}`: a key press of a bound spell at sim
 //!   time `t` (played from the keyboard only); a frame.
-//! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon directory
-//!   (`<data>/icons/`, filled by `tools/fetch_icons.py`).
+//! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon lookup (natively the
+//!   icon directory `<data>/icons/`, filled by `tools/fetch_icons.py`; see [`icon_dir`]).
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
 use crate::session::Session;
 
-const PAGE: &str = include_str!("index.html");
+/// The page.
+pub const PAGE: &str = include_str!("index.html");
 
 /// The `Cache-Control` of an icon: a `FileDataID` always names the same texture.
 const ICON_CACHE: &str = "public, max-age=604800, immutable";
@@ -48,7 +49,8 @@ impl Reply {
         Reply::ok("application/json", body)
     }
 
-    fn error(status: u16, message: impl Into<String>) -> Reply {
+    /// An error reply: `status` and a plain-text `message`.
+    pub fn error(status: u16, message: impl Into<String>) -> Reply {
         Reply {
             status,
             content_type: "text/plain; charset=utf-8",
@@ -90,11 +92,20 @@ struct Cast {
     at: f64,
 }
 
-/// Answers one request. Icons are read from `icons`; `new_seed` gives the seed of a restart
-/// that names none.
+/// The PNG of icon `FileDataID`, if there is one.
+pub type Icons<'a> = &'a dyn Fn(u32) -> Option<Vec<u8>>;
+
+/// The icon lookup of the icon directory `dir`: `<dir>/<FileDataID>.png`.
+pub fn icon_dir(dir: &Path) -> impl Fn(u32) -> Option<Vec<u8>> + use<> {
+    let dir: PathBuf = dir.to_owned();
+    move |id| std::fs::read(dir.join(format!("{id}.png"))).ok()
+}
+
+/// Answers one request. Icons come from `icons`; `new_seed` gives the seed of a restart that
+/// names none.
 pub fn route(
     session: &mut Session,
-    icons: &Path,
+    icons: Icons,
     method: &str,
     path: &str,
     body: &str,
@@ -149,9 +160,9 @@ pub fn route(
     }
 }
 
-/// The icon file `name` (`<FileDataID>.png`) of `icons`. The file name is rebuilt from the
-/// parsed number, so a request cannot name anything else.
-fn icon(icons: &Path, name: &str) -> Reply {
+/// The icon `name` (`<FileDataID>.png`) of `icons`. Only the parsed number reaches the lookup,
+/// so a request cannot name anything else.
+fn icon(icons: Icons, name: &str) -> Reply {
     let id = name
         .strip_suffix(".png")
         .filter(|id| !id.is_empty() && id.bytes().all(|b| b.is_ascii_digit()))
@@ -159,50 +170,13 @@ fn icon(icons: &Path, name: &str) -> Reply {
     let Some(id) = id else {
         return Reply::error(404, format!("no icon {name}"));
     };
-    match std::fs::read(icons.join(format!("{id}.png"))) {
-        Ok(png) => Reply {
+    match icons(id) {
+        Some(png) => Reply {
             cache_control: Some(ICON_CACHE),
             ..Reply::ok("image/png", png)
         },
-        Err(_) => Reply::error(404, format!("no icon {id} (run tools/fetch_icons.py)")),
+        None => Reply::error(404, format!("no icon {id} (run tools/fetch_icons.py)")),
     }
-}
-
-/// Serves `session` on 127.0.0.1:`port` until the process is stopped.
-///
-/// # Errors
-/// The port cannot be bound.
-pub fn serve(
-    mut session: Session,
-    icons: &Path,
-    port: u16,
-    new_seed: impl Fn() -> u64,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let server = tiny_http::Server::http(("127.0.0.1", port))?;
-    for mut request in server.incoming_requests() {
-        let mut body = String::new();
-        let reply = match request.as_reader().read_to_string(&mut body) {
-            Ok(_) => {
-                let method = request.method().as_str().to_owned();
-                let path = request.url().split('?').next().unwrap_or("").to_owned();
-                route(&mut session, icons, &method, &path, &body, &new_seed)
-            }
-            Err(error) => Reply::error(400, error.to_string()),
-        };
-        let header = |name: &str, value: &str| {
-            tiny_http::Header::from_bytes(name, value).expect("a valid header")
-        };
-        let mut response = tiny_http::Response::from_data(reply.body)
-            .with_status_code(reply.status)
-            .with_header(header("Content-Type", reply.content_type));
-        if let Some(cache_control) = reply.cache_control {
-            response.add_header(header("Cache-Control", cache_control));
-        }
-        if let Err(error) = request.respond(response) {
-            eprintln!("cannot answer: {error}");
-        }
-    }
-    Ok(())
 }
 
 #[cfg(test)]

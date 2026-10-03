@@ -6,14 +6,23 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[lib]
+path = "src/lib.rs"
+
 [[bin]]
 name = "csim-live"
 path = "src/main.rs"
+required-features = ["server"]
+
+[features]
+default = ["server"]
+# The native HTTP server and its command line; the browser build goes without.
+server = ["dep:clap", "dep:tiny_http"]
 
 [dependencies]
 csim-engine = { path = "../csim-engine" }
-clap.workspace = true
+clap = { workspace = true, optional = true }
 serde.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
-tiny_http.workspace = true
+tiny_http = { workspace = true, optional = true }

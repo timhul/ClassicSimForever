@@ -8,10 +8,6 @@
 //! With `--keybinds <file.yaml>` the rotation does not run: the character is played from the
 //! keyboard, with the spells the file binds (see `keybinds`).
 
-mod keybinds;
-mod server;
-mod session;
-
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::sync::Arc;
@@ -23,7 +19,8 @@ use csim_engine::data_bundle::DataBundle;
 use csim_engine::named_settings::SettingPairs;
 use csim_engine::sim_settings::SimSettings;
 
-use crate::session::Session;
+use csim_live::server::{self, Icons, Reply};
+use csim_live::{keybinds, session::Session};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -107,11 +104,48 @@ fn run(args: &Args) -> Result<()> {
             icons.display()
         );
     }
-    server::serve(session, &icons, args.port, clock_seed).map_err(
+    serve(session, &server::icon_dir(&icons), args.port, clock_seed).map_err(
         |error| -> Box<dyn std::error::Error> {
             format!("cannot serve on port {}: {error}", args.port).into()
         },
     )
+}
+
+/// Serves `session` on 127.0.0.1:`port` until the process is stopped.
+///
+/// # Errors
+/// The port cannot be bound.
+fn serve(
+    mut session: Session,
+    icons: Icons,
+    port: u16,
+    new_seed: impl Fn() -> u64,
+) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let server = tiny_http::Server::http(("127.0.0.1", port))?;
+    for mut request in server.incoming_requests() {
+        let mut body = String::new();
+        let reply = match request.as_reader().read_to_string(&mut body) {
+            Ok(_) => {
+                let method = request.method().as_str().to_owned();
+                let path = request.url().split('?').next().unwrap_or("").to_owned();
+                server::route(&mut session, icons, &method, &path, &body, &new_seed)
+            }
+            Err(error) => Reply::error(400, error.to_string()),
+        };
+        let header = |name: &str, value: &str| {
+            tiny_http::Header::from_bytes(name, value).expect("a valid header")
+        };
+        let mut response = tiny_http::Response::from_data(reply.body)
+            .with_status_code(reply.status)
+            .with_header(header("Content-Type", reply.content_type));
+        if let Some(cache_control) = reply.cache_control {
+            response.add_header(header("Cache-Control", cache_control));
+        }
+        if let Err(error) = request.respond(response) {
+            eprintln!("cannot answer: {error}");
+        }
+    }
+    Ok(())
 }
 
 /// `./data` when it exists, else the repository's `data/` (as `csim`).
