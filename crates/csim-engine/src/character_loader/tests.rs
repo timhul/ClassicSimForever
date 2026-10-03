@@ -754,3 +754,32 @@ fn include_errors_are_reported() {
     let message = load("unknown.yaml").to_string();
     assert!(message.contains("not_a_key"), "{message}");
 }
+
+/// Marrow's sigmoid, a named setting, gives the fury warrior's white swings more rage than
+/// Forever's formula: the off hand (never replaced by Heroic Strike) gains more over the same
+/// seeded iterations.
+#[test]
+fn the_marrow_sigmoid_setting_adds_white_rage() {
+    use crate::named_settings::parse_setting_pairs;
+
+    let setup = shipped("warrior_fury_dw_orc.yaml");
+    let offhand_rage = |settings: SimSettings| {
+        let mut raid = setup.build_raid(data(), &settings).unwrap();
+        let mut cruncher = NumberCruncher::new();
+        SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
+        let stats = cruncher.merged(None).unwrap();
+        stats
+            .resource_statistics("Offhand Attack", 1)
+            .expect("off-hand rage")
+            .gain(crate::resource::ResourceType::Rage)
+    };
+    let forever = setup.sim_settings(&settings());
+    let mut sigmoid = forever.clone();
+    sigmoid
+        .apply_settings(
+            &parse_setting_pairs("rage_formula:marrow_sigmoid,sigmoid_ceiling:120").unwrap(),
+        )
+        .unwrap();
+    let (forever, sigmoid) = (offhand_rage(forever), offhand_rage(sigmoid));
+    assert!(sigmoid > forever * 1.02, "{sigmoid} vs {forever}");
+}

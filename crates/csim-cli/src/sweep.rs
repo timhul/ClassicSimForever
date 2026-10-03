@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use clap::{Args, ValueEnum};
+use csim_engine::named_settings::SettingPairs;
 use csim_engine::sim_control::{SimMode, run_threaded};
 use csim_engine::sim_settings::SimSettings;
 use csim_engine::sweep_loader::{Expansion, SweepSetup};
@@ -47,6 +48,10 @@ pub struct SweepArgs {
         value_name = "PERCENT"
     )]
     length_variance: f64,
+    /// Named settings every variant runs with, as `csim run --setting`: `name:value` pairs
+    /// separated by commas; may be repeated. E.g. `--setting=rage_formula:marrow_sigmoid`.
+    #[arg(long = "setting", value_name = "NAME:VALUE,...")]
+    settings: Vec<SettingPairs>,
     /// Seed every variant runs with (default: from the clock; printed).
     #[arg(long)]
     seed: Option<u64>,
@@ -83,6 +88,9 @@ pub struct SweepResults {
     pub combat_length: u32,
     /// Percent.
     pub length_variance: f64,
+    /// The named settings that are not the default (`--setting`), as `name:value,...`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub settings: Option<String>,
     pub seed: u64,
     /// Per variation point, its description and number of alternatives.
     pub variation_points: Vec<VariationPointRow>,
@@ -123,6 +131,7 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
         settings.combat_length = length;
     }
     settings.length_variance = args.length_variance;
+    settings.apply_setting_flags(&args.settings)?;
     if let Some(threads) = args.threads {
         settings.set_threads(threads)?;
     }
@@ -140,6 +149,7 @@ pub fn sweep(data_dir: &Path, args: &SweepArgs) -> Result<()> {
         iterations,
         combat_length: settings.combat_length,
         length_variance: settings.length_variance,
+        settings: settings.named_settings_text(),
         seed,
         variation_points: expansion
             .points
@@ -232,6 +242,9 @@ fn header(results: &SweepResults, expansion: &Expansion) -> String {
         " ({} s ± {}%, seed {})",
         results.combat_length, results.length_variance, results.seed
     );
+    if let Some(settings) = &results.settings {
+        let _ = writeln!(out, "Settings: {settings}");
+    }
     if !expansion.invalid.is_empty() {
         let _ = writeln!(
             out,

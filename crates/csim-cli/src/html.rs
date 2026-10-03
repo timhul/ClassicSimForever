@@ -179,8 +179,7 @@ pub fn render(results: &Results) -> String {
     let _ = write!(
         out,
         "<header>\n<h1>{}</h1>\n<p class=\"subtitle\">{} {} · rotation {} · {} · {} ruleset</p>\n\
-         <p class=\"meta\">{} iterations of {} s ± {}% · {} threads · seed {} · {:.2} s ({} events)</p>\n\
-         </header>\n",
+         <p class=\"meta\">{} iterations of {} s ± {}% · {} threads · seed {} · {:.2} s ({} events)</p>\n",
         escape(&setup.name),
         escape(&setup.race),
         escape(&setup.class),
@@ -195,6 +194,10 @@ pub fn render(results: &Results) -> String {
         run.elapsed_seconds,
         run.events,
     );
+    if let Some(settings) = &run.settings {
+        let _ = writeln!(out, "<p class=\"meta\">settings {}</p>", escape(settings));
+    }
+    out.push_str("</header>\n");
 
     let _ = write!(
         out,

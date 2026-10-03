@@ -487,6 +487,63 @@ fn swing_rage_follows_the_equipped_weapons() {
     assert_eq!(f.rage(), 100);
 }
 
+/// Under Marrow's sigmoid every landed swing's Forever rage, both hands and crits, is scaled
+/// by one factor that takes the nominal rate (both hands, off-hand percent included) to
+/// Forever's plus the curve's extra at the main-hand weapon's DPS.
+#[test]
+fn the_marrow_sigmoid_scales_swing_rage() {
+    use crate::rage_formula::{RageFormula, SigmoidParams};
+
+    let mut f = Fixture::orc_warrior();
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.equip(EquipmentSlot::Offhand, DAGGER);
+    f.character.adjust_offhand_rage_percent(100);
+    let close = |a: f64, b: f64| (a - b).abs() < 1e-9;
+    assert!(close(f.character.nominal_white_rage_per_second(), 6.92));
+    assert_eq!(f.character.swing_rage_factor(), 1.0, "Forever");
+    let forever = |f: &Fixture, hand, crit| f.character.swing_rage(hand, crit).unwrap();
+    let mh = forever(&f, Hand::Mainhand, false);
+    let oh_crit = forever(&f, Hand::Offhand, true);
+
+    let sigmoid = SigmoidParams::default();
+    f.character.set_sim(SimParams {
+        rage_formula: RageFormula::MarrowSigmoid(sigmoid),
+        ..SimParams::default()
+    });
+    let dps = f.character.equipment().mainhand().unwrap().dps();
+    let factor = 1.0 + sigmoid.extra_rage_per_minute(dps) / 60.0 / 6.92;
+    assert!(factor > 1.0);
+    assert!(close(f.character.swing_rage_factor(), factor));
+    assert!(close(forever(&f, Hand::Mainhand, false), mh * factor));
+    assert!(close(forever(&f, Hand::Offhand, true), oh_crit * factor));
+
+    // A two-hander: the nominal rate is 4.5, the extra follows its own DPS.
+    f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
+    assert!(close(f.character.nominal_white_rage_per_second(), 4.5));
+    let dps = f.character.equipment().mainhand().unwrap().dps();
+    let factor = 1.0 + sigmoid.extra_rage_per_minute(dps) / 60.0 / 4.5;
+    assert!(close(
+        forever(&f, Hand::Mainhand, false),
+        4.5 * f.character.equipment().mainhand().unwrap().speed() * factor
+    ));
+}
+
+#[test]
+fn the_rage_formula_leaves_other_resources_alone() {
+    use crate::rage_formula::{RageFormula, SigmoidParams};
+
+    let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let classes = super::ClassDb::load(&data.join("classes"), None).unwrap();
+    let rogue = Arc::clone(classes.get(crate::faction::PlayerClass::Rogue).unwrap());
+    let mut f = Fixture::orc(rogue);
+    f.equip(EquipmentSlot::Mainhand, SWORD);
+    f.character.set_sim(SimParams {
+        rage_formula: RageFormula::MarrowSigmoid(SigmoidParams::default()),
+        ..SimParams::default()
+    });
+    assert_eq!(f.character.swing_rage(Hand::Mainhand, false), None);
+}
+
 #[test]
 fn weapon_damage_formulas() {
     let mut f = Fixture::orc_warrior();
@@ -2438,6 +2495,7 @@ cast_if:
             combat_length: 200.0,
             execute_threshold: 0.2,
             ruleset: crate::rulesets::Ruleset::Standard,
+            ..SimParams::default()
         });
         f.engine
             .add_event(Event::new(50.0, EventKind::EncounterEnd));
