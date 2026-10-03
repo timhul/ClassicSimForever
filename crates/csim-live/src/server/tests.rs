@@ -226,6 +226,7 @@ fn before_a_load_only_the_page_catalog_and_load_answer() {
     assert_eq!(call(&mut app, "GET", "/", "").status, 200);
     let catalog = json(&call(&mut app, "GET", "/api/catalog", ""));
     assert!(catalog["setups"].as_array().unwrap().len() > 3);
+    assert!(catalog["build"].as_str().unwrap().starts_with("1.60."));
     assert_eq!(
         catalog["keybinds"]
             .as_array()

@@ -79,6 +79,12 @@ impl DataBundle {
         })
     }
 
+    /// The game client build the data was exported from (`1.60.1.70205`): the spell files'
+    /// (the item files are exported with them).
+    pub fn build(&self) -> Option<&str> {
+        self.spells.build()
+    }
+
     /// The repository's `data/` directory (for tests and tools run from the workspace).
     pub fn repository_dir() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
@@ -88,6 +94,14 @@ impl DataBundle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_shipped_data_names_one_build() {
+        let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
+        let build = data.build().expect("the spell files name their build");
+        assert!(build.starts_with("1.60."), "{build}");
+        assert_eq!(data.equipment.build(), Some(build), "items and spells");
+    }
 
     #[test]
     fn spells_and_items_carry_their_icons() {

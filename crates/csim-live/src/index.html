@@ -50,6 +50,7 @@
   }
   #sub { color: var(--muted); }
   #totals { font-variant-numeric: tabular-nums; }
+  #build { color: var(--muted); font-size: 12px; margin-left: 8px; font-weight: 400; }
   #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
   /* Three groups: the playback options, Play and Edit keybinds in the middle, the clock. */
   #controls {
@@ -610,7 +611,7 @@
 <body>
 <header>
   <div>
-    <h1 id="name">csim-live</h1>
+    <h1><span id="name">csim-live</span><span id="build"></span></h1>
     <div id="sub"></div>
   </div>
   <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
@@ -963,6 +964,8 @@ function fillForm() {
     return option;
   }));
   fillModes();
+  $("build").textContent = catalog.build ? `build ${catalog.build}` : "";
+  $("build").title = "The World of Warcraft: Forever client build the data was exported from";
   $("length-input").placeholder = catalog.length;
   $("variance-input").placeholder = catalog.length_variance;
   fillSettings();
