@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members = ["crates/csim-engine", "crates/csim-cli", "crates/csim-tables", "crates/csim-live"]
+members = [
+    "crates/csim-engine",
+    "crates/csim-cli",
+    "crates/csim-tables",
+    "crates/csim-live",
+    "crates/csim-web",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -18,3 +24,5 @@ csv = "1"
 clap = { version = "4", features = ["derive"] }
 tiny_http = "0.12"
 web-time = "1"
+wasm-bindgen = "=0.2.129"
+console_error_panic_hook = "0.1.7"

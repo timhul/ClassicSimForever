@@ -1,0 +1,24 @@
+[package]
+name = "csim-web"
+description = "csim-live in the browser: the engine, the live viewer's session and its data as WebAssembly"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+build = "build.rs"
+
+[lib]
+path = "src/lib.rs"
+# cdylib: the WebAssembly module; rlib: the host builds and tests it like any crate.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+csim-engine = { path = "../csim-engine" }
+csim-live = { path = "../csim-live", default-features = false }
+wasm-bindgen.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
