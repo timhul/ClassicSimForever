@@ -2,6 +2,8 @@
 //! `csim-live` serves it over HTTP on 127.0.0.1; the browser build calls it directly.
 //!
 //! - `GET /`: the page.
+//! - `GET /web.js`: an empty module. In the browser build the page's `web.js` runs the server
+//!   side in the page; natively the page finds none and talks over HTTP.
 //! - `GET /api/catalog`: the setups, keybinds and named settings the page can load
 //!   ([`Catalog`](crate::app::Catalog)).
 //! - `POST /api/load {"setup": "warrior_fury_dw_orc", ...}`: loads a session
@@ -31,6 +33,9 @@ use crate::session::Session;
 
 /// The page.
 pub const PAGE: &str = include_str!("index.html");
+
+/// The native server's `web.js`: nothing (see the module documentation).
+const WEB_JS: &str = "// The native server: the page talks to it over HTTP.\n";
 
 /// The `Cache-Control` of an icon: a `FileDataID` always names the same texture.
 const ICON_CACHE: &str = "public, max-age=604800, immutable";
@@ -138,6 +143,7 @@ pub fn route(
     }
     match (method, path) {
         ("GET", "/") => Reply::ok("text/html; charset=utf-8", PAGE.as_bytes().to_vec()),
+        ("GET", "/web.js") => Reply::ok("text/javascript", WEB_JS.as_bytes().to_vec()),
         ("GET", "/api/catalog") => Reply::json(&app.catalog()),
         ("POST", "/api/load") => match serde_json::from_str::<LoadRequest>(body) {
             Ok(request) => match app.load(request, new_seed) {
@@ -165,7 +171,7 @@ pub fn route(
             }
             session_route(session, path, body)
         }
-        (_, "/" | "/api/catalog" | "/api/load") => {
+        (_, "/" | "/web.js" | "/api/catalog" | "/api/load") => {
             Reply::error(405, format!("{method} not allowed on {path}"))
         }
         (_, path) if SESSION_PATHS.contains(&path) => {

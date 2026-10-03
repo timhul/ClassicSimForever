@@ -674,9 +674,10 @@
 </main>
 <footer id="status" role="status"></footer>
 
-<script>
-"use strict";
-
+<!-- The browser build's server side (csim-web): it sets `csimReady` and `csimTransport`. The
+     native server answers an empty module: the page then talks to it over HTTP. -->
+<script type="module" src="web.js"></script>
+<script type="module">
 const $ = (id) => document.getElementById(id);
 const FEED_LIMIT = 200;
 const DECISION_LIMIT = 200;
@@ -727,19 +728,33 @@ function enqueue(task) {
   return chain;
 }
 
+/**
+ * `method` `path` (relative, `api/...`) with the JSON `body`: in the browser build through
+ * `csimTransport` (the WebAssembly server side, see web.js), else over HTTP to the native
+ * server. The answer's JSON; an error with the status otherwise.
+ */
 async function api(method, path, body) {
-  const options = { method };
-  if (body !== undefined) {
-    options.headers = { "Content-Type": "application/json" };
-    options.body = JSON.stringify(body);
+  const text = body === undefined ? "" : JSON.stringify(body);
+  let status;
+  let answer;
+  if (window.csimTransport) {
+    ({ status, body: answer } = window.csimTransport(method, `/${path}`, text));
+  } else {
+    const options = { method };
+    if (body !== undefined) {
+      options.headers = { "Content-Type": "application/json" };
+      options.body = text;
+    }
+    const response = await fetch(path, options);
+    status = response.status;
+    answer = await response.text();
   }
-  const response = await fetch(path, options);
-  if (!response.ok) {
-    const error = new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
-    error.status = response.status;
+  if (status < 200 || status >= 300) {
+    const error = new Error(`${method} ${path}: ${status} ${answer}`);
+    error.status = status;
     throw error;
   }
-  return response.json();
+  return JSON.parse(answer);
 }
 
 function fail(error) {
@@ -750,13 +765,13 @@ function fail(error) {
 /** Starts the iteration of `seed` (a string) over, or of a new seed when it is null. */
 function restart(seed) {
   setPlaying(false);
-  return enqueue(async () => begin(await api("POST", "/api/restart", seed === null ? {} : { seed })));
+  return enqueue(async () => begin(await api("POST", "api/restart", seed === null ? {} : { seed })));
 }
 
 /** Loads the session `request` asks for (see `api/load`); the current one stays on failure. */
 function load(request) {
   setPlaying(false);
-  return enqueue(async () => begin(await api("POST", "/api/load", request)));
+  return enqueue(async () => begin(await api("POST", "api/load", request)));
 }
 
 /** Shows the iteration `next` (the info of a load or a restart) from its start. */
@@ -789,7 +804,7 @@ async function begin(next) {
   syncForm();
   updateUrl();
   simTime = info.start_at;
-  apply(await api("POST", "/api/advance", { to: info.start_at }));
+  apply(await api("POST", "api/advance", { to: info.start_at }));
 }
 
 // ----- The setup bar ----------------------------------------------------------------------
@@ -961,13 +976,16 @@ upload($("keybinds-file"), "keybinds-yaml");
  * else the default setup.
  */
 async function startPage() {
-  catalog = await api("GET", "/api/catalog");
+  $("sub").textContent = "Loading the simulator…";
+  // The browser build's server side loads first (nothing to wait for natively).
+  await window.csimReady;
+  catalog = await api("GET", "api/catalog");
   fillForm();
   if (formFromQuery()) {
     return load(formRequest());
   }
   try {
-    const current = await api("GET", "/api/info");
+    const current = await api("GET", "api/info");
     // A fresh start of the server's iteration, whatever an earlier page left of it.
     return restart(current.seed);
   } catch (error) {
@@ -986,7 +1004,7 @@ async function startPage() {
 function step(kind) {
   setPlaying(false);
   enqueue(async () => {
-    const stepped = await api("POST", "/api/step", { kind });
+    const stepped = await api("POST", "api/step", { kind });
     $("last-event").textContent = stepped.event || "";
     apply(stepped);
   });
@@ -1819,7 +1837,7 @@ function tick(now) {
     if (!advancing && frame && simTime > frame.time) {
       advancing = true;
       const to = simTime;
-      enqueue(async () => apply(await api("POST", "/api/advance", { to })))
+      enqueue(async () => apply(await api("POST", "api/advance", { to })))
         .finally(() => { advancing = false; });
     }
   }
@@ -1851,7 +1869,7 @@ document.addEventListener("keydown", (event) => {
   }
   event.preventDefault();
   const at = simTime;
-  enqueue(async () => apply(await api("POST", "/api/cast", { spell, at })));
+  enqueue(async () => apply(await api("POST", "api/cast", { spell, at })));
 });
 $("step-event").addEventListener("click", () => step("event"));
 $("step-cast").addEventListener("click", () => step("cast"));

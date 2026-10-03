@@ -203,6 +203,24 @@ fn a_key_press_is_cast_when_played_from_the_keyboard_only() {
 }
 
 #[test]
+fn the_native_web_js_is_an_empty_module() {
+    let mut app = empty_app();
+    let reply = call(&mut app, "GET", "/web.js", "");
+    assert_eq!((reply.status, reply.content_type), (200, "text/javascript"));
+    assert!(
+        text(&reply).trim_start().starts_with("//"),
+        "only a comment"
+    );
+    assert_eq!(call(&mut app, "POST", "/web.js", "").status, 405);
+    // The page loads it before its own script, as a module.
+    let page = text(&call(&mut app, "GET", "/", ""));
+    let web_js = page.find(r#"<script type="module" src="web.js"></script>"#);
+    let script = page.find(r#"<script type="module">"#);
+    assert!(web_js.is_some() && web_js < script, "web.js first");
+    assert!(!page.contains(r#""/api/"#), "relative API paths only");
+}
+
+#[test]
 fn before_a_load_only_the_page_catalog_and_load_answer() {
     let mut app = empty_app();
     assert_eq!(call(&mut app, "GET", "/", "").status, 200);
