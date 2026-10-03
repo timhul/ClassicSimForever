@@ -1,7 +1,7 @@
 //! Thunder Clap (rank 6): 103 physical damage plus 3 % of attack power (server side, the
 //! tables have no attack power coefficient), on the magic table (`DefenseType` magic): it
 //! crits with the spell crit chance, for the spell crit multiplier, and a crit applies Deep
-//! Wounds.
+//! Wounds but not Flurry ("melee critical strike").
 
 use crate::engine::EventType;
 use crate::testing::warrior::WarriorTest;
@@ -13,12 +13,19 @@ const DEEP_WOUNDS: &str = "Deep Wounds";
 /// target, Deep Wounds at `deep_wounds` ranks. The spell hit leaves the 1 % minimum miss
 /// chance; the seeded rolls land.
 fn test(deep_wounds: u32) -> WarriorTest {
+    test_with(|test| {
+        if deep_wounds > 0 {
+            test.given_arms_talent_with_rank("Improved Rend", 3);
+            test.given_arms_talent_with_rank(DEEP_WOUNDS, deep_wounds);
+        }
+    })
+}
+
+/// [`test`] with the talents `given` picks (before the iterations are prepared).
+fn test_with(given: impl FnOnce(&mut WarriorTest)) -> WarriorTest {
     let mut test = WarriorTest::unprepared(SPELL);
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
-    if deep_wounds > 0 {
-        test.given_arms_talent_with_rank("Improved Rend", 3);
-        test.given_arms_talent_with_rank(DEEP_WOUNDS, deep_wounds);
-    }
+    given(&mut test);
     test.prepare_set_of_combat_iterations();
     test.given_target_has_0_armor();
     test.given_1000_melee_ap();
@@ -98,4 +105,20 @@ fn regular_hit_thunder_clap_does_not_apply_deep_wounds() {
     given_no_crit(&mut test);
     assert!(!when_thunder_clap_is_performed(&mut test).1);
     assert_eq!(deep_wounds_damage(&mut test), 0);
+}
+
+/// Flurry's tooltip reads "melee critical strike": Thunder Clap is a physical spell, not a
+/// melee attack. The tables' `ProcTypeMask` (any damage) says otherwise; to be confirmed in
+/// game.
+#[test]
+fn critical_thunder_clap_triggers_flurry() {
+    let mut test = test_with(|test| {
+        test.given_fury_talent_with_rank("Enrage", 5);
+        test.given_fury_talent_with_rank("Flurry", 5);
+    });
+    given_a_guaranteed_spell_crit(&mut test);
+    assert!(when_thunder_clap_is_performed(&mut test).1);
+    let flurry = test.flurry();
+    // TODO:  Unlikely that TC actually procs Flurry regardless of what ProcTypeMask says.
+    assert!(test.with_buff_id(flurry, |buff| buff.is_active()));
 }
