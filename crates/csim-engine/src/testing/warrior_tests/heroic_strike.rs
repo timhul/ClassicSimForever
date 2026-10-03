@@ -180,21 +180,15 @@ fn miss_chance_while_dual_wielding() {
     test.given_warrior_has_rage(100);
     let dual_wield_miss = oh_white_miss(&mut test);
     assert!(test.character().is_dual_wielding());
-    assert!(test.character().uses_dual_wield_hit_table());
 
-    // Queued: the dual wield penalty is gone until the swing lands, but both hands still swing.
+    // Queued: Forever removed the Classic bug where the queued swing lifted the dual wield
+    // penalty ("Queueing Heroic Strike will no longer increase off-hand hit chance").
     test.cast(SPELL);
     assert!(test.character().is_dual_wielding());
-    assert!(!test.character().uses_dual_wield_hit_table());
-    let queued_miss = oh_white_miss(&mut test);
-    assert!(
-        queued_miss < dual_wield_miss,
-        "{queued_miss} < {dual_wield_miss}"
-    );
+    assert_eq!(oh_white_miss(&mut test), dual_wield_miss);
 
     when_heroic_strike_is_performed(&mut test);
     assert!(test.character().is_dual_wielding());
-    assert!(test.character().uses_dual_wield_hit_table());
     assert_eq!(oh_white_miss(&mut test), dual_wield_miss);
 }
 

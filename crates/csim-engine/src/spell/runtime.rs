@@ -81,8 +81,8 @@ pub trait SpellHost: EffectHost {
     fn start_attack(&mut self);
     /// Restarts both swing timers (`RESETS_SWING_TIMERS`).
     fn reset_swing_timers(&mut self);
-    /// Queues `spell` to replace the next mainhand swing (on-next-swing spells); the character
-    /// updates its white miss chance since a queued swing does not suffer the dual-wield penalty.
+    /// Queues `spell` to replace the next mainhand swing (on-next-swing spells). The off hand
+    /// keeps the dual-wield miss penalty.
     /// `marker` is the spell's marker buff, applied by the spell and up while it stays queued:
     /// a different spell queued before is un-queued and its marker cancelled.
     fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>);

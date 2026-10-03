@@ -723,8 +723,8 @@ fn attack_speed_changes_retime_pending_swings() {
     );
 }
 
-/// A queued Heroic Strike only lifts the dual-wield miss penalty: the off hand is still
-/// scheduled, swings and reschedules.
+/// A queued Heroic Strike does not touch the off hand: it is still scheduled, swings and
+/// reschedules.
 #[test]
 fn the_offhand_keeps_swinging_while_heroic_strike_is_queued() {
     let mut f = Fixture::orc_warrior();
@@ -763,10 +763,6 @@ fn heroic_strike_replaces_the_next_swing() {
     assert!(report.queued);
     assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
     assert!(
-        !f.character.uses_dual_wield_hit_table(),
-        "a queued swing removes the DW penalty"
-    );
-    assert!(
         f.character.is_dual_wielding(),
         "both weapons are still equipped"
     );
@@ -788,7 +784,6 @@ fn heroic_strike_replaces_the_next_swing() {
     assert_eq!(f.rage(), 85);
     assert_eq!(f.character.spells().queued_next_swing(), None);
     assert!(f.character.is_dual_wielding());
-    assert!(f.character.uses_dual_wield_hit_table());
 
     // Queued but unaffordable: the queue is dropped and the white swing lands.
     let marker = f.character.spells().spell(hs).marker_buff().unwrap();
