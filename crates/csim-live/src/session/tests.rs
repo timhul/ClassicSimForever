@@ -1073,3 +1073,49 @@ fn named_settings_hold_across_the_pull_and_a_restart() {
     assert_eq!(forever.raid.character(PLAYER).swing_rage_factor(), 1.0);
     assert_eq!(forever.info().settings, None);
 }
+
+#[test]
+fn the_bindable_spells_are_the_learned_ones_cast_by_name() {
+    let info = session_of("warrior_fury_dw_orc.yaml", 1).info();
+    let names: Vec<&str> = info
+        .bindable
+        .iter()
+        .map(|spell| spell.name.as_str())
+        .collect();
+    for name in [
+        "Bloodthirst",
+        "Whirlwind",
+        "Berserker Stance",
+        "Earthstrike",
+    ] {
+        assert!(names.contains(&name), "{name} in {names:?}");
+    }
+    // Passives (talents) are not cast.
+    for name in ["Flurry", "Unbridled Wrath"] {
+        assert!(!names.contains(&name), "{name} in {names:?}");
+    }
+    // One entry per spell, not per rank, sorted by name.
+    assert_eq!(
+        names
+            .iter()
+            .filter(|&&name| name == "Heroic Strike")
+            .count(),
+        1
+    );
+    assert!(names.is_sorted());
+    let bloodthirst = info
+        .bindable
+        .iter()
+        .find(|spell| spell.name == "Bloodthirst");
+    assert!(bloodthirst.is_some_and(|spell| spell.gcd && spell.icon.is_some()));
+    assert!(
+        !info
+            .bindable
+            .iter()
+            .any(|spell| spell.name == "Bloodrage" && spell.gcd)
+    );
+
+    // The same from the keyboard.
+    let manual = manual_session_of("warrior_fury_dw_orc.yaml", 1, "Bloodthirst: 1\n").info();
+    assert_eq!(manual.bindable, info.bindable);
+}

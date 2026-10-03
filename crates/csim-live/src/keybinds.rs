@@ -23,10 +23,10 @@
 use std::path::Path;
 
 use csim_engine::files::{Files, FsFiles};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// A spell or a macro bound to a key.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Keybind {
     /// The spell's name, or the macro's.
     pub name: String,
@@ -34,6 +34,7 @@ pub struct Keybind {
     pub binding: String,
     /// The spells it casts: the one, or the macro's entries in order.
     pub spells: Vec<String>,
+    #[serde(rename = "macro")]
     pub is_macro: bool,
 }
 
@@ -46,7 +47,7 @@ struct MacroSpec {
 }
 
 /// The named keys, as `KeyboardEvent.code` names them (without a `Key` / `Digit` prefix).
-const NAMED_KEYS: &[&str] = &[
+pub const NAMED_KEYS: &[&str] = &[
     "Space",
     "Tab",
     "Enter",

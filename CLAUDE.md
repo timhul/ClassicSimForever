@@ -62,7 +62,11 @@ The flags only load the first iteration. A setup bar on the page loads another: 
 seed, length, variance and named settings. A setup or keybinds can also be pasted or uploaded as
 YAML; a pasted setup's `include:` lines name the bundled files. The address mirrors what is
 loaded (`?setup=warrior_fury_dw_orc&keybinds=dw_fury&seed=1&setting=...`), so a link reproduces
-the iteration. Without a setup argument the page picks one:
+the iteration. "Edit keybinds" opens an editor: click a spell's key, then press the new one
+(Esc cancels, Backspace or Delete unbinds, a key in use moves), and build macros. It starts from
+the loaded keybinds, the class's last applied ones (browser storage) or a bundled file. Apply
+loads them as pasted keybinds; a link carries pasted or edited keybinds as `keys=` (their YAML,
+base64url). Without a setup argument the page picks one:
 
 `cargo run --release -p csim-live`
 

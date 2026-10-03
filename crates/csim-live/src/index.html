@@ -505,6 +505,69 @@
   #buff-heading, #proc-heading, #resource-heading { margin-top: 16px; }
   .breakdown .debuff-tag { color: #e05a4f; font-size: 11px; margin-left: 6px; }
   #breakdown-empty, #buff-uptimes-empty, #procs-empty, #resources-empty { color: var(--muted); }
+  #keybinds-editor {
+    width: min(720px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  #keybinds-editor::backdrop { background: rgb(0 0 0 / 0.6); }
+  #keybinds-editor form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 34px);
+    padding: 14px 16px;
+  }
+  #keybinds-editor .editor-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #keybinds-editor .editor-head h2 { margin: 0 auto 0 0; }
+  #keybinds-editor .editor-head label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  #editor-filter { flex: none; }
+  #editor-body { overflow-y: auto; min-height: 120px; display: grid; gap: 14px; }
+  #editor-body h3 { font-size: 12px; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
+  .bind-list { display: grid; gap: 2px; }
+  .bind-row {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .bind-row:hover { background: var(--panel); }
+  .bind-row .gcd-tag { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .bind-row.moved { animation: moved 1.2s ease-out; }
+  @keyframes moved { from { background: rgb(224 176 74 / 0.35); } }
+  .bind-key {
+    min-width: 13ch;
+    padding: 3px 8px;
+    font: 12px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  .bind-key.unbound { color: var(--muted); }
+  .bind-key.listening { border-color: var(--accent); color: var(--accent); }
+  .macro {
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .macro-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .macro-head input { flex: 1 1 140px; }
+  .macro-spells { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .macro-spells li {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .macro-spells li button, .macro-head .delete { padding: 1px 8px; }
+  #editor-status { color: #e05a4f; min-height: 1.4em; margin: 0; }
+  #keybinds-editor .editor-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  #editor-apply { font-weight: 600; border-color: var(--accent); }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -525,6 +588,7 @@
 <form id="setup-bar" autocomplete="off">
   <select id="setup-select" aria-label="Character setup"></select>
   <select id="mode-select" aria-label="Played by"></select>
+  <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
   <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
   <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
   <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
@@ -551,6 +615,33 @@
       (<code>warrior_fury_dw_orc.yaml</code>) or its parts (<code>common/base_buffs.yaml</code>).</p>
   </details>
 </form>
+
+<dialog id="keybinds-editor" aria-labelledby="editor-title">
+  <form method="dialog">
+    <div class="editor-head">
+      <h2 id="editor-title">Keybinds</h2>
+      <label>Start from <select id="editor-start"></select></label>
+    </div>
+    <input id="editor-filter" type="search" placeholder="Filter spells" aria-label="Filter spells">
+    <div id="editor-body">
+      <section>
+        <h3>Spells: click a key, then press the new one (Esc cancels, Backspace or Delete unbinds)</h3>
+        <div id="editor-spells" class="bind-list"></div>
+      </section>
+      <section>
+        <h3>Macros: cast their spells in order, as the game's /cast lines</h3>
+        <div id="editor-macros" class="bind-list"></div>
+        <p><button id="editor-add-macro" type="button">Add macro</button></p>
+      </section>
+    </div>
+    <p id="editor-status" role="status"></p>
+    <div class="editor-foot">
+      <button id="editor-download" type="button">Download</button>
+      <button id="editor-cancel" type="button">Cancel</button>
+      <button id="editor-apply" type="button">Apply</button>
+    </div>
+  </form>
+</dialog>
 
 <div id="controls">
   <button id="play" type="button">Play</button>
@@ -800,6 +891,7 @@ async function begin(next) {
   macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
     .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
   document.title = `${info.name} · csim-live`;
+  $("edit-keybinds").disabled = false;
   renderEntries();
   syncForm();
   updateUrl();
@@ -811,6 +903,8 @@ async function begin(next) {
 
 /** What the page can load (`api/catalog`). */
 let catalog = null;
+/** The "played by" choice of keybinds from the text box (pasted or edited), not a file. */
+const EDITED = ":edited";
 /** The setup the page loads when neither the address nor the server names one. */
 const DEFAULT_SETUP = "warrior_fury_dw_orc";
 
@@ -845,6 +939,12 @@ function fillModes() {
     option.value = name;
     return option;
   }));
+  if ($("keybinds-yaml").value.trim()) {
+    // Pasted or edited keybinds (the keybinds text box), which a load takes over the files.
+    const edited = element("option", "", "Keyboard: pasted or edited");
+    edited.value = EDITED;
+    modes.append(edited);
+  }
   modes.value = chosen;
   if (modes.selectedIndex < 0) {
     modes.value = "";
@@ -868,7 +968,7 @@ function syncForm() {
     setups.value = "";
   }
   fillModes();
-  $("mode-select").value = info.source.keybinds || "";
+  $("mode-select").value = info.manual ? info.source.keybinds || EDITED : "";
   $("seed-input").value = info.seed;
   $("length-input").value = info.combat_length;
   $("variance-input").value = info.length_variance;
@@ -887,7 +987,7 @@ function formRequest() {
   const keybindsYaml = $("keybinds-yaml").value.trim();
   if (keybindsYaml) {
     request.keybinds_yaml = keybindsYaml;
-  } else if ($("mode-select").value) {
+  } else if ($("mode-select").value && $("mode-select").value !== EDITED) {
     request.keybinds = $("mode-select").value;
   }
   const seed = $("seed-input").value.trim();
@@ -909,7 +1009,8 @@ function formRequest() {
 
 /**
  * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…`), so a link reproduces it. Without a bundled setup (pasted) there is nothing to
+ * &setting=…`; pasted or edited keybinds as `keys=`, their YAML in base64url), so a link
+ * reproduces it. Without a bundled setup (pasted) there is nothing to
  * name: no query.
  */
 function updateUrl() {
@@ -918,6 +1019,9 @@ function updateUrl() {
     query.set("setup", info.source.setup);
     if (info.source.keybinds) {
       query.set("keybinds", info.source.keybinds);
+    } else if (info.manual) {
+      // Pasted or edited keybinds: in the link themselves.
+      query.set("keys", toBase64Url(keybindsYaml(info.keybinds, false)));
     }
     query.set("seed", info.seed);
     if (catalog && info.combat_length !== catalog.length) {
@@ -945,6 +1049,11 @@ function formFromQuery() {
   $("setup-select").value = query.get("setup");
   fillModes();
   $("mode-select").value = query.get("keybinds") || "";
+  try {
+    $("keybinds-yaml").value = query.has("keys") ? fromBase64Url(query.get("keys")) : "";
+  } catch {
+    $("status").textContent = "The link's keys= is not readable: played by the rotation";
+  }
   $("seed-input").value = query.get("seed") || "";
   $("length-input").value = query.get("length") || "";
   $("variance-input").value = query.get("variance") || "";
@@ -970,6 +1079,400 @@ $("setup-bar").addEventListener("submit", (event) => {
 });
 upload($("setup-file"), "setup-yaml");
 upload($("keybinds-file"), "keybinds-yaml");
+// Choosing how the setup is played drops pasted keybinds, which would win over the choice.
+$("mode-select").addEventListener("change", () => {
+  if ($("mode-select").value !== EDITED) {
+    $("keybinds-yaml").value = "";
+  }
+});
+
+// ----- The keybinds editor ----------------------------------------------------------------
+
+/**
+ * The keybinds being edited, in order: `{name, binding, macro, spells}` as `info.keybinds` and
+ * the catalog's `keybind_entries` have them. A spell's entry has its own name as its one
+ * spell; a macro's binding is "" until it gets a key.
+ */
+let draft = [];
+/** The binding button waiting for a key press, and the entry it binds. */
+let listening = null;
+/** The bindable spells of the loaded character, by name. */
+let bindableByName = new Map();
+
+/** Where `localStorage` keeps the last applied keybinds of a class. */
+const rememberKey = (playerClass) => `csim-live.keybinds.${playerClass}`;
+
+function remembered(playerClass) {
+  try {
+    const stored = localStorage.getItem(rememberKey(playerClass));
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
+function remember(playerClass, entries) {
+  try {
+    localStorage.setItem(rememberKey(playerClass), JSON.stringify(entries));
+  } catch {
+    // Storage blocked or full: nothing is remembered.
+  }
+}
+
+/** A YAML string: single-quoted, a quote doubled. */
+const yamlQuote = (text) => `'${String(text).replace(/'/g, "''")}'`;
+
+/** `entries` as a keybinds file (see `data/keybinds/`), with a comment saying so or not. */
+function keybindsYaml(entries, comment = true) {
+  const lines = comment ? ["# Keybinds for csim-live, written by its keybinds editor."] : [];
+  for (const entry of entries) {
+    if (entry.macro) {
+      lines.push(`${yamlQuote(entry.name)}:`, `  hotkey: ${yamlQuote(entry.binding)}`, "  cast:");
+      lines.push(...entry.spells.map((spell) => `    - ${yamlQuote(spell)}`));
+    } else {
+      lines.push(`${yamlQuote(entry.name)}: ${yamlQuote(entry.binding)}`);
+    }
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+/** A copy of `entries` with only what the loaded character can cast; what was dropped. */
+function castable(entries) {
+  const dropped = [];
+  const kept = [];
+  for (const entry of entries) {
+    const spells = entry.spells.filter((spell) => bindableByName.has(spell));
+    dropped.push(...entry.spells.filter((spell) => !bindableByName.has(spell)));
+    if (spells.length > 0) {
+      kept.push({ name: entry.name, binding: entry.binding, macro: entry.macro, spells });
+    }
+  }
+  return { kept, dropped };
+}
+
+/**
+ * The editor's starting points, best first: the loaded keybinds, the class's last applied
+ * ones, the bundled files whose spells the character all has (the selected one first), none.
+ */
+function startingPoints() {
+  const points = [];
+  if (info.manual) {
+    points.push({ label: "The loaded keybinds", entries: info.keybinds });
+  }
+  const last = remembered(info.class);
+  if (last) {
+    points.push({ label: `Last applied (${info.class})`, entries: last });
+  }
+  const selected = $("mode-select").value;
+  const files = Object.entries(catalog?.keybind_entries || {})
+    .filter(([, entries]) => entries.every((entry) => entry.spells.every((spell) => bindableByName.has(spell))))
+    .sort(([a], [b]) => (b === selected) - (a === selected));
+  points.push(...files.map(([name, entries]) => ({ label: `Bundled: ${name}`, entries })));
+  points.push({ label: "No keybinds", entries: [] });
+  return points;
+}
+
+function openEditor() {
+  if (!info) {
+    return;
+  }
+  bindableByName = new Map(info.bindable.map((spell) => [spell.name, spell]));
+  const points = startingPoints();
+  const start = $("editor-start");
+  start.replaceChildren(...points.map((point, index) => {
+    const option = element("option", "", point.label);
+    option.value = index;
+    return option;
+  }));
+  start.onchange = () => startFrom(points[Number(start.value)]);
+  $("editor-title").textContent = `Keybinds · ${info.name}`;
+  $("editor-filter").value = "";
+  startFrom(points[0]);
+  $("keybinds-editor").showModal();
+}
+
+function startFrom(point) {
+  const { kept, dropped } = castable(point.entries);
+  draft = kept;
+  stopListening();
+  renderEditor();
+  editorStatus(dropped.length ? `Not castable by ${info.name}, left out: ${[...new Set(dropped)].join(", ")}` : "");
+}
+
+function editorStatus(text) {
+  $("editor-status").textContent = text;
+}
+
+/** The entry of the spell `name` (bound alone), if it is bound. */
+const spellEntry = (name) => draft.find((entry) => !entry.macro && entry.name === name);
+
+/** A key button for `entry` (null: the spell `name`, unbound). */
+function keyButton(entry, name) {
+  const binding = entry?.binding || "";
+  const button = element("button", binding ? "bind-key" : "bind-key unbound", binding || "not bound");
+  button.type = "button";
+  button.title = "Click, then press the key (with Ctrl, Shift, Alt)";
+  button.addEventListener("click", () => listen(button, entry, name));
+  return button;
+}
+
+function renderEditor() {
+  const filter = $("editor-filter").value.trim().toLowerCase();
+  const rows = info.bindable
+    .filter((spell) => spell.name.toLowerCase().includes(filter))
+    .map((spell) => {
+      const row = element("div", "bind-row");
+      row.dataset.name = spell.name;
+      const name = element("span", "", spell.name);
+      if (!spell.gcd) {
+        name.append(element("span", "gcd-tag", "off the GCD"));
+      }
+      row.append(iconSlot(spell.icon), name, keyButton(spellEntry(spell.name), spell.name));
+      return row;
+    });
+  $("editor-spells").replaceChildren(...rows);
+  $("editor-macros").replaceChildren(...draft.filter((entry) => entry.macro).map(macroView));
+}
+
+function macroView(macro) {
+  const view = element("div", "macro");
+  view.dataset.name = macro.name;
+  const head = element("div", "macro-head");
+  const name = element("input");
+  name.value = macro.name;
+  name.setAttribute("aria-label", "Macro name");
+  name.addEventListener("input", () => { macro.name = name.value.trim(); });
+  const remove = element("button", "delete", "Delete");
+  remove.type = "button";
+  remove.addEventListener("click", () => {
+    draft.splice(draft.indexOf(macro), 1);
+    renderEditor();
+  });
+  head.append(name, keyButton(macro), remove);
+
+  const list = element("ol", "macro-spells");
+  macro.spells.forEach((spell, index) => {
+    const item = element("li");
+    const controls = element("span");
+    for (const [label, title, act] of [
+      ["↑", "Earlier", () => index > 0 && macro.spells.splice(index - 1, 0, ...macro.spells.splice(index, 1))],
+      ["↓", "Later", () => macro.spells.splice(index + 1, 0, ...macro.spells.splice(index, 1))],
+      ["×", "Remove", () => macro.spells.splice(index, 1)],
+    ]) {
+      const button = element("button", "", label);
+      button.type = "button";
+      button.title = title;
+      button.addEventListener("click", () => { act(); renderEditor(); });
+      controls.append(button);
+    }
+    item.append(iconSlot(bindableByName.get(spell)?.icon), element("span", "", spell), controls);
+    list.append(item);
+  });
+
+  const add = element("select");
+  add.setAttribute("aria-label", "Add a spell to the macro");
+  add.append(element("option", "", "Add a spell…"),
+    ...info.bindable.map((spell) => element("option", "", spell.name)));
+  add.addEventListener("change", () => {
+    if (add.selectedIndex > 0) {
+      macro.spells.push(add.value);
+      renderEditor();
+    }
+  });
+  view.append(head, list, add);
+  return view;
+}
+
+/** `button` waits for the key of `entry` (or of the unbound spell `name`). */
+function listen(button, entry, name) {
+  stopListening();
+  listening = { button, entry, name };
+  button.classList.add("listening");
+  button.textContent = "press a key…";
+  editorStatus("");
+}
+
+function stopListening() {
+  if (listening) {
+    listening.button.classList.remove("listening");
+    const binding = listening.entry?.binding || "";
+    listening.button.textContent = binding || "not bound";
+    listening = null;
+  }
+}
+
+/** Whether the server takes `binding`'s key: a letter or digit, F1..F12, or a named key. */
+function bindableKey(binding) {
+  const key = binding.split("+").pop();
+  return /^[A-Z0-9]$/.test(key) || /^F([1-9]|1[0-2])$/.test(key) || (catalog?.keys || []).includes(key);
+}
+
+/** The key press while a button listens: binds, unbinds (Backspace, Delete) or cancels (Esc). */
+function editorKey(event) {
+  if (!listening || /^(Shift|Control|Alt|Meta|OS)(Left|Right)?$/.test(event.code)) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.code === "Escape") {
+    stopListening();
+    return;
+  }
+  const { entry, name } = listening;
+  listening = null;
+  if (event.code === "Backspace" || event.code === "Delete") {
+    if (entry?.macro) {
+      entry.binding = "";
+    } else if (entry) {
+      draft.splice(draft.indexOf(entry), 1);
+    }
+    renderEditor();
+    return;
+  }
+  const binding = pressedBinding(event);
+  if (!bindableKey(binding)) {
+    renderEditor();
+    // A key without a code (some keyboards' extra keys) has nothing to name it by.
+    editorStatus(`${event.code ? binding : event.key || "That key"} cannot be bound`);
+    return;
+  }
+  // A key already in use moves: the other keybind loses it.
+  const other = draft.find((candidate) => candidate.binding === binding && candidate !== entry);
+  if (other) {
+    if (other.macro) {
+      other.binding = "";
+    } else {
+      draft.splice(draft.indexOf(other), 1);
+    }
+  }
+  if (entry) {
+    entry.binding = binding;
+  } else {
+    draft.push({ name, binding, macro: false, spells: [name] });
+  }
+  renderEditor();
+  editorStatus(other ? `${binding} moved from ${other.name}` : "");
+  if (other) {
+    const row = [...document.querySelectorAll("#editor-body [data-name]")]
+      .find((candidate) => candidate.dataset.name === other.name);
+    row?.classList.add("moved");
+  }
+}
+
+/** Why the draft cannot be written, or null. */
+function draftProblem() {
+  if (draft.length === 0) {
+    return "Bind at least one spell";
+  }
+  const spells = new Set(draft.filter((entry) => !entry.macro).map((entry) => entry.name));
+  const macros = new Set();
+  for (const macro of draft.filter((entry) => entry.macro)) {
+    if (!macro.name) {
+      return "A macro has no name";
+    }
+    if (spells.has(macro.name) || macros.has(macro.name)) {
+      return `Two keybinds are named ${macro.name}`;
+    }
+    macros.add(macro.name);
+    if (!macro.binding) {
+      return `The macro ${macro.name} has no key`;
+    }
+    if (macro.spells.length === 0) {
+      return `The macro ${macro.name} casts nothing`;
+    }
+  }
+  return null;
+}
+
+/** Loads the draft as pasted keybinds with the loaded setup; the editor closes once it loads. */
+function applyEditor() {
+  stopListening();
+  const problem = draftProblem();
+  if (problem) {
+    editorStatus(problem);
+    return;
+  }
+  const yaml = keybindsYaml(draft);
+  const request = formRequest();
+  delete request.keybinds;
+  request.keybinds_yaml = yaml;
+  if (info.source.setup) {
+    delete request.setup_yaml;
+    request.setup = info.source.setup;
+  }
+  const playerClass = info.class;
+  const entries = structuredClone(draft);
+  setPlaying(false);
+  enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      editorStatus(String(error.message || error));
+      return;
+    }
+    $("keybinds-yaml").value = yaml;
+    remember(playerClass, entries);
+    $("keybinds-editor").close();
+    await begin(next);
+  });
+}
+
+/** The draft as a file to save. */
+function downloadEditor() {
+  const problem = draftProblem();
+  if (problem) {
+    editorStatus(problem);
+    return;
+  }
+  const link = element("a");
+  link.href = URL.createObjectURL(new Blob([keybindsYaml(draft)], { type: "application/yaml" }));
+  link.download = "keybinds.yaml";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 0);
+}
+
+$("edit-keybinds").addEventListener("click", openEditor);
+$("editor-filter").addEventListener("input", () => { stopListening(); renderEditor(); });
+$("editor-add-macro").addEventListener("click", () => {
+  stopListening();
+  let number = 1;
+  const names = new Set(draft.map((entry) => entry.name));
+  while (names.has(`Macro ${number}`)) {
+    number += 1;
+  }
+  draft.push({ name: `Macro ${number}`, binding: "", macro: true, spells: [] });
+  renderEditor();
+});
+$("editor-apply").addEventListener("click", applyEditor);
+$("editor-download").addEventListener("click", downloadEditor);
+$("editor-cancel").addEventListener("click", () => $("keybinds-editor").close());
+$("keybinds-editor").addEventListener("keydown", editorKey, true);
+$("keybinds-editor").addEventListener("close", stopListening);
+// Esc while a button listens cancels the listening, not the editor.
+$("keybinds-editor").addEventListener("cancel", (event) => {
+  if (listening) {
+    event.preventDefault();
+    stopListening();
+  }
+});
+// A click anywhere but the listening button stops it listening.
+$("keybinds-editor").addEventListener("pointerdown", (event) => {
+  if (listening && event.target !== listening.button) {
+    stopListening();
+  }
+});
+
+/** URL-safe base64 of the UTF-8 `text`, and back: pasted keybinds in a link (`keys=`). */
+function toBase64Url(text) {
+  const bytes = new TextEncoder().encode(text);
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromBase64Url(encoded) {
+  const binary = atob(encoded.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
+}
 
 /**
  * The first iteration: the one the address names, else the server's (the command line's),
@@ -1859,7 +2362,7 @@ function pressedBinding(event) {
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || event.repeat || inForm) {
+  if (!info || !info.manual || event.repeat || inForm || $("keybinds-editor").open) {
     return;
   }
   // A spell's name, or a macro's.

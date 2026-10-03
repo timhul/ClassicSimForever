@@ -235,6 +235,18 @@ fn before_a_load_only_the_page_catalog_and_load_answer() {
             .count(),
         1
     );
+    // The editor's starting points: each file's keybinds, and the keys it can bind.
+    let dw_fury = catalog["keybind_entries"]["dw_fury"].as_array().unwrap();
+    assert!(
+        dw_fury
+            .iter()
+            .any(|keybind| keybind["name"] == "Bloodthirst"
+                && keybind["binding"] == "2"
+                && keybind["macro"] == false)
+    );
+    assert!(dw_fury.iter().any(|keybind| keybind["macro"] == true));
+    let keys = catalog["keys"].as_array().unwrap();
+    assert!(keys.contains(&Value::from("Numpad1")) && keys.contains(&Value::from("Space")));
     for (method, path, body) in [
         ("GET", "/api/info", ""),
         ("POST", "/api/advance", r#"{"to": 1}"#),
@@ -304,6 +316,40 @@ fn pasted_setups_and_keybinds_load() {
     let info = json(&call(&mut app, "POST", "/api/load", &body));
     assert_eq!(info["keybinds"][0]["name"], "Bloodthirst");
     assert_eq!(info["source"]["keybinds"], Value::Null);
+}
+
+#[test]
+fn the_editors_keybinds_play_from_the_keyboard() {
+    let mut app = empty_app();
+    let rotation = json(&call(
+        &mut app,
+        "POST",
+        "/api/load",
+        r#"{"setup": "warrior_fury_dw_orc"}"#,
+    ));
+    // The editor offers the bindable spells while the rotation plays.
+    let bindable = rotation["bindable"].as_array().unwrap();
+    assert!(bindable.iter().any(|spell| spell["name"] == "Bloodthirst"));
+
+    let body = serde_json::json!({
+        "setup": "warrior_fury_dw_orc",
+        "keybinds_yaml": "'Bloodthirst': '2'\n'Charge': 'R'\n\
+            'Cooldowns':\n  hotkey: 'Shift+T'\n  cast:\n    - 'Blood Fury'\n    - 'Death Wish'\n",
+    })
+    .to_string();
+    let info = json(&call(&mut app, "POST", "/api/load", &body));
+    assert_eq!(info["manual"], true);
+    assert_eq!(info["bindable"], rotation["bindable"]);
+    let names: Vec<&str> = info["keybinds"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|keybind| keybind["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["Bloodthirst", "Charge", "Cooldowns"]);
+    let at = info["start_at"].as_f64().unwrap() + 1.0;
+    let cast = serde_json::json!({"spell": "Charge", "at": at}).to_string();
+    assert_eq!(call(&mut app, "POST", "/api/cast", &cast).status, 200);
 }
 
 #[test]

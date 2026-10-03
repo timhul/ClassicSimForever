@@ -122,3 +122,36 @@ fn the_bundled_keybinds_load_from_memory() {
     let error = load_from(&files, Path::new("keybinds/missing.yaml")).unwrap_err();
     assert!(error.starts_with("keybinds/missing.yaml: "), "{error}");
 }
+
+/// What the page's keybinds editor writes: every name and binding single-quoted (`''` for a
+/// quote), macros as `hotkey` and `cast`.
+#[test]
+fn the_editors_yaml_parses() {
+    let keybinds = parse(
+        "# Written by the keybinds editor of csim-live.\n\
+         'Bloodthirst': '2'\n\
+         'Heroic Strike': 'Ctrl+Shift+Alt+V'\n\
+         'Raptor''s Strike: Rank 1': 'Shift+Numpad1'\n\
+         'Cooldowns':\n  \
+           hotkey: 'T'\n  \
+           cast:\n    \
+             - 'Blood Fury'\n    \
+             - 'Death Wish'\n",
+    )
+    .unwrap();
+    let names: Vec<(&str, &str)> = keybinds
+        .iter()
+        .map(|keybind| (keybind.name.as_str(), keybind.binding.as_str()))
+        .collect();
+    assert_eq!(
+        names,
+        [
+            ("Bloodthirst", "2"),
+            ("Heroic Strike", "Ctrl+Shift+Alt+V"),
+            ("Raptor's Strike: Rank 1", "Shift+Numpad1"),
+            ("Cooldowns", "T"),
+        ]
+    );
+    assert!(keybinds[3].is_macro);
+    assert_eq!(keybinds[3].spells, ["Blood Fury", "Death Wish"]);
+}

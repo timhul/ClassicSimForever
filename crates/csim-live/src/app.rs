@@ -3,6 +3,7 @@
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
 //! by its rotation or from the keyboard, with a seed, a length and named settings.
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -56,6 +57,11 @@ pub struct Catalog {
     pub setups: Vec<SetupEntry>,
     /// The keybind files, by name.
     pub keybinds: Vec<String>,
+    /// The keybinds of each file of `keybinds` that loads, by its name (the editor's starting
+    /// points).
+    pub keybind_entries: BTreeMap<String, Vec<Keybind>>,
+    /// The named keys a binding can use besides letters, digits and `F1`..`F12`.
+    pub keys: &'static [&'static str],
     pub settings: Vec<SettingEntry>,
     /// The encounter length in seconds, and its variance in percent, without a choice.
     pub length: u32,
@@ -171,16 +177,26 @@ impl App {
                 is_catalog_name(&name).then(|| self.setup_entry(name, path))
             })
             .collect();
-        let keybinds = self
+        let keybind_files: Vec<(String, PathBuf)> = self
             .yaml_files(KEYBINDS)
-            .iter()
-            .filter_map(|path| path.file_stem()?.to_str().map(str::to_owned))
-            .filter(|name| is_catalog_name(name))
+            .into_iter()
+            .filter_map(|path| Some((path.file_stem()?.to_str()?.to_owned(), path)))
+            .filter(|(name, _)| is_catalog_name(name))
             .collect();
+        let keybind_entries = keybind_files
+            .iter()
+            .filter_map(|(name, path)| {
+                let keybinds = keybinds::load_from(self.files.as_ref(), path).ok()?;
+                Some((name.clone(), keybinds))
+            })
+            .collect();
+        let keybinds = keybind_files.into_iter().map(|(name, _)| name).collect();
         let defaults = SimSettings::default();
         Catalog {
             setups,
             keybinds,
+            keybind_entries,
+            keys: keybinds::NAMED_KEYS,
             settings: NAMED_SETTINGS
                 .iter()
                 .map(|setting| SettingEntry {

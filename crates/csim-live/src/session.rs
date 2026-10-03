@@ -78,6 +78,19 @@ pub struct Info {
     pub manual: bool,
     /// The bound spells, in the keybinds file's order (none without keybinds).
     pub keybinds: Vec<KeybindInfo>,
+    /// The spells a keybind can name (see [`bindable_spells`]), played from the keyboard or
+    /// not.
+    pub bindable: Vec<BindableSpell>,
+}
+
+/// A spell the character can cast from a key.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct BindableSpell {
+    /// The name a keybind gives it (without rank).
+    pub name: String,
+    pub icon: Option<Icon>,
+    /// Whether it triggers the global cooldown.
+    pub gcd: bool,
 }
 
 /// A spell or a macro bound to a key.
@@ -457,6 +470,7 @@ impl Session {
                     ),
                 })
                 .collect(),
+            bindable: bindable_spells(character.spells()),
         }
     }
 
@@ -1186,6 +1200,26 @@ fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<Vec<Spel
                 .collect()
         })
         .collect()
+}
+
+/// The spells a keybind can name, by name: the ones a name reaches (rank groups, as
+/// `bound_spells` resolves names; spellbook spells and item uses) whose highest learned rank
+/// is enabled and cast, not a passive. Sorted by name.
+fn bindable_spells(spells: &CharacterSpells) -> Vec<BindableSpell> {
+    let mut bindable: Vec<BindableSpell> = spells
+        .rank_groups()
+        .filter_map(|group| {
+            let id = group.get_max_available_spell_rank(|id| spells.spell(id).is_enabled())?;
+            let spell = spells.spell(id);
+            (!spell.is_passive() && !spell.is_ignored()).then(|| BindableSpell {
+                name: group.name().to_owned(),
+                icon: Icon::of_spell(spell.record()),
+                gcd: spell.triggers_gcd(),
+            })
+        })
+        .collect();
+    bindable.sort_by(|a, b| a.name.cmp(&b.name));
+    bindable
 }
 
 /// The spell a keybind is shown as: a macro's first entry that triggers the GCD (what it is
