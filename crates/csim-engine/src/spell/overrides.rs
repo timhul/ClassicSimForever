@@ -484,6 +484,10 @@ pub enum SimFlag {
     StopsAttackDuringCast,
     /// Casting it discards a queued on-next-swing spell (Slam vs Heroic Strike).
     CancelsNextSwingQueue,
+    /// The cast time is the character running to the target (Charge), not a cast: only what
+    /// hits the enemy or has a cast time of its own waits for it; a stance, a shout or Bloodrage
+    /// can be cast on the way.
+    RunToTarget,
     /// The passive is active from the start of combat (Anger Management).
     StartOfCombat,
     /// The spell's damage never crits (Rend's bleed in Classic).

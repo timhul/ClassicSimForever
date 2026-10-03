@@ -716,9 +716,10 @@ impl Character {
     }
 
     /// Whether an action can be started at `now`: off the global cooldown (within a rounding
-    /// tolerance) and not casting. Port of `Character::action_ready`.
+    /// tolerance) and not casting (running to the target does not count: what can be cast on
+    /// the way may start the global cooldown). Port of `Character::action_ready`.
     pub fn action_ready(&self, now: f64) -> bool {
-        self.next_gcd - now < GCD_EPSILON && !self.spells.cast_in_progress()
+        self.next_gcd - now < GCD_EPSILON && !self.spells.blocking_cast_in_progress()
     }
 
     pub fn on_global_cooldown(&self, now: f64) -> bool {

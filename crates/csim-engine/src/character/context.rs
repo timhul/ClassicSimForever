@@ -2557,7 +2557,7 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
     }
 
     fn is_casting(&self) -> bool {
-        self.character.spells.cast_in_progress()
+        self.character.spells.blocking_cast_in_progress()
     }
 
     fn gcd_length(&self) -> f64 {
@@ -2838,8 +2838,12 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.spells().cast_in_progress()
     }
 
-    fn start_cast(&mut self) -> u32 {
-        self.character.spells_mut().start_cast()
+    fn running_to_target(&self) -> bool {
+        self.character.spells().running_to_target()
+    }
+
+    fn start_cast(&mut self, running_to_target: bool) -> u32 {
+        self.character.spells_mut().start_cast(running_to_target)
     }
 
     fn complete_cast(&mut self, cast_id: u32) {

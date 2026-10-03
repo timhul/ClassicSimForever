@@ -2593,6 +2593,37 @@ cast_if:
         );
     }
 
+    #[test]
+    fn non_offensive_spells_are_cast_while_charging() {
+        const CHARGE: u32 = 11578;
+        const BATTLE_SHOUT: u32 = 25289;
+        let mut f = shipped_orc_warrior();
+        f.engine.prepare_iteration(-2.0);
+        f.ctx().swap_stance(Stance::Battle);
+        f.run(-1.5);
+        let charge = f.spell_id(CHARGE);
+        assert!(
+            f.ctx().cast(charge).cast_started,
+            "Charge runs to the target"
+        );
+        assert!(f.character.spells().running_to_target());
+        // What hits the enemy waits for the run; the rest is cast on the way.
+        f.set_rage(100);
+        assert_eq!(f.status(HEROIC_STRIKE), SpellStatus::CastInProgress);
+        assert_eq!(f.status(BLOODRAGE), SpellStatus::Available);
+        assert_eq!(f.status(BATTLE_SHOUT), SpellStatus::Available);
+        assert_eq!(f.status(BERSERKER_STANCE), SpellStatus::Available);
+        let shout = f.spell_id(BATTLE_SHOUT);
+        f.ctx().cast(shout);
+        assert!(f.ctx().aura_active(BATTLE_SHOUT));
+        let berserker = f.spell_id(BERSERKER_STANCE);
+        f.ctx().cast(berserker);
+        assert_eq!(f.character.stance(), Stance::Berserker);
+        f.run(-0.4);
+        assert!(!f.character.spells().cast_in_progress(), "Charge landed");
+        assert!(!f.character.spells().running_to_target());
+    }
+
     /// A rotation whose casts do not depend on talents: Whirlwind whenever it is up, Heroic
     /// Strike above 50 rage, Bloodrage below 70, Battle Shout when it is about to fall off.
     pub(super) const FURY_NO_TALENTS: &str = r#"

@@ -499,6 +499,8 @@ overrides:
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
+`RUN_TO_TARGET` (Charge: the cast time is the run to the target, not a cast; spells that do not
+hit the enemy and have no cast time of their own can be cast during it),
 `START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`, `ENRAGE` (the buff
 puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Regeneration require;
 the client tables do not carry the enrage mechanic).

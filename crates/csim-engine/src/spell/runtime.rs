@@ -68,8 +68,11 @@ pub trait SpellHost: EffectHost {
     fn on_stance_cooldown(&self) -> bool;
     fn start_stance_cooldown(&mut self);
     fn cast_in_progress(&self) -> bool;
-    /// Marks a cast as in progress and returns its id. Port of `CharacterSpells::start_cast`.
-    fn start_cast(&mut self) -> u32;
+    /// Whether the cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
+    fn running_to_target(&self) -> bool;
+    /// Marks a cast as in progress and returns its id; `running_to_target` for a
+    /// [`SimFlag::RunToTarget`] spell. Port of `CharacterSpells::start_cast`.
+    fn start_cast(&mut self, running_to_target: bool) -> u32;
     /// Ends the cast with `cast_id` (the character schedules its reaction). Port of
     /// `CharacterSpells::complete_cast`.
     fn complete_cast(&mut self, cast_id: u32);
@@ -804,6 +807,12 @@ impl Spell {
         self.setup.cast_time_ms() > 0
     }
 
+    /// Whether the spell can be cast while running to the target ([`SimFlag::RunToTarget`]):
+    /// it does not hit the enemy and has no cast time (a stance, a shout, Bloodrage).
+    pub fn usable_while_running(&self) -> bool {
+        !self.setup.record.is_offensive() && !self.has_cast_time()
+    }
+
     /// Whether this spell's cast is in progress.
     pub fn is_casting(&self) -> bool {
         self.cast_id.is_some()
@@ -1149,7 +1158,7 @@ impl Spell {
         if self.triggers_gcd() && host.on_global_cooldown() {
             return SpellStatus::OnGcd;
         }
-        if host.cast_in_progress() {
+        if host.cast_in_progress() && !(host.running_to_target() && self.usable_while_running()) {
             return SpellStatus::CastInProgress;
         }
         let now = host.engine().current_time();
@@ -1388,7 +1397,7 @@ impl Spell {
     /// Starts casting: `CastComplete` is scheduled after the cast time. Port of
     /// `CastingTimeRequirer::start_cast` plus the `Slam::spell_effect` attack handling.
     fn start_cast(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
-        let cast_id = host.start_cast();
+        let cast_id = host.start_cast(self.has_sim_flag(SimFlag::RunToTarget));
         self.cast_id = Some(cast_id);
         if self.has_sim_flag(SimFlag::StopsAttackDuringCast) {
             host.stop_attack();

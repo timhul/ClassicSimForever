@@ -385,14 +385,26 @@ fn charge_consumers_are_active_owned_buffs_listening_to_the_source() {
 fn cast_and_attack_bookkeeping() {
     let (_, mut spells, _) = setup();
     assert!(!spells.cast_in_progress());
-    assert_eq!(spells.start_cast(), 1);
+    assert_eq!(spells.start_cast(false), 1);
     assert!(spells.cast_in_progress());
     spells.complete_cast(1);
     assert!(!spells.cast_in_progress());
-    assert_eq!(spells.start_cast(), 2);
+    assert_eq!(spells.start_cast(false), 2);
     spells.reset_state();
     assert!(!spells.cast_in_progress());
-    assert_eq!(spells.start_cast(), 1);
+    assert_eq!(spells.start_cast(false), 1);
+    assert!(spells.blocking_cast_in_progress());
+    assert!(!spells.running_to_target());
+    spells.complete_cast(1);
+    spells.start_cast(true);
+    assert!(spells.cast_in_progress());
+    assert!(spells.running_to_target());
+    assert!(
+        !spells.blocking_cast_in_progress(),
+        "a run blocks no action"
+    );
+    spells.complete_cast(2);
+    assert!(!spells.running_to_target());
 
     spells.stop_attack();
     assert_eq!(spells.attack_mode(), AttackMode::MeleeAttack);
@@ -409,15 +421,15 @@ fn cast_and_attack_bookkeeping() {
 #[should_panic(expected = "Cast in progress")]
 fn starting_a_cast_during_a_cast_panics() {
     let (_, mut spells, _) = setup();
-    spells.start_cast();
-    spells.start_cast();
+    spells.start_cast(false);
+    spells.start_cast(false);
 }
 
 #[test]
 #[should_panic(expected = "Mismatched cast id")]
 fn completing_the_wrong_cast_panics() {
     let (_, mut spells, _) = setup();
-    spells.start_cast();
+    spells.start_cast(false);
     spells.complete_cast(7);
 }
 

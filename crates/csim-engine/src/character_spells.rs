@@ -150,6 +150,8 @@ pub struct CharacterSpells {
     /// The queued on-next-swing spell and its marker buff.
     queued_next_swing: Option<(SpellId, Option<BuffId>)>,
     cast_in_progress: bool,
+    /// The cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
+    running_to_target: bool,
     cast_id: u32,
 }
 
@@ -177,6 +179,7 @@ impl CharacterSpells {
             oh_attack: AutoAttack::new(Hand::Offhand),
             queued_next_swing: None,
             cast_in_progress: false,
+            running_to_target: false,
             cast_id: 0,
         }
     }
@@ -937,16 +940,29 @@ impl CharacterSpells {
         self.cast_in_progress
     }
 
-    /// Port of `CharacterSpells::start_cast`.
+    /// Whether the cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
+    pub fn running_to_target(&self) -> bool {
+        self.cast_in_progress && self.running_to_target
+    }
+
+    /// Whether a cast that holds back every other action is in progress: any but a run to the
+    /// target.
+    pub fn blocking_cast_in_progress(&self) -> bool {
+        self.cast_in_progress && !self.running_to_target
+    }
+
+    /// Port of `CharacterSpells::start_cast`; `running_to_target` for a
+    /// [`SimFlag::RunToTarget`] spell.
     ///
     /// # Panics
     /// Panics if a cast is already in progress.
-    pub fn start_cast(&mut self) -> u32 {
+    pub fn start_cast(&mut self, running_to_target: bool) -> u32 {
         assert!(
             !self.cast_in_progress,
             "Cast in progress when starting new cast"
         );
         self.cast_in_progress = true;
+        self.running_to_target = running_to_target;
         self.cast_id += 1;
         self.cast_id
     }
@@ -962,6 +978,7 @@ impl CharacterSpells {
         );
         assert_eq!(self.cast_id, cast_id, "Mismatched cast id");
         self.cast_in_progress = false;
+        self.running_to_target = false;
     }
 
     // --- Attack mode ---
@@ -1069,6 +1086,7 @@ impl CharacterSpells {
     /// engine and target). Port of the state part of `CharacterSpells::reset`.
     pub fn reset_state(&mut self) {
         self.cast_in_progress = false;
+        self.running_to_target = false;
         self.cast_id = 0;
         self.attack_mode_active = false;
         self.queued_next_swing = None;
