@@ -34,4 +34,4 @@ cast_if:
   - name: Eviscerate
     condition: |
       variable "combo_points" eq 5
-      and buff_duration "Slice and Dice" greater 8
+      and buff_duration "Slice and Dice" greater 3
