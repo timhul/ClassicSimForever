@@ -12,10 +12,10 @@
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
-use std::time::Instant;
 
 use crate::combat_log::{CombatLog, CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::ids::{BuffId, CharId, SpellId};
+use crate::time::{Duration, Instant};
 
 /// Seconds between something happening to a player and the player acting on it (a gain of
 /// resource, a completed cast, a swing). Port of `Character::add_player_reaction_event`.
@@ -430,7 +430,7 @@ impl Engine {
 
     /// Wall-clock time spent since [`Engine::prepare_set_of_iterations`].
     /// Used for engine statistics.
-    pub fn elapsed(&self) -> std::time::Duration {
+    pub fn elapsed(&self) -> Duration {
         self.started_at.elapsed()
     }
 

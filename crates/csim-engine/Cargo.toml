@@ -11,5 +11,9 @@ serde.workspace = true
 serde_yaml.workspace = true
 thiserror.workspace = true
 
+# The browser has no `std::time` clock (see src/time.rs).
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+web-time.workspace = true
+
 [dev-dependencies]
 approx.workspace = true

@@ -42,6 +42,7 @@ pub mod stats;
 pub mod sweep_loader;
 pub mod talent;
 pub mod target;
+pub mod time;
 
 #[cfg(test)]
 mod ground_truth;

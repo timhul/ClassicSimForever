@@ -436,32 +436,37 @@ pub fn run_threaded<E: Send>(
         .filter(|&(share, _, _)| share > 0)
         .collect();
 
-    let build = &build;
-    let results: Vec<Result<NumberCruncher, E>> = std::thread::scope(|scope| {
-        let handles: Vec<_> = jobs
-            .into_iter()
-            .map(|(share, raid_seed, shuffle_seed)| {
-                let mut local = settings.clone();
-                mode.set_iterations(&mut local, share);
-                let progress = progress.clone();
-                scope.spawn(move || {
-                    let mut raid = build()?;
-                    raid.set_seed(raid_seed);
-                    let mut control = SimControl::new(local, shuffle_seed);
-                    if let Some(progress) = progress {
-                        control = control.with_progress(progress);
-                    }
-                    let mut cruncher = NumberCruncher::new();
-                    control.run(mode, &mut raid, &mut cruncher);
-                    Ok(cruncher)
-                })
-            })
-            .collect();
-        handles
-            .into_iter()
-            .map(|handle| handle.join().expect("simulation thread panicked"))
-            .collect()
-    });
+    // One thread's share of the iterations, on a raid of its own.
+    let run_share = |(share, raid_seed, shuffle_seed): (u32, u64, u64)| {
+        let mut local = settings.clone();
+        mode.set_iterations(&mut local, share);
+        let mut raid = build()?;
+        raid.set_seed(raid_seed);
+        let mut control = SimControl::new(local, shuffle_seed);
+        if let Some(progress) = progress.clone() {
+            control = control.with_progress(progress);
+        }
+        let mut cruncher = NumberCruncher::new();
+        control.run(mode, &mut raid, &mut cruncher);
+        Ok(cruncher)
+    };
+    // A single share runs on the calling thread: the same result without spawning one, and
+    // possible where there are no threads (the browser).
+    let results: Vec<Result<NumberCruncher, E>> = if jobs.len() == 1 {
+        jobs.into_iter().map(run_share).collect()
+    } else {
+        let run_share = &run_share;
+        std::thread::scope(|scope| {
+            let handles: Vec<_> = jobs
+                .into_iter()
+                .map(|job| scope.spawn(move || run_share(job)))
+                .collect();
+            handles
+                .into_iter()
+                .map(|handle| handle.join().expect("simulation thread panicked"))
+                .collect()
+        })
+    };
 
     let mut cruncher = NumberCruncher::new();
     for result in results {

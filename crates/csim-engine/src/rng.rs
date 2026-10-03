@@ -8,7 +8,7 @@
 //! derives the full state from the seed with SplitMix64 (the seeding procedure recommended by the
 //! xoroshiro authors) so that a fixed seed always yields the same roll sequence.
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use crate::time::{SystemTime, UNIX_EPOCH};
 
 /// Number of outputs discarded after seeding, matching the C++ warm-up loop.
 const WARMUP_ROUNDS: usize = 100;

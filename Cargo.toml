@@ -17,3 +17,4 @@ approx = "0.5"
 csv = "1"
 clap = { version = "4", features = ["derive"] }
 tiny_http = "0.12"
+web-time = "1"

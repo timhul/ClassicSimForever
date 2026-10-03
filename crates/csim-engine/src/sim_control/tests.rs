@@ -271,6 +271,30 @@ fn the_threads_run_every_iteration_and_report_their_progress() {
 }
 
 #[test]
+fn a_single_share_runs_on_the_calling_thread() {
+    let data = Data::load();
+    let caller = std::thread::current().id();
+    let run = |threads: usize| {
+        let local = SimSettings {
+            threads,
+            ..settings(1)
+        };
+        run_threaded(&local, SimMode::Quick, 9, None, || {
+            assert_eq!(std::thread::current().id(), caller, "no thread spawned");
+            Ok::<_, ()>(data.raid(&local, 1, false))
+        })
+        .unwrap()
+    };
+    // One thread, or one iteration over three threads: a single share either way, with the
+    // same seeds.
+    let (one, three) = (run(1), run(3));
+    assert_eq!(
+        baseline(&one).dps_per_iteration(),
+        baseline(&three).dps_per_iteration()
+    );
+}
+
+#[test]
 fn a_build_error_is_returned() {
     let settings = SimSettings {
         threads: 2,
