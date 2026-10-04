@@ -1,6 +1,7 @@
 //! Port of `Test/Warrior/Talents/TestFury`, walked through Forever's Fury tree (see
 //! [`super::arms`]). Forever has no Improved Battle Shout or Improved Demoralizing Shout; the
-//! walk uses Blood Craze, Boundless Rage and Iron Will in their tiers.
+//! walk uses Blood Craze, Furious Precision, Lingering Rage and Piercing Howl in their tiers, and
+//! Flurry requires Death Wish (the 70205 hotfixes).
 
 use super::talent_tree::TalentTreeTest;
 
@@ -31,7 +32,7 @@ fn spending_talent_points() {
     // 5 Cruelty, 5 Unbridled Wrath.
     assert!(t.increment("Unbridled Wrath", 4));
     assert!(t.increment("Blood Craze", 3));
-    assert!(t.increment("Boundless Rage", 2));
+    assert!(t.increment("Furious Precision", 2));
     assert!(t.increment("Enrage", 5));
     assert!(t.inc("Death Wish"));
     // Tier 5 leans on the 20 points below it.
@@ -49,20 +50,20 @@ fn spending_talent_points() {
     assert!(t.dec("Booming Voice"));
 
     // Shifting points in tier 2.
-    assert!(t.inc("Iron Will"));
+    assert!(t.inc("Lingering Rage"));
     assert!(t.dec("Unbridled Wrath"));
     assert!(!t.dec("Unbridled Wrath"));
-    assert!(!t.dec("Iron Will"));
+    assert!(!t.dec("Lingering Rage"));
     assert!(t.inc("Unbridled Wrath"));
-    assert!(t.dec("Iron Will"));
+    assert!(t.dec("Lingering Rage"));
 
     // Shifting points in tier 3.
-    assert!(t.inc("Improved Cleave"));
+    assert!(t.inc("Piercing Howl"));
     assert!(t.dec("Blood Craze"));
-    assert!(!t.dec("Improved Cleave"));
+    assert!(!t.dec("Piercing Howl"));
     assert!(!t.dec("Blood Craze"));
     assert!(t.inc("Blood Craze"));
-    assert!(t.dec("Improved Cleave"));
+    assert!(t.dec("Piercing Howl"));
 
     // Shifting points in tier 4.
     assert!(t.inc("Improved Execute"));
@@ -96,10 +97,10 @@ fn clearing_tree_after_filling() {
     assert!(t.increment("Cruelty", 5));
     assert!(t.increment("Unbridled Wrath", 5));
     assert!(t.increment("Blood Craze", 3));
-    assert!(t.increment("Boundless Rage", 2));
+    assert!(t.increment("Furious Precision", 2));
     assert!(t.increment("Enrage", 5));
-    assert!(t.increment("Flurry", 5));
     assert!(t.inc("Death Wish"));
+    assert!(t.increment("Flurry", 5));
     assert!(t.inc("Bloodthirst"));
     t.clear_tree();
 }
@@ -109,12 +110,12 @@ fn spec_dw_fury(t: &mut TalentTreeTest) {
     assert!(t.increment("Cruelty", 5));
     assert!(t.increment("Unbridled Wrath", 5));
     assert!(t.increment("Blood Craze", 3));
-    assert!(t.increment("Boundless Rage", 2));
+    assert!(t.increment("Furious Precision", 2));
     assert!(t.increment("Dual Wield Specialization", 5));
     assert!(t.increment("Enrage", 5));
+    assert!(t.inc("Death Wish"));
     assert!(t.increment("Flurry", 5));
     assert!(t.increment("Improved Execute", 2));
-    assert!(t.inc("Death Wish"));
     assert!(t.inc("Bloodthirst"));
 }
 

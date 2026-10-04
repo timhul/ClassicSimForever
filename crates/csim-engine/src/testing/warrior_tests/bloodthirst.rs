@@ -106,31 +106,32 @@ fn damage(crit: bool, impale: u32) -> u64 {
     test.damage_dealt()
 }
 
-// Forever's rank 4 deals 48 + 35 % of the attack power (the C++ spell 45 % of it).
+// Forever's rank 4 deals 48 + 45 % of the attack power since the 70205 hotfixes (35 % before;
+// the C++ spell's 45 % again).
 
 #[test]
 fn hit_dmg() {
-    // [Damage] = 48 + melee_ap * 0.35
-    // [398] = 48 + 1000 * 0.35
-    assert_eq!(damage(false, 2), 398);
+    // [Damage] = 48 + melee_ap * 0.45
+    // [498] = 48 + 1000 * 0.45
+    assert_eq!(damage(false, 2), 498);
 }
 
 #[test]
 fn crit_dmg_0_of_2_impale() {
-    // [796] = (48 + 1000 * 0.35) * 2.0
-    assert_eq!(damage(true, 0), 796);
+    // [996] = (48 + 1000 * 0.45) * 2.0
+    assert_eq!(damage(true, 0), 996);
 }
 
 #[test]
 fn crit_dmg_1_of_2_impale() {
-    // [836] = (48 + 1000 * 0.35) * 2.1
-    assert_eq!(damage(true, 1), 836);
+    // [1046] = (48 + 1000 * 0.45) * 2.1
+    assert_eq!(damage(true, 1), 1046);
 }
 
 #[test]
 fn crit_dmg_2_of_2_impale() {
-    // [876] = (48 + 1000 * 0.35) * 2.2
-    assert_eq!(damage(true, 2), 876);
+    // [1096] = (48 + 1000 * 0.45) * 2.2
+    assert_eq!(damage(true, 2), 1096);
 }
 
 #[test]

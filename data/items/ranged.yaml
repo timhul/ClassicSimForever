@@ -2,6 +2,164 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 2098
+  name: Double-barreled Shotgun
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  damage:
+    min: 21
+    max: 40
+    speed: 2.3
+  stats:
+    AGILITY: 3
+    STRENGTH: 3
+- id: 3021
+  name: Ranger Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135499
+  icon_name: inv_weapon_bow_11
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  damage:
+    min: 23
+    max: 45
+    speed: 2.7
+  stats:
+    AGILITY: 1
+- id: 3078
+  name: Naga Heartpiercer
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135492
+  icon_name: inv_weapon_bow_04
+  req_lvl: 22
+  item_lvl: 27
+  damage:
+    min: 22
+    max: 42
+    speed: 2.4
+  effects:
+  - trigger: ON_HIT
+    spell: 1292647
+- id: 5198
+  name: Cookie's Stirring Rod
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135139
+  icon_name: inv_staff_02
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 20
+    max: 38
+    speed: 1.3
+    school: arcane
+  effects:
+  - trigger: EQUIP
+    spell: 1322312
+- id: 5243
+  name: Firebelcher
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135473
+  icon_name: inv_wand_11
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 27
+    max: 52
+    speed: 1.7
+    school: fire
+  effects:
+  - trigger: EQUIP
+    spell: 1291686
+- id: 6469
+  name: Venomstrike
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135498
+  icon_name: inv_weapon_bow_10
+  req_lvl: 19
+  item_lvl: 24
+  damage:
+    min: 20
+    max: 38
+    speed: 2.4
+  effects:
+  - trigger: ON_HIT
+    spell: 29653
+- id: 6696
+  name: Nightstalker Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135500
+  icon_name: inv_weapon_bow_12
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 20
+    max: 38
+    speed: 1.7
+  stats:
+    AGILITY: 3
+    SHADOW_RESISTANCE: 5
+- id: 6806
+  name: Dancing Flame
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  req_lvl: 0
+  item_lvl: 38
+  damage:
+    min: 34
+    max: 65
+    speed: 1.4
+    school: fire
+  stats:
+    INTELLECT: 7
+    SPELL_DAMAGE: 6
+- id: 7001
+  name: Gravestone Scepter
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  req_lvl: 0
+  item_lvl: 29
+  damage:
+    min: 30
+    max: 57
+    speed: 1.5
+    school: shadow
+  stats:
+    SPIRIT: 4
+    SHADOW_RESISTANCE: 6
 - id: 7513
   name: Ragefire Wand
   phase: 1
@@ -40,6 +198,109 @@ items:
   stats:
     INTELLECT: 4
     SPELL_DAMAGE_FROST: 13
+- id: 7708
+  name: Necrotic Wand
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 32
+    max: 61
+    speed: 1.4
+    school: shadow
+  stats:
+    SHADOW_RESISTANCE: 5
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 12
+- id: 7729
+  name: Chesterfall Musket
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135615
+  icon_name: inv_weapon_rifle_06
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  damage:
+    min: 26
+    max: 50
+    speed: 2.3
+  stats:
+    STAMINA: 6
+- id: 8071
+  name: Sizzle Stick
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135139
+  icon_name: inv_staff_02
+  req_lvl: 0
+  item_lvl: 23
+  damage:
+    min: 27
+    max: 52
+    speed: 1.7
+    school: fire
+  stats:
+    SPELL_DAMAGE: 6
+- id: 9456
+  name: Glass Shooter
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135611
+  icon_name: inv_weapon_rifle_02
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 36
+    max: 68
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 12
+- id: 9487
+  name: Hi-Tech Supergun
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135615
+  icon_name: inv_weapon_rifle_06
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 23
+    max: 43
+    speed: 2.3
+  stats:
+    DEFENSE: 3
+- id: 9489
+  name: Gyromatic Icemaker
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135467
+  icon_name: inv_wand_05
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 29
+    max: 56
+    speed: 1.4
+    school: frost
+  stats:
+    FROST_RESISTANCE: 7
 - id: 11263
   name: Nether Force Wand
   phase: 1
@@ -59,6 +320,368 @@ items:
   stats:
     INTELLECT: 4
     SPELL_DAMAGE_ARCANE: 13
+- id: 12984
+  name: Skycaller
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135464
+  icon_name: inv_wand_02
+  req_lvl: 16
+  item_lvl: 21
+  boe: true
+  damage:
+    min: 24
+    max: 45
+    speed: 1.6
+    school: arcane
+  stats:
+    SPELL_DAMAGE_ARCANE: 7
+- id: 13004
+  name: Torch of Austen
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135473
+  icon_name: inv_wand_11
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  damage:
+    min: 55
+    max: 104
+    speed: 1.4
+    school: fire
+  stats:
+    FIRE_RESISTANCE: 13
+- id: 13019
+  name: Harpyclaw Short Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135499
+  icon_name: inv_weapon_bow_11
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  damage:
+    min: 20
+    max: 38
+    speed: 1.8
+  stats:
+    INTELLECT: 4
+    ATTACK_POWER_HUMANOID: 12
+- id: 13020
+  name: Skystriker Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135499
+  icon_name: inv_weapon_bow_11
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
+  damage:
+    min: 30
+    max: 57
+    speed: 2.1
+  stats:
+    AGILITY: 5
+    INTELLECT: 5
+- id: 13021
+  name: Needle Threader
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135496
+  icon_name: inv_weapon_bow_08
+  req_lvl: 42
+  item_lvl: 47
+  boe: true
+  damage:
+    min: 34
+    max: 64
+    speed: 2
+  stats:
+    SPIRIT: 4
+    STAMINA: 6
+- id: 13022
+  name: Gryphonwing Long Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135499
+  icon_name: inv_weapon_bow_11
+  req_lvl: 50
+  item_lvl: 55
+  boe: true
+  damage:
+    min: 53
+    max: 100
+    speed: 2.7
+  stats:
+    AGILITY: 8
+    STAMINA: 4
+- id: 13023
+  name: Eaglehorn Long Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135499
+  icon_name: inv_weapon_bow_11
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  damage:
+    min: 40
+    max: 76
+    speed: 1.8
+  stats:
+    AGILITY: 10
+    STAMINA: 4
+- id: 13037
+  name: Crystalpine Stinger
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135533
+  icon_name: inv_weapon_crossbow_04
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  damage:
+    min: 35
+    max: 54
+    speed: 2.8
+  stats:
+    AGILITY: 4
+    INTELLECT: 4
+- id: 13038
+  name: Swiftwind
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135533
+  icon_name: inv_weapon_crossbow_04
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  damage:
+    min: 34
+    max: 51
+    speed: 2
+  stats:
+    AGILITY: 7
+- id: 13039
+  name: Skull Splitting Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135533
+  icon_name: inv_weapon_crossbow_04
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  damage:
+    min: 52
+    max: 79
+    speed: 2.6
+  stats:
+    STRENGTH: 3
+    ATTACK_POWER: 14
+- id: 13040
+  name: Heartseeking Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135533
+  icon_name: inv_weapon_crossbow_04
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  damage:
+    min: 71
+    max: 108
+    speed: 3.1
+  stats:
+    AGILITY: 9
+    STAMINA: 4
+  effects:
+  - trigger: EQUIP
+    spell: 29626
+- id: 13062
+  name: Thunderwood
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135139
+  icon_name: inv_staff_02
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  damage:
+    min: 36
+    max: 67
+    speed: 1.9
+    school: nature
+  stats:
+    SPELL_DAMAGE: 7
+- id: 13063
+  name: Starfaller
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135139
+  icon_name: inv_staff_02
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  damage:
+    min: 32
+    max: 60
+    speed: 1.4
+    school: arcane
+  stats:
+    INTELLECT: 5
+    SPELL_DAMAGE_ARCANE: 8
+- id: 13064
+  name: Jaina's Firestarter
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135471
+  icon_name: inv_wand_09
+  req_lvl: 37
+  item_lvl: 42
+  boe: true
+  damage:
+    min: 44
+    max: 82
+    speed: 1.6
+    school: fire
+  stats:
+    INTELLECT: 8
+    SPIRIT: 4
+- id: 13065
+  name: Wand of Allistarj
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135471
+  icon_name: inv_wand_09
+  req_lvl: 45
+  item_lvl: 50
+  boe: true
+  damage:
+    min: 64
+    max: 120
+    speed: 1.9
+    school: arcane
+  stats:
+    ARCANE_RESISTANCE: 12
+- id: 13136
+  name: Lil Timmy's Peashooter
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 16
+  item_lvl: 21
+  boe: true
+  damage:
+    min: 20
+    max: 37
+    speed: 2.6
+  stats:
+    AGILITY: 4
+- id: 13137
+  name: Ironweaver
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  damage:
+    min: 31
+    max: 59
+    speed: 2.6
+  stats:
+    STAMINA: 4
+    DEFENSE: 3
+- id: 13138
+  name: The Silencer
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 37
+  item_lvl: 42
+  boe: true
+  damage:
+    min: 43
+    max: 82
+    speed: 2.8
+  stats:
+    ATTACK_POWER: 14
+- id: 13139
+  name: Guttbuster
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 45
+  item_lvl: 50
+  boe: true
+  damage:
+    min: 49
+    max: 92
+    speed: 2.7
+  stats:
+    AGILITY: 8
+    STRENGTH: 3
+- id: 13146
+  name: Shell Launcher Shotgun
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  damage:
+    min: 48
+    max: 89
+    speed: 2.3
+  effects:
+  - trigger: ON_HIT
+    spell: 29647
 - id: 16004
   name: Dark Iron Rifle
   phase: 1
@@ -131,6 +754,40 @@ items:
   stats:
     INTELLECT: 7
     STAMINA: 11
+- id: 17042
+  name: Nail Spitter
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135610
+  icon_name: inv_weapon_rifle_01
+  req_lvl: 0
+  item_lvl: 38
+  damage:
+    min: 26
+    max: 50
+    speed: 1.9
+  stats:
+    STAMINA: 5
+    STRENGTH: 4
+- id: 17753
+  name: Verdant Keeper's Aim
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135491
+  icon_name: inv_weapon_bow_03
+  req_lvl: 0
+  item_lvl: 53
+  damage:
+    min: 53
+    max: 100
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 29655
 - id: 18282
   name: Core Marksman Rifle
   phase: 1
@@ -594,6 +1251,176 @@ items:
   stats:
     ATTACK_POWER: 18
     CRIT_RATING: 14
+- id: 212581
+  name: Outrunner's Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135490
+  icon_name: inv_weapon_bow_02
+  req_lvl: 25
+  item_lvl: 30
+  damage:
+    min: 24
+    max: 46
+    speed: 2.4
+- id: 212585
+  name: Outrider's Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135494
+  icon_name: inv_weapon_bow_06
+  req_lvl: 25
+  item_lvl: 30
+  damage:
+    min: 24
+    max: 46
+    speed: 2.4
+- id: 234559
+  name: High Warlord's Recurve
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: EPIC
+  icon: 135496
+  icon_name: inv_weapon_bow_08
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234560
+  name: High Warlord's Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: EPIC
+  icon: 135539
+  icon_name: inv_weapon_crossbow_10
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234561
+  name: High Warlord's Street Sweeper
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: EPIC
+  icon: 135615
+  icon_name: inv_weapon_rifle_06
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234585
+  name: Grand Marshal's Bullseye
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: EPIC
+  icon: 135500
+  icon_name: inv_weapon_bow_12
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234586
+  name: Grand Marshal's Repeater
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: EPIC
+  icon: 135533
+  icon_name: inv_weapon_crossbow_04
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234587
+  name: Grand Marshal's Hand Cannon
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: EPIC
+  icon: 135617
+  icon_name: inv_weapon_rifle_08
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 127
+    max: 191
+    speed: 3.3
+  stats:
+    STAMINA: 11
+    RANGED_ATTACK_POWER: 36
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 240993
+  name: Tim's Test Ranged Weapon
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: EPIC
+  icon: 236201
+  icon_name: ability_hunter_rapidregeneration
+  req_lvl: 60
+  item_lvl: 76
+  class_restrictions: [PALADIN]
+  damage:
+    min: 89
+    max: 90
+    speed: 2
+  stats:
+    INTELLECT: 23
+    SPIRIT: 6
+    STAMINA: 18
+    STRENGTH: 17
+    FROST_RESISTANCE: 10
+    SHADOW_RESISTANCE: 10
 - id: 249385
   name: Brilliant Wand
   phase: 1
@@ -714,6 +1541,179 @@ items:
   stats:
     STAMINA: 6
     ATTACK_POWER: 32
+- id: 272999
+  name: Barbaric Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135531
+  icon_name: inv_weapon_crossbow_02
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 15
+    max: 23
+    speed: 2
+  effects:
+  - trigger: ON_HIT
+    spell: 1291551
+- id: 273029
+  name: Golemsight Long Gun
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 134536
+  icon_name: inv_musket_02
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 29
+    max: 54
+    speed: 2.5
+  stats:
+    AGILITY: 6
+- id: 273829
+  name: Concealed Hand Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135531
+  icon_name: inv_weapon_crossbow_02
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 24
+    max: 37
+    speed: 2
+  stats:
+    RANGED_ATTACK_POWER: 12
+- id: 273843
+  name: Fallenroot Longbow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135491
+  icon_name: inv_weapon_bow_03
+  req_lvl: 23
+  item_lvl: 28
+  damage:
+    min: 21
+    max: 40
+    speed: 2.2
+  stats:
+    AGILITY: 2
+    STAMINA: 4
+- id: 274084
+  name: Quilboar Blaster
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135614
+  icon_name: inv_weapon_rifle_05
+  req_lvl: 0
+  item_lvl: 36
+  damage:
+    min: 36
+    max: 68
+    speed: 2.8
+  stats:
+    AGILITY: 4
+    SPIRIT: 4
+- id: 274092
+  name: Sharpened Cutlery
+  phase: 1
+  slot: RANGED
+  type: THROWN
+  quality: RARE
+  icon: 135426
+  icon_name: inv_throwingknife_02
+  req_lvl: 19
+  item_lvl: 26
+  damage:
+    min: 18
+    max: 35
+    speed: 1.8
+  stats:
+    WEAPON_DAMAGE: 3
+- id: 274160
+  name: Quilrager Throwing Axe
+  phase: 1
+  slot: RANGED
+  type: THROWN
+  quality: RARE
+  icon: 135421
+  icon_name: inv_throwingaxe_03
+  req_lvl: 31
+  item_lvl: 36
+  damage:
+    min: 27
+    max: 51
+    speed: 1.8
+  stats:
+    STRENGTH: 13
+    ARMOR: 133
+- id: 274292
+  name: Houndmaster Boomerang
+  phase: 1
+  slot: RANGED
+  type: THROWN
+  quality: RARE
+  icon: 135646
+  icon_name: inv_weapon_shortblade_10
+  req_lvl: 31
+  item_lvl: 36
+  damage:
+    min: 27
+    max: 51
+    speed: 1.8
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 13
+    ATTACK_POWER_BEAST: 30
+- id: 274293
+  name: Spellsever Crossbow
+  phase: 1
+  slot: RANGED
+  type: CROSSBOW
+  quality: RARE
+  icon: 135536
+  icon_name: inv_weapon_crossbow_07
+  req_lvl: 34
+  item_lvl: 39
+  damage:
+    min: 40
+    max: 60
+    speed: 2.4
+  stats:
+    ATTACK_POWER: 8
+  effects:
+  - trigger: ON_HIT
+    spell: 1293714
+- id: 274425
+  name: White Obsidian Wand
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135469
+  icon_name: inv_wand_07
+  req_lvl: 39
+  item_lvl: 44
+  damage:
+    min: 49
+    max: 92
+    speed: 1.7
+    school: arcane
+  stats:
+    SPELL_DAMAGE: 8
+  effects:
+  - trigger: EQUIP
+    spell: 1294055
 - id: 274748
   name: Booty Bay Bruiser's Buckshot
   phase: 1
@@ -786,6 +1786,86 @@ items:
     SPIRIT: 6
     STAMINA: 8
     RANGED_ATTACK_POWER: 21
+- id: 279847
+  name: Unstable Power Core
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  damage:
+    min: 40
+    max: 76
+    speed: 1.7
+  stats:
+    STAMINA: 9
+- id: 279894
+  name: Calibrated Blunderbuss
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 18
+  damage:
+    min: 15
+    max: 29
+    speed: 2.3
+  stats:
+    STAMINA: 3
+- id: 279896
+  name: Deepblaze
+  phase: 1
+  slot: RANGED
+  type: WAND
+  quality: RARE
+  icon: 135473
+  icon_name: inv_wand_11
+  req_lvl: 1
+  item_lvl: 18
+  damage:
+    min: 22
+    max: 41
+    speed: 1.7
+    school: fire
+  stats:
+    FIRE_RESISTANCE: 4
+  flavour_text: The Great Forge burns within it still.
+- id: 282561
+  name: Siegebreaker's Blaster
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135613
+  icon_name: inv_weapon_rifle_04
+  req_lvl: 37
+  item_lvl: 42
+  damage:
+    min: 40
+    max: 76
+    speed: 2.6
+  effects:
+  - trigger: ON_HIT
+    spell: 1314040
+- id: 282710
+  name: Dun Garok Rifle
+  phase: 1
+  slot: RANGED
+  type: GUN
+  quality: RARE
+  icon: 135612
+  icon_name: inv_weapon_rifle_03
+  req_lvl: 25
+  item_lvl: 30
+  damage:
+    min: 27
+    max: 50
+    speed: 2.6
+  stats:
+    AGILITY: 3
+    SPIRIT: 3
 - id: 285281
   name: Arcanite Blacksmith Hammer
   phase: 1
@@ -807,3 +1887,37 @@ items:
   - trigger: ON_HIT
     spell: 1318178
   flavour_text: Serves as a Blacksmith Hammer.
+- id: 285292
+  name: Dull Sawblade
+  phase: 1
+  slot: RANGED
+  type: THROWN
+  quality: RARE
+  icon: 134427
+  icon_name: inv_misc_sawblade_01
+  req_lvl: 16
+  item_lvl: 21
+  damage:
+    min: 15
+    max: 28
+    speed: 1.7
+  stats:
+    STAMINA: 6
+    ATTACK_POWER: 17
+- id: 285347
+  name: Alliance Outrunner Bow
+  phase: 1
+  slot: RANGED
+  type: BOW
+  quality: RARE
+  icon: 135493
+  icon_name: inv_weapon_bow_05
+  req_lvl: 22
+  item_lvl: 27
+  damage:
+    min: 22
+    max: 42
+    speed: 2.4
+  stats:
+    AGILITY: 4
+    SPIRIT: 3

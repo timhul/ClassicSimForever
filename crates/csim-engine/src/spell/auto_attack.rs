@@ -648,6 +648,9 @@ mod tests {
         fn offhand_copy_active(&self, _: u32) -> bool {
             false
         }
+        fn is_dual_wielding(&self) -> bool {
+            false
+        }
         fn resources_on_use(&self, _: u32) -> Vec<(ResourceType, u32)> {
             Vec::new()
         }

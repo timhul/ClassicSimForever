@@ -2,6 +2,146 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 1486
+  name: Tree Bark Jacket
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135006
+  icon_name: inv_shirt_02
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  stats:
+    ARMOR: 44
+    SPELL_DAMAGE: 13
+- id: 1488
+  name: Avenger's Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132624
+  icon_name: inv_chest_chain
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  stats:
+    STAMINA: 6
+    STRENGTH: 15
+    ARMOR: 221
+- id: 1489
+  name: Gloomshroud Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132723
+  icon_name: inv_chest_leather_08
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  stats:
+    SPIRIT: 8
+    STAMINA: 8
+    STRENGTH: 5
+    ARMOR: 94
+  effects:
+  - trigger: EQUIP
+    spell: 1292160
+- id: 1715
+  name: Polished Jazeraint Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132631
+  icon_name: inv_chest_chain_09
+  req_lvl: 39
+  item_lvl: 44
+  boe: true
+  stats:
+    SPIRIT: 17
+    STAMINA: 10
+    STRENGTH: 9
+    ARMOR: 270
+- id: 1716
+  name: Robe of the Magi
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132658
+  icon_name: inv_chest_cloth_17
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  stats:
+    INTELLECT: 6
+    SPIRIT: 5
+    ARMOR: 58
+    SPELL_DAMAGE: 22
+- id: 1717
+  name: Double Link Tunic
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132624
+  icon_name: inv_chest_chain
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  stats:
+    ARMOR: 278
+    DEFENSE: 9
+- id: 2041
+  name: Tunic of Westfall
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 0
+  item_lvl: 24
+  stats:
+    AGILITY: 11
+    STAMINA: 5
+    ARMOR: 92
+- id: 2292
+  name: Necrology Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132677
+  icon_name: inv_chest_cloth_36
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  stats:
+    INTELLECT: 5
+    STAMINA: 3
+    ARMOR: 43
+    SHADOW_RESISTANCE: 5
+    SPELL_DAMAGE_SHADOW: 14
+- id: 2800
+  name: Black Velvet Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132689
+  icon_name: inv_chest_cloth_48
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  stats:
+    INTELLECT: 12
+    STAMINA: 5
+    ARMOR: 44
 - id: 2870
   name: Shining Silver Breastplate
   phase: 1
@@ -17,6 +157,24 @@ items:
     STAMINA: 6
     STRENGTH: 14
     ARMOR: 214
+- id: 3416
+  name: Martyr's Chain
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132624
+  icon_name: inv_chest_chain
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  stats:
+    STAMINA: 9
+    STRENGTH: 9
+    ARMOR: 211
+  effects:
+  - trigger: EQUIP
+    spell: 1292749
 - id: 3844
   name: Green Iron Hauberk
   phase: 1
@@ -32,6 +190,148 @@ items:
     STAMINA: 11
     STRENGTH: 7
     ARMOR: 358
+- id: 4746
+  name: Doomsayer's Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132660
+  icon_name: inv_chest_cloth_19
+  req_lvl: 0
+  item_lvl: 42
+  stats:
+    SPIRIT: 25
+    STAMINA: -15
+    ARMOR: 61
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 22
+- id: 5202
+  name: Corsair's Overshirt
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135012
+  icon_name: inv_shirt_08
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    SPIRIT: 8
+    STAMINA: 5
+    ARMOR: 40
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 11
+- id: 6226
+  name: Bloody Apron
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132665
+  icon_name: inv_chest_cloth_24
+  req_lvl: 19
+  item_lvl: 24
+  stats:
+    STAMINA: 9
+    ARMOR: 42
+    HEALTH_PER_5: 7
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 13
+- id: 6324
+  name: Robes of Arugal
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132672
+  icon_name: inv_chest_cloth_31
+  req_lvl: 23
+  item_lvl: 28
+  stats:
+    SPIRIT: 6
+    STAMINA: 5
+    ARMOR: 46
+    SHADOW_RESISTANCE: 8
+    SPELL_DAMAGE: 6
+    HEALING_POWER: 18
+- id: 6465
+  name: Robe of the Moccasin
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132677
+  icon_name: inv_chest_cloth_36
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    SPIRIT: 10
+    STRENGTH: 3
+    ARMOR: 40
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 9
+- id: 6473
+  name: Armor of the Fang
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 135020
+  icon_name: inv_shirt_16
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    SPIRIT: 7
+    STAMINA: 4
+    STRENGTH: 6
+    ARMOR: 91
+  set: 162
+- id: 6627
+  name: Mutant Scale Breastplate
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132743
+  icon_name: inv_chest_plate08
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    STAMINA: 4
+    STRENGTH: 10
+    ARMOR: 194
+- id: 6642
+  name: Phantom Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132627
+  icon_name: inv_chest_chain_05
+  req_lvl: 22
+  item_lvl: 27
+  stats:
+    SPIRIT: 5
+    STAMINA: 12
+    STRENGTH: 3
+    ARMOR: 208
+- id: 6682
+  name: Death Speaker Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132661
+  icon_name: inv_chest_cloth_20
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    INTELLECT: 11
+    STAMINA: 4
+    ARMOR: 48
+    SPELL_DAMAGE: 7
+    HEALING_POWER: 20
 - id: 6900
   name: Enchanted Gold Bloodrobe
   phase: 1
@@ -47,6 +347,21 @@ items:
     INTELLECT: 17
     STAMINA: 10
     ARMOR: 55
+- id: 6907
+  name: Tortoise Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 135010
+  icon_name: inv_shirt_06
+  req_lvl: 22
+  item_lvl: 27
+  stats:
+    ARMOR: 208
+  effects:
+  - trigger: EQUIP
+    spell: 1292692
 - id: 6972
   name: Fire Hardened Hauberk
   phase: 1
@@ -104,6 +419,54 @@ items:
     cooldown_ms: 3600000
     category: 1141
     category_cooldown_ms: 15000
+- id: 7688
+  name: Ironspine's Ribcage
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132750
+  icon_name: inv_chest_plate15
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    AGILITY: 3
+    STAMINA: 17
+    STRENGTH: 6
+    ARMOR: 235
+- id: 7728
+  name: Beguiler Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132666
+  icon_name: inv_chest_cloth_25
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  stats:
+    INTELLECT: 8
+    SPIRIT: 8
+    STAMINA: 7
+    ARMOR: 50
+    SPELL_DAMAGE: 9
+- id: 7759
+  name: Archon Chestpiece
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  stats:
+    STAMINA: 12
+    STRENGTH: 12
+    ARMOR: 245
+    SPELL_DAMAGE: 9
 - id: 7939
   name: Truesilver Breastplate
   phase: 1
@@ -160,6 +523,58 @@ items:
   - trigger: USE
     spell: 10618
     cooldown_ms: 300000
+- id: 9434
+  name: Elemental Raiment
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132718
+  icon_name: inv_chest_leather_03
+  req_lvl: 36
+  item_lvl: 41
+  boe: true
+  stats:
+    ARMOR: 59
+    ARCANE_RESISTANCE: 5
+    FIRE_RESISTANCE: 5
+    FROST_RESISTANCE: 5
+    NATURE_RESISTANCE: 5
+    SHADOW_RESISTANCE: 5
+    SPELL_DAMAGE: 21
+- id: 9508
+  name: Mechbuilder's Overalls
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135018
+  icon_name: inv_shirt_14
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  stats:
+    INTELLECT: 12
+    STAMINA: 5
+    ARMOR: 48
+    ARCANE_RESISTANCE: 5
+    SPELL_DAMAGE: 8
+- id: 9623
+  name: Civinad Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132659
+  icon_name: inv_chest_cloth_18
+  req_lvl: 0
+  item_lvl: 37
+  stats:
+    SPIRIT: 12
+    STAMINA: 7
+    ARMOR: 54
+    SPELL_DAMAGE: 9
+    HEALING_POWER: 26
 - id: 10021
   name: Dreamweave Vest
   phase: 1
@@ -176,6 +591,38 @@ items:
     SPIRIT: 14
     ARMOR: 65
     SPELL_DAMAGE: 18
+- id: 10328
+  name: Scarlet Chestpiece
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132629
+  icon_name: inv_chest_chain_07
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
+  stats:
+    STAMINA: 19
+    STRENGTH: 8
+    ARMOR: 250
+  set: 163
+- id: 10399
+  name: Blackened Defias Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132723
+  icon_name: inv_chest_leather_08
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    AGILITY: 3
+    STAMINA: 10
+    STRENGTH: 4
+    ARMOR: 89
+  set: 161
 - id: 11604
   name: Dark Iron Plate
   phase: 1
@@ -222,6 +669,23 @@ items:
     ARMOR: 322
     SPELL_DAMAGE: 11
     HIT_RATING: 10
+- id: 12628
+  name: Demon Forged Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  stats:
+    STAMINA: 12
+    ARMOR: 597
+  effects:
+  - trigger: EQUIP
+    spell: 16611
 - id: 12641
   name: Invulnerable Mail
   phase: 1
@@ -239,6 +703,57 @@ items:
   effects:
   - trigger: EQUIP
     spell: 16620
+- id: 12988
+  name: Starsight Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132725
+  icon_name: inv_chest_leather_10
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  stats:
+    SPIRIT: 10
+    STAMINA: 4
+    ARMOR: 89
+- id: 13009
+  name: Cow King's Hide
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132721
+  icon_name: inv_chest_leather_06
+  req_lvl: 46
+  item_lvl: 51
+  boe: true
+  stats:
+    STAMINA: 10
+    ARMOR: 148
+    ARCANE_RESISTANCE: 10
+    FIRE_RESISTANCE: 10
+    FROST_RESISTANCE: 10
+    NATURE_RESISTANCE: 10
+    SHADOW_RESISTANCE: 10
+- id: 13067
+  name: Hydralick Armor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  stats:
+    AGILITY: 8
+    STAMINA: 20
+    STRENGTH: 13
+    ARMOR: 567
+    FIRE_RESISTANCE: 10
 - id: 13080
   name: Widow's Clutch
   phase: 1
@@ -272,6 +787,38 @@ items:
     STAMINA: 14
     STRENGTH: 14
     ARMOR: 370
+- id: 13110
+  name: Wolffear Harness
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132719
+  icon_name: inv_chest_leather_04
+  req_lvl: 31
+  item_lvl: 36
+  boe: true
+  stats:
+    AGILITY: 17
+    SPIRIT: 3
+    STAMINA: 6
+    ARMOR: 113
+- id: 13123
+  name: Dreamwalker Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132628
+  icon_name: inv_chest_chain_06
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  stats:
+    INTELLECT: 20
+    SPIRIT: 20
+    STAMINA: 17
+    ARMOR: 365
 - id: 14136
   name: Robe of Winter Night
   phase: 1
@@ -305,6 +852,21 @@ items:
     ARMOR: 85
     SPELL_DAMAGE: 9
     HEALING_POWER: 26
+- id: 14150
+  name: Robe of Evocation
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132665
+  icon_name: inv_chest_cloth_24
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    INTELLECT: 4
+    SPIRIT: 4
+    STAMINA: 6
+    ARMOR: 35
 - id: 14152
   name: Robe of the Archmage
   phase: 1
@@ -962,6 +1524,178 @@ items:
     ARMOR: 470
     SPELL_DAMAGE: 9
     CRIT_RATING: 14
+- id: 16666
+  name: Vest of Elements
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 20
+    STAMINA: 13
+    ARMOR: 370
+    SPELL_DAMAGE: 23
+    SPELL_PENETRATION: 2
+  set: 187
+- id: 16674
+  name: Beaststalker's Tunic
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132625
+  icon_name: inv_chest_chain_03
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    AGILITY: 21
+    INTELLECT: 13
+    SPIRIT: 6
+    STAMINA: 16
+    STRENGTH: 8
+    ARMOR: 370
+  set: 186
+- id: 16688
+  name: Magister's Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132666
+  icon_name: inv_chest_cloth_25
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 28
+    SPIRIT: 8
+    STAMINA: 9
+    ARMOR: 89
+    SPELL_DAMAGE: 12
+  set: 181
+- id: 16690
+  name: Devout Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132652
+  icon_name: inv_chest_cloth_11
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 24
+    SPIRIT: 15
+    STAMINA: 13
+    ARMOR: 89
+    SPELL_DAMAGE: 7
+    HEALING_POWER: 20
+  set: 182
+- id: 16700
+  name: Dreadmist Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132690
+  icon_name: inv_chest_cloth_49
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 21
+    SPIRIT: 10
+    STAMINA: 20
+    ARMOR: 89
+    SPELL_PENETRATION: 3
+  set: 183
+- id: 16706
+  name: Wildheart Vest
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 20
+    SPIRIT: 20
+    STAMINA: 13
+    ARMOR: 176
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+  set: 185
+- id: 16721
+  name: Shadowcraft Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    AGILITY: 26
+    SPIRIT: 12
+    STAMINA: 13
+    ARMOR: 176
+    HIT_RATING: 8
+  set: 184
+- id: 16726
+  name: Lightforge Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 16
+    SPIRIT: 8
+    STAMINA: 21
+    STRENGTH: 13
+    ARMOR: 657
+    CRIT_RATING: 7
+  set: 188
+- id: 16730
+  name: Breastplate of Valor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    AGILITY: 10
+    SPIRIT: 12
+    STAMINA: 24
+    STRENGTH: 15
+    ARMOR: 657
+  set: 189
+- id: 17043
+  name: Zealot's Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132647
+  icon_name: inv_chest_cloth_06
+  req_lvl: 0
+  item_lvl: 38
+  stats:
+    INTELLECT: 10
+    SPIRIT: 10
+    ARMOR: 55
+    SPELL_DAMAGE: 15
 - id: 17568
   name: Knight-Captain's Dreadweave Robe
   phase: 1
@@ -2382,6 +3116,2194 @@ items:
     ARMOR: 156
     SPELL_DAMAGE: 21
     CRIT_RATING: 14
+- id: 220794
+  name: Knight's Plate Hauberk
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [WARRIOR, PALADIN]
+  stats:
+    STAMINA: 17
+    STRENGTH: 15
+    ARMOR: 557
+    CRIT_RATING: 14
+  set: 1619
+- id: 220801
+  name: Stone Guard's Plate Armor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [WARRIOR, PALADIN]
+  stats:
+    STAMINA: 17
+    STRENGTH: 15
+    ARMOR: 557
+    CRIT_RATING: 14
+  set: 1618
+- id: 220813
+  name: Knight's Imbued Armor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132744
+  icon_name: inv_chest_plate09
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 13
+    STAMINA: 15
+    ARMOR: 557
+    MANA_PER_5: 4
+    HEALING_POWER: 29
+  set: 1620
+- id: 220815
+  name: Knight's Lamellar Chestplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 11
+    STAMINA: 15
+    STRENGTH: 13
+    ARMOR: 557
+    SPELL_DAMAGE: 15
+  set: 1621
+- id: 220826
+  name: Stone Guard's Mail Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132627
+  icon_name: inv_chest_chain_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER, SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    STRENGTH: 12
+    ARMOR: 317
+    CRIT_RATING: 14
+  set: 1622
+- id: 220827
+  name: Stone Guard's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132627
+  icon_name: inv_chest_chain_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 15
+    INTELLECT: 10
+    STAMINA: 12
+    ARMOR: 317
+    CRIT_RATING: 14
+  set: 1625
+- id: 220828
+  name: Knight's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132627
+  icon_name: inv_chest_chain_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 15
+    INTELLECT: 10
+    STAMINA: 12
+    ARMOR: 317
+    CRIT_RATING: 14
+  set: 1626
+- id: 220838
+  name: Stone Guard's Inscribed Chestpiece
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 317
+    HEALING_POWER: 26
+    CRIT_RATING: 14
+  set: 1624
+- id: 220844
+  name: Stone Guard's Pulsing Breastplate
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132629
+  icon_name: inv_chest_chain_07
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 317
+    SPELL_DAMAGE: 18
+    HIT_RATING: 10
+  set: 1623
+- id: 220854
+  name: Knight's Leather Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [ROGUE, DRUID]
+  stats:
+    STAMINA: 15
+    ARMOR: 193
+    ATTACK_POWER: 18
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1628
+- id: 220855
+  name: Stone Guard's Leather Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [ROGUE, DRUID]
+  stats:
+    STAMINA: 15
+    ARMOR: 193
+    ATTACK_POWER: 18
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1627
+- id: 220868
+  name: Knight's Crackling Leather Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132646
+  icon_name: inv_chest_cloth_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 13
+    STAMINA: 13
+    ARMOR: 183
+    SPELL_DAMAGE: 11
+    CRIT_RATING: 14
+  set: 1632
+- id: 220869
+  name: Stone Guard's Crackling Leather Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132646
+  icon_name: inv_chest_cloth_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 13
+    STAMINA: 13
+    ARMOR: 183
+    SPELL_DAMAGE: 11
+    CRIT_RATING: 14
+  set: 1631
+- id: 220878
+  name: Knight's Restored Leather Jerkin
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132720
+  icon_name: inv_chest_leather_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 13
+    SPIRIT: 13
+    STAMINA: 14
+    ARMOR: 153
+    HEALING_POWER: 20
+  set: 1630
+- id: 220879
+  name: Stone Guard's Restored Leather Jerkin
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132720
+  icon_name: inv_chest_leather_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 13
+    SPIRIT: 13
+    STAMINA: 14
+    ARMOR: 153
+    HEALING_POWER: 20
+  set: 1629
+- id: 220886
+  name: Knight's Dreadweave Vest
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135008
+  icon_name: inv_shirt_04
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE, WARLOCK]
+  stats:
+    INTELLECT: 11
+    STAMINA: 14
+    ARMOR: 116
+    SPELL_DAMAGE: 12
+    CRIT_RATING: 14
+  set: 1634
+- id: 220892
+  name: Knight's Satin Armor
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135017
+  icon_name: inv_shirt_13
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE]
+  stats:
+    INTELLECT: 12
+    STAMINA: 15
+    ARMOR: 116
+    MANA_PER_5: 3
+    HEALING_POWER: 29
+  set: 1636
+- id: 220903
+  name: Stone Guard's Satin Armor
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135017
+  icon_name: inv_shirt_13
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE]
+  stats:
+    INTELLECT: 12
+    STAMINA: 15
+    ARMOR: 116
+    MANA_PER_5: 3
+    HEALING_POWER: 29
+  set: 1635
+- id: 220904
+  name: Stone Guard's Dreadweave Vest
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 135008
+  icon_name: inv_shirt_04
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE, WARLOCK]
+  stats:
+    INTELLECT: 11
+    STAMINA: 14
+    ARMOR: 116
+    SPELL_DAMAGE: 12
+    CRIT_RATING: 14
+  set: 1633
+- id: 223078
+  name: Knight's Mail Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132627
+  icon_name: inv_chest_chain_05
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER, SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    STRENGTH: 12
+    ARMOR: 317
+    CRIT_RATING: 14
+  set: 1665
+- id: 226776
+  name: Feralheart Vest
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 18
+    STAMINA: 17
+    ARMOR: 185
+    SPELL_DAMAGE: 26
+    SPELL_PENETRATION: 6
+  set: 1667
+- id: 226783
+  name: Feralheart Embrace
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 16
+    ARMOR: 185
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+  set: 1667
+- id: 226795
+  name: Feralheart Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 15
+    INTELLECT: 12
+    SPIRIT: 11
+    STAMINA: 17
+    STRENGTH: 16
+    ARMOR: 185
+    CRIT_RATING: 14
+  set: 1667
+- id: 226804
+  name: Feralheart Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132741
+  icon_name: inv_chest_plate06
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 12
+    STAMINA: 29
+    STRENGTH: 18
+    ARMOR: 185
+    DEFENSE: 5
+  set: 1667
+- id: 226825
+  name: Darkmantle Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 31
+    SPIRIT: 10
+    STAMINA: 15
+    ARMOR: 185
+    HIT_RATING: 15
+  set: 1676
+- id: 226862
+  name: Breastplate of Heroism
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 13
+    STAMINA: 26
+    STRENGTH: 21
+    ARMOR: 684
+    HIT_RATING: 10
+  set: 1778
+- id: 226872
+  name: Chestguard of Heroism
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 12
+    STAMINA: 29
+    STRENGTH: 18
+    ARMOR: 684
+    DEFENSE: 9
+  set: 1778
+- id: 226886
+  name: Beastmaster's Tunic
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132625
+  icon_name: inv_chest_chain_03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 25
+    INTELLECT: 13
+    STAMINA: 16
+    ARMOR: 387
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 27225
+  set: 1669
+- id: 226906
+  name: Deathmist Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132690
+  icon_name: inv_chest_cloth_49
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 22
+    SPIRIT: 14
+    STAMINA: 23
+    ARMOR: 93
+    SPELL_DAMAGE: 11
+    SPELL_PENETRATION: 4
+  set: 1681
+- id: 226932
+  name: Sorcerer's Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132666
+  icon_name: inv_chest_cloth_25
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 25
+    SPIRIT: 11
+    STAMINA: 14
+    ARMOR: 93
+    SPELL_DAMAGE: 16
+    SPELL_PENETRATION: 5
+  set: 1671
+- id: 226945
+  name: Virtuous Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132652
+  icon_name: inv_chest_cloth_11
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 16
+    ARMOR: 93
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+    CRIT_RATING: 14
+  set: 1675
+- id: 226960
+  name: Virtuous Gown
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132652
+  icon_name: inv_chest_cloth_11
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 18
+    SPIRIT: 18
+    STAMINA: 17
+    ARMOR: 93
+    SPELL_DAMAGE: 26
+  set: 1675
+- id: 226973
+  name: Soulforge Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 17
+    STAMINA: 17
+    STRENGTH: 16
+    ARMOR: 684
+    SPELL_DAMAGE: 18
+    CRIT_RATING: 14
+  set: 1673
+- id: 226984
+  name: Soulforge Embrace
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 23
+    ARMOR: 684
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+  set: 1673
+- id: 226992
+  name: Soulforge Chestguards
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 29
+    STRENGTH: 18
+    ARMOR: 684
+    DEFENSE: 5
+    EXPERTISE_RATING: 12
+  set: 1673
+- id: 227004
+  name: Vest of The Five Thunders
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 25
+    SPIRIT: 11
+    STAMINA: 14
+    ARMOR: 387
+    SPELL_DAMAGE: 16
+    SPELL_PENETRATION: 5
+  set: 1679
+- id: 227016
+  name: Tunic of The Five Thunders
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 16
+    ARMOR: 387
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+    CRIT_RATING: 14
+  set: 1679
+- id: 227024
+  name: Chain of The Five Thunders
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 0
+  item_lvl: 60
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 17
+    STAMINA: 17
+    STRENGTH: 16
+    ARMOR: 387
+    SPELL_DAMAGE: 18
+    CRIT_RATING: 14
+  set: 1679
+- id: 227046
+  name: Knight-Captain's Plate Hauberk
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 35
+    STRENGTH: 21
+    ARMOR: 706
+    CRIT_RATING: 14
+  set: 1775
+- id: 227049
+  name: Legionnaire's Plate Hauberk
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 35
+    STRENGTH: 21
+    ARMOR: 706
+    CRIT_RATING: 14
+  set: 1761
+- id: 227058
+  name: Knight-Captain's Leather Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132720
+  icon_name: inv_chest_leather_05
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [ROGUE]
+  stats:
+    STAMINA: 33
+    ARMOR: 248
+    ATTACK_POWER: 34
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1770
+- id: 227060
+  name: Legionnaire's Leather Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132720
+  icon_name: inv_chest_leather_05
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [ROGUE]
+  stats:
+    STAMINA: 33
+    ARMOR: 248
+    ATTACK_POWER: 34
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1756
+- id: 227070
+  name: Knight-Captain's Chain Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132626
+  icon_name: inv_chest_chain_04
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 16
+    INTELLECT: 6
+    STAMINA: 20
+    ARMOR: 398
+    CRIT_RATING: 28
+  set: 1766
+- id: 227071
+  name: Legionnaire's Chain Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132626
+  icon_name: inv_chest_chain_04
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 16
+    INTELLECT: 6
+    STAMINA: 20
+    ARMOR: 398
+    CRIT_RATING: 28
+  set: 1752
+- id: 227083
+  name: Legionnaire's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132626
+  icon_name: inv_chest_chain_04
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 10
+    STAMINA: 20
+    STRENGTH: 9
+    ARMOR: 398
+    ATTACK_POWER: 20
+    CRIT_RATING: 28
+  set: 1751
+- id: 227089
+  name: Knight-Captain's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132626
+  icon_name: inv_chest_chain_04
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 10
+    STAMINA: 20
+    STRENGTH: 9
+    ARMOR: 398
+    ATTACK_POWER: 20
+    CRIT_RATING: 28
+  set: 1765
+- id: 227094
+  name: Legionnaire's Dreadweave Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 20
+    STAMINA: 30
+    ARMOR: 96
+    SPELL_DAMAGE: 25
+  set: 1760
+- id: 227096
+  name: Knight-Captain's Dreadweave Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 20
+    STAMINA: 30
+    ARMOR: 96
+    SPELL_DAMAGE: 25
+  set: 1774
+- id: 227106
+  name: Legionnaire's Silk Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132669
+  icon_name: inv_chest_cloth_28
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 5
+    STAMINA: 27
+    ARMOR: 156
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1753
+- id: 227108
+  name: Knight-Captain's Silk Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132669
+  icon_name: inv_chest_cloth_28
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 5
+    STAMINA: 27
+    ARMOR: 156
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1767
+- id: 227122
+  name: Knight-Captain's Satin Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 156
+    HEALING_POWER: 40
+  set: 1769
+- id: 227124
+  name: Legionnaire's Satin Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 156
+    HEALING_POWER: 40
+  set: 1755
+- id: 227135
+  name: Legionnaire's Satin Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    STAMINA: 29
+    ARMOR: 156
+    MANA_PER_5: 6
+    SPELL_DAMAGE: 21
+  set: 1754
+- id: 227141
+  name: Knight-Captain's Satin Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    STAMINA: 29
+    ARMOR: 156
+    MANA_PER_5: 6
+    SPELL_DAMAGE: 21
+  set: 1768
+- id: 227142
+  name: Knight-Captain's Lamellar Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 27
+    STRENGTH: 16
+    ARMOR: 706
+    SPELL_DAMAGE: 25
+    CRIT_RATING: 14
+  set: 1777
+- id: 227151
+  name: Knight-Captain's Lamellar Chestplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 17
+    STAMINA: 27
+    ARMOR: 706
+    MANA_PER_5: 5
+    HEALING_POWER: 46
+  set: 1776
+- id: 227157
+  name: Legionnaire's Mail Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    STAMINA: 27
+    STRENGTH: 22
+    ARMOR: 398
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1759
+- id: 227165
+  name: Legionnaire's Mail Breastplate
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 18
+    STAMINA: 27
+    ARMOR: 398
+    SPELL_DAMAGE: 20
+    CRIT_RATING: 14
+  set: 1757
+- id: 227171
+  name: Legionnaire's Mail Chestguard
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 18
+    STAMINA: 27
+    ARMOR: 398
+    HEALING_POWER: 37
+    CRIT_RATING: 14
+  set: 1758
+- id: 227176
+  name: Knight-Captain's Dragonhide Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 14
+    INTELLECT: 13
+    STAMINA: 23
+    STRENGTH: 14
+    ARMOR: 218
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1764
+- id: 227179
+  name: Legionnaire's Dragonhide Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 14
+    INTELLECT: 13
+    STAMINA: 23
+    STRENGTH: 14
+    ARMOR: 218
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1750
+- id: 227189
+  name: Legionnaire's Dragonhide Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 8
+    STAMINA: 26
+    ARMOR: 188
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1748
+- id: 227195
+  name: Knight-Captain's Dragonhide Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 8
+    STAMINA: 26
+    ARMOR: 188
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1762
+- id: 227196
+  name: Knight-Captain's Dragonhide Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 188
+    HEALING_POWER: 40
+  set: 1763
+- id: 227202
+  name: Legionnaire's Dragonhide Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132722
+  icon_name: inv_chest_leather_07
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 188
+    HEALING_POWER: 40
+  set: 1749
+- id: 227803
+  name: Dire Warbear Harness
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132719
+  icon_name: inv_chest_leather_04
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    AGILITY: 10
+    STAMINA: 30
+    ARMOR: 307
+    DEFENSE: 14
+    HIT_RATING: 10
+- id: 231530
+  name: Warlord's Plate Armor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132751
+  icon_name: inv_chest_plate16
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 14
+    STAMINA: 49
+    STRENGTH: 16
+    ARMOR: 875
+    CRIT_RATING: 14
+  set: 1721
+- id: 231536
+  name: Field Marshal's Plate Armor
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 14
+    STAMINA: 49
+    STRENGTH: 16
+    ARMOR: 875
+    CRIT_RATING: 14
+  set: 1747
+- id: 231543
+  name: Field Marshal's Leather Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132648
+  icon_name: inv_chest_cloth_07
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 26
+    STAMINA: 46
+    ARMOR: 260
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1743
+- id: 231549
+  name: Warlord's Leather Breastplate
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 26
+    STAMINA: 46
+    ARMOR: 260
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1730
+- id: 231563
+  name: Field Marshal's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132625
+  icon_name: inv_chest_chain_03
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 17
+    INTELLECT: 12
+    STAMINA: 42
+    STRENGTH: 18
+    ARMOR: 520
+    ATTACK_POWER: 36
+    CRIT_RATING: 14
+  set: 1738
+- id: 231566
+  name: Warlord's Chain Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 17
+    INTELLECT: 12
+    STAMINA: 42
+    STRENGTH: 18
+    ARMOR: 520
+    ATTACK_POWER: 36
+    CRIT_RATING: 14
+  set: 1726
+- id: 231573
+  name: Warlord's Chain Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 34
+    INTELLECT: 12
+    STAMINA: 42
+    ARMOR: 520
+    CRIT_RATING: 14
+  set: 1725
+- id: 231581
+  name: Field Marshal's Chain Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132625
+  icon_name: inv_chest_chain_03
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 34
+    INTELLECT: 12
+    STAMINA: 42
+    ARMOR: 520
+    CRIT_RATING: 14
+  set: 1739
+- id: 231582
+  name: Field Marshal's Dreadweave Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132650
+  icon_name: inv_chest_cloth_09
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 24
+    STAMINA: 45
+    ARMOR: 153
+    SPELL_DAMAGE: 32
+  set: 1746
+- id: 231591
+  name: Warlord's Dreadweave Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 24
+    STAMINA: 45
+    ARMOR: 153
+    SPELL_DAMAGE: 32
+  set: 1734
+- id: 231596
+  name: Warlord's Silk Raiment
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 6
+    STAMINA: 42
+    ARMOR: 183
+    SPELL_DAMAGE: 33
+    CRIT_RATING: 14
+  set: 1727
+- id: 231603
+  name: Field Marshal's Silk Vestments
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132653
+  icon_name: inv_chest_cloth_12
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 6
+    STAMINA: 42
+    ARMOR: 183
+    SPELL_DAMAGE: 33
+    CRIT_RATING: 14
+  set: 1740
+- id: 231612
+  name: Warlord's Satin Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 28
+    STAMINA: 45
+    ARMOR: 183
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 33
+  set: 1728
+- id: 231618
+  name: Field Marshal's Satin Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132643
+  icon_name: inv_chest_cloth_02
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 28
+    STAMINA: 45
+    ARMOR: 183
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 33
+  set: 1741
+- id: 231624
+  name: Field Marshal's Satin Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132643
+  icon_name: inv_chest_cloth_02
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 28
+    SPIRIT: 9
+    STAMINA: 45
+    ARMOR: 183
+    SPELL_DAMAGE: 21
+    HEALING_POWER: 41
+  set: 1742
+- id: 231632
+  name: Warlord's Satin Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 28
+    SPIRIT: 9
+    STAMINA: 45
+    ARMOR: 183
+    SPELL_DAMAGE: 21
+    HEALING_POWER: 41
+  set: 1729
+- id: 231641
+  name: Field Marshal's Lamellar Chestplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 21
+    STAMINA: 40
+    ARMOR: 835
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 16
+    HEALING_POWER: 30
+    CRIT_RATING: 14
+  set: 1745
+- id: 231649
+  name: Field Marshal's Lamellar Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132738
+  icon_name: inv_chest_plate03
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 14
+    STAMINA: 39
+    STRENGTH: 22
+    ARMOR: 835
+    SPELL_DAMAGE: 23
+    CRIT_RATING: 14
+  set: 1744
+- id: 231653
+  name: Warlord's Mail Hauberk
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 13
+    STAMINA: 52
+    STRENGTH: 22
+    ARMOR: 470
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1731
+- id: 231662
+  name: Warlord's Mail Breastplate
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 52
+    ARMOR: 470
+    SPELL_DAMAGE: 23
+    CRIT_RATING: 14
+  set: 1732
+- id: 231668
+  name: Warlord's Mail Chestguard
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132633
+  icon_name: inv_chest_chain_11
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 52
+    ARMOR: 470
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+    CRIT_RATING: 14
+  set: 1733
+- id: 231674
+  name: Warlord's Dragonhide Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 14
+    STAMINA: 52
+    ARMOR: 260
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  set: 1724
+- id: 231679
+  name: Warlord's Dragonhide Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 18
+    SPIRIT: 10
+    STAMINA: 46
+    ARMOR: 260
+    SPELL_DAMAGE: 23
+    CRIT_RATING: 14
+  set: 1723
+- id: 231686
+  name: Warlord's Dragonhide Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132638
+  icon_name: inv_chest_chain_16
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 14
+    INTELLECT: 9
+    STAMINA: 46
+    STRENGTH: 20
+    ARMOR: 260
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1722
+- id: 231690
+  name: Field Marshal's Dragonhide Chestpiece
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132648
+  icon_name: inv_chest_cloth_07
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 14
+    INTELLECT: 9
+    STAMINA: 46
+    STRENGTH: 20
+    ARMOR: 260
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1737
+- id: 231696
+  name: Field Marshal's Dragonhide Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132648
+  icon_name: inv_chest_cloth_07
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 18
+    SPIRIT: 10
+    STAMINA: 46
+    ARMOR: 260
+    SPELL_DAMAGE: 23
+    CRIT_RATING: 14
+  set: 1735
+- id: 231702
+  name: Field Marshal's Dragonhide Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132648
+  icon_name: inv_chest_cloth_07
+  req_lvl: 60
+  item_lvl: 74
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 14
+    STAMINA: 52
+    ARMOR: 260
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  set: 1736
+- id: 239519
+  name: Lightbreaker Cuirass
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 12
+    STAMINA: 18
+    STRENGTH: 49
+    ARMOR: 1090
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+    EXPERTISE_RATING: 10
+  set: 1932
+- id: 239527
+  name: Lightbreaker Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 8
+    STAMINA: 47
+    STRENGTH: 26
+    ARMOR: 1090
+    DEFENSE: 21
+    BLOCK_VALUE: 15
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1933
+- id: 239529
+  name: Dawnstalker Breastplate
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 49
+    STAMINA: 20
+    ARMOR: 611
+    ATTACK_POWER: 50
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1936
+- id: 239543
+  name: Dawnstalker Tunic
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 49
+    STAMINA: 16
+    ARMOR: 611
+    RANGED_ATTACK_POWER: 62
+    CRIT_RATING: 42
+  set: 1937
+- id: 239548
+  name: Duskwraith Chestguard
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132737
+  icon_name: inv_chest_plate02
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 26
+    STAMINA: 47
+    STRENGTH: 8
+    ARMOR: 275
+    DEFENSE: 21
+    HIT_RATING: 10
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1935
+- id: 239562
+  name: Duskwraith Breastplate
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132737
+  icon_name: inv_chest_plate02
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 49
+    STAMINA: 17
+    STRENGTH: 32
+    ARMOR: 275
+    HIT_RATING: 10
+    CRIT_RATING: 14
+    HASTE_RATING: 10
+  set: 1934
+- id: 239565
+  name: Garb of Revelation
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 17
+    STAMINA: 15
+    ARMOR: 146
+    SPELL_DAMAGE_SHADOW: 76
+    CRIT_RATING: 28
+  effects:
+  - trigger: EQUIP
+    spell: 1222994
+  set: 1938
+- id: 239591
+  name: Robe of Revelation
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 21
+    SPIRIT: 19
+    STAMINA: 20
+    ARMOR: 146
+    SPELL_DAMAGE: 51
+    HEALING_POWER: 102
+  set: 1939
+- id: 240030
+  name: Inquisition Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 20
+    STRENGTH: 51
+    ARMOR: 1090
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+    EXPERTISE_RATING: 10
+  set: 1940
+- id: 240038
+  name: Inquisition Chestguard
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 46
+    STRENGTH: 26
+    ARMOR: 1090
+    DEFENSE: 21
+    BLOCK_VALUE: 19
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1942
+- id: 240039
+  name: Inquisition Tunic
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 19
+    ARMOR: 1090
+    SPELL_DAMAGE: 37
+    HEALING_POWER: 73
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1941
+- id: 240051
+  name: Fireleaf Garb
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 20
+    STAMINA: 17
+    ARMOR: 146
+    SPELL_DAMAGE: 65
+    CRIT_RATING: 14
+    HASTE_RATING: 20
+  set: 1944
+- id: 240059
+  name: Fireleaf Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 19
+    STAMINA: 17
+    ARMOR: 146
+    SPELL_DAMAGE: 63
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1943
+- id: 240067
+  name: Waywatcher Vest
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 33
+    INTELLECT: 14
+    STAMINA: 14
+    STRENGTH: 45
+    ARMOR: 275
+    WEAPON_DAMAGE: 3
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1945
+- id: 240075
+  name: Waywatcher Leathers
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 275
+    SPELL_DAMAGE: 60
+    CRIT_RATING: 42
+  set: 1946
+- id: 240083
+  name: Waywatcher Armor
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 18
+    STAMINA: 44
+    STRENGTH: 22
+    ARMOR: 375
+    DEFENSE: 18
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1948
+- id: 240091
+  name: Waywatcher Tunic
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 21
+    SPIRIT: 19
+    STAMINA: 18
+    ARMOR: 275
+    SPELL_DAMAGE: 37
+    HEALING_POWER: 73
+    CRIT_RATING: 28
+  set: 1947
+- id: 240092
+  name: Soulcrusher Tunic
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 19
+    ARMOR: 611
+    SPELL_DAMAGE: 37
+    HEALING_POWER: 73
+    CRIT_RATING: 14
+    HASTE_RATING: 20
+  set: 1950
+- id: 240101
+  name: Soulcrusher Chestguard
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 13
+    STAMINA: 45
+    STRENGTH: 14
+    ARMOR: 611
+    DEFENSE: 23
+    SPELL_DAMAGE: 28
+    HIT_RATING: 20
+  set: 1949
+- id: 240109
+  name: Soulcrusher Embrace
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 45
+    STAMINA: 17
+    ARMOR: 611
+    SPELL_DAMAGE: 22
+    HIT_RATING: 10
+    CRIT_RATING: 14
+    HASTE_RATING: 30
+  set: 1952
+- id: 240128
+  name: Soulcrusher Armor
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: EPIC
+  icon: 132637
+  icon_name: inv_chest_chain_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 14
+    STAMINA: 13
+    STRENGTH: 49
+    ARMOR: 611
+    HIT_RATING: 20
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1951
+- id: 240138
+  name: Heretic Robe
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 25
+    STAMINA: 12
+    ARMOR: 146
+    SPELL_DAMAGE: 65
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1954
+- id: 240146
+  name: Heretic Garb
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: EPIC
+  icon: 132702
+  icon_name: inv_chest_cloth_61
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 12
+    SPIRIT: 15
+    STAMINA: 47
+    ARMOR: 276
+    DEFENSE: 16
+    SPELL_DAMAGE: 19
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1953
+- id: 246060
+  name: Inquisition Cuirass
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: EPIC
+  icon: 132757
+  icon_name: inv_chest_plate_23
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 51
+    STAMINA: 10
+    ARMOR: 1090
+    HIT_RATING: 30
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+    EXPERTISE_RATING: 10
+  set: 1963
 - id: 250488
   name: Veteran's Chain Shirt
   phase: 1
@@ -2908,6 +5830,36 @@ items:
     STAMINA: 6
     ARMOR: 45
     SPELL_DAMAGE_HOLY: 13
+- id: 270043
+  name: Dreamer's Chestguard
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132716
+  icon_name: inv_chest_leather_01
+  req_lvl: 0
+  item_lvl: 32
+  stats:
+    SPIRIT: 11
+    STAMINA: 5
+    STRENGTH: 10
+    ARMOR: 106
+- id: 270054
+  name: Cultist's Chestguard
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132723
+  icon_name: inv_chest_leather_08
+  req_lvl: 0
+  item_lvl: 38
+  stats:
+    SPIRIT: 9
+    STAMINA: 11
+    STRENGTH: 11
+    ARMOR: 117
 - id: 270118
   name: Cindercloth Gown
   phase: 1
@@ -2922,6 +5874,71 @@ items:
     INTELLECT: 24
     STAMINA: 16
     ARMOR: 77
+- id: 270261
+  name: Robes of the Disgraced Thane
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132650
+  icon_name: inv_chest_cloth_09
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    SPIRIT: 4
+    ARMOR: 35
+    SPELL_DAMAGE: 8
+- id: 271098
+  name: Golemguard Chest
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  icon: 132624
+  icon_name: inv_chest_chain
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    STAMINA: 6
+    ARMOR: 178
+- id: 271205
+  name: Abomination Bones
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  req_lvl: 15
+  item_lvl: 20
+  stats:
+    STRENGTH: 8
+    ARMOR: 184
+    SHADOW_RESISTANCE: 5
+- id: 271206
+  name: Leftover Abomination Skin
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  req_lvl: 15
+  item_lvl: 20
+  stats:
+    SPIRIT: 9
+    ARMOR: 37
+    SPELL_DAMAGE_SHADOW: 7
+- id: 271212
+  name: Bloodied Chestwraps
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 133684
+  icon_name: inv_misc_bandage_14
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    AGILITY: 7
+    SPIRIT: 9
+    ARMOR: 89
 - id: 272459
   name: Premier Magus Robes
   phase: 1
@@ -3559,6 +6576,21 @@ items:
     SPELL_DAMAGE: 7
     HEALING_POWER: 22
   set: 401
+- id: 273026
+  name: Garb of Florid Feathers
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 133684
+  icon_name: inv_misc_bandage_14
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    AGILITY: 6
+    INTELLECT: 13
+    STAMINA: 6
+    ARMOR: 105
 - id: 273331
   name: Premier Field Marshal's Luminous Chestplate
   phase: 1
@@ -3821,6 +6853,21 @@ items:
     SPELL_DAMAGE: 9
     HEALING_POWER: 26
   set: 2075
+- id: 273805
+  name: Blackrock Harness
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  icon: 132719
+  icon_name: inv_chest_leather_04
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    STAMINA: 8
+    ARMOR: 96
+    DEFENSE: 4
+    ATTACK_POWER: 14
 - id: 274179
   name: Premier Scalemail Chestpiece
   phase: 1
@@ -4006,6 +7053,21 @@ items:
     HEALING_POWER: 33
     CRIT_RATING: 7
   set: 2083
+- id: 274428
+  name: Dark Golem Breastplate
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132745
+  icon_name: inv_chest_plate10
+  req_lvl: 39
+  item_lvl: 44
+  stats:
+    STAMINA: 10
+    STRENGTH: 5
+    ARMOR: 471
+    PARRY_RATING: 15
 - id: 275708
   name: Ghansurok Hide Tunic
   phase: 1
@@ -4021,6 +7083,18 @@ items:
     STAMINA: 11
     ARMOR: 172
     NATURE_RESISTANCE: 15
+- id: 277213
+  name: Dro'zem's Tunic
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  req_lvl: 20
+  item_lvl: 25
+  stats:
+    INTELLECT: 9
+    ARMOR: 43
+    SPELL_DAMAGE: 11
 - id: 279266
   name: Robes of Fiery Devastation
   phase: 1
@@ -4037,3 +7111,45 @@ items:
     STAMINA: 27
     ARMOR: 100
     SPELL_DAMAGE_FIRE: 26
+- id: 282008
+  name: Wyrmak's Cuirass
+  phase: 1
+  slot: CHEST
+  type: PLATE
+  quality: RARE
+  icon: 132746
+  icon_name: inv_chest_plate11
+  req_lvl: 42
+  item_lvl: 47
+  stats:
+    STAMINA: 21
+    STRENGTH: 9
+    ARMOR: 499
+    SPELL_DAMAGE: 11
+- id: 286639
+  name: Ambassador's Bloodrobes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  req_lvl: 33
+  item_lvl: 38
+  stats:
+    SPIRIT: 6
+    STAMINA: 12
+    ARMOR: 55
+    SPELL_PENETRATION: 4
+- id: 286978
+  name: Rotmender's Garb
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    INTELLECT: 10
+    ARMOR: 41
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+  set: 2133

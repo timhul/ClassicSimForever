@@ -477,7 +477,7 @@ overrides:
 | `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell` | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
-| `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` × `value` (1 if absent) % | — (`value` optional) | Dual Wield Specialization E1 (`value: 0.5`) |
+| `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` × `value` (1 if absent) % | — (`value` optional) | Dual Wield Specialization E1 (10-50 %) |
 | `GAIN_RESOURCE_ON_USE` | gain `base_points` (stored units) of `resource` when `spell` is used | `spell`, `resource` | Improved Berserker Rage |
 | `EXTRA_ATTACK` | extra attacks from `spell` | `spell` | weapon specializations |
 | `ENABLE_PROC` | while the aura is up the character has the hidden proc aura `spell` the server applies (its `ProcTypeMask`, weapon requirement, internal cooldown and payload come from its record), firing with this effect's value as its chance in percent; a weapon requirement is checked against the hand of the triggering attack | `spell` | Weaponmaster E2 → 12281 (sword extra attack) |
@@ -485,10 +485,10 @@ overrides:
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 6 s, so another dodge or Bloodthrill proc only refreshes it) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | when the spell is cast, finishes the cooldowns of `spell`, or of every spell of its family in `family_mask` (as an event reaction: no runtime yet) | `spell` or `family_mask` | Preparation 14185 (every Rogue spell) |
 | `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
-| `OFFHAND_HIT_CHANCE` | on a `MOD_HIT_CHANCE` aura effect: the hit chance counts for off-hand attacks only (the off-hand auto attack and off-hand strikes), not for the main hand's | — | Dual Wield Specialization 23584 E1 |
+| `OFFHAND_HIT_CHANCE` | on a `MOD_HIT_CHANCE` aura effect: the hit chance counts for off-hand attacks only (the off-hand auto attack and off-hand strikes), not for the main hand's | — | Furious Precision 1323963 E0 |
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
-| `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
-| `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
+| `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | none since the 70205 hotfixes (was Raging Blows on Whirlwind; see `OFFHAND_STRIKE`) |
+| `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | none since the 70205 hotfixes (was Unbridled Wrath's payload 12964) |
 | `COMBO_POINT_AP_DAMAGE` | a finisher's attack power share: `value` % of attack power per combo point, or the `per_combo_point` entry (1 to 5 points). Without `effect` the effect deals it with the direct damage; with `effect` it is spread over that periodic aura's ticks, taken at the cast | `value` or `per_combo_point`, `effect` | Eviscerate E1 (3 %/point), Rupture E2 → E0 (4/10/18/21/24 %) |
 | `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %) |
 | `AP_COEFFICIENT` | the attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`): `value` × attack power added to a direct damage effect's hit, or to every tick (per stack) of a periodic damage aura, taken at the cast | `value` | Instant Poison VI E0 (0.005), Deadly Poison V E0 (0.0045), Thunder Clap E0 (0.03) |
@@ -504,7 +504,9 @@ overrides:
 hit the enemy and have no cast time of their own can be cast during it),
 `START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`, `ENRAGE` (the buff
 puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Regeneration require;
-the client tables do not carry the enrage mechanic).
+the client tables do not carry the enrage mechanic), `OFFHAND_STRIKE` (a dual-wielding
+character's ability also strikes with the off hand, as an `OFFHAND_COPY` aura makes it:
+Whirlwind, whose off-hand strike is server side since the 70205 hotfixes).
 
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `OFFHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,

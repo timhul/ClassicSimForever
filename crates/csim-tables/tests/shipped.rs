@@ -316,10 +316,14 @@ fn items_of_the_dump_derive() {
     let tables = Tables::load(&dir).unwrap();
     let report = derive_items(&tables);
     assert!(report.items.len() > 2500, "{} items", report.items.len());
-    // The only unresolved references are item spells missing from the dump.
+    // The only unresolved references are item spells missing from the dump, and the one
+    // polearm skill stat (Frenzied Striker, from the 70205 hotfixes; the sim has no polearm
+    // skill).
     for issue in &report.issues {
+        let polearm_skill =
+            issue.item_id == 13056 && issue.message.contains("(polearm skill) 1 is not supported");
         assert!(
-            issue.message.contains("names missing spell"),
+            issue.message.contains("names missing spell") || polearm_skill,
             "{}: {}",
             issue.item_id,
             issue.message

@@ -2,6 +2,295 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 1718
+  name: Basilisk Hide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  stats:
+    AGILITY: 21
+    SPIRIT: 3
+    STAMINA: 8
+    ARMOR: 113
+- id: 1929
+  name: Silk-threaded Trousers
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 13
+  item_lvl: 18
+  boe: true
+  stats:
+    AGILITY: 5
+    ARMOR: 31
+    SPELL_DAMAGE: 7
+- id: 1934
+  name: Stonemason Trousers
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 15
+  item_lvl: 20
+  boe: true
+  stats:
+    AGILITY: 7
+    SPIRIT: 7
+    ARMOR: 75
+- id: 2277
+  name: Necromancer Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134581
+  icon_name: inv_pants_01
+  req_lvl: 30
+  item_lvl: 35
+  boe: true
+  stats:
+    INTELLECT: 11
+    STAMINA: 12
+    ARMOR: 45
+    SPELL_DAMAGE_SHADOW: 10
+- id: 2906
+  name: Darkshire Mail Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 28
+  stats:
+    SPIRIT: 10
+    STRENGTH: 10
+    ARMOR: 185
+- id: 5199
+  name: Smelting Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    SPIRIT: 5
+    STAMINA: 7
+    ARMOR: 76
+  effects:
+  - trigger: EQUIP
+    spell: 1291915
+- id: 6087
+  name: Chausses of Westfall
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 24
+  stats:
+    STAMINA: 5
+    STRENGTH: 11
+    ARMOR: 173
+- id: 6480
+  name: Slick Deviate Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 0
+  item_lvl: 20
+  stats:
+    AGILITY: 4
+    SPIRIT: 5
+    STAMINA: 7
+    ARMOR: 75
+- id: 6690
+  name: Ferine Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134594
+  icon_name: inv_pants_14
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    INTELLECT: 12
+    ARMOR: 96
+    ATTACK_POWER: 26
+- id: 6903
+  name: Gaze Dreamer Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 23
+  item_lvl: 28
+  stats:
+    SPIRIT: 9
+    ARMOR: 40
+    SPELL_DAMAGE: 12
+- id: 6910
+  name: Leech Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134594
+  icon_name: inv_pants_14
+  req_lvl: 24
+  item_lvl: 29
+  stats:
+    STAMINA: 5
+    ARMOR: 41
+    MANA_PER_5: 5
+    HEALTH_PER_5: 5
+    SPELL_DAMAGE: 5
+- id: 7709
+  name: Blighted Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134587
+  icon_name: inv_pants_07
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    SPIRIT: 14
+    ARMOR: 45
+    SPELL_DAMAGE_SHADOW: 19
+- id: 9402
+  name: Earthborn Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134592
+  icon_name: inv_pants_12
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  stats:
+    SPIRIT: 29
+    STAMINA: 12
+    ARMOR: 148
+- id: 9509
+  name: Petrolspill Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  stats:
+    AGILITY: 14
+    STAMINA: 6
+    ARMOR: 90
+  effects:
+  - trigger: EQUIP
+    spell: 1293003
+  flavour_text: Keep away from fire.
+- id: 9624
+  name: Triprunner Dungarees
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 37
+  stats:
+    AGILITY: 18
+    STAMINA: 6
+    STRENGTH: 3
+    ARMOR: 101
+- id: 9625
+  name: Dual Reinforced Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 37
+  stats:
+    STRENGTH: 12
+    ARMOR: 211
+    DEFENSE: 5
+- id: 10330
+  name: Scarlet Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 39
+  item_lvl: 44
+  stats:
+    STAMINA: 10
+    STRENGTH: 21
+    ARMOR: 236
+  set: 163
+- id: 10400
+  name: Blackened Defias Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134592
+  icon_name: inv_pants_12
+  req_lvl: 14
+  item_lvl: 19
+  stats:
+    AGILITY: 6
+    STRENGTH: 6
+    ARMOR: 73
+  set: 161
+- id: 10410
+  name: Leggings of the Fang
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    AGILITY: 9
+    STAMINA: 4
+    STRENGTH: 5
+    ARMOR: 78
+  set: 162
 - id: 12041
   name: Windshear Leggings
   phase: 1
@@ -33,6 +322,133 @@ items:
     STRENGTH: 20
     ARMOR: 575
     DEFENSE: 8
+- id: 12987
+  name: Darkweave Breeches
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  stats:
+    INTELLECT: 7
+    SPIRIT: 6
+    STAMINA: 4
+    ARMOR: 35
+- id: 13008
+  name: Dalewind Trousers
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 47
+  item_lvl: 52
+  boe: true
+  stats:
+    INTELLECT: 9
+    SPIRIT: 25
+    STAMINA: 5
+    ARMOR: 65
+- id: 13010
+  name: Dreamsinger Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  stats:
+    SPIRIT: 5
+    STAMINA: 8
+    STRENGTH: 8
+    ARMOR: 179
+- id: 13074
+  name: Golem Shard Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 41
+  item_lvl: 46
+  boe: true
+  stats:
+    STRENGTH: 22
+    ARMOR: 429
+    DEFENSE: 6
+- id: 13075
+  name: Direwing Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  stats:
+    AGILITY: 15
+    SPIRIT: 16
+    STAMINA: 16
+    STRENGTH: 15
+    ARMOR: 575
+- id: 13114
+  name: Troll's Bane Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  stats:
+    AGILITY: 14
+    SPIRIT: 4
+    STAMINA: 4
+    ARMOR: 90
+- id: 13129
+  name: Firemane Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
+  stats:
+    STAMINA: 5
+    STRENGTH: 19
+    ARMOR: 218
+    FIRE_RESISTANCE: 10
+- id: 13130
+  name: Windrunner Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  stats:
+    AGILITY: 27
+    SPIRIT: 11
+    ARMOR: 291
 - id: 14137
   name: Mooncloth Leggings
   phase: 1
@@ -594,6 +1010,166 @@ items:
     ARMOR: 396
     SPELL_DAMAGE: 27
     CRIT_RATING: 14
+- id: 16668
+  name: Kilt of Elements
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    INTELLECT: 15
+    SPIRIT: 20
+    STAMINA: 7
+    ARMOR: 315
+    SPELL_DAMAGE: 14
+    SPELL_PENETRATION: 2
+  set: 187
+- id: 16678
+  name: Beaststalker's Pants
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    AGILITY: 26
+    INTELLECT: 10
+    SPIRIT: 12
+    STAMINA: 6
+    STRENGTH: 6
+    ARMOR: 315
+  set: 186
+- id: 16687
+  name: Magister's Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    INTELLECT: 15
+    SPIRIT: 21
+    STAMINA: 12
+    ARMOR: 76
+    SPELL_DAMAGE: 7
+    HIT_RATING: 9
+  set: 181
+- id: 16694
+  name: Devout Skirt
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    INTELLECT: 15
+    SPIRIT: 23
+    STAMINA: 12
+    ARMOR: 76
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 24
+  set: 182
+- id: 16699
+  name: Dreadmist Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    INTELLECT: 14
+    SPIRIT: 21
+    STAMINA: 15
+    ARMOR: 76
+    SPELL_DAMAGE: 12
+  set: 183
+- id: 16709
+  name: Shadowcraft Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    AGILITY: 25
+    SPIRIT: 14
+    STAMINA: 14
+    ARMOR: 150
+  set: 184
+- id: 16719
+  name: Wildheart Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    INTELLECT: 14
+    SPIRIT: 14
+    STAMINA: 14
+    STRENGTH: 12
+    ARMOR: 150
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 24
+  set: 185
+- id: 16728
+  name: Lightforge Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    AGILITY: 9
+    INTELLECT: 12
+    STAMINA: 14
+    STRENGTH: 20
+    ARMOR: 557
+    MANA_PER_5: 3
+  set: 188
+- id: 16732
+  name: Legplates of Valor
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    AGILITY: 11
+    SPIRIT: 4
+    STAMINA: 15
+    STRENGTH: 23
+    ARMOR: 557
+    BLOCK_VALUE: 17
+  set: 189
 - id: 17013
   name: Dark Iron Leggings
   phase: 1
@@ -2126,6 +2702,2381 @@ items:
     ARMOR: 144
     SPELL_DAMAGE: 21
     CRIT_RATING: 14
+- id: 220797
+  name: Knight's Plate Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [WARRIOR, PALADIN]
+  stats:
+    AGILITY: 10
+    STAMINA: 15
+    STRENGTH: 12
+    ARMOR: 487
+    CRIT_RATING: 14
+  set: 1619
+- id: 220798
+  name: Stone Guard's Plate Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [WARRIOR, PALADIN]
+  stats:
+    AGILITY: 10
+    STAMINA: 15
+    STRENGTH: 12
+    ARMOR: 487
+    CRIT_RATING: 14
+  set: 1618
+- id: 220809
+  name: Knight's Imbued Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 13
+    STAMINA: 15
+    ARMOR: 487
+    MANA_PER_5: 4
+    HEALING_POWER: 29
+  set: 1620
+- id: 220816
+  name: Knight's Lamellar Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 11
+    STAMINA: 15
+    STRENGTH: 13
+    ARMOR: 487
+    SPELL_DAMAGE: 15
+  set: 1621
+- id: 220832
+  name: Knight's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134581
+  icon_name: inv_pants_01
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 14
+    INTELLECT: 10
+    STAMINA: 12
+    ARMOR: 277
+    CRIT_RATING: 14
+  set: 1626
+- id: 220833
+  name: Stone Guard's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134581
+  icon_name: inv_pants_01
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 14
+    INTELLECT: 10
+    STAMINA: 12
+    ARMOR: 277
+    CRIT_RATING: 14
+  set: 1625
+- id: 220834
+  name: Stone Guard's Mail Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134581
+  icon_name: inv_pants_01
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER, SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    STRENGTH: 12
+    ARMOR: 277
+    CRIT_RATING: 14
+  set: 1622
+- id: 220839
+  name: Stone Guard's Inscribed Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 277
+    HEALING_POWER: 26
+    CRIT_RATING: 14
+  set: 1624
+- id: 220847
+  name: Stone Guard's Pulsing Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 277
+    SPELL_DAMAGE: 18
+    HIT_RATING: 10
+  set: 1623
+- id: 220858
+  name: Knight's Leather Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [ROGUE, DRUID]
+  stats:
+    STAMINA: 15
+    ARMOR: 174
+    ATTACK_POWER: 18
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1628
+- id: 220859
+  name: Stone Guard's Leather Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [ROGUE, DRUID]
+  stats:
+    STAMINA: 15
+    ARMOR: 174
+    ATTACK_POWER: 18
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1627
+- id: 220864
+  name: Knight's Crackling Leather Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 10
+    STAMINA: 10
+    ARMOR: 154
+    SPELL_DAMAGE: 12
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1632
+- id: 220865
+  name: Stone Guard's Crackling Leather Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 10
+    STAMINA: 10
+    ARMOR: 154
+    SPELL_DAMAGE: 12
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1631
+- id: 220882
+  name: Knight's Restored Leather Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 10
+    SPIRIT: 10
+    STAMINA: 10
+    ARMOR: 154
+    HEALING_POWER: 22
+    CRIT_RATING: 14
+  set: 1630
+- id: 220883
+  name: Stone Guard's Restored Leather Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 10
+    SPIRIT: 10
+    STAMINA: 10
+    ARMOR: 154
+    HEALING_POWER: 22
+    CRIT_RATING: 14
+  set: 1629
+- id: 220888
+  name: Knight's Dreadweave Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE, WARLOCK]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 106
+    SPELL_DAMAGE: 12
+    CRIT_RATING: 14
+  set: 1634
+- id: 220893
+  name: Knight's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134593
+  icon_name: inv_pants_13
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE]
+  stats:
+    INTELLECT: 12
+    STAMINA: 15
+    ARMOR: 106
+    MANA_PER_5: 3
+    HEALING_POWER: 29
+  set: 1636
+- id: 220902
+  name: Stone Guard's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134593
+  icon_name: inv_pants_13
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE]
+  stats:
+    INTELLECT: 12
+    STAMINA: 15
+    ARMOR: 106
+    MANA_PER_5: 3
+    HEALING_POWER: 29
+  set: 1635
+- id: 220906
+  name: Stone Guard's Dreadweave Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [PRIEST, MAGE, WARLOCK]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    ARMOR: 106
+    SPELL_DAMAGE: 12
+    CRIT_RATING: 14
+  set: 1633
+- id: 223074
+  name: Knight's Mail Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134581
+  icon_name: inv_pants_01
+  req_lvl: 50
+  item_lvl: 53
+  class_restrictions: [HUNTER, SHAMAN]
+  stats:
+    INTELLECT: 12
+    STAMINA: 13
+    STRENGTH: 12
+    ARMOR: 277
+    CRIT_RATING: 14
+  set: 1665
+- id: 226779
+  name: Feralheart Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 11
+    STAMINA: 13
+    ARMOR: 160
+    SPELL_DAMAGE: 25
+  set: 1667
+- id: 226787
+  name: Feralheart Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 18
+    STAMINA: 15
+    ARMOR: 160
+    SPELL_DAMAGE: 10
+    HEALING_POWER: 31
+  set: 1667
+- id: 226791
+  name: Feralheart Trousers
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 10
+    INTELLECT: 12
+    SPIRIT: 9
+    STAMINA: 17
+    STRENGTH: 16
+    ARMOR: 160
+  set: 1667
+- id: 226799
+  name: Feralheart Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 9
+    STAMINA: 31
+    STRENGTH: 16
+    ARMOR: 160
+    DEFENSE: 9
+  set: 1667
+- id: 226827
+  name: Darkmantle Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 26
+    SPIRIT: 15
+    STAMINA: 14
+    ARMOR: 160
+    HIT_RATING: 5
+  set: 1676
+- id: 226859
+  name: Legplates of Heroism
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 12
+    STAMINA: 15
+    STRENGTH: 27
+    ARMOR: 601
+  set: 1778
+- id: 226868
+  name: Legguards of Heroism
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [WARRIOR]
+  stats:
+    SPIRIT: 10
+    STAMINA: 24
+    STRENGTH: 16
+    ARMOR: 601
+    DEFENSE: 7
+    BLOCK_VALUE: 21
+  set: 1778
+- id: 226882
+  name: Beastmaster's Pants
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 28
+    INTELLECT: 11
+    STAMINA: 14
+    ARMOR: 339
+  set: 1669
+- id: 226910
+  name: Deathmist Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 18
+    STAMINA: 21
+    ARMOR: 81
+    SPELL_DAMAGE: 15
+    HIT_RATING: 10
+  set: 1681
+- id: 226933
+  name: Sorcerer's Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 11
+    STAMINA: 13
+    ARMOR: 81
+    SPELL_DAMAGE: 19
+    HIT_RATING: 10
+  set: 1671
+- id: 226946
+  name: Virtuous Skirt
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 18
+    STAMINA: 15
+    ARMOR: 81
+    SPELL_DAMAGE: 10
+    HEALING_POWER: 31
+  set: 1675
+- id: 226956
+  name: Virtuous Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 11
+    STAMINA: 13
+    ARMOR: 81
+    SPELL_DAMAGE: 25
+  set: 1675
+- id: 226972
+  name: Soulforge Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 19
+    STAMINA: 17
+    STRENGTH: 17
+    ARMOR: 601
+    SPELL_DAMAGE: 11
+  set: 1673
+- id: 226980
+  name: Soulforge Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 18
+    STAMINA: 15
+    ARMOR: 601
+    SPELL_DAMAGE: 10
+    HEALING_POWER: 31
+  set: 1673
+- id: 226988
+  name: Soulforge Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 14
+    STAMINA: 24
+    STRENGTH: 16
+    ARMOR: 601
+    DEFENSE: 9
+    BLOCK_VALUE: 14
+  set: 1673
+- id: 227005
+  name: Kilt of The Five Thunders
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 11
+    STAMINA: 13
+    ARMOR: 339
+    SPELL_DAMAGE: 19
+    HIT_RATING: 10
+  set: 1679
+- id: 227012
+  name: Leggings of The Five Thunders
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 18
+    STAMINA: 15
+    ARMOR: 339
+    SPELL_DAMAGE: 10
+    HEALING_POWER: 31
+  set: 1679
+- id: 227020
+  name: Legplates of The Five Thunders
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 0
+  item_lvl: 66
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 19
+    STAMINA: 17
+    STRENGTH: 17
+    ARMOR: 339
+    SPELL_DAMAGE: 11
+  set: 1679
+- id: 227047
+  name: Knight-Captain's Plate Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 26
+    STRENGTH: 12
+    ARMOR: 618
+    CRIT_RATING: 28
+  set: 1775
+- id: 227048
+  name: Legionnaire's Plate Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 26
+    STRENGTH: 12
+    ARMOR: 618
+    CRIT_RATING: 28
+  set: 1761
+- id: 227059
+  name: Legionnaire's Leather Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [ROGUE]
+  stats:
+    STAMINA: 33
+    ARMOR: 225
+    ATTACK_POWER: 34
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1756
+- id: 227061
+  name: Knight-Captain's Leather Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [ROGUE]
+  stats:
+    STAMINA: 33
+    ARMOR: 225
+    ATTACK_POWER: 34
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1770
+- id: 227072
+  name: Knight-Captain's Chain Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 16
+    INTELLECT: 6
+    STAMINA: 20
+    ARMOR: 348
+    CRIT_RATING: 28
+  set: 1766
+- id: 227073
+  name: Legionnaire's Chain Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 16
+    INTELLECT: 6
+    STAMINA: 20
+    ARMOR: 348
+    CRIT_RATING: 28
+  set: 1752
+- id: 227079
+  name: Legionnaire's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 10
+    STAMINA: 20
+    STRENGTH: 9
+    ARMOR: 348
+    ATTACK_POWER: 20
+    CRIT_RATING: 28
+  set: 1751
+- id: 227085
+  name: Knight-Captain's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 10
+    STAMINA: 20
+    STRENGTH: 9
+    ARMOR: 348
+    ATTACK_POWER: 20
+    CRIT_RATING: 28
+  set: 1765
+- id: 227095
+  name: Knight-Captain's Dreadweave Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 13
+    STAMINA: 32
+    ARMOR: 84
+    SPELL_DAMAGE: 28
+  set: 1774
+- id: 227097
+  name: Legionnaire's Dreadweave Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 13
+    STAMINA: 32
+    ARMOR: 84
+    SPELL_DAMAGE: 28
+  set: 1760
+- id: 227107
+  name: Legionnaire's Silk Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 5
+    STAMINA: 27
+    ARMOR: 144
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1753
+- id: 227109
+  name: Knight-Captain's Silk Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 5
+    STAMINA: 27
+    ARMOR: 144
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1767
+- id: 227123
+  name: Legionnaire's Satin Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 144
+    HEALING_POWER: 40
+  set: 1755
+- id: 227125
+  name: Knight-Captain's Satin Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    SPIRIT: 14
+    STAMINA: 29
+    ARMOR: 144
+    HEALING_POWER: 40
+  set: 1769
+- id: 227131
+  name: Legionnaire's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    STAMINA: 29
+    ARMOR: 144
+    MANA_PER_5: 6
+    SPELL_DAMAGE: 21
+  set: 1754
+- id: 227137
+  name: Knight-Captain's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 15
+    STAMINA: 29
+    ARMOR: 144
+    MANA_PER_5: 6
+    SPELL_DAMAGE: 21
+  set: 1768
+- id: 227143
+  name: Knight-Captain's Lamellar Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 26
+    STRENGTH: 17
+    ARMOR: 618
+    SPELL_DAMAGE: 25
+    CRIT_RATING: 14
+  set: 1777
+- id: 227150
+  name: Knight-Captain's Lamellar Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 18
+    STAMINA: 26
+    ARMOR: 618
+    MANA_PER_5: 5
+    HEALING_POWER: 46
+  set: 1776
+- id: 227156
+  name: Legionnaire's Mail Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    STAMINA: 27
+    STRENGTH: 22
+    ARMOR: 348
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1759
+- id: 227161
+  name: Legionnaire's Mail Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 17
+    STAMINA: 27
+    ARMOR: 348
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1757
+- id: 227167
+  name: Legionnaire's Mail Pants
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 17
+    STAMINA: 27
+    ARMOR: 348
+    HEALING_POWER: 40
+    CRIT_RATING: 14
+  set: 1758
+- id: 227177
+  name: Legionnaire's Dragonhide Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 12
+    INTELLECT: 12
+    STAMINA: 18
+    STRENGTH: 12
+    ARMOR: 275
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1750
+- id: 227178
+  name: Knight-Captain's Dragonhide Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 12
+    INTELLECT: 12
+    STAMINA: 18
+    STRENGTH: 12
+    ARMOR: 275
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1764
+- id: 227185
+  name: Legionnaire's Dragonhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 8
+    STAMINA: 27
+    ARMOR: 215
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1748
+- id: 227191
+  name: Knight-Captain's Dragonhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 8
+    STAMINA: 27
+    ARMOR: 165
+    SPELL_DAMAGE: 21
+    CRIT_RATING: 14
+  set: 1762
+- id: 227200
+  name: Knight-Captain's Dragonhide Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 29
+    ARMOR: 165
+    HEALING_POWER: 46
+  set: 1763
+- id: 227206
+  name: Legionnaire's Dragonhide Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 68
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 15
+    STAMINA: 29
+    ARMOR: 165
+    HEALING_POWER: 46
+  set: 1749
+- id: 227804
+  name: Dire Warbear Woolies
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134706
+  icon_name: inv_pants_wolf
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    AGILITY: 10
+    STAMINA: 33
+    ARMOR: 273
+    DEFENSE: 12
+    HIT_RATING: 10
+- id: 231533
+  name: General's Plate Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 42
+    STRENGTH: 20
+    ARMOR: 743
+    HIT_RATING: 10
+    CRIT_RATING: 28
+  set: 1721
+- id: 231540
+  name: Marshal's Plate Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [WARRIOR]
+  stats:
+    STAMINA: 42
+    STRENGTH: 20
+    ARMOR: 743
+    HIT_RATING: 10
+    CRIT_RATING: 28
+  set: 1747
+- id: 231548
+  name: Marshal's Leather Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 27
+    STAMINA: 40
+    ARMOR: 236
+    HIT_RATING: 20
+    CRIT_RATING: 14
+  set: 1743
+- id: 231554
+  name: General's Leather Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 27
+    STAMINA: 40
+    ARMOR: 236
+    HIT_RATING: 20
+    CRIT_RATING: 14
+  set: 1730
+- id: 231558
+  name: Marshal's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134669
+  icon_name: inv_pants_mail_17
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 17
+    INTELLECT: 12
+    STAMINA: 40
+    STRENGTH: 18
+    ARMOR: 446
+    ATTACK_POWER: 36
+    CRIT_RATING: 14
+  set: 1738
+- id: 231567
+  name: General's Chain Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134668
+  icon_name: inv_pants_mail_16
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 17
+    INTELLECT: 12
+    STAMINA: 40
+    STRENGTH: 18
+    ARMOR: 446
+    ATTACK_POWER: 36
+    CRIT_RATING: 14
+  set: 1726
+- id: 231574
+  name: General's Chain Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134668
+  icon_name: inv_pants_mail_16
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 34
+    INTELLECT: 12
+    STAMINA: 40
+    ARMOR: 446
+    CRIT_RATING: 14
+  set: 1725
+- id: 231577
+  name: Marshal's Chain Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134669
+  icon_name: inv_pants_mail_17
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 34
+    INTELLECT: 12
+    STAMINA: 40
+    ARMOR: 446
+    CRIT_RATING: 14
+  set: 1739
+- id: 231587
+  name: Marshal's Dreadweave Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134603
+  icon_name: inv_pants_cloth_09
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 19
+    STAMINA: 42
+    ARMOR: 135
+    SPELL_DAMAGE: 37
+  set: 1746
+- id: 231588
+  name: General's Dreadweave Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134587
+  icon_name: inv_pants_07
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 19
+    STAMINA: 42
+    ARMOR: 135
+    SPELL_DAMAGE: 37
+  set: 1734
+- id: 231595
+  name: General's Silk Trousers
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134587
+  icon_name: inv_pants_07
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 10
+    STAMINA: 39
+    ARMOR: 155
+    SPELL_DAMAGE: 30
+    CRIT_RATING: 14
+  set: 1727
+- id: 231605
+  name: Marshal's Silk Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 10
+    STAMINA: 39
+    ARMOR: 155
+    SPELL_DAMAGE: 30
+    CRIT_RATING: 14
+  set: 1740
+- id: 231614
+  name: General's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134587
+  icon_name: inv_pants_07
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 21
+    STAMINA: 45
+    ARMOR: 165
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 32
+  set: 1728
+- id: 231619
+  name: Marshal's Satin Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 21
+    STAMINA: 45
+    ARMOR: 165
+    MANA_PER_5: 4
+    SPELL_DAMAGE: 32
+  set: 1741
+- id: 231626
+  name: Marshal's Satin Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 21
+    SPIRIT: 9
+    STAMINA: 45
+    ARMOR: 165
+    SPELL_DAMAGE: 20
+    HEALING_POWER: 39
+  set: 1742
+- id: 231634
+  name: General's Satin Legguards
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134587
+  icon_name: inv_pants_07
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 21
+    SPIRIT: 9
+    STAMINA: 45
+    ARMOR: 165
+    SPELL_DAMAGE: 20
+    HEALING_POWER: 39
+  set: 1729
+- id: 231639
+  name: Marshal's Lamellar Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 46
+    ARMOR: 703
+    SPELL_DAMAGE: 17
+    HEALING_POWER: 34
+    CRIT_RATING: 14
+  set: 1745
+- id: 231647
+  name: Marshal's Lamellar Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134584
+  icon_name: inv_pants_04
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 20
+    STAMINA: 30
+    STRENGTH: 20
+    ARMOR: 703
+    SPELL_DAMAGE: 27
+    CRIT_RATING: 14
+  set: 1744
+- id: 231658
+  name: General's Mail Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 10
+    STAMINA: 42
+    STRENGTH: 28
+    ARMOR: 396
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1731
+- id: 231664
+  name: General's Mail Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 24
+    STAMINA: 36
+    ARMOR: 396
+    SPELL_DAMAGE: 28
+    CRIT_RATING: 14
+  set: 1732
+- id: 231670
+  name: General's Mail Pants
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 21
+    STAMINA: 43
+    ARMOR: 396
+    SPELL_DAMAGE: 16
+    HEALING_POWER: 30
+    CRIT_RATING: 14
+  set: 1733
+- id: 231673
+  name: General's Dragonhide Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 14
+    STAMINA: 52
+    ARMOR: 216
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  set: 1724
+- id: 231680
+  name: General's Dragonhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 14
+    SPIRIT: 10
+    STAMINA: 45
+    ARMOR: 216
+    SPELL_DAMAGE: 27
+    CRIT_RATING: 14
+  set: 1723
+- id: 231685
+  name: General's Dragonhide Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 15
+    INTELLECT: 9
+    STAMINA: 45
+    STRENGTH: 20
+    ARMOR: 216
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1722
+- id: 231691
+  name: Marshal's Dragonhide Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 15
+    INTELLECT: 9
+    STAMINA: 45
+    STRENGTH: 20
+    ARMOR: 216
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1737
+- id: 231697
+  name: Marshal's Dragonhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 14
+    SPIRIT: 10
+    STAMINA: 45
+    ARMOR: 216
+    SPELL_DAMAGE: 27
+    CRIT_RATING: 14
+  set: 1735
+- id: 231703
+  name: Marshal's Dragonhide Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 71
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 16
+    SPIRIT: 14
+    STAMINA: 52
+    ARMOR: 216
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  set: 1736
+- id: 237814
+  name: Sentinel's Lamellar Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134691
+  icon_name: inv_pants_plate_15
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 27
+    STAMINA: 39
+    ARMOR: 768
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 237815
+  name: Sentinel's Silk Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134599
+  icon_name: inv_pants_cloth_05
+  unique: true
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 10
+    STAMINA: 39
+    ARMOR: 204
+    SPELL_DAMAGE: 32
+    CRIT_RATING: 28
+- id: 237817
+  name: Sentinel's Lizardhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 10
+    STAMINA: 39
+    ARMOR: 301
+    SPELL_DAMAGE: 32
+    CRIT_RATING: 28
+- id: 237818
+  name: Sentinel's Leather Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134637
+  icon_name: inv_pants_leather_12
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    AGILITY: 27
+    STAMINA: 39
+    ARMOR: 301
+    CRIT_RATING: 28
+- id: 237819
+  name: Sentinel's Chain Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    AGILITY: 35
+    STAMINA: 26
+    ARMOR: 432
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 237820
+  name: Outrider's Silk Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134599
+  icon_name: inv_pants_cloth_05
+  unique: true
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 10
+    STAMINA: 39
+    ARMOR: 204
+    SPELL_DAMAGE: 32
+    CRIT_RATING: 28
+- id: 237821
+  name: Outrider's Lizardhide Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 10
+    STAMINA: 39
+    ARMOR: 301
+    SPELL_DAMAGE: 32
+    CRIT_RATING: 28
+- id: 237822
+  name: Outrider's Leather Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134637
+  icon_name: inv_pants_leather_12
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    AGILITY: 27
+    STAMINA: 39
+    ARMOR: 301
+    CRIT_RATING: 28
+- id: 237823
+  name: Outrider's Mail Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    INTELLECT: 27
+    STAMINA: 39
+    ARMOR: 432
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 237824
+  name: Outrider's Chain Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134583
+  icon_name: inv_pants_03
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    AGILITY: 35
+    STAMINA: 26
+    ARMOR: 432
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 237825
+  name: Sentinel's Plate Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134696
+  icon_name: inv_pants_plate_20
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    STAMINA: 39
+    STRENGTH: 27
+    ARMOR: 768
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 237826
+  name: Outrider's Plate Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134696
+  icon_name: inv_pants_plate_20
+  req_lvl: 60
+  item_lvl: 78
+  stats:
+    STAMINA: 39
+    STRENGTH: 27
+    ARMOR: 768
+    HIT_RATING: 10
+    CRIT_RATING: 28
+- id: 239518
+  name: Lightbreaker Tassets
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 10
+    STAMINA: 23
+    STRENGTH: 50
+    ARMOR: 954
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1932
+- id: 239526
+  name: Lightbreaker Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARRIOR]
+  stats:
+    AGILITY: 10
+    STAMINA: 45
+    STRENGTH: 32
+    ARMOR: 954
+    DEFENSE: 18
+    BLOCK_VALUE: 15
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1933
+- id: 239533
+  name: Dawnstalker Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 50
+    STAMINA: 23
+    ARMOR: 534
+    ATTACK_POWER: 50
+    HIT_RATING: 20
+    CRIT_RATING: 14
+  set: 1936
+- id: 239541
+  name: Dawnstalker Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 47
+    STAMINA: 15
+    ARMOR: 534
+    RANGED_ATTACK_POWER: 41
+    CRIT_RATING: 28
+    HASTE_RATING: 10
+  set: 1937
+- id: 239551
+  name: Duskwraith Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134681
+  icon_name: inv_pants_plate_05
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 31
+    STAMINA: 42
+    STRENGTH: 12
+    ARMOR: 240
+    DEFENSE: 18
+    HIT_RATING: 10
+    HASTE_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1935
+- id: 239561
+  name: Duskwraith Legplates
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134681
+  icon_name: inv_pants_plate_05
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [ROGUE]
+  stats:
+    AGILITY: 50
+    STAMINA: 18
+    STRENGTH: 18
+    ARMOR: 240
+    HIT_RATING: 20
+    CRIT_RATING: 14
+    HASTE_RATING: 20
+  set: 1934
+- id: 239577
+  name: Pants of Revelation
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 26
+    STAMINA: 19
+    ARMOR: 128
+    SPELL_DAMAGE_SHADOW: 66
+    CRIT_RATING: 28
+  effects:
+  - trigger: EQUIP
+    spell: 1222994
+  set: 1938
+- id: 239587
+  name: Leggings of Revelation
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PRIEST]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 19
+    STAMINA: 17
+    ARMOR: 128
+    SPELL_DAMAGE: 36
+    HEALING_POWER: 72
+    CRIT_RATING: 28
+  set: 1939
+- id: 240020
+  name: Inquisition Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 24
+    STAMINA: 17
+    ARMOR: 954
+    SPELL_DAMAGE: 33
+    HEALING_POWER: 66
+    CRIT_RATING: 42
+    HASTE_RATING: 10
+  set: 1941
+- id: 240026
+  name: Inquisition Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 23
+    STRENGTH: 50
+    ARMOR: 954
+    HIT_RATING: 10
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1940
+- id: 240034
+  name: Inquisition Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    STAMINA: 45
+    STRENGTH: 32
+    ARMOR: 954
+    DEFENSE: 18
+    BLOCK_VALUE: 23
+    BLOCK_RATING: 10
+    EXPERTISE_RATING: 10
+  set: 1942
+- id: 240047
+  name: Fireleaf Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 19
+    STAMINA: 13
+    ARMOR: 128
+    SPELL_DAMAGE: 61
+    HASTE_RATING: 30
+  set: 1944
+- id: 240055
+  name: Fireleaf Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 19
+    STAMINA: 19
+    ARMOR: 128
+    SPELL_DAMAGE: 60
+    CRIT_RATING: 14
+    HASTE_RATING: 30
+  set: 1943
+- id: 240063
+  name: Waywatcher Trousers
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 27
+    INTELLECT: 19
+    STAMINA: 15
+    STRENGTH: 35
+    ARMOR: 240
+    WEAPON_DAMAGE: 4
+    CRIT_RATING: 14
+    EXPERTISE_RATING: 10
+  set: 1945
+- id: 240071
+  name: Waywatcher Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 19
+    STAMINA: 15
+    ARMOR: 240
+    SPELL_DAMAGE: 60
+    HIT_RATING: 20
+    CRIT_RATING: 14
+  set: 1946
+- id: 240079
+  name: Waywatcher Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    AGILITY: 12
+    STAMINA: 42
+    STRENGTH: 21
+    ARMOR: 320
+    DEFENSE: 19
+    HASTE_RATING: 20
+    EXPERTISE_RATING: 10
+  set: 1948
+- id: 240087
+  name: Waywatcher Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [DRUID]
+  stats:
+    INTELLECT: 20
+    SPIRIT: 20
+    STAMINA: 16
+    ARMOR: 240
+    SPELL_DAMAGE: 32
+    HEALING_POWER: 65
+    CRIT_RATING: 42
+  set: 1947
+- id: 240097
+  name: Soulcrusher Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 24
+    STAMINA: 17
+    ARMOR: 534
+    SPELL_DAMAGE: 31
+    HEALING_POWER: 61
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1950
+- id: 240105
+  name: Soulcrusher Legplates
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 8
+    STAMINA: 43
+    STRENGTH: 11
+    ARMOR: 534
+    DEFENSE: 21
+    SPELL_DAMAGE: 25
+    HIT_RATING: 10
+    BLOCK_RATING: 10
+  set: 1949
+- id: 240124
+  name: Soulcrusher Kilt
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 50
+    STAMINA: 19
+    ARMOR: 534
+    SPELL_DAMAGE: 21
+    HIT_RATING: 10
+    HASTE_RATING: 30
+  set: 1952
+- id: 240134
+  name: Soulcrusher Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  icon: 134667
+  icon_name: inv_pants_mail_15
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [SHAMAN]
+  stats:
+    INTELLECT: 14
+    STAMINA: 14
+    STRENGTH: 50
+    ARMOR: 534
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1951
+- id: 240142
+  name: Heretic Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 17
+    SPIRIT: 20
+    STAMINA: 13
+    ARMOR: 128
+    SPELL_DAMAGE: 55
+    HIT_RATING: 10
+    CRIT_RATING: 28
+    HASTE_RATING: 30
+  set: 1954
+- id: 240149
+  name: Heretic Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  icon: 134616
+  icon_name: inv_pants_cloth_22
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [WARLOCK]
+  stats:
+    INTELLECT: 12
+    SPIRIT: 16
+    STAMINA: 43
+    ARMOR: 248
+    DEFENSE: 15
+    SPELL_DAMAGE: 18
+    HIT_RATING: 10
+    CRIT_RATING: 14
+  set: 1953
+- id: 246058
+  name: Inquisition Plate Pants
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  icon: 134703
+  icon_name: inv_pants_plate_27
+  req_lvl: 60
+  item_lvl: 98
+  class_restrictions: [PALADIN]
+  stats:
+    INTELLECT: 50
+    STAMINA: 23
+    ARMOR: 954
+    HIT_RATING: 10
+    CRIT_RATING: 28
+    HASTE_RATING: 20
+  set: 1963
 - id: 250493
   name: Veteran's Chain Leggings
   phase: 1
@@ -2682,6 +5633,87 @@ items:
     STAMINA: 7
     ARMOR: 41
     SPELL_DAMAGE_HOLY: 14
+- id: 270031
+  name: Dark Ritual Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134582
+  icon_name: inv_pants_02
+  req_lvl: 0
+  item_lvl: 29
+  stats:
+    STAMINA: 9
+    ARMOR: 88
+    SPELL_DAMAGE: 14
+- id: 270036
+  name: Magistrate's Pantaloons
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134594
+  icon_name: inv_pants_14
+  req_lvl: 0
+  item_lvl: 29
+  stats:
+    INTELLECT: 14
+    ARMOR: 41
+    SPELL_DAMAGE: 5
+- id: 270074
+  name: Doomcaller's Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134594
+  icon_name: inv_pants_14
+  req_lvl: 0
+  item_lvl: 42
+  stats:
+    SPIRIT: 12
+    STRENGTH: 18
+    ARMOR: 111
+- id: 270260
+  name: Direhammer Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    AGILITY: 4
+    STAMINA: 7
+    ARMOR: 72
+- id: 271207
+  name: Rotmender's Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    STAMINA: 5
+    ARMOR: 35
+    MANA_PER_5: 4
+  set: 2133
+- id: 271209
+  name: Bonerust Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    AGILITY: 9
+    STRENGTH: 4
+    ARMOR: 164
 - id: 272458
   name: Premier Magus Pants
   phase: 1
@@ -3333,6 +6365,36 @@ items:
     SPELL_DAMAGE: 7
     HEALING_POWER: 22
   set: 401
+- id: 273022
+  name: Supple Bellyskin Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134591
+  icon_name: inv_pants_11
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    STAMINA: 14
+    STRENGTH: 6
+    ARMOR: 92
+- id: 273289
+  name: Ogre Loincloth
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  icon: 134589
+  icon_name: inv_pants_09
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    STAMINA: 6
+    STRENGTH: 4
+    ARMOR: 35
+    SPELL_DAMAGE: 6
+    HEALING_POWER: 18
 - id: 273333
   name: Premier Marshal's Luminous Legplates
   phase: 1
@@ -3575,6 +6637,321 @@ items:
     SPELL_DAMAGE: 8
     HEALING_POWER: 24
   set: 2075
+- id: 273647
+  name: Worgpelt Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134592
+  icon_name: inv_pants_12
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    AGILITY: 10
+    STRENGTH: 5
+    ARMOR: 84
+    FIRE_RESISTANCE: 7
+- id: 273884
+  name: Grovekeeper Trousers
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 164
+  set: 2114
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273888
+  name: Grovekeeper Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 164
+  set: 2115
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273892
+  name: Grovekeeper Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 164
+  set: 2112
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273896
+  name: Grovekeeper Leggings
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 164
+  set: 2113
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273900
+  name: Wildstalker's Legguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [HUNTER]
+  stats:
+    ARMOR: 344
+  set: 2101
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273904
+  name: Manaflare Pants
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [MAGE]
+  stats:
+    ARMOR: 83
+  set: 2098
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273908
+  name: Justice Leggings
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 608
+  set: 2106
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273912
+  name: Justice Legplates
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 608
+  set: 2107
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273916
+  name: Justice Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 608
+  set: 2108
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273920
+  name: Pants of Conviction
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PRIEST]
+  stats:
+    ARMOR: 83
+  set: 2105
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273924
+  name: Leggings of Conviction
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PRIEST]
+  stats:
+    ARMOR: 83
+  set: 2104
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273928
+  name: Grimstitch Pants
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [ROGUE]
+  stats:
+    ARMOR: 164
+  set: 2099
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273932
+  name: Spiritcaller Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 344
+  set: 2110
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273936
+  name: Spiritcaller Pants
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 344
+  set: 2109
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273940
+  name: Demonheart Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [WARLOCK]
+  stats:
+    ARMOR: 83
+  set: 2100
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273944
+  name: Legplates of Glory
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 608
+  set: 2102
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273948
+  name: Legguards of Glory
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 608
+  set: 2103
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 274161
+  name: Quillord Mail Leggings
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  icon: 134590
+  icon_name: inv_pants_10
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    SPIRIT: 8
+    STAMINA: 11
+    ARMOR: 202
+    BLOCK_RATING: 10
 - id: 274180
   name: Premier Flatmail Leggings
   phase: 1
@@ -3809,3 +7186,33 @@ items:
     STAMINA: 27
     STRENGTH: 24
     ARMOR: 646
+- id: 284261
+  name: Magically Fortified Legguards
+  phase: 1
+  slot: LEGS
+  type: PLATE
+  quality: RARE
+  icon: 134588
+  icon_name: inv_pants_08
+  req_lvl: 56
+  item_lvl: 61
+  stats:
+    STAMINA: 27
+    ARMOR: 557
+    DEFENSE: 6
+    SPELL_DAMAGE: 16
+- id: 285338
+  name: Kodohide Legguards
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134592
+  icon_name: inv_pants_12
+  req_lvl: 24
+  item_lvl: 29
+  stats:
+    INTELLECT: 11
+    STRENGTH: 4
+    ARMOR: 88
+    SPELL_DAMAGE: 10

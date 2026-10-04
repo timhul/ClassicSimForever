@@ -20,6 +20,452 @@ items:
   effects:
   - trigger: ON_HIT
     spell: 13439
+- id: 868
+  name: Ardent Custodian
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: EPIC
+  icon: 133488
+  icon_name: inv_mace_13
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  damage:
+    min: 48
+    max: 90
+    speed: 2.1
+  stats:
+    ARMOR: 100
+    DEFENSE: 5
+- id: 1482
+  name: Shadowfang
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135311
+  icon_name: inv_sword_13
+  req_lvl: 19
+  item_lvl: 24
+  boe: true
+  damage:
+    min: 29
+    max: 55
+    speed: 2.7
+  effects:
+  - trigger: ON_HIT
+    spell: 1292158
+- id: 1493
+  name: Heavy Marauder Scimitar
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135325
+  icon_name: inv_sword_24
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  damage:
+    min: 28
+    max: 54
+    speed: 2.4
+  stats:
+    STAMINA: 3
+    STRENGTH: 4
+- id: 1721
+  name: Viking Warhammer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  damage:
+    min: 60
+    max: 112
+    speed: 2.4
+  stats:
+    STAMINA: 11
+    STRENGTH: 5
+- id: 1727
+  name: Sword of Decay
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135327
+  icon_name: inv_sword_26
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 33
+    max: 62
+    speed: 2.7
+  effects:
+  - trigger: ON_HIT
+    spell: 13528
+- id: 1728
+  name: Teebu's Blazing Longsword
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: EPIC
+  icon: 135323
+  icon_name: inv_sword_22
+  unique: true
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  damage:
+    min: 96
+    max: 178
+    speed: 2.9
+  effects:
+  - trigger: ON_HIT
+    spell: 1300753
+- id: 2011
+  name: Twisted Sabre
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135325
+  icon_name: inv_sword_24
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  damage:
+    min: 21
+    max: 39
+    speed: 1.8
+  stats:
+    SPIRIT: 5
+    STAMINA: 2
+- id: 2169
+  name: Buzzer Blade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135641
+  icon_name: inv_weapon_shortblade_05
+  req_lvl: 16
+  item_lvl: 21
+  damage:
+    min: 14
+    max: 28
+    speed: 1.5
+  stats:
+    SPELL_DAMAGE_ELEMENTAL: 9
+- id: 2256
+  name: Skeletal Club
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133729
+  icon_name: inv_misc_bone_elfskull_01
+  req_lvl: 19
+  item_lvl: 24
+  boe: true
+  damage:
+    min: 28
+    max: 53
+    speed: 2.6
+  effects:
+  - trigger: ON_HIT
+    spell: 13440
+- id: 2567
+  name: Evocator's Blade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135651
+  icon_name: inv_weapon_shortblade_15
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  damage:
+    min: 18
+    max: 34
+    speed: 1.6
+  stats:
+    INTELLECT: 2
+    SPIRIT: 5
+- id: 2807
+  name: Guillotine Axe
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132418
+  icon_name: inv_axe_24
+  req_lvl: 18
+  item_lvl: 23
+  boe: true
+  damage:
+    min: 28
+    max: 53
+    speed: 2.7
+  stats:
+    AGILITY: 3
+    STRENGTH: 3
+- id: 2815
+  name: Curve-bladed Ripper
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132417
+  icon_name: inv_axe_23
+  req_lvl: 40
+  item_lvl: 45
+  boe: true
+  damage:
+    min: 40
+    max: 75
+    speed: 1.9
+  stats:
+    STAMINA: 5
+    STRENGTH: 8
+- id: 2816
+  name: Death Speaker Scepter
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133482
+  icon_name: inv_mace_07
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 42
+    max: 78
+    speed: 2.8
+  stats:
+    HEALTH_PER_5: 12
+    SPELL_DAMAGE_SHADOW: 28
+    HEALING_POWER: 68
+- id: 2878
+  name: Bearded Boneaxe
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132405
+  icon_name: inv_axe_14
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  damage:
+    min: 25
+    max: 47
+    speed: 1.9
+  stats:
+    AGILITY: 4
+    STRENGTH: 4
+- id: 3400
+  name: Lucine Longsword
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135321
+  icon_name: inv_sword_20
+  req_lvl: 0
+  item_lvl: 27
+  damage:
+    min: 30
+    max: 56
+    speed: 2.5
+  stats:
+    SPIRIT: 4
+    STAMINA: 4
+- id: 3414
+  name: Crested Scepter
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133483
+  icon_name: inv_mace_08
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 33
+    max: 62
+    speed: 2.6
+  stats:
+    INTELLECT: 2
+    STAMINA: 6
+- id: 6323
+  name: Baron's Scepter
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133477
+  icon_name: inv_mace_02
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 28
+    max: 52
+    speed: 2.4
+  stats:
+    STAMINA: 3
+    STRENGTH: 2
+  effects:
+  - trigger: EQUIP
+    spell: 1292142
+- id: 6504
+  name: Wingblade
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135314
+  icon_name: inv_sword_16
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 24
+    max: 45
+    speed: 2.2
+  stats:
+    AGILITY: 5
+    STAMINA: 2
+- id: 6622
+  name: Sword of Zeal
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135349
+  icon_name: inv_sword_39
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  damage:
+    min: 81
+    max: 151
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 8191
+- id: 6691
+  name: Swinetusk Shank
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 133723
+  icon_name: inv_misc_bone_06
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 24
+    max: 45
+    speed: 1.5
+  stats:
+    SPIRIT: 4
+    STAMINA: 6
+- id: 6804
+  name: Windstorm Hammer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133042
+  icon_name: inv_hammer_05
+  req_lvl: 0
+  item_lvl: 38
+  damage:
+    min: 38
+    max: 71
+    speed: 2.1
+  stats:
+    STAMINA: 6
+    STRENGTH: 5
+- id: 7714
+  name: Hypnotic Blade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135643
+  icon_name: inv_weapon_shortblade_07
+  req_lvl: 34
+  item_lvl: 39
+  damage:
+    min: 26
+    max: 49
+    speed: 1.4
+  stats:
+    INTELLECT: 8
+    SPIRIT: 3
+- id: 7752
+  name: Dreamslayer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133054
+  icon_name: inv_hammer_17
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  damage:
+    min: 31
+    max: 59
+    speed: 2.1
+  stats:
+    SPIRIT: 3
+    STRENGTH: 7
+- id: 7761
+  name: Steelclaw Reaver
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132397
+  icon_name: inv_axe_06
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  damage:
+    min: 32
+    max: 61
+    speed: 1.8
+  stats:
+    AGILITY: 3
+    STAMINA: 8
+- id: 8226
+  name: The Butcher
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135316
+  icon_name: inv_sword_18
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  damage:
+    min: 38
+    max: 72
+    speed: 2.8
+  stats:
+    AGILITY: 5
+    STAMINA: 4
 - id: 8708
   name: Hammer of Expertise
   phase: 1
@@ -38,6 +484,76 @@ items:
   effects:
   - trigger: ON_HIT
     spell: 1317432
+- id: 9446
+  name: Electrocutioner Leg
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135340
+  icon_name: inv_sword_30
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 26
+    max: 49
+    speed: 1.7
+  effects:
+  - trigger: ON_HIT
+    spell: 1292851
+- id: 9457
+  name: Royal Diplomatic Scepter
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133483
+  icon_name: inv_mace_08
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 37
+    max: 69
+    speed: 2.3
+  stats:
+    SPIRIT: 7
+    STAMINA: 3
+- id: 11121
+  name: Darkwater Talwar
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135346
+  icon_name: inv_sword_36
+  req_lvl: 22
+  item_lvl: 27
+  damage:
+    min: 26
+    max: 49
+    speed: 2.2
+  stats:
+    ATTACK_POWER: 6
+  effects:
+  - trigger: ON_HIT
+    spell: 16408
+- id: 11902
+  name: Linken's Sword of Mastery
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135349
+  icon_name: inv_sword_39
+  req_lvl: 0
+  item_lvl: 56
+  damage:
+    min: 46
+    max: 87
+    speed: 1.8
+  effects:
+  - trigger: ON_HIT
+    spell: 18089
 - id: 12795
   name: Blood Talon
   phase: 1
@@ -55,6 +571,204 @@ items:
   effects:
   - trigger: ON_HIT
     spell: 13318
+- id: 12974
+  name: The Black Knight
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135311
+  icon_name: inv_sword_13
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  damage:
+    min: 26
+    max: 49
+    speed: 1.9
+  effects:
+  - trigger: ON_HIT
+    spell: 14106
+- id: 13006
+  name: Mass of McGowan
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133054
+  icon_name: inv_hammer_17
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  damage:
+    min: 80
+    max: 149
+    speed: 2.8
+  stats:
+    STAMINA: 10
+    STRENGTH: 10
+- id: 13024
+  name: Beazel's Basher
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 32
+    max: 60
+    speed: 2.5
+  stats:
+    SPIRIT: 2
+    STRENGTH: 6
+- id: 13025
+  name: Deadwood Sledge
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 32
+  item_lvl: 37
+  boe: true
+  damage:
+    min: 33
+    max: 62
+    speed: 1.9
+  stats:
+    SPIRIT: 7
+    STAMINA: 2
+- id: 13026
+  name: Heaven's Light
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 40
+  item_lvl: 45
+  boe: true
+  damage:
+    min: 57
+    max: 107
+    speed: 2.7
+  stats:
+    AGILITY: 4
+    INTELLECT: 4
+    SPIRIT: 5
+    STAMINA: 4
+    STRENGTH: 4
+- id: 13027
+  name: Bonesnapper
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133057
+  icon_name: inv_hammer_20
+  req_lvl: 48
+  item_lvl: 53
+  boe: true
+  damage:
+    min: 66
+    max: 124
+    speed: 2.7
+  stats:
+    STAMINA: 5
+    STRENGTH: 11
+- id: 13028
+  name: Bludstone Hammer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133056
+  icon_name: inv_hammer_19
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  damage:
+    min: 59
+    max: 110
+    speed: 2.1
+  stats:
+    SPIRIT: 12
+    STAMINA: 5
+- id: 13048
+  name: Looming Gavel
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  damage:
+    min: 33
+    max: 62
+    speed: 2.4
+  stats:
+    AGILITY: 3
+    STAMINA: 6
+- id: 14145
+  name: Cursed Felblade
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135648
+  icon_name: inv_weapon_shortblade_12
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 19
+    max: 37
+    speed: 2.3
+  effects:
+  - trigger: ON_HIT
+    spell: 18381
+- id: 15445
+  name: Hammer of Orgrimmar
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133060
+  icon_name: inv_hammer_23
+  req_lvl: 0
+  item_lvl: 18
+  damage:
+    min: 25
+    max: 47
+    speed: 2.9
+  stats:
+    SPIRIT: 3
+    STRENGTH: 3
+- id: 17039
+  name: Skullbreaker
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133728
+  icon_name: inv_misc_bone_dwarfskull_01
+  req_lvl: 0
+  item_lvl: 38
+  damage:
+    min: 43
+    max: 81
+    speed: 2.4
+  stats:
+    INTELLECT: 7
+    STAMINA: 5
 - id: 18843
   name: Grand Marshal's Right Hand Blade
   phase: 1
@@ -491,6 +1205,178 @@ items:
   effects:
   - trigger: ON_HIT
     spell: 13318
+- id: 234550
+  name: High Warlord's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: EPIC
+  icon: 135662
+  icon_name: inv_weapon_shortblade_26
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 98
+    max: 148
+    speed: 2
+  stats:
+    INTELLECT: 8
+    STAMINA: 21
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234551
+  name: High Warlord's Battle Mace
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: EPIC
+  icon: 133039
+  icon_name: inv_hammer_02
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    INTELLECT: 8
+    STAMINA: 21
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234557
+  name: High Warlord's Right Claw
+  phase: 1
+  slot: MH
+  type: FIST
+  quality: EPIC
+  icon: 134296
+  icon_name: inv_misc_monsterclaw_03
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 28
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234574
+  name: Grand Marshal's Mageblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: EPIC
+  icon: 135662
+  icon_name: inv_weapon_shortblade_26
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 98
+    max: 148
+    speed: 2
+  stats:
+    INTELLECT: 8
+    STAMINA: 21
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234576
+  name: Grand Marshal's Warhammer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: EPIC
+  icon: 133039
+  icon_name: inv_hammer_02
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    INTELLECT: 8
+    STAMINA: 21
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234583
+  name: Grand Marshal's Right Hand Blade
+  phase: 1
+  slot: MH
+  type: FIST
+  quality: EPIC
+  icon: 135643
+  icon_name: inv_weapon_shortblade_07
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 28
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 270256
+  name: Durgen's Crescent Axe
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 20
+    max: 39
+    speed: 2.4
+  stats:
+    STRENGTH: 4
+- id: 271095
+  name: Fang of Magmatus
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 133723
+  icon_name: inv_misc_bone_06
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 14
+    max: 27
+    speed: 1.7
+  stats:
+    INTELLECT: 4
+- id: 271216
+  name: Scepter of the Abandoned
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 26
+    max: 50
+    speed: 2.6
+  stats:
+    SHADOW_RESISTANCE: 5
 - id: 271804
   name: Soulsplatter Mace
   phase: 1
@@ -507,6 +1393,286 @@ items:
     INTELLECT: 6
     SPIRIT: 1
     STAMINA: 3
+- id: 271928
+  name: Clever Expeditionary's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 40
+    max: 76
+    speed: 1.4
+  stats:
+    INTELLECT: 11
+    SPIRIT: 5
+    STAMINA: 8
+- id: 271929
+  name: Clever Expeditionary's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 34
+    max: 64
+    speed: 1.4
+  stats:
+    INTELLECT: 10
+    SPIRIT: 4
+    STAMINA: 7
+- id: 271930
+  name: Clever Expeditionary's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 28
+    max: 53
+    speed: 1.4
+  stats:
+    INTELLECT: 8
+    SPIRIT: 3
+    STAMINA: 5
+- id: 271931
+  name: Clever Expeditionary's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 21
+    max: 39
+    speed: 1.4
+  stats:
+    INTELLECT: 6
+    SPIRIT: 3
+    STAMINA: 4
+- id: 271936
+  name: Guerrilla's Jagged Mace
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133042
+  icon_name: inv_hammer_05
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 81
+    max: 151
+    speed: 2.8
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 11
+- id: 271937
+  name: Guerrilla's Jagged Mace
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133042
+  icon_name: inv_hammer_05
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 69
+    max: 128
+    speed: 2.8
+  stats:
+    STAMINA: 11
+    ATTACK_POWER: 9
+- id: 271938
+  name: Guerrilla's Jagged Mace
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133042
+  icon_name: inv_hammer_05
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 57
+    max: 107
+    speed: 2.8
+  stats:
+    STAMINA: 8
+    ATTACK_POWER: 7
+- id: 271939
+  name: Guerrilla's Jagged Mace
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133042
+  icon_name: inv_hammer_05
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 42
+    max: 78
+    speed: 2.8
+  stats:
+    STAMINA: 7
+    ATTACK_POWER: 6
+- id: 272083
+  name: Darkspear Insurgent's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 40
+    max: 76
+    speed: 1.4
+  stats:
+    INTELLECT: 11
+    SPIRIT: 5
+    STAMINA: 8
+- id: 272084
+  name: Darkspear Insurgent's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 34
+    max: 64
+    speed: 1.4
+  stats:
+    INTELLECT: 10
+    SPIRIT: 4
+    STAMINA: 7
+- id: 272085
+  name: Darkspear Insurgent's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 28
+    max: 53
+    speed: 1.4
+  stats:
+    INTELLECT: 8
+    SPIRIT: 3
+    STAMINA: 5
+- id: 272086
+  name: Darkspear Insurgent's Spellblade
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135654
+  icon_name: inv_weapon_shortblade_18
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 21
+    max: 39
+    speed: 1.4
+  stats:
+    INTELLECT: 6
+    SPIRIT: 3
+    STAMINA: 4
+- id: 272091
+  name: Darkspear Skirmisher's Bludgeon
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 81
+    max: 151
+    speed: 2.8
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 11
+- id: 272092
+  name: Darkspear Skirmisher's Bludgeon
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 69
+    max: 128
+    speed: 2.8
+  stats:
+    STAMINA: 11
+    ATTACK_POWER: 9
+- id: 272093
+  name: Darkspear Skirmisher's Bludgeon
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 57
+    max: 107
+    speed: 2.8
+  stats:
+    STAMINA: 8
+    ATTACK_POWER: 7
+- id: 272094
+  name: Darkspear Skirmisher's Bludgeon
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 42
+    max: 78
+    speed: 2.8
+  stats:
+    STAMINA: 7
+    ATTACK_POWER: 6
 - id: 272597
   name: Premier High Warlord's Right Claw
   phase: 1
@@ -615,6 +1781,144 @@ items:
     INTELLECT: 7
     STAMINA: 12
     MANA_PER_5: 5
+- id: 272996
+  name: Trogg Scepter
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133727
+  icon_name: inv_misc_bone_10
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 20
+    max: 39
+    speed: 2.4
+  stats:
+    SPIRIT: 4
+- id: 272998
+  name: Bone Knuckles
+  phase: 1
+  slot: MH
+  type: FIST
+  quality: RARE
+  icon: 132369
+  icon_name: ability_whirlwind
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 17
+    max: 32
+    speed: 2
+  stats:
+    ATTACK_POWER: 6
+    ATTACK_POWER_BEAST: 6
+- id: 273003
+  name: Searing Dagger
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 135639
+  icon_name: inv_weapon_shortblade_03
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 13
+    max: 26
+    speed: 1.6
+  stats:
+    SPIRIT: 4
+  effects:
+  - trigger: EQUIP
+    spell: 1291568
+- id: 273297
+  name: Goblin Hammer
+  phase: 1
+  slot: MH
+  type: MACE
+  quality: RARE
+  icon: 133482
+  icon_name: inv_mace_07
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 21
+    max: 40
+    speed: 2
+  stats:
+    STAMINA: 4
+    ARMOR: 20
+- id: 273456
+  name: Cell Keeper's Claws
+  phase: 1
+  slot: MH
+  type: FIST
+  quality: RARE
+  icon: 134297
+  icon_name: inv_misc_monsterclaw_04
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 25
+    max: 48
+    speed: 2.5
+  stats:
+    AGILITY: 2
+    ATTACK_POWER: 6
+    ATTACK_POWER_HUMANOID: 6
+- id: 273637
+  name: Blade of Silverlaine
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135275
+  icon_name: inv_sword_05
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 26
+    max: 50
+    speed: 2.3
+  stats:
+    SHADOW_RESISTANCE: 6
+- id: 273809
+  name: Hamhock's Cleaver
+  phase: 1
+  slot: MH
+  type: AXE
+  quality: RARE
+  icon: 132392
+  icon_name: inv_axe_01
+  req_lvl: 25
+  item_lvl: 30
+  damage:
+    min: 29
+    max: 54
+    speed: 2.2
+  stats:
+    STRENGTH: 4
+    ATTACK_POWER: 8
+    ATTACK_POWER_HUMANOID: 9
+- id: 273827
+  name: Debt Collector
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135325
+  icon_name: inv_sword_24
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 31
+    max: 59
+    speed: 2.3
+  effects:
+  - trigger: EQUIP
+    spell: 1292594
 - id: 274744
   name: Barrens Basher
   phase: 1
@@ -630,6 +1934,26 @@ items:
   stats:
     STAMINA: 5
     STRENGTH: 2
+- id: 276631
+  name: Coldflame Saber
+  phase: 1
+  slot: MH
+  type: SWORD
+  quality: RARE
+  icon: 135275
+  icon_name: inv_sword_05
+  req_lvl: 21
+  item_lvl: 29
+  class_restrictions: [MAGE]
+  damage:
+    min: 25
+    max: 48
+    speed: 2
+  stats:
+    INTELLECT: 7
+  effects:
+  - trigger: EQUIP
+    spell: 1300128
 - id: 277248
   name: Notched Ritual Rib
   phase: 1

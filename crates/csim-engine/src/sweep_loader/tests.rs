@@ -34,8 +34,9 @@ overrides:
     Fury:
       Cruelty: 5
       Unbridled Wrath: 5
-      Improved Cleave: 3
-      Boundless Rage: 2
+      Furious Precision: 2
+      Piercing Howl: 1
+      Blood Craze: 2
       Raging Blows: 1
       Enrage: 5
       Death Wish: 1
@@ -51,7 +52,7 @@ variations:
       points: 3
       talents:
         Arms: [Impale, Improved Overpower]
-        Fury: [Precision, Dual Wield Specialization, Boundless Rage, Improved Berserker Rage]
+        Fury: [Furious Precision, Dual Wield Specialization, Booming Voice, Improved Berserker Rage]
 ";
 
 fn issue_contexts(error: SweepError) -> Vec<String> {
@@ -70,9 +71,8 @@ fn distributions_spend_exactly_the_points_within_the_caps() {
     );
     assert_eq!(distributions(3, &[1, 1]), Vec::<Vec<u32>>::new());
     assert_eq!(distributions(0, &[2, 2]), vec![vec![0, 0]]);
-    // Precision 3, DWS 2, Impale 2, Boundless Rage 1, IBR 2, Improved Overpower 2 open: of
-    // the 56 ways to put 3 points in 6 talents, 4 put 3 in a 2-rank talent and 6 put 2 or 3
-    // in Boundless Rage.
+    // Six talents with 3, 2, 2, 1, 2 and 2 ranks open: of the 56 ways to put 3 points in 6
+    // talents, 4 put 3 in a 2-rank talent and 6 put 2 or 3 in the 1-rank one.
     let all = distributions(3, &[3, 2, 2, 1, 2, 2]);
     assert_eq!(all.len(), 46);
     assert!(all.iter().all(|d| d.iter().sum::<u32>() == 3));
@@ -110,17 +110,17 @@ fn the_last_3_points_of_the_48_point_build_have_46_variants() {
             .sum();
         assert_eq!(points, 51, "{}", variant.label);
     }
-    let boundless = &expansion
+    let booming = &expansion
         .variants
         .iter()
-        .find(|v| v.label == "Precision +2, Boundless Rage +1")
+        .find(|v| v.label == "Furious Precision +1, Booming Voice +2")
         .unwrap()
         .setup
         .talents["Fury"];
-    assert_eq!(boundless["Boundless Rage"], 3);
-    assert_eq!(boundless["Precision"], 2);
+    assert_eq!(booming["Furious Precision"], 3);
+    assert_eq!(booming["Booming Voice"], 2);
     assert!(
-        !expansion.base.as_ref().unwrap().talents["Fury"].contains_key("Blood Craze"),
+        !expansion.base.as_ref().unwrap().talents["Arms"].contains_key("Impale"),
         "the override replaces the base's talents"
     );
 }
@@ -190,10 +190,10 @@ fn options_and_talent_points_multiply() {
     let troll = expansion
         .variants
         .iter()
-        .find(|v| v.label == "Precision +3 | race: TROLL, rotation: DW Fury")
+        .find(|v| v.label == "Booming Voice +3 | race: TROLL, rotation: DW Fury")
         .unwrap();
     assert_eq!(troll.setup.race, Race::Troll);
-    assert_eq!(troll.setup.talents["Fury"]["Precision"], 3);
+    assert_eq!(troll.setup.talents["Fury"]["Booming Voice"], 3);
     assert!(troll.setup.path.is_some(), "keeps the base's path");
 }
 
@@ -242,7 +242,7 @@ variations:
   - talent_points:
       points: 2
       talents:
-        Fury: [Precision, Flury]
+        Fury: [Furious Precision, Flury]
         Holy: [Seal]
   - options: []
 ",

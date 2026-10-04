@@ -591,7 +591,7 @@ fn sweep_dry_run_counts_and_lists_the_variants() {
     );
     assert!(header.contains("3 talent points over Impale"), "{header}");
     assert_eq!(variants.lines().count(), 46, "{variants}");
-    assert!(variants.contains("Precision +3"), "{variants}");
+    assert!(variants.contains("Booming Voice +3"), "{variants}");
 }
 
 #[test]

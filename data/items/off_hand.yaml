@@ -2,6 +2,257 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 1203
+  name: Aegis of Stormwind
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134952
+  icon_name: inv_shield_06
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 15
+    STRENGTH: 6
+    ARMOR: 1867
+- id: 1204
+  name: The Green Tower
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: EPIC
+  icon: 134952
+  icon_name: inv_shield_06
+  req_lvl: 36
+  item_lvl: 41
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 7
+    STAMINA: 13
+    ARMOR: 1308
+  effects:
+  - trigger: EQUIP
+    spell: 18097
+- id: 2565
+  name: Rod of Molten Fire
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 135124
+  icon_name: inv_spear_01
+  req_lvl: 30
+  item_lvl: 35
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    FIRE_RESISTANCE: 6
+    SPELL_DAMAGE_FIRE: 13
+- id: 2879
+  name: Antipodean Rod
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  unique: true
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPELL_DAMAGE_FIRE: 6
+    SPELL_DAMAGE_FROST: 6
+- id: 4696
+  name: Lapidis Tankard of Tidesippe
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 132790
+  icon_name: inv_drink_03
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    AGILITY: -15
+    INTELLECT: 5
+    SPIRIT: 16
+  effects:
+  - trigger: USE
+    spell: 1135
+    cooldown_ms: 600000
+    category: 59
+    category_cooldown_ms: 1000
+- id: 5183
+  name: Pulsating Hydra Heart
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134336
+  icon_name: inv_misc_orb_04
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 2
+    SPELL_DAMAGE_FIRE: 8
+- id: 5443
+  name: Gold-plated Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    AGILITY: 2
+    STAMINA: 5
+    ARMOR: 509
+  effects:
+  - trigger: EQUIP
+    spell: 1291906
+- id: 6320
+  name: Commander's Crest
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134949
+  icon_name: inv_shield_03
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 3
+    STRENGTH: 5
+    ARMOR: 585
+    HEALTH_PER_5: 4
+- id: 6341
+  name: Eerie Stable Lantern
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134249
+  icon_name: inv_misc_lantern_01
+  req_lvl: 19
+  item_lvl: 21
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 4
+    SHADOW_RESISTANCE: 4
+- id: 6447
+  name: Worn Turtle Shell Shield
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134967
+  icon_name: inv_shield_21
+  req_lvl: 16
+  item_lvl: 21
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    ARMOR: 490
+    MANA_PER_5: 2
+- id: 6630
+  name: Seedcloud Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134956
+  icon_name: inv_shield_10
+  req_lvl: 19
+  item_lvl: 24
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    ARMOR: 547
+    NATURE_RESISTANCE: 5
+    SPELL_DAMAGE: 5
+- id: 6694
+  name: Heart of Agamaggan
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 7
+    ARMOR: 757
+    SPELL_DAMAGE: 5
+    HEALING_POWER: 15
+- id: 6725
+  name: Marbled Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134956
+  icon_name: inv_shield_10
+  req_lvl: 0
+  item_lvl: 36
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    AGILITY: 5
+    SPIRIT: 5
+    STAMINA: 5
+    STRENGTH: 5
+    ARMOR: 776
 - id: 6898
   name: Orb of Soran'ruk
   phase: 1
@@ -24,6 +275,25 @@ items:
   - trigger: USE
     spell: 18956
     cooldown_ms: 600000
+- id: 7002
+  name: Arctic Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 0
+  item_lvl: 29
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 3
+    STAMINA: 8
+    ARMOR: 642
+    FROST_RESISTANCE: 5
 - id: 7515
   name: Celestial Orb
   phase: 1
@@ -46,6 +316,344 @@ items:
   - trigger: USE
     spell: 9253
     cooldown_ms: 1800000
+- id: 7685
+  name: Orb of the Forgotten Seer
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134334
+  icon_name: inv_misc_orb_02
+  req_lvl: 32
+  item_lvl: 37
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPELL_DAMAGE: 14
+- id: 7726
+  name: Aegis of the Scarlet Commander
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134951
+  icon_name: inv_shield_05
+  req_lvl: 39
+  item_lvl: 44
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 8
+    STRENGTH: 7
+    ARMOR: 1548
+  effects:
+  - trigger: EQUIP
+    spell: 1293539
+- id: 7747
+  name: Vile Protector
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 0
+  item_lvl: 40
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STRENGTH: 6
+    ARMOR: 1078
+  effects:
+  - trigger: EQUIP
+    spell: 7619
+- id: 7749
+  name: Omega Orb
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134335
+  icon_name: inv_misc_orb_03
+  req_lvl: 0
+  item_lvl: 40
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 9
+- id: 7787
+  name: Resplendent Guardian
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 7
+    ARMOR: 680
+    BLOCK_RATING: 5
+- id: 9458
+  name: Thermaplugg's Central Core
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134956
+  icon_name: inv_shield_10
+  req_lvl: 31
+  item_lvl: 36
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 3
+    ARMOR: 776
+  effects:
+  - trigger: EQUIP
+    spell: 1292880
+- id: 9522
+  name: Energized Stone Circle
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134956
+  icon_name: inv_shield_10
+  req_lvl: 0
+  item_lvl: 38
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 6
+    ARMOR: 814
+    SPELL_DAMAGE: 5
+    HEALING_POWER: 15
+- id: 9608
+  name: Shoni's Disarming Tool
+  phase: 1
+  slot: OH
+  type: AXE
+  quality: RARE
+  icon: 134520
+  icon_name: inv_misc_wrench_01
+  req_lvl: 0
+  item_lvl: 32
+  damage:
+    min: 27
+    max: 51
+    speed: 1.9
+  stats:
+    SPIRIT: 6
+  effects:
+  - trigger: ON_HIT
+    spell: 11879
+- id: 11904
+  name: Spirit of Aquementas
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134564
+  icon_name: inv_ore_arcanite_02
+  req_lvl: 0
+  item_lvl: 56
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPELL_DAMAGE: 21
+- id: 12997
+  name: Redbeard Crest
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 19
+  item_lvl: 24
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 3
+    STRENGTH: 6
+    ARMOR: 547
+- id: 13029
+  name: Umbral Crystal
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134336
+  icon_name: inv_misc_orb_04
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 5
+    SPELL_DAMAGE_SHADOW: 17
+- id: 13030
+  name: Basilisk Bone
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133727
+  icon_name: inv_misc_bone_10
+  req_lvl: 46
+  item_lvl: 51
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    ARCANE_RESISTANCE: 6
+    FIRE_RESISTANCE: 6
+    FROST_RESISTANCE: 6
+    NATURE_RESISTANCE: 6
+    SHADOW_RESISTANCE: 6
+- id: 13031
+  name: Orb of Mistmantle
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134333
+  icon_name: inv_misc_orb_01
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 4
+    SPELL_DAMAGE_SHADOW: 6
+    HEALING_POWER: 9
+- id: 13079
+  name: Shield of Thorsen
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134956
+  icon_name: inv_shield_10
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STRENGTH: 7
+    ARMOR: 711
+- id: 13081
+  name: Skullance Shield
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    AGILITY: 4
+    STAMINA: 5
+    STRENGTH: 8
+    ARMOR: 814
+- id: 13082
+  name: Mountainside Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134961
+  icon_name: inv_shield_15
+  req_lvl: 41
+  item_lvl: 46
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 5
+    SPIRIT: 12
+    ARMOR: 1612
+- id: 13083
+  name: Garrett Family Crest
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134951
+  icon_name: inv_shield_05
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    AGILITY: 5
+    INTELLECT: 4
+    SPIRIT: 17
+    ARMOR: 2121
+- id: 13245
+  name: Kresh's Back
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134964
+  icon_name: inv_shield_18
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    ARMOR: 528
+    DEFENSE: 5
 - id: 15107
   name: Orb of Noh'Orahil
   phase: 1
@@ -108,6 +716,23 @@ items:
     ARCANE_RESISTANCE: 10
     FIRE_RESISTANCE: 10
     FROST_RESISTANCE: 10
+- id: 16887
+  name: Witch's Finger
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 135474
+  icon_name: inv_wand_12
+  req_lvl: 0
+  item_lvl: 32
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 8
+    STAMINA: 4
 - id: 16998
   name: Sacred Protector
   phase: 1
@@ -126,6 +751,26 @@ items:
     INTELLECT: 10
     STAMINA: 15
     ARMOR: 2121
+- id: 17508
+  name: Forcestone Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134948
+  icon_name: inv_shield_02
+  req_lvl: 0
+  item_lvl: 40
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 8
+    STAMINA: 4
+    ARMOR: 1078
+    SPELL_DAMAGE: 6
+    HEALING_POWER: 18
 - id: 18168
   name: Force Reactive Disk
   phase: 1
@@ -662,6 +1307,226 @@ items:
   stats:
     INTELLECT: 9
     SPELL_DAMAGE: 16
+- id: 234558
+  name: High Warlord's Left Claw
+  phase: 1
+  slot: OH
+  type: FIST
+  quality: EPIC
+  icon: 134297
+  icon_name: inv_misc_monsterclaw_04
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 28
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234562
+  name: High Warlord's Shield Wall
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: EPIC
+  icon: 134965
+  icon_name: inv_shield_19
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 35
+    STRENGTH: 10
+    ARMOR: 3000
+  effects:
+  - trigger: EQUIP
+    spell: 1216968
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234563
+  name: High Warlord's Tome of Destruction
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: EPIC
+  icon: 133747
+  icon_name: inv_misc_book_15
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 13
+    STAMINA: 24
+    SPELL_DAMAGE: 25
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234564
+  name: High Warlord's Tome of Mending
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: EPIC
+  icon: 133746
+  icon_name: inv_misc_book_14
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 14
+    STAMINA: 23
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234584
+  name: Grand Marshal's Left Hand Blade
+  phase: 1
+  slot: OH
+  type: FIST
+  quality: EPIC
+  icon: 132302
+  icon_name: ability_rogue_rupture
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 143
+    max: 215
+    speed: 2.9
+  stats:
+    STAMINA: 13
+    ATTACK_POWER: 28
+    CRIT_RATING: 14
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234588
+  name: Grand Marshal's Aegis
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: EPIC
+  icon: 134951
+  icon_name: inv_shield_05
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 35
+    STRENGTH: 10
+    ARMOR: 3000
+  effects:
+  - trigger: EQUIP
+    spell: 1216968
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234589
+  name: Grand Marshal's Tome of Power
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: EPIC
+  icon: 133744
+  icon_name: inv_misc_book_12
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 13
+    STAMINA: 24
+    SPELL_DAMAGE: 25
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 234590
+  name: Grand Marshal's Tome of Restoration
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: EPIC
+  icon: 133745
+  icon_name: inv_misc_book_13
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 14
+    STAMINA: 23
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 29
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 235473
+  name: Grand Marshal's Barricade
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: EPIC
+  icon: 134951
+  icon_name: inv_shield_05
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 10
+    STAMINA: 26
+    ARMOR: 3000
+    SPELL_DAMAGE: 24
+    HEALING_POWER: 20
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
+- id: 235474
+  name: High Warlord's Barricade
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: EPIC
+  icon: 134965
+  icon_name: inv_shield_19
+  req_lvl: 60
+  item_lvl: 80
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 10
+    STAMINA: 26
+    ARMOR: 3000
+    SPELL_DAMAGE: 24
+    HEALING_POWER: 20
+  effects:
+  - trigger: EQUIP
+    spell: 1216997
 - id: 249394
   name: Orb of Mystic Insight
   phase: 1
@@ -751,6 +1616,22 @@ items:
     STAMINA: 7
     ARMOR: 1930
     DEFENSE: 4
+- id: 271213
+  name: Mirror of Rath'mael
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  req_lvl: 19
+  item_lvl: 24
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STRENGTH: 5
+    ARMOR: 547
+    BLOCK_RATING: 5
 - id: 271805
   name: Thrice-Damned Effigy
   phase: 1
@@ -767,6 +1648,150 @@ items:
     INTELLECT: 4
     SPIRIT: 8
     STAMINA: 2
+- id: 271932
+  name: Insurgent's Manifesto
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 7
+    STAMINA: 17
+    SPELL_DAMAGE: 8
+- id: 271933
+  name: Insurgent's Manifesto
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 6
+    STAMINA: 14
+    SPELL_DAMAGE: 5
+- id: 271934
+  name: Insurgent's Manifesto
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 5
+    STAMINA: 12
+    SPELL_DAMAGE: 4
+- id: 271935
+  name: Insurgent's Manifesto
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 4
+    STAMINA: 8
+    SPELL_DAMAGE: 2
+- id: 272087
+  name: Tome of the Darkspear Prophecy
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 7
+    STAMINA: 17
+    SPELL_DAMAGE: 8
+- id: 272088
+  name: Tome of the Darkspear Prophecy
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 6
+    STAMINA: 14
+    SPELL_DAMAGE: 5
+- id: 272089
+  name: Tome of the Darkspear Prophecy
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 5
+    STAMINA: 12
+    SPELL_DAMAGE: 4
+- id: 272090
+  name: Tome of the Darkspear Prophecy
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 133738
+  icon_name: inv_misc_book_06
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 4
+    STAMINA: 8
+    SPELL_DAMAGE: 2
 - id: 272591
   name: Premier High Warlord's Shield Wall
   phase: 1
@@ -883,6 +1908,106 @@ items:
     STAMINA: 2
     ATTACK_POWER: 24
     CRIT_RATING: 14
+- id: 273027
+  name: Raptor's Gaze
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 136017
+  icon_name: spell_nature_crystalball
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 4
+    STAMINA: 7
+    SPELL_DAMAGE: 5
+- id: 273137
+  name: Skum's Bucket
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 1063033
+  icon_name: inv_misc_1h_bucket_c_01
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 3
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 10
+  effects:
+  - trigger: USE
+    spell: 1291782
+    cooldown_ms: 600000
+    category: 11
+- id: 273811
+  name: Repurposed Rack
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134957
+  icon_name: inv_shield_11
+  req_lvl: 25
+  item_lvl: 30
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STRENGTH: 6
+    ARMOR: 661
+    SPELL_DAMAGE: 7
+- id: 274043
+  name: Irradiated Shield
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134949
+  icon_name: inv_shield_03
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    SPIRIT: 9
+    STAMINA: -10
+    ARMOR: 738
+    SPELL_DAMAGE_NATURE: 14
+- id: 274290
+  name: Painwalker Buckler
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134953
+  icon_name: inv_shield_07
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 6
+    ARMOR: 738
+    SPELL_DAMAGE: 5
+    HEALING_POWER: 13
+  effects:
+  - trigger: EQUIP
+    spell: 1293701
 - id: 274417
   name: Barkskin Baubles
   phase: 1
@@ -1155,6 +2280,21 @@ items:
     SPELL_DAMAGE: 8
     HEALING_POWER: 23
     CRIT_RATING: 14
+- id: 279838
+  name: Arcane Infused Rod
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 8
+    SPELL_DAMAGE_ARCANE: 9
 - id: 280696
   name: Elementalist's Guard
   phase: 1
@@ -1220,3 +2360,37 @@ items:
     STAMINA: 13
     ARMOR: 1994
     DEFENSE: 8
+- id: 285344
+  name: Guard Captain's Barrier
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  icon: 134950
+  icon_name: inv_shield_04
+  req_lvl: 24
+  item_lvl: 29
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STRENGTH: 6
+    ARMOR: 642
+    DEFENSE: 4
+- id: 285348
+  name: Alliance Outrunner Healing Rod
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    HEALTH_PER_5: 8
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 12

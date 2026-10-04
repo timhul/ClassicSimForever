@@ -45,9 +45,11 @@ fn spell_cooldown() {
     assert_eq!(test.base_cooldown(SPELL), "18.000");
 }
 
+/// 3 s at either rank: the 70205 hotfixes removed the per-rank values of E2 (1.5 / 3 s), so
+/// both ranks take the spell's own -3000 ms ("Slam's cooldown is reduced by 3.0 sec" at rank 1).
 #[test]
 fn improved_slam_reduces_the_cooldown() {
-    for (rank, cooldown) in [(1, "16.500"), (2, "15.000")] {
+    for (rank, cooldown) in [(1, "15.000"), (2, "15.000")] {
         let mut test = test();
         given_improved_slam(&mut test, rank);
         assert_eq!(test.base_cooldown(SPELL), cooldown);
@@ -63,8 +65,8 @@ fn whether_spell_causes_global_cooldown() {
     // Improved Slam shortens the GCD along with the cast (the C++ kept the 1.5 s GCD).
     test.then_next_event_is(EventType::PlayerAction, "1.250", false);
     test.then_next_event_is(EventType::CastComplete, "1.250", false);
-    // The category cooldown, 1.5 s shorter with Improved Slam.
-    test.then_next_event_is(EventType::PlayerAction, "16.500", false);
+    // The category cooldown, 3 s shorter with Improved Slam.
+    test.then_next_event_is(EventType::PlayerAction, "15.000", false);
 }
 
 #[test]

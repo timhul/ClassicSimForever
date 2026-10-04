@@ -231,12 +231,15 @@ fn revenge_rank_6_and_whirlwind_and_overpower_use_their_table_values() {
     assert_eq!(report.attack.unwrap().threat, 153.0 + 355.0);
     assert_eq!(world.rage, 95);
 
-    // Whirlwind: plain normalized weapon damage, 25 rage, category 891 for 10 s.
+    // Whirlwind: plain normalized weapon damage, 25 rage, category 891 for 10 s. The world dual
+    // wields, so the off hand strikes too (`OFFHAND_STRIKE`, rolled on its own) for no rage.
     world.stance = Stance::Berserker;
     world.next_gcd = 0.0;
     world.rolls.push_back(PhysicalAttackResult::Hit);
+    world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(WHIRLWIND);
     assert_eq!(report.attack.unwrap().damage, 300);
+    assert!(report.offhand.is_some());
     assert_eq!(world.rage, 70);
     assert_eq!(
         world.spell(WHIRLWIND).category_cooldown_seconds(&world),

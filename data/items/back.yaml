@@ -2,6 +2,21 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 2059
+  name: Sentry Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133756
+  icon_name: inv_misc_cape_04
+  req_lvl: 19
+  item_lvl: 24
+  boe: true
+  stats:
+    AGILITY: 4
+    STAMINA: 5
+    ARMOR: 21
 - id: 4327
   name: Icy Cloak
   phase: 1
@@ -18,6 +33,151 @@ items:
     ARMOR: 29
     FROST_RESISTANCE: 8
     SPELL_DAMAGE: 7
+- id: 4643
+  name: Grimsteel Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133754
+  icon_name: inv_misc_cape_02
+  req_lvl: 0
+  item_lvl: 35
+  stats:
+    AGILITY: 3
+    STAMINA: 9
+    ARMOR: 26
+- id: 5193
+  name: Cape of the Brotherhood
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133760
+  icon_name: inv_misc_cape_08
+  req_lvl: 19
+  item_lvl: 24
+  stats:
+    AGILITY: 5
+    STAMINA: 3
+    ARMOR: 21
+- id: 5257
+  name: Dark Hooded Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133756
+  icon_name: inv_misc_cape_04
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
+  stats:
+    AGILITY: 10
+    STRENGTH: 4
+    ARMOR: 28
+- id: 5444
+  name: Miner's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133763
+  icon_name: inv_misc_cape_11
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    STAMINA: 5
+    ARMOR: 20
+    ATTACK_POWER: 4
+    ATTACK_POWER_ELEMENTAL: 6
+- id: 6314
+  name: Wolfmaster Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133762
+  icon_name: inv_misc_cape_10
+  req_lvl: 22
+  item_lvl: 27
+  stats:
+    STAMINA: 3
+    ARMOR: 22
+    ATTACK_POWER: 10
+    ATTACK_POWER_BEAST: 9
+- id: 6340
+  name: Fenrus' Hide
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 134367
+  icon_name: inv_misc_pelt_wolf_02
+  req_lvl: 22
+  item_lvl: 27
+  stats:
+    AGILITY: 6
+    STAMINA: 3
+    ARMOR: 22
+- id: 6449
+  name: Glowing Lizardscale Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 132656
+  icon_name: inv_chest_cloth_15
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    AGILITY: 6
+    SPIRIT: 2
+    ARMOR: 20
+- id: 6629
+  name: Sporid Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133769
+  icon_name: inv_misc_cape_17
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    STAMINA: 6
+    ARMOR: 20
+  effects:
+  - trigger: EQUIP
+    spell: 1291698
+- id: 6632
+  name: Feyscale Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133754
+  icon_name: inv_misc_cape_02
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    STAMINA: 5
+    ARMOR: 19
+    SPELL_DAMAGE: 3
+- id: 6751
+  name: Mourning Shawl
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133763
+  icon_name: inv_misc_cape_11
+  req_lvl: 0
+  item_lvl: 32
+  stats:
+    SPIRIT: -5
+    STAMINA: 12
+    ARMOR: 24
 - id: 6832
   name: Cloak of Blight
   phase: 1
@@ -31,6 +191,158 @@ items:
   stats:
     SPIRIT: 13
     ARMOR: 30
+- id: 6901
+  name: Glowing Thresher Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 134305
+  icon_name: inv_misc_monsterscales_03
+  req_lvl: 24
+  item_lvl: 29
+  stats:
+    SPIRIT: 8
+    ARMOR: 23
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 7
+- id: 7004
+  name: Prelacy Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 0
+  item_lvl: 26
+  stats:
+    SPIRIT: 6
+    ARMOR: 22
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+- id: 9605
+  name: Repairman's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133758
+  icon_name: inv_misc_cape_06
+  req_lvl: 0
+  item_lvl: 32
+  stats:
+    INTELLECT: 4
+    SPIRIT: 7
+    ARMOR: 24
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 9
+- id: 12979
+  name: Firebane Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133760
+  icon_name: inv_misc_cape_08
+  req_lvl: 16
+  item_lvl: 21
+  boe: true
+  stats:
+    STAMINA: 5
+    ARMOR: 19
+    FIRE_RESISTANCE: 5
+- id: 13005
+  name: Amy's Blanket
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133768
+  icon_name: inv_misc_cape_16
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  stats:
+    SPIRIT: 7
+    STAMINA: 3
+    ARMOR: 23
+- id: 13007
+  name: Mageflame Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    ARMOR: 41
+    FIRE_RESISTANCE: 10
+    SPELL_DAMAGE_FIRE: 21
+- id: 13108
+  name: Tigerstrike Mantle
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 134348
+  icon_name: inv_misc_pelt_04
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  stats:
+    AGILITY: 8
+    STAMINA: 7
+    ARMOR: 25
+- id: 13109
+  name: Blackflame Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 44
+  item_lvl: 49
+  boe: true
+  stats:
+    AGILITY: 12
+    ARMOR: 35
+    FIRE_RESISTANCE: 5
+    SHADOW_RESISTANCE: 5
+- id: 13121
+  name: Wing of the Whelpling
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133756
+  icon_name: inv_misc_cape_04
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  stats:
+    AGILITY: 4
+    STAMINA: 10
+    ARMOR: 28
+- id: 13122
+  name: Dark Phantom Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133773
+  icon_name: inv_misc_cape_21
+  req_lvl: 50
+  item_lvl: 55
+  boe: true
+  stats:
+    AGILITY: 15
+    SPIRIT: 6
+    ARMOR: 39
 - id: 14134
   name: Cloak of Fire
   phase: 1
@@ -50,6 +362,20 @@ items:
   - trigger: USE
     spell: 18364
     cooldown_ms: 120000
+- id: 14149
+  name: Subterranean Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    STRENGTH: 3
+    ARMOR: 17
+    HEALTH_PER_5: 5
 - id: 15138
   name: Onyxia Scale Cloak
   phase: 1
@@ -826,6 +1152,20 @@ items:
     STAMINA: 6
     ARMOR: 49
     NATURE_RESISTANCE: 20
+- id: 271097
+  name: Spiritwraith Drape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133764
+  icon_name: inv_misc_cape_12
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    AGILITY: 3
+    SPIRIT: 4
+    ARMOR: 17
 - id: 271716
   name: Explorer's League Dustcover
   phase: 1
@@ -930,6 +1270,141 @@ items:
     STAMINA: 11
     STRENGTH: 4
     ARMOR: 31
+- id: 271907
+  name: Expeditionary's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 16
+    SPIRIT: 6
+    STAMINA: 8
+    ARMOR: 45
+- id: 271921
+  name: Expeditionary's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 48
+  item_lvl: 53
+  stats:
+    INTELLECT: 14
+    SPIRIT: 5
+    STAMINA: 7
+    ARMOR: 38
+- id: 271922
+  name: Expeditionary's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 38
+  item_lvl: 43
+  stats:
+    INTELLECT: 11
+    SPIRIT: 4
+    STAMINA: 6
+    ARMOR: 31
+- id: 271923
+  name: Expeditionary's Cape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 28
+  item_lvl: 33
+  stats:
+    INTELLECT: 8
+    SPIRIT: 3
+    STAMINA: 4
+    ARMOR: 25
+- id: 272063
+  name: Darkspear Raider's Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 58
+  item_lvl: 63
+  stats:
+    INTELLECT: 16
+    SPIRIT: 6
+    STAMINA: 8
+    ARMOR: 45
+- id: 272076
+  name: Darkspear Raider's Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 48
+  item_lvl: 53
+  stats:
+    INTELLECT: 14
+    SPIRIT: 5
+    STAMINA: 7
+    ARMOR: 38
+- id: 272077
+  name: Darkspear Raider's Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 38
+  item_lvl: 43
+  stats:
+    INTELLECT: 11
+    SPIRIT: 4
+    STAMINA: 6
+    ARMOR: 31
+- id: 272078
+  name: Darkspear Raider's Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133772
+  icon_name: inv_misc_cape_20
+  req_lvl: 28
+  item_lvl: 33
+  stats:
+    INTELLECT: 8
+    SPIRIT: 3
+    STAMINA: 4
+    ARMOR: 25
+- id: 272411
+  name: Arcanoweave Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133757
+  icon_name: inv_misc_cape_05
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 8
+    ARMOR: 116
+    SPELL_DAMAGE: 16
+    HIT_RATING: 10
 - id: 272413
   name: Drape of Recovery
   phase: 1
@@ -946,6 +1421,35 @@ items:
     MANA_PER_5: 4
     SPELL_DAMAGE: 10
     HEALING_POWER: 31
+- id: 272414
+  name: Howler's Furs
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133762
+  icon_name: inv_misc_cape_10
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 8
+    ARMOR: 46
+    ATTACK_POWER: 28
+    HIT_RATING: 10
+- id: 272415
+  name: Stalwart Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133768
+  icon_name: inv_misc_cape_16
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 14
+    ARMOR: 46
+    HIT_RATING: 10
 - id: 272451
   name: Sergeant's Cloak
   phase: 1
@@ -1020,6 +1524,66 @@ items:
   stats:
     STAMINA: 16
     ARMOR: 113
+- id: 273005
+  name: Satyrskin Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    STAMINA: 3
+    ARMOR: 17
+    FIRE_RESISTANCE: 3
+- id: 273084
+  name: Cloak of Hermitic Bliss
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133769
+  icon_name: inv_misc_cape_17
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    ARMOR: 20
+  effects:
+  - trigger: EQUIP
+    spell: 1291748
+  - trigger: EQUIP
+    spell: 1291749
+- id: 273825
+  name: Red Wool Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    ARMOR: 24
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 9
+- id: 274149
+  name: Thornweaver Drape
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133763
+  icon_name: inv_misc_cape_11
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    SPIRIT: 6
+    ARMOR: 24
+    SPELL_DAMAGE: 7
 - id: 275711
   name: Chimaera Wing Cape
   phase: 1
@@ -1106,6 +1670,33 @@ items:
     SPELL_DAMAGE_ARCANE: 15
     SPELL_DAMAGE_FIRE: 15
     SPELL_DAMAGE_NATURE: 15
+- id: 279835
+  name: Vine Pruner's Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133765
+  icon_name: inv_misc_cape_13
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    STAMINA: 8
+    ARMOR: 26
+    SPELL_DAMAGE: 6
+    SPELL_DAMAGE_ELEMENTAL: 6
+- id: 279848
+  name: Construct Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    SPIRIT: 7
+    STRENGTH: 7
+    ARMOR: 26
 - id: 280623
   name: Veteran Adventurer's Rucksack
   phase: 1
@@ -1127,3 +1718,31 @@ items:
   stats:
     STRENGTH: 6
     ARMOR: 24
+- id: 284383
+  name: Faerie Dragon's Skin
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133769
+  icon_name: inv_misc_cape_17
+  req_lvl: 27
+  item_lvl: 32
+  stats:
+    SPIRIT: 5
+    STAMINA: 5
+    ARMOR: 24
+    SPELL_DAMAGE_NATURE: 8
+- id: 285329
+  name: Raptor Hide Cloak
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    SPIRIT: 3
+    STAMINA: 4
+    ARMOR: 19
+  set: 2132

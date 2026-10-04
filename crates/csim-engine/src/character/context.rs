@@ -3206,6 +3206,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.has_offhand_copy(spell) && self.character.is_dual_wielding()
     }
 
+    fn is_dual_wielding(&self) -> bool {
+        self.character.is_dual_wielding()
+    }
+
     fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)> {
         self.character.resources_on_use(spell).collect()
     }
