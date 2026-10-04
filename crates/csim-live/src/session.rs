@@ -45,9 +45,10 @@ use csim_engine::statistics::report::{
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
+use crate::sheet::{ItemEntry, StatSummary, WornItem, usable_items, worn_gear};
 
 /// The watched character: a setup builds a raid of one.
-const PLAYER: CharId = CharId(0);
+pub(crate) const PLAYER: CharId = CharId(0);
 
 /// What stays the same for a whole iteration.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -84,6 +85,11 @@ pub struct Info {
     /// The spells a keybind can name (see [`bindable_spells`]), played from the keyboard or
     /// not.
     pub bindable: Vec<BindableSpell>,
+    /// The gear worn, in slot order.
+    pub equipment: Vec<WornItem>,
+    /// The character's stats before the iteration: gear, enchants, talents and the setup's
+    /// buffs; not what the iteration casts (precombat stance and shouts, cooldowns, procs).
+    pub stats: StatSummary,
 }
 
 /// A spell the character can cast from a key.
@@ -344,6 +350,8 @@ pub struct Session {
     pull_scan: usize,
     /// The time shift of a pull not shown in a frame yet.
     rebased_by: Option<f64>,
+    /// The stats before the iteration (the same for every iteration of the setup).
+    stats: StatSummary,
 }
 
 impl Session {
@@ -367,6 +375,7 @@ impl Session {
         let bound = bound_spells(&raid, &keybinds)?;
         let manual = !keybinds.is_empty();
         let pre_pull = initial_pre_pull(manual);
+        let stats = StatSummary::of_setup(&data, &setup, &settings)?;
         let stepper = start(&settings, seed, &mut raid, manual, pre_pull);
         let time = stepper.start_at();
         let proc_counts = proc_counts(&raid);
@@ -390,6 +399,7 @@ impl Session {
             pulled: !manual,
             pull_scan: 0,
             rebased_by: None,
+            stats,
         })
     }
 
@@ -480,7 +490,14 @@ impl Session {
                 })
                 .collect(),
             bindable: bindable_spells(character.spells()),
+            equipment: worn_gear(&self.data, character),
+            stats: self.stats.clone(),
         }
+    }
+
+    /// The items the character can wear, sorted by id ([`usable_items`]).
+    pub fn items(&self) -> Vec<ItemEntry> {
+        usable_items(&self.data, self.raid.character(PLAYER), self.settings.phase)
     }
 
     /// Whether the character is played from the keyboard.

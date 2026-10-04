@@ -871,3 +871,134 @@ fn a_pasted_setup_includes_the_bundled_files() {
             + 1
     );
 }
+
+fn change(slot: EquipmentSlot, item: Option<u32>) -> GearChange {
+    GearChange { slot, item }
+}
+
+/// The DW Fury Orc setup with `changes`; checks that it builds.
+fn with_changes(changes: &[GearChange]) -> (CharacterSetup, Result<GearChanged, String>) {
+    let mut setup = shipped("warrior_fury_dw_orc.yaml");
+    let phase = setup.sim_settings(&settings()).phase;
+    let changed = setup.change_equipment(data(), phase, changes);
+    if changed.is_ok() {
+        setup.validate(data()).unwrap();
+    }
+    (setup, changed)
+}
+
+#[test]
+fn a_gear_change_keeps_the_enchants_that_apply() {
+    use EquipmentSlot::{Head, Mainhand};
+    let shipped = shipped("warrior_fury_dw_orc.yaml");
+    // Arcanite Reaper and Lionheart Helm's slot with another helm.
+    let (setup, changed) = with_changes(&[change(Mainhand, Some(12784))]);
+    let changed = changed.unwrap();
+    let mainhand = &setup.equipment[&Mainhand];
+    assert_eq!(mainhand.item, 12784);
+    assert_eq!(mainhand.enchant, Some(EnchantName::Crusader));
+    assert_eq!(
+        mainhand.temp_enchants,
+        [
+            EnchantName::WindfuryTotem,
+            EnchantName::ElementalSharpeningStone
+        ]
+    );
+    // The two-hander emptied the off hand.
+    assert_eq!(
+        changed.changes,
+        [
+            change(Mainhand, Some(12784)),
+            change(EquipmentSlot::Offhand, None)
+        ]
+    );
+    assert!(changed.dropped_enchants.is_empty(), "{changed:?}");
+    assert_eq!(setup.equipment[&Head], shipped.equipment[&Head]);
+}
+
+#[test]
+fn a_gear_change_drops_the_enchants_that_do_not_apply() {
+    use EquipmentSlot::Offhand;
+    // High Warlord's Shield Wall: neither Crusader nor a sharpening stone go on a shield.
+    let (setup, changed) = with_changes(&[change(Offhand, Some(18826))]);
+    let changed = changed.unwrap();
+    assert_eq!(
+        setup.equipment[&Offhand],
+        EquippedSetup {
+            item: 18826,
+            enchant: None,
+            temp_enchants: Vec::new(),
+        }
+    );
+    assert_eq!(changed.changes, [change(Offhand, Some(18826))]);
+    assert_eq!(
+        changed.dropped_enchants,
+        [
+            DroppedEnchant {
+                slot: Offhand,
+                enchant: EnchantName::Crusader
+            },
+            DroppedEnchant {
+                slot: Offhand,
+                enchant: EnchantName::ElementalSharpeningStone
+            },
+        ]
+    );
+}
+
+#[test]
+fn the_last_of_conflicting_gear_changes_wins() {
+    use EquipmentSlot::{Mainhand, Offhand};
+    // An off-hand item after the two-hander takes the two-hander off ...
+    let (setup, changed) =
+        with_changes(&[change(Mainhand, Some(12784)), change(Offhand, Some(18826))]);
+    assert_eq!(
+        changed.unwrap().changes,
+        [change(Mainhand, None), change(Offhand, Some(18826))]
+    );
+    assert!(!setup.equipment.contains_key(&Mainhand));
+    // ... and the two-hander after it the off-hand item.
+    let (_, changed) = with_changes(&[change(Offhand, Some(18826)), change(Mainhand, Some(12784))]);
+    let changes = changed.unwrap().changes;
+    assert_eq!(
+        changes,
+        [change(Mainhand, Some(12784)), change(Offhand, None)]
+    );
+    // What a change returns gives the same gear again, as a link reproduces it.
+    let (again, changed) = with_changes(&changes);
+    assert_eq!(changed.unwrap().changes, changes);
+    assert_eq!(again.equipment.get(&Offhand), None);
+}
+
+#[test]
+fn a_unique_item_leaves_the_paired_slot() {
+    use EquipmentSlot::{Trinket1, Trinket2};
+    // Drake Fang Talisman (unique, in TRINKET1) into TRINKET2.
+    let (setup, changed) = with_changes(&[change(Trinket2, Some(19406))]);
+    assert_eq!(
+        changed.unwrap().changes,
+        [change(Trinket1, None), change(Trinket2, Some(19406))]
+    );
+    assert_eq!(setup.equipment[&Trinket2].item, 19406);
+}
+
+#[test]
+fn emptying_a_slot_and_bad_gear_changes() {
+    use EquipmentSlot::{Head, Ring1};
+    let (setup, changed) = with_changes(&[change(Ring1, None)]);
+    assert_eq!(changed.unwrap().changes, [change(Ring1, None)]);
+    assert!(!setup.equipment.contains_key(&Ring1));
+    // No change: the setup's own item.
+    let (setup, changed) = with_changes(&[change(Head, Some(12640))]);
+    assert_eq!(changed.unwrap(), GearChanged::default());
+    assert_eq!(
+        setup.equipment,
+        shipped("warrior_fury_dw_orc.yaml").equipment
+    );
+
+    let (_, unknown) = with_changes(&[change(Head, Some(1))]);
+    assert!(unknown.unwrap_err().starts_with("equipment.HEAD: "));
+    // A trinket on the head.
+    let (_, wrong_slot) = with_changes(&[change(Head, Some(19406))]);
+    assert!(wrong_slot.unwrap_err().contains("does not fit"));
+}

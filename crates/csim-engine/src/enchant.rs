@@ -281,6 +281,14 @@ impl EnchantSpec {
             if !self.weapon_types.is_empty() && !self.weapon_types.contains(&weapon.weapon_type) {
                 return false;
             }
+            // A shield or a held-in-off-hand item takes only the enchants made for it.
+            let held = matches!(
+                weapon.weapon_type,
+                WeaponType::Shield | WeaponType::CasterOffhand
+            );
+            if held && !self.weapon_types.contains(&weapon.weapon_type) {
+                return false;
+            }
         }
 
         true
@@ -575,6 +583,10 @@ mod tests {
         assert!(!crusader.valid_for(&warrior(EquipmentSlot::Ranged, Some(&sword))));
         assert!(!crusader.valid_for(&warrior(EquipmentSlot::Mainhand, None)));
         assert!(!crusader.valid_for(&warrior(EquipmentSlot::Head, None)));
+        let shield = weapon(WeaponType::Shield, WeaponSlot::Offhand);
+        let tome = weapon(WeaponType::CasterOffhand, WeaponSlot::Offhand);
+        assert!(!crusader.valid_for(&warrior(EquipmentSlot::Offhand, Some(&shield))));
+        assert!(!crusader.valid_for(&warrior(EquipmentSlot::Offhand, Some(&tome))));
 
         let counterweight = db.get(EnchantName::IronCounterweight).unwrap();
         assert!(counterweight.valid_for(&warrior(EquipmentSlot::Mainhand, Some(&axe_2h))));

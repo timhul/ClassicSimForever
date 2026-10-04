@@ -146,3 +146,64 @@ fn a_load_changes_the_targets_creature_type_and_armor() {
     };
     assert!(load(&mut app, negative).is_err());
 }
+
+#[test]
+fn a_load_changes_the_gear() {
+    use csim_engine::character_loader::DroppedEnchant;
+    use csim_engine::enchant::EnchantName;
+    use csim_engine::item::EquipmentSlot::{Mainhand, Offhand};
+
+    let mut app = empty_app();
+    let change = |slot, item| GearChange { slot, item };
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    assert_eq!(loaded.gear, GearChanged::default());
+
+    // Arcanite Reaper empties the off hand and keeps the main hand's enchants.
+    let request: LoadRequest = serde_json::from_str(
+        r#"{"setup": "warrior_fury_dw_orc", "gear": [{"slot": "MAINHAND", "item": 12784}]}"#,
+    )
+    .unwrap();
+    let loaded = load(&mut app, request).unwrap();
+    assert_eq!(
+        loaded.gear.changes,
+        [change(Mainhand, Some(12784)), change(Offhand, None)]
+    );
+    assert!(loaded.gear.dropped_enchants.is_empty());
+
+    // High Warlord's Shield Wall takes no Crusader.
+    let shield = LoadRequest {
+        gear: vec![change(Offhand, Some(18826))],
+        ..by_name("warrior_fury_dw_orc")
+    };
+    let loaded = load(&mut app, shield).unwrap();
+    assert_eq!(loaded.gear.changes, [change(Offhand, Some(18826))]);
+    assert_eq!(
+        loaded.gear.dropped_enchants.first(),
+        Some(&DroppedEnchant {
+            slot: Offhand,
+            enchant: EnchantName::Crusader
+        })
+    );
+    let json = serde_json::to_value(&loaded).unwrap();
+    assert_eq!(
+        json["gear"]["dropped_enchants"][0],
+        serde_json::json!({"slot": "OFFHAND", "enchant": "Crusader"})
+    );
+
+    // An unknown item, and an item the class cannot use (a priest's staff), keep the session.
+    for item in [1, 18608] {
+        let bad = LoadRequest {
+            gear: vec![change(Mainhand, Some(item))],
+            ..by_name("warrior_fury_dw_orc")
+        };
+        assert!(load(&mut app, bad).is_err(), "item {item}");
+    }
+    assert_eq!(
+        app.loaded().unwrap().gear.changes,
+        [change(Offhand, Some(18826))]
+    );
+
+    // Another setup by itself: the setup's gear.
+    let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
+    assert_eq!(loaded.gear, GearChanged::default());
+}

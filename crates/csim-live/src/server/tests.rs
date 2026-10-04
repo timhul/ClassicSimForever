@@ -250,6 +250,7 @@ fn before_a_load_only_the_page_catalog_and_load_answer() {
     assert!(keys.contains(&Value::from("Numpad1")) && keys.contains(&Value::from("Space")));
     for (method, path, body) in [
         ("GET", "/api/info", ""),
+        ("GET", "/api/items", ""),
         ("POST", "/api/advance", r#"{"to": 1}"#),
         ("POST", "/api/step", r#"{"kind": "event"}"#),
         ("POST", "/api/restart", "{}"),
@@ -431,4 +432,31 @@ fn bad_loads_are_refused_and_keep_the_session() {
         (info["race"].as_str(), info["seed"].as_str()),
         (Some("Human"), Some("3"))
     );
+}
+
+#[test]
+fn the_items_the_character_can_wear() {
+    let mut app = app_of(session_of("warrior_fury_dw_orc.yaml", 1));
+    let items = json(&call(&mut app, "GET", "/api/items", ""));
+    let items = items.as_array().unwrap();
+    let earthstrike = items.iter().find(|item| item["id"] == 21180).unwrap();
+    assert_eq!(earthstrike["name"], "Earthstrike");
+    assert_eq!(earthstrike["type"], "TRINKET");
+    assert_eq!(
+        earthstrike["slots"],
+        serde_json::json!(["TRINKET1", "TRINKET2"])
+    );
+    assert_eq!(earthstrike["effects"][0]["trigger"], "USE");
+    assert_eq!(earthstrike["effects"][0]["name"], "Earthstrike");
+    assert_eq!(earthstrike["weapon"], Value::Null);
+    let bludgeon = items.iter().find(|item| item["id"] == 18866).unwrap();
+    assert_eq!(bludgeon["quality"], "EPIC");
+    assert_eq!(bludgeon["icon"]["name"], "inv_hammer_20");
+    assert!(bludgeon["weapon"]["dps"].as_f64().unwrap() > 0.0);
+    assert!(
+        bludgeon["stats"]
+            .as_object()
+            .is_some_and(|stats| !stats.is_empty())
+    );
+    assert_eq!(call(&mut app, "POST", "/api/items", "").status, 405);
 }

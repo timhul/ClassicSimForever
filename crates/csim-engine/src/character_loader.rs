@@ -63,6 +63,7 @@ use serde_yaml::{Mapping, Value};
 use crate::character::{Character, ClassSpec};
 use crate::data_bundle::DataBundle;
 use crate::enchant::EnchantName;
+use crate::equipment::Equipment;
 use crate::faction::{Faction, PlayerClass};
 use crate::files::{Files, FsFiles, yaml_files};
 use crate::ids::CharId;
@@ -104,6 +105,33 @@ pub struct EquippedSetup {
         skip_serializing_if = "Vec::is_empty"
     )]
     pub temp_enchants: Vec<EnchantName>,
+}
+
+/// A change of a setup's gear ([`CharacterSetup::change_equipment`]): the item to wear in
+/// `slot`, or `None` to empty it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GearChange {
+    pub slot: EquipmentSlot,
+    pub item: Option<u32>,
+}
+
+/// An enchant of the setup that a gear change took off: it does not apply to the slot's new
+/// item.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct DroppedEnchant {
+    pub slot: EquipmentSlot,
+    pub enchant: EnchantName,
+}
+
+/// What [`CharacterSetup::change_equipment`] changed.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+pub struct GearChanged {
+    /// Every slot whose item now differs from the setup's, in slot order: the changes asked
+    /// for and the slots they emptied (a two-hander empties the off hand). Applied to the
+    /// original setup, in any order, they give the same gear.
+    pub changes: Vec<GearChange>,
+    pub dropped_enchants: Vec<DroppedEnchant>,
 }
 
 /// A list, or a single value as a list of one.
@@ -528,6 +556,115 @@ impl CharacterSetup {
         settings
     }
 
+    /// Changes the gear: the slots `changes` name are emptied, then each change is worn in
+    /// order, as equipping in the game does it (a two-hander empties the off hand, an
+    /// off-hand item takes a two-hander off, a unique item leaves the paired slot, ...), so a
+    /// later change wins over an earlier one it conflicts with. A new item keeps the slot's
+    /// enchant and temporary enchants that apply to it; the others are dropped. Items as of
+    /// content phase `phase`.
+    ///
+    /// Only what equipping checks is checked here (the item exists in the phase and fits the
+    /// slot, its unique-equipped group); the class, faction and proficiency are left to the
+    /// build, as for the setup's own items.
+    ///
+    /// # Errors
+    /// A change names an unknown item, or one that cannot be equipped in its slot.
+    pub fn change_equipment(
+        &mut self,
+        data: &DataBundle,
+        phase: Phase,
+        changes: &[GearChange],
+    ) -> Result<GearChanged, String> {
+        let mut worn = Equipment::new(
+            Arc::clone(&data.equipment),
+            phase,
+            self.race.faction(),
+            self.class,
+        );
+        for (&slot, equipped) in &self.equipment {
+            if worn.equip(slot, equipped.item).is_ok() {
+                wear_enchants(&mut worn, slot, equipped);
+            }
+        }
+        let named = |slot| changes.iter().any(|change| change.slot == slot);
+        // The setup's items that do not equip (the build reports them) stay as written.
+        let kept: Vec<EquipmentSlot> = self
+            .equipment
+            .iter()
+            .filter(|&(&slot, equipped)| !named(slot) && worn.item_id(slot) != Some(equipped.item))
+            .map(|(&slot, _)| slot)
+            .collect();
+        for change in changes {
+            worn.unequip(change.slot);
+        }
+        for change in changes {
+            let Some(item) = change.item else {
+                worn.unequip(change.slot);
+                continue;
+            };
+            worn.equip(change.slot, item)
+                .map_err(|error| format!("equipment.{}: {error}", slot_name(change.slot)))?;
+            if let Some(equipped) = self.equipment.get(&change.slot) {
+                wear_enchants(&mut worn, change.slot, equipped);
+            }
+        }
+
+        let mut equipment = BTreeMap::new();
+        let mut dropped_enchants = Vec::new();
+        for slot in EquipmentSlot::ALL {
+            let setup = self.equipment.get(&slot);
+            if kept.contains(&slot) {
+                equipment.extend(setup.map(|equipped| (slot, equipped.clone())));
+                continue;
+            }
+            let Some(item) = worn.item_id(slot) else {
+                continue;
+            };
+            // A new item has the setup's enchants of the slot that apply to it, in the
+            // setup's order.
+            let equipped = match setup {
+                Some(equipped) if equipped.item == item => equipped.clone(),
+                _ => EquippedSetup {
+                    item,
+                    enchant: worn.enchant(slot),
+                    temp_enchants: setup
+                        .iter()
+                        .flat_map(|equipped| &equipped.temp_enchants)
+                        .copied()
+                        .filter(|enchant| worn.temp_enchants(slot).contains(enchant))
+                        .collect(),
+                },
+            };
+            if let Some(setup) = setup {
+                let had = setup.enchant.iter().chain(&setup.temp_enchants);
+                let has = |enchant| {
+                    equipped.enchant == Some(enchant) || equipped.temp_enchants.contains(&enchant)
+                };
+                dropped_enchants.extend(
+                    had.filter(|&&enchant| !has(enchant))
+                        .map(|&enchant| DroppedEnchant { slot, enchant }),
+                );
+            }
+            equipment.insert(slot, equipped);
+        }
+        let item_in = |gear: &BTreeMap<EquipmentSlot, EquippedSetup>, slot| {
+            gear.get(&slot).map(|equipped| equipped.item)
+        };
+        let changes = EquipmentSlot::ALL
+            .into_iter()
+            .filter(|&slot| item_in(&self.equipment, slot) != item_in(&equipment, slot))
+            .map(|slot| GearChange {
+                slot,
+                item: item_in(&equipment, slot),
+            })
+            .collect();
+        self.equipment = equipment;
+        Ok(GearChanged {
+            changes,
+            dropped_enchants,
+        })
+    }
+
     /// Builds the setup against the data (with default sim settings) and reports every
     /// problem found.
     pub fn validate(&self, data: &DataBundle) -> Result<(), CharacterSetupError> {
@@ -874,6 +1011,20 @@ impl CharacterSetup {
             issues: issues.0,
         }
     }
+}
+
+/// Puts the enchants of `equipped` that apply on the item worn in `slot`.
+fn wear_enchants(worn: &mut Equipment, slot: EquipmentSlot, equipped: &EquippedSetup) {
+    if equipped.enchant.is_some() {
+        let _ = worn.set_enchant(slot, equipped.enchant);
+    }
+    let applying: Vec<EnchantName> = equipped
+        .temp_enchants
+        .iter()
+        .copied()
+        .filter(|&enchant| worn.set_temp_enchants(slot, &[enchant]).is_ok())
+        .collect();
+    let _ = worn.set_temp_enchants(slot, &applying);
 }
 
 /// What `Equipment::equip` does not check: the item exists in the phase, its faction and
