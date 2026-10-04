@@ -25,7 +25,7 @@ cast_if:
   - name: Berserking
     condition: resource "Energy" leq 40
   - name: Slice and Dice
-    condition: buff_duration "Slice and Dice" less 3
+    condition: buff_duration "Slice and Dice" is false
   - name: Rupture
     condition: |
       variable "combo_points" eq 5

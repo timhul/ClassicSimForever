@@ -35,7 +35,7 @@ cast_if:
   - name: Elune's Light
   - name: Berserking
   - name: Slice and Dice
-    condition: buff_duration "Slice and Dice" less 3
+    condition: buff_duration "Slice and Dice" is false
   - name: Expose Armor
     condition: |
       variable "combo_points" eq 5

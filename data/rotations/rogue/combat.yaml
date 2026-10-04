@@ -25,7 +25,7 @@ cast_if:
   - name: Berserking
   - name: Berserking
   - name: Slice and Dice
-    condition: buff_duration "Slice and Dice" less 3
+    condition: buff_duration "Slice and Dice" is false
   - name: Adrenaline Rush
     condition: resource "Energy" leq 60
   - name: Blade Flurry
