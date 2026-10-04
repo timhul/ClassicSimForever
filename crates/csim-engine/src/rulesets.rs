@@ -11,7 +11,7 @@
 //! The C++ `RulesetControl` mutated the character and the `SimSettings` when the ruleset
 //! changed. Here the ruleset travels in [`SimParams`](crate::character::SimParams):
 //! `Character::set_sim` applies the stat change, `CharacterContext::set_sim` also learns and
-//! enables the ruleset's spells, and the execute threshold is resolved by
+//! enables the ruleset's spells, and the target's start health is resolved by
 //! [`SimSettings::sim_params`](crate::sim_settings::SimSettings::sim_params).
 
 use serde::{Deserialize, Serialize};
@@ -22,9 +22,9 @@ pub const ESSENCE_OF_THE_RED: u32 = 23513;
 /// Melee crit (out of 10 000) the Loatheb ruleset adds.
 pub const LOATHEB_MELEE_CRIT: u32 = 10_000;
 
-/// Execute threshold under the Vaelastrasz ruleset: the fight starts at 30 % health, so it is
-/// below 20 % for two thirds of it.
-pub const VAELASTRASZ_EXECUTE_THRESHOLD: f64 = 2.0 / 3.0;
+/// The target's health in percent when a Vaelastrasz fight starts: below 20 % for two thirds
+/// of it.
+pub const VAELASTRASZ_START_HEALTH_PERCENT: u32 = 30;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -59,10 +59,11 @@ impl Ruleset {
         }
     }
 
-    /// The execute threshold the ruleset imposes, replacing the configured one.
-    pub fn execute_threshold(self) -> Option<f64> {
+    /// The target's start health in percent the ruleset imposes, replacing the configured
+    /// one (`target_start_health_percent`).
+    pub fn target_start_health_percent(self) -> Option<u32> {
         match self {
-            Ruleset::Vaelastrasz => Some(VAELASTRASZ_EXECUTE_THRESHOLD),
+            Ruleset::Vaelastrasz => Some(VAELASTRASZ_START_HEALTH_PERCENT),
             Ruleset::Standard | Ruleset::Loatheb => None,
         }
     }
@@ -107,7 +108,7 @@ mod tests {
         assert_eq!(ruleset, Ruleset::Standard);
         assert!(ruleset.glancing_blows());
         assert_eq!(ruleset.melee_aura_crit(), 0);
-        assert_eq!(ruleset.execute_threshold(), None);
+        assert_eq!(ruleset.target_start_health_percent(), None);
         assert!(ruleset.spells().is_empty());
     }
 
@@ -115,13 +116,13 @@ mod tests {
     fn loatheb_crits_and_never_glances() {
         assert!(!Ruleset::Loatheb.glancing_blows());
         assert_eq!(Ruleset::Loatheb.melee_aura_crit(), 10_000);
-        assert_eq!(Ruleset::Loatheb.execute_threshold(), None);
+        assert_eq!(Ruleset::Loatheb.target_start_health_percent(), None);
     }
 
     #[test]
     fn vaelastrasz_executes_for_two_thirds_with_essence_of_the_red() {
         assert!(Ruleset::Vaelastrasz.glancing_blows());
-        assert_eq!(Ruleset::Vaelastrasz.execute_threshold(), Some(2.0 / 3.0));
+        assert_eq!(Ruleset::Vaelastrasz.target_start_health_percent(), Some(30));
         assert_eq!(Ruleset::Vaelastrasz.spells(), &[ESSENCE_OF_THE_RED]);
         assert_eq!(
             Ruleset::all_spells().collect::<Vec<_>>(),

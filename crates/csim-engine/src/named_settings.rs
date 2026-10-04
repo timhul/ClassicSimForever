@@ -48,7 +48,7 @@ const SIGMOID: Option<SettingRequirement> = Some(SettingRequirement {
 });
 
 /// Every setting [`SimSettings::apply_settings`] knows.
-pub const NAMED_SETTINGS: [NamedSetting; 6] = [
+pub const NAMED_SETTINGS: [NamedSetting; 7] = [
     NamedSetting {
         name: "rage_formula",
         help: "white swing rage: forever (default) or marrow_sigmoid",
@@ -99,6 +99,15 @@ pub const NAMED_SETTINGS: [NamedSetting; 6] = [
         help: "rage at the start of every iteration, capped at the maximum (default 0)",
         kind: SettingKind::Number {
             default: 0.0,
+            whole: true,
+        },
+        requires: None,
+    },
+    NamedSetting {
+        name: "target_start_health_percent",
+        help: "target health in percent when the fight starts, 1-100; it falls to 0 at the end,                which places the execute ranges (default 100)",
+        kind: SettingKind::Number {
+            default: 100.0,
             whole: true,
         },
         requires: None,
@@ -248,8 +257,22 @@ impl SimSettings {
             })?,
         };
 
+        let target_start_health_percent = match values.get("target_start_health_percent") {
+            None => self.target_start_health_percent,
+            Some(value) => value
+                .parse()
+                .ok()
+                .filter(|percent| (1..=100).contains(percent))
+                .ok_or_else(|| SettingError::InvalidValue {
+                    name: "target_start_health_percent".to_string(),
+                    value: value.to_string(),
+                    expected: "a whole percentage from 1 to 100",
+                })?,
+        };
+
         self.rage_formula = formula;
         self.initial_rage = initial_rage;
+        self.target_start_health_percent = target_start_health_percent;
         Ok(())
     }
 
@@ -275,6 +298,12 @@ impl SimSettings {
         };
         if self.initial_rage != 0 {
             settings.push(("initial_rage", self.initial_rage.to_string()));
+        }
+        if self.target_start_health_percent != 100 {
+            settings.push((
+                "target_start_health_percent",
+                self.target_start_health_percent.to_string(),
+            ));
         }
         settings
     }
@@ -323,6 +352,9 @@ mod tests {
                 "sigmoid_midpoint" => Some(params.midpoint),
                 "sigmoid_width" => Some(params.width),
                 "initial_rage" => Some(f64::from(defaults.initial_rage)),
+                "target_start_health_percent" => {
+                    Some(f64::from(defaults.target_start_health_percent))
+                }
                 _ => None,
             };
             assert_eq!(default, expected, "{}", setting.name);
@@ -469,6 +501,41 @@ mod tests {
         }
         assert!(
             applied("initial_rage:0")
+                .unwrap()
+                .named_settings()
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn target_start_health_is_a_percentage() {
+        let settings = applied("target_start_health_percent:30").unwrap();
+        assert_eq!(settings.target_start_health_percent, 30);
+        assert_eq!(settings.sim_params().target_start_health, 0.3);
+        assert_eq!(
+            settings.named_settings_text().unwrap(),
+            "target_start_health_percent:30"
+        );
+        assert_eq!(
+            applied("target_start_health_percent:1")
+                .unwrap()
+                .target_start_health_percent,
+            1
+        );
+        for bad in [
+            "target_start_health_percent:0",
+            "target_start_health_percent:101",
+            "target_start_health_percent:-5",
+            "target_start_health_percent:12.5",
+            "target_start_health_percent:half",
+        ] {
+            assert!(
+                matches!(applied(bad), Err(SettingError::InvalidValue { .. })),
+                "{bad}"
+            );
+        }
+        assert!(
+            applied("target_start_health_percent:100")
                 .unwrap()
                 .named_settings()
                 .is_empty()

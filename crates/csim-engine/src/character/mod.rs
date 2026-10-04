@@ -56,10 +56,9 @@ pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets,
 pub struct SimParams {
     /// Encounter length in seconds.
     pub combat_length: f64,
-    /// Fraction of the encounter that is the execute phase (target below 20 % health for the
-    /// last `execute_threshold` of the fight). `SimSettings::get_execute_threshold`, the
-    /// ruleset's already applied.
-    pub execute_threshold: f64,
+    /// The target's health as a fraction when the encounter starts; it falls linearly to 0 at
+    /// the end. `SimSettings::target_start_health_percent`, the ruleset's already applied.
+    pub target_start_health: f64,
     /// The encounter ruleset (no glancing blows and extra crit under Loatheb, Essence of the
     /// Red under Vaelastrasz).
     pub ruleset: Ruleset,
@@ -70,11 +69,37 @@ pub struct SimParams {
     pub initial_rage: u32,
 }
 
+/// The target health below which Execute is usable (`WOUNDED_20_PERCENT`).
+pub const EXECUTE_HEALTH: f64 = 0.2;
+
+impl SimParams {
+    /// The target's health as a fraction at `now` (full start health before the pull, 0 at
+    /// the end of the encounter).
+    pub fn target_health(&self, now: f64) -> f64 {
+        if self.combat_length <= 0.0 {
+            return self.target_start_health;
+        }
+        let remaining = ((self.combat_length - now) / self.combat_length).clamp(0.0, 1.0);
+        self.target_start_health * remaining
+    }
+
+    /// The fraction of the encounter, at its end, with the target below `health` (1 when it
+    /// starts there).
+    pub fn fraction_below_health(&self, health: f64) -> f64 {
+        (health / self.target_start_health).min(1.0)
+    }
+
+    /// The fraction of the encounter that is Execute's phase (target below 20 %).
+    pub fn execute_threshold(&self) -> f64 {
+        self.fraction_below_health(EXECUTE_HEALTH)
+    }
+}
+
 impl Default for SimParams {
     fn default() -> Self {
         Self {
             combat_length: 300.0,
-            execute_threshold: 0.2,
+            target_start_health: 1.0,
             ruleset: Ruleset::Standard,
             rage_formula: RageFormula::Forever,
             initial_rage: 0,

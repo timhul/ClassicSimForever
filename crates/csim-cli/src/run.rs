@@ -58,7 +58,8 @@ pub struct RunArgs {
     length_variance: f64,
     /// Named settings, alternatives to the default behavior: `name:value` pairs separated by
     /// commas; may be repeated. Known: rage_formula (forever, marrow_sigmoid), sigmoid_floor,
-    /// sigmoid_ceiling, sigmoid_midpoint, sigmoid_width, initial_rage. E.g.
+    /// sigmoid_ceiling, sigmoid_midpoint, sigmoid_width, initial_rage,
+    /// target_start_health_percent (1-100). E.g.
     /// `--setting=rage_formula:marrow_sigmoid,sigmoid_ceiling:46`.
     #[arg(long = "setting", value_name = "NAME:VALUE,...")]
     settings: Vec<SettingPairs>,

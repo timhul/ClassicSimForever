@@ -467,6 +467,20 @@ fn quietus_raises_the_damage_below_35_percent() {
     assert!(close(damage_mod(&mut f, BACKSTAB), 1.0));
 }
 
+/// A target that starts the fight at 30 % health is below 35 % for all of it: Quietus is
+/// active from the pull.
+#[test]
+fn quietus_is_active_for_a_target_starting_below_35_percent() {
+    let mut f = with_talents(&[(DIRTY_DEEDS, 2), (QUIETUS, 5)]);
+    let sim = *f.character.sim();
+    f.character.set_sim(SimParams {
+        target_start_health: 0.3,
+        ..sim
+    });
+    assert!(close(damage_mod(&mut f, SINISTER_STRIKE), 1.1));
+    assert!(close(damage_mod(&mut f, BACKSTAB), 1.0));
+}
+
 const VILE_POISONS: u32 = 105714;
 const IMPROVED_POISONS: u32 = 105713;
 const VENOM: u32 = 105712;

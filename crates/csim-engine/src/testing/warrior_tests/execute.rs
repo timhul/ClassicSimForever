@@ -1,5 +1,6 @@
 //! Port of `Test/Warrior/Spells/TestExecute`.
 
+use crate::character::SimParams;
 use crate::spell::SpellStatus;
 use crate::testing::warrior::WarriorTest;
 
@@ -241,4 +242,33 @@ fn dodge_applies_overpower_buff() {
     test.given_a_guaranteed_melee_ability_dodge();
     when_execute_is_performed_with_rage(&mut test, 100);
     test.then_overpower_is_active();
+}
+
+/// A target that starts the fight at 30 % health is below 20 % for the last two thirds of it;
+/// one that starts at 15 % already is when it starts.
+#[test]
+fn the_target_start_health_places_the_execute_range() {
+    let mut test = test();
+    test.given_warrior_in_battle_stance();
+    let sim = *test.character_mut().sim();
+    test.character_mut().set_sim(SimParams {
+        target_start_health: 0.3,
+        ..sim
+    });
+    for (time, status) in [
+        (99.0, SpellStatus::NotInExecuteRange),
+        (101.0, SpellStatus::Available),
+    ] {
+        test.given_engine_priority_at(time);
+        test.given_warrior_has_rage(100);
+        test.then_status_is(SPELL, status);
+    }
+
+    test.character_mut().set_sim(SimParams {
+        target_start_health: 0.15,
+        ..sim
+    });
+    test.given_engine_priority_at(0.0);
+    test.given_warrior_has_rage(100);
+    test.then_status_is(SPELL, SpellStatus::Available);
 }

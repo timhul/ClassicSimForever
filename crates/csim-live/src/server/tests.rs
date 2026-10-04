@@ -267,13 +267,18 @@ fn before_a_load_only_the_page_catalog_and_load_answer() {
 fn a_setup_loads_by_name_with_its_seed_length_and_settings() {
     let mut app = empty_app();
     let body = r#"{"setup": "warrior_fury_dw_orc", "seed": "7", "length": 60,
-        "length_variance": 0, "settings": "initial_rage:30"}"#;
+        "length_variance": 0,
+        "settings": "initial_rage:30,target_start_health_percent:30"}"#;
     let info = json(&call(&mut app, "POST", "/api/load", body));
     assert_eq!(info["name"], "DW Fury Orc");
     assert_eq!(info["seed"], "7");
     assert_eq!(info["combat_length"], 60);
     assert_eq!(info["end_at"], 60.0);
-    assert_eq!(info["settings"], "initial_rage:30");
+    assert_eq!(info["target_start_health"], 0.3);
+    assert_eq!(
+        info["settings"],
+        "initial_rage:30,target_start_health_percent:30"
+    );
     assert_eq!(info["manual"], false);
     assert_eq!(info["source"]["setup"], "warrior_fury_dw_orc");
     assert_eq!(info["source"]["keybinds"], Value::Null);
@@ -284,7 +289,10 @@ fn a_setup_loads_by_name_with_its_seed_length_and_settings() {
     // A restart keeps the setup and the settings.
     let restarted = json(&call(&mut app, "POST", "/api/restart", r#"{"seed": "8"}"#));
     assert_eq!(restarted["seed"], "8");
-    assert_eq!(restarted["settings"], "initial_rage:30");
+    assert_eq!(
+        restarted["settings"],
+        "initial_rage:30,target_start_health_percent:30"
+    );
     assert_eq!(restarted["source"], info["source"]);
     let restarted = json(&call(&mut app, "POST", "/api/restart", "{}"));
     assert_eq!(restarted["seed"], "42");

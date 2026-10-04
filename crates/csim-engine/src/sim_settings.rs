@@ -1,7 +1,7 @@
 //! Simulation settings. Port of `GUI/SimSettings.*` and `GUI/SimOption.h`.
 //!
 //! [`SimSettings`] holds what the user configures for a run: the content phase, the encounter
-//! length, the iteration counts, the thread count, the execute threshold, the ruleset and the
+//! length, the iteration counts, the thread count, the target's start health, the ruleset and the
 //! stat-weight scaling options. The characters read the part they need as
 //! [`SimParams`] ([`SimSettings::sim_params`]).
 //!
@@ -230,8 +230,8 @@ pub enum SimSettingsError {
     Iterations,
     #[error("the number of threads must be between 1 and {max}, got {threads}")]
     Threads { threads: usize, max: usize },
-    #[error("the execute threshold must be between 0 and 1, got {0}")]
-    ExecuteThreshold(f64),
+    #[error("the target's start health must be between 1 and 100 %, got {0}")]
+    TargetStartHealth(u32),
     #[error("the length variance must be at least 0 and below 100 %, got {0}")]
     LengthVariance(f64),
 }
@@ -253,9 +253,11 @@ pub struct SimSettings {
     pub iterations_full_sim: u32,
     /// Worker threads (at most [`SimSettings::max_threads`]).
     pub threads: usize,
-    /// Fraction of the encounter at its end that is the execute phase. A ruleset may impose
-    /// its own ([`SimSettings::effective_execute_threshold`]).
-    pub execute_threshold: f64,
+    /// The target's health in percent when the encounter starts (1-100; a named setting,
+    /// `target_start_health_percent`). It falls linearly to 0 at the end, which places the
+    /// execute ranges. A ruleset may impose its own
+    /// ([`SimSettings::effective_target_start_health_percent`]).
+    pub target_start_health_percent: u32,
     pub ruleset: Ruleset,
     /// The scaling options a full sim runs besides the baseline.
     pub options: BTreeSet<SimOption>,
@@ -269,7 +271,7 @@ pub struct SimSettings {
 
 impl Default for SimSettings {
     /// The C++ defaults: Naxxramas, 300 s, 1 000 quick / 10 000 full iterations, every
-    /// available thread, execute below 20 %, the standard ruleset and no scaling. Unlike the
+    /// available thread, the target at full health, the standard ruleset and no scaling. Unlike the
     /// C++, the encounter length varies by 10 %.
     fn default() -> Self {
         Self {
@@ -279,7 +281,7 @@ impl Default for SimSettings {
             iterations_quick_sim: 1000,
             iterations_full_sim: 10_000,
             threads: Self::max_threads(),
-            execute_threshold: 0.2,
+            target_start_health_percent: 100,
             ruleset: Ruleset::Standard,
             options: BTreeSet::new(),
             rage_formula: RageFormula::Forever,
@@ -317,18 +319,18 @@ impl SimSettings {
         self.options.contains(&option)
     }
 
-    /// The execute threshold in effect: the ruleset's, else the configured one.
-    pub fn effective_execute_threshold(&self) -> f64 {
+    /// The target's start health in percent in effect: the ruleset's, else the configured one.
+    pub fn effective_target_start_health_percent(&self) -> u32 {
         self.ruleset
-            .execute_threshold()
-            .unwrap_or(self.execute_threshold)
+            .target_start_health_percent()
+            .unwrap_or(self.target_start_health_percent)
     }
 
     /// What the characters read.
     pub fn sim_params(&self) -> SimParams {
         SimParams {
             combat_length: f64::from(self.combat_length),
-            execute_threshold: self.effective_execute_threshold(),
+            target_start_health: f64::from(self.effective_target_start_health_percent()) / 100.0,
             ruleset: self.ruleset,
             rage_formula: self.rage_formula,
             initial_rage: self.initial_rage,
@@ -353,8 +355,10 @@ impl SimSettings {
                 max: Self::max_threads(),
             });
         }
-        if !(0.0..=1.0).contains(&self.execute_threshold) {
-            return Err(SimSettingsError::ExecuteThreshold(self.execute_threshold));
+        if !(1..=100).contains(&self.target_start_health_percent) {
+            return Err(SimSettingsError::TargetStartHealth(
+                self.target_start_health_percent,
+            ));
         }
         Ok(())
     }
@@ -373,7 +377,7 @@ mod tests {
         assert_eq!(settings.iterations_quick_sim, 1000);
         assert_eq!(settings.iterations_full_sim, 10_000);
         assert_eq!(settings.threads, SimSettings::max_threads());
-        assert_eq!(settings.execute_threshold, 0.2);
+        assert_eq!(settings.target_start_health_percent, 100);
         assert_eq!(settings.ruleset, Ruleset::Standard);
         assert!(settings.options.is_empty());
         assert_eq!(settings.validate(), Ok(()));
@@ -401,20 +405,22 @@ mod tests {
     }
 
     #[test]
-    fn the_ruleset_overrides_the_execute_threshold() {
+    fn the_ruleset_overrides_the_target_start_health() {
         let mut settings = SimSettings {
-            execute_threshold: 0.3,
+            target_start_health_percent: 50,
             ..SimSettings::default()
         };
-        assert_eq!(settings.sim_params().execute_threshold, 0.3);
+        assert_eq!(settings.sim_params().target_start_health, 0.5);
+        assert_eq!(settings.sim_params().execute_threshold(), 0.4);
 
         settings.ruleset = Ruleset::Vaelastrasz;
         let params = settings.sim_params();
-        assert_eq!(params.execute_threshold, 2.0 / 3.0);
+        assert_eq!(params.target_start_health, 0.3);
+        assert!((params.execute_threshold() - 2.0 / 3.0).abs() < 1e-12);
         assert_eq!(params.ruleset, Ruleset::Vaelastrasz);
 
         settings.ruleset = Ruleset::Loatheb;
-        assert_eq!(settings.sim_params().execute_threshold, 0.3);
+        assert_eq!(settings.sim_params().target_start_health, 0.5);
     }
 
     #[test]
@@ -482,10 +488,17 @@ mod tests {
             ),
             (
                 SimSettings {
-                    execute_threshold: 1.5,
+                    target_start_health_percent: 0,
                     ..valid.clone()
                 },
-                SimSettingsError::ExecuteThreshold(1.5),
+                SimSettingsError::TargetStartHealth(0),
+            ),
+            (
+                SimSettings {
+                    target_start_health_percent: 101,
+                    ..valid.clone()
+                },
+                SimSettingsError::TargetStartHealth(101),
             ),
         ];
         for (settings, error) in cases {

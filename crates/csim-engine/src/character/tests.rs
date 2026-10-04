@@ -2527,7 +2527,6 @@ cast_if:
         let mut f = shipped_orc_warrior();
         f.character.set_sim(SimParams {
             combat_length: 200.0,
-            execute_threshold: 0.2,
             ruleset: crate::rulesets::Ruleset::Standard,
             ..SimParams::default()
         });
@@ -2545,6 +2544,17 @@ cast_if:
         assert!(var(BuiltinVariable::MeleeAp) > 400.0);
         assert_eq!(var(BuiltinVariable::TimeRemainingGcd), 0.0);
         assert_eq!(ctx.time_required_to_run_precombat(), 1.5);
+
+        // From 30 % health, the execute phase is the last two thirds (from 66.7 s).
+        f.character.set_sim(SimParams {
+            combat_length: 200.0,
+            target_start_health: 0.3,
+            ..SimParams::default()
+        });
+        let ctx = f.ctx();
+        let var = |v| ctx.variable(v);
+        assert!((var(BuiltinVariable::TargetHealth) - 0.225).abs() < 1e-9);
+        assert!((var(BuiltinVariable::TimeRemainingExecute) - (200.0 / 3.0 - 50.0)).abs() < 1e-9);
     }
 
     #[test]

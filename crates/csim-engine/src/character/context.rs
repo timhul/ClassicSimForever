@@ -2476,10 +2476,10 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
         let now = self.now();
         let sim = self.character.sim();
         match variable {
-            BuiltinVariable::TargetHealth => (sim.combat_length - now) / sim.combat_length,
+            BuiltinVariable::TargetHealth => sim.target_health(now),
             BuiltinVariable::TimeRemainingEncounter => sim.combat_length - now,
             BuiltinVariable::TimeRemainingExecute => {
-                sim.combat_length * (1.0 - sim.execute_threshold) - now
+                sim.combat_length * (1.0 - sim.execute_threshold()) - now
             }
             BuiltinVariable::TimeSinceSwing => {
                 now - self.character.spells.mh_attack().last_used().max(0.0)
@@ -2804,6 +2804,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn combat_length(&self) -> f64 {
         self.character.sim().combat_length
+    }
+
+    fn target_start_health(&self) -> f64 {
+        self.character.sim().target_start_health
     }
 
     fn on_global_cooldown(&self) -> bool {

@@ -69,6 +69,9 @@ pub struct Info {
     pub start_at: f64,
     /// When this iteration's encounter ends (the drawn length).
     pub end_at: f64,
+    /// The target's health as a fraction at the pull; it falls linearly to 0 at `end_at`
+    /// (`target_start_health_percent`, or the ruleset's).
+    pub target_start_health: f64,
     /// The rotation's `cast_if` entries, in file order (empty without a rotation).
     pub cast_if: Vec<RotationEntry>,
     /// The rotation's precombat actions the character can cast, in order (none when played
@@ -440,6 +443,7 @@ impl Session {
             settings: self.settings.named_settings_text(),
             start_at: self.stepper.start_at(),
             end_at: character.sim().combat_length,
+            target_start_health: character.sim().target_start_health,
             cast_if: self.rotation_entries(),
             precombat: match character.rotation() {
                 Some(rotation) if !self.manual() => {

@@ -120,6 +120,13 @@ character without rage):
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=initial_rage:50`
 
+`target_start_health_percent:N` (1-100, default 100) starts the target at N % health; it falls
+linearly to 0 at the end, which places every execute range (Execute below 20 %, Quietus below
+35 %, ...). At 30 Execute is usable for the last two thirds and Quietus for the whole fight. It
+only sets the health (no Essence of the Red, unlike the Vaelastrasz ruleset, which imposes 30):
+
+`cargo run --release -p csim-cli -- run data/characters/rogue_combat_swords_human.yaml --setting=target_start_health_percent:30`
+
 A Rogue is run the same way, with a rogue setup (`rogue_combat_swords_human`, `rogue_combat_axes_orc`,
 `rogue_combat_daggers_night_elf`, `rogue_mutilate_undead`, `rogue_mutilate_ea_gnome`, `rogue_hemorrhage_troll`; their
 rotations are in `data/rotations/rogue/`):

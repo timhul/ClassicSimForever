@@ -105,14 +105,20 @@ pub trait SpellHost: EffectHost {
     fn attacking_from_behind(&self) -> bool {
         true
     }
-    /// The target's health as a fraction, from the encounter's progress (the boss dies at its
-    /// end, as the execute range assumes).
+    /// The target's health as a fraction when the encounter starts
+    /// (`target_start_health_percent`).
+    fn target_start_health(&self) -> f64 {
+        1.0
+    }
+    /// The target's health as a fraction, from the encounter's progress: the start health
+    /// falls linearly until the boss dies at the end, which places the execute ranges.
     fn target_health(&self) -> f64 {
         let length = self.combat_length();
+        let start = self.target_start_health();
         if length <= 0.0 {
-            return 1.0;
+            return start;
         }
-        ((length - self.engine().current_time()) / length).clamp(0.0, 1.0)
+        start * ((length - self.engine().current_time()) / length).clamp(0.0, 1.0)
     }
     /// Whether the character is in `state` (`SpellAuraRestrictions.CasterAuraState`:
     /// `DEFENSIVE` after a dodge / parry / block, `ENRAGED` while an enrage is active, ...).
@@ -1229,9 +1235,7 @@ impl Spell {
                     AuraState::Wounded25Percent => 0.25,
                     _ => 0.35,
                 };
-                let combat_length = host.combat_length();
-                let time_remaining = combat_length - now;
-                if time_remaining / combat_length > fraction {
+                if host.target_health() > fraction {
                     return SpellStatus::NotInExecuteRange;
                 }
             }
