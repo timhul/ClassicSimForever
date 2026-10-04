@@ -1079,29 +1079,24 @@ function setSettings(text) {
 // ----- The target -------------------------------------------------------------------------
 
 /**
- * The setup's own target (from the loaded info), which empty controls keep: the creature type's
- * first choice, the armor field's placeholder.
+ * The loaded setup's own target (from the info): what the controls change. Null before the
+ * first load.
  */
 let setupTarget = null;
 
-/** The creature type choices: the setup's (an empty value), then each type. */
+/** The creature type choices, keeping the one chosen. */
 function fillTarget() {
   const types = $("target-type");
   const chosen = types.value;
-  const own = element("option", "", setupTarget ? `Setup's: ${setupTarget.creature_type}` : "Setup's");
-  own.value = "";
-  types.replaceChildren(own, ...catalog.creature_types.map((name) => element("option", "", name)));
+  types.replaceChildren(...catalog.creature_types.map((name) => element("option", "", name)));
+  // Nothing chosen until a load (or the address) says what the target is.
   types.value = chosen;
-  if (types.selectedIndex < 0) {
-    types.value = "";
-  }
-  $("target-armor").placeholder = setupTarget ? setupTarget.armor : "setup's";
   targetText();
 }
 
 /**
  * The controls as their `api/load` fields (`target_creature_type`, `target_armor`): the ones
- * that change the setup's target. The summary lists them.
+ * that differ from the loaded setup's target (before a load, the ones set).
  */
 function targetFields() {
   const fields = {};
@@ -1116,7 +1111,7 @@ function targetFields() {
   return fields;
 }
 
-/** Shows the controls' changes in the summary; the same as `targetFields`. */
+/** The summary lists the controls' changes (`targetFields`), which it returns. */
 function targetText() {
   const fields = targetFields();
   const parts = [];
@@ -1131,12 +1126,9 @@ function targetText() {
   return fields;
 }
 
-/** Sets the controls to the changes `type` and `armor` (null: the setup's). */
+/** Sets the controls to the target's creature type `type` and armor `armor` (null: none). */
 function setTarget(type, armor) {
   $("target-type").value = type || "";
-  if ($("target-type").selectedIndex < 0) {
-    $("target-type").value = "";
-  }
   $("target-armor").value = armor ?? "";
   targetText();
 }
@@ -1187,9 +1179,10 @@ function syncForm() {
   $("length-input").value = info.combat_length;
   $("variance-input").value = info.length_variance;
   setSettings(info.settings);
+  // The target fought: the setup's, as the load changed it.
   setupTarget = { creature_type: info.target.setup_creature_type, armor: info.target.setup_armor };
-  fillTarget();
-  setTarget(info.target.creature_type, info.target.armor);
+  setTarget(info.target.creature_type ?? setupTarget.creature_type,
+    info.target.armor ?? setupTarget.armor);
 }
 
 /** The `api/load` request of the setup bar: pasted text wins over the selection. */
