@@ -49,8 +49,8 @@ use crate::item::spec::{EffectTrigger, ItemEffect};
 use crate::spell::Hand;
 use crate::spell::dbc::{
     AuraState, AuraType, DefenseType, ImplicitTarget, Mechanic, PowerType, ProcFlags,
-    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellEffectName, SpellModOp,
-    SpellSchoolMask,
+    ShapeshiftForm, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellAttr8, SpellEffectName,
+    SpellModOp, SpellSchoolMask,
 };
 use crate::spell::overrides::{OverrideError, OverrideFile, Overrides, SimFlag};
 
@@ -765,6 +765,16 @@ impl SpellRecord {
     /// `Attributes_3` as flags.
     pub fn attr3(&self) -> SpellAttr3 {
         SpellAttr3::from_bits(self.attributes[3])
+    }
+
+    /// `Attributes_8` as flags.
+    pub fn attr8(&self) -> SpellAttr8 {
+        SpellAttr8::from_bits(self.attributes[8])
+    }
+
+    /// The ticks of the spell's periodic damage aura can crit (Rend, Rupture, Garrote).
+    pub fn periodic_can_crit(&self) -> bool {
+        self.attr8().contains(SpellAttr8::PERIODIC_CAN_CRIT)
     }
 
     /// The caster must attack from behind the target (Backstab, Garrote, Ambush).

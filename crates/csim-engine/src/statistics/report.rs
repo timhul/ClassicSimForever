@@ -497,7 +497,7 @@ mod tests {
             .record_attack(&swing(PhysicalAttackResult::Hit, 600), 30.0);
         stats
             .spell("Deep Wounds", 1)
-            .record_tick(25, 25.0, 0.0, 0.0, None);
+            .record_tick(25, 25.0, 0.0, 0.0, false, None);
 
         let rows = spell_rows(&stats, 1, 100.0);
         let names = |name: &str| -> Vec<String> {

@@ -860,6 +860,10 @@ pub(crate) struct World {
     pub periodic_resists: VecDeque<MagicResistResult>,
     /// `(school, pure DoT)` of every tick resist roll.
     pub periodic_resist_log: Vec<(MagicSchool, bool)>,
+    /// Whether each periodic tick that can crit crits, in order; no crit once they run out.
+    pub periodic_crits: VecDeque<bool>,
+    /// The extra crit chance of every periodic crit roll.
+    pub periodic_crit_log: Vec<u32>,
 }
 
 impl World {
@@ -913,6 +917,8 @@ impl World {
             spell_roll_log: Vec::new(),
             periodic_resists: VecDeque::new(),
             periodic_resist_log: Vec::new(),
+            periodic_crits: VecDeque::new(),
+            periodic_crit_log: Vec::new(),
         }
     }
 
@@ -1389,6 +1395,10 @@ impl SpellHost for World {
         self.periodic_resists
             .pop_front()
             .unwrap_or(MagicResistResult::NoResist)
+    }
+    fn roll_periodic_crit(&mut self, extra_crit: u32) -> bool {
+        self.periodic_crit_log.push(extra_crit);
+        self.periodic_crits.pop_front().unwrap_or(false)
     }
     fn total_threat_mod(&self) -> f64 {
         self.stats.get_total_threat_mod()

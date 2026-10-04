@@ -37,7 +37,7 @@ use crate::spell::overrides::{
     EnablingAura, EventScript, Overrides, ProcHitMask, ScriptKind, SimFlag, SpellOverride,
     ThreatOverride,
 };
-use crate::spell::periodic::{Periodic, PeriodicKind, TickReport};
+use crate::spell::periodic::{Periodic, PeriodicCrit, PeriodicKind, TickReport};
 use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
@@ -193,6 +193,12 @@ pub trait SpellHost: EffectHost {
     /// A host without a magic table resists nothing.
     fn roll_periodic_resist(&mut self, _school: MagicSchool, _pure_dot: bool) -> MagicResistResult {
         MagicResistResult::NoResist
+    }
+    /// Rolls whether a periodic damage tick that can crit (`PERIODIC_CAN_CRIT`: Rend) crits, at
+    /// the main-hand melee ability crit chance plus `extra_crit` (hundredths of a percent). A
+    /// host without a crit table never crits.
+    fn roll_periodic_crit(&mut self, _extra_crit: u32) -> bool {
+        false
     }
     fn total_threat_mod(&self) -> f64;
     /// Average base damage of the weapon in `hand`, without attack power (Deep Wounds bleeds
@@ -2122,6 +2128,13 @@ impl Spell {
         // The damage done modifiers apply once, to the tick: a bleed's base (Deep Wounds'
         // weapon damage) is taken before any of them.
         let damage_mod = self.periodic_damage_mod(host) * self.school_damage_mod(host);
+        // The ticks of a `PERIODIC_CAN_CRIT` aura roll the melee ability crit (Rend).
+        let can_crit =
+            self.setup.record.periodic_can_crit() && !self.setup.has_sim_flag(SimFlag::CannotCrit);
+        let crit = can_crit.then(|| PeriodicCrit {
+            extra: self.crit_chance_bonus(host),
+            multiplier: self.crit_damage_mod(host),
+        });
         let cost = self.resource_cost(host);
         let mut report = self.periodic.as_mut()?.tick(
             application_id,
@@ -2131,6 +2144,7 @@ impl Spell {
             active,
             expired_at,
             damage_mod,
+            crit,
             cost,
         )?;
         self.resist_tick(host, &mut report);

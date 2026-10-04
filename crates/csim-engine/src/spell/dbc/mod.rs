@@ -26,7 +26,9 @@ mod misc;
 pub use aura::AuraType;
 pub use discard::{DISCARDED_AURA_IDS, DISCARDED_EFFECT_IDS};
 pub use effect::SpellEffectName;
-pub use flags::{ProcFlags, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellSchoolMask};
+pub use flags::{
+    ProcFlags, SpellAttr0, SpellAttr1, SpellAttr2, SpellAttr3, SpellAttr8, SpellSchoolMask,
+};
 pub use misc::{
     AuraState, DefenseType, ImplicitTarget, Mechanic, PowerType, ShapeshiftForm, SpellModOp,
 };

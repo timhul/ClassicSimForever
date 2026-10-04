@@ -129,6 +129,15 @@ impl PeriodicKind {
     }
 }
 
+/// The crit roll of a damage tick that can crit (`PERIODIC_CAN_CRIT`: Rend).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PeriodicCrit {
+    /// Crit chance added to the roll, hundredths of a percent (`CRIT_CHANCE` modifiers).
+    pub extra: u32,
+    /// The damage multiplier of a crit.
+    pub multiplier: f64,
+}
+
 /// What one tick did, for the statistics.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TickReport {
@@ -142,6 +151,8 @@ pub struct TickReport {
     pub resource_gained: Option<(ResourceType, u32)>,
     /// A spell to cast on this tick (`PERIODIC_TRIGGER_SPELL`).
     pub trigger: Option<u32>,
+    /// Whether the damage tick crit (`PERIODIC_CAN_CRIT`: Rend).
+    pub crit: bool,
     /// Whether the tick dealt damage of a magic school (and so rolled a partial resist).
     pub magic: bool,
     /// The partial resist of a damage tick of a magic school.
@@ -273,7 +284,9 @@ impl Periodic {
 
     /// Handles a `DotTick` event. Returns `None` for stale ticks or after the buff is gone
     /// (which also clears the state). `damage_mod` is every multiplier on the tick's damage
-    /// (Improved Rend, Death Wish); ticks never crit. `resource_cost` its cost in displayed units. Port of
+    /// (Improved Rend, Death Wish). `crit` is, for a damage aura whose ticks can crit (Rend),
+    /// the extra crit chance of the roll (hundredths of a percent) and the crit damage
+    /// multiplier; other ticks never crit. `resource_cost` its cost in displayed units. Port of
     /// `SpellPeriodic::perform_periodic` + the `tick_effect` overrides.
     #[allow(clippy::too_many_arguments)]
     pub fn tick(
@@ -285,6 +298,7 @@ impl Periodic {
         buff_active: bool,
         buff_expired_at: f64,
         damage_mod: f64,
+        crit: Option<PeriodicCrit>,
         resource_cost: u32,
     ) -> Option<TickReport> {
         let now = host.engine().current_time();
@@ -302,6 +316,7 @@ impl Periodic {
             execution_time: 0.0,
             resource_gained: None,
             trigger: None,
+            crit: false,
             magic: false,
             resist: MagicResistResult::NoResist,
             resisted: 0,
@@ -335,9 +350,18 @@ impl Periodic {
                     self.schedule_tick(spell, host);
                 }
                 let stacks = f64::from(self.aura_stacks());
-                let damage = (per_tick * stacks * damage_mod).round().max(0.0) as u32;
+                let mut damage = per_tick * stacks * damage_mod;
+                let crit = match crit {
+                    Some(c) if damage > 0.0 && host.roll_periodic_crit(c.extra) => {
+                        damage *= c.multiplier;
+                        true
+                    }
+                    _ => false,
+                };
+                let damage = damage.round().max(0.0) as u32;
                 Some(TickReport {
                     damage,
+                    crit,
                     threat: f64::from(damage) * host.total_threat_mod(),
                     resource_cost: f64::from(resource_cost) / f64::from(ticks),
                     execution_time: host.global_cooldown() / f64::from(ticks),

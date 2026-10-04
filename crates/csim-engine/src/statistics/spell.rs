@@ -397,14 +397,17 @@ impl SpellStatistics {
         threat: f64,
         resource_cost: f64,
         execution_time: f64,
+        crit: bool,
         resist: Option<MagicResistResult>,
     ) {
         self.magic |= resist.is_some();
+        let result = if crit {
+            MagicAttackResult::Critical
+        } else {
+            MagicAttackResult::Hit
+        };
         self.add_success(
-            Outcome::from_magic(
-                MagicAttackResult::Hit,
-                resist.unwrap_or(MagicResistResult::NoResist),
-            ),
+            Outcome::from_magic(result, resist.unwrap_or(MagicResistResult::NoResist)),
             damage,
             threat.max(0.0) as u32,
             resource_cost,
@@ -750,8 +753,8 @@ mod tests {
     #[test]
     fn ticks_count_as_hits() {
         let mut stats = SpellStatistics::new("Rend", 7);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
-        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, None);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, false, None);
+        stats.record_tick(37, 37.0, 10.0 / 7.0, 1.5 / 7.0, false, None);
         assert_eq!(stats.hits(), 2);
         assert!(!stats.is_magic());
         assert_eq!(stats.total_damage(), 74);
@@ -761,7 +764,14 @@ mod tests {
     #[test]
     fn magic_ticks_and_attacks_mark_the_spell_magic() {
         let mut stats = SpellStatistics::new("Shadow Word: Pain", 1);
-        stats.record_tick(100, 100.0, 0.0, 0.0, Some(MagicResistResult::Partial50));
+        stats.record_tick(
+            100,
+            100.0,
+            0.0,
+            0.0,
+            false,
+            Some(MagicResistResult::Partial50),
+        );
         assert!(stats.is_magic());
         assert_eq!(stats.partial_resists_50(), 1);
         let mut merged = SpellStatistics::new("Shadow Word: Pain", 1);

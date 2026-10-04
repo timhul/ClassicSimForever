@@ -153,6 +153,34 @@ fn damage_of_improved_rend() {
     }
 }
 
+/// Rend's ticks crit (its `PERIODIC_CAN_CRIT`) at the melee ability crit chance, for double
+/// damage on top of Improved Rend: 7 * round(21 * 2) and 7 * round(21 * 1.35 * 2).
+#[test]
+fn rend_ticks_crit() {
+    for (improved_rend, damage) in [(0, 294), (3, 399)] {
+        let mut test = test();
+        test.given_a_guaranteed_melee_ability_crit();
+        if improved_rend > 0 {
+            test.given_arms_talent_with_rank("Improved Rend", improved_rend);
+        }
+        test.given_no_previous_damage_dealt();
+        when_rend_is_performed(&mut test);
+        test.when_running_only(EventType::DotTick);
+        assert_eq!(
+            test.damage_dealt(),
+            damage,
+            "{improved_rend} of 3 Improved Rend"
+        );
+        let statistics = test.character().statistics();
+        let (_, rend) = statistics
+            .spells()
+            .find(|(key, _)| key.name == SPELL)
+            .expect("Rend statistics");
+        assert_eq!(rend.total_damage(), damage);
+        assert!(rend.crits() >= 7, "every tick is a crit");
+    }
+}
+
 /// Death Wish's 20 % applies to every tick, on top of Improved Rend: 7 * round(21 * 1.2) and
 /// 7 * round(21 * 1.35 * 1.2).
 #[test]

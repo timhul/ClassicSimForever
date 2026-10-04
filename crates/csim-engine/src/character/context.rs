@@ -1981,6 +1981,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 report.threat,
                 report.resource_cost,
                 report.execution_time,
+                report.crit,
                 report.magic.then_some(report.resist),
             );
         }
@@ -2145,6 +2146,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 damage: Damage {
                     amount: report.damage,
                     resisted: report.resisted,
+                    critical: report.crit,
                     ..Damage::default()
                 },
                 info: self.target_log_info(),
@@ -3173,6 +3175,11 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character
             .roll_mut()
             .get_periodic_resist_result(&roll_ctx, school, pure_dot)
+    }
+
+    fn roll_periodic_crit(&mut self, extra_crit: u32) -> bool {
+        self.roll_melee_ability(IncludedOutcomes::NONE, extra_crit, true)
+            == PhysicalAttackResult::Critical
     }
 
     fn total_threat_mod(&self) -> f64 {

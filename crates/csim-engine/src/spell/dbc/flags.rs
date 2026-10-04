@@ -1,4 +1,4 @@
-//! Bit-flag columns: `SpellMisc.Attributes_0` to `Attributes_3`,
+//! Bit-flag columns: `SpellMisc.Attributes_0` to `Attributes_3` and `Attributes_8`,
 //! `SpellAuraOptions.ProcTypeMask_0` and `SpellMisc.SchoolMask`.
 
 use super::dbc_flags;
@@ -81,6 +81,15 @@ dbc_flags! {
         /// An off-hand weapon meeting the requirement is needed, and the spell's weapon damage
         /// is the off hand's (Mutilate's off-hand strike).
         REQUIRES_OFF_HAND_WEAPON = 0x0100_0000 => "REQUIRES_OFF_HAND_WEAPON",
+    }
+}
+
+dbc_flags! {
+    /// Retail `SpellAttr8`, the `Attributes_8` word of `SpellMisc`. Only the bits the engine
+    /// reads are named.
+    SpellAttr8 {
+        /// The ticks of a periodic damage aura can crit (Rend, Rupture, Garrote).
+        PERIODIC_CAN_CRIT = 0x0000_0200 => "PERIODIC_CAN_CRIT",
     }
 }
 
