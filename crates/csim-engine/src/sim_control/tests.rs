@@ -97,6 +97,7 @@ impl Data {
             });
             raid.character_mut(id).set_tanking(tank && id.0 == 1);
         }
+        raid.set_seed(1);
         raid
     }
 }
