@@ -71,7 +71,15 @@ the iteration. "Edit keybinds" opens an editor: click a spell's key, then press 
 (Esc cancels, Backspace or Delete unbinds, a key in use moves), and build macros. It starts from
 the loaded keybinds, the class's last applied ones (browser storage) or a bundled file. Apply
 loads them as pasted keybinds; a link carries pasted or edited keybinds as `keys=` (their YAML,
-base64url). Without a setup argument the page picks one:
+base64url). "Equipment" opens the gear: a paper doll with the stat summary (melee, ranged,
+spell; the setup's stats before the iteration, without the precombat casts) and the items the
+character can wear in the selected slot (`api/items`), sortable by name, item level, quality,
+type, and DPS and speed in the weapon slots, with a name search and tooltips. Choosing an item,
+or taking one off (right click, ×), loads the setup again with the changed gear (equipping as
+the game does: a two-hander empties the off hand; a new item keeps the slot's enchants that
+fit it); Reset goes back to the setup's own. The setup bar's loads keep the changes until
+another setup is chosen, and a link carries them as `gear=mh-19019.oh-0` (slot code, item id,
+`0` empties the slot). Without a setup argument the page picks one:
 
 `cargo run --release -p csim-live`
 
