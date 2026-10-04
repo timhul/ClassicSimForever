@@ -859,6 +859,29 @@ fn an_unlearned_bound_spell_is_refused() {
 }
 
 #[test]
+fn a_bound_item_use_without_its_item_casts_nothing() {
+    let mut setup = setup("warrior_fury_dw_orc.yaml");
+    let earthstrike = setup.equipment.remove(&EquipmentSlot::Trinket2).unwrap();
+    assert_eq!(earthstrike.item, 21180, "Earthstrike");
+    let settings = settings(&setup);
+    let keybinds = crate::keybinds::parse(
+        "Earthstrike: Shift+E\nCooldowns:\n  hotkey: T\n  cast: [Earthstrike, Bloodrage]\n",
+    )
+    .unwrap();
+    let mut session = Session::new(Arc::clone(data()), setup, settings, 1, keybinds).unwrap();
+    let info = session.info();
+    assert_eq!(info.keybinds.len(), 2, "kept for the editor and the link");
+    assert!(info.keybinds.iter().all(|keybind| keybind.icon.is_some()));
+    assert_eq!(session.bar_spells().len(), 1, "only the macro has a spell");
+
+    let frame = session.cast("Earthstrike", 1.0).unwrap();
+    assert_eq!(frame.decisions.len(), 0);
+    let frame = session.cast("Cooldowns", 2.0).unwrap();
+    let cast: Vec<&str> = frame.decisions.iter().map(|d| d.spell.as_str()).collect();
+    assert_eq!(cast, ["Bloodrage"]);
+}
+
+#[test]
 fn the_shipped_keybinds_bind_their_characters_spells() {
     for (file, keybinds) in [
         ("warrior_fury_dw_orc.yaml", "dw_fury.yaml"),

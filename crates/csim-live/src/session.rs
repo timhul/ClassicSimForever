@@ -28,7 +28,7 @@ use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::{Event, EventKind};
 use csim_engine::faction::PlayerClass;
 use csim_engine::ids::{CharId, SpellId};
-use csim_engine::item::{EquipmentSlot, ItemSpec};
+use csim_engine::item::{EffectTrigger, EquipmentSlot, ItemSpec};
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
 use csim_engine::resource::ResourceType;
@@ -325,7 +325,8 @@ pub struct Session {
     seed: u64,
     /// The keybinds of the file; empty when the rotation plays.
     keybinds: Vec<Keybind>,
-    /// The spells of each keybind, in `keybinds` order.
+    /// The spells of each keybind, in `keybinds` order (none for an item's use when the item
+    /// is not worn).
     bound: Vec<Vec<SpellId>>,
     raid: RaidControl,
     stepper: IterationStepper,
@@ -360,7 +361,7 @@ impl Session {
     ///
     /// # Errors
     /// The setup does not build against the data, the settings are invalid, or a bound spell
-    /// is not one the character has learned.
+    /// is not one the character has learned (an item's use without its item is not bound).
     pub fn new(
         data: Arc<DataBundle>,
         setup: CharacterSetup,
@@ -372,7 +373,7 @@ impl Session {
         let mut raid = setup
             .build_raid(&data, &settings)
             .map_err(|error| error.to_string())?;
-        let bound = bound_spells(&raid, &keybinds)?;
+        let bound = bound_spells(&data, &raid, &keybinds)?;
         let manual = !keybinds.is_empty();
         let pre_pull = initial_pre_pull(manual);
         let stats = StatSummary::of_setup(&data, &setup, &settings)?;
@@ -421,7 +422,8 @@ impl Session {
             .setup
             .build_raid(&self.data, &self.settings)
             .expect("the setup built before");
-        self.bound = bound_spells(&raid, &self.keybinds).expect("they were bound before");
+        self.bound =
+            bound_spells(&self.data, &raid, &self.keybinds).expect("they were bound before");
         self.stepper = start(
             &self.settings,
             seed,
@@ -481,12 +483,10 @@ impl Session {
                     binding: keybind.binding.clone(),
                     spells: keybind.spells.clone(),
                     is_macro: keybind.is_macro,
-                    icon: Icon::of_spell(
-                        character
-                            .spells()
-                            .spell(main_spell(character.spells(), ids))
-                            .record(),
-                    ),
+                    icon: match main_spell(character.spells(), ids) {
+                        Some(id) => Icon::of_spell(character.spells().spell(id).record()),
+                        None => unbound_icon(&self.data, keybind),
+                    },
                 })
                 .collect(),
             bindable: bindable_spells(character.spells()),
@@ -538,6 +538,10 @@ impl Session {
     fn press(&mut self, index: usize, at: f64) {
         let character = self.raid.character_mut(PLAYER);
         let spells = self.bound[index].clone();
+        if spells.is_empty() {
+            // Its item is not worn: nothing to cast.
+            return;
+        }
         if self.keybinds[index].is_macro {
             character.queue_macro(spells, at + INPUT_QUEUE_WINDOW);
         } else {
@@ -1036,7 +1040,7 @@ impl Session {
             self.keybinds
                 .iter()
                 .zip(&self.bound)
-                .map(|(keybind, ids)| (keybind.name.clone(), main_spell(spells, ids)))
+                .filter_map(|(keybind, ids)| Some((keybind.name.clone(), main_spell(spells, ids)?)))
                 .collect()
         } else {
             character
@@ -1192,11 +1196,17 @@ fn start(
 }
 
 /// The spells of each keybind, each a rank group's highest learned rank, else an enabled
-/// spell of that name.
+/// spell of that name. An item's use spell the character does not have (the item is not
+/// worn) is left out, as the game's button of an item not carried casts nothing: a keybind
+/// can have no spell.
 ///
 /// # Errors
-/// A bound spell the character has not learned.
-fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<Vec<SpellId>>, String> {
+/// A bound spell the character has not learned that is no item's use.
+fn bound_spells(
+    data: &DataBundle,
+    raid: &RaidControl,
+    keybinds: &[Keybind],
+) -> Result<Vec<Vec<SpellId>>, String> {
     let spells = raid.character(PLAYER).spells();
     let learned = |name: &str| {
         let ranked = spells.rank_group(name).and_then(|group| {
@@ -1215,17 +1225,39 @@ fn bound_spells(raid: &RaidControl, keybinds: &[Keybind]) -> Result<Vec<Vec<Spel
             keybind
                 .spells
                 .iter()
-                .map(|spell| {
-                    learned(spell).ok_or_else(|| {
-                        format!(
-                            "{} ({}): {spell} is not a learned spell",
-                            keybind.name, keybind.binding
-                        )
-                    })
+                .filter_map(|spell| match learned(spell) {
+                    Some(id) => Some(Ok(id)),
+                    None if is_item_use(data, spell) => None,
+                    None => Some(Err(format!(
+                        "{} ({}): {spell} is not a learned spell",
+                        keybind.name, keybind.binding
+                    ))),
                 })
                 .collect()
         })
         .collect()
+}
+
+/// Whether `name` is the use spell of an item (Earthstrike, Kiss of the Spider).
+fn is_item_use(data: &DataBundle, name: &str) -> bool {
+    let ids = data.spells.ids_by_name(name);
+    !ids.is_empty()
+        && data.equipment.item_ids().into_iter().any(|item| {
+            data.equipment.item(item).is_some_and(|item| {
+                item.effects().iter().any(|effect| {
+                    effect.trigger == EffectTrigger::Use && ids.contains(&effect.spell)
+                })
+            })
+        })
+}
+
+/// The icon of a keybind's spell that the character does not have (an item not worn).
+fn unbound_icon(data: &DataBundle, keybind: &Keybind) -> Option<Icon> {
+    let name = keybind.spells.first()?;
+    data.spells
+        .by_name(name)
+        .into_iter()
+        .find_map(|record| Icon::of_spell(record))
 }
 
 /// The spells a keybind can name, by name: the ones a name reaches (rank groups, as
@@ -1249,12 +1281,12 @@ fn bindable_spells(spells: &CharacterSpells) -> Vec<BindableSpell> {
 }
 
 /// The spell a keybind is shown as: a macro's first entry that triggers the GCD (what it is
-/// for), else its first.
-fn main_spell(spells: &CharacterSpells, ids: &[SpellId]) -> SpellId {
+/// for), else its first; none when it has no spell (an item not worn).
+fn main_spell(spells: &CharacterSpells, ids: &[SpellId]) -> Option<SpellId> {
     ids.iter()
         .copied()
         .find(|&id| spells.spell(id).triggers_gcd())
-        .unwrap_or(ids[0])
+        .or_else(|| ids.first().copied())
 }
 
 /// Why a key press could not cast its spell, as the game's error text says it.
