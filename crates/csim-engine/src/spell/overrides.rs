@@ -171,6 +171,9 @@ pub enum ScriptKind {
     WeaponTypeDamagePercent,
     /// Crit chance `base_points` % with the weapon types the aura requires.
     WeaponTypeCritPercent,
+    /// Goes on a `MOD_HIT_CHANCE` aura effect: the hit chance counts for off-hand attacks only,
+    /// white and yellow (Dual Wield Specialization).
+    OffhandHitChance,
     /// Ability `spell` also strikes with the off-hand weapon (Raging Blows: Whirlwind).
     OffhandCopy,
     /// Against the `params.creature_types`, the spell's weapon damage gains `base_points`
@@ -358,6 +361,7 @@ impl EffectScript {
             | ScriptKind::OffhandRagePercent
             | ScriptKind::WeaponTypeDamagePercent
             | ScriptKind::WeaponTypeCritPercent
+            | ScriptKind::OffhandHitChance
             | ScriptKind::DamagePercentVsPoisoned
             | ScriptKind::ExclusiveArmorReduction
             | ScriptKind::NoOp => Ok(()),
@@ -1122,6 +1126,7 @@ overrides:
             ScriptKind::OffhandRagePercent,
             ScriptKind::WeaponTypeDamagePercent,
             ScriptKind::WeaponTypeCritPercent,
+            ScriptKind::OffhandHitChance,
             ScriptKind::NoOp,
         ] {
             assert!(script(kind, none).validate().is_ok(), "{kind:?}");

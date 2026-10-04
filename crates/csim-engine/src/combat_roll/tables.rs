@@ -132,6 +132,11 @@ impl MeleeWhiteHitTable {
         PhysicalAttackResult::Hit
     }
 
+    /// The miss range, out of 10 000.
+    pub fn miss_range(&self) -> u32 {
+        self.miss_range
+    }
+
     pub fn update_miss_chance(&mut self, miss: u32) {
         self.miss_range = miss;
     }
@@ -217,6 +222,11 @@ impl MeleeSpecialTable {
         }
 
         PhysicalAttackResult::Hit
+    }
+
+    /// The miss range, out of 10 000.
+    pub fn miss_range(&self) -> u32 {
+        self.miss_range
     }
 
     pub fn update_miss_chance(&mut self, miss: u32) {

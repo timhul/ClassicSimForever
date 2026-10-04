@@ -7,9 +7,9 @@
 //! the ruleset. Here the caller passes that information in a [`RollContext`] (or
 //! [`MagicRollContext`]) so the roll module does not depend on the character.
 //!
-//! Attack tables are cached per weapon skill (and facing) because building one is comparatively
-//! expensive; they are dropped between sets of iterations, or when the stats they were built from
-//! change (`update_*` methods).
+//! Attack tables are cached per weapon skill (and facing and hand) because building one is
+//! comparatively expensive; they are dropped between sets of iterations, or when the stats they
+//! were built from change (`update_*` methods).
 
 pub mod tables;
 
@@ -18,6 +18,7 @@ use std::collections::HashMap;
 use crate::magic_school::MagicSchool;
 use crate::mechanics::Mechanics;
 use crate::rng::Random;
+use crate::spell::Hand;
 
 pub use tables::{
     IncludedOutcomes, MagicAttackTable, MeleeSpecialTable, MeleeWhiteHitTable, ROLL_RANGE,
@@ -127,6 +128,9 @@ pub struct RollContext {
     pub clvl: u32,
     /// Melee hit chance from gear/talents/buffs, as a range out of 10 000.
     pub melee_hit_chance: u32,
+    /// Hit chance of the off-hand attacks only, on top of `melee_hit_chance` (Dual Wield
+    /// Specialization), as a range out of 10 000.
+    pub offhand_hit_chance: u32,
     /// Whether the character is dual wielding (affects white miss chance).
     pub dual_wielding: bool,
     /// Whether the character attacks from behind (no parries).
@@ -135,6 +139,16 @@ pub struct RollContext {
     pub glancing_blows: bool,
     /// Dodge and parry chance the target loses (Weapon Expertise), as a range out of 10 000.
     pub expertise: u32,
+}
+
+impl RollContext {
+    /// The hit chance of `hand`'s attacks, as a range out of 10 000.
+    pub fn hit_chance(&self, hand: Hand) -> u32 {
+        match hand {
+            Hand::Mainhand => self.melee_hit_chance,
+            Hand::Offhand => self.melee_hit_chance + self.offhand_hit_chance,
+        }
+    }
 }
 
 /// Character state needed to build a magic attack table for one school.
@@ -160,12 +174,12 @@ pub enum SpellResistKind {
 /// spell hit or resistance builds a new table instead of updating the old one.
 type MagicTableKey = (MagicSchool, MagicRollContext);
 
-/// Cache key for melee tables: weapon skill, whether the attack comes from behind and the
-/// expertise.
-type MeleeTableKey = (u32, bool, u32);
+/// Cache key for melee tables: weapon skill, whether the attack comes from behind, the
+/// expertise and the hand (off-hand attacks can have more hit).
+type MeleeTableKey = (u32, bool, u32, Hand);
 
-fn melee_key(ctx: &RollContext, wpn_skill: u32) -> MeleeTableKey {
-    (wpn_skill, ctx.attacking_from_behind, ctx.expertise)
+fn melee_key(ctx: &RollContext, hand: Hand, wpn_skill: u32) -> MeleeTableKey {
+    (wpn_skill, ctx.attacking_from_behind, ctx.expertise, hand)
 }
 
 /// The expertise of `ctx` as a fraction.
@@ -225,34 +239,37 @@ impl CombatRoll {
         &mut self.random
     }
 
-    /// Rolls a white (auto attack) melee hit. `crit_chance` is a range out of 10 000.
+    /// Rolls a white (auto attack) melee hit of `hand`. `crit_chance` is a range out of 10 000.
     pub fn get_melee_hit_result(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
         crit_chance: u32,
     ) -> PhysicalAttackResult {
         let roll = self.random.get_roll();
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
-        self.ensure_melee_white_table(ctx, wpn_skill);
+        self.ensure_melee_white_table(ctx, hand, wpn_skill);
 
-        let table = &self.melee_white_tables[&melee_key(ctx, wpn_skill)];
+        let table = &self.melee_white_tables[&melee_key(ctx, hand, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, IncludedOutcomes::ALL)
     }
 
-    /// Rolls a yellow (special ability) melee hit. `crit_chance` is a range out of 10 000.
+    /// Rolls a yellow (special ability) melee hit of `hand`. `crit_chance` is a range out of
+    /// 10 000.
     pub fn get_melee_ability_result(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
         crit_chance: u32,
         included: IncludedOutcomes,
     ) -> PhysicalAttackResult {
         let roll = self.random.get_roll();
         let crit = self.get_suppressed_crit(ctx.clvl, crit_chance);
-        self.ensure_melee_special_table(ctx, wpn_skill);
+        self.ensure_melee_special_table(ctx, hand, wpn_skill);
 
-        let table = &self.melee_special_tables[&melee_key(ctx, wpn_skill)];
+        let table = &self.melee_special_tables[&melee_key(ctx, hand, wpn_skill)];
         table.get_outcome(&mut self.random, roll, crit, included)
     }
 
@@ -319,24 +336,28 @@ impl CombatRoll {
         }
     }
 
-    /// Returns (building if needed) the white hit table for `wpn_skill` and the facing in `ctx`.
+    /// Returns (building if needed) the white hit table of `hand` for `wpn_skill` and the facing
+    /// in `ctx`.
     pub fn get_melee_white_table(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
     ) -> &MeleeWhiteHitTable {
-        self.ensure_melee_white_table(ctx, wpn_skill);
-        &self.melee_white_tables[&melee_key(ctx, wpn_skill)]
+        self.ensure_melee_white_table(ctx, hand, wpn_skill);
+        &self.melee_white_tables[&melee_key(ctx, hand, wpn_skill)]
     }
 
-    /// Returns (building if needed) the special hit table for `wpn_skill` and the facing in `ctx`.
+    /// Returns (building if needed) the special hit table of `hand` for `wpn_skill` and the
+    /// facing in `ctx`.
     pub fn get_melee_special_table(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
     ) -> &MeleeSpecialTable {
-        self.ensure_melee_special_table(ctx, wpn_skill);
-        &self.melee_special_tables[&melee_key(ctx, wpn_skill)]
+        self.ensure_melee_special_table(ctx, hand, wpn_skill);
+        &self.melee_special_tables[&melee_key(ctx, hand, wpn_skill)]
     }
 
     /// Returns (building if needed) the magic attack table for `school` and `ctx`.
@@ -349,41 +370,43 @@ impl CombatRoll {
         ensure_magic_table(&mut self.magic_attack_tables, &mechanics, ctx, school)
     }
 
-    /// The white hit table for `wpn_skill` and the facing in `ctx`, for tests that force
+    /// The white hit table of `hand` for `wpn_skill` and the facing in `ctx`, for tests that force
     /// outcomes by reshaping it.
     #[cfg(test)]
     pub(crate) fn melee_white_table_mut(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
     ) -> &mut MeleeWhiteHitTable {
-        self.ensure_melee_white_table(ctx, wpn_skill);
+        self.ensure_melee_white_table(ctx, hand, wpn_skill);
         self.melee_white_tables
-            .get_mut(&melee_key(ctx, wpn_skill))
+            .get_mut(&melee_key(ctx, hand, wpn_skill))
             .expect("ensured above")
     }
 
-    /// The special hit table for `wpn_skill` and the facing in `ctx`, for tests that force
+    /// The special hit table of `hand` for `wpn_skill` and the facing in `ctx`, for tests that force
     /// outcomes by reshaping it.
     #[cfg(test)]
     pub(crate) fn melee_special_table_mut(
         &mut self,
         ctx: &RollContext,
+        hand: Hand,
         wpn_skill: u32,
     ) -> &mut MeleeSpecialTable {
-        self.ensure_melee_special_table(ctx, wpn_skill);
+        self.ensure_melee_special_table(ctx, hand, wpn_skill);
         self.melee_special_tables
-            .get_mut(&melee_key(ctx, wpn_skill))
+            .get_mut(&melee_key(ctx, hand, wpn_skill))
             .expect("ensured above")
     }
 
-    fn ensure_melee_white_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = melee_key(ctx, wpn_skill);
+    fn ensure_melee_white_table(&mut self, ctx: &RollContext, hand: Hand, wpn_skill: u32) {
+        let key = melee_key(ctx, hand, wpn_skill);
         if self.melee_white_tables.contains_key(&key) {
             return;
         }
 
-        let miss = self.white_miss_range(ctx, wpn_skill);
+        let miss = self.white_miss_range(ctx, hand, wpn_skill);
         let glancing = if ctx.glancing_blows {
             self.mechanics.glancing_blow_chance(ctx.clvl)
         } else {
@@ -402,13 +425,13 @@ impl CombatRoll {
         self.melee_white_tables.insert(key, table);
     }
 
-    fn ensure_melee_special_table(&mut self, ctx: &RollContext, wpn_skill: u32) {
-        let key = melee_key(ctx, wpn_skill);
+    fn ensure_melee_special_table(&mut self, ctx: &RollContext, hand: Hand, wpn_skill: u32) {
+        let key = melee_key(ctx, hand, wpn_skill);
         if self.melee_special_tables.contains_key(&key) {
             return;
         }
 
-        let miss = self.yellow_miss_range(ctx, wpn_skill);
+        let miss = self.yellow_miss_range(ctx, hand, wpn_skill);
         let parry = self.parry_chance(ctx, wpn_skill);
 
         let table = MeleeSpecialTable::new(
@@ -457,13 +480,13 @@ impl CombatRoll {
         self.mechanics.yellow_miss_chance(wpn_skill)
     }
 
-    fn white_miss_range(&self, ctx: &RollContext, wpn_skill: u32) -> u32 {
+    fn white_miss_range(&self, ctx: &RollContext, hand: Hand, wpn_skill: u32) -> u32 {
         chance_to_range(self.get_white_miss_chance(ctx, wpn_skill))
-            .saturating_sub(ctx.melee_hit_chance)
+            .saturating_sub(ctx.hit_chance(hand))
     }
 
-    fn yellow_miss_range(&self, ctx: &RollContext, wpn_skill: u32) -> u32 {
-        chance_to_range(self.get_yellow_miss_chance(wpn_skill)).saturating_sub(ctx.melee_hit_chance)
+    fn yellow_miss_range(&self, ctx: &RollContext, hand: Hand, wpn_skill: u32) -> u32 {
+        chance_to_range(self.get_yellow_miss_chance(wpn_skill)).saturating_sub(ctx.hit_chance(hand))
     }
 
     /// Rolls the glancing blow damage multiplier for `wpn_skill`.
@@ -481,27 +504,28 @@ impl CombatRoll {
         f64::from(self.glance_roll.get_roll()) / f64::from(ROLL_RANGE)
     }
 
-    /// Recomputes the miss range of every cached special table (after hit chance changed).
+    /// Recomputes the miss range of every cached special table (after hit chance changed), each
+    /// with its hand's hit chance.
     pub fn update_melee_yellow_miss_chance(&mut self, ctx: &RollContext) {
         let mechanics = self.mechanics;
-        for table in self.melee_special_tables.values_mut() {
+        for (&(_, _, _, hand), table) in &mut self.melee_special_tables {
             let miss = chance_to_range(mechanics.yellow_miss_chance(table.wpn_skill))
-                .saturating_sub(ctx.melee_hit_chance);
+                .saturating_sub(ctx.hit_chance(hand));
             table.update_miss_chance(miss);
         }
     }
 
     /// Recomputes the miss range of every cached white table (after hit chance or dual-wield
-    /// state changed).
+    /// state changed), each with its hand's hit chance.
     pub fn update_melee_white_miss_chance(&mut self, ctx: &RollContext) {
         let mechanics = self.mechanics;
-        for table in self.melee_white_tables.values_mut() {
+        for (&(_, _, _, hand), table) in &mut self.melee_white_tables {
             let chance = if ctx.dual_wielding {
                 mechanics.dual_wield_white_miss_chance(table.wpn_skill)
             } else {
                 mechanics.two_hand_white_miss_chance(table.wpn_skill)
             };
-            table.update_miss_chance(chance_to_range(chance).saturating_sub(ctx.melee_hit_chance));
+            table.update_miss_chance(chance_to_range(chance).saturating_sub(ctx.hit_chance(hand)));
         }
     }
 
@@ -545,6 +569,7 @@ mod tests {
         RollContext {
             clvl: 60,
             melee_hit_chance: 0,
+            offhand_hit_chance: 0,
             dual_wielding: true,
             attacking_from_behind: true,
             glancing_blows: true,
@@ -565,7 +590,9 @@ mod tests {
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
         let all = IncludedOutcomes::ALL;
 
-        let table = roll.get_melee_white_table(&ctx, 300).clone();
+        let table = roll
+            .get_melee_white_table(&ctx, Hand::Mainhand, 300)
+            .clone();
 
         // 8 % single-weapon miss plus the flat 19 % dual-wield penalty = 27 %.
         let base_miss_dw = 2699;
@@ -621,7 +648,9 @@ mod tests {
 
         // With 300 skill vs 315 defense all of the hit counts (no hit suppression on
         // Forever): 27% - 3%.
-        let white = roll.get_melee_white_table(&ctx, 300).clone();
+        let white = roll
+            .get_melee_white_table(&ctx, Hand::Mainhand, 300)
+            .clone();
         assert_eq!(
             white.get_outcome(&mut random, 2399, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
@@ -632,7 +661,9 @@ mod tests {
         );
 
         // Yellow: 8% - 3% = 5%.
-        let special = roll.get_melee_special_table(&ctx, 300).clone();
+        let special = roll
+            .get_melee_special_table(&ctx, Hand::Mainhand, 300)
+            .clone();
         assert_eq!(
             special.get_outcome(&mut random, 499, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
@@ -648,10 +679,70 @@ mod tests {
             ..ctx
         };
         roll.drop_tables();
-        let white = roll.get_melee_white_table(&capped, 300).clone();
+        let white = roll
+            .get_melee_white_table(&capped, Hand::Mainhand, 300)
+            .clone();
         assert_eq!(
             white.get_outcome(&mut random, 0, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Dodge
+        );
+    }
+
+    #[test]
+    fn offhand_hit_chance_only_reduces_the_offhand_miss_range() {
+        let ctx = RollContext {
+            melee_hit_chance: 300,
+            offhand_hit_chance: 1000,
+            ..dual_wield_ctx()
+        };
+        let mut roll = CombatRoll::from_seed(63, 1);
+        let miss = |table: &MeleeWhiteHitTable| table.miss_range();
+
+        // White: 27% - 3% for the main hand, 27% - 3% - 10% for the off hand.
+        assert_eq!(
+            miss(roll.get_melee_white_table(&ctx, Hand::Mainhand, 300)),
+            2400
+        );
+        assert_eq!(
+            miss(roll.get_melee_white_table(&ctx, Hand::Offhand, 300)),
+            1400
+        );
+        // Yellow: 8% - 3%, and nothing left for the off hand.
+        assert_eq!(
+            roll.get_melee_special_table(&ctx, Hand::Mainhand, 300)
+                .miss_range(),
+            500
+        );
+        assert_eq!(
+            roll.get_melee_special_table(&ctx, Hand::Offhand, 300)
+                .miss_range(),
+            0
+        );
+
+        // An update keeps each table's hand.
+        let less = RollContext {
+            offhand_hit_chance: 200,
+            ..ctx
+        };
+        roll.update_melee_white_miss_chance(&less);
+        roll.update_melee_yellow_miss_chance(&less);
+        assert_eq!(
+            miss(roll.get_melee_white_table(&less, Hand::Mainhand, 300)),
+            2400
+        );
+        assert_eq!(
+            miss(roll.get_melee_white_table(&less, Hand::Offhand, 300)),
+            2200
+        );
+        assert_eq!(
+            roll.get_melee_special_table(&less, Hand::Mainhand, 300)
+                .miss_range(),
+            500
+        );
+        assert_eq!(
+            roll.get_melee_special_table(&less, Hand::Offhand, 300)
+                .miss_range(),
+            300
         );
     }
 
@@ -666,7 +757,9 @@ mod tests {
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
         let all = IncludedOutcomes::ALL;
 
-        let table = roll.get_melee_white_table(&ctx, 300).clone();
+        let table = roll
+            .get_melee_white_table(&ctx, Hand::Mainhand, 300)
+            .clone();
         // 8% miss, 6.5% dodge, 14% parry, 40% glancing, 5% block.
         assert_eq!(
             table.get_outcome(&mut random, 799, 0, all),
@@ -719,7 +812,9 @@ mod tests {
         let mut roll = CombatRoll::from_seed(63, 1);
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
 
-        let table = roll.get_melee_white_table(&ctx, 300).clone();
+        let table = roll
+            .get_melee_white_table(&ctx, Hand::Mainhand, 300)
+            .clone();
         assert_eq!(
             table.get_outcome(&mut random, 2700 + 650, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Hit
@@ -731,14 +826,19 @@ mod tests {
         let mut ctx = dual_wield_ctx();
         let mut roll = CombatRoll::from_seed(63, 1);
 
-        let before = roll.get_melee_white_table(&ctx, 300).clone();
+        let before = roll
+            .get_melee_white_table(&ctx, Hand::Mainhand, 300)
+            .clone();
         assert_eq!(roll.melee_white_tables.len(), 1);
-        assert_eq!(roll.get_melee_white_table(&ctx, 300), &before);
+        assert_eq!(
+            roll.get_melee_white_table(&ctx, Hand::Mainhand, 300),
+            &before
+        );
 
         ctx.dual_wielding = false;
         roll.update_melee_white_miss_chance(&ctx);
         let mut random = Random::from_seed(0, ROLL_RANGE, 1);
-        let updated = roll.get_melee_white_table(&ctx, 300);
+        let updated = roll.get_melee_white_table(&ctx, Hand::Mainhand, 300);
         assert_eq!(
             updated.get_outcome(&mut random, 799, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Miss
@@ -749,9 +849,9 @@ mod tests {
         );
 
         ctx.melee_hit_chance = 900;
-        roll.get_melee_special_table(&ctx, 300);
+        roll.get_melee_special_table(&ctx, Hand::Mainhand, 300);
         roll.update_melee_yellow_miss_chance(&ctx);
-        let special = roll.get_melee_special_table(&ctx, 300);
+        let special = roll.get_melee_special_table(&ctx, Hand::Mainhand, 300);
         assert_eq!(
             special.get_outcome(&mut random, 0, 0, IncludedOutcomes::ALL),
             PhysicalAttackResult::Dodge
@@ -766,7 +866,7 @@ mod tests {
     fn set_target_level_drops_tables_and_updates_mechanics() {
         let ctx = dual_wield_ctx();
         let mut roll = CombatRoll::from_seed(63, 1);
-        roll.get_melee_white_table(&ctx, 300);
+        roll.get_melee_white_table(&ctx, Hand::Mainhand, 300);
 
         roll.set_target_level(60);
         assert!(roll.melee_white_tables.is_empty());
@@ -808,7 +908,7 @@ mod tests {
         let n = 100_000;
         for _ in 0..n {
             *counts
-                .entry(roll.get_melee_hit_result(&ctx, 300, 800))
+                .entry(roll.get_melee_hit_result(&ctx, Hand::Mainhand, 300, 800))
                 .or_default() += 1;
         }
 
@@ -833,13 +933,13 @@ mod tests {
             miss: false,
         };
         for _ in 0..10_000 {
-            let result = roll.get_melee_ability_result(&ctx, 300, 0, no_avoidance);
+            let result = roll.get_melee_ability_result(&ctx, Hand::Mainhand, 300, 0, no_avoidance);
             assert_eq!(result, PhysicalAttackResult::Hit);
         }
 
         roll_with(roll.random_mut(), 5);
         let saw_miss = (0..10_000).any(|_| {
-            roll.get_melee_ability_result(&ctx, 300, 0, IncludedOutcomes::ALL)
+            roll.get_melee_ability_result(&ctx, Hand::Mainhand, 300, 0, IncludedOutcomes::ALL)
                 == PhysicalAttackResult::Miss
         });
         assert!(saw_miss);
@@ -1053,8 +1153,8 @@ mod tests {
         let mut b = CombatRoll::from_seed(63, 99);
         for _ in 0..1000 {
             assert_eq!(
-                a.get_melee_hit_result(&ctx, 300, 500),
-                b.get_melee_hit_result(&ctx, 300, 500)
+                a.get_melee_hit_result(&ctx, Hand::Mainhand, 300, 500),
+                b.get_melee_hit_result(&ctx, Hand::Mainhand, 300, 500)
             );
             assert_eq!(
                 a.get_glancing_blow_dmg_penalty(60, 300),

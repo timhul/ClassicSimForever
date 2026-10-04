@@ -699,6 +699,7 @@ impl Character {
         RollContext {
             clvl: self.clvl,
             melee_hit_chance: self.stats.get_melee_hit_chance(&self.stat_context(target)),
+            offhand_hit_chance: self.stats.get_offhand_melee_hit_chance(),
             dual_wielding: self.is_dual_wielding(),
             attacking_from_behind: self.is_attacking_from_behind(),
             glancing_blows: self.sim.ruleset.glancing_blows(),

@@ -18,6 +18,7 @@ mod combat_log;
 mod death_wish;
 mod deep_wounds;
 mod defiance;
+mod dual_wield_specialization;
 mod eureka;
 mod execute;
 mod flurry;

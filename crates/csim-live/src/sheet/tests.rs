@@ -70,8 +70,9 @@ fn the_gear_worn_and_its_stats() {
     let melee = &info.stats.melee;
     assert_eq!((melee.strength, melee.agility), (486, 238), "{melee:?}");
     assert_eq!(melee.attack_power, 1523);
-    // 10 % from gear and 10 % from Dual Wield Specialization; Cruelty's 5 % crit.
-    assert_eq!((melee.hit, melee.crit), (20.0, 35.1));
+    // 10 % from gear (Dual Wield Specialization's 10 % is the off hand's only); Cruelty's 5 %
+    // crit.
+    assert_eq!((melee.hit, melee.crit), (10.0, 35.1));
     assert!(melee.offhand_skill.is_some());
     assert!(info.stats.ranged.skill.is_some());
 }

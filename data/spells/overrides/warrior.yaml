@@ -103,6 +103,9 @@ overrides:
   - id: 12700
     note: Weaponmaster's hidden crit aura; the crit only counts for attacks with axes and polearms
     effects: [{ index: 0, script: WEAPON_TYPE_CRIT_PERCENT }]
+  - id: 23584
+    note: Dual Wield Specialization; E1's hit chance (2-10 %) only counts for off-hand attacks ("chance to hit with off-hand attacks")
+    effects: [{ index: 1, script: OFFHAND_HIT_CHANCE }]
   - id: 402927
     note: Victory Rush; E2 is 15 % of attack power as damage, E1 (the heal) is a plain effect
     effects: [{ index: 2, script: ATTACK_POWER_PERCENT_DAMAGE }]

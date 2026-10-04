@@ -179,6 +179,9 @@ pub struct CharacterStats {
     /// Dodge and parry chance the target loses against the character's attacks (Weapon
     /// Expertise), out of 10 000.
     expertise: u32,
+    /// Hit chance of the off-hand attacks only, on top of the melee hit (Dual Wield
+    /// Specialization), out of 10 000.
+    offhand_melee_hit: u32,
     damage_bonuses_per_weapon_type: [i32; WeaponType::COUNT],
     /// Percent of the target's armor ignored by attacks with each weapon type (Weaponmaster's
     /// maces and staves).
@@ -513,6 +516,20 @@ impl CharacterStats {
 
     pub fn decrease_melee_hit(&mut self, value: u32) {
         self.base_stats.decrease_melee_hit(value);
+    }
+
+    /// Hit chance of the off-hand attacks only, on top of [`Self::get_melee_hit_chance`] (Dual
+    /// Wield Specialization), out of 10 000.
+    pub fn get_offhand_melee_hit_chance(&self) -> u32 {
+        self.offhand_melee_hit
+    }
+
+    pub fn increase_offhand_melee_hit(&mut self, value: u32) {
+        self.offhand_melee_hit += value;
+    }
+
+    pub fn decrease_offhand_melee_hit(&mut self, value: u32) {
+        self.offhand_melee_hit = sub_checked(self.offhand_melee_hit, value, "off-hand melee hit");
     }
 
     /// Crit that is subject to per-level suppression (gear, buffs).

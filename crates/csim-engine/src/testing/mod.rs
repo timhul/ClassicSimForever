@@ -882,7 +882,7 @@ impl SpellTest {
         self.reshape_melee_tables_for(&skills, outcome, white);
     }
 
-    /// [`Self::reshape_melee_tables`] for the tables of weapon skills `skills`.
+    /// [`Self::reshape_melee_tables`] for the tables of weapon skills `skills` (both hands').
     fn reshape_melee_tables_for(&mut self, skills: &[u32], outcome: Outcome, white: bool) {
         let view = self.view();
         let character = self.character_mut();
@@ -892,16 +892,23 @@ impl SpellTest {
         } else {
             0
         };
-        for &skill in skills {
+        let tables = skills
+            .iter()
+            .flat_map(|&skill| [Hand::Mainhand, Hand::Offhand].map(|hand| (hand, skill)));
+        for (hand, skill) in tables {
             if white {
-                let table = character.roll_mut().melee_white_table_mut(&ctx, skill);
+                let table = character
+                    .roll_mut()
+                    .melee_white_table_mut(&ctx, hand, skill);
                 table.update_miss_chance(miss);
                 table.update_dodge_chance(outcome.chance(Outcome::Dodge));
                 table.update_parry_chance(outcome.chance(Outcome::Parry));
                 table.update_glancing_chance(outcome.chance(Outcome::Glancing));
                 table.update_block_chance(outcome.chance(Outcome::Block));
             } else {
-                let table = character.roll_mut().melee_special_table_mut(&ctx, skill);
+                let table = character
+                    .roll_mut()
+                    .melee_special_table_mut(&ctx, hand, skill);
                 table.update_miss_chance(miss);
                 table.update_dodge_chance(outcome.chance(Outcome::Dodge));
                 table.update_parry_chance(outcome.chance(Outcome::Parry));
@@ -910,8 +917,8 @@ impl SpellTest {
         }
     }
 
-    /// Checks that every roll of the white or special table of `skill` gives `outcome`.
-    /// Port of the `assert_melee_*_table_can_only_*` family.
+    /// Checks that every roll of the white or special tables of `skill` (both hands') gives
+    /// `outcome`. Port of the `assert_melee_*_table_can_only_*` family.
     fn assert_melee_table_can_only(&mut self, skill: u32, white: bool, outcome: Outcome) {
         let label = self.label.clone();
         let view = self.view();
@@ -922,28 +929,30 @@ impl SpellTest {
         let roll = character.roll_mut();
         let crit = roll.get_suppressed_crit(clvl, crit);
         let mut random = Random::from_seed(0, ROLL_RANGE, SEED);
-        for value in 0..ROLL_RANGE {
-            let result = if white {
-                roll.melee_white_table_mut(&ctx, skill).get_outcome(
-                    &mut random,
-                    value,
-                    crit,
-                    IncludedOutcomes::ALL,
-                )
-            } else {
-                roll.melee_special_table_mut(&ctx, skill).get_outcome(
-                    &mut random,
-                    value,
-                    crit,
-                    IncludedOutcomes::ALL,
-                )
-            };
-            assert_eq!(
-                result,
-                outcome.result(),
-                "{label}: roll {value} of the {} table for skill {skill}",
-                if white { "white" } else { "special" }
-            );
+        for hand in [Hand::Mainhand, Hand::Offhand] {
+            for value in 0..ROLL_RANGE {
+                let result = if white {
+                    roll.melee_white_table_mut(&ctx, hand, skill).get_outcome(
+                        &mut random,
+                        value,
+                        crit,
+                        IncludedOutcomes::ALL,
+                    )
+                } else {
+                    roll.melee_special_table_mut(&ctx, hand, skill).get_outcome(
+                        &mut random,
+                        value,
+                        crit,
+                        IncludedOutcomes::ALL,
+                    )
+                };
+                assert_eq!(
+                    result,
+                    outcome.result(),
+                    "{label}: roll {value} of the {hand:?} {} table for skill {skill}",
+                    if white { "white" } else { "special" }
+                );
+            }
         }
     }
 

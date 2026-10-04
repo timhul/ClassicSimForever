@@ -11,6 +11,7 @@ use crate::combat_roll::{
 };
 use crate::mechanics::Mechanics;
 use crate::rng::Random;
+use crate::spell::Hand;
 
 /// Tolerance for the closed-form formulas (fractions).
 const EPS: f64 = 1e-6;
@@ -28,6 +29,7 @@ fn ctx(clvl: u32, hit_percent: f64, dual_wielding: bool, from_behind: bool) -> R
     RollContext {
         clvl,
         melee_hit_chance: chance_to_range(hit_percent / 100.0),
+        offhand_hit_chance: 0,
         dual_wielding,
         attacking_from_behind: from_behind,
         glancing_blows: true,
@@ -63,7 +65,9 @@ fn white_distribution(
     spellbook_crit_percent: f64,
 ) -> Distribution {
     let mut roll = CombatRoll::new(target_level);
-    let table = roll.get_melee_white_table(ctx, wpn_skill).clone();
+    let table = roll
+        .get_melee_white_table(ctx, Hand::Mainhand, wpn_skill)
+        .clone();
     let crit = roll.get_suppressed_crit(ctx.clvl, chance_to_range(spellbook_crit_percent / 100.0));
     let mut random = Random::new(0, ROLL_RANGE);
     let mut d = Distribution::default();

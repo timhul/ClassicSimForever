@@ -405,6 +405,7 @@ const WEAPON_EXPERTISE: u32 = 105726;
 fn avoided_rolls(f: &mut Fixture) -> (u32, u32) {
     use crate::combat_roll::{IncludedOutcomes, ROLL_RANGE};
     use crate::rng::Random;
+    use crate::spell::Hand;
     let view = f.target.stat_view();
     let ctx = f.character.roll_context(&view);
     let skill = stat(f, |s, stat_ctx| s.get_mh_wpn_skill(stat_ctx));
@@ -416,8 +417,12 @@ fn avoided_rolls(f: &mut Fixture) -> (u32, u32) {
     };
     let mut random = Random::new(0, ROLL_RANGE);
     let roll = f.character.roll_mut();
-    let special = roll.get_melee_special_table(&ctx, skill).clone();
-    let white = roll.get_melee_white_table(&ctx, skill).clone();
+    let special = roll
+        .get_melee_special_table(&ctx, Hand::Mainhand, skill)
+        .clone();
+    let white = roll
+        .get_melee_white_table(&ctx, Hand::Mainhand, skill)
+        .clone();
     let count = |outcome: &mut dyn FnMut(u32) -> PhysicalAttackResult| {
         (0..ROLL_RANGE).filter(|&r| avoided(outcome(r))).count() as u32
     };

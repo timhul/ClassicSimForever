@@ -2654,9 +2654,13 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         } else {
             0
         };
-        self.character
-            .roll_mut()
-            .get_melee_ability_result(&roll_ctx, skill, crit, included)
+        self.character.roll_mut().get_melee_ability_result(
+            &roll_ctx,
+            Hand::Mainhand,
+            skill,
+            crit,
+            included,
+        )
     }
 
     fn roll_spell(
@@ -3221,9 +3225,13 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         } else {
             0
         };
-        self.character
-            .roll_mut()
-            .get_melee_ability_result(&roll_ctx, skill, crit, included)
+        self.character.roll_mut().get_melee_ability_result(
+            &roll_ctx,
+            Hand::Offhand,
+            skill,
+            crit,
+            included,
+        )
     }
 
     fn random_oh_weapon_dmg(&mut self, normalized: bool) -> f64 {
@@ -3299,7 +3307,7 @@ impl<S: SharedBuffs> AutoAttackHost for CharacterContext<'_, S> {
         };
         self.character
             .roll_mut()
-            .get_melee_hit_result(&roll_ctx, skill, crit)
+            .get_melee_hit_result(&roll_ctx, hand, skill, crit)
     }
 
     fn glancing_blow_dmg_penalty(&mut self, weapon_skill: u32) -> f64 {

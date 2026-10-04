@@ -1151,6 +1151,13 @@ impl Effect {
                 |s, v| s.increase_spell_crit(v),
                 |s, v| s.decrease_spell_crit(v),
             ),
+            // Hit for the off-hand attacks only (Dual Wield Specialization).
+            A::ModHitChance if self.script_kind() == Some(ScriptKind::OffhandHitChance) => adjust(
+                host.stats_mut(),
+                signed_of(hundredths, apply),
+                |s, v| s.increase_offhand_melee_hit(v),
+                |s, v| s.decrease_offhand_melee_hit(v),
+            ),
             A::ModHitChance => adjust(
                 host.stats_mut(),
                 signed_of(hundredths, apply),

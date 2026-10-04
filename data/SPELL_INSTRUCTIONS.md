@@ -485,6 +485,7 @@ overrides:
 | `ADD_COMBO_POINTS` | grants `value` combo points (Overpower's dodge marker); at most the class's `max_combo_points`, lapsing `combo_point_duration` s after the last gain (Warrior: 1 point, 6 s, so another dodge or Bloodthrill proc only refreshes it) | `value` | Overpower `on_event` |
 | `RESET_COOLDOWN` | when the spell is cast, finishes the cooldowns of `spell`, or of every spell of its family in `family_mask` (as an event reaction: no runtime yet) | `spell` or `family_mask` | Preparation 14185 (every Rogue spell) |
 | `WEAPON_TYPE_CRIT_PERCENT` | `base_points` % crit for attacks with the weapon types the spell's `SpellEquippedItems` accepts (all of them without one), per hand | — | Weaponmaster's hidden crit aura 12700 |
+| `OFFHAND_HIT_CHANCE` | on a `MOD_HIT_CHANCE` aura effect: the hit chance counts for off-hand attacks only (the off-hand auto attack and off-hand strikes), not for the main hand's | — | Dual Wield Specialization 23584 E1 |
 | `WEAPON_TYPE_DAMAGE_PERCENT` | `base_points` % damage with the aura's required weapon types (no runtime yet) | — | — |
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | Raging Blows |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | Unbridled Wrath payload 12964 |
