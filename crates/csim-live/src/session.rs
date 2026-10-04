@@ -45,7 +45,7 @@ use csim_engine::statistics::report::{
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
-use crate::sheet::{StatSummary, WornItem, worn_gear};
+use crate::sheet::{ItemEntry, StatSummary, WornItem, usable_items, worn_gear};
 
 /// The watched character: a setup builds a raid of one.
 pub(crate) const PLAYER: CharId = CharId(0);
@@ -493,6 +493,11 @@ impl Session {
             equipment: worn_gear(&self.data, character),
             stats: self.stats.clone(),
         }
+    }
+
+    /// The items the character can wear, sorted by id ([`usable_items`]).
+    pub fn items(&self) -> Vec<ItemEntry> {
+        usable_items(&self.data, self.raid.character(PLAYER), self.settings.phase)
     }
 
     /// Whether the character is played from the keyboard.

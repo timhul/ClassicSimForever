@@ -13,6 +13,8 @@
 //!
 //! - `GET /api/info`: the iteration's [`Info`](crate::session::Info), with the `source` of
 //!   its setup and keybinds ([`Loaded`](crate::app::Loaded)).
+//! - `GET /api/items`: the items the character can wear
+//!   ([`ItemEntry`](crate::sheet::ItemEntry)s, by id).
 //! - `POST /api/advance {"to": t}`: runs the iteration up to sim time `t`; a frame.
 //! - `POST /api/step {"kind": "event" | "cast"}`: runs one event, or up to the next cast; a
 //!   frame.
@@ -117,8 +119,9 @@ pub fn icon_dir(dir: &Path) -> impl Fn(u32) -> Option<Vec<u8>> + use<> {
 }
 
 /// The endpoints that need a loaded session.
-const SESSION_PATHS: [&str; 5] = [
+const SESSION_PATHS: [&str; 6] = [
     "/api/info",
+    "/api/items",
     "/api/advance",
     "/api/step",
     "/api/restart",
@@ -154,6 +157,10 @@ pub fn route(
         },
         ("GET", "/api/info") => match app.loaded() {
             Some(loaded) => Reply::json(&loaded),
+            None => no_session(),
+        },
+        ("GET", "/api/items") => match app.session() {
+            Some(session) => Reply::json(&session.items()),
             None => no_session(),
         },
         ("POST", "/api/advance" | "/api/step" | "/api/restart" | "/api/cast") => {

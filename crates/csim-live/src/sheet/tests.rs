@@ -84,3 +84,38 @@ fn a_shield_has_no_weapon_skill() {
     assert_eq!(info.equipment[0].slot, EquipmentSlot::Offhand);
     assert_eq!(info.stats.melee.offhand_skill, None);
 }
+
+#[test]
+fn the_items_a_class_can_wear_in_which_slots() {
+    use EquipmentSlot::{Mainhand, Offhand};
+    use csim_engine::item::ItemType;
+
+    let warrior = crate::session::tests::session_of("warrior_fury_dw_orc.yaml", 1).items();
+    let rogue = crate::session::tests::session_of("rogue_combat_swords_human.yaml", 1).items();
+    let find = |items: &[super::ItemEntry], id| items.iter().find(|item| item.id == id).cloned();
+    assert!(
+        warrior.windows(2).all(|pair| pair[0].id < pair[1].id),
+        "by id"
+    );
+
+    // A one-hander a warrior dual wields; Arcanite Reaper, a two-hander, only in the main hand.
+    assert_eq!(find(&warrior, 18866).unwrap().slots, [Mainhand, Offhand]);
+    assert_eq!(find(&warrior, 12784).unwrap().slots, [Mainhand]);
+    // A shield: off hand only, and no rogue's.
+    assert_eq!(find(&warrior, 18826).unwrap().slots, [Offhand]);
+    assert_eq!(find(&rogue, 18826), None);
+    assert!(
+        rogue
+            .iter()
+            .all(|item| item.item_type != ItemType::Plate && item.item_type != ItemType::Mail)
+    );
+    assert!(warrior.iter().any(|item| item.item_type == ItemType::Plate));
+    // Benediction is a priest's; a warrior uses no wands.
+    assert_eq!(find(&warrior, 18608), None);
+    assert!(warrior.iter().all(|item| item.item_type != ItemType::Wand));
+    // Black Dragonscale Breastplate, of Black Dragon Mail.
+    let breastplate = find(&warrior, 15050).unwrap();
+    assert_eq!(breastplate.set.as_deref(), Some("Black Dragon Mail"));
+    assert_eq!(breastplate.item_level, 58);
+    assert_eq!(breastplate.slots, [EquipmentSlot::Chest]);
+}
