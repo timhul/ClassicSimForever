@@ -2,6 +2,233 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 2264
+  name: Mantle of Thieves
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135039
+  icon_name: inv_shoulder_08
+  req_lvl: 25
+  item_lvl: 30
+  boe: true
+  stats:
+    AGILITY: 10
+    SPIRIT: 3
+    STAMINA: 4
+    ARMOR: 77
+- id: 2278
+  name: Forest Tracker Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135049
+  icon_name: inv_shoulder_18
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  stats:
+    AGILITY: 11
+    STRENGTH: 5
+    ARMOR: 78
+- id: 3324
+  name: Ghostly Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135040
+  icon_name: inv_shoulder_09
+  req_lvl: 0
+  item_lvl: 27
+  stats:
+    SPIRIT: 9
+    ARMOR: 34
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 9
+- id: 3748
+  name: Feline Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135036
+  icon_name: inv_shoulder_05
+  req_lvl: 23
+  item_lvl: 28
+  stats:
+    AGILITY: 2
+    INTELLECT: 8
+    ARMOR: 34
+    SPELL_DAMAGE: 4
+  effects:
+  - trigger: EQUIP
+    spell: 1292150
+- id: 4197
+  name: Berylline Pads
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135036
+  icon_name: inv_shoulder_05
+  req_lvl: 0
+  item_lvl: 36
+  stats:
+    INTELLECT: 10
+    STAMINA: 5
+    ARMOR: 39
+    SPELL_DAMAGE: 7
+- id: 5254
+  name: Rugged Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135039
+  icon_name: inv_shoulder_08
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    ARMOR: 67
+    ARCANE_RESISTANCE: 2
+    FIRE_RESISTANCE: 2
+    FROST_RESISTANCE: 2
+    NATURE_RESISTANCE: 2
+    SHADOW_RESISTANCE: 2
+- id: 5404
+  name: Serpent's Shoulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135039
+  icon_name: inv_shoulder_08
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    AGILITY: 5
+    ARMOR: 68
+- id: 6461
+  name: Slime-encrusted Pads
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135036
+  icon_name: inv_shoulder_05
+  req_lvl: 20
+  item_lvl: 25
+  stats:
+    ARMOR: 32
+    MANA_PER_5: 3
+    HEALTH_PER_5: 10
+- id: 6685
+  name: Death Speaker Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135040
+  icon_name: inv_shoulder_09
+  req_lvl: 27
+  item_lvl: 32
+  stats:
+    INTELLECT: 11
+    ARMOR: 37
+    SPELL_DAMAGE: 6
+- id: 6697
+  name: Batwing Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135036
+  icon_name: inv_shoulder_05
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    AGILITY: 3
+    INTELLECT: 11
+    SPIRIT: 5
+    ARMOR: 38
+- id: 7684
+  name: Bloodmage Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135036
+  icon_name: inv_shoulder_05
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    INTELLECT: 9
+    ARMOR: 38
+    HEALTH_PER_5: 9
+    SPELL_DAMAGE: 9
+- id: 7727
+  name: Watchman Pauldrons
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135054
+  icon_name: inv_shoulder_23
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  stats:
+    SPIRIT: 4
+    STAMINA: 11
+    STRENGTH: 3
+    ARMOR: 80
+- id: 7750
+  name: Mantle of Woe
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135054
+  icon_name: inv_shoulder_23
+  req_lvl: 0
+  item_lvl: 35
+  stats:
+    INTELLECT: 12
+    ARMOR: 38
+    SPELL_DAMAGE: 5
+- id: 9536
+  name: Fairywing Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135033
+  icon_name: inv_shoulder_02
+  req_lvl: 0
+  item_lvl: 32
+  stats:
+    INTELLECT: 9
+    STAMINA: 2
+    ARMOR: 37
+    SPELL_DAMAGE: 6
+- id: 10657
+  name: Talbar Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135040
+  icon_name: inv_shoulder_09
+  req_lvl: 0
+  item_lvl: 26
+  stats:
+    INTELLECT: 6
+    STAMINA: 3
+    ARMOR: 33
+    MANA_PER_5: 2
 - id: 12625
   name: Dawnbringer Shoulders
   phase: 1
@@ -18,6 +245,147 @@ items:
     ARMOR: 455
     SPELL_DAMAGE: 15
     HEALING_POWER: 44
+- id: 12998
+  name: Magician's Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135044
+  icon_name: inv_shoulder_13
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  stats:
+    INTELLECT: 9
+    ARMOR: 32
+    SPELL_DAMAGE: 5
+- id: 13013
+  name: Elder Wizard's Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135045
+  icon_name: inv_shoulder_14
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  stats:
+    INTELLECT: 20
+    ARMOR: 60
+    SPELL_DAMAGE: 11
+- id: 13066
+  name: Wyrmslayer Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: RARE
+  icon: 135055
+  icon_name: inv_shoulder_24
+  req_lvl: 46
+  item_lvl: 51
+  boe: true
+  stats:
+    AGILITY: 8
+    STAMINA: 12
+    STRENGTH: 12
+    ARMOR: 403
+- id: 13103
+  name: Pads of the Venom Spider
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135049
+  icon_name: inv_shoulder_18
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  stats:
+    SPIRIT: 6
+    STAMINA: 12
+    ARMOR: 41
+    NATURE_RESISTANCE: 5
+- id: 13115
+  name: Sheepshear Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135050
+  icon_name: inv_shoulder_19
+  req_lvl: 40
+  item_lvl: 45
+  boe: true
+  stats:
+    INTELLECT: 16
+    SPIRIT: 6
+    STAMINA: 3
+    ARMOR: 100
+- id: 13116
+  name: Spaulders of the Unseen
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135049
+  icon_name: inv_shoulder_18
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  stats:
+    AGILITY: 22
+    INTELLECT: 4
+    STAMINA: 7
+    ARMOR: 129
+- id: 13131
+  name: Sparkleshell Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135049
+  icon_name: inv_shoulder_18
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  stats:
+    AGILITY: 4
+    STAMINA: 10
+    ARMOR: 161
+- id: 13132
+  name: Skeletal Shoulders
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135042
+  icon_name: inv_shoulder_11
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  stats:
+    STAMINA: 15
+    STRENGTH: 6
+    ARMOR: 199
+- id: 13133
+  name: Drakesfire Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135054
+  icon_name: inv_shoulder_23
+  req_lvl: 56
+  item_lvl: 61
+  boe: true
+  stats:
+    INTELLECT: 14
+    SPIRIT: 15
+    STAMINA: 5
+    ARMOR: 270
+    FIRE_RESISTANCE: 10
 - id: 14139
   name: Mooncloth Shoulders
   phase: 1
@@ -559,6 +927,160 @@ items:
     STRENGTH: 17
     ARMOR: 353
     SPELL_DAMAGE: 16
+- id: 16669
+  name: Pauldrons of Elements
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135060
+  icon_name: inv_shoulder_29
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    INTELLECT: 15
+    SPIRIT: 6
+    STAMINA: 14
+    STRENGTH: 5
+    ARMOR: 266
+    SPELL_PENETRATION: 2
+  set: 187
+- id: 16679
+  name: Beaststalker's Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135041
+  icon_name: inv_shoulder_10
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    AGILITY: 11
+    INTELLECT: 7
+    SPIRIT: 7
+    STAMINA: 17
+    ARMOR: 266
+  set: 186
+- id: 16689
+  name: Magister's Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135054
+  icon_name: inv_shoulder_23
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    INTELLECT: 22
+    STAMINA: 6
+    ARMOR: 64
+    SPELL_DAMAGE: 8
+  set: 181
+- id: 16695
+  name: Devout Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135033
+  icon_name: inv_shoulder_02
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    INTELLECT: 21
+    SPIRIT: 9
+    STAMINA: 4
+    ARMOR: 64
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+  set: 182
+- id: 16701
+  name: Dreadmist Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 133732
+  icon_name: inv_misc_bone_taurenskull_01
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    INTELLECT: 15
+    STAMINA: 14
+    ARMOR: 64
+    SPELL_DAMAGE: 11
+  set: 183
+- id: 16708
+  name: Shadowcraft Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135038
+  icon_name: inv_shoulder_07
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    AGILITY: 22
+    STAMINA: 9
+    ARMOR: 127
+    HIT_RATING: 2
+  set: 184
+- id: 16718
+  name: Wildheart Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135032
+  icon_name: inv_shoulder_01
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    INTELLECT: 18
+    SPIRIT: 8
+    STAMINA: 9
+    ARMOR: 127
+    SPELL_DAMAGE: 7
+    HEALING_POWER: 20
+  set: 185
+- id: 16729
+  name: Lightforge Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: RARE
+  icon: 135041
+  icon_name: inv_shoulder_10
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    AGILITY: 5
+    INTELLECT: 10
+    STAMINA: 15
+    STRENGTH: 9
+    ARMOR: 470
+    HIT_RATING: 9
+  set: 188
+- id: 16733
+  name: Spaulders of Valor
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: RARE
+  icon: 135061
+  icon_name: inv_shoulder_30
+  req_lvl: 55
+  item_lvl: 60
+  stats:
+    AGILITY: 9
+    STAMINA: 17
+    STRENGTH: 11
+    ARMOR: 470
+    DEFENSE: 4
+  set: 189
 - id: 16980
   name: Flarecore Mantle
   phase: 1
@@ -729,6 +1251,20 @@ items:
     STAMINA: 22
     ARMOR: 145
     SPELL_DAMAGE: 25
+- id: 17695
+  name: Chestnut Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  icon: 135040
+  icon_name: inv_shoulder_09
+  req_lvl: 0
+  item_lvl: 28
+  stats:
+    STAMINA: 4
+    ARMOR: 34
+    SPELL_DAMAGE: 8
 - id: 18747
   name: Item Properties Test
   phase: 1
@@ -2387,6 +2923,35 @@ items:
     STAMINA: 8
     ARMOR: 51
     SPELL_DAMAGE_HOLY: 17
+- id: 270023
+  name: Tanned Shoulderpads
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135058
+  icon_name: inv_shoulder_27
+  req_lvl: 0
+  item_lvl: 27
+  stats:
+    STAMINA: 9
+    ARMOR: 73
+    SPELL_DAMAGE: 3
+    HEALING_POWER: 9
+- id: 270024
+  name: Bronzed Shoulderguards
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135058
+  icon_name: inv_shoulder_27
+  req_lvl: 0
+  item_lvl: 27
+  stats:
+    SPIRIT: 8
+    STAMINA: 6
+    ARMOR: 156
 - id: 271811
   name: Clacking Carapace Spaulders
   phase: 1
@@ -2400,6 +2965,36 @@ items:
     STAMINA: 14
     ARMOR: 199
     ATTACK_POWER: 8
+- id: 271953
+  name: Theramore Shoulderpads
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  icon: 135033
+  icon_name: inv_shoulder_02
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 15
+    ARMOR: 75
+    SPELL_DAMAGE: 12
+- id: 271954
+  name: Theramore Shoulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  icon: 135055
+  icon_name: inv_shoulder_24
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 15
+    ARMOR: 148
+    SPELL_DAMAGE: 12
 - id: 271955
   name: Theramore Pauldrons
   phase: 1
@@ -2415,6 +3010,82 @@ items:
     STAMINA: 12
     ARMOR: 148
     CRIT_RATING: 14
+- id: 271956
+  name: Theramore Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  icon: 135043
+  icon_name: inv_shoulder_12
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    AGILITY: 27
+    STAMINA: 12
+    ARMOR: 312
+    CRIT_RATING: 14
+- id: 271957
+  name: Theramore Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  icon: 135056
+  icon_name: inv_shoulder_25
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 24
+    ARMOR: 553
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+    CRIT_RATING: 14
+- id: 271959
+  name: Theramore Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  icon: 135053
+  icon_name: inv_shoulder_22
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 27
+    STRENGTH: 12
+    ARMOR: 553
+    CRIT_RATING: 14
+- id: 272103
+  name: Darkspear Shoulderpads
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  icon: 135033
+  icon_name: inv_shoulder_02
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 15
+    ARMOR: 75
+    SPELL_DAMAGE: 12
+- id: 272104
+  name: Darkspear Shoulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  icon: 135055
+  icon_name: inv_shoulder_24
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 15
+    ARMOR: 148
+    SPELL_DAMAGE: 12
 - id: 272105
   name: Darkspear Pauldrons
   phase: 1
@@ -2429,6 +3100,52 @@ items:
     AGILITY: 27
     STAMINA: 12
     ARMOR: 148
+    CRIT_RATING: 14
+- id: 272106
+  name: Darkspear Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  icon: 135043
+  icon_name: inv_shoulder_12
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    AGILITY: 27
+    STAMINA: 12
+    ARMOR: 312
+    CRIT_RATING: 14
+- id: 272107
+  name: Darkspear Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  icon: 135056
+  icon_name: inv_shoulder_25
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 24
+    ARMOR: 553
+    SPELL_DAMAGE: 12
+    HEALING_POWER: 37
+    CRIT_RATING: 14
+- id: 272108
+  name: Darkspear Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  icon: 135053
+  icon_name: inv_shoulder_22
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    STAMINA: 27
+    STRENGTH: 12
+    ARMOR: 553
     CRIT_RATING: 14
 - id: 272469
   name: Premier Dragonhide Spaulders
@@ -3094,6 +3811,50 @@ items:
     SPELL_DAMAGE: 6
     HEALING_POWER: 18
   set: 401
+- id: 272957
+  name: Theramore Shoulderguards
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  icon: 135045
+  icon_name: inv_shoulder_14
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 12
+    ARMOR: 312
+    SPELL_DAMAGE: 16
+- id: 272958
+  name: Darkspear Shoulderguards
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  icon: 135045
+  icon_name: inv_shoulder_14
+  req_lvl: 60
+  item_lvl: 65
+  stats:
+    INTELLECT: 27
+    STAMINA: 12
+    ARMOR: 312
+    SPELL_DAMAGE: 16
+- id: 273028
+  name: Reliquary Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135058
+  icon_name: inv_shoulder_27
+  req_lvl: 28
+  item_lvl: 33
+  stats:
+    SPIRIT: 4
+    STAMINA: 12
+    ARMOR: 171
 - id: 273334
   name: Premier Marshal's Luminous Pauldrons
   phase: 1
@@ -3314,6 +4075,305 @@ items:
     SPELL_DAMAGE: 9
     HEALING_POWER: 26
   set: 2073
+- id: 273804
+  name: Executioner Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: RARE
+  icon: 135039
+  icon_name: inv_shoulder_08
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    SPIRIT: 9
+    ARMOR: 72
+    ATTACK_POWER: 10
+- id: 273886
+  name: Grovekeeper Shoulderpads
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 140
+  set: 2114
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273890
+  name: Grovekeeper Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 140
+  set: 2115
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273894
+  name: Grovekeeper Pauldrons
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 140
+  set: 2112
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273898
+  name: Grovekeeper Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [DRUID]
+  stats:
+    ARMOR: 140
+  set: 2113
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273902
+  name: Wildstalker's Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [HUNTER]
+  stats:
+    ARMOR: 294
+  set: 2101
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273906
+  name: Manaflare Mantle
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [MAGE]
+  stats:
+    ARMOR: 71
+  set: 2098
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273910
+  name: Justice Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 521
+  set: 2106
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273914
+  name: Justice Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 521
+  set: 2107
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273918
+  name: Justice Pauldrons
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PALADIN]
+  stats:
+    ARMOR: 521
+  set: 2108
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273922
+  name: Mantle of Conviction
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PRIEST]
+  stats:
+    ARMOR: 71
+  set: 2105
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273926
+  name: Pauldrons of Conviction
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [PRIEST]
+  stats:
+    ARMOR: 71
+  set: 2104
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273930
+  name: Grimstitch Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: LEATHER
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [ROGUE]
+  stats:
+    ARMOR: 140
+  set: 2099
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273934
+  name: Spiritcaller Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 294
+  set: 2110
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273938
+  name: Spiritcaller Epaulets
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 294
+  set: 2109
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273942
+  name: Demonheart Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  class_restrictions: [WARLOCK]
+  stats:
+    ARMOR: 71
+  set: 2100
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273946
+  name: Shoulders of Glory
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 521
+  set: 2102
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
+- id: 273950
+  name: Pauldrons of Glory
+  phase: 1
+  slot: SHOULDERS
+  type: PLATE
+  quality: EPIC
+  req_lvl: 60
+  item_lvl: 61
+  boe: true
+  stats:
+    ARMOR: 521
+  set: 2103
+  limit_category:
+    id: 708
+    name: Artisan's Tier
+    quantity: 1
 - id: 274181
   name: Premier Flatmail Shoulders
   phase: 1
@@ -3559,3 +4619,57 @@ items:
     ARMOR: 312
     SPELL_DAMAGE: 10
     HEALING_POWER: 30
+- id: 279839
+  name: Spellguard Pauldrons
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    SPIRIT: 7
+    STAMINA: 11
+    STRENGTH: 4
+    ARMOR: 178
+- id: 279842
+  name: Battle Spaulders
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    SPIRIT: 7
+    STAMINA: 11
+    STRENGTH: 4
+    ARMOR: 178
+- id: 282560
+  name: Earth-Infused Rockguards
+  phase: 1
+  slot: SHOULDERS
+  type: MAIL
+  quality: RARE
+  icon: 135034
+  icon_name: inv_shoulder_03
+  req_lvl: 42
+  item_lvl: 47
+  stats:
+    INTELLECT: 10
+    STAMINA: 13
+    ARMOR: 213
+    SPELL_DAMAGE: 8
+- id: 284399
+  name: Seared Grove Shoulderpads
+  phase: 1
+  slot: SHOULDERS
+  type: CLOTH
+  quality: RARE
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    INTELLECT: 3
+    STAMINA: 8
+    ARMOR: 35
+    CRIT_RATING: 7

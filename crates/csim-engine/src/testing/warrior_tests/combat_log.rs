@@ -193,7 +193,7 @@ fn bloodrage_logs_its_rage_and_its_aura_until_it_fades() {
 #[test]
 fn a_proc_logs_its_effects_but_no_cast() {
     let mut test = test();
-    test.given_fury_talent_with_rank("Enrage", 5);
+    test.given_fury_talent_with_rank("Death Wish", 1);
     test.given_fury_talent_with_rank("Flurry", 5);
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     test.given_a_guaranteed_white_crit();

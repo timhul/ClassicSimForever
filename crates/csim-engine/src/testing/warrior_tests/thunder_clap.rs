@@ -102,7 +102,7 @@ fn regular_hit_thunder_clap_does_not_apply_deep_wounds() {
 #[test]
 fn critical_thunder_clap_does_not_trigger_flurry() {
     let mut test = test_with(|test| {
-        test.given_fury_talent_with_rank("Enrage", 5);
+        test.given_fury_talent_with_rank("Death Wish", 1);
         test.given_fury_talent_with_rank("Flurry", 5);
     });
     given_a_guaranteed_spell_crit(&mut test);

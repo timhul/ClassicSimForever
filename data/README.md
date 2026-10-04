@@ -7,8 +7,10 @@ an override.
 
 ```
 data/
-├── tables/               DB2 → CSV dumps, one file per table and build (gitignored, see below),
-│                         and listfile-icons.csv: the icon texture names by FileDataID
+├── tables/               DB2 → CSV dumps, one file per table and build, with the build's
+│                         server-side hotfixes applied (gitignored, see below); raw/ holds
+│                         the dumps as downloaded, hotfixes.<build>.json the hotfixes, and
+│                         listfile-icons.csv the icon texture names by FileDataID
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
@@ -100,7 +102,17 @@ csim_engine::talent::TalentDb::load("data/talents")
 
 1. Drop the CSV files in `data/tables/` (`<Table>.<build>.csv`; `csim-tables info` lists what
    is there and what is missing).
-   `python tools/fetch_tables.py` downloads them, and `python tools/fetch_listfile.py`
+   `python tools/fetch_tables.py` downloads them, then applies the build's server-side
+   hotfixes. The dumps are the client's `.db2` files, but Blizzard also changes rows on the
+   server (new talents, spell values, whole items: the 70205 Fury rework and 4,581 item rows
+   exist only as hotfixes), and the game and Wowhead have them. `tools/fetch_hotfixes.py`
+   scrapes them from https://wago.tools/hotfixes (every row of the build, region and locale)
+   into `data/tables/hotfixes.<build>.json`, keeps each hotfixed table's download in
+   `data/tables/raw/` and rebuilds the table from it: a hotfix adds or replaces a record by its
+   ID or removes it. It prints the hotfixed spell names and the hotfixed tables that are not
+   fetched. Blizzard keeps pushing hotfixes to the same build: `python tools/fetch_hotfixes.py
+   --force` (or `fetch_tables.py --refresh-hotfixes`) downloads them again and re-applies them;
+   `--no-apply` (`--no-hotfixes`) restores the raw tables. And `python tools/fetch_listfile.py`
    refreshes `data/tables/listfile-icons.csv`. That file holds the `interface/icons/` rows of
    the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each
    icon FileDataID, by which Wowhead's CDN serves the icon. The client tables do not have

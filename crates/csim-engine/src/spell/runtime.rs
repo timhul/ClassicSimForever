@@ -213,6 +213,8 @@ pub trait SpellHost: EffectHost {
     /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
     /// names it and the character is dual wielding.
     fn offhand_copy_active(&self, spell: u32) -> bool;
+    /// Whether the character is dual wielding (an `OFFHAND_STRIKE` ability strikes with both).
+    fn is_dual_wielding(&self) -> bool;
     /// The resources gained when ability `spell` is used (`GAIN_RESOURCE_ON_USE`).
     fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)>;
     /// Rolls an off-hand melee ability on the special attack table (off-hand weapon skill and
@@ -1614,7 +1616,8 @@ impl Spell {
             self.reset_cooldowns(host);
         }
 
-        if host.offhand_copy_active(self.game_id()) {
+        let offhand_strike = self.has_sim_flag(SimFlag::OffhandStrike) && host.is_dual_wielding();
+        if offhand_strike || host.offhand_copy_active(self.game_id()) {
             report.offhand = self.offhand_strike(host);
         }
 

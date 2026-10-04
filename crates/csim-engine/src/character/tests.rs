@@ -1669,11 +1669,12 @@ mod talents {
     const MORTAL_STRIKE: u32 = 105941;
     const CRUELTY: u32 = 105939;
     const UNBRIDLED_WRATH: u32 = 105937;
+    const IRON_WILL: u32 = 113570;
     const ANTICIPATION: u32 = 105975;
-    const TOUGHNESS: u32 = 105973;
     const DEFIANCE: u32 = 110856;
     const BLOOD_CRAZE: u32 = 105934;
-    const BOUNDLESS_RAGE: u32 = 105953;
+    const FURIOUS_PRECISION: u32 = 105953;
+    const DUAL_WIELD_SPECIALIZATION: u32 = 105933;
     const ENRAGE: u32 = 105931;
     const DEATH_WISH: u32 = 105927;
     const FLURRY: u32 = 105928;
@@ -1966,9 +1967,10 @@ mod talents {
         assert!(!f.character.spells().procs().is_enabled(proc));
     }
 
-    /// Unbridled Wrath gives 1 rage per proc with a one-hander, 2 with a two-hander.
+    /// Unbridled Wrath gives 1 rage per proc with a one-hander and with a two-hander (no longer
+    /// twice as much with a two-hander since the 70205 hotfixes).
     #[test]
-    fn unbridled_wrath_gives_double_rage_with_a_two_hander() {
+    fn unbridled_wrath_gives_one_rage_with_any_weapon() {
         let mut f = fixture();
         assert!(inc_n(&mut f, CRUELTY, 5));
         assert!(inc_n(&mut f, UNBRIDLED_WRATH, 5));
@@ -1992,7 +1994,7 @@ mod talents {
         assert!(rage_per_proc(&mut f).iter().all(|&r| r == 1), "one-hander");
         f.equip(EquipmentSlot::Mainhand, TWO_HAND_AXE);
         assert!(f.character.equipment().has_two_hand_weapon());
-        assert!(rage_per_proc(&mut f).iter().all(|&r| r == 2), "two-hander");
+        assert!(rage_per_proc(&mut f).iter().all(|&r| r == 1), "two-hander");
     }
 
     /// Flurry's rank value travels through the proc's `TRIGGER_WITH_VALUE` script into the
@@ -2004,9 +2006,9 @@ mod talents {
             (CRUELTY, 5),
             (UNBRIDLED_WRATH, 5),
             (BLOOD_CRAZE, 3),
-            (BOUNDLESS_RAGE, 3),
+            (FURIOUS_PRECISION, 2),
             (ENRAGE, 5),
-            (105929, 3), // Precision
+            (DUAL_WIELD_SPECIALIZATION, 5),
             (DEATH_WISH, 1),
             (FLURRY, 3),
         ]);
@@ -2073,8 +2075,8 @@ mod talents {
     fn defiance_raises_threat_in_defensive_stance_only() {
         let mut f = fixture();
         f.equip(EquipmentSlot::Offhand, SHIELD);
+        assert!(inc_n(&mut f, IRON_WILL, 5));
         assert!(inc_n(&mut f, ANTICIPATION, 5));
-        assert!(inc_n(&mut f, TOUGHNESS, 5));
         f.ctx().reset();
         f.engine.prepare_iteration(0.0);
         let defensive = f.spell_id(DEFENSIVE_STANCE);
@@ -2159,11 +2161,11 @@ mod talents {
         );
         assert_eq!(rank(&f, CRUELTY), 5);
         assert_eq!(rank(&f, UNBRIDLED_WRATH), 5);
-        // Blood Craze 3, Boundless Rage 3, Enrage 4 unlock tier 4 (20 points).
+        // Blood Craze 3, Furious Precision 3, Enrage 4 unlock tier 4 (20 points).
         let short = f.ctx().spend_talent_points(&[
             (CRUELTY, 5),
             (BLOOD_CRAZE, 3),
-            (BOUNDLESS_RAGE, 3),
+            (FURIOUS_PRECISION, 3),
             (ENRAGE, 4),
             (DEATH_WISH, 1),
         ]);

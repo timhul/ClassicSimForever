@@ -25,6 +25,172 @@ sets:
   bonuses:
   - pieces: 2
     spell: 14799
+- id: 161
+  name: Defias Leather
+  items: [10399, 10403, 10402, 10401, 10400]
+  bonuses:
+  - pieces: 2
+    spell: 14707
+  - pieces: 3
+    spell: 1292025
+  - pieces: 4
+    spell: 1292028
+  - pieces: 5
+    spell: 7534
+- id: 162
+  name: Embrace of the Viper
+  items: [10412, 10411, 10413, 10410, 6473]
+  bonuses:
+  - pieces: 2
+    spell: 9106
+  - pieces: 3
+    spell: 9140
+  - pieces: 4
+    spell: 1291796
+  - pieces: 5
+    spell: 1291807
+- id: 163
+  name: Chain of the Scarlet Crusade
+  items: [10329, 10332, 10328, 10331, 10330, 10333]
+  bonuses:
+  - pieces: 2
+    spell: 14673
+  - pieces: 3
+    spell: 18074
+  - pieces: 4
+    spell: 1293674
+  - pieces: 5
+    spell: 432639
+  - pieces: 6
+    spell: 1293670
+- id: 181
+  name: Magister's Regalia
+  items: [16685, 16683, 16686, 16684, 16687, 16689, 16688, 16682]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 27867
+  - pieces: 5
+    spell: 450527
+  - pieces: 6
+    spell: 18378
+- id: 182
+  name: Vestments of the Devout
+  items: [16696, 16691, 16697, 16693, 16692, 16695, 16694, 16690]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 27778
+  - pieces: 5
+    spell: 450576
+  - pieces: 6
+    spell: 18378
+- id: 183
+  name: Dreadmist Raiment
+  items: [16702, 16703, 16699, 16701, 16700, 16704, 16698, 16705]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 27780
+  - pieces: 5
+    spell: 450585
+  - pieces: 6
+    spell: 18378
+- id: 184
+  name: Shadowcraft Armor
+  items: [16713, 16711, 16710, 16721, 16708, 16709, 16712, 16707]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9336
+  - pieces: 4
+    spell: 1302698
+  - pieces: 5
+    spell: 27787
+  - pieces: 6
+    spell: 21347
+- id: 185
+  name: Wildheart Raiment
+  items: [16716, 16715, 16714, 16720, 16706, 16718, 16719, 16717]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9336
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 1302708
+  - pieces: 5
+    spell: 450608
+  - pieces: 6
+    spell: 18378
+- id: 186
+  name: Beaststalker Armor
+  items: [16680, 16675, 16681, 16677, 16674, 16678, 16679, 16676]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9336
+  - pieces: 4
+    spell: 1302712
+  - pieces: 5
+    spell: 450577
+  - pieces: 6
+    spell: 18378
+- id: 187
+  name: The Elements
+  items: [16673, 16670, 16671, 16667, 16672, 16668, 16669, 16666]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 1302718
+  - pieces: 5
+    spell: 450626
+  - pieces: 6
+    spell: 18378
+- id: 188
+  name: Lightforge Armor
+  items: [16723, 16725, 16722, 16726, 16724, 16728, 16729, 16727]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 9346
+  - pieces: 4
+    spell: 1302716
+  - pieces: 5
+    spell: 450625
+  - pieces: 6
+    spell: 18378
+- id: 189
+  name: Battlegear of Valor
+  items: [16736, 16734, 16735, 16730, 16737, 16731, 16732, 16733]
+  bonuses:
+  - pieces: 2
+    spell: 18679
+  - pieces: 3
+    spell: 13198
+  - pieces: 4
+    spell: 1302721
+  - pieces: 5
+    spell: 450587
+  - pieces: 6
+    spell: 21347
 - id: 281
   name: Champion's Battlegear
   items: [272478, 272477, 272481, 272479, 272637, 272480]
@@ -1391,6 +1557,162 @@ sets:
     spell: 22804
   - pieces: 6
     spell: 14047
+- id: 2098
+  name: Manaflare Regalia
+  items: [280455, 280454, 280450, 280451, 280453, 280452, 273904, 273905, 273906, 273907]
+  bonuses:
+  - pieces: 2
+    spell: 1300947
+  - pieces: 3
+    spell: 1301013
+  - pieces: 4
+    spell: 1301079
+  - pieces: 5
+    spell: 1301488
+- id: 2099
+  name: Grimstitch Armor
+  items: [280877, 280876, 280879, 280875, 280872, 280878, 273928, 273929, 273930, 273931]
+  bonuses:
+  - pieces: 2
+    spell: 1300956
+  - pieces: 3
+    spell: 1301047
+  - pieces: 4
+    spell: 1301088
+  - pieces: 5
+    spell: 1301708
+- id: 2100
+  name: Demonheart Raiment
+  items: [280887, 280882, 280883, 280888, 280886, 280889, 273940, 273941, 273942, 273943]
+  bonuses:
+  - pieces: 2
+    spell: 1300966
+  - pieces: 3
+    spell: 1301068
+  - pieces: 4
+    spell: 1301094
+  - pieces: 5
+    spell: 1301715
+- id: 2101
+  name: Wildstalker Armor
+  items: [280898, 280897, 280896, 280893, 280895, 280894, 273900, 273901, 273902, 273903]
+  bonuses:
+  - pieces: 2
+    spell: 1300945
+  - pieces: 3
+    spell: 1301012
+  - pieces: 4
+    spell: 1301078
+  - pieces: 5
+    spell: 1301252
+- id: 2102
+  name: Battlegear of Glory
+  items: [280904, 280903, 280902, 280899, 280901, 280900, 273944, 273945, 273946, 273947]
+  bonuses:
+  - pieces: 2
+    spell: 1300968
+  - pieces: 3
+    spell: 1301069
+  - pieces: 4
+    spell: 1301095
+  - pieces: 5
+    spell: 1301721
+- id: 2103
+  name: Battleplate of Glory
+  items: [280910, 280909, 280908, 280905, 280907, 280906, 273948, 273949, 273950, 273951]
+  bonuses:
+  - pieces: 2
+    spell: 1300970
+  - pieces: 3
+    spell: 1301071
+  - pieces: 4
+    spell: 1301096
+  - pieces: 5
+    spell: 1301722
+- id: 2104
+  name: Vestments of Conviction
+  items: [280918, 280917, 280912, 280913, 280915, 280914, 273924, 273925, 273926, 273927]
+  bonuses:
+  - pieces: 2
+    spell: 1300954
+  - pieces: 3
+    spell: 1301041
+  - pieces: 4
+    spell: 1301085
+  - pieces: 5
+    spell: 1301703
+- id: 2105
+  name: Raiments of Conviction
+  items: [280924, 280923, 280919, 280920, 280922, 280921, 273920, 273921, 273922, 273923]
+  bonuses:
+  - pieces: 2
+    spell: 1300955
+  - pieces: 3
+    spell: 1301045
+  - pieces: 4
+    spell: 1301087
+  - pieces: 5
+    spell: 1301706
+- id: 2106
+  name: Justice Battlegear
+  items: [280930, 280929, 280928, 280925, 280927, 280926, 273908, 273909, 273910, 273911]
+  bonuses:
+  - pieces: 2
+    spell: 1300951
+  - pieces: 3
+    spell: 1301036
+  - pieces: 4
+    spell: 1301084
+  - pieces: 5
+    spell: 1301702
+- id: 2107
+  name: Justice Armor
+  items: [280936, 280935, 280934, 280931, 280933, 280932, 273912, 273913, 273914, 273915]
+  bonuses:
+  - pieces: 2
+    spell: 1300948
+  - pieces: 3
+    spell: 1301014
+  - pieces: 4
+    spell: 1301080
+  - pieces: 5
+    spell: 1301694
+- id: 2108
+  name: Justice Battleplate
+  items: [280937, 280942, 280941, 280938, 280940, 280939, 273916, 273917, 273918, 273919]
+  bonuses:
+  - pieces: 2
+    spell: 1300949
+  - pieces: 3
+    spell: 1301015
+  - pieces: 4
+    spell: 1301083
+  - pieces: 5
+    spell: 1301697
+- id: 2109
+  name: The Spiritcaller
+  items: [280951, 280944, 280950, 280949, 280947, 280945, 273936, 273937, 273938, 273939]
+  bonuses:
+  - pieces: 2
+    spell: 1300960
+  - pieces: 3
+    spell: 1301059
+  - pieces: 4
+    spell: 1301093
+  - pieces: 5
+    spell: 1301713
+- id: 2110
+  name: The Spiritcaller's Rage
+  items: [280957, 280956, 280955, 280952, 280954, 280953, 273932, 273933, 273934, 273935]
+  bonuses:
+  - pieces: 2
+    spell: 1300957
+  - pieces: 3
+    spell: 1301051
+  - pieces: 4
+    spell: 1301090
+  - pieces: 5
+    spell: 1301709
 - id: 2111
   name: The Spiritcaller's Storm
   items: [280963, 280962, 280961, 280958, 280960, 280959, 276538, 276539, 276540, 276541]
@@ -1403,3 +1725,77 @@ sets:
     spell: 1301092
   - pieces: 5
     spell: 1301711
+- id: 2112
+  name: Grovekeeper Raiment
+  items: [280977, 280976, 280974, 280965, 280971, 280967, 273892, 273893, 273894, 273895]
+  bonuses:
+  - pieces: 2
+    spell: 1300943
+  - pieces: 3
+    spell: 1301006
+  - pieces: 4
+    spell: 1301077
+  - pieces: 5
+    spell: 1301250
+- id: 2113
+  name: Grovekeeper Rage
+  items: [280986, 280987, 280988, 280991, 280989, 280990, 273896, 273897, 273898, 273899]
+  bonuses:
+  - pieces: 2
+    spell: 1300942
+  - pieces: 3
+    spell: 1301005
+  - pieces: 4
+    spell: 1301076
+  - pieces: 5
+    spell: 1301249
+- id: 2114
+  name: Grovekeeper Eclipse
+  items: [280998, 280999, 281000, 281003, 281001, 281002, 273884, 273885, 273886, 273887]
+  bonuses:
+  - pieces: 2
+    spell: 1300940
+  - pieces: 3
+    spell: 1300975
+  - pieces: 4
+    spell: 1301073
+  - pieces: 5
+    spell: 1301242
+- id: 2115
+  name: Grovekeeper Ferocity
+  items: [280992, 280993, 280994, 280997, 280995, 280996, 273888, 273889, 273890, 273891]
+  bonuses:
+  - pieces: 2
+    spell: 1300934
+  - pieces: 3
+    spell: 1300999
+  - pieces: 4
+    spell: 1301075
+  - pieces: 5
+    spell: 1301247
+- id: 2131
+  name: Partners in Crime
+  items: [284715, 284716]
+  bonuses:
+  - pieces: 2
+    spell: 1317038
+  - pieces: 2
+    spell: 1317039
+- id: 2132
+  name: Blessing of Kalimdor
+  items: [285331, 285330, 285329]
+  bonuses:
+  - pieces: 2
+    spell: 1318244
+- id: 2133
+  name: Rotmender's Raiment
+  items: [286978, 286980, 271207, 271214, 286979]
+  bonuses:
+  - pieces: 2
+    spell: 14668
+  - pieces: 3
+    spell: 9106
+  - pieces: 4
+    spell: 1321560
+  - pieces: 5
+    spell: 1321587

@@ -1,9 +1,10 @@
-//! Dual Wield Specialization's hit chance.
+//! Furious Precision's hit chance.
 //!
-//! The Warrior talent (23584) increases "chance to hit with off-hand attacks" by 2 % per rank
-//! (E1 `MOD_HIT_CHANCE`, an `OFFHAND_HIT_CHANCE` script): the off-hand auto attack and the
-//! off-hand strikes get it, the main hand's attacks do not. The Rogue's (13715) only raises
-//! the off-hand damage.
+//! The Warrior talent (1323963, new in the 70205 hotfixes) increases "chance to hit with off-hand
+//! attacks" by 4/7/10 % (E0 `MOD_HIT_CHANCE`, an `OFFHAND_HIT_CHANCE` script): the off-hand auto
+//! attack and the off-hand strikes get it, the main hand's attacks do not. Dual Wield
+//! Specialization, which held this hit before the hotfixes, no longer gives any; neither does
+//! the Rogue's (13715).
 
 use crate::character::context::CharacterContext;
 use crate::combat_roll::{IncludedOutcomes, PhysicalAttackResult, ROLL_RANGE};
@@ -15,7 +16,8 @@ use crate::spell::{AutoAttackHost, Hand, SpellHost};
 use crate::testing::SpellTest;
 use crate::testing::warrior::WarriorTest;
 
-const TALENT: &str = "Dual Wield Specialization";
+const TALENT: &str = "Furious Precision";
+const DUAL_WIELD_SPECIALIZATION: &str = "Dual Wield Specialization";
 
 /// A dual-wielding Warrior (two test swords: 300 skill against a level 63 target).
 fn test() -> WarriorTest {
@@ -79,13 +81,13 @@ fn misses_of(
 }
 
 #[test]
-fn each_rank_gives_2_percent_off_hand_hit_and_no_melee_hit() {
-    for rank in 1..=5 {
+fn each_rank_gives_off_hand_hit_and_no_melee_hit() {
+    for (rank, hit) in [(1, 400), (2, 700), (3, 1000)] {
         let mut test = test();
         assert_eq!((melee_hit(&test), offhand_hit(&test)), (0, 0));
         test.given_fury_talent_with_rank(TALENT, rank);
-        assert_eq!(melee_hit(&test), 0, "{rank} of 5: no hit for every attack");
-        assert_eq!(offhand_hit(&test), 200 * rank, "{rank} of 5: off-hand hit");
+        assert_eq!(melee_hit(&test), 0, "{rank} of 3: no hit for every attack");
+        assert_eq!(offhand_hit(&test), hit, "{rank} of 3: off-hand hit");
     }
 }
 
@@ -104,7 +106,7 @@ fn only_the_off_hand_tables_lose_miss_chance() {
         }
     );
 
-    test.given_fury_talent_with_rank(TALENT, 5);
+    test.given_fury_talent_with_rank(TALENT, 3);
     assert_eq!(
         miss_ranges(&mut test),
         MissRanges {
@@ -116,23 +118,15 @@ fn only_the_off_hand_tables_lose_miss_chance() {
     );
 }
 
-/// Precision is a plain `MOD_HIT_CHANCE`: both hands get it, Dual Wield Specialization adds
-/// to the off hand's.
+/// Dual Wield Specialization 5 of 5 gives no hit since the 70205 hotfixes (its E1 is the
+/// off-hand rage now); Furious Precision's adds to nothing else.
 #[test]
-fn stacks_with_precision_on_the_off_hand() {
+fn dual_wield_specialization_gives_no_hit() {
     let mut test = test();
-    test.given_fury_talent_with_rank("Precision", 3);
-    test.given_fury_talent_with_rank(TALENT, 5);
-    assert_eq!((melee_hit(&test), offhand_hit(&test)), (300, 1000));
-    assert_eq!(
-        miss_ranges(&mut test),
-        MissRanges {
-            mh_white: 2400,
-            oh_white: 1400,
-            mh_yellow: 500,
-            oh_yellow: 0,
-        }
-    );
+    test.given_fury_talent_with_rank(DUAL_WIELD_SPECIALIZATION, 5);
+    assert_eq!((melee_hit(&test), offhand_hit(&test)), (0, 0));
+    test.given_fury_talent_with_rank(TALENT, 3);
+    assert_eq!((melee_hit(&test), offhand_hit(&test)), (0, 1000));
 }
 
 /// The swings and strikes as the character rolls them: the off hand's misses drop by 10 %,
@@ -140,7 +134,7 @@ fn stacks_with_precision_on_the_off_hand() {
 #[test]
 fn the_character_rolls_off_hand_attacks_with_the_hit() {
     let mut test = test();
-    test.given_fury_talent_with_rank(TALENT, 5);
+    test.given_fury_talent_with_rank(TALENT, 3);
     let mh_white = misses_of(&mut test, |ctx| ctx.roll_melee_hit(Hand::Mainhand));
     let oh_white = misses_of(&mut test, |ctx| ctx.roll_melee_hit(Hand::Offhand));
     let mh_yellow = misses_of(&mut test, |ctx| {
@@ -156,12 +150,12 @@ fn the_character_rolls_off_hand_attacks_with_the_hit() {
     assert_eq!(oh_yellow, 0, "off-hand yellow");
 }
 
-/// The talent requires a one-handed weapon (`SpellEquippedItems` mask 41105): a two-hander
-/// gets nothing.
+/// The talent requires a one-handed weapon in the off hand (`SpellEquippedItems` mask 41105,
+/// inventory type off-hand weapon): a two-hander gets nothing.
 #[test]
 fn no_hit_with_a_two_hander() {
     let mut test = WarriorTest::new(TALENT);
-    test.given_fury_talent_with_rank(TALENT, 5);
+    test.given_fury_talent_with_rank(TALENT, 3);
     test.given_2h_axe_equipped();
     assert_eq!((melee_hit(&test), offhand_hit(&test)), (0, 0));
     test.given_1h_axe_equipped_in_mainhand();
@@ -178,7 +172,7 @@ fn the_rogue_talent_gives_no_hit() {
     test.given_an_offhand_weapon_with_100_min_max_dmg();
     let before = miss_ranges(&mut test);
     test.given_talent_rank("Combat", "Precision", 3);
-    test.given_talent_rank("Combat", TALENT, 5);
+    test.given_talent_rank("Combat", DUAL_WIELD_SPECIALIZATION, 5);
     assert_eq!((melee_hit(&test), offhand_hit(&test)), (300, 0));
     assert_eq!(
         miss_ranges(&mut test),

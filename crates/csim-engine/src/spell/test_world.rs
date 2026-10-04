@@ -1409,6 +1409,9 @@ impl SpellHost for World {
     fn offhand_copy_active(&self, spell: u32) -> bool {
         self.offhand_copies.contains(&spell) && self.oh_speed.is_some()
     }
+    fn is_dual_wielding(&self) -> bool {
+        self.oh_speed.is_some()
+    }
     fn resources_on_use(&self, spell: u32) -> Vec<(ResourceType, u32)> {
         self.resources_on_use
             .iter()

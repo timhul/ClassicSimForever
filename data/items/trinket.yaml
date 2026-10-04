@@ -2,6 +2,120 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 1713
+  name: Ankh of Life
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 135943
+  icon_name: spell_holy_prayerofhealing02
+  unique: true
+  req_lvl: 40
+  item_lvl: 45
+  boe: true
+  stats:
+    SPIRIT: 12
+  effects:
+  - trigger: USE
+    spell: 1317424
+    cooldown_ms: 300000
+    category: 1153
+    category_cooldown_ms: 120000
+- id: 2802
+  name: Blazing Emblem
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 133434
+  icon_name: inv_jewelry_talisman_01
+  unique: true
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  stats:
+    FIRE_RESISTANCE: 15
+  effects:
+  - trigger: USE
+    spell: 13744
+    cooldown_ms: 600000
+- id: 3456
+  name: Dog Whistle
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 132161
+  icon_name: ability_hunter_beastcall
+  unique: true
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    SHADOW_RESISTANCE: 5
+  effects:
+  - trigger: USE
+    spell: 9515
+    cooldown_ms: 600000
+    category: 24
+    category_cooldown_ms: 60000
+  - trigger: EQUIP
+    spell: 1293501
+- id: 7734
+  name: Six Demon Bag
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 133622
+  icon_name: inv_misc_bag_01
+  unique: true
+  req_lvl: 46
+  item_lvl: 51
+  boe: true
+  effects:
+  - trigger: USE
+    spell: 14537
+    cooldown_ms: 1800000
+    category: 1141
+    category_cooldown_ms: 10000
+- id: 11302
+  name: Uther's Strength
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 133439
+  icon_name: inv_jewelry_talisman_06
+  unique: true
+  req_lvl: 47
+  item_lvl: 52
+  boe: true
+  stats:
+    SPELL_DAMAGE: 6
+    HEALING_POWER: 18
+  effects:
+  - trigger: EQUIP
+    spell: 8397
+- id: 11811
+  name: Smoking Heart of the Mountain
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 134084
+  icon_name: inv_misc_gem_bloodstone_01
+  req_lvl: 50
+  item_lvl: 55
+  stats:
+    FIRE_RESISTANCE: 7
+    FROST_RESISTANCE: 7
+    NATURE_RESISTANCE: 7
+    SHADOW_RESISTANCE: 7
+  effects:
+  - trigger: USE
+    spell: 1300752
+    cooldown_ms: 360000
 - id: 13164
   name: Heart of the Scale
   phase: 1
@@ -1790,358 +1904,6 @@ items:
   effects:
   - trigger: EQUIP
     spell: 370391
-- id: 209611
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [HUNTER]
-  effects:
-  - trigger: USE
-    spell: 5579
-    cooldown_ms: 300000
-- id: 209612
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [ROGUE]
-  effects:
-  - trigger: USE
-    spell: 23273
-    cooldown_ms: 300000
-- id: 209613
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [PRIEST]
-  effects:
-  - trigger: USE
-    spell: 23276
-    cooldown_ms: 300000
-- id: 209614
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [PALADIN]
-  effects:
-  - trigger: USE
-    spell: 23276
-    cooldown_ms: 300000
-- id: 209615
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [WARLOCK]
-  effects:
-  - trigger: USE
-    spell: 23273
-    cooldown_ms: 300000
-- id: 209616
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [WARRIOR]
-  effects:
-  - trigger: USE
-    spell: 5579
-    cooldown_ms: 300000
-- id: 209617
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [DRUID]
-  effects:
-  - trigger: USE
-    spell: 23277
-    cooldown_ms: 300000
-- id: 209618
-  name: Insignia of the Alliance
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133452
-  icon_name: inv_jewelry_trinketpvp_01
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [MAGE]
-  effects:
-  - trigger: USE
-    spell: 23274
-    cooldown_ms: 300000
-- id: 209619
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [WARRIOR]
-  effects:
-  - trigger: USE
-    spell: 5579
-    cooldown_ms: 300000
-- id: 209620
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [WARLOCK]
-  effects:
-  - trigger: USE
-    spell: 23273
-    cooldown_ms: 300000
-- id: 209621
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [PRIEST]
-  effects:
-  - trigger: USE
-    spell: 23276
-    cooldown_ms: 300000
-- id: 209622
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [ROGUE]
-  effects:
-  - trigger: USE
-    spell: 23273
-    cooldown_ms: 300000
-- id: 209623
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [MAGE]
-  effects:
-  - trigger: USE
-    spell: 23274
-    cooldown_ms: 300000
-- id: 209624
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [DRUID]
-  effects:
-  - trigger: USE
-    spell: 23277
-    cooldown_ms: 300000
-- id: 209625
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [SHAMAN]
-  effects:
-  - trigger: USE
-    spell: 5579
-    cooldown_ms: 300000
-- id: 209626
-  name: Insignia of the Horde
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 133453
-  icon_name: inv_jewelry_trinketpvp_02
-  unique: true
-  req_lvl: 0
-  item_lvl: 1
-  class_restrictions: [HUNTER]
-  effects:
-  - trigger: USE
-    spell: 5579
-    cooldown_ms: 300000
-- id: 219345
-  name: Infernal Lasso
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 136091
-  icon_name: spell_nature_slow
-  req_lvl: 50
-  item_lvl: 50
-  stats:
-    SPELL_DAMAGE: 8
-  effects:
-  - trigger: USE
-    spell: 443265
-    cooldown_ms: 300000
-    category: 1141
-    category_cooldown_ms: 12000
-- id: 231877
-  name: Tyler's Balanced Bobble
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 134932
-  icon_name: inv_scarab_crystal
-  req_lvl: 1
-  item_lvl: 1
-  effects:
-  - trigger: EQUIP
-    spell: 469141
-- id: 249469
-  name: Frozen Heart of the Mountain
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 134131
-  icon_name: inv_misc_gem_sapphire_01
-  unique: true
-  req_lvl: 50
-  item_lvl: 55
-  stats:
-    FIRE_RESISTANCE: 7
-    FROST_RESISTANCE: 7
-    NATURE_RESISTANCE: 7
-    SHADOW_RESISTANCE: 7
-    HIT_RATING: 9
-  effects:
-  - trigger: USE
-    spell: 1249110
-    cooldown_ms: 300000
-    category: 1141
-    category_cooldown_ms: 15000
-- id: 249470
-  name: Molten Heart of the Mountain
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 134128
-  icon_name: inv_misc_gem_ruby_01
-  unique: true
-  req_lvl: 50
-  item_lvl: 55
-  stats:
-    FIRE_RESISTANCE: 7
-    FROST_RESISTANCE: 7
-    NATURE_RESISTANCE: 7
-    SHADOW_RESISTANCE: 7
-    WEAPON_DAMAGE: 2
-  effects:
-  - trigger: USE
-    spell: 1249113
-    cooldown_ms: 300000
-    category: 1141
-    category_cooldown_ms: 15000
-- id: 249473
-  name: Dormant Heart of the Mountain
-  phase: 1
-  slot: TRINKET
-  type: TRINKET
-  quality: RARE
-  icon: 134094
-  icon_name: inv_misc_gem_diamond_01
-  unique: true
-  req_lvl: 50
-  item_lvl: 55
-  stats:
-    FIRE_RESISTANCE: 7
-    FROST_RESISTANCE: 7
-    NATURE_RESISTANCE: 7
-    SHADOW_RESISTANCE: 7
-  effects:
-  - trigger: EQUIP
-    spell: 1249118
 - id: 260824
   name: Gnomish Poultryizer
   phase: 1
@@ -2434,6 +2196,71 @@ items:
     id: 707
     name: Undermine Trinkets
     quantity: 1
+- id: 273298
+  name: Lookie's Spyglass
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 134440
+  icon_name: inv_misc_spyglass_01
+  unique: true
+  req_lvl: 18
+  item_lvl: 23
+  stats:
+    SPIRIT: 1
+  effects:
+  - trigger: USE
+    spell: 12883
+  flavour_text: Mmmrrgglumg Cookie grgl mrg mllgrgrm. -Lookie, Former Ship Lookout
+- id: 273643
+  name: Worgenbane Talisman
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 133439
+  icon_name: inv_jewelry_talisman_06
+  unique: true
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    MANA_PER_5: 2
+  effects:
+  - trigger: USE
+    spell: 1292252
+    cooldown_ms: 300000
+- id: 273840
+  name: Cursed Murloc Eye
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 136155
+  icon_name: spell_shadow_evileye
+  unique: true
+  req_lvl: 24
+  item_lvl: 29
+  effects:
+  - trigger: EQUIP
+    spell: 1292674
+- id: 274152
+  name: Roogug's Severed Head
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 134172
+  icon_name: inv_misc_head_quillboar_01
+  unique: true
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    SPIRIT: 6
+  effects:
+  - trigger: USE
+    spell: 1293306
+    cooldown_ms: 300000
 - id: 274444
   name: Greater Insignia of the Horde
   phase: 1
@@ -2546,3 +2373,42 @@ items:
   - trigger: USE
     spell: 1309685
   flavour_text: Not every potion is meant for consumption.
+- id: 282778
+  name: Mark of the Red Flight
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 134317
+  icon_name: inv_misc_monsterscales_15
+  unique: true
+  req_lvl: 41
+  item_lvl: 46
+  stats:
+    ATTACK_POWER_DRAGONKIN: 12
+  effects:
+  - trigger: USE
+    spell: 1314412
+    cooldown_ms: 300000
+    category: 1153
+    category_cooldown_ms: 120000
+- id: 286556
+  name: Winds of Tanaris
+  phase: 1
+  slot: TRINKET
+  type: TRINKET
+  quality: RARE
+  icon: 796638
+  icon_name: spell_sandstorm
+  unique: true
+  req_lvl: 48
+  item_lvl: 53
+  stats:
+    NATURE_RESISTANCE: 12
+    ATTACK_POWER: 16
+  effects:
+  - trigger: USE
+    spell: 1320579
+    cooldown_ms: 300000
+    category: 2554
+    category_cooldown_ms: 10000

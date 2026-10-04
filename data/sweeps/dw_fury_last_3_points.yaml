@@ -12,8 +12,9 @@ overrides:
     Fury:
       Cruelty: 5
       Unbridled Wrath: 5
-      Improved Cleave: 3
-      Boundless Rage: 2
+      Furious Precision: 2
+      Piercing Howl: 1
+      Blood Craze: 2
       Raging Blows: 1
       Enrage: 5
       Death Wish: 1
@@ -27,7 +28,7 @@ variations:
       talents:
         Arms: [Impale, Improved Overpower]
         Fury:
-          - Precision
+          - Furious Precision          # the last point: 2/3 in the base
           - Dual Wield Specialization
-          - Boundless Rage             # the last point: 2/3 in the base
+          - Booming Voice
           - Improved Berserker Rage

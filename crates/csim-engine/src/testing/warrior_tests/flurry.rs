@@ -22,7 +22,7 @@ fn haste(rank: u32) -> f64 {
 /// `rank` of 5 Flurry, behind its prerequisite Enrage. Preparing the iterations drops the
 /// forced tables: force outcomes after.
 fn given_flurry(test: &mut WarriorTest, rank: u32) {
-    test.given_fury_talent_with_rank("Enrage", 5);
+    test.given_fury_talent_with_rank("Death Wish", 1);
     test.given_fury_talent_with_rank("Flurry", rank);
     test.prepare_set_of_combat_iterations();
 }

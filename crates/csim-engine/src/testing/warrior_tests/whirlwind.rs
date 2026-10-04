@@ -142,20 +142,20 @@ fn dodge_applies_overpower_buff() {
     test.then_overpower_is_active();
 }
 
-// ---------------------------------------------------------------- Raging Blows (off hand)
+// ---------------------------------------------------------------- the off-hand strike
+//
+// Whirlwind strikes with both weapons since the 70205 hotfixes (`OFFHAND_STRIKE`); Raging Blows,
+// which added the off-hand strike before, only reduces the rage cost now.
 
 const OFFHAND: &str = "Whirlwind Off-Hand";
 
 /// Dual wielding the 100 - 100 test swords against an unarmored target, 1000 AP.
-fn dual_wield_test(raging_blows: bool) -> WarriorTest {
+fn dual_wield_test() -> WarriorTest {
     let mut test = test();
     test.given_target_has_0_armor();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     test.given_an_offhand_weapon_with_100_min_max_dmg();
     test.given_1000_melee_ap();
-    if raging_blows {
-        test.given_fury_talent_with_rank("Raging Blows", 1);
-    }
     test.given_no_previous_damage_dealt();
     test
 }
@@ -168,18 +168,8 @@ fn offhand_attempts(test: &WarriorTest) -> u64 {
 }
 
 #[test]
-fn whirlwind_strikes_with_the_mainhand_only_without_raging_blows() {
-    let mut test = dual_wield_test(false);
-    test.given_a_guaranteed_melee_ability_hit();
-    let report = test.cast(SPELL);
-    assert!(report.offhand.is_none());
-    assert_eq!(test.damage_dealt(), 271);
-    assert_eq!(offhand_attempts(&test), 0);
-}
-
-#[test]
-fn raging_blows_adds_an_offhand_strike() {
-    let mut test = dual_wield_test(true);
+fn whirlwind_strikes_with_both_weapons_without_a_talent() {
+    let mut test = dual_wield_test();
     test.given_a_guaranteed_melee_ability_hit();
     let report = test.cast(SPELL);
     // Off hand: [136] = (100 + (2.4 * 1000 / 14)) * 0.5
@@ -190,8 +180,20 @@ fn raging_blows_adds_an_offhand_strike() {
 }
 
 #[test]
+fn raging_blows_reduces_the_rage_cost_and_adds_no_strike() {
+    let mut test = dual_wield_test();
+    test.given_fury_talent_with_rank("Raging Blows", 1);
+    test.given_a_guaranteed_melee_ability_hit();
+    test.given_warrior_has_rage(25);
+    test.cast(SPELL);
+    // 25 - 3 rage.
+    test.then_warrior_has_rage(3);
+    assert_eq!(offhand_attempts(&test), 1);
+}
+
+#[test]
 fn offhand_strike_crits_like_the_mainhand() {
-    let mut test = dual_wield_test(true);
+    let mut test = dual_wield_test();
     test.given_a_guaranteed_melee_ability_crit();
     test.cast(SPELL);
     // [543] = (100 + (2.4 * 1000 / 14)) * 2.0, [271] = the same * 0.5 * 2.0
@@ -201,7 +203,7 @@ fn offhand_strike_crits_like_the_mainhand() {
 
 #[test]
 fn offhand_strike_uses_the_dual_wield_specialization_penalty() {
-    let mut test = dual_wield_test(true);
+    let mut test = dual_wield_test();
     test.given_fury_talent_with_rank("Dual Wield Specialization", 5);
     test.given_a_guaranteed_melee_ability_hit();
     test.cast(SPELL);
@@ -211,7 +213,7 @@ fn offhand_strike_uses_the_dual_wield_specialization_penalty() {
 
 #[test]
 fn offhand_strike_rolls_on_its_own() {
-    let mut test = dual_wield_test(true);
+    let mut test = dual_wield_test();
     test.given_a_guaranteed_melee_ability_dodge();
     let report = test.cast(SPELL);
     // The main hand was dodged; the off hand still swings (and is dodged too).
@@ -228,19 +230,19 @@ fn offhand_strike_rolls_on_its_own() {
     assert_eq!(test.damage_dealt(), 0);
 }
 
-/// Raging Blows on a dual wielder with 1000 AP against an unarmored target.
-fn raging_blows_test() -> WarriorTest {
+/// A dual wielder (the weapons come with the rolls below) with 1000 AP against an unarmored
+/// target.
+fn strike_test() -> WarriorTest {
     let mut test = test();
     test.given_target_has_0_armor();
     test.given_1000_melee_ap();
-    test.given_fury_talent_with_rank("Raging Blows", 1);
     test.given_no_previous_damage_dealt();
     test
 }
 
 #[test]
 fn offhand_strike_hits_when_the_mainhand_is_dodged() {
-    let mut test = raging_blows_test();
+    let mut test = strike_test();
     test.given_a_mainhand_ability_dodge_and_an_offhand_ability_hit();
     let report = test.cast(SPELL);
     assert_eq!(report.attack.unwrap().result, PhysicalAttackResult::Dodge);
@@ -253,7 +255,7 @@ fn offhand_strike_hits_when_the_mainhand_is_dodged() {
 
 #[test]
 fn offhand_strike_is_dodged_when_the_mainhand_hits() {
-    let mut test = raging_blows_test();
+    let mut test = strike_test();
     test.given_a_mainhand_ability_hit_and_an_offhand_ability_dodge();
     let report = test.cast(SPELL);
     let mainhand = report.attack.unwrap();
@@ -271,7 +273,6 @@ fn offhand_strike_is_dodged_when_the_mainhand_hits() {
 fn no_offhand_strike_with_a_twohander() {
     let mut test = test();
     test.given_a_twohand_weapon_with_100_min_max_dmg();
-    test.given_fury_talent_with_rank("Raging Blows", 1);
     test.given_a_guaranteed_melee_ability_hit();
     let report = test.cast(SPELL);
     assert!(report.offhand.is_none());
@@ -280,7 +281,7 @@ fn no_offhand_strike_with_a_twohander() {
 
 #[test]
 fn offhand_strike_costs_no_extra_rage() {
-    let mut test = dual_wield_test(true);
+    let mut test = dual_wield_test();
     test.given_a_guaranteed_melee_ability_hit();
     test.given_warrior_has_rage(25);
     let report = test.cast(SPELL);
@@ -290,7 +291,7 @@ fn offhand_strike_costs_no_extra_rage() {
 
 #[test]
 fn offhand_strike_is_an_offhand_proc_event() {
-    let mut test = dual_wield_test(true);
+    let mut test = dual_wield_test();
     test.given_a_guaranteed_melee_ability_crit();
     let report = test.cast(SPELL);
     assert_eq!(

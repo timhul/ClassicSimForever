@@ -2,6 +2,114 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 2245
+  name: Helm of Narv
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: EPIC
+  icon: 133073
+  icon_name: inv_helmet_05
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  stats:
+    AGILITY: 13
+    SPIRIT: 18
+    STAMINA: 32
+    ARMOR: 309
+- id: 2721
+  name: Holy Shroud
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133118
+  icon_name: inv_helmet_16
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  stats:
+    SPIRIT: 6
+    ARMOR: 40
+    SPELL_DAMAGE: 11
+    HEALING_POWER: 33
+- id: 3020
+  name: Enduring Cap
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133117
+  icon_name: inv_helmet_15
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  stats:
+    INTELLECT: 16
+    SPIRIT: 7
+    ARMOR: 88
+- id: 5819
+  name: Sunblaze Coif
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133071
+  icon_name: inv_helmet_03
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  stats:
+    STAMINA: 10
+    ARMOR: 185
+    FIRE_RESISTANCE: 10
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 22
+- id: 6686
+  name: Tusken Helm
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133077
+  icon_name: inv_helmet_09
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    STRENGTH: 13
+    ARMOR: 188
+- id: 6688
+  name: Whisperwind Headdress
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133119
+  icon_name: inv_helmet_17
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    INTELLECT: 11
+    SPIRIT: 11
+    STAMINA: 6
+    ARMOR: 89
+- id: 7691
+  name: Embalmed Shroud
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133130
+  icon_name: inv_helmet_28
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    SPIRIT: 12
+    STAMINA: 7
+    ARMOR: 42
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 24
 - id: 8345
   name: Wolfshead Helm
   phase: 1
@@ -39,6 +147,27 @@ items:
   effects:
   - trigger: USE
     spell: 10578
+    cooldown_ms: 300000
+    category: 1141
+    category_cooldown_ms: 10000
+- id: 9492
+  name: Electromagnetic Gigaflux Reactivator
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 132995
+  icon_name: inv_gizmo_01
+  req_lvl: 31
+  item_lvl: 36
+  stats:
+    INTELLECT: 8
+    SPIRIT: 9
+    ARMOR: 43
+    SPELL_DAMAGE: 8
+  effects:
+  - trigger: USE
+    spell: 11826
     cooldown_ms: 300000
     category: 1141
     category_cooldown_ms: 10000
@@ -183,6 +312,102 @@ items:
     ARMOR: 565
     HIT_RATING: 20
     CRIT_RATING: 28
+- id: 13073
+  name: Mugthol's Helm
+  phase: 1
+  slot: HEAD
+  type: PLATE
+  quality: RARE
+  icon: 133127
+  icon_name: inv_helmet_25
+  req_lvl: 47
+  item_lvl: 52
+  boe: true
+  stats:
+    SPIRIT: 17
+    STAMINA: 17
+    STRENGTH: 10
+    ARMOR: 445
+- id: 13102
+  name: Cassandra's Grace
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133345
+  icon_name: inv_jewelry_ring_03
+  req_lvl: 42
+  item_lvl: 47
+  boe: true
+  stats:
+    SPIRIT: 9
+    STAMINA: 7
+    ARMOR: 55
+    SPELL_DAMAGE: 15
+    HEALING_POWER: 44
+- id: 13112
+  name: Winged Helm
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133121
+  icon_name: inv_helmet_19
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  stats:
+    INTELLECT: 23
+    SPIRIT: 10
+    ARMOR: 115
+- id: 13113
+  name: Feathermoon Headdress
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133072
+  icon_name: inv_helmet_04
+  req_lvl: 58
+  item_lvl: 63
+  boe: true
+  stats:
+    INTELLECT: 20
+    SPIRIT: 21
+    STAMINA: 13
+    ARMOR: 143
+- id: 13127
+  name: Frostreaver Crown
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133126
+  icon_name: inv_helmet_24
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  stats:
+    SPIRIT: 4
+    STAMINA: 15
+    STRENGTH: 4
+    ARMOR: 182
+- id: 13128
+  name: High Bergg Helm
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133120
+  icon_name: inv_helmet_18
+  req_lvl: 42
+  item_lvl: 47
+  boe: true
+  stats:
+    INTELLECT: 15
+    SPIRIT: 15
+    STAMINA: 10
+    ARMOR: 231
 - id: 14140
   name: Mooncloth Circlet
   phase: 1
@@ -628,6 +853,163 @@ items:
     ARMOR: 382
     SPELL_DAMAGE: 9
     CRIT_RATING: 14
+- id: 16667
+  name: Coif of Elements
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133072
+  icon_name: inv_helmet_04
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    INTELLECT: 23
+    SPIRIT: 12
+    STAMINA: 13
+    STRENGTH: 7
+    ARMOR: 297
+    SPELL_DAMAGE: 12
+  set: 187
+- id: 16677
+  name: Beaststalker's Cap
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133126
+  icon_name: inv_helmet_24
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    AGILITY: 20
+    INTELLECT: 13
+    SPIRIT: 6
+    STAMINA: 20
+    ARMOR: 297
+  set: 186
+- id: 16686
+  name: Magister's Crown
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 132768
+  icon_name: inv_crown_02
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    INTELLECT: 30
+    STAMINA: 10
+    ARMOR: 71
+    SPELL_DAMAGE: 11
+  set: 181
+- id: 16693
+  name: Devout Crown
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 132767
+  icon_name: inv_crown_01
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    INTELLECT: 24
+    SPIRIT: 15
+    STAMINA: 13
+    ARMOR: 71
+    SPELL_DAMAGE: 7
+    HEALING_POWER: 20
+  set: 182
+- id: 16698
+  name: Dreadmist Mask
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133131
+  icon_name: inv_helmet_29
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    INTELLECT: 23
+    SPIRIT: 12
+    STAMINA: 15
+    ARMOR: 71
+    SPELL_DAMAGE: 14
+  set: 183
+- id: 16707
+  name: Shadowcraft Cap
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133143
+  icon_name: inv_helmet_41
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    AGILITY: 20
+    SPIRIT: 13
+    STAMINA: 20
+    STRENGTH: 6
+    ARMOR: 141
+  set: 184
+- id: 16720
+  name: Wildheart Cowl
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133129
+  icon_name: inv_helmet_27
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    INTELLECT: 20
+    SPIRIT: 20
+    STAMINA: 10
+    STRENGTH: 6
+    ARMOR: 141
+    SPELL_DAMAGE: 5
+    HEALING_POWER: 15
+  set: 185
+- id: 16727
+  name: Lightforge Helm
+  phase: 1
+  slot: HEAD
+  type: PLATE
+  quality: RARE
+  icon: 133076
+  icon_name: inv_helmet_08
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    AGILITY: 7
+    INTELLECT: 13
+    STAMINA: 20
+    STRENGTH: 14
+    ARMOR: 526
+    MANA_PER_5: 4
+  set: 188
+- id: 16731
+  name: Helm of Valor
+  phase: 1
+  slot: HEAD
+  type: PLATE
+  quality: RARE
+  icon: 133070
+  icon_name: inv_helmet_02
+  req_lvl: 57
+  item_lvl: 62
+  stats:
+    AGILITY: 9
+    STAMINA: 27
+    STRENGTH: 15
+    ARMOR: 526
+    HEALTH_PER_5: 8
+  set: 189
 - id: 16983
   name: Molten Helm
   phase: 1
@@ -2516,6 +2898,24 @@ items:
     SPELL_DAMAGE: 14
     CRIT_RATING: 7
   set: 2094
+- id: 272491
+  name: Premier Chain Headguard
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133071
+  icon_name: inv_helmet_03
+  req_lvl: 55
+  item_lvl: 60
+  class_restrictions: [HUNTER]
+  stats:
+    AGILITY: 10
+    INTELLECT: 7
+    STAMINA: 19
+    ARMOR: 288
+    ATTACK_POWER: 12
+  set: 361
 - id: 272498
   name: Premier Warlord's Magus Cowl
   phase: 1
@@ -3334,6 +3734,21 @@ items:
   boe: true
   stats:
     ARMOR: 77
+- id: 274155
+  name: Geomancer Headdress
+  phase: 1
+  slot: HEAD
+  type: LEATHER
+  quality: RARE
+  icon: 133116
+  icon_name: inv_helmet_14
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    SPIRIT: 12
+    STAMINA: 8
+    ARMOR: 84
+    NATURE_RESISTANCE: 7
 - id: 274178
   name: Premier Scalemail Helm
   phase: 1
@@ -3520,6 +3935,21 @@ items:
     SPELL_DAMAGE: 10
     HEALING_POWER: 29
   set: 2083
+- id: 274291
+  name: Polished Skullcap
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  icon: 133118
+  icon_name: inv_helmet_16
+  req_lvl: 31
+  item_lvl: 36
+  stats:
+    STAMINA: 8
+    STRENGTH: 7
+    ARMOR: 193
+    SHADOW_RESISTANCE: 14
 - id: 276105
   name: Scoutmaster's Eyepatch
   phase: 1
@@ -3551,3 +3981,46 @@ items:
     STAMINA: 31
     ARMOR: 160
     CRIT_RATING: 21
+- id: 282558
+  name: Firebird's Cowl
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133130
+  icon_name: inv_helmet_28
+  req_lvl: 53
+  item_lvl: 58
+  stats:
+    INTELLECT: 7
+    STAMINA: 24
+    ARMOR: 67
+    MANA_PER_5: 6
+- id: 284400
+  name: Foreman's Helm
+  phase: 1
+  slot: HEAD
+  type: MAIL
+  quality: RARE
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    STAMINA: 9
+    STRENGTH: 8
+    ARMOR: 166
+- id: 284401
+  name: Sorrow's Shroud
+  phase: 1
+  slot: HEAD
+  type: CLOTH
+  quality: RARE
+  icon: 133132
+  icon_name: inv_helmet_30
+  req_lvl: 24
+  item_lvl: 29
+  stats:
+    STAMINA: 11
+    ARMOR: 38
+    MANA_PER_5: 3
+    SPELL_DAMAGE: 5
+    HEALING_POWER: 16

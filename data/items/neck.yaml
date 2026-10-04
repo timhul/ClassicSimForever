@@ -2,6 +2,165 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 1714
+  name: Necklace of Calisea
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133297
+  icon_name: inv_jewelry_necklace_10
+  req_lvl: 38
+  item_lvl: 43
+  boe: true
+  stats:
+    INTELLECT: 7
+    SPIRIT: 7
+    STAMINA: 8
+- id: 6695
+  name: Stygian Bone Amulet
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133291
+  icon_name: inv_jewelry_necklace_04
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    STAMINA: 4
+    SPELL_DAMAGE_UNDEAD: 16
+- id: 7731
+  name: Ghostshard Talisman
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133293
+  icon_name: inv_jewelry_necklace_06
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    STAMINA: 9
+    ATTACK_POWER: 14
+    ATTACK_POWER_UNDEAD: 12
+- id: 7746
+  name: Explorers' League Commendation
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133434
+  icon_name: inv_jewelry_talisman_01
+  req_lvl: 0
+  item_lvl: 40
+  stats:
+    SPIRIT: 9
+    STAMINA: 9
+- id: 13002
+  name: Lady Alizabeth's Pendant
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133278
+  icon_name: inv_jewelry_amulet_03
+  req_lvl: 54
+  item_lvl: 59
+  boe: true
+  stats:
+    SPIRIT: 15
+    STAMINA: 8
+- id: 13084
+  name: Kaleidoscope Chain
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133282
+  icon_name: inv_jewelry_amulet_07
+  req_lvl: 30
+  item_lvl: 35
+  boe: true
+  stats:
+    AGILITY: 4
+    INTELLECT: 4
+    SPIRIT: 4
+    STAMINA: 4
+    STRENGTH: 4
+- id: 13085
+  name: Horizon Choker
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133298
+  icon_name: inv_jewelry_necklace_11
+  req_lvl: 46
+  item_lvl: 51
+  boe: true
+  stats:
+    INTELLECT: 14
+    SPIRIT: 4
+    STAMINA: 4
+- id: 13087
+  name: River Pride Choker
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133296
+  icon_name: inv_jewelry_necklace_09
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  stats:
+    STAMINA: 9
+    STRENGTH: 4
+- id: 13088
+  name: Gazlowe's Charm
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133276
+  icon_name: inv_jewelry_amulet_01
+  req_lvl: 36
+  item_lvl: 41
+  boe: true
+  stats:
+    SPIRIT: 3
+    STAMINA: 11
+    STRENGTH: 4
+- id: 13089
+  name: Skibi's Pendant
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133282
+  icon_name: inv_jewelry_amulet_07
+  req_lvl: 44
+  item_lvl: 49
+  boe: true
+  stats:
+    AGILITY: 13
+    SPIRIT: 3
+    STRENGTH: 5
+- id: 13091
+  name: Medallion of Grand Marshal Morris
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133441
+  icon_name: inv_jewelry_talisman_08
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  stats:
+    STAMINA: 7
+    DEFENSE: 10
 - id: 15200
   name: Senior Sergeant's Insignia
   phase: 1
@@ -1426,6 +1585,18 @@ items:
     INTELLECT: 6
     STAMINA: 5
     SPELL_DAMAGE: 7
+- id: 270227
+  name: Ephemeral Choker
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 466975
+  icon_name: inv_misc_necklacea8
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    SPIRIT: 5
 - id: 271917
   name: Seal of the Expedition
   phase: 1
@@ -1556,6 +1727,58 @@ items:
   stats:
     INTELLECT: 8
     SPIRIT: 10
+- id: 273088
+  name: Snake Eye Kaleidoscope
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133884
+  icon_name: inv_misc_eye_01
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    AGILITY: 1
+    INTELLECT: 1
+    SPIRIT: 1
+    STAMINA: 1
+    STRENGTH: 1
+    ARCANE_RESISTANCE: 1
+    FIRE_RESISTANCE: 1
+    FROST_RESISTANCE: 1
+    NATURE_RESISTANCE: 1
+    SHADOW_RESISTANCE: 1
+- id: 273457
+  name: Sorcerer Collar
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133294
+  icon_name: inv_jewelry_necklace_07
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    INTELLECT: 2
+    SPIRIT: 2
+  effects:
+  - trigger: EQUIP
+    spell: 1292222
+- id: 274068
+  name: Thermaplugg Medal of Honor
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133278
+  icon_name: inv_jewelry_amulet_03
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    SPIRIT: 6
+    STAMINA: 6
+    ATTACK_POWER: 10
+  flavour_text: Azeroth's Best Pummeler
 - id: 274749
   name: Souvenir Sea Shell
   phase: 1
@@ -1623,6 +1846,19 @@ items:
     AGILITY: 8
     STAMINA: 14
     STRENGTH: 9
+- id: 279837
+  name: Fallen Guard's Pendant
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133335
+  icon_name: inv_jewelry_necklace_44
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    STAMINA: 8
+    STRENGTH: 6
 - id: 281321
   name: Giantstone Medallion
   phase: 1
@@ -1664,3 +1900,17 @@ items:
     SPIRIT: 6
     STRENGTH: 6
   flavour_text: Once as pure as the rivers that flow through the Riverglades, now defiled.
+- id: 285331
+  name: Mark of the Pack Leader
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 133291
+  icon_name: inv_jewelry_necklace_04
+  req_lvl: 20
+  item_lvl: 25
+  stats:
+    INTELLECT: 5
+    STRENGTH: 5
+  set: 2132

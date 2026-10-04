@@ -504,6 +504,9 @@ pub enum SimFlag {
     /// While the buff is active the character is enraged (the `ENRAGED` caster aura state;
     /// the client tables do not carry the enrage mechanic).
     Enrage,
+    /// A dual-wielding character's ability also strikes with the off-hand weapon, as an
+    /// `OFFHAND_COPY` aura makes it (Whirlwind in Forever: "from both melee weapons").
+    OffhandStrike,
 }
 
 /// Everything hand-written about one spell.

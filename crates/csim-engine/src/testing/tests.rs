@@ -206,7 +206,7 @@ fn talent_helpers() {
     test.given_impale(2);
     test.given_tactical_mastery(5);
     // Deep in the tree without the tiers above it.
-    test.given_fury_talent_with_rank("Enrage", 5);
+    test.given_fury_talent_with_rank("Death Wish", 1);
     test.given_fury_talent_with_rank("Flurry", 3);
     test.given_talent_ranks("Arms", &[("Deflection", 5), ("Improved Rend", 2)]);
     let talents = test.character().talents().unwrap();

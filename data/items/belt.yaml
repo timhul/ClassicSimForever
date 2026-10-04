@@ -2,6 +2,35 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 2911
+  name: Keller's Girdle
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132493
+  icon_name: inv_belt_04
+  req_lvl: 18
+  item_lvl: 23
+  boe: true
+  stats:
+    INTELLECT: 8
+    STAMINA: 3
+    ARMOR: 23
+- id: 3562
+  name: Belt of Vindication
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132494
+  icon_name: inv_belt_05
+  req_lvl: 0
+  item_lvl: 29
+  stats:
+    AGILITY: 7
+    STAMINA: 3
+    ARMOR: 57
 - id: 4262
   name: Gem-studded Leather Belt
   phase: 1
@@ -21,6 +50,54 @@ items:
   - trigger: USE
     spell: 9163
     cooldown_ms: 300000
+- id: 6319
+  name: Girdle of the Blindwatcher
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132492
+  icon_name: inv_belt_03
+  req_lvl: 21
+  item_lvl: 26
+  stats:
+    INTELLECT: 3
+    STAMINA: 5
+    ARMOR: 54
+    SPELL_DAMAGE: 7
+  effects:
+  - trigger: EQUIP
+    spell: 1292149
+- id: 6392
+  name: Belt of Arugal
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132499
+  icon_name: inv_belt_10
+  req_lvl: 23
+  item_lvl: 28
+  stats:
+    AGILITY: 2
+    INTELLECT: 3
+    SPIRIT: 5
+    ARMOR: 26
+    SPELL_DAMAGE: 9
+- id: 6460
+  name: Cobrahn's Grasp
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132492
+  icon_name: inv_belt_03
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    AGILITY: 3
+    STRENGTH: 7
+    ARMOR: 107
 - id: 6468
   name: Deviate Scale Belt
   phase: 1
@@ -37,6 +114,264 @@ items:
     STAMINA: 6
     STRENGTH: 3
     ARMOR: 51
+- id: 6742
+  name: Stonefist Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132524
+  icon_name: inv_belt_35
+  req_lvl: 0
+  item_lvl: 36
+  stats:
+    STAMINA: 5
+    STRENGTH: 6
+    ARMOR: 234
+- id: 6908
+  name: Ghamoo-ra's Bind
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132513
+  icon_name: inv_belt_24
+  req_lvl: 22
+  item_lvl: 27
+  stats:
+    STAMINA: 7
+    ARMOR: 25
+    SPELL_DAMAGE: 8
+- id: 6911
+  name: Moss Cinch
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132514
+  icon_name: inv_belt_25
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    STAMINA: 5
+    ARMOR: 58
+    SPELL_DAMAGE: 12
+- id: 7000
+  name: Heartwood Girdle
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132493
+  icon_name: inv_belt_04
+  req_lvl: 0
+  item_lvl: 27
+  stats:
+    STAMINA: 7
+    ARMOR: 55
+    SPELL_DAMAGE: 8
+- id: 9405
+  name: Girdle of Golem Strength
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132516
+  icon_name: inv_belt_27
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  stats:
+    STRENGTH: 12
+    ARMOR: 128
+    DEFENSE: 3
+- id: 10329
+  name: Scarlet Belt
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132495
+  icon_name: inv_belt_06
+  req_lvl: 32
+  item_lvl: 37
+  boe: true
+  stats:
+    STAMINA: 10
+    STRENGTH: 12
+    ARMOR: 136
+  set: 163
+- id: 10403
+  name: Blackened Defias Belt
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132515
+  icon_name: inv_belt_26
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    ARMOR: 50
+    ATTACK_POWER: 18
+  set: 161
+- id: 10412
+  name: Belt of the Fang
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132519
+  icon_name: inv_belt_30
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    AGILITY: 3
+    STAMINA: 5
+    ARMOR: 49
+  set: 162
+- id: 12978
+  name: Stormbringer Belt
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132504
+  icon_name: inv_belt_15
+  req_lvl: 15
+  item_lvl: 20
+  boe: true
+  stats:
+    STAMINA: 2
+    STRENGTH: 5
+    ARMOR: 104
+- id: 13011
+  name: Silver-lined Belt
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132511
+  icon_name: inv_belt_22
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  stats:
+    INTELLECT: 9
+    SPIRIT: 4
+    ARMOR: 55
+- id: 13077
+  name: Girdle of Uther
+  phase: 1
+  slot: BELT
+  type: PLATE
+  quality: RARE
+  icon: 132521
+  icon_name: inv_belt_32
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  stats:
+    AGILITY: 9
+    INTELLECT: 9
+    SPIRIT: 10
+    STAMINA: 10
+    STRENGTH: 9
+    ARMOR: 336
+- id: 13105
+  name: Sutarn's Ring
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132500
+  icon_name: inv_belt_11
+  req_lvl: 32
+  item_lvl: 37
+  boe: true
+  stats:
+    INTELLECT: 10
+    SPIRIT: 6
+    STAMINA: 6
+    ARMOR: 30
+- id: 13117
+  name: Ogron's Sash
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132504
+  icon_name: inv_belt_15
+  req_lvl: 37
+  item_lvl: 42
+  boe: true
+  stats:
+    AGILITY: 9
+    STAMINA: 9
+    STRENGTH: 9
+    ARMOR: 71
+- id: 13118
+  name: Serpentine Sash
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132514
+  icon_name: inv_belt_25
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  stats:
+    AGILITY: 14
+    STAMINA: 14
+    STRENGTH: 9
+    ARMOR: 92
+- id: 13134
+  name: Belt of the Gladiator
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132512
+  icon_name: inv_belt_23
+  req_lvl: 44
+  item_lvl: 49
+  boe: true
+  stats:
+    STAMINA: 7
+    STRENGTH: 18
+    ARMOR: 166
+- id: 13144
+  name: Serenity Belt
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132496
+  icon_name: inv_belt_07
+  req_lvl: 48
+  item_lvl: 53
+  boe: true
+  stats:
+    INTELLECT: 17
+    STAMINA: 7
+    ARMOR: 43
+- id: 13145
+  name: Enormous Ogre Belt
+  phase: 1
+  slot: BELT
+  type: PLATE
+  quality: RARE
+  icon: 132516
+  icon_name: inv_belt_27
+  req_lvl: 40
+  item_lvl: 40
+  boe: true
+  stats:
+    SPIRIT: 5
+    STAMINA: 5
+    STRENGTH: 12
+    ARMOR: 164
 - id: 16367
   name: Knight-Captain's Silk Sash
   phase: 1
@@ -402,6 +737,175 @@ items:
     STAMINA: 15
     STRENGTH: 5
     ARMOR: 234
+- id: 16673
+  name: Cord of Elements
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132505
+  icon_name: inv_belt_16
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 17
+    SPIRIT: 7
+    STAMINA: 6
+    STRENGTH: 9
+    ARMOR: 193
+    SPELL_PENETRATION: 2
+  set: 187
+- id: 16680
+  name: Beaststalker's Belt
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132517
+  icon_name: inv_belt_28
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    AGILITY: 10
+    INTELLECT: 9
+    SPIRIT: 11
+    STAMINA: 6
+    STRENGTH: 8
+    ARMOR: 193
+  set: 186
+- id: 16685
+  name: Magister's Belt
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132497
+  icon_name: inv_belt_08
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 21
+    STAMINA: 6
+    ARMOR: 46
+    SPELL_DAMAGE: 7
+    SPELL_PENETRATION: 1
+  set: 181
+- id: 16696
+  name: Devout Belt
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132499
+  icon_name: inv_belt_10
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 20
+    SPIRIT: 9
+    STAMINA: 4
+    ARMOR: 46
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+  set: 182
+- id: 16702
+  name: Dreadmist Belt
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132501
+  icon_name: inv_belt_12
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 14
+    SPIRIT: 9
+    STAMINA: 10
+    ARMOR: 46
+    SPELL_DAMAGE: 9
+    SPELL_PENETRATION: 1
+  set: 183
+- id: 16713
+  name: Shadowcraft Belt
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132492
+  icon_name: inv_belt_03
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    AGILITY: 14
+    SPIRIT: 11
+    STAMINA: 10
+    STRENGTH: 9
+    ARMOR: 93
+  set: 184
+- id: 16716
+  name: Wildheart Belt
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132504
+  icon_name: inv_belt_15
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 17
+    SPIRIT: 10
+    STAMINA: 9
+    ARMOR: 93
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+  set: 185
+- id: 16723
+  name: Lightforge Belt
+  phase: 1
+  slot: BELT
+  type: PLATE
+  quality: RARE
+  icon: 132500
+  icon_name: inv_belt_11
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    INTELLECT: 15
+    STAMINA: 9
+    STRENGTH: 10
+    ARMOR: 341
+    SPELL_DAMAGE: 7
+    HIT_RATING: 5
+  set: 188
+- id: 16736
+  name: Belt of Valor
+  phase: 1
+  slot: BELT
+  type: PLATE
+  quality: RARE
+  icon: 132523
+  icon_name: inv_belt_34
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  stats:
+    AGILITY: 7
+    SPIRIT: 4
+    STAMINA: 12
+    STRENGTH: 14
+    ARMOR: 341
+    DEFENSE: 6
+  set: 189
 - id: 16975
   name: Warsong Sash
   phase: 1
@@ -841,6 +1345,23 @@ items:
     STAMINA: 16
     ARMOR: 118
     FIRE_RESISTANCE: 12
+- id: 19392
+  name: Girdle of the Fallen Crusader
+  phase: 1
+  slot: BELT
+  type: PLATE
+  quality: EPIC
+  icon: 132500
+  icon_name: inv_belt_11
+  req_lvl: 60
+  item_lvl: 77
+  stats:
+    AGILITY: 10
+    INTELLECT: 17
+    SPIRIT: 13
+    STAMINA: 15
+    STRENGTH: 20
+    ARMOR: 488
 - id: 19823
   name: Zandalar Vindicator's Belt
   phase: 1
@@ -2583,6 +3104,20 @@ items:
     STRENGTH: 10
     ARMOR: 324
     SPELL_DAMAGE: 16
+- id: 251962
+  name: Violet Sash
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132493
+  icon_name: inv_belt_04
+  req_lvl: 0
+  item_lvl: 36
+  stats:
+    INTELLECT: 12
+    SPIRIT: 7
+    ARMOR: 29
 - id: 252428
   name: Brawler's Leather Belt
   phase: 1
@@ -3160,6 +3695,57 @@ items:
     STAMINA: 9
     STRENGTH: 17
     ARMOR: 324
+- id: 270230
+  name: Kindlegem Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132509
+  icon_name: inv_belt_20
+  req_lvl: 13
+  item_lvl: 18
+  stats:
+    STAMINA: 7
+    ARMOR: 100
+- id: 271201
+  name: Atrophic Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  req_lvl: 15
+  item_lvl: 20
+  stats:
+    STAMINA: 7
+    STRENGTH: 3
+    ARMOR: 104
+- id: 271210
+  name: Tuskwrap Belt
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  req_lvl: 16
+  item_lvl: 21
+  stats:
+    SPIRIT: 5
+    ARMOR: 22
+    SPELL_DAMAGE: 6
+- id: 271768
+  name: Songblade Stabilizer
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132524
+  icon_name: inv_belt_35
+  req_lvl: 0
+  item_lvl: 33
+  stats:
+    STAMINA: 10
+    ARMOR: 128
+    DODGE_RATING: 8
 - id: 271769
   name: Daewyn's Girdle
   phase: 1
@@ -3188,6 +3774,22 @@ items:
     SPIRIT: 9
     STAMINA: 9
     ARMOR: 236
+- id: 272393
+  name: Magician's Cord
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: EPIC
+  icon: 236919
+  icon_name: inv_belt_43a
+  req_lvl: 60
+  item_lvl: 60
+  class_restrictions: [MAGE]
+  stats:
+    INTELLECT: 24
+    STAMINA: 12
+    ARMOR: 52
+    SPELL_DAMAGE: 19
 - id: 272394
   name: Penitent's Cinch
   phase: 1
@@ -3852,6 +4454,37 @@ items:
     STAMINA: 26
     ARMOR: 56
     SPELL_DAMAGE: 11
+- id: 273023
+  name: Saltscale Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    STAMINA: 9
+    STRENGTH: 9
+    ARMOR: 124
+- id: 273089
+  name: Slither Cord
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  icon: 132510
+  icon_name: inv_belt_21
+  req_lvl: 17
+  item_lvl: 22
+  stats:
+    ARMOR: 22
+    MANA_PER_5: 3
+  effects:
+  - trigger: USE
+    spell: 1291758
+    cooldown_ms: 1800000
+    category: 2533
+    category_cooldown_ms: 1800000
 - id: 273324
   name: Premier Mortarplate Girdle
   phase: 1
@@ -4194,6 +4827,52 @@ items:
     ARMOR: 48
     SPELL_DAMAGE: 6
     HEALING_POWER: 18
+- id: 273807
+  name: Demolition Girdle
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132513
+  icon_name: inv_belt_24
+  req_lvl: 24
+  item_lvl: 29
+  stats:
+    STRENGTH: 8
+    ARMOR: 57
+    SPELL_DAMAGE: 9
+- id: 273846
+  name: Twilight Lord Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  icon: 132516
+  icon_name: inv_belt_27
+  req_lvl: 25
+  item_lvl: 30
+  stats:
+    STRENGTH: 8
+    ARMOR: 123
+    BLOCK_VALUE: 6
+    SHADOW_RESISTANCE: 5
+- id: 274042
+  name: Skullduggery Belt
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  icon: 132501
+  icon_name: inv_belt_12
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    SPIRIT: 7
+    ARMOR: 62
+    ATTACK_POWER: 16
+  effects:
+  - trigger: EQUIP
+    spell: 1293068
 - id: 274185
   name: Premier Knight-Captain's Flatmail Waistband
   phase: 1
@@ -4540,3 +5219,42 @@ items:
     STAMINA: 21
     ARMOR: 56
     SPELL_DAMAGE_ARCANE: 20
+- id: 279836
+  name: Thorn Protecting Girdle
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  stats:
+    STAMINA: 12
+    ARMOR: 134
+    ATTACK_POWER: 12
+    ATTACK_POWER_ELEMENTAL: 15
+- id: 285339
+  name: Centaur War Chain
+  phase: 1
+  slot: BELT
+  type: MAIL
+  quality: RARE
+  req_lvl: 14
+  item_lvl: 19
+  stats:
+    STAMINA: 6
+    STRENGTH: 3
+    ARMOR: 102
+- id: 286980
+  name: Rotmender's Sash
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  stats:
+    INTELLECT: 6
+    STAMINA: 6
+    ARMOR: 22
+  set: 2133

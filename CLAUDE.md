@@ -14,6 +14,11 @@ needs to be reimplemented.
 There are also actual data differences due to the game versions (Forever vs Classic) being slightly
 different.
 
+The tables are the client build plus its server-side hotfixes (talent reworks, spell values and
+whole items come as hotfixes; Wowhead shows them). `python tools/fetch_tables.py` applies them;
+when Wowhead differs from the data on the same build, refresh them with
+`python tools/fetch_hotfixes.py --force` and re-export (`data/README.md`).
+
 # Development flow
 
 (1) Planning phase
@@ -187,6 +192,9 @@ https://ppach-warriorcompendium.share.connect.posit.cloud/
 Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
 
 # Known issues
+
+- The hotfixes are scraped from the wago.tools/hotfixes web page (no API). If the page changes,
+`tools/fetch_hotfixes.py` stops with an error and leaves the tables as they were.
 
 - The browser viewer hotlinks its icons from Wowhead's CDN, which is not ours to guarantee: if it
 breaks, the site shows empty icon slots. Forever-only textures have no name in the listfile, so

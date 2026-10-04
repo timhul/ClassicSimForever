@@ -1,15 +1,15 @@
 //! Port of `Test/Warrior/Talents/TestDefiance`.
 //!
 //! Forever's Defiance has 3 ranks of 5 % more threat in Defensive Stance each (the C++ 5 ranks
-//! of 3 %), a tier 3 talent behind Anticipation and Toughness, and only with a shield.
+//! of 3 %), a tier 3 talent behind Iron Will and Anticipation, and only with a shield.
 
 use crate::testing::warrior::WarriorTest;
 
 fn test() -> WarriorTest {
     let mut test = WarriorTest::new("Defiance");
     test.given_a_shield_equipped();
+    test.given_protection_talent_with_rank("Iron Will", 5);
     test.given_protection_talent_with_rank("Anticipation", 5);
-    test.given_protection_talent_with_rank("Toughness", 5);
     test.prepare_set_of_combat_iterations();
     test
 }

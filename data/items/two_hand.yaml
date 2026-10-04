@@ -2,6 +2,791 @@
 # Do not edit: re-export from a new table dump instead.
 build: 1.60.1.70205
 items:
+- id: 791
+  name: Gnarled Ash Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135139
+  icon_name: inv_staff_02
+  req_lvl: 26
+  item_lvl: 31
+  boe: true
+  damage:
+    min: 65
+    max: 99
+    speed: 3.2
+  stats:
+    SPIRIT: 15
+    STAMINA: 6
+- id: 870
+  name: Fiery War Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: EPIC
+  icon: 132393
+  icon_name: inv_axe_02
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  damage:
+    min: 93
+    max: 141
+    speed: 2.9
+  effects:
+  - trigger: ON_HIT
+    spell: 18796
+- id: 872
+  name: Rockslicer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135419
+  icon_name: inv_throwingaxe_01
+  unique: true
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 52
+    max: 78
+    speed: 3.3
+  stats:
+    STRENGTH: 7
+    NATURE_RESISTANCE: 7
+  effects:
+  - trigger: USE
+    spell: 1291896
+    charges: 30
+- id: 873
+  name: Staff of Jordan
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: EPIC
+  icon: 135150
+  icon_name: inv_staff_13
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  damage:
+    min: 119
+    max: 180
+    speed: 3.7
+  stats:
+    INTELLECT: 11
+    SPIRIT: 11
+- id: 890
+  name: Twisted Chanter's Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135141
+  icon_name: inv_staff_04
+  req_lvl: 19
+  item_lvl: 24
+  boe: true
+  damage:
+    min: 55
+    max: 84
+    speed: 3.4
+  stats:
+    INTELLECT: 10
+    STAMINA: 6
+- id: 937
+  name: Black Duskwood Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135150
+  icon_name: inv_staff_13
+  req_lvl: 33
+  item_lvl: 38
+  boe: true
+  damage:
+    min: 75
+    max: 113
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 18138
+- id: 1155
+  name: Rod of the Sleepwalker
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135143
+  icon_name: inv_staff_06
+  req_lvl: 24
+  item_lvl: 29
+  damage:
+    min: 53
+    max: 80
+    speed: 2.8
+  stats:
+    SPIRIT: 11
+  effects:
+  - trigger: EQUIP
+    spell: 1292652
+- id: 1264
+  name: Headbasher
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133482
+  icon_name: inv_mace_07
+  req_lvl: 0
+  item_lvl: 29
+  damage:
+    min: 43
+    max: 66
+    speed: 2.3
+  stats:
+    INTELLECT: 9
+    STAMINA: 5
+    STRENGTH: 10
+- id: 1317
+  name: Hardened Root Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135153
+  icon_name: inv_staff_16
+  req_lvl: 0
+  item_lvl: 27
+  damage:
+    min: 59
+    max: 89
+    speed: 3.3
+  stats:
+    SPIRIT: 13
+    STRENGTH: 2
+- id: 1318
+  name: Night Reaver
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135424
+  icon_name: inv_throwingaxe_06
+  req_lvl: 18
+  item_lvl: 23
+  boe: true
+  damage:
+    min: 52
+    max: 78
+    speed: 3.3
+  effects:
+  - trigger: ON_HIT
+    spell: 13480
+- id: 1484
+  name: Witching Stave
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  damage:
+    min: 55
+    max: 83
+    speed: 3.6
+  stats:
+    INTELLECT: 5
+    STAMINA: 6
+    SHADOW_RESISTANCE: 8
+    SPELL_DAMAGE_SHADOW: 27
+- id: 1607
+  name: Soulkeeper
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 136163
+  icon_name: spell_shadow_haunting
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  damage:
+    min: 141
+    max: 213
+    speed: 3.8
+  stats:
+    INTELLECT: 11
+    SPIRIT: 26
+- id: 1720
+  name: Tanglewood Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135162
+  icon_name: inv_staff_25
+  req_lvl: 41
+  item_lvl: 46
+  boe: true
+  damage:
+    min: 109
+    max: 165
+    speed: 3.4
+  stats:
+    SPIRIT: 18
+    STRENGTH: 9
+    SPELL_DAMAGE_NATURE: 14
+- id: 1722
+  name: Thornstone Sledgehammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 37
+  item_lvl: 42
+  boe: true
+  damage:
+    min: 95
+    max: 143
+    speed: 3.2
+  stats:
+    STRENGTH: 20
+    NATURE_RESISTANCE: 10
+- id: 1726
+  name: Poison-tipped Bone Spear
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135125
+  icon_name: inv_spear_02
+  req_lvl: 31
+  item_lvl: 36
+  boe: true
+  damage:
+    min: 57
+    max: 87
+    speed: 2.3
+  effects:
+  - trigger: ON_HIT
+    spell: 16401
+- id: 1975
+  name: Pysan's Old Greatsword
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135326
+  icon_name: inv_sword_25
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 60
+    max: 91
+    speed: 3.3
+  stats:
+    STRENGTH: 5
+    SPELL_DAMAGE: 10
+    HEALING_POWER: 29
+- id: 1976
+  name: Slaghammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 53
+    max: 80
+    speed: 2.8
+  stats:
+    STAMINA: 10
+    STRENGTH: 11
+- id: 2042
+  name: Staff of Westfall
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135147
+  icon_name: inv_staff_10
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 49
+    max: 74
+    speed: 3
+  stats:
+    INTELLECT: 5
+    SPIRIT: 6
+  effects:
+  - trigger: EQUIP
+    spell: 1292011
+- id: 2205
+  name: Duskbringer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135351
+  icon_name: inv_sword_41
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  damage:
+    min: 57
+    max: 86
+    speed: 3.4
+  effects:
+  - trigger: ON_HIT
+    spell: 18217
+- id: 2271
+  name: Staff of the Blessed Seer
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135168
+  icon_name: inv_staff_31
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  damage:
+    min: 50
+    max: 76
+    speed: 3
+  stats:
+    SPIRIT: 10
+    STAMINA: 9
+- id: 2280
+  name: Kam's Walking Stick
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135143
+  icon_name: inv_staff_06
+  req_lvl: 24
+  item_lvl: 29
+  damage:
+    min: 53
+    max: 80
+    speed: 2.8
+  stats:
+    AGILITY: 10
+    INTELLECT: 3
+  effects:
+  - trigger: EQUIP
+    spell: 1292546
+- id: 2299
+  name: Burning War Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132393
+  icon_name: inv_axe_02
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  damage:
+    min: 73
+    max: 110
+    speed: 3.3
+  effects:
+  - trigger: ON_HIT
+    spell: 18199
+- id: 2549
+  name: Staff of the Shade
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135162
+  icon_name: inv_staff_25
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  damage:
+    min: 46
+    max: 70
+    speed: 2.6
+  stats:
+    STAMINA: 15
+    SPELL_DAMAGE_SHADOW: 37
+- id: 2801
+  name: Blade of Hanna
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: EPIC
+  icon: 135280
+  icon_name: inv_sword_10
+  unique: true
+  req_lvl: 59
+  item_lvl: 64
+  boe: true
+  damage:
+    min: 101
+    max: 152
+    speed: 2.1
+  stats:
+    AGILITY: 11
+    INTELLECT: 11
+    SPIRIT: 11
+    STAMINA: 11
+    STRENGTH: 11
+- id: 2877
+  name: Combatant Claymore
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135324
+  icon_name: inv_sword_23
+  req_lvl: 28
+  item_lvl: 33
+  boe: true
+  damage:
+    min: 64
+    max: 97
+    speed: 2.9
+  stats:
+    SPIRIT: 15
+    STAMINA: 10
+- id: 3191
+  name: Arced War Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132397
+  icon_name: inv_axe_06
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 57
+    max: 86
+    speed: 3.3
+  stats:
+    STAMINA: 9
+    STRENGTH: 9
+- id: 3194
+  name: Black Malice
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133476
+  icon_name: inv_mace_01
+  req_lvl: 16
+  item_lvl: 21
+  boe: true
+  damage:
+    min: 48
+    max: 73
+    speed: 3.3
+  stats:
+    SHADOW_RESISTANCE: 2
+  effects:
+  - trigger: ON_HIT
+    spell: 1292155
+- id: 3203
+  name: Dense Triangle Mace
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133488
+  icon_name: inv_mace_13
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 44
+    max: 66
+    speed: 2.4
+  stats:
+    STAMINA: 10
+    STRENGTH: 10
+- id: 3415
+  name: Staff of the Friar
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135169
+  icon_name: inv_staff_32
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  damage:
+    min: 45
+    max: 68
+    speed: 2.6
+  stats:
+    INTELLECT: 3
+    SPIRIT: 12
+    STAMINA: 4
+- id: 3417
+  name: Onyx Claymore
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135311
+  icon_name: inv_sword_13
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 51
+    max: 78
+    speed: 2.8
+  stats:
+    SPIRIT: 6
+    STAMINA: 5
+    STRENGTH: 10
+- id: 5187
+  name: Rhahk'Zor's Hammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 16
+  item_lvl: 21
+  damage:
+    min: 47
+    max: 71
+    speed: 3.2
+  stats:
+    STAMINA: 8
+    SPELL_DAMAGE: 8
+- id: 5194
+  name: Taskmaster Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135424
+  icon_name: inv_throwingaxe_06
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 42
+    max: 64
+    speed: 2.7
+  stats:
+    SPIRIT: 8
+    STAMINA: 8
+- id: 5200
+  name: Impaling Harpoon
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135130
+  icon_name: inv_spear_07
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 36
+    max: 55
+    speed: 2.4
+  stats:
+    AGILITY: 9
+    INTELLECT: 5
+- id: 5201
+  name: Emberstone Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135150
+  icon_name: inv_staff_13
+  req_lvl: 17
+  item_lvl: 22
+  damage:
+    min: 45
+    max: 69
+    speed: 3
+  stats:
+    STAMINA: 8
+    FIRE_RESISTANCE: 8
+- id: 5423
+  name: Boahn's Fang
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132408
+  icon_name: inv_axe_17
+  req_lvl: 17
+  item_lvl: 22
+  boe: true
+  damage:
+    min: 38
+    max: 57
+    speed: 2.5
+  stats:
+    SPIRIT: 4
+    STRENGTH: 10
+- id: 6318
+  name: Odo's Ley Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135164
+  icon_name: inv_staff_27
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 50
+    max: 76
+    speed: 2.9
+  stats:
+    SPIRIT: 12
+    STAMINA: 5
+- id: 6505
+  name: Crescent Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135141
+  icon_name: inv_staff_04
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 47
+    max: 71
+    speed: 2.9
+  stats:
+    AGILITY: 7
+    SPIRIT: 7
+    STAMINA: 7
+- id: 6631
+  name: Living Root
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135162
+  icon_name: inv_staff_25
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 45
+    max: 69
+    speed: 2.9
+  stats:
+    SPIRIT: 5
+    STAMINA: 2
+    NATURE_RESISTANCE: 9
+- id: 6641
+  name: Haunting Blade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135315
+  icon_name: inv_sword_17
+  req_lvl: 22
+  item_lvl: 27
+  damage:
+    min: 68
+    max: 102
+    speed: 3.8
+  stats:
+    SPELL_DAMAGE: 11
+    HEALING_POWER: 33
+- id: 6687
+  name: Corpsemaker
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135562
+  icon_name: inv_weapon_halbard_01
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 88
+    max: 132
+    speed: 3.8
+  stats:
+    STAMINA: 8
+    STRENGTH: 15
+- id: 6689
+  name: Wind Spirit Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135138
+  icon_name: inv_staff_01
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 76
+    max: 115
+    speed: 3.3
+  stats:
+    INTELLECT: 5
+    SPIRIT: 16
+    STAMINA: 4
+- id: 6905
+  name: Reef Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135576
+  icon_name: inv_weapon_halberd_06
+  req_lvl: 22
+  item_lvl: 27
+  damage:
+    min: 59
+    max: 89
+    speed: 3.3
+  stats:
+    STRENGTH: 8
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 24
+- id: 6909
+  name: Strike of the Hydra
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135352
+  icon_name: inv_sword_42
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 67
+    max: 102
+    speed: 3.3
+  effects:
+  - trigger: ON_HIT
+    spell: 1292657
 - id: 6953
   name: Verigan's Fist
   phase: 1
@@ -78,6 +863,114 @@ items:
   stats:
     STAMINA: 14
     STRENGTH: 15
+- id: 7230
+  name: Smite's Mighty Hammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 18
+  item_lvl: 23
+  damage:
+    min: 55
+    max: 83
+    speed: 3.5
+  stats:
+    AGILITY: 4
+    STRENGTH: 11
+- id: 7689
+  name: Morbid Dawn
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135302
+  icon_name: inv_sword_12
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 70
+    max: 105
+    speed: 2.9
+  stats:
+    STAMINA: 15
+    STRENGTH: 10
+- id: 7710
+  name: Loksey's Training Stick
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135155
+  icon_name: inv_staff_18
+  req_lvl: 31
+  item_lvl: 36
+  damage:
+    min: 77
+    max: 117
+    speed: 3.1
+  stats:
+    ATTACK_POWER: 28
+  effects:
+  - trigger: ON_HIT
+    spell: 1293482
+- id: 7713
+  name: Illusionary Rod
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135466
+  icon_name: inv_wand_04
+  req_lvl: 34
+  item_lvl: 39
+  damage:
+    min: 94
+    max: 142
+    speed: 3.4
+  stats:
+    INTELLECT: 6
+    SPIRIT: 7
+    STAMINA: 10
+    CRIT_RATING: 14
+- id: 7730
+  name: Cobalt Crusher
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  damage:
+    min: 74
+    max: 111
+    speed: 3.2
+  effects:
+  - trigger: ON_HIT
+    spell: 18204
+- id: 7753
+  name: Bloodspiller
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132401
+  icon_name: inv_axe_10
+  req_lvl: 27
+  item_lvl: 32
+  boe: true
+  damage:
+    min: 57
+    max: 87
+    speed: 2.7
+  effects:
+  - trigger: ON_HIT
+    spell: 18200
 - id: 7959
   name: Blight
   phase: 1
@@ -114,6 +1007,119 @@ items:
   effects:
   - trigger: ON_HIT
     spell: 9800
+- id: 9385
+  name: Archaic Defender
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135351
+  icon_name: inv_sword_41
+  req_lvl: 31
+  item_lvl: 36
+  boe: true
+  damage:
+    min: 77
+    max: 117
+    speed: 3.1
+  stats:
+    ARMOR: 100
+    DEFENSE: 10
+- id: 9449
+  name: Manual Crowd Pummeler
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133489
+  icon_name: inv_mace_14
+  unique: true
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 46
+    max: 70
+    speed: 2
+  stats:
+    AGILITY: 5
+    STRENGTH: 16
+  effects:
+  - trigger: USE
+    spell: 13494
+    cooldown_ms: 180000
+    charges: 3
+- id: 9452
+  name: Hydrocane
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135152
+  icon_name: inv_staff_15
+  req_lvl: 27
+  item_lvl: 32
+  damage:
+    min: 59
+    max: 90
+    speed: 2.8
+  stats:
+    FROST_RESISTANCE: 15
+  effects:
+  - trigger: EQUIP
+    spell: 11789
+- id: 9459
+  name: Thermaplugg's Left Arm
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132394
+  icon_name: inv_axe_03
+  req_lvl: 31
+  item_lvl: 36
+  damage:
+    min: 67
+    max: 102
+    speed: 2.7
+  stats:
+    STAMINA: 7
+    STRENGTH: 17
+- id: 9486
+  name: Supercharger Battle Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132415
+  icon_name: inv_axe_21
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 51
+    max: 78
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 13527
+- id: 9490
+  name: Gizmotron Megachopper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135347
+  icon_name: inv_sword_37
+  req_lvl: 24
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 61
+    max: 92
+    speed: 3.2
+  stats:
+    AGILITY: 5
+    STRENGTH: 14
 - id: 9517
   name: Celestial Stave
   phase: 1
@@ -131,6 +1137,23 @@ items:
     speed: 3
   stats:
     INTELLECT: 8
+- id: 9604
+  name: Mechanic's Pipehammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133479
+  icon_name: inv_mace_04
+  req_lvl: 0
+  item_lvl: 32
+  damage:
+    min: 59
+    max: 90
+    speed: 2.8
+  stats:
+    INTELLECT: 5
+    SPELL_DAMAGE: 19
 - id: 11265
   name: Cragwood Maul
   phase: 1
@@ -314,6 +1337,500 @@ items:
   effects:
   - trigger: EQUIP
     spell: 1314143
+- id: 12975
+  name: Prospector Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132394
+  icon_name: inv_axe_03
+  req_lvl: 15
+  item_lvl: 20
+  boe: true
+  damage:
+    min: 33
+    max: 51
+    speed: 2.4
+  stats:
+    STAMINA: 8
+    STRENGTH: 7
+- id: 12983
+  name: Rakzur Club
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 16
+  item_lvl: 21
+  boe: true
+  damage:
+    min: 38
+    max: 57
+    speed: 2.6
+  stats:
+    SPIRIT: 5
+    STAMINA: 8
+    STRENGTH: 4
+- id: 12989
+  name: Gargoyle's Bite
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135128
+  icon_name: inv_spear_05
+  req_lvl: 20
+  item_lvl: 22
+  boe: true
+  damage:
+    min: 44
+    max: 66
+    speed: 2.9
+  stats:
+    STRENGTH: 10
+    ARMOR: 60
+- id: 12992
+  name: Searing Blade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135322
+  icon_name: inv_sword_21
+  req_lvl: 18
+  item_lvl: 23
+  boe: true
+  damage:
+    min: 39
+    max: 59
+    speed: 2.5
+  effects:
+  - trigger: ON_HIT
+    spell: 1299850
+- id: 13000
+  name: Staff of Hale Magefire
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135160
+  icon_name: inv_staff_23
+  req_lvl: 57
+  item_lvl: 62
+  boe: true
+  damage:
+    min: 140
+    max: 210
+    speed: 3.3
+  stats:
+    INTELLECT: 25
+    SPIRIT: 22
+- id: 13003
+  name: Lord Alexander's Battle Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135572
+  icon_name: inv_weapon_halberd_02
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  damage:
+    min: 123
+    max: 185
+    speed: 3.2
+  stats:
+    AGILITY: 17
+    STAMINA: 16
+    STRENGTH: 16
+- id: 13016
+  name: Killmaim
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132401
+  icon_name: inv_axe_10
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  damage:
+    min: 55
+    max: 84
+    speed: 3.2
+  effects:
+  - trigger: ON_HIT
+    spell: 13318
+- id: 13017
+  name: Hellslayer Battle Axe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132418
+  icon_name: inv_axe_24
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  damage:
+    min: 82
+    max: 124
+    speed: 2.9
+  stats:
+    ATTACK_POWER: 34
+    ATTACK_POWER_UNDEAD: 33
+- id: 13018
+  name: Executioner's Cleaver
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132418
+  icon_name: inv_axe_24
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  damage:
+    min: 127
+    max: 191
+    speed: 3.8
+  stats:
+    STRENGTH: 23
+    HIT_RATING: 10
+- id: 13041
+  name: Guardian Blade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135326
+  icon_name: inv_sword_25
+  req_lvl: 21
+  item_lvl: 26
+  boe: true
+  damage:
+    min: 50
+    max: 76
+    speed: 2.9
+  stats:
+    ARMOR: 40
+    DEFENSE: 9
+- id: 13042
+  name: Sword of the Magistrate
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135351
+  icon_name: inv_sword_41
+  req_lvl: 36
+  item_lvl: 41
+  boe: true
+  damage:
+    min: 96
+    max: 145
+    speed: 3.3
+  stats:
+    SPIRIT: 10
+    STAMINA: 15
+    STRENGTH: 8
+- id: 13043
+  name: Blade of the Titans
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135277
+  icon_name: inv_sword_07
+  req_lvl: 44
+  item_lvl: 49
+  boe: true
+  damage:
+    min: 112
+    max: 169
+    speed: 3.3
+  stats:
+    STAMINA: 24
+    STRENGTH: 10
+- id: 13044
+  name: Demonslayer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135273
+  icon_name: inv_sword_03
+  req_lvl: 52
+  item_lvl: 57
+  boe: true
+  damage:
+    min: 121
+    max: 182
+    speed: 3.1
+  stats:
+    ATTACK_POWER: 52
+    ATTACK_POWER_DEMON: 48
+- id: 13045
+  name: Viscous Hammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133488
+  icon_name: inv_mace_13
+  req_lvl: 30
+  item_lvl: 35
+  boe: true
+  damage:
+    min: 70
+    max: 105
+    speed: 2.9
+  stats:
+    STAMINA: 6
+    STRENGTH: 3
+    ATTACK_POWER: 34
+- id: 13046
+  name: Blanchard's Stout
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133041
+  icon_name: inv_hammer_04
+  req_lvl: 45
+  item_lvl: 50
+  boe: true
+  damage:
+    min: 107
+    max: 162
+    speed: 3.1
+  stats:
+    STAMINA: 15
+    STRENGTH: 20
+    FIRE_RESISTANCE: 5
+- id: 13047
+  name: Twig of the World Tree
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133488
+  icon_name: inv_mace_13
+  req_lvl: 53
+  item_lvl: 58
+  boe: true
+  damage:
+    min: 147
+    max: 221
+    speed: 3.7
+  stats:
+    SPIRIT: 12
+    STAMINA: 21
+    STRENGTH: 14
+- id: 13049
+  name: Deanship Claymore
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135356
+  icon_name: inv_sword_46
+  req_lvl: 26
+  item_lvl: 29
+  boe: true
+  damage:
+    min: 53
+    max: 80
+    speed: 2.8
+  stats:
+    SPIRIT: 4
+    DEFENSE: 10
+- id: 13051
+  name: Witchfury
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135345
+  icon_name: inv_sword_35
+  req_lvl: 39
+  item_lvl: 44
+  boe: true
+  damage:
+    min: 87
+    max: 131
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 18214
+- id: 13052
+  name: Warmonger
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135356
+  icon_name: inv_sword_46
+  req_lvl: 47
+  item_lvl: 52
+  boe: true
+  damage:
+    min: 108
+    max: 162
+    speed: 3
+  stats:
+    STRENGTH: 3
+    HIT_RATING: 30
+- id: 13053
+  name: Doombringer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135271
+  icon_name: inv_sword_01
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  damage:
+    min: 115
+    max: 173
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 18211
+- id: 13054
+  name: Grim Reaper
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135125
+  icon_name: inv_spear_02
+  req_lvl: 35
+  item_lvl: 40
+  boe: true
+  damage:
+    min: 88
+    max: 133
+    speed: 3.1
+  effects:
+  - trigger: ON_HIT
+    spell: 14126
+- id: 13055
+  name: Bonechewer
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135129
+  icon_name: inv_spear_06
+  req_lvl: 43
+  item_lvl: 48
+  boe: true
+  damage:
+    min: 94
+    max: 141
+    speed: 2.8
+  stats:
+    STAMINA: 10
+    STRENGTH: 23
+- id: 13056
+  name: Frenzied Striker
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135130
+  icon_name: inv_spear_07
+  req_lvl: 51
+  item_lvl: 56
+  boe: true
+  damage:
+    min: 108
+    max: 162
+    speed: 2.8
+  stats:
+    HIT_RATING: 20
+    PARRY_RATING: 15
+- id: 13057
+  name: Bloodpike
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135125
+  icon_name: inv_spear_02
+  req_lvl: 23
+  item_lvl: 28
+  boe: true
+  damage:
+    min: 59
+    max: 89
+    speed: 3.2
+  effects:
+  - trigger: ON_HIT
+    spell: 18202
+- id: 13058
+  name: Khoo's Point
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135125
+  icon_name: inv_spear_02
+  req_lvl: 39
+  item_lvl: 44
+  boe: true
+  damage:
+    min: 77
+    max: 117
+    speed: 2.5
+  stats:
+    SPIRIT: 10
+    STAMINA: 20
+- id: 13059
+  name: Stoneraven
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135130
+  icon_name: inv_spear_07
+  req_lvl: 47
+  item_lvl: 52
+  boe: true
+  damage:
+    min: 118
+    max: 178
+    speed: 3.3
+  stats:
+    AGILITY: 13
+    SPIRIT: 9
+    STAMINA: 15
+    STRENGTH: 13
+- id: 13060
+  name: The Needler
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135131
+  icon_name: inv_spear_08
+  req_lvl: 55
+  item_lvl: 60
+  boe: true
+  damage:
+    min: 90
+    max: 136
+    speed: 2.2
+  effects:
+  - trigger: ON_HIT
+    spell: 16405
 - id: 13262
   name: Ashbringer
   phase: 1
@@ -352,6 +1869,40 @@ items:
     STAMINA: 14
     SPELL_DAMAGE_FIRE: 34
     SPELL_DAMAGE_SHADOW: 34
+- id: 15424
+  name: Axe of Orgrimmar
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132395
+  icon_name: inv_axe_04
+  req_lvl: 0
+  item_lvl: 18
+  damage:
+    min: 42
+    max: 64
+    speed: 3.3
+  stats:
+    SPIRIT: 6
+    STAMINA: 6
+- id: 15444
+  name: Staff of Orgrimmar
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135225
+  icon_name: inv_staff_goldfeathered_01
+  req_lvl: 0
+  item_lvl: 18
+  damage:
+    min: 42
+    max: 64
+    speed: 3.3
+  stats:
+    AGILITY: 6
+    INTELLECT: 6
 - id: 17073
   name: Earthshaker
   phase: 1
@@ -434,6 +1985,23 @@ items:
     spell: 21181
     category: 1150
     category_cooldown_ms: 60000
+- id: 17743
+  name: Resurgence Rod
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135225
+  icon_name: inv_staff_goldfeathered_01
+  req_lvl: 0
+  item_lvl: 53
+  damage:
+    min: 139
+    max: 209
+    speed: 3.8
+  stats:
+    MANA_PER_5: 11
+    HEALTH_PER_5: 11
 - id: 18608
   name: Benediction
   phase: 1
@@ -1366,126 +2934,6 @@ items:
     STAMINA: 28
     MANA_PER_5: 7
     SPELL_DAMAGE: 27
-- id: 211940
-  name: Ecks'av's Tribal Guardian
-  phase: 1
-  slot: 2H
-  type: POLEARM
-  quality: RARE
-  icon: 135574
-  icon_name: inv_weapon_halberd_04
-  req_lvl: 59
-  item_lvl: 64
-  damage:
-    min: 163
-    max: 246
-    speed: 3.7
-  effects:
-  - trigger: EQUIP
-    spell: 17232
-- id: 211941
-  name: Windwalker's Yari
-  phase: 1
-  slot: 2H
-  type: POLEARM
-  quality: RARE
-  icon: 135574
-  icon_name: inv_weapon_halberd_04
-  req_lvl: 58
-  item_lvl: 66
-  damage:
-    min: 163
-    max: 245
-    speed: 3.6
-  effects:
-  - trigger: ON_HIT
-    spell: 14537
-- id: 221518
-  name: Whisper
-  phase: 1
-  slot: 2H
-  type: TWOHAND_MACE
-  quality: RARE
-  icon: 133042
-  icon_name: inv_hammer_05
-  req_lvl: 0
-  item_lvl: 56
-  damage:
-    min: 123
-    max: 185
-    speed: 3.2
-  stats:
-    STAMINA: 17
-    STRENGTH: 17
-    CRIT_RATING: 17
-- id: 249392
-  name: Glimmering Staff
-  phase: 1
-  slot: 2H
-  type: STAFF
-  quality: RARE
-  icon: 135156
-  icon_name: inv_staff_19
-  req_lvl: 25
-  item_lvl: 30
-  damage:
-    min: 43
-    max: 65
-    speed: 2.2
-  stats:
-    INTELLECT: 11
-    STAMINA: 11
-- id: 249393
-  name: Soulstaff
-  phase: 1
-  slot: 2H
-  type: STAFF
-  quality: RARE
-  icon: 135168
-  icon_name: inv_staff_31
-  req_lvl: 25
-  item_lvl: 30
-  damage:
-    min: 35
-    max: 53
-    speed: 1.8
-  stats:
-    SPIRIT: 11
-    STAMINA: 11
-- id: 249453
-  name: Radiant Staff
-  phase: 1
-  slot: 2H
-  type: STAFF
-  quality: RARE
-  icon: 135150
-  icon_name: inv_staff_13
-  req_lvl: 45
-  item_lvl: 50
-  damage:
-    min: 83
-    max: 125
-    speed: 2.4
-  stats:
-    INTELLECT: 19
-    STAMINA: 19
-- id: 249454
-  name: Dreamstaff
-  phase: 1
-  slot: 2H
-  type: STAFF
-  quality: RARE
-  icon: 135151
-  icon_name: inv_staff_14
-  req_lvl: 45
-  item_lvl: 50
-  damage:
-    min: 83
-    max: 125
-    speed: 2.4
-  stats:
-    SPIRIT: 19
-    STAMINA: 19
 - id: 250613
   name: Thorium Greatmace
   phase: 1
@@ -1551,6 +2999,164 @@ items:
     AGILITY: 16
     ATTACK_POWER: 54
     HIT_RATING: 10
+- id: 251533
+  name: Forsaken Greataxe
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 49
+    max: 74
+    speed: 3
+  stats:
+    STAMINA: 4
+    STRENGTH: 8
+  effects:
+  - trigger: EQUIP
+    spell: 1309369
+- id: 251534
+  name: Gnarled Necromancer's Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135153
+  icon_name: inv_staff_16
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 45
+    max: 69
+    speed: 2.8
+  stats:
+    SPIRIT: 10
+  effects:
+  - trigger: EQUIP
+    spell: 1309369
+- id: 267369
+  name: Wolfsbane
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135326
+  icon_name: inv_sword_25
+  req_lvl: 0
+  item_lvl: 31
+  class_restrictions: [PALADIN]
+  damage:
+    min: 69
+    max: 105
+    speed: 3.4
+  stats:
+    INTELLECT: 10
+    STAMINA: 9
+  effects:
+  - trigger: ON_HIT
+    spell: 1282503
+- id: 270018
+  name: Hammerbone
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133052
+  icon_name: inv_hammer_15
+  req_lvl: 0
+  item_lvl: 24
+  damage:
+    min: 55
+    max: 84
+    speed: 3.4
+  stats:
+    STAMINA: 7
+    STRENGTH: 10
+- id: 270027
+  name: Ursine Hammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 0
+  item_lvl: 27
+  damage:
+    min: 57
+    max: 86
+    speed: 3.2
+  stats:
+    AGILITY: 8
+    INTELLECT: 7
+    SPIRIT: 8
+- id: 270228
+  name: Golemheart Stave
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135155
+  icon_name: inv_staff_18
+  req_lvl: 13
+  item_lvl: 18
+  damage:
+    min: 41
+    max: 62
+    speed: 3.2
+  stats:
+    FIRE_RESISTANCE: 9
+- id: 271203
+  name: Segmented Spider Leg
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135146
+  icon_name: inv_staff_09
+  req_lvl: 15
+  item_lvl: 20
+  damage:
+    min: 50
+    max: 76
+    speed: 3.6
+  stats:
+    AGILITY: 9
+    SPIRIT: 5
+- id: 271215
+  name: Coldspire Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  req_lvl: 19
+  item_lvl: 24
+  damage:
+    min: 58
+    max: 88
+    speed: 3.6
+  stats:
+    FROST_RESISTANCE: 13
+    SPELL_DAMAGE_FROST: 32
+- id: 271217
+  name: Corpse Chopper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  req_lvl: 16
+  item_lvl: 21
+  damage:
+    min: 52
+    max: 79
+    speed: 3.6
+  effects:
+  - trigger: USE
+    spell: 1322303
 - id: 271667
   name: Ironwood Destroyer
   phase: 1
@@ -1652,6 +3258,142 @@ items:
     INTELLECT: 12
     SPIRIT: 6
     STAMINA: 16
+- id: 271924
+  name: Rebels' Rugged Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 133
+    max: 201
+    speed: 3.1
+  stats:
+    STAMINA: 8
+    STRENGTH: 33
+- id: 271925
+  name: Rebels' Rugged Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 113
+    max: 171
+    speed: 3.1
+  stats:
+    STAMINA: 7
+    STRENGTH: 27
+- id: 271926
+  name: Rebels' Rugged Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 94
+    max: 142
+    speed: 3.1
+  stats:
+    STAMINA: 5
+    STRENGTH: 22
+- id: 271927
+  name: Rebels' Rugged Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 69
+    max: 104
+    speed: 3.1
+  stats:
+    STAMINA: 4
+    STRENGTH: 16
+- id: 272079
+  name: Darkspear Raider's Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 58
+  item_lvl: 63
+  damage:
+    min: 133
+    max: 201
+    speed: 3.1
+  stats:
+    STAMINA: 8
+    STRENGTH: 33
+- id: 272080
+  name: Darkspear Raider's Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 48
+  item_lvl: 53
+  damage:
+    min: 113
+    max: 171
+    speed: 3.1
+  stats:
+    STAMINA: 7
+    STRENGTH: 27
+- id: 272081
+  name: Darkspear Raider's Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 38
+  item_lvl: 43
+  damage:
+    min: 94
+    max: 142
+    speed: 3.1
+  stats:
+    STAMINA: 5
+    STRENGTH: 22
+- id: 272082
+  name: Darkspear Raider's Reaper
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132409
+  icon_name: inv_axe_18
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 69
+    max: 104
+    speed: 3.1
+  stats:
+    STAMINA: 4
+    STRENGTH: 16
 - id: 272593
   name: Premier High Warlord's Battle Axe
   phase: 1
@@ -1870,6 +3612,83 @@ items:
     STAMINA: 25
     STRENGTH: 15
     SPELL_DAMAGE: 24
+- id: 273817
+  name: Graverobber's Shovel
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 134435
+  icon_name: inv_misc_shovel_01
+  unique: true
+  req_lvl: 23
+  item_lvl: 28
+  damage:
+    min: 68
+    max: 102
+    speed: 3.7
+  stats:
+    STAMINA: 10
+  effects:
+  - trigger: EQUIP
+    spell: 1319047
+  - trigger: USE
+    spell: 1292560
+    cooldown_ms: 120000
+    charges: 20
+- id: 273819
+  name: Boneslicer
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135128
+  icon_name: inv_spear_05
+  req_lvl: 23
+  item_lvl: 28
+  damage:
+    min: 36
+    max: 55
+    speed: 2
+  effects:
+  - trigger: ON_HIT
+    spell: 1292573
+- id: 273841
+  name: Twilight Maul
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 23
+  item_lvl: 28
+  damage:
+    min: 60
+    max: 91
+    speed: 3.3
+  stats:
+    SPELL_DAMAGE: 12
+  effects:
+  - trigger: ON_HIT
+    spell: 1292679
+- id: 274158
+  name: Death Prophet Spine
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135154
+  icon_name: inv_staff_17
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 57
+    max: 86
+    speed: 2.8
+  stats:
+    STAMINA: 11
+    MANA_PER_5: 5
 - id: 274419
   name: Bear Poking Stick
   phase: 1
@@ -1902,6 +3721,25 @@ items:
   stats:
     INTELLECT: 23
     STAMINA: 19
+- id: 274430
+  name: Rock Sentinel Slicer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132395
+  icon_name: inv_axe_04
+  req_lvl: 39
+  item_lvl: 44
+  damage:
+    min: 87
+    max: 131
+    speed: 2.8
+  stats:
+    INTELLECT: 12
+  effects:
+  - trigger: EQUIP
+    spell: 1294064
 - id: 274963
   name: Rot-Covered Harpoon
   phase: 1
@@ -2003,6 +3841,55 @@ items:
     STAMINA: 27
     STRENGTH: 18
     SPELL_DAMAGE: 28
+- id: 279841
+  name: Defender of Dalaran
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  damage:
+    min: 82
+    max: 124
+    speed: 3.3
+  stats:
+    AGILITY: 9
+    STAMINA: 13
+    STRENGTH: 9
+- id: 279844
+  name: Striking Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  req_lvl: 1
+  item_lvl: 36
+  damage:
+    min: 77
+    max: 117
+    speed: 3.1
+  stats:
+    SPIRIT: 9
+    STAMINA: 6
+    STRENGTH: 14
+- id: 279895
+  name: Ironforge Greathammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133058
+  icon_name: inv_hammer_21
+  req_lvl: 1
+  item_lvl: 18
+  damage:
+    min: 39
+    max: 60
+    speed: 3.1
+  effects:
+  - trigger: ON_HIT
+    spell: 1322295
 - id: 280604
   name: Rage of the Storm
   phase: 1
@@ -2069,3 +3956,161 @@ items:
     STAMINA: 26
     ARMOR: 115
     ATTACK_POWER: 23
+- id: 281648
+  name: Gul'gash's Greathammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133053
+  icon_name: inv_hammer_16
+  req_lvl: 44
+  item_lvl: 49
+  damage:
+    min: 123
+    max: 185
+    speed: 3.6
+  stats:
+    STRENGTH: 19
+    SPELL_DAMAGE: 21
+- id: 282007
+  name: Emerald Watcher's Dreamstaff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135154
+  icon_name: inv_staff_17
+  req_lvl: 44
+  item_lvl: 49
+  damage:
+    min: 102
+    max: 154
+    speed: 3
+  stats:
+    INTELLECT: 19
+    SPIRIT: 19
+- id: 284257
+  name: Icesworn Decapitator
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132456
+  icon_name: inv_axe_69
+  req_lvl: 54
+  item_lvl: 59
+  damage:
+    min: 145
+    max: 219
+    speed: 3.6
+  stats:
+    STAMINA: 18
+    STRENGTH: 17
+    FROST_RESISTANCE: 10
+    SPELL_DAMAGE: 13
+- id: 284459
+  name: Dendweller's Hammer
+  phase: 1
+  slot: 2H
+  type: TWOHAND_MACE
+  quality: RARE
+  icon: 133046
+  icon_name: inv_hammer_09
+  req_lvl: 26
+  item_lvl: 31
+  damage:
+    min: 67
+    max: 102
+    speed: 3.3
+  stats:
+    STAMINA: 12
+    ARMOR: 100
+- id: 285328
+  name: Taurenbane's Family Cleaver
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 132395
+  icon_name: inv_axe_04
+  req_lvl: 23
+  item_lvl: 28
+  damage:
+    min: 62
+    max: 94
+    speed: 3.4
+  stats:
+    STAMINA: 9
+    ATTACK_POWER_HUMANOID: 32
+- id: 285332
+  name: Puncturing Spear
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  icon: 135130
+  icon_name: inv_spear_07
+  req_lvl: 19
+  item_lvl: 24
+  damage:
+    min: 50
+    max: 76
+    speed: 3.1
+  effects:
+  - trigger: ON_HIT
+    spell: 1318250
+- id: 285350
+  name: Alliance Outrunner Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  icon: 135148
+  icon_name: inv_staff_11
+  req_lvl: 21
+  item_lvl: 26
+  damage:
+    min: 43
+    max: 65
+    speed: 2.5
+  stats:
+    SPIRIT: 9
+    STAMINA: 9
+- id: 286540
+  name: The Skyblade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135321
+  icon_name: inv_sword_20
+  req_lvl: 22
+  item_lvl: 27
+  boe: true
+  damage:
+    min: 56
+    max: 105
+    speed: 3.6
+  stats:
+    STAMINA: 8
+    STRENGTH: 10
+    SPELL_DAMAGE: 6
+- id: 286977
+  name: Sword of the Fallen
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: RARE
+  icon: 135312
+  icon_name: inv_sword_14
+  req_lvl: 18
+  item_lvl: 23
+  boe: true
+  damage:
+    min: 55
+    max: 83
+    speed: 3.5
+  stats:
+    INTELLECT: 9
+    STRENGTH: 6

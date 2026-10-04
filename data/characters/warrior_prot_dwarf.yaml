@@ -12,19 +12,21 @@ talents:
     Shield Specialization: 5
     Anticipation: 5
     Improved Bloodrage: 2
-    Toughness: 5
+    Improved Revenge: 3
     Last Stand: 1
     Defiance: 3
     Improved Sunder Armor: 3
     Concussion Blow: 1
+    Focused Rage: 2
     Bastion: 5
     Shield Slam: 1
   Fury:
     Cruelty: 5
     Unbridled Wrath: 5
+    Booming Voice: 1
+    Piercing Howl: 1
     Blood Craze: 3
-    Boundless Rage: 3
-    Enrage: 4
+    Enrage: 5
 equipment:
   MAINHAND: { item: 18865, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # Grand Marshal's Punisher
   OFFHAND: { item: 19321 }                                         # The Immovable Object

@@ -537,7 +537,7 @@ talents:
                 .collect::<Vec<_>>(),
             ["Arms", "Fury", "Protection"]
         );
-        assert_eq!(file.talents.len(), 53);
+        assert_eq!(file.talents.len(), 52);
         let mortal_strike = file.talent_by_name("Mortal Strike", None).unwrap();
         assert_eq!(mortal_strike.spell, 12294);
         assert_eq!((mortal_strike.tier, mortal_strike.column), (6, 1));
@@ -547,7 +547,15 @@ talents:
         let dual_wield = file
             .talent_by_name("Dual Wield Specialization", None)
             .unwrap();
-        assert_eq!(dual_wield.values_at(5), [(0, 25.0), (1, 10.0), (2, 10.0)]);
+        // The 70205 hotfixes: E1 is the off-hand rage (10 % per rank). The spell lost its E2 (the
+        // old hit), whose rank values the server data still carries.
+        assert_eq!(dual_wield.values_at(5), [(0, 25.0), (1, 50.0), (2, 10.0)]);
+        let furious_precision = file.talent_by_name("Furious Precision", None).unwrap();
+        assert_eq!(furious_precision.spell, 1323963);
+        assert_eq!(furious_precision.values_at(3), [(0, 10.0)]);
+        let death_wish = file.talent_by_name("Death Wish", None).unwrap();
+        let flurry = file.talent_by_name("Flurry", None).unwrap();
+        assert_eq!(flurry.requires, Some(death_wish.node));
     }
 
     #[test]

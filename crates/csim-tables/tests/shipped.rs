@@ -132,7 +132,11 @@ fn shipped_spell_files_match_a_fresh_export() {
         &overrides,
     )
     .unwrap();
-    assert_eq!(missing, [469141], "item spells the dump lacks");
+    // 469141 was the one, of a Season of Discovery item no longer exported.
+    assert!(
+        missing.is_empty(),
+        "item spells the dump lacks: {missing:?}"
+    );
     let rendered = export::render(&items_file, "export-spells --items").unwrap();
     let shipped = shipped_file(&spells_dir.join("items.yaml"), &tables);
     assert!(
@@ -316,16 +320,33 @@ fn items_of_the_dump_derive() {
     let tables = Tables::load(&dir).unwrap();
     let report = derive_items(&tables);
     assert!(report.items.len() > 2500, "{} items", report.items.len());
-    // The only unresolved references are item spells missing from the dump.
+    // The only unresolved references are item spells missing from the dump, and the one
+    // polearm skill stat (Frenzied Striker, from the 70205 hotfixes; the sim has no polearm
+    // skill).
     for issue in &report.issues {
+        let polearm_skill =
+            issue.item_id == 13056 && issue.message.contains("(polearm skill) 1 is not supported");
         assert!(
-            issue.message.contains("names missing spell"),
+            issue.message.contains("names missing spell") || polearm_skill,
             "{}: {}",
             issue.item_id,
             issue.message
         );
     }
     assert!(report.skipped[&Skip::NoSparseRow].contains(&11815));
+    // Season of Discovery's ids are skipped (Lightbreaker Greathelm, from the 70205 hotfixes);
+    // Classic's (Fiery War Axe, also a hotfix row) and Forever's own (Spiritwraith Drape) stay.
+    let sod = &report.skipped[&Skip::SeasonOfDiscovery];
+    assert!(sod.contains(&239517), "Lightbreaker Greathelm");
+    assert!(sod.iter().all(|id| (200_000..250_000).contains(id)));
+    let exported = |id| report.items.iter().any(|i| i.id == id);
+    assert!(exported(870) && exported(271097));
+    assert!(
+        !report
+            .items
+            .iter()
+            .any(|i| (200_000..250_000).contains(&i.id))
+    );
     for item in &report.items {
         assert_eq!(
             item.damage.is_some(),

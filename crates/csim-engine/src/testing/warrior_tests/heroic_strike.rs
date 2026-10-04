@@ -197,7 +197,7 @@ fn flurry_charges_not_consumed() {
     let mut test = test();
     test.given_1h_axe_equipped_in_mainhand();
     test.given_a_guaranteed_melee_ability_hit();
-    test.given_fury_talent_with_rank("Enrage", 5);
+    test.given_fury_talent_with_rank("Death Wish", 1);
     test.given_fury_talent_with_rank("Flurry", 5);
     test.prepare_set_of_combat_iterations();
     test.given_warrior_has_rage(100);
