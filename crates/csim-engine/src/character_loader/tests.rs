@@ -134,7 +134,6 @@ fn a_shipped_setup_simulates() {
     let setup = shipped("warrior_fury_dw_orc.yaml");
     let settings = setup.sim_settings(&settings());
     let mut raid = setup.build_raid(data(), &settings).unwrap();
-    raid.set_seed(1);
     let mut control = SimControl::new(settings, 1);
     let mut cruncher = NumberCruncher::new();
     control.run_quick_sim(&mut raid, &mut cruncher);
@@ -403,7 +402,6 @@ fn the_rogue_setups_run_their_rotations() {
             ..setup.sim_settings(&settings())
         };
         let mut raid = setup.build_raid(data(), &settings).unwrap();
-        raid.set_seed(1);
         let mut cruncher = NumberCruncher::new();
         SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
         let stats = cruncher.merged(None).unwrap();
@@ -436,7 +434,6 @@ fn the_rogue_setups_run_their_rotations() {
     let rupture = |file: &str| {
         let setup = shipped(file);
         let mut raid = setup.build_raid(data(), &settings()).unwrap();
-        raid.set_seed(1);
         let mut cruncher = NumberCruncher::new();
         SimControl::new(setup.sim_settings(&settings()), 1).run_quick_sim(&mut raid, &mut cruncher);
         let stats = cruncher.merged(None).unwrap();
@@ -770,7 +767,6 @@ fn the_marrow_sigmoid_setting_adds_white_rage() {
     let setup = shipped("warrior_fury_dw_orc.yaml");
     let offhand_rage = |settings: SimSettings| {
         let mut raid = setup.build_raid(data(), &settings).unwrap();
-        raid.set_seed(1);
         let mut cruncher = NumberCruncher::new();
         SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
         let stats = cruncher.merged(None).unwrap();

@@ -72,6 +72,9 @@ impl SimMode {
 /// Runs iterations of one raid. See the module documentation. Port of `SimControl`.
 pub struct SimControl {
     settings: SimSettings,
+    /// Seeds the raid (its combat rolls) when the first set of iterations begins; the later
+    /// sets (scaling options, another run) continue its streams.
+    raid_seed: Option<u64>,
     /// Shuffles the raid order each iteration (the C++ `std::mt19937` on a random device).
     shuffle: Xoroshiro128Plus,
     /// Seeds [`SimControl::lengths`] at the start of every set of iterations.
@@ -84,13 +87,23 @@ pub struct SimControl {
 }
 
 impl SimControl {
-    /// A sim control for `settings` whose raid shuffles and encounter lengths derive from
-    /// `seed`.
+    /// A sim control for `settings` whose combat rolls, raid shuffles and encounter lengths
+    /// derive from `seed`: it seeds the raid when its first set of iterations begins. It runs
+    /// what the only thread of a [`run_threaded`] with the same `seed` runs.
     pub fn new(settings: SimSettings, seed: u64) -> Self {
-        let length_seed = seed ^ LENGTH_STREAM;
+        let mut seeds = Xoroshiro128Plus::from_seed(seed);
+        let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
+        Self::with_seeds(settings, raid_seed, shuffle_seed)
+    }
+
+    /// A sim control seeding the raid with `raid_seed`, its shuffles and encounter lengths
+    /// deriving from `shuffle_seed`.
+    fn with_seeds(settings: SimSettings, raid_seed: u64, shuffle_seed: u64) -> Self {
+        let length_seed = shuffle_seed ^ LENGTH_STREAM;
         SimControl {
             settings,
-            shuffle: Xoroshiro128Plus::from_seed(seed),
+            raid_seed: Some(raid_seed),
+            shuffle: Xoroshiro128Plus::from_seed(shuffle_seed),
             length_seed,
             lengths: Xoroshiro128Plus::from_seed(length_seed),
             progress: None,
@@ -187,6 +200,9 @@ impl SimControl {
             );
         }
 
+        if let Some(seed) = self.raid_seed.take() {
+            raid.set_seed(seed);
+        }
         // Drops the attack tables and prepares the characters' statistics and rotations.
         raid.prepare_set_of_combat_iterations();
         self.lengths.set_state(self.length_seed);
@@ -337,7 +353,7 @@ pub struct IterationStepper {
 }
 
 impl IterationStepper {
-    /// Seeds `raid` from `seed`, enables its combat log and starts the iteration: the
+    /// Seeds `raid` from `seed` (as [`SimControl::new`]), enables its combat log and starts the iteration: the
     /// precombat actions have run, the engine's clock is at the start of the iteration
     /// (before the pull) and the events of the iteration are queued.
     ///
@@ -358,11 +374,8 @@ impl IterationStepper {
         raid: &mut RaidControl,
         pre_pull: f64,
     ) -> Self {
-        let mut seeds = Xoroshiro128Plus::from_seed(seed);
-        let (raid_seed, shuffle_seed) = (seeds.next(), seeds.next());
-        raid.set_seed(raid_seed);
         raid.engine_mut().enable_combat_log();
-        let mut control = SimControl::new(settings.clone(), shuffle_seed);
+        let mut control = SimControl::new(settings.clone(), seed);
         let mut set = control.begin_set_of_iterations(raid, settings.combat_length);
         set.start_at = set.start_at.max(pre_pull);
         control.begin_iteration(raid, &mut set);
@@ -441,8 +454,7 @@ pub fn run_threaded<E: Send>(
         let mut local = settings.clone();
         mode.set_iterations(&mut local, share);
         let mut raid = build()?;
-        raid.set_seed(raid_seed);
-        let mut control = SimControl::new(local, shuffle_seed);
+        let mut control = SimControl::with_seeds(local, raid_seed, shuffle_seed);
         if let Some(progress) = progress.clone() {
             control = control.with_progress(progress);
         }

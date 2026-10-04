@@ -97,7 +97,6 @@ impl Data {
             });
             raid.character_mut(id).set_tanking(tank && id.0 == 1);
         }
-        raid.set_seed(1);
         raid
     }
 }
@@ -341,6 +340,27 @@ fn a_character_set_up_for_another_combat_length_panics() {
         ..raid_settings
     };
     SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut NumberCruncher::new());
+}
+
+/// The sim control seeds the raid: its seed alone fixes the combat rolls, as it does for the
+/// only thread of a threaded run.
+#[test]
+fn a_sim_control_seeds_the_raid() {
+    let data = Data::load();
+    let settings = settings(5);
+    let run = |seed: u64| {
+        let mut raid = data.raid(&settings, 2, false);
+        let mut cruncher = NumberCruncher::new();
+        SimControl::new(settings.clone(), seed).run_quick_sim(&mut raid, &mut cruncher);
+        cruncher.player_results().to_vec()
+    };
+    assert_eq!(run(4), run(4));
+    assert_ne!(run(4), run(5));
+    let threaded = run_threaded(&settings, SimMode::Quick, 4, None, || {
+        Ok::<_, ()>(data.raid(&settings, 2, false))
+    })
+    .unwrap();
+    assert_eq!(threaded.player_results(), &run(4)[..]);
 }
 
 #[test]

@@ -128,7 +128,6 @@ fn a_raid_simulates_with_a_result_per_member() {
     let mut raid = setup
         .build_raid(Some(&player), &members, data(), &settings)
         .unwrap();
-    raid.set_seed(5);
     let mut control = SimControl::new(settings, 1);
     let mut cruncher = NumberCruncher::new();
     control.run_quick_sim(&mut raid, &mut cruncher);
