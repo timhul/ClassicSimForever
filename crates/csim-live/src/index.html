@@ -127,8 +127,12 @@
     color: #1a1406;
   }
   #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
-  #edit-keybinds:not(:disabled) { border-color: var(--accent); color: var(--accent); font-weight: 600; }
-  #edit-keybinds:hover:not(:disabled) { background: rgb(224 176 74 / 0.12); }
+  #edit-keybinds:not(:disabled), #equipment:not(:disabled) {
+    border-color: var(--accent); color: var(--accent); font-weight: 600;
+  }
+  #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled) {
+    background: rgb(224 176 74 / 0.12);
+  }
   #clock {
     font: 600 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
     font-variant-numeric: tabular-nums;
@@ -601,6 +605,181 @@
   #editor-status { color: #e05a4f; min-height: 1.4em; margin: 0; }
   #keybinds-editor .editor-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
   #editor-apply { font-weight: 600; border-color: var(--accent); }
+  /* The item qualities' colours, as the game's. */
+  .q-common { --quality: #ffffff; }
+  .q-uncommon { --quality: #1eff00; }
+  .q-rare { --quality: #0070dd; }
+  .q-epic { --quality: #a335ee; }
+  .q-legendary { --quality: #ff8000; }
+  .quality { color: var(--quality, var(--text)); }
+  #equipment-view {
+    width: min(1100px, calc(100vw - 32px));
+    height: calc(100vh - 32px);
+    max-height: none;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  #equipment-view::backdrop { background: rgb(0 0 0 / 0.6); }
+  .equipment-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    padding: 14px 16px;
+  }
+  .equipment-head, .equipment-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .equipment-head h2 { margin: 0; }
+  .equipment-foot { justify-content: flex-end; }
+  .equipment-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+  }
+  /* The paper doll: a column of slots each side of the stats, the weapons under them. */
+  .paper {
+    display: grid;
+    grid-template-columns: 44px 180px 44px;
+    grid-template-rows: repeat(8, 44px) auto;
+    gap: 4px 10px;
+    align-content: start;
+  }
+  .paper-column { display: grid; grid-auto-rows: 44px; gap: 4px; grid-row: 1 / span 8; }
+  #paper-left { grid-column: 1; }
+  #paper-right { grid-column: 3; }
+  #sheet { grid-column: 2; grid-row: 1 / span 8; align-self: start; }
+  #paper-weapons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .gear-slot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--quality, #3a3f48);
+    border-radius: 4px;
+    background: #000;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .gear-slot img, .gear-slot .icon { display: block; width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+  .gear-slot.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .gear-slot:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+  .gear-slot .label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.1;
+    text-align: center;
+  }
+  .gear-slot .clear {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 0 0 0 4px;
+    background: rgb(0 0 0 / 0.75);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.3;
+    opacity: 0;
+  }
+  .gear-slot:hover .clear, .gear-slot:focus-within .clear { opacity: 1; }
+  #sheet {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .sheet-tabs { display: flex; gap: 2px; margin-bottom: 8px; }
+  .sheet-tabs button { flex: 1; padding: 2px 4px; font-size: 12px; }
+  .sheet-tabs button.active { border-color: var(--accent); color: var(--accent); }
+  #sheet-stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    margin: 0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  #sheet-stats.spell { grid-template-columns: minmax(0, 1fr) auto auto auto; font-size: 12px; }
+  #sheet-stats dt, #sheet-stats .head { color: var(--muted); }
+  #sheet-stats dd { margin: 0; text-align: right; }
+  .equipment-items { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+  #item-count { color: var(--muted); font-size: 12px; }
+  .item-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  #item-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  #item-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--panel);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+    padding: 6px 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #item-table th:hover { color: var(--text); }
+  #item-table th[aria-sort="ascending"]::after { content: " ▲"; }
+  #item-table th[aria-sort="descending"]::after { content: " ▼"; }
+  #item-table td { text-align: right; padding: 3px 8px; border-top: 1px solid var(--line); }
+  #item-table th:first-child, #item-table td:first-child { text-align: left; }
+  #item-table tbody tr { cursor: pointer; }
+  #item-table tbody tr:hover { background: rgb(255 255 255 / 0.05); }
+  #item-table tbody tr.worn { background: rgb(224 176 74 / 0.12); box-shadow: inset 2px 0 0 var(--accent); }
+  .item-name { display: flex; align-items: center; gap: 8px; }
+  .item-name .icon { width: 28px; height: 28px; }
+  .item-name .slot { width: 28px; height: 28px; }
+  #equipment-status { color: #e05a4f; min-height: 1.4em; margin: 0 auto 0 0; }
+  #equipment-note { color: var(--muted); margin: 0; }
+  #item-tip {
+    position: fixed;
+    z-index: 10;
+    max-width: 320px;
+    padding: 8px 10px;
+    background: rgb(8 10 20 / 0.96);
+    border: 1px solid #5a6070;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    pointer-events: none;
+  }
+  #item-tip .tip-name { font-size: 14px; font-weight: 600; }
+  #item-tip .tip-row { display: flex; justify-content: space-between; gap: 16px; }
+  #item-tip .tip-muted { color: var(--muted); }
+  #item-tip .tip-green { color: #1eff00; }
+  @media (max-width: 760px) {
+    #equipment-view { height: auto; max-height: calc(100vh - 32px); }
+    .equipment-frame { height: auto; max-height: calc(100vh - 34px); overflow-y: auto; }
+    .equipment-body { grid-template-columns: minmax(0, 1fr); }
+    .paper { justify-content: center; }
+    .item-list-scroll { max-height: 60vh; }
+  }
   @media (max-width: 640px) {
     main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "feed" "state" "rotation"; }
     #feed-panel { height: 240px; }
@@ -688,6 +867,47 @@
   </form>
 </dialog>
 
+<!-- Not a form: Enter in the search field must not close it. -->
+<dialog id="equipment-view" aria-labelledby="equipment-title">
+  <div class="equipment-frame">
+    <div class="equipment-head">
+      <h2 id="equipment-title">Equipment</h2>
+    </div>
+    <div class="equipment-body">
+      <div class="paper">
+        <div id="paper-left" class="paper-column"></div>
+        <section id="sheet" aria-label="Stats">
+          <div class="sheet-tabs" role="tablist">
+            <button type="button" role="tab" data-tab="melee">Melee</button>
+            <button type="button" role="tab" data-tab="ranged">Ranged</button>
+            <button type="button" role="tab" data-tab="spell">Spell</button>
+          </div>
+          <dl id="sheet-stats"></dl>
+        </section>
+        <div id="paper-right" class="paper-column"></div>
+        <div id="paper-weapons"></div>
+      </div>
+      <div class="equipment-items">
+        <input id="item-search" type="search" placeholder="Search…" aria-label="Search items">
+        <div id="item-count"></div>
+        <div class="item-list-scroll">
+          <table id="item-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p id="equipment-note"></p>
+    <div class="equipment-foot">
+      <p id="equipment-status" role="status"></p>
+      <button id="equipment-reset" type="button" title="Back to the setup's own gear">Reset</button>
+      <button id="equipment-close" type="button">Close</button>
+    </div>
+  </div>
+  <div id="item-tip" hidden></div>
+</dialog>
+
 <div id="controls">
   <div class="group options">
     <select id="speed" aria-label="Speed">
@@ -708,6 +928,7 @@
   <div class="group">
     <button id="play" type="button">Play</button>
     <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
+    <button id="equipment" type="button" disabled>Equipment</button>
   </div>
   <div class="group time">
     <span id="last-event"></span>
@@ -945,10 +1166,15 @@ async function begin(next) {
     .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
   document.title = `${info.name} · csim-live`;
   $("edit-keybinds").disabled = false;
+  $("equipment").disabled = false;
+  gearChanges = info.gear.changes;
   releaseKeys();
   renderEntries();
   syncForm();
   updateUrl();
+  if ($("equipment-view").open) {
+    renderEquipment();
+  }
   simTime = info.start_at;
   apply(await api("POST", "api/advance", { to: info.start_at }));
 }
@@ -1214,13 +1440,16 @@ function formRequest() {
   if (settings) {
     request.settings = settings;
   }
+  if (gearChanges.length) {
+    request.gear = gearChanges.map((change) => ({ ...change }));
+  }
   return Object.assign(request, targetFields());
 }
 
 /**
  * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…&target_type=…&target_armor=…`; pasted or edited keybinds as `keys=`, their YAML in base64url), so a link
- * reproduces it. Without a bundled setup (pasted) there is nothing to
+ * &setting=…&target_type=…&target_armor=…&gear=…`; pasted or edited keybinds as `keys=`, their
+ * YAML in base64url; the gear's changes as `gearText` writes them), so a link reproduces it. Without a bundled setup (pasted) there is nothing to
  * name: no query.
  */
 function updateUrl() {
@@ -1249,12 +1478,18 @@ function updateUrl() {
     if (info.target.armor !== null) {
       query.set("target_armor", info.target.armor);
     }
+    if (info.gear.changes.length) {
+      query.set("gear", gearText(info.gear.changes));
+    }
   }
   const search = query.size ? `?${query}` : "";
   if (location.search !== search) {
     history.replaceState(null, "", `${location.pathname}${search}`);
   }
 }
+
+/** What the address's query asked for that cannot be: said once the first load is shown. */
+const linkNotes = [];
 
 /** The setup bar filled from the address's query, when it names a setup. */
 function formFromQuery() {
@@ -1268,13 +1503,21 @@ function formFromQuery() {
   try {
     $("keybinds-yaml").value = query.has("keys") ? fromBase64Url(query.get("keys")) : "";
   } catch {
-    $("status").textContent = "The link's keys= is not readable: played by the rotation";
+    linkNotes.push("The link's keys= is not readable: played by the rotation");
   }
   $("seed-input").value = query.get("seed") || "";
   $("length-input").value = query.get("length") || "";
   $("variance-input").value = query.get("variance") || "";
   setSettings(query.get("setting"));
   setTarget(query.get("target_type"), query.get("target_armor"));
+  gearChanges = [];
+  if (query.has("gear")) {
+    try {
+      gearChanges = parseGear(query.get("gear"));
+    } catch (error) {
+      linkNotes.push(`The link's gear= is not readable (${error.message}): the setup's gear`);
+    }
+  }
   return true;
 }
 
@@ -1323,8 +1566,9 @@ function loadOrRotation(request) {
 // Choosing a setup loads it (with the seed, length and settings in the bar), as does choosing
 // how it is played; the text fields and pasted YAML wait for Load (or Enter).
 $("setup-select").addEventListener("change", () => {
-  // Pasted setup text would win over the choice.
+  // Pasted setup text would win over the choice; another setup wears its own gear.
   $("setup-yaml").value = "";
+  gearChanges = [];
   fillModes();
   loadOrRotation(formRequest());
 });
@@ -1722,6 +1966,528 @@ $("keybinds-editor").addEventListener("pointerdown", (event) => {
   }
 });
 
+// ----- The equipment view -----------------------------------------------------------------
+
+/**
+ * Each slot: its code in a link (`gear=`), its name and the texture Wowhead serves for it empty
+ * (`inventoryslot_<texture>`; the game shows the back empty as the chest).
+ */
+const SLOTS = {
+  HEAD: { code: "h", label: "Head", texture: "head" },
+  NECK: { code: "n", label: "Neck", texture: "neck" },
+  SHOULDERS: { code: "s", label: "Shoulders", texture: "shoulder" },
+  BACK: { code: "b", label: "Back", texture: "chest" },
+  CHEST: { code: "c", label: "Chest", texture: "chest" },
+  WRIST: { code: "w", label: "Wrist", texture: "wrists" },
+  GLOVES: { code: "g", label: "Hands", texture: "hands" },
+  BELT: { code: "bt", label: "Waist", texture: "waist" },
+  LEGS: { code: "l", label: "Legs", texture: "legs" },
+  BOOTS: { code: "f", label: "Feet", texture: "feet" },
+  RING1: { code: "r1", label: "Finger 1", texture: "finger" },
+  RING2: { code: "r2", label: "Finger 2", texture: "finger" },
+  TRINKET1: { code: "t1", label: "Trinket 1", texture: "trinket" },
+  TRINKET2: { code: "t2", label: "Trinket 2", texture: "trinket" },
+  MAINHAND: { code: "mh", label: "Main hand", texture: "mainhand" },
+  OFFHAND: { code: "oh", label: "Off hand", texture: "offhand" },
+  RANGED: { code: "rg", label: "Ranged", texture: "ranged" },
+  RELIC: { code: "rl", label: "Relic", texture: "relic" },
+  PROJECTILE: { code: "pr", label: "Ammo", texture: "ammo" },
+  QUIVER: { code: "qv", label: "Quiver", texture: "ammo" },
+};
+const SLOT_BY_CODE = new Map(Object.entries(SLOTS).map(([slot, { code }]) => [code, slot]));
+/** The paper doll, as the game's character pane: the columns, then the weapons under them. */
+const PAPER_LEFT = ["HEAD", "NECK", "SHOULDERS", "BACK", "CHEST", "WRIST"];
+const PAPER_RIGHT = ["GLOVES", "BELT", "LEGS", "BOOTS", "RING1", "RING2", "TRINKET1", "TRINKET2"];
+const PAPER_WEAPONS = ["MAINHAND", "OFFHAND", "RANGED"];
+const QUALITY_RANK = { COMMON: 1, UNCOMMON: 2, RARE: 3, EPIC: 4, LEGENDARY: 5 };
+const TYPE_NAMES = {
+  TWOHAND_AXE: "Two-hand Axe",
+  TWOHAND_MACE: "Two-hand Mace",
+  TWOHAND_SWORD: "Two-hand Sword",
+  CASTER_OFFHAND: "Held In Off-hand",
+  AMMO_POUCH: "Ammo Pouch",
+};
+const TWO_HANDED = new Set(["TWOHAND_AXE", "TWOHAND_MACE", "TWOHAND_SWORD", "POLEARM", "STAFF"]);
+/** Off-hand items the data gives a placeholder weapon damage: no DPS or speed shown. */
+const HELD = new Set(["SHIELD", "CASTER_OFFHAND"]);
+/** The weapon damage of `item` worth showing, if any. */
+const weaponOf = (item) => (HELD.has(item.type) ? null : item.weapon);
+const TRIGGERS = { USE: "Use", EQUIP: "Equip", ON_HIT: "Chance on hit" };
+
+/**
+ * How the loaded gear differs from its setup's (`info.gear.changes`): what the other loads
+ * keep, until another setup is chosen.
+ */
+let gearChanges = [];
+/** The items the loaded character can wear (`api/items`), by id, and whose they are. */
+let itemsById = new Map();
+let itemsFor = null;
+let selectedSlot = "MAINHAND";
+let sheetTab = "melee";
+
+/** `SCREAMING_CASE` as words: `HIT_RATING` → `Hit Rating`. */
+const words = (name) => name.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const typeName = (type) => TYPE_NAMES[type] || words(type);
+/** An enchant's name in the data (`ElementalSharpeningStone`) as words. */
+const enchantWords = (name) => name.replace(/([a-z])([A-Z])/g, "$1 $2");
+const qualityClass = (quality) => `q-${quality.toLowerCase()}`;
+
+/** The gear changes as a link has them: `mh-19019.oh-0` (`0` empties the slot). */
+function gearText(changes) {
+  return changes.map(({ slot, item }) => `${SLOTS[slot].code}-${item ?? 0}`).join(".");
+}
+
+/** The gear changes of a link's `gear=`; an error for a part it cannot read. */
+function parseGear(text) {
+  return text.split(".").filter(Boolean).map((part) => {
+    const match = /^([a-z]+\d?)-(\d+)$/.exec(part);
+    const slot = match && SLOT_BY_CODE.get(match[1]);
+    if (!slot) {
+      throw new Error(`no slot change ${part}`);
+    }
+    const item = Number(match[2]);
+    return { slot, item: item === 0 ? null : item };
+  });
+}
+
+/**
+ * Loads `request`, with the setup's own gear instead when its gear does not load (a link's
+ * item that is gone): the status says so.
+ */
+function loadOrSetupGear(request) {
+  if (!request.gear) {
+    return load(request);
+  }
+  setPlaying(false);
+  return enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      delete request.gear;
+      gearChanges = [];
+      next = await api("POST", "api/load", request);
+      await begin(next);
+      $("status").textContent = `The link's gear does not load (${error.reason}): the setup's gear`;
+      return;
+    }
+    await begin(next);
+  });
+}
+
+/** The items the loaded character can wear, fetched once per class and race. */
+async function ensureItems() {
+  const key = `${info.class}|${info.race}`;
+  if (itemsFor === key) {
+    return;
+  }
+  const items = await api("GET", "api/items");
+  itemsById = new Map(items.map((item) => [item.id, item]));
+  itemsFor = key;
+}
+
+async function openEquipment() {
+  if (!info) {
+    return;
+  }
+  $("item-search").value = "";
+  equipmentStatus("");
+  $("equipment-view").showModal();
+  renderEquipment();
+  try {
+    await ensureItems();
+  } catch (error) {
+    equipmentStatus(String(error.message || error));
+    return;
+  }
+  renderItems();
+}
+
+function equipmentStatus(text) {
+  $("equipment-status").textContent = text;
+}
+
+function renderEquipment() {
+  $("equipment-title").textContent = `Equipment · ${info.name}`;
+  const dropped = info.gear.dropped_enchants
+    .map(({ slot, enchant }) => `${enchantWords(enchant)} (${SLOTS[slot].label.toLowerCase()})`);
+  $("equipment-note").textContent = dropped.length
+    ? `Left off, as they do not fit the new items: ${dropped.join(", ")}` : "";
+  renderPaper();
+  renderSheet();
+  renderItems();
+}
+
+/** The worn items, by slot. */
+const wornBySlot = () => new Map(info.equipment.map((worn) => [worn.slot, worn]));
+
+function renderPaper() {
+  const worn = wornBySlot();
+  const view = (slot) => gearSlot(slot, worn.get(slot));
+  $("paper-left").replaceChildren(...PAPER_LEFT.map(view));
+  $("paper-right").replaceChildren(...PAPER_RIGHT.map(view));
+  $("paper-weapons").replaceChildren(...PAPER_WEAPONS.map(view));
+}
+
+/** A slot's label, for a slot without an icon. */
+function slotLabel(text) {
+  return element("span", "label", text);
+}
+
+/**
+ * The paper doll's `slot` with the `worn` item (or none): a click selects it, a right click
+ * (or ×, Delete) takes the item off.
+ */
+function gearSlot(slot, worn) {
+  const box = element("div", "gear-slot");
+  box.tabIndex = 0;
+  box.setAttribute("role", "button");
+  box.setAttribute("aria-label", `${SLOTS[slot].label}: ${worn ? worn.name : "empty"}`);
+  box.classList.toggle("selected", slot === selectedSlot);
+  if (worn) {
+    box.classList.add(qualityClass(worn.quality));
+    box.dataset.item = worn.id;
+    box.dataset.slot = slot;
+    const icon = iconImage(worn.icon, "large");
+    if (icon) {
+      icon.addEventListener("icon-missing", () => box.prepend(slotLabel(worn.name)));
+      box.append(icon);
+    } else {
+      box.append(slotLabel(worn.name));
+    }
+    const clear = element("button", "clear", "×");
+    clear.type = "button";
+    clear.title = `Take off ${worn.name}`;
+    clear.addEventListener("click", (event) => {
+      event.stopPropagation();
+      changeGear(slot, null);
+    });
+    box.append(clear);
+  } else {
+    const texture = document.createElement("img");
+    texture.alt = "";
+    texture.addEventListener("error", () => texture.replaceWith(slotLabel(SLOTS[slot].label)));
+    texture.src = `${ICON_CDN}/large/inventoryslot_${SLOTS[slot].texture}.jpg`;
+    box.title = SLOTS[slot].label;
+    box.append(texture);
+  }
+  box.addEventListener("click", () => selectSlot(slot));
+  box.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    if (worn) {
+      changeGear(slot, null);
+    }
+  });
+  box.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectSlot(slot);
+    } else if (worn && (event.key === "Delete" || event.key === "Backspace")) {
+      event.preventDefault();
+      changeGear(slot, null);
+    }
+  });
+  return box;
+}
+
+function selectSlot(slot) {
+  selectedSlot = slot;
+  renderPaper();
+  renderItems();
+}
+
+/** The stat summary's tab (`info.stats`), as the C++ GUI's. */
+function renderSheet() {
+  for (const tab of document.querySelectorAll("#sheet [data-tab]")) {
+    const active = tab.dataset.tab === sheetTab;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+  }
+  const { melee, ranged, spell } = info.stats;
+  const percent = (value) => `${value.toFixed(2)}%`;
+  const list = $("sheet-stats");
+  list.classList.toggle("spell", sheetTab === "spell");
+  if (sheetTab === "spell") {
+    list.replaceChildren(
+      ...["School", "Damage", "Crit", "Hit"].map((head) => element("span", "head", head)),
+      ...spell.flatMap((school) => [
+        element("dt", "", words(school.school)),
+        element("dd", "", String(school.damage)),
+        element("dd", "", percent(school.crit)),
+        element("dd", "", percent(school.hit)),
+      ]),
+    );
+    return;
+  }
+  const rows = sheetTab === "melee" ? [
+    ["Strength", melee.strength],
+    ["Agility", melee.agility],
+    ["Stamina", melee.stamina],
+    ["Intellect", melee.intellect],
+    ["Spirit", melee.spirit],
+    ["Critical strike", percent(melee.crit)],
+    ["Hit", percent(melee.hit)],
+    ["Attack power", melee.attack_power],
+    ["MH skill", melee.mainhand_skill],
+    ["OH skill", melee.offhand_skill ?? "—"],
+  ] : [
+    ["Attack power", ranged.attack_power],
+    ["Critical strike", percent(ranged.crit)],
+    ["Hit", percent(ranged.hit)],
+    ["Skill", ranged.skill ?? "—"],
+  ];
+  list.replaceChildren(...rows.flatMap(([name, value]) =>
+    [element("dt", "", name), element("dd", "", String(value))]));
+}
+
+/** The item list's columns; DPS and Speed only in the weapon slots. */
+const ITEM_COLUMNS = [
+  { key: "name", label: "Name", value: (item) => item.name, ascending: true },
+  { key: "ilvl", label: "iLvl", value: (item) => item.item_level },
+  { key: "quality", label: "Quality", value: (item) => QUALITY_RANK[item.quality] ?? 0 },
+  { key: "type", label: "Type", value: (item) => typeName(item.type), ascending: true },
+  { key: "dps", label: "DPS", value: (item) => weaponOf(item)?.dps ?? 0, weapon: true },
+  { key: "speed", label: "Speed", value: (item) => weaponOf(item)?.speed ?? 0, weapon: true },
+];
+const DEFAULT_SORT = { key: "ilvl", descending: true };
+const SORT_KEY = "csim-live.equipment.sort";
+
+const isWeaponSlot = (slot) => PAPER_WEAPONS.includes(slot);
+const slotKind = (slot) => (isWeaponSlot(slot) ? "weapon" : "armor");
+
+/** The list's sort in the weapon or armor slots (`kind`), as last chosen (browser storage). */
+function itemSort(kind) {
+  try {
+    const sort = JSON.parse(localStorage.getItem(SORT_KEY) || "{}")[kind];
+    const column = ITEM_COLUMNS.find((candidate) => candidate.key === sort?.key);
+    if (column && (!column.weapon || kind === "weapon")) {
+      return { key: sort.key, descending: Boolean(sort.descending) };
+    }
+  } catch {
+    // Storage blocked or unreadable: the default.
+  }
+  return DEFAULT_SORT;
+}
+
+function setItemSort(kind, sort) {
+  try {
+    const sorts = JSON.parse(localStorage.getItem(SORT_KEY) || "{}");
+    sorts[kind] = sort;
+    localStorage.setItem(SORT_KEY, JSON.stringify(sorts));
+  } catch {
+    // Storage blocked: the sort lasts until the page reloads.
+  }
+}
+
+/** Whether `item` matches the search `text` (lower case): its name contains it. */
+function matchesSearch(item, text) {
+  return item.name.toLowerCase().includes(text);
+}
+
+function renderItems() {
+  const kind = slotKind(selectedSlot);
+  const columns = ITEM_COLUMNS.filter((column) => !column.weapon || kind === "weapon");
+  const sort = itemSort(kind);
+  $("item-table").querySelector("thead tr").replaceChildren(...columns.map((column) => {
+    const head = element("th", "", column.label);
+    head.scope = "col";
+    if (column.key === sort.key) {
+      head.setAttribute("aria-sort", sort.descending ? "descending" : "ascending");
+    }
+    head.addEventListener("click", () => {
+      setItemSort(kind, column.key === sort.key
+        ? { key: column.key, descending: !sort.descending }
+        : { key: column.key, descending: !column.ascending });
+      renderItems();
+    });
+    return head;
+  }));
+
+  const fitting = [...itemsById.values()].filter((item) => item.slots.includes(selectedSlot));
+  const search = $("item-search").value.trim().toLowerCase();
+  const shown = fitting.filter((item) => matchesSearch(item, search));
+  const column = ITEM_COLUMNS.find((candidate) => candidate.key === sort.key);
+  const order = sort.descending ? -1 : 1;
+  const compare = (a, b) => {
+    const [x, y] = [column.value(a), column.value(b)];
+    return typeof x === "string" ? x.localeCompare(y) : x - y;
+  };
+  shown.sort((a, b) => order * compare(a, b) || a.name.localeCompare(b.name));
+
+  const wornId = wornBySlot().get(selectedSlot)?.id;
+  const rows = shown.map((item) => {
+    const row = element("tr", item.id === wornId ? "worn" : "");
+    row.dataset.item = item.id;
+    const name = element("span", "item-name");
+    const slot = element("span", "slot");
+    const icon = iconImage(item.icon);
+    if (icon) {
+      slot.append(icon);
+    }
+    name.append(slot, element("span", `quality ${qualityClass(item.quality)}`, item.name));
+    const cell = (text) => element("td", "", text);
+    row.append(element("td"), cell(String(item.item_level)), cell(words(item.quality)),
+      cell(typeName(item.type)));
+    row.firstChild.append(name);
+    if (kind === "weapon") {
+      const weapon = weaponOf(item);
+      row.append(cell(weapon ? weapon.dps.toFixed(1) : ""), cell(weapon ? weapon.speed.toFixed(2) : ""));
+    }
+    row.addEventListener("click", () => {
+      if (item.id !== wornId) {
+        changeGear(selectedSlot, item.id);
+      }
+    });
+    return row;
+  });
+  $("item-table").querySelector("tbody").replaceChildren(...rows);
+  $("item-count").textContent = itemsFor === null ? "Loading the items…"
+    : `${shown.length} of ${fitting.length} items for ${SLOTS[selectedSlot].label.toLowerCase()}`;
+}
+
+/** Wears `item` in `slot` (null: empties it): the setup loads again with the changed gear. */
+function changeGear(slot, item) {
+  loadGear([...gearChanges.filter((change) => change.slot !== slot), { slot, item }]);
+}
+
+/** Loads the loaded setup with the gear changes `gear`; the view says why when it does not load. */
+function loadGear(gear) {
+  const request = formRequest();
+  delete request.gear;
+  if (gear.length) {
+    request.gear = gear;
+  }
+  if (info.source.setup) {
+    delete request.setup_yaml;
+    request.setup = info.source.setup;
+  }
+  hideTip();
+  equipmentStatus("");
+  setPlaying(false);
+  enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      equipmentStatus(error.reason || String(error.message || error));
+      return;
+    }
+    await begin(next);
+  });
+}
+
+// ----- The item tooltip
+
+/** A tooltip line: `text` with `className`, or a row of a left and a right part. */
+function tipLine(text, className = "", right = null) {
+  if (right === null) {
+    return element("div", className, text);
+  }
+  const row = element("div", `tip-row ${className}`);
+  row.append(element("span", "", text), element("span", "", right));
+  return row;
+}
+
+/** Where `item` is worn, as the game's tooltips say it. */
+function slotText(item) {
+  const slots = item.slots;
+  if (TWO_HANDED.has(item.type)) {
+    return "Two-Hand";
+  }
+  if (slots.includes("MAINHAND") && slots.includes("OFFHAND")) {
+    return "One-Hand";
+  }
+  return SLOTS[slots[0]]?.label.replace(/ \d$/, "") ?? "";
+}
+
+/** A static stat as the game's tooltips list it: `+20 Strength`, `344 Armor`. */
+function statText(stat, value) {
+  if (stat === "ARMOR") {
+    return `${value} Armor`;
+  }
+  if (stat.endsWith("_CHANCE")) {
+    return `+${+(value * 100).toFixed(2)}% ${words(stat)}`;
+  }
+  return `${value < 0 ? "" : "+"}${value} ${words(stat)}`;
+}
+
+/** The tooltip of item `id`, with the enchants of `worn` (the slot's item) when given. */
+function itemTip(id, worn) {
+  const item = itemsById.get(id);
+  const lines = [];
+  const quality = item?.quality ?? worn?.quality ?? "COMMON";
+  lines.push(tipLine(item?.name ?? worn?.name ?? `Item ${id}`, `tip-name quality ${qualityClass(quality)}`));
+  if (item) {
+    if (item.unique) {
+      lines.push(tipLine("Unique"));
+    }
+    lines.push(tipLine(slotText(item), "", typeName(item.type)));
+    const weapon = weaponOf(item);
+    if (weapon) {
+      lines.push(tipLine(`${weapon.min} - ${weapon.max} Damage`, "", `Speed ${weapon.speed.toFixed(2)}`));
+      lines.push(tipLine(`(${weapon.dps.toFixed(1)} damage per second)`));
+    }
+    for (const [stat, value] of Object.entries(item.stats)) {
+      lines.push(tipLine(statText(stat, value)));
+    }
+  }
+  for (const enchant of [worn?.enchant, ...(worn?.temp_enchants ?? [])].filter(Boolean)) {
+    lines.push(tipLine(enchant, "tip-green"));
+  }
+  for (const effect of item?.effects ?? []) {
+    lines.push(tipLine(`${TRIGGERS[effect.trigger] ?? words(effect.trigger)}: ${effect.name ?? `spell ${effect.spell}`}`,
+      "tip-green"));
+  }
+  if (item?.set) {
+    lines.push(tipLine(`Set: ${item.set}`, "tip-muted"));
+  }
+  if (item) {
+    lines.push(tipLine(`Item Level ${item.item_level}`, "tip-muted"));
+  }
+  return lines;
+}
+
+/** The item under the pointer gets its tooltip, by the pointer. */
+function showTip(event) {
+  const holder = event.target instanceof Element && event.target.closest("[data-item]");
+  if (!holder) {
+    hideTip();
+    return;
+  }
+  const tip = $("item-tip");
+  if (tip.dataset.for !== `${holder.dataset.item}:${holder.dataset.slot ?? ""}`) {
+    tip.dataset.for = `${holder.dataset.item}:${holder.dataset.slot ?? ""}`;
+    const worn = holder.dataset.slot ? wornBySlot().get(holder.dataset.slot) : null;
+    tip.replaceChildren(...itemTip(Number(holder.dataset.item), worn));
+    tip.hidden = false;
+  }
+  const { width, height } = tip.getBoundingClientRect();
+  const x = event.clientX + 16 + width > innerWidth ? event.clientX - 16 - width : event.clientX + 16;
+  const y = Math.min(event.clientY + 16, innerHeight - height - 4);
+  tip.style.left = `${Math.max(4, x)}px`;
+  tip.style.top = `${Math.max(4, y)}px`;
+}
+
+function hideTip() {
+  const tip = $("item-tip");
+  tip.hidden = true;
+  delete tip.dataset.for;
+}
+
+$("equipment").addEventListener("click", openEquipment);
+$("equipment-close").addEventListener("click", () => $("equipment-view").close());
+$("equipment-reset").addEventListener("click", () => loadGear([]));
+$("equipment-view").addEventListener("close", hideTip);
+$("equipment-view").addEventListener("pointermove", showTip);
+$("equipment-view").addEventListener("pointerleave", hideTip);
+$("item-search").addEventListener("input", renderItems);
+for (const tab of document.querySelectorAll("#sheet [data-tab]")) {
+  tab.addEventListener("click", () => {
+    sheetTab = tab.dataset.tab;
+    renderSheet();
+  });
+}
+
 /** URL-safe base64 of the UTF-8 `text`, and back: pasted keybinds in a link (`keys=`). */
 function toBase64Url(text) {
   const bytes = new TextEncoder().encode(text);
@@ -1744,7 +2510,10 @@ async function startPage() {
   catalog = await api("GET", "api/catalog");
   fillForm();
   if (formFromQuery()) {
-    return load(formRequest());
+    await loadOrSetupGear(formRequest());
+    // The load cleared the status: the link's problems join what it says.
+    $("status").textContent = [...linkNotes, $("status").textContent].filter(Boolean).join(" · ");
+    return;
   }
   try {
     const current = await api("GET", "api/info");
@@ -2650,7 +3419,7 @@ function releaseKeys() {
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || inForm || $("keybinds-editor").open) {
+  if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open) {
     return;
   }
   // A spell's name, or a macro's.
