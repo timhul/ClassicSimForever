@@ -11,6 +11,10 @@ tables; names given on the command line are fetched in addition. Once every
 table is downloaded, the files of the other builds are removed (`TableDir::open` wants a single
 build in the directory) unless `--keep-old` is given. Nothing is removed if a download fails.
 
+Then the build's server-side hotfixes are applied (`tools/fetch_hotfixes.py`: downloaded once into
+`data/tables/hotfixes.<build>.json`, `--refresh-hotfixes` downloads them again; the raw tables are
+kept in `data/tables/raw/`). `--no-hotfixes` leaves the raw tables in place.
+
 Only the standard library is used.
 """
 import argparse
@@ -23,6 +27,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+
+import fetch_hotfixes
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
@@ -124,6 +130,10 @@ def main():
     p.add_argument("--force", action="store_true", help="re-download files that already exist")
     p.add_argument("--jobs", type=int, default=4, help="parallel downloads (default: %(default)s)")
     p.add_argument("--dry-run", action="store_true", help="print the plan, download nothing")
+    p.add_argument("--no-hotfixes", action="store_true",
+                   help="keep the raw tables, without the server-side hotfixes")
+    p.add_argument("--refresh-hotfixes", action="store_true",
+                   help="download the hotfixes again over their cache")
     args = p.parse_args()
 
     builds = local_files(args.dir)
@@ -158,11 +168,27 @@ def main():
         for old, files in builds.items():
             if old == build:
                 continue
+            raw = os.path.join(args.dir, fetch_hotfixes.RAW_DIR)
             for name in files.values():
                 os.remove(os.path.join(args.dir, name))
                 removed += 1
+                if os.path.exists(os.path.join(raw, name)):
+                    os.remove(os.path.join(raw, name))
+            cache = fetch_hotfixes.cache_path(args.dir, old)
+            if os.path.exists(cache):
+                os.remove(cache)
         if removed:
             print(f"removed {removed} files of builds {', '.join(b for b in builds if b != build)}")
+    if args.no_hotfixes:
+        fetch_hotfixes.restore_raw(args.dir, build)
+    else:
+        try:
+            hotfixes = fetch_hotfixes.fetch_hotfixes(args.dir, build, jobs=args.jobs,
+                                                     force=args.refresh_hotfixes)
+        except (fetch_hotfixes.PageError, urllib.error.URLError) as e:
+            sys.exit(f"hotfixes: {e}; the tables are raw, --no-hotfixes to accept that")
+        fetch_hotfixes.print_spells(hotfixes)
+        fetch_hotfixes.apply_hotfixes(args.dir, build, hotfixes)
     print("done; re-run the exports in data/README.md ('Re-exporting from a new dump')")
 
 
