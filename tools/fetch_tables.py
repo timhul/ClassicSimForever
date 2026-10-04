@@ -186,7 +186,8 @@ def main():
             hotfixes = fetch_hotfixes.fetch_hotfixes(args.dir, build, jobs=args.jobs,
                                                      force=args.refresh_hotfixes)
         except (fetch_hotfixes.PageError, urllib.error.URLError) as e:
-            sys.exit(f"hotfixes: {e}; the tables are raw, --no-hotfixes to accept that")
+            sys.exit(f"hotfixes: {e}; none applied by this run "
+                     "(--no-hotfixes restores the raw tables)")
         fetch_hotfixes.print_spells(hotfixes)
         fetch_hotfixes.apply_hotfixes(args.dir, build, hotfixes)
     print("done; re-run the exports in data/README.md ('Re-exporting from a new dump')")
