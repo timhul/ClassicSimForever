@@ -10,11 +10,11 @@ defaults:
 overrides:
   # ----- Procs whose hit condition retail keeps in the server-side spell_proc table -----------
   - id: 12834
-    note: Deep Wounds (talent) procs on critical strikes only
-    proc: { hit_mask: [CRITICAL] }
+    note: Deep Wounds (talent) procs on melee critical strikes only (the tables say any damage; a critical Thunder Clap does not trigger it in game)
+    proc: { hit_mask: [CRITICAL], type_mask: [DEAL_MELEE_SWING, DEAL_MELEE_ABILITY] }
   - id: 12319
-    note: Flurry (talent) procs on critical strikes only; the DUMMY carries the rank value
-    proc: { hit_mask: [CRITICAL] }
+    note: Flurry (talent) procs on melee critical strikes only (as Deep Wounds); the DUMMY carries the rank value
+    proc: { hit_mask: [CRITICAL], type_mask: [DEAL_MELEE_SWING, DEAL_MELEE_ABILITY] }
     effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12966, effect: 0 } }]
   - id: 12317
     note: Enrage (talent) reacts to any damaging attack taken; the DUMMY carries the rank value

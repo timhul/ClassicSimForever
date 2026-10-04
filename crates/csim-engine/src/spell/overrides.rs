@@ -47,7 +47,7 @@ use serde::{Deserialize, Serialize};
 use crate::files::{Files, FsFiles, yaml_files};
 use crate::proc::ProcSource;
 use crate::spell::Hand;
-use crate::spell::dbc::{PowerType, dbc_flags};
+use crate::spell::dbc::{PowerType, ProcFlags, dbc_flags};
 use crate::target::{CreatureTypes, Priority};
 
 fn is_default<T: Default + PartialEq>(value: &T) -> bool {
@@ -383,6 +383,11 @@ pub struct ProcOverride {
     /// Hit results the proc fires on; the file default when absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hit_mask: Option<ProcHitMask>,
+    /// The events the proc fires on, in place of the table's `ProcTypeMask` where the game
+    /// disagrees with it (Deep Wounds and Flurry: any damage in the tables, melee strikes only
+    /// in game, so a critical Thunder Clap triggers neither).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub type_mask: Option<ProcFlags>,
     /// The aura effect whose value is the proc chance in percent, for talents whose rank value
     /// is the chance (Unbridled Wrath 12/24/36/48/60 %) rather than the payload's value: the
     /// table's `ProcChance` is the max-rank number. An effect without a value gives its value

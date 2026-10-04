@@ -1669,8 +1669,8 @@ impl Spell {
 
     /// The attack outcome of a spell that landed on the magic table: its damage with the spell
     /// crit multiplier, less its partial resist. A spell on the magic table is no melee attack:
-    /// its damage is reported as a magic spell, a crit additionally by its result (Deep Wounds
-    /// on a critical Thunder Clap). See `ProcSource::from_masks`. A landed damage-over-time
+    /// its damage is reported as a magic spell, a crit additionally by its result (not to Deep
+    /// Wounds or Flurry, melee strikes only). See `ProcSource::from_masks`. A landed damage-over-time
     /// without direct damage reports nothing (its ticks do).
     fn collect_spell_damage(
         &mut self,

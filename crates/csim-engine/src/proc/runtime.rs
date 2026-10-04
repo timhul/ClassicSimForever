@@ -192,11 +192,18 @@ impl Proc {
         })
     }
 
-    /// The sources the record's `ProcTypeMask` and hit mask name.
+    /// The sources the record's `ProcTypeMask` (or the override's `type_mask`) and hit mask
+    /// name.
     fn record_sources(spell: &Spell) -> Vec<ProcSource> {
         let record = spell.record();
         assert!(spell.is_passive(), "{} is not a passive spell", record.name);
-        ProcSource::from_masks(record.aura_options.proc_type_mask, spell.setup().hit_mask)
+        let setup = spell.setup();
+        let type_mask = setup
+            .overrides
+            .proc
+            .and_then(|p| p.type_mask)
+            .unwrap_or(record.aura_options.proc_type_mask);
+        ProcSource::from_masks(type_mask, setup.hit_mask)
     }
 
     fn build(spell: Spell, sources: Vec<ProcSource>, seed: u64) -> Self {
