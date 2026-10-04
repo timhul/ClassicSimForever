@@ -878,12 +878,19 @@ impl CharacterSpells {
             .collect()
     }
 
-    /// The enabled character-owned buff called `name`. Port of `EnabledBuffs::get_buff_by_name`.
+    /// The enabled character-owned buff called `name`, one a passive does not apply first: the
+    /// Flurry talent's permanent aura and the haste buff it procs are both called "Flurry", and
+    /// a rotation means the haste. Port of `EnabledBuffs::get_buff_by_name`.
     pub fn owned_buff_by_name(&self, name: &str) -> Option<BuffId> {
-        self.enabled_buffs
-            .iter()
-            .copied()
-            .find(|id| self.owned_buff(*id).is_some_and(|buff| buff.name() == name))
+        let named = || {
+            self.enabled_buffs
+                .iter()
+                .copied()
+                .filter(|id| self.owned_buff(*id).is_some_and(|buff| buff.name() == name))
+        };
+        named()
+            .find(|id| self.owned_buff(*id).is_some_and(|buff| !buff.is_passive()))
+            .or_else(|| named().next())
     }
 
     /// Resolves a buff name the way rotations and conditions refer to buffs: the enabled owned

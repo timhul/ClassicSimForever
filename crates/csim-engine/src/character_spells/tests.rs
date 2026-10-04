@@ -138,6 +138,13 @@ fn passives_with_a_proc_mask_become_procs() {
     let buff = spells.add_spell(&db, FLURRY_BUFF, 0, &mut raid);
     assert!(buff.spell.is_some() && !buff.in_rank_group);
 
+    // A rotation's "Flurry" is the haste, not the talent's permanent aura enabled before it.
+    let (aura, haste) = (flurry.buff.unwrap(), buff.buff.unwrap());
+    spells.enable_buff(aura);
+    assert_eq!(spells.owned_buff_by_name("Flurry"), Some(aura));
+    spells.enable_buff(haste);
+    assert_eq!(spells.owned_buff_by_name("Flurry"), Some(haste));
+
     // Passives without a proc mask stay spells.
     let anger = spells.add_spell(&db, ANGER_MANAGEMENT, 0, &mut raid);
     assert!(anger.spell.is_some() && anger.proc.is_none());
