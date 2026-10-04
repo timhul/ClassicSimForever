@@ -1,14 +1,14 @@
 //! What the page talks to: the data, the files the setups come from, and the [`Session`] being
 //! watched, if one is loaded. The page lists the bundled setups and keybinds
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
-//! by its rotation or from the keyboard, with a seed, a length, named settings and the
-//! target's creature type and armor.
+//! by its rotation or from the keyboard, with a seed, a length, named settings, the target's
+//! creature type and armor, and changes of its gear.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use csim_engine::character_loader::{CharacterSetup, TargetSetup};
+use csim_engine::character_loader::{CharacterSetup, GearChange, GearChanged, TargetSetup};
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::files::{Files, MemFiles, Overlay, yaml_files};
 use csim_engine::named_settings::{
@@ -38,6 +38,7 @@ pub struct App {
     session: Option<Session>,
     source: Source,
     target: TargetChoice,
+    gear: GearChanged,
 }
 
 /// Where the session's setup and keybinds come from: their catalog names, `None` for pasted
@@ -55,6 +56,9 @@ pub struct Loaded {
     pub info: Info,
     pub source: Source,
     pub target: TargetChoice,
+    /// How the session's gear differs from the setup's, and the setup's enchants that did
+    /// not fit the new items.
+    pub gear: GearChanged,
 }
 
 /// The target the session fights: the setup's, with the creature type and armor the load
@@ -167,6 +171,10 @@ pub struct LoadRequest {
     /// The target's creature type and base armor instead of the setup's.
     pub target_creature_type: Option<CreatureType>,
     pub target_armor: Option<i32>,
+    /// Changes of the setup's gear, worn in order: a later change wins over an earlier one it
+    /// conflicts with ([`CharacterSetup::change_equipment`]).
+    #[serde(default)]
+    pub gear: Vec<GearChange>,
 }
 
 impl App {
@@ -179,6 +187,7 @@ impl App {
             session: None,
             source: Source::default(),
             target: TargetChoice::unchanged(&TargetSetup::default()),
+            gear: GearChanged::default(),
         }
     }
 
@@ -195,10 +204,11 @@ impl App {
         self.session.as_mut()
     }
 
-    /// Watches `session`, its setup and keybinds coming from `source` (its target as the setup
-    /// has it).
+    /// Watches `session`, its setup and keybinds coming from `source` (its target and gear as
+    /// the setup has them).
     pub fn set_session(&mut self, session: Session, source: Source) {
         self.target = TargetChoice::unchanged(session.target());
+        self.gear = GearChanged::default();
         self.session = Some(session);
         self.source = source;
     }
@@ -209,6 +219,7 @@ impl App {
             info: session.info(),
             source: self.source.clone(),
             target: self.target,
+            gear: self.gear.clone(),
         })
     }
 
@@ -314,7 +325,8 @@ impl App {
     ///
     /// # Errors
     /// The request is malformed (no setup, or both a name and text; an unknown name), a file
-    /// does not load, the seed or a setting is invalid, or the setup does not build.
+    /// does not load, the seed, a setting or a gear change is invalid, or the setup does not
+    /// build.
     pub fn load(
         &mut self,
         request: LoadRequest,
@@ -343,6 +355,7 @@ impl App {
                 .apply_settings(&pairs)
                 .map_err(|error| error.to_string())?;
         }
+        let gear = setup.change_equipment(&self.data, settings.phase, &request.gear)?;
         let seed = match request.seed.as_deref().map(str::trim) {
             None | Some("") => new_seed(),
             Some(seed) => seed.parse().map_err(|_| format!("invalid seed '{seed}'"))?,
@@ -356,6 +369,7 @@ impl App {
             },
         );
         self.target = target;
+        self.gear = gear;
         Ok(self.loaded().expect("a session was just loaded"))
     }
 
