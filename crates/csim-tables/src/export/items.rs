@@ -30,6 +30,10 @@ pub const MIN_QUALITY: u32 = 3;
 pub const MAX_QUALITY: u32 = 5;
 /// Highest `RequiredLevel` of a real item; above are test / placeholder rows.
 pub const MAX_REQUIRED_LEVEL: u32 = 60;
+/// Season of Discovery's item ids (§1.1). No column marks them: the client and its hotfixes carry
+/// SoD's items (Scarlet Enclave sets, its remade PvP sets, ...) between Classic's (below 30 000)
+/// and Forever's own (250 000 and up).
+pub const SEASON_OF_DISCOVERY_IDS: std::ops::RangeInclusive<u32> = 200_000..=249_999;
 
 /// `ItemSparse.Flags_0` bit of deprecated items.
 const FLAG_DEPRECATED: u32 = 0x10;
@@ -110,6 +114,8 @@ pub enum Skip {
     NoSparseRow,
     /// Not a weapon or armor.
     NotEquipment,
+    /// A Season of Discovery item ([`SEASON_OF_DISCOVERY_IDS`]).
+    SeasonOfDiscovery,
     /// Quality outside [`MIN_QUALITY`]..=[`MAX_QUALITY`].
     Quality,
     Deprecated,
@@ -430,6 +436,9 @@ pub fn class_restrictions(allowable_class: i32) -> Vec<PlayerClass> {
 pub fn skip_reason(tables: &Tables, item: &ItemRow) -> Option<Skip> {
     if !matches!(item.class_id, 2 | 4) {
         return Some(Skip::NotEquipment);
+    }
+    if SEASON_OF_DISCOVERY_IDS.contains(&item.id) {
+        return Some(Skip::SeasonOfDiscovery);
     }
     let Some(sparse) = tables.item_sparse(item.id) else {
         return Some(Skip::NoSparseRow);

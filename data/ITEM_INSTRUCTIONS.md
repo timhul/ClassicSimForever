@@ -8,16 +8,20 @@ is a good secondary reference for anything not covered here.
 
 ## 1.1 Caveats about this dump
 
-- **`ItemSparse` is incomplete.** `Item` has 31 675 rows, `ItemSparse` only 19 172. Of the
-  10 549 Classic-range equippables in `Item`, 4 933 have no `ItemSparse` row (e.g. Ashkandi 19351,
-  Helm of Might 16866, Hand of Justice 11815, Bonereaver's Edge 17076). Modern clients only ship
-  a subset of `ItemSparse` in the base file and stream the rest into the hotfix cache
-  (`DBCache.bin`) as the player sees items, so the dump only contains what the dumping client had
-  cached. A re-dump that includes the hotfix cache (or a dump from a fuller source) is needed for
-  full coverage. `Item`, `ItemEffect`, `ItemXItemEffect`, `ItemSet` look complete.
-- **Forever changes items.** Item IDs go up to ~286 000 (Forever-only items live above 190 000;
-  Classic IDs are below ~25 000). Classic items can also be re-tuned (e.g. Huge Thorium Battleaxe
-  is 3.50 speed / +2 skill here vs 3.30 / +10 in Classic). Do not assume Classic values.
+- **`ItemSparse` is incomplete.** `Item` has 31 675 rows, `ItemSparse` only 19 172 in the client
+  files (build 70009). Modern clients only ship a subset of `ItemSparse` and receive the rest as
+  server-side hotfixes. `tools/fetch_hotfixes.py` applies them: 4 581 rows on build 70205
+  (Fiery War Axe, Corpsemaker, the dungeon and PvP sets, ...). Some are still missing after that
+  (Hand of Justice 11815). `Item`, `ItemEffect`, `ItemXItemEffect`, `ItemSet` look complete.
+- **Three games' items.** Item IDs go up to ~286 000: Classic's below ~30 000, Season of
+  Discovery's from 200 000 to 249 999 (Scarlet Enclave and its "Sanctified" items, SoD's remade
+  PvP sets that share Classic's names, ...), Forever's own from 250 000 (every set with "1.60.0"
+  bonuses is above 270 000, as are the "Premier" PvP sets). No `ItemSparse` or `Item` column tells
+  SoD's apart (`ExpansionID`, `ContentTuningID`, the flags and `ItemNameDescriptionID` were
+  compared on build 70205), so the export skips the id range. Classic items can also be re-tuned
+  (e.g. Huge Thorium Battleaxe is 3.50 speed / +2 skill here vs 3.30 / +10 in Classic). Do not
+  assume Classic values. Some Classic tier 0 sets (Battlegear of Valor, Beaststalker, ...) carry
+  SoD's set bonuses ("S03 - Item - ..." spells); whether Forever uses them is unverified.
 - Max `RequiredLevel` / `ItemLevel` on real items is 60 / ~92 (level-100 rows are `[PH]`/test
   items). No item uses `PlayerLevelToItemLevelCurveID`, `ItemLevelOffsetCurveID`, `ContentTuningID`,
   `ItemSquishEraID`, sockets or `SpellWeight` — ignore those columns.
