@@ -74,16 +74,18 @@
   #setup-select { max-width: 100%; }
   #seed-input { width: 13ch; }
   #length-input, #variance-input { width: 7ch; }
-  #settings { flex-basis: 100%; }
-  #settings summary { cursor: pointer; color: var(--muted); width: max-content; max-width: 100%; }
-  #settings-grid {
+  #settings, #target { flex-basis: 100%; }
+  #settings summary, #target summary {
+    cursor: pointer; color: var(--muted); width: max-content; max-width: 100%;
+  }
+  #settings-grid, #target-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     gap: 6px 16px;
     margin-top: 8px;
   }
-  #settings-grid label { justify-content: space-between; }
-  #settings-grid input { width: 10ch; }
+  #settings-grid label, #target-grid label { justify-content: space-between; }
+  #settings-grid input, #target-grid input { width: 10ch; }
   #custom { flex-basis: 100%; }
   #custom summary { cursor: pointer; color: var(--muted); width: max-content; }
   #custom .custom-grid {
@@ -628,6 +630,15 @@
     <summary>Settings</summary>
     <div id="settings-grid"></div>
   </details>
+  <details id="target">
+    <summary>Target</summary>
+    <div id="target-grid">
+      <label title="The target's creature type (Slaying and Bane effects, ...)">creature type
+        <select id="target-type" aria-label="Target creature type"></select></label>
+      <label title="The target's base armor, before debuffs">armor
+        <input id="target-armor" type="number" min="0" step="1" aria-label="Target armor"></label>
+    </div>
+  </details>
   <details id="custom">
     <summary>Paste or upload YAML</summary>
     <div class="custom-grid">
@@ -969,6 +980,7 @@ function fillForm() {
   $("length-input").placeholder = catalog.length;
   $("variance-input").placeholder = catalog.length_variance;
   fillSettings();
+  fillTarget();
 }
 
 // ----- Named settings ----------------------------------------------------------------------
@@ -1064,6 +1076,71 @@ function setSettings(text) {
   settingsText();
 }
 
+// ----- The target -------------------------------------------------------------------------
+
+/**
+ * The setup's own target (from the loaded info), which empty controls keep: the creature type's
+ * first choice, the armor field's placeholder.
+ */
+let setupTarget = null;
+
+/** The creature type choices: the setup's (an empty value), then each type. */
+function fillTarget() {
+  const types = $("target-type");
+  const chosen = types.value;
+  const own = element("option", "", setupTarget ? `Setup's: ${setupTarget.creature_type}` : "Setup's");
+  own.value = "";
+  types.replaceChildren(own, ...catalog.creature_types.map((name) => element("option", "", name)));
+  types.value = chosen;
+  if (types.selectedIndex < 0) {
+    types.value = "";
+  }
+  $("target-armor").placeholder = setupTarget ? setupTarget.armor : "setup's";
+  targetText();
+}
+
+/**
+ * The controls as their `api/load` fields (`target_creature_type`, `target_armor`): the ones
+ * that change the setup's target. The summary lists them.
+ */
+function targetFields() {
+  const fields = {};
+  const type = $("target-type").value;
+  if (type && type !== setupTarget?.creature_type) {
+    fields.target_creature_type = type;
+  }
+  const armor = $("target-armor").value.trim();
+  if (armor !== "" && Number(armor) !== setupTarget?.armor) {
+    fields.target_armor = Number(armor);
+  }
+  return fields;
+}
+
+/** Shows the controls' changes in the summary; the same as `targetFields`. */
+function targetText() {
+  const fields = targetFields();
+  const parts = [];
+  if (fields.target_creature_type) {
+    parts.push(fields.target_creature_type);
+  }
+  if (fields.target_armor !== undefined) {
+    parts.push(`${fields.target_armor} armor`);
+  }
+  $("target").querySelector("summary").textContent =
+    parts.length ? `Target: ${parts.join(", ")}` : "Target";
+  return fields;
+}
+
+/** Sets the controls to the changes `type` and `armor` (null: the setup's). */
+function setTarget(type, armor) {
+  $("target-type").value = type || "";
+  if ($("target-type").selectedIndex < 0) {
+    $("target-type").value = "";
+  }
+  $("target-armor").value = armor ?? "";
+  targetText();
+}
+
 /** The "played by" choices: the selected setup's rotation, or one of the keybind files. */
 function fillModes() {
   const modes = $("mode-select");
@@ -1110,6 +1187,9 @@ function syncForm() {
   $("length-input").value = info.combat_length;
   $("variance-input").value = info.length_variance;
   setSettings(info.settings);
+  setupTarget = { creature_type: info.target.setup_creature_type, armor: info.target.setup_armor };
+  fillTarget();
+  setTarget(info.target.creature_type, info.target.armor);
 }
 
 /** The `api/load` request of the setup bar: pasted text wins over the selection. */
@@ -1141,12 +1221,12 @@ function formRequest() {
   if (settings) {
     request.settings = settings;
   }
-  return request;
+  return Object.assign(request, targetFields());
 }
 
 /**
  * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…`; pasted or edited keybinds as `keys=`, their YAML in base64url), so a link
+ * &setting=…&target_type=…&target_armor=…`; pasted or edited keybinds as `keys=`, their YAML in base64url), so a link
  * reproduces it. Without a bundled setup (pasted) there is nothing to
  * name: no query.
  */
@@ -1169,6 +1249,12 @@ function updateUrl() {
     }
     if (info.settings) {
       query.set("setting", info.settings);
+    }
+    if (info.target.creature_type) {
+      query.set("target_type", info.target.creature_type);
+    }
+    if (info.target.armor !== null) {
+      query.set("target_armor", info.target.armor);
     }
   }
   const search = query.size ? `?${query}` : "";
@@ -1195,6 +1281,7 @@ function formFromQuery() {
   $("length-input").value = query.get("length") || "";
   $("variance-input").value = query.get("variance") || "";
   setSettings(query.get("setting"));
+  setTarget(query.get("target_type"), query.get("target_armor"));
   return true;
 }
 
@@ -1252,6 +1339,9 @@ $("setup-bar").addEventListener("submit", (event) => {
   event.preventDefault();
   load(formRequest());
 });
+// The creature type loads when changed, as a setting's choice does; the armor waits for Load.
+$("target-type").addEventListener("change", () => load(formRequest()));
+$("target-armor").addEventListener("input", targetText);
 upload($("setup-file"), "setup-yaml");
 upload($("keybinds-file"), "keybinds-yaml");
 $("mode-select").addEventListener("change", () => {

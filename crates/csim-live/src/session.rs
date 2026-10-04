@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 use csim_engine::buff::Buff;
 use csim_engine::character::context::REGENERATION;
-use csim_engine::character_loader::CharacterSetup;
+use csim_engine::character_loader::{CharacterSetup, TargetSetup};
 use csim_engine::character_spells::CharacterSpells;
 use csim_engine::combat_log::{CombatLogEvent, Damage, LogUnit, MissType};
 use csim_engine::data_bundle::DataBundle;
@@ -428,6 +428,11 @@ impl Session {
         self.pull_scan = 0;
         self.total_damage = 0;
         self.time = self.stepper.start_at();
+    }
+
+    /// The target the setup fights.
+    pub fn target(&self) -> &TargetSetup {
+        &self.setup.target
     }
 
     pub fn info(&self) -> Info {

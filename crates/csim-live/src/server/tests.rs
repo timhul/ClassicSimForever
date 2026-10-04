@@ -300,6 +300,29 @@ fn a_setup_loads_by_name_with_its_seed_length_and_settings() {
 }
 
 #[test]
+fn a_load_changes_the_target_and_a_restart_keeps_it() {
+    let mut app = empty_app();
+    let body = r#"{"setup": "warrior_fury_dw_orc", "target_creature_type": "Undead",
+        "target_armor": 0}"#;
+    let info = json(&call(&mut app, "POST", "/api/load", body));
+    assert_eq!(info["target"]["setup_creature_type"], "Dragonkin");
+    assert_eq!(info["target"]["setup_armor"], 3731);
+    assert_eq!(info["target"]["creature_type"], "Undead");
+    assert_eq!(info["target"]["armor"], 0);
+    let restarted = json(&call(&mut app, "POST", "/api/restart", "{}"));
+    assert_eq!(restarted["target"], info["target"]);
+    let catalog = json(&call(&mut app, "GET", "/api/catalog", ""));
+    assert!(
+        catalog["creature_types"]
+            .as_array()
+            .unwrap()
+            .contains(&Value::from("Beast"))
+    );
+    let bad = r#"{"setup": "warrior_fury_dw_orc", "target_creature_type": "Murloc"}"#;
+    assert_eq!(call(&mut app, "POST", "/api/load", bad).status, 400);
+}
+
+#[test]
 fn pasted_setups_and_keybinds_load() {
     let mut app = empty_app();
     let body = serde_json::json!({

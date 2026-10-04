@@ -102,3 +102,47 @@ fn a_failed_load_keeps_the_session() {
     }
     assert_eq!(app.loaded().unwrap().info.name, "DW Fury Orc");
 }
+
+#[test]
+fn a_load_changes_the_targets_creature_type_and_armor() {
+    let mut app = empty_app();
+    assert!(app.catalog().creature_types.contains(&"Undead"));
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    let setup_target = TargetChoice {
+        setup_creature_type: CreatureType::Dragonkin,
+        setup_armor: 3731,
+        creature_type: None,
+        armor: None,
+    };
+    assert_eq!(loaded.target, setup_target);
+
+    let request = || LoadRequest {
+        target_creature_type: Some(CreatureType::Undead),
+        target_armor: Some(0),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    let loaded = load(&mut app, request()).unwrap();
+    assert_eq!(loaded.target.creature_type, Some(CreatureType::Undead));
+    assert_eq!(loaded.target.armor, Some(0));
+    let session = app.session().unwrap();
+    assert_eq!(session.target().creature_type, CreatureType::Undead);
+    assert_eq!(session.target().armor, 0);
+
+    // The setup's own values are no change.
+    let loaded = load(
+        &mut app,
+        LoadRequest {
+            target_creature_type: Some(CreatureType::Dragonkin),
+            target_armor: Some(3731),
+            ..by_name("warrior_fury_dw_orc")
+        },
+    )
+    .unwrap();
+    assert_eq!(loaded.target, setup_target);
+
+    let negative = LoadRequest {
+        target_armor: Some(-1),
+        ..request()
+    };
+    assert!(load(&mut app, negative).is_err());
+}

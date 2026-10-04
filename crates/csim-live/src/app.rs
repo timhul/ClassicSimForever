@@ -1,19 +1,21 @@
 //! What the page talks to: the data, the files the setups come from, and the [`Session`] being
 //! watched, if one is loaded. The page lists the bundled setups and keybinds
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
-//! by its rotation or from the keyboard, with a seed, a length and named settings.
+//! by its rotation or from the keyboard, with a seed, a length, named settings and the
+//! target's creature type and armor.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use csim_engine::character_loader::CharacterSetup;
+use csim_engine::character_loader::{CharacterSetup, TargetSetup};
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::files::{Files, MemFiles, Overlay, yaml_files};
 use csim_engine::named_settings::{
     NAMED_SETTINGS, SettingKind, SettingRequirement, parse_setting_pairs,
 };
 use csim_engine::sim_settings::SimSettings;
+use csim_engine::target::CreatureType;
 use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
@@ -35,6 +37,7 @@ pub struct App {
     data: Arc<DataBundle>,
     session: Option<Session>,
     source: Source,
+    target: TargetChoice,
 }
 
 /// Where the session's setup and keybinds come from: their catalog names, `None` for pasted
@@ -51,6 +54,52 @@ pub struct Loaded {
     #[serde(flatten)]
     pub info: Info,
     pub source: Source,
+    pub target: TargetChoice,
+}
+
+/// The target the session fights: the setup's, with the creature type and armor the load
+/// changed (the page's Target controls).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct TargetChoice {
+    /// The setup's own creature type and base armor.
+    pub setup_creature_type: CreatureType,
+    pub setup_armor: i32,
+    /// What the load changed; `None` keeps the setup's.
+    pub creature_type: Option<CreatureType>,
+    pub armor: Option<i32>,
+}
+
+impl TargetChoice {
+    /// The setup's target `target`, unchanged.
+    fn unchanged(target: &TargetSetup) -> Self {
+        TargetChoice {
+            setup_creature_type: target.creature_type,
+            setup_armor: target.armor,
+            creature_type: None,
+            armor: None,
+        }
+    }
+
+    /// The setup's target `target` with the changes `request` asks for (not the setup's own
+    /// values: they are no change).
+    fn of(target: &TargetSetup, request: &LoadRequest) -> Result<Self, String> {
+        if let Some(armor) = request.target_armor.filter(|armor| *armor < 0) {
+            return Err(format!("target armor {armor} is negative"));
+        }
+        Ok(TargetChoice {
+            creature_type: request
+                .target_creature_type
+                .filter(|kind| *kind != target.creature_type),
+            armor: request.target_armor.filter(|armor| *armor != target.armor),
+            ..TargetChoice::unchanged(target)
+        })
+    }
+
+    /// `target` changed as chosen.
+    fn apply(&self, target: &mut TargetSetup) {
+        target.creature_type = self.creature_type.unwrap_or(self.setup_creature_type);
+        target.armor = self.armor.unwrap_or(self.setup_armor);
+    }
 }
 
 /// What the page can load.
@@ -65,6 +114,8 @@ pub struct Catalog {
     /// The named keys a binding can use besides letters, digits and `F1`..`F12`.
     pub keys: &'static [&'static str],
     pub settings: Vec<SettingEntry>,
+    /// The creature types a target can be, by name.
+    pub creature_types: Vec<&'static str>,
     /// The encounter length in seconds, and its variance in percent, without a choice.
     pub length: u32,
     pub length_variance: f64,
@@ -113,6 +164,9 @@ pub struct LoadRequest {
     pub length_variance: Option<f64>,
     /// Named settings, as `--setting` takes them: `name:value,name:value`.
     pub settings: Option<String>,
+    /// The target's creature type and base armor instead of the setup's.
+    pub target_creature_type: Option<CreatureType>,
+    pub target_armor: Option<i32>,
 }
 
 impl App {
@@ -124,6 +178,7 @@ impl App {
             data,
             session: None,
             source: Source::default(),
+            target: TargetChoice::unchanged(&TargetSetup::default()),
         }
     }
 
@@ -140,8 +195,10 @@ impl App {
         self.session.as_mut()
     }
 
-    /// Watches `session`, its setup and keybinds coming from `source`.
+    /// Watches `session`, its setup and keybinds coming from `source` (its target as the setup
+    /// has it).
     pub fn set_session(&mut self, session: Session, source: Source) {
+        self.target = TargetChoice::unchanged(session.target());
         self.session = Some(session);
         self.source = source;
     }
@@ -151,6 +208,7 @@ impl App {
         self.session.as_ref().map(|session| Loaded {
             info: session.info(),
             source: self.source.clone(),
+            target: self.target,
         })
     }
 
@@ -213,6 +271,7 @@ impl App {
                     requires: setting.requires,
                 })
                 .collect(),
+            creature_types: CreatureType::ALL.iter().map(|kind| kind.name()).collect(),
             length: defaults.combat_length,
             length_variance: defaults.length_variance,
             build: self.data.build().map(str::to_owned),
@@ -261,7 +320,9 @@ impl App {
         request: LoadRequest,
         new_seed: impl FnOnce() -> u64,
     ) -> Result<Loaded, String> {
-        let (setup, setup_name) = self.load_setup(&request)?;
+        let (mut setup, setup_name) = self.load_setup(&request)?;
+        let target = TargetChoice::of(&setup.target, &request)?;
+        target.apply(&mut setup.target);
         let (keybinds, keybinds_name) = self.load_keybinds(&request)?;
         let mut settings = setup.sim_settings(&SimSettings {
             combat_length: request
@@ -294,6 +355,7 @@ impl App {
                 keybinds: keybinds_name,
             },
         );
+        self.target = target;
         Ok(self.loaded().expect("a session was just loaded"))
     }
 
