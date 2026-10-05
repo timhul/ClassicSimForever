@@ -92,7 +92,13 @@ a tree; the rules are the engine's (`api/talents/edit`). The edits are a draft: 
 setup with them (an error, e.g. a rotation's missing prerequisite, shows and the draft stays),
 Reset goes back to the setup's own. Like gear, the changed talents stay over the setup bar's loads
 until another setup is chosen, and a link carries them as `talents=05-0505311515201` (Wowhead's
-classic string: a digit per talent in tier then column order, a part per tree). Without a setup
+classic string: a digit per talent in tier then column order, a part per tree). "Buffs & Debuffs"
+opens the external buffs and debuffs the character is offered (`data/external_buffs.yaml`, by
+class and faction), a column each: a row per entry with its icon and name, lit when the session
+has it. Clicking one loads the setup again with it added or removed (adding drops the entries of
+its `mutex`); Reset goes back to the setup's own. Like gear, the changed lists stay over the
+setup bar's loads until another setup is chosen, and a link carries them as
+`buffs=Juju Power,Grilled Squid` / `debuffs=` (names; empty for none). Without a setup
 argument the page picks one:
 
 `cargo run --release -p csim-live`
