@@ -2,16 +2,23 @@
 //! ([`Layout`]), and the point rules of [`CharacterTalents`] applied to the ranks the page
 //! holds ([`edit`]). The page keeps its draft of ranks; each click is one [`EditRequest`]
 //! answered with the new [`State`], so the rules stay in one place.
+//!
+//! A build travels in links as a [`code`]: Wowhead's classic talent string, one digit per
+//! talent of each tab in tier then column order, trailing zeros left out, the tabs joined by
+//! `-` (`30532...-05050...`).
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use csim_engine::data_bundle::DataBundle;
 use csim_engine::faction::PlayerClass;
-use csim_engine::talent::{CharacterTalents, TalentFile};
+use csim_engine::talent::{CharacterTalents, TalentFile, TalentSpec};
 use serde::{Deserialize, Serialize};
 
 use crate::session::Icon;
+
+/// A setup's talents: tab name → talent name → rank (as a setup file has them).
+pub type Talents = BTreeMap<String, BTreeMap<String, u32>>;
 
 /// A class's tree, to draw: the answer of `api/talents` with the session's [`State`].
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -63,6 +70,8 @@ pub struct State {
     /// The talents a point can go into now (or that have points while none are left), by
     /// node, as the game shows them lit.
     pub available: Vec<u32>,
+    /// The build as a link carries it ([`code`]).
+    pub code: String,
 }
 
 /// A click in the calculator: `op` applied to the talents of `class` at `ranks`.
@@ -134,8 +143,10 @@ impl State {
     pub fn of(talents: &CharacterTalents) -> State {
         let file = talents.file();
         let spent = talents.spent_points();
+        let ranks = talents.setup().into_iter().collect();
         State {
-            ranks: talents.setup().into_iter().collect(),
+            code: code(file, &ranks),
+            ranks,
             tab_points: file
                 .tabs
                 .iter()
@@ -151,6 +162,82 @@ impl State {
                 .collect(),
         }
     }
+}
+
+/// The build `ranks` (by node) of `file` as a link carries it: per tab one digit per talent,
+/// in tier then column order, trailing zeros left out; the tabs joined by `-`, trailing empty
+/// ones left out (`""` for no points).
+pub fn code(file: &TalentFile, ranks: &BTreeMap<u32, u32>) -> String {
+    let mut tabs: Vec<String> = file
+        .tabs
+        .iter()
+        .map(|tab| {
+            let digits: String = in_order(file, tab.skill_line)
+                .map(|talent| {
+                    let rank = ranks.get(&talent.node).copied().unwrap_or(0);
+                    char::from_digit(rank.min(9), 10).unwrap_or('0')
+                })
+                .collect();
+            digits.trim_end_matches('0').to_owned()
+        })
+        .collect();
+    while tabs.last().is_some_and(String::is_empty) {
+        tabs.pop();
+    }
+    tabs.join("-")
+}
+
+/// The talents a [`code`] names, by tab and talent name (no check of the rules: the setup's
+/// build does that).
+///
+/// # Errors
+/// More tabs or digits than `file` has, or a character that is not a digit.
+pub fn from_code(file: &TalentFile, code: &str) -> Result<Talents, String> {
+    let parts: Vec<&str> = code.trim().split('-').collect();
+    if parts.len() > file.tabs.len() {
+        return Err(format!(
+            "talents '{code}': {} tabs, the {:?} has {}",
+            parts.len(),
+            file.class,
+            file.tabs.len()
+        ));
+    }
+    let mut talents = Talents::new();
+    for (tab, part) in file.tabs.iter().zip(parts) {
+        let order: Vec<_> = in_order(file, tab.skill_line).collect();
+        if part.len() > order.len() {
+            return Err(format!(
+                "talents '{code}': {} has {} talents, not {}",
+                tab.name,
+                order.len(),
+                part.len()
+            ));
+        }
+        let mut ranks = BTreeMap::new();
+        for (talent, digit) in order.into_iter().zip(part.chars()) {
+            let rank = digit
+                .to_digit(10)
+                .ok_or_else(|| format!("talents '{code}': '{digit}' is not a rank"))?;
+            if rank > 0 {
+                ranks.insert(talent.name.clone(), rank);
+            }
+        }
+        if !ranks.is_empty() {
+            talents.insert(tab.name.clone(), ranks);
+        }
+    }
+    Ok(talents)
+}
+
+/// The talents of tab `skill_line` in tier then column order.
+fn in_order(file: &TalentFile, skill_line: u32) -> impl Iterator<Item = &TalentSpec> {
+    let mut talents: Vec<&TalentSpec> = file
+        .talents
+        .iter()
+        .filter(|talent| talent.tab == skill_line)
+        .collect();
+    talents.sort_by_key(|talent| (talent.tier, talent.column));
+    talents.into_iter()
 }
 
 /// The talents of `file` with `ranks` spent, tier by tier as the game lets them in.

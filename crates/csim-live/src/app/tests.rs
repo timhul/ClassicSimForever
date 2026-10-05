@@ -231,7 +231,7 @@ fn spent_talents(app: &App) -> Talents {
 fn a_load_changes_the_talents() {
     let mut app = empty_app();
     let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
-    assert!(!loaded.talents_changed);
+    assert_eq!(loaded.talents_code, None);
     let own = spent_talents(&app);
     assert_eq!(own["Fury"]["Bloodthirst"], 1);
 
@@ -243,7 +243,7 @@ fn a_load_changes_the_talents() {
         ..by_name("warrior_fury_dw_orc")
     };
     let loaded = load(&mut app, request(same)).unwrap();
-    assert!(!loaded.talents_changed);
+    assert_eq!(loaded.talents_code, None);
 
     // Improved Heroic Strike's 3 points in Deflection instead.
     let mut moved = own.clone();
@@ -251,10 +251,30 @@ fn a_load_changes_the_talents() {
     arms.remove("Improved Heroic Strike");
     arms.insert("Deflection".into(), 3);
     let loaded = load(&mut app, request(moved.clone())).unwrap();
-    assert!(loaded.talents_changed);
+    assert_eq!(spent_talents(&app), moved);
+    let code = loaded.talents_code.unwrap();
+    assert!(code.starts_with("033"), "{code}");
+    assert_eq!(code.matches('-').count(), 1, "no Protection points: {code}");
+
+    // The same build from its code, as a link gives it.
+    let by_code = |code: &str| LoadRequest {
+        talents_code: Some(code.to_owned()),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    let loaded = load(&mut app, by_code(&code)).unwrap();
+    assert_eq!(loaded.talents_code.as_deref(), Some(code.as_str()));
     assert_eq!(spent_talents(&app), moved);
     let json = serde_json::to_value(&loaded).unwrap();
-    assert_eq!(json["talents_changed"], true);
+    assert_eq!(json["talents_code"], code.as_str());
+    for bad in ["x", "0-0-0-0", "00000000000000000000000000"] {
+        assert!(load(&mut app, by_code(bad)).is_err(), "{bad}");
+    }
+    let both = LoadRequest {
+        talents: Some(moved.clone()),
+        ..by_code(&code)
+    };
+    assert!(load(&mut app, both).is_err());
 
     // Talents that cannot be spent, and a build without the rotation's Bloodthirst, keep the
     // session.
@@ -279,9 +299,9 @@ fn a_load_changes_the_talents() {
         assert!(load(&mut app, request(bad)).is_err(), "{why}");
     }
     assert_eq!(spent_talents(&app), moved);
-    assert!(app.loaded().unwrap().talents_changed);
+    assert_eq!(app.loaded().unwrap().talents_code, Some(code));
 
     // Another setup by itself: its own talents.
     let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
-    assert!(!loaded.talents_changed);
+    assert_eq!(loaded.talents_code, None);
 }

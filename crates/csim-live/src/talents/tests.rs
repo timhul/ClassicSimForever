@@ -147,3 +147,39 @@ fn bad_requests() {
     .unwrap();
     assert_eq!(edit(&data, &parsed).unwrap().ranks[&DEFLECTION], 3);
 }
+
+#[test]
+fn codes_of_builds() {
+    let app = empty_app();
+    let file = app.data().talents.get(PlayerClass::Warrior).unwrap();
+    assert_eq!(code(file, &BTreeMap::new()), "");
+    let arms: BTreeMap<u32, u32> = [(DEFLECTION, 5), (IMPROVED_TACTICAL_MASTERY, 5)].into();
+    // Tier 0: Improved Heroic Strike, Deflection, Improved Rend; tier 1: Improved Charge,
+    // Improved Tactical Mastery.
+    assert_eq!(code(file, &arms), "05005");
+    let names = from_code(file, "05005").unwrap();
+    assert_eq!(names["Arms"]["Deflection"], 5);
+    assert_eq!(names["Arms"]["Improved Tactical Mastery"], 5);
+    assert_eq!(names.len(), 1);
+
+    // Each edit's state carries it, and a Fury point leaves an empty Arms part.
+    let state = apply(
+        &arms.iter().map(|(&n, &r)| (n, r)).collect::<Vec<_>>(),
+        Op::None,
+        0,
+    );
+    assert_eq!(state.code, "05005");
+    let fury = file.tabs[1].skill_line;
+    let cruelty = file
+        .talents
+        .iter()
+        .find(|talent| talent.tab == fury && talent.tier == 0 && talent.name == "Cruelty")
+        .unwrap();
+    let state = apply(&[], Op::Increment, cruelty.node);
+    assert!(state.code.starts_with('-'), "{}", state.code);
+    assert_eq!(from_code(file, &state.code).unwrap()["Fury"]["Cruelty"], 1);
+
+    for bad in ["0-0-0-0", "a", &"0".repeat(30)] {
+        assert!(from_code(file, bad).is_err(), "{bad}");
+    }
+}

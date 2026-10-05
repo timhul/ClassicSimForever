@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
 use crate::session::{Info, Session};
+use crate::talents::{self, Talents};
 
 /// The setups' directory under the data directory.
 const CHARACTERS: &str = "characters";
@@ -60,8 +61,9 @@ pub struct Loaded {
     /// How the session's gear differs from the setup's, and the setup's enchants that did
     /// not fit the new items.
     pub gear: GearChanged,
-    /// Whether the session's talents are not the setup's own.
-    pub talents_changed: bool,
+    /// The session's talents as a link carries them ([`talents::code`]) when they are not the
+    /// setup's own.
+    pub talents_code: Option<String>,
 }
 
 /// The target the session fights: the setup's, with the creature type and armor the load
@@ -179,12 +181,10 @@ pub struct LoadRequest {
     #[serde(default)]
     pub gear: Vec<GearChange>,
     /// Talents instead of the setup's: tab name → talent name → rank, as a setup file has
-    /// them.
+    /// them; or `talents_code`, as a link carries them ([`talents::code`]).
     pub talents: Option<Talents>,
+    pub talents_code: Option<String>,
 }
-
-/// A setup's talents: tab name → talent name → rank.
-pub type Talents = BTreeMap<String, BTreeMap<String, u32>>;
 
 impl App {
     /// The data `data` loaded from `data_dir` of `files`, with no session yet.
@@ -231,7 +231,11 @@ impl App {
             source: self.source.clone(),
             target: self.target,
             gear: self.gear.clone(),
-            talents_changed: self.talents_changed,
+            talents_code: self
+                .talents_changed
+                .then(|| session.talents())
+                .flatten()
+                .map(|spent| talents::code(spent.file(), &spent.setup().into_iter().collect())),
         })
     }
 
@@ -368,7 +372,20 @@ impl App {
                 .map_err(|error| error.to_string())?;
         }
         let gear = setup.change_equipment(&self.data, settings.phase, &request.gear)?;
-        let talents_changed = match request.talents {
+        let talents = match (request.talents, request.talents_code) {
+            (Some(talents), None) => Some(talents),
+            (None, Some(code)) => {
+                let file = self
+                    .data
+                    .talents
+                    .get(setup.class)
+                    .ok_or_else(|| format!("no talent tree for the {:?}", setup.class))?;
+                Some(talents::from_code(file, &code)?)
+            }
+            (None, None) => None,
+            (Some(_), Some(_)) => return Err("both `talents` and `talents_code`: give one".into()),
+        };
+        let talents_changed = match talents {
             Some(talents) => {
                 let talents = spent(talents);
                 let changed = talents != spent(std::mem::take(&mut setup.talents));
