@@ -52,15 +52,15 @@ pub enum PeriodicKind {
     /// damage modifier) on each of `ticks` ticks; a refresh re-arms the full count (Rend) and
     /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
-    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand weapon damage (an off-hand
-    /// crit's too) plus `ap_percent` % of the attack power, as of the crit, per application, dealt in `ticks_per_application` ticks, times the damage done
-    /// modifiers of each tick. An application while the bleed runs adds its damage to what the
-    /// bleed has left and spreads the pool over a fresh `ticks_per_application` ticks
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand weapon damage, without
+    /// attack power (an off-hand crit's too), as of the crit, per application, dealt in
+    /// `ticks_per_application` ticks, times the damage done modifiers of each tick. An
+    /// application while the bleed runs adds its damage to what the bleed has left and spreads
+    /// the pool over a fresh `ticks_per_application` ticks
     /// (on the running tick chain); the rounding remainder is carried between ticks. Port of
     /// `DeepWounds`, which instead kept the per-tick damage and a stack of ticks per application.
     WeaponDamage {
         percent: f64,
-        ap_percent: f64,
         ticks_per_application: u32,
     },
     /// `PERIODIC_TRIGGER_SPELL`: casts `spell` on every tick.
@@ -108,19 +108,13 @@ impl PeriodicKind {
         Some((kind, period))
     }
 
-    /// The Deep Wounds bleed: `percent` of the average base weapon damage plus `ap_percent` of
-    /// the attack power over `duration` seconds in ticks every `period` seconds.
-    pub fn weapon_damage(
-        percent: f64,
-        ap_percent: f64,
-        duration: f64,
-        period: f64,
-    ) -> (PeriodicKind, f64) {
+    /// The Deep Wounds bleed: `percent` of the average base main-hand weapon damage over
+    /// `duration` seconds in ticks every `period` seconds.
+    pub fn weapon_damage(percent: f64, duration: f64, period: f64) -> (PeriodicKind, f64) {
         let ticks = (duration / period).round().max(1.0) as u32;
         (
             PeriodicKind::WeaponDamage {
                 percent,
-                ap_percent,
                 ticks_per_application: ticks,
             },
             period,
@@ -260,13 +254,10 @@ impl Periodic {
             PeriodicKind::Damage { ticks, .. } => self.ticks_left = ticks,
             PeriodicKind::WeaponDamage {
                 percent,
-                ap_percent,
                 ticks_per_application,
             } => {
                 let weapon = host.avg_mh_weapon_damage();
-                let ap = f64::from(host.melee_ap());
-                let damage = weapon * percent / 100.0 + ap * ap_percent / 100.0;
-                self.add_bleed(damage, ticks_per_application);
+                self.add_bleed(weapon * percent / 100.0, ticks_per_application);
             }
         }
     }
@@ -460,13 +451,12 @@ mod tests {
 
     #[test]
     fn weapon_damage_kind_counts_ticks_from_the_duration() {
-        let (kind, rate) = PeriodicKind::weapon_damage(60.0, 2.0, 12.0, 3.0);
+        let (kind, rate) = PeriodicKind::weapon_damage(60.0, 12.0, 3.0);
         assert_eq!(rate, 3.0);
         assert_eq!(
             kind,
             PeriodicKind::WeaponDamage {
                 percent: 60.0,
-                ap_percent: 2.0,
                 ticks_per_application: 4
             }
         );

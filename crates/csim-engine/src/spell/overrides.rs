@@ -126,9 +126,9 @@ pub enum ScriptKind {
     /// Execute: `base_points` damage plus `chain_amplitude × 10` per rage point spent beyond
     /// the cost; consumes all rage.
     Execute,
-    /// Deep Wounds: `base_points` % of the average weapon damage plus `params.value` % of the
-    /// attack power (0 without) bleeds over the duration of `params.duration_spell`; an
-    /// application adds its damage to what the bleed has left.
+    /// Deep Wounds: `base_points` % of the average main-hand weapon damage, without attack power,
+    /// bleeds over the duration of `params.duration_spell`; an application adds its damage to
+    /// what the bleed has left.
     DeepWoundsBleed,
     /// Casts `params.spell` with effect `params.effect`'s value replaced by this effect's value
     /// (Flurry's talent value into its haste buff, Enrage's into its damage buff).

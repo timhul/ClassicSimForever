@@ -146,9 +146,8 @@ fn deep_wounds_bleeds_for_twelve_seconds_after_a_crit() {
     assert_eq!(world.trigger_log, vec![(DEEP_WOUNDS_BLEED, Some(60.0))]);
     world.run(12.5);
     assert_eq!(world.ticks.len(), 4);
-    // 60 % of the 200 average weapon damage plus 2 % of the 1000 attack power: 140 over four
-    // ticks.
-    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 140);
+    // 60 % of the 200 average weapon damage: 120 over four ticks, the 1000 attack power aside.
+    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 120);
 }
 
 #[test]
