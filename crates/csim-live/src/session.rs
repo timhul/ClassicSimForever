@@ -42,6 +42,7 @@ use csim_engine::statistics::report::{
     BuffRow, ProcRow, ResourceRow, ResourceTotal, SpellRow, buff_rows_so_far, proc_rows_so_far,
     resource_rows_so_far, resource_totals, spell_rows,
 };
+use csim_engine::talent::CharacterTalents;
 use serde::Serialize;
 
 use crate::keybinds::Keybind;
@@ -445,6 +446,11 @@ impl Session {
     /// The target the setup fights.
     pub fn target(&self) -> &TargetSetup {
         &self.setup.target
+    }
+
+    /// The character's talents as spent (`None` for a class without a talent tree).
+    pub fn talents(&self) -> Option<&CharacterTalents> {
+        self.raid.character(PLAYER).talents()
     }
 
     pub fn info(&self) -> Info {
