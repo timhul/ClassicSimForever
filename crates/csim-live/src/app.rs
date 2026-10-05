@@ -2,9 +2,9 @@
 //! watched, if one is loaded. The page lists the bundled setups and keybinds
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
 //! by its rotation or from the keyboard, with a seed, a length, named settings, the target's
-//! creature type and armor, and changes of its gear and talents.
+//! creature type and armor, and changes of its gear, talents and external buffs and debuffs.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -41,6 +41,15 @@ pub struct App {
     target: TargetChoice,
     gear: GearChanged,
     talents_changed: bool,
+    externals: Externals,
+}
+
+/// The session's external buffs and debuffs when they are not the setup's own (`None`: the
+/// setup's list).
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+pub struct Externals {
+    pub buffs: Option<Vec<String>>,
+    pub debuffs: Option<Vec<String>>,
 }
 
 /// Where the session's setup and keybinds come from: their catalog names, `None` for pasted
@@ -64,6 +73,9 @@ pub struct Loaded {
     /// The session's talents as a link carries them ([`talents::code`]) when they are not the
     /// setup's own.
     pub talents_code: Option<String>,
+    /// The session's buffs and debuffs lists, each when not the setup's own (as sets).
+    #[serde(flatten)]
+    pub externals: Externals,
 }
 
 /// The target the session fights: the setup's, with the creature type and armor the load
@@ -184,6 +196,9 @@ pub struct LoadRequest {
     /// them; or `talents_code`, as a link carries them ([`talents::code`]).
     pub talents: Option<Talents>,
     pub talents_code: Option<String>,
+    /// External buffs and debuffs (`data/external_buffs.yaml` names) instead of the setup's.
+    pub buffs: Option<Vec<String>>,
+    pub debuffs: Option<Vec<String>>,
 }
 
 impl App {
@@ -198,6 +213,7 @@ impl App {
             target: TargetChoice::unchanged(&TargetSetup::default()),
             gear: GearChanged::default(),
             talents_changed: false,
+            externals: Externals::default(),
         }
     }
 
@@ -220,6 +236,7 @@ impl App {
         self.target = TargetChoice::unchanged(session.target());
         self.gear = GearChanged::default();
         self.talents_changed = false;
+        self.externals = Externals::default();
         self.session = Some(session);
         self.source = source;
     }
@@ -236,6 +253,7 @@ impl App {
                 .then(|| session.talents())
                 .flatten()
                 .map(|spent| talents::code(spent.file(), &spent.setup().into_iter().collect())),
+            externals: self.externals.clone(),
         })
     }
 
@@ -394,6 +412,10 @@ impl App {
             }
             None => false,
         };
+        let externals = Externals {
+            buffs: replace_list(&mut setup.buffs, request.buffs),
+            debuffs: replace_list(&mut setup.debuffs, request.debuffs),
+        };
         let seed = match request.seed.as_deref().map(str::trim) {
             None | Some("") => new_seed(),
             Some(seed) => seed.parse().map_err(|_| format!("invalid seed '{seed}'"))?,
@@ -409,6 +431,7 @@ impl App {
         self.target = target;
         self.gear = gear;
         self.talents_changed = talents_changed;
+        self.externals = externals;
         Ok(self.loaded().expect("a session was just loaded"))
     }
 
@@ -479,6 +502,15 @@ fn spent(talents: Talents) -> Talents {
         })
         .filter(|(_, ranks): &(String, BTreeMap<String, u32>)| !ranks.is_empty())
         .collect()
+}
+
+/// `list` replaced by `new`, if any; `new` when it is not `list`'s entries (in any order).
+fn replace_list(list: &mut Vec<String>, new: Option<Vec<String>>) -> Option<Vec<String>> {
+    let new = new?;
+    let as_set = |names: &[String]| names.iter().cloned().collect::<BTreeSet<_>>();
+    let changed = as_set(list) != as_set(&new);
+    *list = new.clone();
+    changed.then_some(new)
 }
 
 /// A catalog name: a file name without extension, of letters, digits, `_` and `-`.

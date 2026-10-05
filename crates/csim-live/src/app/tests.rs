@@ -305,3 +305,88 @@ fn a_load_changes_the_talents() {
     let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
     assert_eq!(loaded.talents_code, None);
 }
+
+/// The names of the session's selected externals: its buffs, or its debuffs.
+fn selected_externals(loaded: &Loaded, debuffs: bool) -> Vec<&str> {
+    loaded
+        .info
+        .externals
+        .iter()
+        .filter(|external| external.debuff == debuffs && external.selected)
+        .map(|external| external.name.as_str())
+        .collect()
+}
+
+#[test]
+fn a_load_changes_the_buffs_and_debuffs() {
+    let mut app = empty_app();
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    assert_eq!(loaded.externals, Externals::default());
+    assert!(selected_externals(&loaded, false).contains(&"Juju Power"));
+    assert_eq!(
+        selected_externals(&loaded, true),
+        ["Sunder Armor", "Faerie Fire"]
+    );
+    let offered = |name: &str| loaded.info.externals.iter().find(|e| e.name == name);
+    let juju = offered("Juju Power").unwrap();
+    assert_eq!(juju.mutex.as_deref(), Some("strength_elixir"));
+    assert!(juju.icon.is_some());
+    assert!(offered("Elixir of Giants").is_some_and(|e| !e.selected && !e.debuff));
+    assert!(offered("Curse of Recklessness").is_some_and(|e| !e.selected && e.debuff));
+    // A warrior is not offered Battle Shout (its own).
+    assert!(offered("Battle Shout").is_none());
+    let own_buffs: Vec<String> = selected_externals(&loaded, false)
+        .into_iter()
+        .map(str::to_owned)
+        .collect();
+    let stats = loaded.info.stats.clone();
+
+    let request = |buffs: &[&str], debuffs: Option<&[&str]>| LoadRequest {
+        buffs: Some(buffs.iter().map(|&name| name.to_owned()).collect()),
+        debuffs: debuffs.map(|names| names.iter().map(|&name| name.to_owned()).collect()),
+        ..by_name("warrior_fury_dw_orc")
+    };
+
+    // The setup's own buffs in another order are no change.
+    let mut reversed: Vec<&str> = own_buffs.iter().map(String::as_str).collect();
+    reversed.reverse();
+    let loaded = load(&mut app, request(&reversed, None)).unwrap();
+    assert_eq!(loaded.externals, Externals::default());
+
+    // Elixir of Giants instead of Juju Power, Curse of Recklessness instead of Faerie Fire.
+    let mut giants = reversed.clone();
+    giants.retain(|&name| name != "Juju Power");
+    giants.push("Elixir of Giants");
+    let debuffs = ["Sunder Armor", "Curse of Recklessness"];
+    let loaded = load(&mut app, request(&giants, Some(&debuffs))).unwrap();
+    assert!(selected_externals(&loaded, false).contains(&"Elixir of Giants"));
+    assert!(!selected_externals(&loaded, false).contains(&"Juju Power"));
+    assert_eq!(selected_externals(&loaded, true), debuffs);
+    assert_ne!(
+        loaded.info.stats, stats,
+        "Juju Power's 30 strength to Giants' 25"
+    );
+    let json = serde_json::to_value(&loaded).unwrap();
+    assert_eq!(json["debuffs"], serde_json::json!(debuffs));
+    assert_eq!(json["buffs"].as_array().unwrap().len(), giants.len());
+
+    // No debuffs at all.
+    let loaded = load(&mut app, request(&reversed, Some(&[]))).unwrap();
+    assert!(selected_externals(&loaded, true).is_empty());
+    assert_eq!(loaded.externals.buffs, None);
+    assert_eq!(loaded.externals.debuffs, Some(Vec::new()));
+
+    // An unknown name, a debuff among the buffs and two of a mutex keep the session.
+    for bad in [
+        request(&["No Such Buff"], None),
+        request(&["Sunder Armor"], None),
+        request(&["Juju Power", "Elixir of Giants"], None),
+    ] {
+        assert!(load(&mut app, bad).is_err());
+    }
+    assert_eq!(app.loaded().unwrap().externals.debuffs, Some(Vec::new()));
+
+    // Another setup by itself: its own.
+    let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
+    assert_eq!(loaded.externals, Externals::default());
+}

@@ -91,6 +91,23 @@ pub struct Info {
     /// The character's stats before the iteration: gear, enchants, talents and the setup's
     /// buffs; not what the iteration casts (precombat stance and shouts, cooldowns, procs).
     pub stats: StatSummary,
+    /// The external buffs and debuffs the character is offered (its class and faction), in
+    /// `data/external_buffs.yaml`'s order, with the session's selection.
+    pub externals: Vec<ExternalInfo>,
+}
+
+/// An external buff or debuff the character is offered.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ExternalInfo {
+    pub name: String,
+    /// On the target rather than the character.
+    pub debuff: bool,
+    /// The icon of its aura spell.
+    pub icon: Option<Icon>,
+    /// In the session's `buffs` / `debuffs`.
+    pub selected: bool,
+    /// The entries sharing a mutex key exclude each other.
+    pub mutex: Option<String>,
 }
 
 /// A spell the character can cast from a key.
@@ -498,6 +515,17 @@ impl Session {
             bindable: bindable_spells(character.spells()),
             equipment: worn_gear(&self.data, character),
             stats: self.stats.clone(),
+            externals: character
+                .external_buffs()
+                .offered(character.faction())
+                .map(|entry| ExternalInfo {
+                    name: entry.spec.name.clone(),
+                    debuff: entry.debuff,
+                    icon: self.spell_icon(entry.spec.spell),
+                    selected: entry.selected,
+                    mutex: entry.spec.mutex.clone(),
+                })
+                .collect(),
         }
     }
 
