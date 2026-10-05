@@ -13,7 +13,8 @@
 //!
 //! `or` starts a new group; the sentences of a group are AND-ed and the condition holds when
 //! any group holds (no parentheses, no precedence beyond that). Types: `buff_duration`,
-//! `buff_stacks`, `spell` (cooldown remaining), `resource`, `variable` (a builtin). A
+//! `buff_stacks`, `spell` (cooldown remaining), `resource`, `variable` (a builtin), `talent`
+//! (the points spent in the talent, decided once when the condition is linked). A
 //! comparison is `less | leq | eq | geq | greater <number>`, or `is true | is false` for the
 //! buff types (up / down). `variable "target_is_type"` is compared by name instead:
 //! `eq "<creature type>"` (`eq "giant"`).
@@ -34,6 +35,7 @@
 //!   They are only accepted for `buff_duration` and `buff_stacks`, the types that define them.
 //! - `resource "Focus"` is accepted alongside Mana / Rage / Energy.
 //! - `variable "target_is_type" eq "<creature type>"` is new: the target's creature type.
+//! - `talent "<talent>"` is new: the talent's rank (points spent in it).
 
 use std::fmt;
 
@@ -224,18 +226,22 @@ pub enum Measure<B, S> {
     Variable(BuiltinVariable),
     /// `variable "target_is_type"`: the target's creature type, compared by name.
     TargetType,
+    /// `talent "<talent>"`: the points spent in the talent. Talents do not change during an
+    /// iteration, so [`Condition::map`] decides the sentence: a mapped condition has none.
+    Talent(String),
 }
 
 /// The variable holding the target's creature type, compared by name rather than number.
 const TARGET_TYPE_VARIABLE: &str = "target_is_type";
 
 /// The condition type keywords (`add_type`).
-const TYPES: [&str; 5] = [
+const TYPES: [&str; 6] = [
     "buff_duration",
     "buff_stacks",
     "spell",
     "resource",
     "variable",
+    "talent",
 ];
 
 /// One `<type> "<value>" <comparison>` line. Port of `Sentence` + the `Condition` subclass
@@ -375,6 +381,9 @@ impl<B, S> Sentence<B, S> {
             (Measure::TargetType, _) | (_, Test::IsCreatureType(_)) => {
                 unreachable!("target_is_type is only parsed with `eq \"<creature type>\"`")
             }
+            (Measure::Talent(_), _) => {
+                unreachable!("talent sentences are decided when the condition is mapped")
+            }
         }
     }
 
@@ -423,7 +432,10 @@ impl<B, S> Sentence<B, S> {
                     .find(|&next| cmp.holds(f64::from(next), rhs) != holds)
                     .map_or(NextChange::NEVER, NextChange::at_level);
             }
-            Measure::Resource(_) | Measure::BuffStacks(_) | Measure::TargetType => f64::INFINITY,
+            Measure::Resource(_)
+            | Measure::BuffStacks(_)
+            | Measure::TargetType
+            | Measure::Talent(_) => f64::INFINITY,
         };
         NextChange::after(delay)
     }
@@ -432,11 +444,12 @@ impl<B, S> Sentence<B, S> {
     /// the spell is unknown and the sentence (and its condition) cannot be linked. `None` from
     /// the buff closure means the character can never have the buff: the sentence is then
     /// decided as for a buff that is down (`buff_duration "Eureka!" is false` always holds for
-    /// a non-Gnome).
+    /// a non-Gnome). A talent sentence is decided by the rank `talent` gives the talent.
     pub fn map<B2, S2>(
         self,
         mut buff: impl FnMut(B) -> Option<B2>,
         mut spell: impl FnMut(S) -> Option<S2>,
+        mut talent: impl FnMut(&str) -> u32,
     ) -> Option<Mapped<Sentence<B2, S2>>> {
         let measure = match self.measure {
             Measure::BuffDuration(b) => match buff(b) {
@@ -451,6 +464,12 @@ impl<B, S> Sentence<B, S> {
             Measure::Resource(r) => Measure::Resource(r),
             Measure::Variable(v) => Measure::Variable(v),
             Measure::TargetType => Measure::TargetType,
+            Measure::Talent(name) => {
+                let Test::Compare(cmp, rhs) = self.test else {
+                    unreachable!("talent sentences are only parsed with numeric comparisons")
+                };
+                return Some(Mapped::Constant(cmp.holds(f64::from(talent(&name)), rhs)));
+            }
         };
         Some(Mapped::Linked(Sentence {
             measure,
@@ -509,6 +528,7 @@ impl<B: fmt::Display, S: fmt::Display> fmt::Display for Sentence<B, S> {
                 write!(f, "{} {symbol} {rhs:.0}", resource_name(*resource))
             }
             Measure::TargetType => unreachable!("target_is_type only has type tests"),
+            Measure::Talent(talent) => write!(f, "{talent} talent rank {symbol} {rhs:.0}"),
             Measure::Variable(variable) => {
                 let precision = if variable.unit().is_empty() { 0 } else { 1 };
                 write!(
@@ -620,20 +640,21 @@ impl<B, S> Condition<B, S> {
     }
 
     /// Maps the buff and spell handles of every sentence (see [`Sentence::map`]). A sentence
-    /// naming a buff the character can never have is dropped when it always holds and drops
-    /// its group when it never does. `None` when a spell is unknown or no group can hold; a
-    /// group left empty always holds.
+    /// naming a buff the character can never have, or a talent, is dropped when it always
+    /// holds and drops its group when it never does. `None` when a spell is unknown or no
+    /// group can hold; a group left empty always holds.
     pub fn map<B2, S2>(
         self,
         mut buff: impl FnMut(B) -> Option<B2>,
         mut spell: impl FnMut(S) -> Option<S2>,
+        mut talent: impl FnMut(&str) -> u32,
     ) -> Option<Condition<B2, S2>> {
         let mut groups = Vec::new();
         for group in self.groups {
             let mut linked = Vec::new();
             let mut can_hold = true;
             for sentence in group {
-                match sentence.map(&mut buff, &mut spell)? {
+                match sentence.map(&mut buff, &mut spell, &mut talent)? {
                     Mapped::Linked(sentence) => linked.push(sentence),
                     Mapped::Constant(holds) => can_hold &= holds,
                 }
@@ -727,6 +748,7 @@ fn parse_line(line: &str, first: bool) -> Result<(Connective, Sentence<String, S
         "buff_duration" => Measure::BuffDuration(value.to_string()),
         "buff_stacks" => Measure::BuffStacks(value.to_string()),
         "spell" => Measure::SpellCooldown(value.to_string()),
+        "talent" => Measure::Talent(value.to_string()),
         "resource" => Measure::Resource(resource_from_name(value).ok_or_else(|| {
             format!("unknown resource `{value}` (expected Mana, Rage, Energy or Focus)")
         })?),
@@ -1448,6 +1470,64 @@ mod tests {
 
     // --- Mapping and descriptions ---
 
+    /// A character without talent points.
+    fn no_talents(_: &str) -> u32 {
+        0
+    }
+
+    #[test]
+    fn talent_sentences_are_decided_by_the_talent_rank() {
+        let talent = sentence("talent \"Improved Berserker Rage\" greater 0");
+        assert_eq!(
+            talent,
+            Sentence {
+                measure: Measure::Talent("Improved Berserker Rage".to_string()),
+                test: Test::Compare(Comparator::Greater, 0.0),
+            }
+        );
+        assert_eq!(
+            talent.to_string(),
+            "Improved Berserker Rage talent rank > 0"
+        );
+        let e = Condition::parse("talent \"Improved Berserker Rage\" is true").unwrap_err();
+        assert!(e.message.contains("not talent"), "{e}");
+
+        let condition = Condition::parse(
+            "talent \"Improved Berserker Rage\" greater 0
+             and resource \"Rage\" less 50
+             or talent \"Death Wish\" eq 1
+             and spell \"Bloodthirst\" greater 1.5",
+        )
+        .unwrap();
+        let link = |ranks: &[(&str, u32)]| {
+            condition.clone().map(
+                |name: String| Some(name),
+                |name: String| Some(name),
+                |name| {
+                    ranks
+                        .iter()
+                        .find(|(talent, _)| *talent == name)
+                        .map_or(0, |(_, rank)| *rank)
+                },
+            )
+        };
+        // No talent taken: no group can hold, the condition cannot be linked.
+        assert!(link(&[]).is_none());
+        // A fulfilled talent sentence drops out of its group, a failed one drops the group.
+        assert_eq!(
+            link(&[("Improved Berserker Rage", 2)]).unwrap().to_string(),
+            "Rage < 50"
+        );
+        assert_eq!(
+            link(&[("Improved Berserker Rage", 1), ("Death Wish", 1)])
+                .unwrap()
+                .to_string(),
+            "Rage < 50
+OR
+Bloodthirst cooldown > 1.5 seconds"
+        );
+    }
+
     #[test]
     fn map_resolves_names_and_fails_on_an_unknown_one() {
         let condition = Condition::parse(
@@ -1458,7 +1538,7 @@ mod tests {
         .unwrap();
         let buffs = |name: String| (name == "Death Wish").then_some(7u32);
         let spells = |name: String| (name == "Bloodthirst").then_some(3u32);
-        let mapped = condition.clone().map(buffs, spells).unwrap();
+        let mapped = condition.clone().map(buffs, spells, no_talents).unwrap();
         assert_eq!(
             mapped.groups(),
             [
@@ -1482,17 +1562,19 @@ mod tests {
         assert!(
             condition
                 .clone()
-                .map(|name: String| Some(name), |_| None::<u32>)
+                .map(|name: String| Some(name), |_| None::<u32>, no_talents)
                 .is_none()
         );
         // An unknown buff is never up: `is true` fails its group, the other group remains.
         let no_buffs = |_: String| None::<u32>;
-        let rage_only = condition.map(no_buffs, |name: String| Some(name)).unwrap();
+        let rage_only = condition
+            .map(no_buffs, |name: String| Some(name), no_talents)
+            .unwrap();
         assert_eq!(rage_only.to_string(), "Rage < 50");
         assert!(
             Condition::parse("buff_duration \"Eureka!\" is true")
                 .unwrap()
-                .map(no_buffs, |name: String| Some(name))
+                .map(no_buffs, |name: String| Some(name), no_talents)
                 .is_none()
         );
         // ... while `is false` always holds and drops out of its group.
@@ -1502,7 +1584,7 @@ mod tests {
              and buff_stacks \"Eureka!\" less 1",
         )
         .unwrap();
-        let mapped = condition.map(no_buffs, spells).unwrap();
+        let mapped = condition.map(no_buffs, spells, no_talents).unwrap();
         assert_eq!(
             mapped.groups(),
             [vec![Sentence {
@@ -1513,7 +1595,7 @@ mod tests {
         // A group left empty always holds.
         let always = Condition::parse("buff_duration \"Eureka!\" less 3")
             .unwrap()
-            .map(no_buffs, |name: String| Some(name))
+            .map(no_buffs, |name: String| Some(name), no_talents)
             .unwrap();
         assert_eq!(always.groups(), [Vec::<Sentence<u32, String>>::new()]);
     }

@@ -5,7 +5,8 @@
 //! A [`Rotation`] is built from its [`RotationSpec`] once ([`Rotation::new`], which parses the
 //! conditions) and linked to a character whenever the character's spells may have changed
 //! ([`Rotation::link`]): every executor whose spell the character has (at the requested rank,
-//! enabled) and whose condition names only buffs and spells the character knows becomes
+//! enabled), whose condition names only buffs, spells and talents the character knows and
+//! whose talent requirements (`talent "<talent>" greater 0`) the character meets becomes
 //! *active*; the others are skipped, the way C++ `link_spells` skipped them, and keep the
 //! [`SkipReason`] for the report. The linked
 //! condition holds `BuffId` / `SpellId` handles, so evaluating it costs no name lookups.
@@ -24,7 +25,7 @@ use std::sync::Arc;
 
 use crate::ids::{BuffId, SpellId};
 use crate::rotation::condition::{
-    BuiltinVariable, Condition, ConditionContext, Measure, NextChange, Watched,
+    BuiltinVariable, Condition, ConditionContext, Measure, NextChange, Test, Watched,
 };
 use crate::rotation::spec::RotationSpec;
 use crate::spell::SpellStatus;
@@ -86,6 +87,11 @@ pub enum SkipReason {
     NotEnabled,
     /// The condition names this spell, which the character does not have.
     UnknownConditionSpell(String),
+    /// The condition names this talent, which is not in the character's talent tree.
+    UnknownConditionTalent(String),
+    /// Every condition group needs talent points the character has not spent, the first such
+    /// sentence described.
+    TalentConditionNotMet(String),
     /// Every condition group needs a buff the character can never have.
     ConditionNeverHolds,
 }
@@ -99,6 +105,12 @@ impl fmt::Display for SkipReason {
             SkipReason::NotEnabled => f.write_str("spell not enabled"),
             SkipReason::UnknownConditionSpell(spell) => {
                 write!(f, "condition names unknown spell {spell}")
+            }
+            SkipReason::UnknownConditionTalent(talent) => {
+                write!(f, "condition names unknown talent {talent}")
+            }
+            SkipReason::TalentConditionNotMet(sentence) => {
+                write!(f, "condition needs {sentence}")
             }
             SkipReason::ConditionNeverHolds => {
                 f.write_str("condition can never hold (it needs buffs the character cannot have)")
@@ -203,6 +215,9 @@ pub trait RotationHost: ConditionContext<BuffId, SpellId> {
     /// The name of the talent that grants `spell` (any rank of it) when the character has not
     /// taken it.
     fn missing_talent(&self, spell: SpellId) -> Option<String>;
+    /// The points spent in the talent `name`; `None` when the character's talent tree has no
+    /// such talent.
+    fn talent_rank(&self, name: &str) -> Option<u32>;
     fn spell_has_cast_time(&self, spell: SpellId) -> bool;
     /// The spell's cast time now (for the precast).
     fn spell_cast_time(&self, spell: SpellId) -> f64;
@@ -339,7 +354,8 @@ impl Rotation {
     /// Links the executors, precombat spells and the precast to the character's spells.
     /// Port of `Rotation::link_spells` (+ `add_conditionals`, `link_precombat_spells`,
     /// `link_precast_spell`). An executor is active when its spell exists at the requested
-    /// rank and is enabled and every buff / spell its condition names resolves.
+    /// rank and is enabled, every buff / spell / talent its condition names resolves and a
+    /// condition group can still hold with the character's talents.
     pub fn link(&mut self, host: &impl RotationHost) {
         self.active.clear();
         for (index, executor) in self.executors.iter_mut().enumerate() {
@@ -431,16 +447,39 @@ impl Rotation {
         if let Some(name) = unknown_spell {
             return Err(SkipReason::UnknownConditionSpell(name));
         }
-        let condition = condition
-            .clone()
-            .map(
-                |name| host.buff_by_name(&name),
-                |name| host.spell_by_name(&name, MAX_RANK),
-            )
-            .ok_or(SkipReason::ConditionNeverHolds)?;
+        let unknown_talent = condition
+            .sentences()
+            .find_map(|sentence| match &sentence.measure {
+                Measure::Talent(name) if host.talent_rank(name).is_none() => Some(name.clone()),
+                _ => None,
+            });
+        if let Some(name) = unknown_talent {
+            return Err(SkipReason::UnknownConditionTalent(name));
+        }
+        let talent_rank = |name: &str| host.talent_rank(name).unwrap_or_default();
+        let Some(linked) = condition.clone().map(
+            |name| host.buff_by_name(&name),
+            |name| host.spell_by_name(&name, MAX_RANK),
+            talent_rank,
+        ) else {
+            let unmet_talent =
+                condition
+                    .sentences()
+                    .find(|sentence| match (&sentence.measure, sentence.test) {
+                        (Measure::Talent(name), Test::Compare(cmp, rhs)) => {
+                            !cmp.holds(f64::from(talent_rank(name)), rhs)
+                        }
+                        _ => false,
+                    });
+            return Err(
+                unmet_talent.map_or(SkipReason::ConditionNeverHolds, |sentence| {
+                    SkipReason::TalentConditionNotMet(sentence.to_string())
+                }),
+            );
+        };
         Ok(LinkedExecutor {
             spell,
-            condition: Some(condition),
+            condition: Some(linked),
         })
     }
 
@@ -614,6 +653,7 @@ mod tests {
         casting: bool,
         casts: Vec<SpellId>,
         talents: HashMap<SpellId, String>,
+        talent_ranks: HashMap<String, u32>,
         costs: HashMap<SpellId, u32>,
         now: f64,
     }
@@ -680,6 +720,9 @@ mod tests {
         }
         fn missing_talent(&self, spell: SpellId) -> Option<String> {
             self.talents.get(&spell).cloned()
+        }
+        fn talent_rank(&self, name: &str) -> Option<u32> {
+            self.talent_ranks.get(name).copied()
         }
         fn spell_has_cast_time(&self, spell: SpellId) -> bool {
             self.cast_times.contains_key(&spell)
@@ -869,6 +912,58 @@ mod tests {
         host.spell("Rampage", 1, 3);
         rotation.link(&host);
         assert!(rotation.missing_prerequisites().is_empty());
+    }
+
+    #[test]
+    fn talent_conditions_link_only_with_the_points_spent() {
+        let mut host = Mock::default();
+        host.spell("Berserker Rage", 1, 1);
+        host.talent_ranks
+            .insert("Improved Berserker Rage".to_string(), 0);
+        let mut rotation = Rotation::new(spec(vec![
+            CastIfSpec::when(
+                "Berserker Rage",
+                "talent \"Improved Berserker Rage\" greater 0
+                 and resource \"Rage\" less 50",
+            ),
+            CastIfSpec::when("Berserker Rage", "talent \"Improved Berserker Rag\" eq 0"),
+        ]));
+        rotation.link(&host);
+        assert!(rotation.active_executors().next().is_none());
+        let reasons: Vec<String> = rotation
+            .executors()
+            .iter()
+            .map(|e| e.skip_reason().unwrap().to_string())
+            .collect();
+        assert_eq!(
+            reasons,
+            [
+                "condition needs Improved Berserker Rage talent rank > 0",
+                "condition names unknown talent Improved Berserker Rag",
+            ]
+        );
+
+        // With a point spent the talent sentence holds and drops out of the linked condition.
+        host.talent_ranks
+            .insert("Improved Berserker Rage".to_string(), 1);
+        rotation.link(&host);
+        let linked: Vec<&LinkedExecutor> = rotation
+            .active_executors()
+            .map(|e| e.linked().unwrap())
+            .collect();
+        assert_eq!(linked.len(), 1);
+        assert_eq!(
+            linked[0].condition.as_ref().unwrap().groups(),
+            [vec![crate::rotation::condition::Sentence {
+                measure: Measure::Resource(ResourceType::Rage),
+                test: Test::Compare(crate::rotation::condition::Comparator::Less, 50.0),
+            }]]
+        );
+        assert_eq!(
+            rotation.executors()[0].conditions_string(),
+            "Improved Berserker Rage talent rank > 0
+Rage < 50"
+        );
     }
 
     #[test]

@@ -62,6 +62,7 @@ is equivalent to `(A and B) or (C)`.
 | `spell`         | a spell name                   | cooldown remaining in seconds             |
 | `resource`      | `Rage` / `Mana` / `Energy` / `Focus` | current amount                       |
 | `variable`      | a builtin (below)              | its value                                 |
+| `talent`        | a talent name                  | points spent in it                        |
 
 Comparisons: `less`, `leq`, `eq`, `geq`, `greater` followed by a number (`leq` / `geq` /
 `eq` are within 0.0001), or `is true` / `is false` — only for the buff types: whether the
@@ -76,6 +77,17 @@ from the cast until the main hand swing that takes it (or drops it, without the 
 Casting it again while queued changes nothing but the executor's cast count, so a rotation can
 skip it with `buff_duration "Heroic Strike" is false`. Queueing Cleave un-queues Heroic Strike
 and the other way round.
+
+`talent` is decided once, when the rotation is linked to the character, since talents do not
+change during a fight: a sentence that holds drops out of its group, one that fails drops its
+group. When no group is left the line is skipped ("condition needs Improved Berserker Rage
+talent rank > 0"), as is a line naming a talent the class does not have. A line cast only
+with the talent taken:
+
+```
+talent "Improved Berserker Rage" greater 0
+and resource "Rage" less 50
+```
 
 `variable "target_is_type"` is compared by name, not number: `eq "<creature type>"` holds when
 the target (`target: creature_type:` in the character setup) is of that type. The types are

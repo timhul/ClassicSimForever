@@ -2542,6 +2542,13 @@ impl<S: SharedBuffs> RotationHost for CharacterContext<'_, S> {
         })
     }
 
+    fn talent_rank(&self, name: &str) -> Option<u32> {
+        let talents = self.character.talents()?;
+        talents
+            .node_of_name(name, None)
+            .map(|node| talents.rank(node))
+    }
+
     fn spell_has_cast_time(&self, spell: SpellId) -> bool {
         self.character.spells.spell(spell).has_cast_time()
     }
