@@ -52,7 +52,8 @@
   #totals { font-variant-numeric: tabular-nums; }
   #build { color: var(--muted); font-size: 12px; margin-left: 8px; font-weight: 400; }
   #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
-  /* Two groups: the playback options (ending with Talents, Equipment, Edit keybinds and Play),
+  /* Two groups: the playback options (ending with Talents, Equipment, Buffs & Debuffs, Edit
+     keybinds and Play),
      the clock. */
   #controls {
     display: flex;
@@ -129,11 +130,12 @@
     color: #1a1406;
   }
   #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
-  #edit-keybinds:not(:disabled), #equipment:not(:disabled), #talents:not(:disabled) {
+  #edit-keybinds:not(:disabled), #equipment:not(:disabled), #talents:not(:disabled),
+  #buffs:not(:disabled) {
     border-color: var(--accent); color: var(--accent); font-weight: 600;
   }
   #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled),
-  #talents:hover:not(:disabled) {
+  #talents:hover:not(:disabled), #buffs:hover:not(:disabled) {
     background: rgb(224 176 74 / 0.12);
   }
   #clock {
@@ -887,6 +889,63 @@
   #talents-status { color: #e05a4f; min-height: 1.4em; margin: 0 auto 0 0; }
   #talents-hint { color: var(--muted); font-size: 12px; margin: 0; }
   #talents-apply:not(:disabled) { font-weight: 600; border-color: var(--accent); color: var(--accent); }
+  /* The external buffs and debuffs: a column each, a row per entry, lit when selected. */
+  #buffs-view {
+    width: min(760px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 0;
+    overflow: hidden auto;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  #buffs-view::backdrop { background: rgb(0 0 0 / 0.6); }
+  .buffs-frame { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+  .buffs-frame h2 { margin: 0; }
+  .buffs-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  .buffs-section h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .buffs-section h3 .count { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .buff-list { display: flex; flex-direction: column; gap: 3px; }
+  .buff-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 3px 10px 3px 3px;
+    text-align: left;
+    background: #0b0c0f;
+    border-color: var(--line);
+    color: var(--muted);
+  }
+  .buff-row .slot { width: 24px; height: 24px; }
+  .buff-row .icon { width: 24px; height: 24px; opacity: 0.45; filter: grayscale(0.7); }
+  .buff-row .buff-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .buff-row[aria-pressed="true"] {
+    background: rgb(224 176 74 / 0.16);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .buff-row[aria-pressed="true"] .icon { opacity: 1; filter: none; }
+  .buff-row[aria-pressed="true"]:hover:not(:disabled) { background: rgb(224 176 74 / 0.24); }
+  .buff-row:hover:not(:disabled) { color: var(--text); }
+  #buffs-hint { color: var(--muted); font-size: 12px; margin: 0; }
+  .buffs-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: flex-end; }
+  #buffs-status { color: #e05a4f; min-height: 1.4em; margin: 0 auto 0 0; }
+  @media (max-width: 560px) {
+    .buffs-body { grid-template-columns: minmax(0, 1fr); }
+  }
   @media (max-width: 779px) {
     .talent-switch { display: flex; }
     .talent-tab:not(.active) { display: none; }
@@ -1050,6 +1109,29 @@
   <div id="talent-tip" hidden></div>
 </dialog>
 
+<dialog id="buffs-view" aria-labelledby="buffs-title">
+  <div class="buffs-frame">
+    <h2 id="buffs-title">Buffs &amp; Debuffs</h2>
+    <div class="buffs-body">
+      <section class="buffs-section" aria-labelledby="buffs-heading">
+        <h3 id="buffs-heading">Buffs <span class="count" id="buffs-count"></span></h3>
+        <div id="buff-list" class="buff-list"></div>
+      </section>
+      <section class="buffs-section" aria-labelledby="debuffs-heading">
+        <h3 id="debuffs-heading">Debuffs <span class="count" id="debuffs-count"></span></h3>
+        <div id="debuff-list" class="buff-list"></div>
+      </section>
+    </div>
+    <p id="buffs-hint">Click to add or remove one: the setup loads again with it. Entries of a
+      kind (one food, one flask, ...) exclude each other.</p>
+    <div class="buffs-foot">
+      <p id="buffs-status" role="status"></p>
+      <button id="buffs-reset" type="button" title="Back to the setup's own buffs and debuffs">Reset</button>
+      <button id="buffs-close" type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
 <div id="controls">
   <div class="group options">
     <select id="speed" aria-label="Speed">
@@ -1068,6 +1150,7 @@
     <button id="reseed" type="button">New seed</button>
     <button id="talents" type="button" disabled>Talents</button>
     <button id="equipment" type="button" disabled>Equipment</button>
+    <button id="buffs" type="button" disabled>Buffs &amp; Debuffs</button>
     <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
     <button id="play" type="button">Play</button>
   </div>
@@ -1309,8 +1392,10 @@ async function begin(next) {
   $("edit-keybinds").disabled = false;
   $("equipment").disabled = false;
   $("talents").disabled = false;
+  $("buffs").disabled = false;
   gearChanges = info.gear.changes;
   talentCode = info.talents_code;
+  externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
   releaseKeys();
   renderEntries();
   syncForm();
@@ -1320,6 +1405,9 @@ async function begin(next) {
   }
   if ($("talents-view").open) {
     await fetchTalents();
+  }
+  if ($("buffs-view").open) {
+    renderBuffs();
   }
   simTime = info.start_at;
   apply(await api("POST", "api/advance", { to: info.start_at }));
@@ -1592,14 +1680,20 @@ function formRequest() {
   if (talentCode !== null) {
     request.talents_code = talentCode;
   }
+  for (const kind of ["buffs", "debuffs"]) {
+    if (externalChanges[kind] !== null) {
+      request[kind] = [...externalChanges[kind]];
+    }
+  }
   return Object.assign(request, targetFields());
 }
 
 /**
  * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…&target_type=…&target_armor=…&gear=…&talents=…`; pasted or edited keybinds as
- * `keys=`, their YAML in base64url; the gear's changes as `gearText` writes them; changed
- * talents as the server's talent code, `30532…-0505…`), so a link reproduces it. Without a
+ * &setting=…&target_type=…&target_armor=…&gear=…&talents=…&buffs=…&debuffs=…`; pasted or
+ * edited keybinds as `keys=`, their YAML in base64url; the gear's changes as `gearText` writes
+ * them; changed talents as the server's talent code, `30532…-0505…`; changed buffs or debuffs
+ * as their names, comma separated, empty for none), so a link reproduces it. Without a
  * bundled setup (pasted) there is nothing to name: no query.
  */
 function updateUrl() {
@@ -1633,6 +1727,11 @@ function updateUrl() {
     }
     if (info.talents_code !== null) {
       query.set("talents", info.talents_code);
+    }
+    for (const kind of ["buffs", "debuffs"]) {
+      if (info[kind] !== null) {
+        query.set(kind, info[kind].join(","));
+      }
     }
   }
   const search = query.size ? `?${query}` : "";
@@ -1672,6 +1771,12 @@ function formFromQuery() {
     }
   }
   talentCode = query.get("talents");
+  externalChanges = { buffs: null, debuffs: null };
+  for (const kind of ["buffs", "debuffs"]) {
+    if (query.has(kind)) {
+      externalChanges[kind] = query.get(kind).split(",").map((name) => name.trim()).filter(Boolean);
+    }
+  }
   return true;
 }
 
@@ -1724,6 +1829,7 @@ $("setup-select").addEventListener("change", () => {
   $("setup-yaml").value = "";
   gearChanges = [];
   talentCode = null;
+  externalChanges = { buffs: null, debuffs: null };
   fillModes();
   loadOrRotation(formRequest());
 });
@@ -2206,11 +2312,12 @@ function parseGear(text) {
 }
 
 /**
- * Loads `request`, with the setup's own gear and talents instead when its changes do not load
- * (a link's item that is gone, talents the tree no longer allows): the status says so.
+ * Loads `request`, with the setup's own gear, talents, buffs and debuffs instead when its
+ * changes do not load (a link's item that is gone, talents the tree no longer allows, a buff
+ * renamed): the status says so.
  */
 function loadOrSetupGear(request) {
-  if (!request.gear && request.talents_code === undefined) {
+  if (!request.gear && request.talents_code === undefined && !request.buffs && !request.debuffs) {
     return load(request);
   }
   setPlaying(false);
@@ -2221,12 +2328,15 @@ function loadOrSetupGear(request) {
     } catch (error) {
       delete request.gear;
       delete request.talents_code;
+      delete request.buffs;
+      delete request.debuffs;
       gearChanges = [];
       talentCode = null;
+      externalChanges = { buffs: null, debuffs: null };
       next = await api("POST", "api/load", request);
       await begin(next);
       $("status").textContent =
-        `The link's gear or talents do not load (${error.reason}): the setup's own`;
+        `The link's gear, talents or buffs do not load (${error.reason}): the setup's own`;
       return;
     }
     await begin(next);
@@ -2645,6 +2755,116 @@ for (const tab of document.querySelectorAll("#sheet [data-tab]")) {
     renderSheet();
   });
 }
+
+// ----- The buffs and debuffs view ---------------------------------------------------------
+
+/**
+ * The loaded session's buffs and debuffs lists when they are not the setup's own
+ * (`info.buffs`, `info.debuffs`; null: the setup's): what the other loads keep, until another
+ * setup is chosen.
+ */
+let externalChanges = { buffs: null, debuffs: null };
+
+function openBuffs() {
+  if (!info) {
+    return;
+  }
+  buffsStatus("");
+  renderBuffs();
+  $("buffs-view").showModal();
+  $("buffs-view").scrollTop = 0;
+}
+
+function buffsStatus(text) {
+  $("buffs-status").textContent = text;
+}
+
+/** A row per offered entry, in each section: lit when the session has it. */
+function renderBuffs() {
+  $("buffs-title").textContent = `Buffs & Debuffs · ${info.name}`;
+  for (const [debuff, list, count] of [[false, "buff-list", "buffs-count"], [true, "debuff-list", "debuffs-count"]]) {
+    const entries = info.externals.filter((external) => external.debuff === debuff);
+    $(count).textContent = `${entries.filter((external) => external.selected).length} / ${entries.length}`;
+    $(list).replaceChildren(...entries.map((external) => {
+      const row = element("button", "buff-row");
+      row.type = "button";
+      row.dataset.name = external.name;
+      row.setAttribute("aria-pressed", String(external.selected));
+      const peers = mutexPeers(external).map((peer) => peer.name);
+      row.title = peers.length ? `Excludes ${peers.join(", ")}` : "";
+      const slot = element("span", "slot");
+      const icon = iconImage(external.icon);
+      if (icon) {
+        icon.width = 24;
+        icon.height = 24;
+        slot.append(icon);
+      }
+      row.append(slot, element("span", "buff-name", external.name));
+      return row;
+    }));
+  }
+  $("buffs-reset").disabled = info.buffs === null && info.debuffs === null;
+}
+
+/** The other offered entries of `external`'s mutex group. */
+function mutexPeers(external) {
+  return external.mutex === null ? [] : info.externals.filter((other) =>
+    other.mutex === external.mutex && other.name !== external.name);
+}
+
+/** Adds or removes the entry `name` (adding drops its mutex peers): the setup loads again. */
+function toggleExternal(name) {
+  const external = info.externals.find((entry) => entry.name === name);
+  if (!external) {
+    return;
+  }
+  const excluded = new Set(external.selected ? [name] : mutexPeers(external).map((peer) => peer.name));
+  const kind = external.debuff ? "debuffs" : "buffs";
+  const list = info.externals
+    .filter((entry) => entry.debuff === external.debuff && entry.selected && !excluded.has(entry.name))
+    .map((entry) => entry.name);
+  if (!external.selected) {
+    list.push(name);
+  }
+  loadExternals({ ...externalChanges, [kind]: list });
+}
+
+/** Loads the setup with the buffs and debuffs `changes` (null: its own); the view says why when it does not load. */
+function loadExternals(changes) {
+  const request = formRequest();
+  for (const kind of ["buffs", "debuffs"]) {
+    delete request[kind];
+    if (changes[kind] !== null) {
+      request[kind] = changes[kind];
+    }
+  }
+  if (info.source.setup) {
+    delete request.setup_yaml;
+    request.setup = info.source.setup;
+  }
+  buffsStatus("");
+  setPlaying(false);
+  enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      buffsStatus(error.reason || String(error.message || error));
+      return;
+    }
+    await begin(next);
+  });
+}
+
+$("buffs").addEventListener("click", openBuffs);
+$("buffs-close").addEventListener("click", () => $("buffs-view").close());
+$("buffs-reset").addEventListener("click", () => loadExternals({ buffs: null, debuffs: null }));
+$("buffs-view").addEventListener("click", (event) => {
+  const row = event.target instanceof Element && event.target.closest(".buff-row");
+  if (row) {
+    toggleExternal(row.dataset.name);
+  }
+});
 
 // ----- The talents view -------------------------------------------------------------------
 
@@ -3970,7 +4190,7 @@ document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
   if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open ||
-    $("talents-view").open) {
+    $("talents-view").open || $("buffs-view").open) {
     return;
   }
   // A spell's name, or a macro's.
