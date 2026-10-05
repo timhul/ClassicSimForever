@@ -87,6 +87,7 @@ cast_if:
       and buff_duration "Eureka!" is false
   - name: Berserker Rage
     condition: |
-      resource "Rage" less 50
+      talent "Improved Berserker Rage" greater 0
+      and resource "Rage" less 50
       and spell "Bloodthirst" greater 1.5
       and spell "Whirlwind" greater 1.5
