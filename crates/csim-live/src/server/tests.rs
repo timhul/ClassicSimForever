@@ -488,7 +488,7 @@ fn the_talent_tree_and_its_edits() {
     assert_eq!(talents["class"], "WARRIOR");
     assert_eq!(talents["tabs"][1]["name"], "Fury");
     let state = &talents["state"];
-    assert_eq!(state["tab_points"], serde_json::json!([16, 35, 0]));
+    assert_eq!(state["tab_points"], serde_json::json!([17, 32, 2]));
     assert_eq!(
         (
             state["points_left"].as_u64(),

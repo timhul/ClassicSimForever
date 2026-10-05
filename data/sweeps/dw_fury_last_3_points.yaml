@@ -25,7 +25,7 @@ overrides:
       Bloodthirst: 1
 variations:
   - talent_points:
-      points: 1
+      points: 3
       talents:
         Arms:
           - Improved Overpower

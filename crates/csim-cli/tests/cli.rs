@@ -586,12 +586,18 @@ fn sweep_dry_run_counts_and_lists_the_variants() {
     let variants = stdout(&output);
     let header = String::from_utf8(output.stderr).unwrap();
     assert!(
-        header.contains("46 variants × 10000 iterations = 460000 iterations (300 s ± 10%, seed 1)"),
+        header.contains("10 variants × 10000 iterations = 100000 iterations (300 s ± 10%, seed 1)"),
         "{header}"
     );
-    assert!(header.contains("3 talent points over Impale"), "{header}");
-    assert_eq!(variants.lines().count(), 46, "{variants}");
-    assert!(variants.contains("Booming Voice +3"), "{variants}");
+    assert!(
+        header.contains("3 talent points over Improved Overpower"),
+        "{header}"
+    );
+    assert_eq!(variants.lines().count(), 10, "{variants}");
+    assert!(
+        variants.contains("Improved Berserker Rage +1, Improved Bloodrage +2"),
+        "{variants}"
+    );
 }
 
 #[test]
@@ -616,7 +622,7 @@ fn sweep_ranks_every_variant_by_dps() {
     assert_eq!(results["iterations"].as_u64(), Some(4));
     assert_eq!(
         results["variation_points"][0]["alternatives"].as_u64(),
-        Some(46)
+        Some(10)
     );
     let dps: Vec<f64> = results["variants"]
         .as_sequence()

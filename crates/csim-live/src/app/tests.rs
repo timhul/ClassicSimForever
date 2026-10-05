@@ -254,7 +254,10 @@ fn a_load_changes_the_talents() {
     assert_eq!(spent_talents(&app), moved);
     let code = loaded.talents_code.unwrap();
     assert!(code.starts_with("033"), "{code}");
-    assert_eq!(code.matches('-').count(), 1, "no Protection points: {code}");
+    assert!(
+        code.ends_with("-2"),
+        "Improved Bloodrage's 2 Protection points: {code}"
+    );
 
     // The same build from its code, as a link gives it.
     let by_code = |code: &str| LoadRequest {
