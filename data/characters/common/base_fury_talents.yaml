@@ -7,7 +7,7 @@ talents:
     Improved Tactical Mastery: 5
     Anger Management: 1
     Deep Wounds: 3
-    Impale: 1
+    Impale: 2
   Fury:
     Cruelty: 5
     Unbridled Wrath: 5
@@ -16,8 +16,10 @@ talents:
     Blood Craze: 1
     Dual Wield Specialization: 5
     Raging Blows: 1
-    Enrage: 5
     Improved Execute: 2
+    Improved Berserker Rage: 2
     Death Wish: 1
     Flurry: 5
     Bloodthirst: 1
+  Protection:
+    Improved Bloodrage: 2
