@@ -460,3 +460,51 @@ fn the_items_the_character_can_wear() {
     );
     assert_eq!(call(&mut app, "POST", "/api/items", "").status, 405);
 }
+
+#[test]
+fn the_talent_tree_and_its_edits() {
+    let mut app = empty_app();
+    assert_eq!(call(&mut app, "GET", "/api/talents", "").status, 409);
+    // Edits need no session.
+    let state = json(&call(
+        &mut app,
+        "POST",
+        "/api/talents/edit",
+        r#"{"class": "WARRIOR", "ranks": {}, "op": "max", "node": 105957}"#,
+    ));
+    assert_eq!(state["ranks"]["105957"], 5);
+    assert_eq!(state["points_left"], 46);
+    let bad = call(
+        &mut app,
+        "POST",
+        "/api/talents/edit",
+        r#"{"class": "WARRIOR", "ranks": {"105950": 1}, "op": "none"}"#,
+    );
+    assert_eq!(bad.status, 400, "Deep Wounds without its tier");
+    assert_eq!(call(&mut app, "GET", "/api/talents/edit", "").status, 405);
+
+    let mut session = app_of(session_of("warrior_fury_dw_orc.yaml", 1));
+    let talents = json(&call(&mut session, "GET", "/api/talents", ""));
+    assert_eq!(talents["class"], "WARRIOR");
+    assert_eq!(talents["tabs"][1]["name"], "Fury");
+    let state = &talents["state"];
+    assert_eq!(state["tab_points"], serde_json::json!([16, 35, 0]));
+    assert_eq!(
+        (
+            state["points_left"].as_u64(),
+            state["required_level"].as_u64()
+        ),
+        (Some(0), Some(60))
+    );
+    let bloodthirst = talents["tabs"][1]["talents"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|talent| talent["name"] == "Bloodthirst")
+        .unwrap();
+    let node = bloodthirst["node"].as_u64().unwrap().to_string();
+    assert_eq!(state["ranks"][&node], 1);
+    // No points left: only the talents with points are lit.
+    let lit = state["available"].as_array().unwrap();
+    assert_eq!(lit.len(), state["ranks"].as_object().unwrap().len());
+}

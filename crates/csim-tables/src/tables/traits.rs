@@ -3,6 +3,21 @@
 use crate::table_row;
 
 table_row! {
+    /// `TalentTab`: the classic talent tabs' art, by name and class (`BackgroundFile` names the
+    /// `Interface/TalentFrame/<file>-TopLeft` textures).
+    TalentTabRow, "TalentTab" {
+        id: u32 = "ID",
+        name: String = "Name_lang",
+        background_file: String = "BackgroundFile",
+        order_index: u32 = "OrderIndex",
+        /// `1 << (ChrClasses.ID − 1)`.
+        class_mask: u32 = "ClassMask",
+        /// The tab icon's `FileDataID`.
+        spell_icon_id: u32 = "SpellIconID",
+    }
+}
+
+table_row! {
     /// `TraitTree`: one tree per class (Warrior 1117).
     TraitTreeRow, "TraitTree" {
         title_text: String = "TitleText_lang",

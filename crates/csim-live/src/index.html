@@ -127,10 +127,11 @@
     color: #1a1406;
   }
   #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
-  #edit-keybinds:not(:disabled), #equipment:not(:disabled) {
+  #edit-keybinds:not(:disabled), #equipment:not(:disabled), #talents:not(:disabled) {
     border-color: var(--accent); color: var(--accent); font-weight: 600;
   }
-  #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled) {
+  #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled),
+  #talents:hover:not(:disabled) {
     background: rgb(224 176 74 / 0.12);
   }
   #clock {
@@ -757,7 +758,7 @@
   .item-name .slot { width: 28px; height: 28px; }
   #equipment-status { color: #e05a4f; min-height: 1.4em; margin: 0 auto 0 0; }
   #equipment-note { color: var(--muted); margin: 0; }
-  #item-tip {
+  #item-tip, #talent-tip {
     position: fixed;
     z-index: 10;
     max-width: 320px;
@@ -773,6 +774,121 @@
   #item-tip .tip-row { display: flex; justify-content: space-between; gap: 16px; }
   #item-tip .tip-muted { color: var(--muted); }
   #item-tip .tip-green { color: #1eff00; }
+  #talent-tip { max-width: 300px; }
+  #talent-tip .tip-name { font-size: 14px; font-weight: 600; }
+  #talent-tip .tip-red { color: #ff2020; }
+  #talent-tip .tip-text { color: var(--yellow-hit); white-space: pre-line; margin-top: 2px; }
+  #talent-tip .tip-next { margin-top: 8px; }
+  #talent-tip .tip-hint { color: #1eff00; margin-top: 6px; font-size: 12px; }
+  /* The talent calculator, in the legacy ClassicSim view's colours. */
+  #talents-view {
+    --talent-available: #00ff16;
+    --talent-maxed: #ffd100;
+    --talent-locked: #5c6068;
+    width: min(820px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 0;
+    overflow: hidden auto;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  #talents-view::backdrop { background: rgb(0 0 0 / 0.6); }
+  .talents-frame { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+  .talents-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+  .talents-head h2 { margin: 0; }
+  #talents-class { font-weight: 700; }
+  #talents-build { font-variant-numeric: tabular-nums; }
+  .talents-head .spacer { flex: 1; }
+  #talents-level, #talents-left { color: var(--muted); }
+  #talents-level b, #talents-left b { color: var(--text); }
+  .talent-switch { display: none; gap: 4px; }
+  .talent-switch button { flex: 1; }
+  .talent-switch button.active { border-color: var(--accent); color: var(--accent); }
+  .talent-trees { display: flex; justify-content: center; gap: 8px; }
+  .talent-tab {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  .talent-tab-head, .talent-tab-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgb(0 0 0 / 0.35);
+  }
+  .talent-tab-head .icon { width: 20px; height: 20px; }
+  .talent-tab-head .name { font-weight: 600; }
+  .talent-tab-foot { justify-content: space-between; }
+  .talent-tab-foot .points {
+    color: var(--talent-maxed);
+    font: 700 18px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  .talent-tab-foot button { padding: 0 8px; }
+  /* Columns and tiers 52 px apart; the background is the game's tab art, else the dark panel. */
+  .talent-grid {
+    position: relative;
+    background-color: #0c0e12;
+    background-size: cover;
+    background-position: center;
+  }
+  .talent-grid svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .talent-grid .arrow { stroke: var(--talent-locked); fill: var(--talent-locked); }
+  .talent-grid polyline.arrow { fill: none; }
+  .talent-grid .arrow.lit { stroke: var(--talent-maxed); fill: var(--talent-maxed); }
+  .talent-grid polyline.arrow.lit { fill: none; }
+  .talent {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--talent-locked);
+    border-radius: 4px;
+    background: #000;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .talent img, .talent .icon {
+    display: block; width: 100%; height: 100%; border-radius: 2px; box-shadow: none;
+  }
+  .talent .label {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 8px; line-height: 1.05; color: var(--muted); text-align: center; overflow: hidden;
+  }
+  .talent.locked img { filter: grayscale(1) brightness(0.55); }
+  .talent.available { border-color: var(--talent-available); }
+  .talent.maxed { border-color: var(--talent-maxed); }
+  .talent:hover { border-color: #fff; }
+  .talent:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+  .talent .rank {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    padding: 0 3px;
+    border-radius: 3px;
+    background: #000;
+    color: var(--talent-locked);
+    font: 600 11px/1.25 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  .talent.available .rank { color: var(--talent-available); }
+  .talent.maxed .rank { color: var(--talent-maxed); }
+  .talents-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: flex-end; }
+  #talents-status { color: #e05a4f; min-height: 1.4em; margin: 0 auto 0 0; }
+  #talents-hint { color: var(--muted); font-size: 12px; margin: 0; }
+  #talents-apply:not(:disabled) { font-weight: 600; border-color: var(--accent); color: var(--accent); }
+  @media (max-width: 779px) {
+    .talent-switch { display: flex; }
+    .talent-tab:not(.active) { display: none; }
+  }
   @media (max-width: 760px) {
     #equipment-view { height: auto; max-height: calc(100vh - 32px); }
     .equipment-frame { height: auto; max-height: calc(100vh - 34px); overflow-y: auto; }
@@ -908,6 +1024,30 @@
   <div id="item-tip" hidden></div>
 </dialog>
 
+<dialog id="talents-view" aria-labelledby="talents-title">
+  <div class="talents-frame">
+    <div class="talents-head">
+      <h2 id="talents-title">Talents</h2>
+      <span id="talents-class"></span>
+      <span id="talents-build"></span>
+      <span class="spacer"></span>
+      <span id="talents-level"></span>
+      <span id="talents-left"></span>
+    </div>
+    <div class="talent-switch" role="tablist"></div>
+    <div class="talent-trees"></div>
+    <p id="talents-hint">Click to learn a rank, right click (or a long press) to unlearn one;
+      with Shift, all of them. Apply loads the setup with these talents.</p>
+    <div class="talents-foot">
+      <p id="talents-status" role="status"></p>
+      <button id="talents-reset" type="button" title="Back to the setup's own talents">Reset</button>
+      <button id="talents-apply" type="button">Apply</button>
+      <button id="talents-close" type="button">Close</button>
+    </div>
+  </div>
+  <div id="talent-tip" hidden></div>
+</dialog>
+
 <div id="controls">
   <div class="group options">
     <select id="speed" aria-label="Speed">
@@ -929,6 +1069,7 @@
     <button id="play" type="button">Play</button>
     <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
     <button id="equipment" type="button" disabled>Equipment</button>
+    <button id="talents" type="button" disabled>Talents</button>
   </div>
   <div class="group time">
     <span id="last-event"></span>
@@ -1167,13 +1308,18 @@ async function begin(next) {
   document.title = `${info.name} · csim-live`;
   $("edit-keybinds").disabled = false;
   $("equipment").disabled = false;
+  $("talents").disabled = false;
   gearChanges = info.gear.changes;
+  talentCode = info.talents_code;
   releaseKeys();
   renderEntries();
   syncForm();
   updateUrl();
   if ($("equipment-view").open) {
     renderEquipment();
+  }
+  if ($("talents-view").open) {
+    await fetchTalents();
   }
   simTime = info.start_at;
   apply(await api("POST", "api/advance", { to: info.start_at }));
@@ -1443,14 +1589,18 @@ function formRequest() {
   if (gearChanges.length) {
     request.gear = gearChanges.map((change) => ({ ...change }));
   }
+  if (talentCode !== null) {
+    request.talents_code = talentCode;
+  }
   return Object.assign(request, targetFields());
 }
 
 /**
  * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…&target_type=…&target_armor=…&gear=…`; pasted or edited keybinds as `keys=`, their
- * YAML in base64url; the gear's changes as `gearText` writes them), so a link reproduces it. Without a bundled setup (pasted) there is nothing to
- * name: no query.
+ * &setting=…&target_type=…&target_armor=…&gear=…&talents=…`; pasted or edited keybinds as
+ * `keys=`, their YAML in base64url; the gear's changes as `gearText` writes them; changed
+ * talents as the server's talent code, `30532…-0505…`), so a link reproduces it. Without a
+ * bundled setup (pasted) there is nothing to name: no query.
  */
 function updateUrl() {
   const query = new URLSearchParams();
@@ -1480,6 +1630,9 @@ function updateUrl() {
     }
     if (info.gear.changes.length) {
       query.set("gear", gearText(info.gear.changes));
+    }
+    if (info.talents_code !== null) {
+      query.set("talents", info.talents_code);
     }
   }
   const search = query.size ? `?${query}` : "";
@@ -1518,6 +1671,7 @@ function formFromQuery() {
       linkNotes.push(`The link's gear= is not readable (${error.message}): the setup's gear`);
     }
   }
+  talentCode = query.get("talents");
   return true;
 }
 
@@ -1569,6 +1723,7 @@ $("setup-select").addEventListener("change", () => {
   // Pasted setup text would win over the choice; another setup wears its own gear.
   $("setup-yaml").value = "";
   gearChanges = [];
+  talentCode = null;
   fillModes();
   loadOrRotation(formRequest());
 });
@@ -2051,11 +2206,11 @@ function parseGear(text) {
 }
 
 /**
- * Loads `request`, with the setup's own gear instead when its gear does not load (a link's
- * item that is gone): the status says so.
+ * Loads `request`, with the setup's own gear and talents instead when its changes do not load
+ * (a link's item that is gone, talents the tree no longer allows): the status says so.
  */
 function loadOrSetupGear(request) {
-  if (!request.gear) {
+  if (!request.gear && request.talents_code === undefined) {
     return load(request);
   }
   setPlaying(false);
@@ -2065,10 +2220,13 @@ function loadOrSetupGear(request) {
       next = await api("POST", "api/load", request);
     } catch (error) {
       delete request.gear;
+      delete request.talents_code;
       gearChanges = [];
+      talentCode = null;
       next = await api("POST", "api/load", request);
       await begin(next);
-      $("status").textContent = `The link's gear does not load (${error.reason}): the setup's gear`;
+      $("status").textContent =
+        `The link's gear or talents do not load (${error.reason}): the setup's own`;
       return;
     }
     await begin(next);
@@ -2486,6 +2644,398 @@ for (const tab of document.querySelectorAll("#sheet [data-tab]")) {
     sheetTab = tab.dataset.tab;
     renderSheet();
   });
+}
+
+// ----- The talents view -------------------------------------------------------------------
+
+/** The loaded session's talents as `api/load` takes them back (`talents_code`); null: the setup's own. */
+let talentCode = null;
+/** The class's tree (`api/talents`), the session's state, and the view's draft of it. */
+let talentLayout = null;
+let talentsLoaded = null;
+let talentDraft = null;
+/** The tab shown on a narrow screen. */
+let talentTabShown = 0;
+/** The calculator's requests, in click order. */
+let talentChain = Promise.resolve();
+/** A long press unlearns: the click that follows it does nothing. */
+let talentPress = null;
+let talentPressed = false;
+
+/** The talent grid's geometry: 52 px per column and tier, 40 px icons. */
+const TALENT_STEP = 52;
+const TALENT_ICON = 40;
+const TALENT_PAD = 16;
+/** Wowhead's copy of the game's classic talent tab art, by `TalentTab.ID`. */
+const TALENT_BACKGROUND_CDN = "https://wow.zamimg.com/images/wow/talents/backgrounds/classic";
+
+async function openTalents() {
+  if (!info) {
+    return;
+  }
+  talentsStatus("");
+  $("talents-view").showModal();
+  try {
+    await fetchTalents();
+  } catch (error) {
+    talentsStatus(error.reason || String(error.message || error));
+  }
+}
+
+/** The session's tree and ranks: the draft starts from them. */
+async function fetchTalents() {
+  const answer = await api("GET", "api/talents");
+  const { state, ...layout } = answer;
+  if (!talentLayout || talentLayout.class !== layout.class) {
+    talentTabShown = 0;
+  }
+  talentLayout = layout;
+  talentLayout.byNode = new Map(layout.tabs.flatMap((tab, index) =>
+    tab.talents.map((talent) => [talent.node, { ...talent, tab: index }])));
+  talentsLoaded = state;
+  talentDraft = state;
+  renderTalents();
+}
+
+function talentsStatus(text) {
+  $("talents-status").textContent = text;
+}
+
+/** `op` on the draft (`node` or `tab` as the op needs), by the server's rules. */
+function editTalents(op, fields = {}) {
+  if (!talentDraft) {
+    return;
+  }
+  talentChain = talentChain.then(async () => {
+    try {
+      talentDraft = await api("POST", "api/talents/edit", {
+        class: talentLayout.class,
+        ranks: talentDraft.ranks,
+        op,
+        ...fields,
+      });
+      talentsStatus("");
+      renderTalents();
+      refreshTalentTip();
+    } catch (error) {
+      talentsStatus(error.reason || String(error.message || error));
+    }
+  });
+}
+
+function renderTalents() {
+  if (!talentLayout || !talentDraft) {
+    return;
+  }
+  const className = info.class;
+  $("talents-title").textContent = `Talents · ${info.name}`;
+  $("talents-class").textContent = className;
+  $("talents-class").style.color = CLASS_COLORS[className] || "";
+  $("talents-build").textContent = talentDraft.tab_points.join(" / ");
+  $("talents-level").replaceChildren("Required level ", element("b", "", String(talentDraft.required_level)));
+  $("talents-left").replaceChildren("Points left ", element("b", "", String(talentDraft.points_left)));
+  const changed = talentDraft.code !== talentsLoaded.code;
+  $("talents-apply").disabled = !changed;
+  $("talents-apply").title = changed ? "Load the setup with these talents" : "No change to apply";
+  $("talents-reset").disabled = talentCode === null && !changed;
+
+  $("talents-view").querySelector(".talent-switch").replaceChildren(
+    ...talentLayout.tabs.map((tab, index) => {
+      const button = element("button", index === talentTabShown ? "active" : "",
+        `${tab.name} ${talentDraft.tab_points[index]}`);
+      button.type = "button";
+      button.setAttribute("role", "tab");
+      button.addEventListener("click", () => {
+        talentTabShown = index;
+        renderTalents();
+      });
+      return button;
+    }));
+  $("talents-view").querySelector(".talent-trees").replaceChildren(
+    ...talentLayout.tabs.map((tab, index) => talentTab(tab, index)));
+}
+
+/** The draft's rank of `node`. */
+const talentRank = (node) => talentDraft.ranks[node] ?? 0;
+
+/** One tab: its name, the grid of talents with the prerequisite arrows, its points. */
+function talentTab(tab, index) {
+  const box = element("section", `talent-tab${index === talentTabShown ? " active" : ""}`);
+  box.setAttribute("aria-label", `${tab.name} talents`);
+  const head = element("div", "talent-tab-head");
+  const icon = iconImage(tab.icon);
+  if (icon) {
+    head.append(icon);
+  }
+  head.append(element("span", "name", tab.name));
+
+  const rows = Math.max(7, ...tab.talents.map((talent) => talent.tier + 1));
+  const grid = element("div", "talent-grid");
+  grid.style.width = `${4 * TALENT_STEP + 2 * TALENT_PAD - (TALENT_STEP - TALENT_ICON)}px`;
+  grid.style.height = `${rows * TALENT_STEP + 2 * TALENT_PAD - (TALENT_STEP - TALENT_ICON)}px`;
+  if (tab.talent_tab) {
+    grid.style.backgroundImage = `url("${TALENT_BACKGROUND_CDN}/${tab.talent_tab}.jpg")`;
+  }
+  grid.append(talentArrows(tab));
+  const available = new Set(talentDraft.available);
+  for (const talent of tab.talents) {
+    grid.append(talentButton(talent, available.has(talent.node)));
+  }
+
+  const foot = element("div", "talent-tab-foot");
+  foot.append(element("span", "points", String(talentDraft.tab_points[index])));
+  const clear = element("button", "", "×");
+  clear.type = "button";
+  clear.title = `Unlearn every ${tab.name} talent`;
+  clear.disabled = talentDraft.tab_points[index] === 0;
+  clear.addEventListener("click", () => editTalents("clear_tab", { tab: tab.skill_line }));
+  foot.append(clear);
+  box.append(head, grid, foot);
+  return box;
+}
+
+/** The top left corner of the talent at `tier`, `column` in its grid. */
+const talentAt = (tier, column) => ({
+  x: TALENT_PAD + column * TALENT_STEP,
+  y: TALENT_PAD + tier * TALENT_STEP,
+});
+
+/** A talent's icon with its rank: lit when a point can go in, gold when maxed. */
+function talentButton(talent, available) {
+  const rank = talentRank(talent.node);
+  const maxed = rank >= talent.max_ranks;
+  const state = maxed ? "maxed" : available ? "available" : "locked";
+  const button = element("button", `talent ${state}`);
+  button.type = "button";
+  button.dataset.node = talent.node;
+  const { x, y } = talentAt(talent.tier, talent.column);
+  button.style.left = `${x}px`;
+  button.style.top = `${y}px`;
+  button.setAttribute("aria-label", `${talent.name}, rank ${rank} of ${talent.max_ranks}`);
+  const icon = iconImage(talent.icon, "large");
+  if (icon) {
+    icon.addEventListener("icon-missing", () => button.prepend(element("span", "label", talent.name)));
+    button.append(icon);
+  } else {
+    button.append(element("span", "label", talent.name));
+  }
+  button.append(element("span", "rank", `${rank}/${talent.max_ranks}`));
+  return button;
+}
+
+/**
+ * The prerequisite arrows of `tab`: down a column, along a tier, or across then down; gold
+ * when the talent at the head can take a point.
+ */
+function talentArrows(tab) {
+  const svgNs = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNs, "svg");
+  const byNode = new Map(tab.talents.map((talent) => [talent.node, talent]));
+  const available = new Set(talentDraft.available);
+  const half = TALENT_ICON / 2;
+  for (const talent of tab.talents) {
+    const parent = byNode.get(talent.requires);
+    if (!parent) {
+      continue;
+    }
+    const from = talentAt(parent.tier, parent.column);
+    const to = talentAt(talent.tier, talent.column);
+    let points;
+    let head;
+    if (parent.column === talent.column) {
+      points = [[from.x + half, from.y + TALENT_ICON], [to.x + half, to.y - 6]];
+      head = "down";
+    } else if (parent.tier === talent.tier) {
+      const right = talent.column > parent.column;
+      const startX = right ? from.x + TALENT_ICON : from.x;
+      const endX = right ? to.x - 6 : to.x + TALENT_ICON + 6;
+      points = [[startX, from.y + half], [endX, to.y + half]];
+      head = right ? "right" : "left";
+    } else {
+      const right = talent.column > parent.column;
+      const startX = right ? from.x + TALENT_ICON : from.x;
+      points = [[startX, from.y + half], [to.x + half, from.y + half], [to.x + half, to.y - 6]];
+      head = "down";
+    }
+    const lit = available.has(talent.node) ? " lit" : "";
+    const line = document.createElementNS(svgNs, "polyline");
+    line.setAttribute("class", `arrow${lit}`);
+    line.setAttribute("points", points.map((point) => point.join(",")).join(" "));
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke-width", "4");
+    svg.append(line);
+    const [tipX, tipY] = points[points.length - 1];
+    const shapes = {
+      down: [[tipX - 7, tipY - 2], [tipX + 7, tipY - 2], [tipX, tipY + 6]],
+      right: [[tipX - 2, tipY - 7], [tipX - 2, tipY + 7], [tipX + 6, tipY]],
+      left: [[tipX + 2, tipY - 7], [tipX + 2, tipY + 7], [tipX - 6, tipY]],
+    };
+    const arrowHead = document.createElementNS(svgNs, "polygon");
+    arrowHead.setAttribute("class", `arrow${lit}`);
+    arrowHead.setAttribute("points", shapes[head].map((point) => point.join(",")).join(" "));
+    svg.append(arrowHead);
+  }
+  return svg;
+}
+
+/** The talent button under `target`'s node, if any. */
+const talentOf = (target) => target instanceof Element && target.closest(".talent[data-node]");
+
+/** `text` with the game's colour codes (`|cAARRGGBB…|r`) as coloured spans. */
+function gameText(text) {
+  const fragment = document.createDocumentFragment();
+  const pattern = /\|c([0-9a-f]{2})([0-9a-f]{6})(.*?)\|r/gis;
+  let at = 0;
+  for (const match of text.matchAll(pattern)) {
+    fragment.append(text.slice(at, match.index));
+    const span = element("span", "", match[3]);
+    span.style.color = `#${match[2]}`;
+    fragment.append(span);
+    at = match.index + match[0].length;
+  }
+  fragment.append(text.slice(at));
+  return fragment;
+}
+
+/** The tooltip of the talent `node`: its rank, what it lacks, this rank's and the next one's text. */
+function talentTip(node) {
+  const talent = talentLayout.byNode.get(node);
+  const tab = talentLayout.tabs[talent.tab];
+  const rank = talentRank(node);
+  const lines = [
+    tipLine(talent.name, "tip-name"),
+    tipLine(`Rank ${rank}/${talent.max_ranks}`),
+  ];
+  const needed = talent.tier * talentLayout.points_per_tier;
+  if (talentDraft.tab_points[talent.tab] < needed) {
+    lines.push(tipLine(`Requires ${needed} points in ${tab.name} Talents`, "tip-red"));
+  }
+  const parent = talentLayout.byNode.get(talent.requires);
+  if (parent && talentRank(parent.node) < parent.max_ranks) {
+    const points = parent.max_ranks === 1 ? "point" : "points";
+    lines.push(tipLine(`Requires ${parent.max_ranks} ${points} in ${parent.name}`, "tip-red"));
+  }
+  const description = (index) => {
+    const line = element("div", "tip-text");
+    line.append(gameText(talent.descriptions[index] ?? ""));
+    return line;
+  };
+  if (talent.descriptions.length) {
+    lines.push(description(Math.max(rank, 1) - 1));
+    if (rank > 0 && rank < talent.max_ranks) {
+      lines.push(tipLine("Next rank:", "tip-next"), description(rank));
+    }
+  }
+  const available = talentDraft.available.includes(node);
+  if (available && rank < talent.max_ranks && talentDraft.points_left > 0) {
+    lines.push(tipLine("Click to learn", "tip-hint"));
+  }
+  return lines;
+}
+
+/** The talent under the pointer gets its tooltip, by the pointer. */
+function showTalentTip(event) {
+  const button = talentOf(event.target);
+  if (!button) {
+    hideTalentTip();
+    return;
+  }
+  const tip = $("talent-tip");
+  if (tip.dataset.for !== button.dataset.node) {
+    tip.dataset.for = button.dataset.node;
+    tip.replaceChildren(...talentTip(Number(button.dataset.node)));
+    tip.hidden = false;
+  }
+  const { width, height } = tip.getBoundingClientRect();
+  const x = event.clientX + 16 + width > innerWidth ? event.clientX - 16 - width : event.clientX + 16;
+  const y = Math.min(event.clientY + 16, innerHeight - height - 4);
+  tip.style.left = `${Math.max(4, x)}px`;
+  tip.style.top = `${Math.max(4, y)}px`;
+}
+
+/** The tooltip shown again with the draft's new ranks. */
+function refreshTalentTip() {
+  const tip = $("talent-tip");
+  if (!tip.hidden && tip.dataset.for) {
+    tip.replaceChildren(...talentTip(Number(tip.dataset.for)));
+  }
+}
+
+function hideTalentTip() {
+  const tip = $("talent-tip");
+  tip.hidden = true;
+  delete tip.dataset.for;
+}
+
+/** Loads the setup with the talents `code` (null: its own); the view says why when it does not load. */
+function loadTalents(code) {
+  const request = formRequest();
+  delete request.talents_code;
+  if (code !== null) {
+    request.talents_code = code;
+  }
+  if (info.source.setup) {
+    delete request.setup_yaml;
+    request.setup = info.source.setup;
+  }
+  hideTalentTip();
+  talentsStatus("");
+  setPlaying(false);
+  enqueue(async () => {
+    let next;
+    try {
+      next = await api("POST", "api/load", request);
+    } catch (error) {
+      talentsStatus(error.reason || String(error.message || error));
+      return;
+    }
+    await begin(next);
+  });
+}
+
+$("talents").addEventListener("click", openTalents);
+$("talents-close").addEventListener("click", () => $("talents-view").close());
+$("talents-apply").addEventListener("click", () => talentDraft && loadTalents(talentDraft.code));
+$("talents-reset").addEventListener("click", () => loadTalents(null));
+$("talents-view").addEventListener("close", hideTalentTip);
+$("talents-view").addEventListener("pointermove", showTalentTip);
+$("talents-view").addEventListener("pointerleave", hideTalentTip);
+$("talents-view").addEventListener("click", (event) => {
+  const button = talentOf(event.target);
+  if (!button) {
+    return;
+  }
+  if (talentPressed) {
+    talentPressed = false;
+    return;
+  }
+  editTalents(event.shiftKey ? "max" : "increment", { node: Number(button.dataset.node) });
+});
+$("talents-view").addEventListener("contextmenu", (event) => {
+  const button = talentOf(event.target);
+  if (!button) {
+    return;
+  }
+  event.preventDefault();
+  if (event.button === 2 || event.pointerType !== "touch") {
+    editTalents(event.shiftKey ? "min" : "decrement", { node: Number(button.dataset.node) });
+  }
+});
+// A long press on a touch screen unlearns a rank, as a right click does.
+$("talents-view").addEventListener("pointerdown", (event) => {
+  const button = talentOf(event.target);
+  if (!button || event.pointerType !== "touch") {
+    return;
+  }
+  clearTimeout(talentPress);
+  talentPressed = false;
+  talentPress = setTimeout(() => {
+    talentPressed = true;
+    editTalents("decrement", { node: Number(button.dataset.node) });
+  }, 500);
+});
+for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
+  $("talents-view").addEventListener(type, () => clearTimeout(talentPress));
 }
 
 /** URL-safe base64 of the UTF-8 `text`, and back: pasted keybinds in a link (`keys=`). */
@@ -3419,7 +3969,8 @@ function releaseKeys() {
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open) {
+  if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open ||
+    $("talents-view").open) {
     return;
   }
   // A spell's name, or a macro's.

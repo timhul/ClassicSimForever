@@ -2,7 +2,7 @@
 //! watched, if one is loaded. The page lists the bundled setups and keybinds
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
 //! by its rotation or from the keyboard, with a seed, a length, named settings, the target's
-//! creature type and armor, and changes of its gear.
+//! creature type and armor, and changes of its gear and talents.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
 use crate::session::{Info, Session};
+use crate::talents::{self, Talents};
 
 /// The setups' directory under the data directory.
 const CHARACTERS: &str = "characters";
@@ -39,6 +40,7 @@ pub struct App {
     source: Source,
     target: TargetChoice,
     gear: GearChanged,
+    talents_changed: bool,
 }
 
 /// Where the session's setup and keybinds come from: their catalog names, `None` for pasted
@@ -59,6 +61,9 @@ pub struct Loaded {
     /// How the session's gear differs from the setup's, and the setup's enchants that did
     /// not fit the new items.
     pub gear: GearChanged,
+    /// The session's talents as a link carries them ([`talents::code`]) when they are not the
+    /// setup's own.
+    pub talents_code: Option<String>,
 }
 
 /// The target the session fights: the setup's, with the creature type and armor the load
@@ -175,6 +180,10 @@ pub struct LoadRequest {
     /// conflicts with ([`CharacterSetup::change_equipment`]).
     #[serde(default)]
     pub gear: Vec<GearChange>,
+    /// Talents instead of the setup's: tab name → talent name → rank, as a setup file has
+    /// them; or `talents_code`, as a link carries them ([`talents::code`]).
+    pub talents: Option<Talents>,
+    pub talents_code: Option<String>,
 }
 
 impl App {
@@ -188,6 +197,7 @@ impl App {
             source: Source::default(),
             target: TargetChoice::unchanged(&TargetSetup::default()),
             gear: GearChanged::default(),
+            talents_changed: false,
         }
     }
 
@@ -204,11 +214,12 @@ impl App {
         self.session.as_mut()
     }
 
-    /// Watches `session`, its setup and keybinds coming from `source` (its target and gear as
-    /// the setup has them).
+    /// Watches `session`, its setup and keybinds coming from `source` (its target, gear and
+    /// talents as the setup has them).
     pub fn set_session(&mut self, session: Session, source: Source) {
         self.target = TargetChoice::unchanged(session.target());
         self.gear = GearChanged::default();
+        self.talents_changed = false;
         self.session = Some(session);
         self.source = source;
     }
@@ -220,6 +231,11 @@ impl App {
             source: self.source.clone(),
             target: self.target,
             gear: self.gear.clone(),
+            talents_code: self
+                .talents_changed
+                .then(|| session.talents())
+                .flatten()
+                .map(|spent| talents::code(spent.file(), &spent.setup().into_iter().collect())),
         })
     }
 
@@ -326,7 +342,7 @@ impl App {
     /// # Errors
     /// The request is malformed (no setup, or both a name and text; an unknown name), a file
     /// does not load, the seed, a setting or a gear change is invalid, or the setup does not
-    /// build.
+    /// build (talents that cannot be spent, a rotation's prerequisite not taken).
     pub fn load(
         &mut self,
         request: LoadRequest,
@@ -356,6 +372,28 @@ impl App {
                 .map_err(|error| error.to_string())?;
         }
         let gear = setup.change_equipment(&self.data, settings.phase, &request.gear)?;
+        let talents = match (request.talents, request.talents_code) {
+            (Some(talents), None) => Some(talents),
+            (None, Some(code)) => {
+                let file = self
+                    .data
+                    .talents
+                    .get(setup.class)
+                    .ok_or_else(|| format!("no talent tree for the {:?}", setup.class))?;
+                Some(talents::from_code(file, &code)?)
+            }
+            (None, None) => None,
+            (Some(_), Some(_)) => return Err("both `talents` and `talents_code`: give one".into()),
+        };
+        let talents_changed = match talents {
+            Some(talents) => {
+                let talents = spent(talents);
+                let changed = talents != spent(std::mem::take(&mut setup.talents));
+                setup.talents = talents;
+                changed
+            }
+            None => false,
+        };
         let seed = match request.seed.as_deref().map(str::trim) {
             None | Some("") => new_seed(),
             Some(seed) => seed.parse().map_err(|_| format!("invalid seed '{seed}'"))?,
@@ -370,6 +408,7 @@ impl App {
         );
         self.target = target;
         self.gear = gear;
+        self.talents_changed = talents_changed;
         Ok(self.loaded().expect("a session was just loaded"))
     }
 
@@ -426,6 +465,20 @@ impl App {
         }
         Ok(self.data_dir.join(dir).join(format!("{name}.yaml")))
     }
+}
+
+/// `talents` without the talents of rank 0 and the tabs left empty: the same build.
+fn spent(talents: Talents) -> Talents {
+    talents
+        .into_iter()
+        .map(|(tab, ranks)| {
+            (
+                tab,
+                ranks.into_iter().filter(|&(_, rank)| rank > 0).collect(),
+            )
+        })
+        .filter(|(_, ranks): &(String, BTreeMap<String, u32>)| !ranks.is_empty())
+        .collect()
 }
 
 /// A catalog name: a file name without extension, of letters, digits, `_` and `-`.

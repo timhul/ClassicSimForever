@@ -84,7 +84,16 @@ or taking one off (right click, ×), loads the setup again with the changed gear
 the game does: a two-hander empties the off hand; a new item keeps the slot's enchants that
 fit it); Reset goes back to the setup's own. The setup bar's loads keep the changes until
 another setup is chosen, and a link carries them as `gear=mh-19019.oh-0` (slot code, item id,
-`0` empties the slot). Without a setup argument the page picks one:
+`0` empties the slot). "Talents" opens the talent calculator: the class's three trees as the
+game draws them (the tab art from Wowhead, prerequisite arrows, ranks lit when a point can go
+in), with each rank's text in a tooltip (`descriptions` of `data/talents/`, resolved at export).
+Click learns a rank, right click (or a long press) unlearns one, Shift does all of them, × clears
+a tree; the rules are the engine's (`api/talents/edit`). The edits are a draft: Apply loads the
+setup with them (an error, e.g. a rotation's missing prerequisite, shows and the draft stays),
+Reset goes back to the setup's own. Like gear, the changed talents stay over the setup bar's loads
+until another setup is chosen, and a link carries them as `talents=05-0505311515201` (Wowhead's
+classic string: a digit per talent in tier then column order, a part per tree). Without a setup
+argument the page picks one:
 
 `cargo run --release -p csim-live`
 

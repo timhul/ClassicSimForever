@@ -46,6 +46,7 @@ pub const ALL_TABLES: &[&str] = &[
     SkillLineAbilityRow::TABLE,
     SkillRaceClassInfoRow::TABLE,
     SkillLineXTraitTreeRow::TABLE,
+    TalentTabRow::TABLE,
     TraitTreeRow::TABLE,
     TraitNodeRow::TABLE,
     TraitNodeEntryRow::TABLE,

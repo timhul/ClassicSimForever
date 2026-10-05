@@ -207,3 +207,101 @@ fn a_load_changes_the_gear() {
     let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
     assert_eq!(loaded.gear, GearChanged::default());
 }
+
+/// The session's talents, as a load request names them.
+fn spent_talents(app: &App) -> Talents {
+    let talents = app.session().unwrap().talents().unwrap();
+    talents
+        .trees()
+        .iter()
+        .map(|tree| {
+            let ranks = tree
+                .talents()
+                .iter()
+                .filter(|talent| talent.rank() > 0)
+                .map(|talent| (talent.name().to_owned(), talent.rank()))
+                .collect();
+            (tree.name().to_owned(), ranks)
+        })
+        .filter(|(_, ranks): &(String, BTreeMap<String, u32>)| !ranks.is_empty())
+        .collect()
+}
+
+#[test]
+fn a_load_changes_the_talents() {
+    let mut app = empty_app();
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    assert_eq!(loaded.talents_code, None);
+    let own = spent_talents(&app);
+    assert_eq!(own["Fury"]["Bloodthirst"], 1);
+
+    // The setup's own talents, with a rank 0 entry, are no change.
+    let mut same = own.clone();
+    same.get_mut("Arms").unwrap().insert("Deflection".into(), 0);
+    let request = |talents| LoadRequest {
+        talents: Some(talents),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    let loaded = load(&mut app, request(same)).unwrap();
+    assert_eq!(loaded.talents_code, None);
+
+    // Improved Heroic Strike's 3 points in Deflection instead.
+    let mut moved = own.clone();
+    let arms = moved.get_mut("Arms").unwrap();
+    arms.remove("Improved Heroic Strike");
+    arms.insert("Deflection".into(), 3);
+    let loaded = load(&mut app, request(moved.clone())).unwrap();
+    assert_eq!(spent_talents(&app), moved);
+    let code = loaded.talents_code.unwrap();
+    assert!(code.starts_with("033"), "{code}");
+    assert_eq!(code.matches('-').count(), 1, "no Protection points: {code}");
+
+    // The same build from its code, as a link gives it.
+    let by_code = |code: &str| LoadRequest {
+        talents_code: Some(code.to_owned()),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    let loaded = load(&mut app, by_code(&code)).unwrap();
+    assert_eq!(loaded.talents_code.as_deref(), Some(code.as_str()));
+    assert_eq!(spent_talents(&app), moved);
+    let json = serde_json::to_value(&loaded).unwrap();
+    assert_eq!(json["talents_code"], code.as_str());
+    for bad in ["x", "0-0-0-0", "00000000000000000000000000"] {
+        assert!(load(&mut app, by_code(bad)).is_err(), "{bad}");
+    }
+    let both = LoadRequest {
+        talents: Some(moved.clone()),
+        ..by_code(&code)
+    };
+    assert!(load(&mut app, both).is_err());
+
+    // Talents that cannot be spent, and a build without the rotation's Bloodthirst, keep the
+    // session.
+    let edit = |tab: &str, name: &str, rank| {
+        let mut talents = own.clone();
+        talents
+            .entry(tab.to_owned())
+            .or_default()
+            .insert(name.to_owned(), rank);
+        talents
+    };
+    for (bad, why) in [
+        (edit("Arms", "No Such Talent", 1), "unknown talent"),
+        (edit("Holy", "Cruelty", 1), "unknown tab"),
+        (edit("Fury", "Cruelty", 6), "above the maximum"),
+        (edit("Arms", "Mortal Strike", 1), "tier not unlocked"),
+        (
+            edit("Fury", "Bloodthirst", 0),
+            "the rotation's prerequisite",
+        ),
+    ] {
+        assert!(load(&mut app, request(bad)).is_err(), "{why}");
+    }
+    assert_eq!(spent_talents(&app), moved);
+    assert_eq!(app.loaded().unwrap().talents_code, Some(code));
+
+    // Another setup by itself: its own talents.
+    let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
+    assert_eq!(loaded.talents_code, None);
+}

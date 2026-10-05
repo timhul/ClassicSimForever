@@ -7,14 +7,20 @@
 //! `TraitDefinitionEffectPoints` → `CurvePoint` the value of each effect per rank. The tier
 //! gate (`TraitCond`) is checked against the `points_per_tier × tier` rule the runtime applies
 //! and reported when it differs.
+//!
+//! For the talent calculator: each talent's icon and its spell's description at each rank
+//! (resolved from the tables, as the spell export prunes some talent spells and descriptions
+//! name other spells), and each tab's icon and background art (`TalentTab`, by the tab's name
+//! and the class).
 
 use std::collections::{BTreeMap, BTreeSet};
 
 use csim_engine::faction::PlayerClass;
+use csim_engine::spell::description::describe;
 use csim_engine::talent::{TalentFile, TalentSpec, TalentTab};
 
 use crate::db::Tables;
-use crate::export::spells::{ExportError, class_skill_lines};
+use crate::export::spells::{ExportError, chr_class_id, class_skill_lines, record};
 use crate::tables::TraitNodeRow;
 
 /// `TraitEdge.Type` of a prerequisite edge.
@@ -78,14 +84,29 @@ pub fn export_talents_with_report(
     if tab_groups.is_empty() {
         return Err(ExportError::NoTraitTree(class.name().to_owned()));
     }
+    let class_mask = 1u32 << (chr_class_id(tables, class)? - 1);
     let tabs: Vec<TalentTab> = tab_groups
         .values()
-        .map(|&(_, line)| TalentTab {
-            skill_line: line,
-            name: tables
+        .map(|&(_, line)| {
+            let name = tables
                 .skill_line(line)
                 .map(|l| l.display_name.clone())
-                .unwrap_or_default(),
+                .unwrap_or_default();
+            let art = tables
+                .talent_tabs()
+                .iter()
+                .find(|tab| tab.class_mask & class_mask != 0 && tab.name == name);
+            let icon = art.map_or(0, |tab| tab.spell_icon_id);
+            TalentTab {
+                skill_line: line,
+                name,
+                talent_tab: art.map_or(0, |tab| tab.id),
+                icon,
+                icon_name: tables.icon_name(icon),
+                background: art
+                    .map(|tab| tab.background_file.clone())
+                    .filter(|file| !file.is_empty()),
+            }
         })
         .collect();
     let tab_of_group: BTreeMap<u32, u32> = tab_groups.values().copied().collect();
@@ -170,20 +191,26 @@ pub fn export_talents_with_report(
                 report.odd_gates.push((node.id, required));
             }
         }
-        talents.push(TalentSpec {
+        let spell = record(tables, definition.spell_id, None);
+        let mut talent = TalentSpec {
             node: node.id,
             spell: definition.spell_id,
-            name: tables
-                .spell_name(definition.spell_id)
-                .unwrap_or("")
-                .to_owned(),
+            name: spell.name.clone(),
             tab: *tab,
             tier,
             column,
             max_ranks: entry.max_ranks,
             requires: requires.first().copied(),
             rank_values,
-        });
+            icon: spell.icon,
+            icon_name: spell.icon_name.clone(),
+            descriptions: Vec::new(),
+        };
+        let lookup = |id| tables.spell_exists(id).then(|| record(tables, id, None));
+        talent.descriptions = (1..=talent.max_ranks)
+            .map(|rank| describe(&spell, &talent.values_at(rank), &lookup))
+            .collect();
+        talents.push(talent);
     }
     let order: BTreeMap<u32, usize> = tabs
         .iter()
