@@ -10,10 +10,22 @@ points_per_tier: 5
 tabs:
 - skill_line: 253
   name: Assassination
+  talent_tab: 182
+  icon: 132292
+  icon_name: ability_rogue_eviscerate
+  background: RogueAssassination
 - skill_line: 38
   name: Combat
+  talent_tab: 181
+  icon: 132090
+  icon_name: ability_backstab
+  background: RogueCombat
 - skill_line: 39
   name: Subtlety
+  talent_tab: 183
+  icon: 132320
+  icon_name: ability_stealth
+  background: RogueSubtlety
 talents:
 - node: 105742
   spell: 13741
@@ -24,6 +36,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [500.0, 1000.0, 1500.0]
+  icon: 132155
+  icon_name: ability_gouge
+  descriptions:
+  - Increases the duration of your Gouge ability by 0.5 sec.
+  - Increases the duration of your Gouge ability by 1 sec.
+  - Increases the duration of your Gouge ability by 1.5 sec.
 - node: 105723
   spell: 14144
   name: Remorseless Attacks
@@ -33,6 +51,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [20.0, 40.0]
+  icon: 132151
+  icon_name: ability_fiegndead
+  descriptions:
+  - After killing a non-trivial enemy, gives you a 20% increased critical strike chance on your next Sinister Strike, Backstab, Ambush, Mutilate, or Ghostly Strike. Lasts 20 sec.
+  - After killing a non-trivial enemy, gives you a 40% increased critical strike chance on your next Sinister Strike, Backstab, Ambush, Mutilate, or Ghostly Strike. Lasts 20 sec.
 - node: 105722
   spell: 14138
   name: Malice
@@ -42,6 +65,14 @@ talents:
   max_ranks: 5
   rank_values:
     0: [1.0, 2.0, 3.0, 4.0, 5.0]
+  icon: 132277
+  icon_name: ability_racial_bloodrage
+  descriptions:
+  - Increases your critical strike chance with all attacks and Poisons by 1%.
+  - Increases your critical strike chance with all attacks and Poisons by 2%.
+  - Increases your critical strike chance with all attacks and Poisons by 3%.
+  - Increases your critical strike chance with all attacks and Poisons by 4%.
+  - Increases your critical strike chance with all attacks and Poisons by 5%.
 - node: 105721
   spell: 14156
   name: Ruthlessness
@@ -51,6 +82,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [20.0, 40.0, 60.0]
+  icon: 132122
+  icon_name: ability_druid_disembowel
+  descriptions:
+  - Gives your finishing moves a 20% chance to add a Combo Point to your target.
+  - Gives your finishing moves a 40% chance to add a Combo Point to your target.
+  - Gives your finishing moves a 60% chance to add a Combo Point to your target.
 - node: 105720
   spell: 14158
   name: Murder
@@ -60,6 +97,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [2.0, 4.0]
+  icon: 136147
+  icon_name: spell_shadow_deathscream
+  descriptions:
+  - Increases all damage dealt by 2% against Humanoid and Giant targets.
+  - Increases all damage dealt by 4% against Humanoid and Giant targets.
 - node: 105739
   spell: 14165
   name: Improved Slice and Dice
@@ -69,6 +111,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [15.0, 30.0, 45.0]
+  icon: 132306
+  icon_name: ability_rogue_slicedice
+  descriptions:
+  - Increases the duration of your Slice and Dice ability by 15%.
+  - Increases the duration of your Slice and Dice ability by 30%.
+  - Increases the duration of your Slice and Dice ability by 45%.
 - node: 105759
   spell: 14179
   name: Relentless Strikes
@@ -78,6 +126,10 @@ talents:
   max_ranks: 1
   rank_values:
     0: [20.0]
+  icon: 132340
+  icon_name: ability_warrior_decisivestrike
+  descriptions:
+  - Your finishing moves have a 20% chance per Combo Point to restore 25 Energy.
 - node: 105717
   spell: 14168
   name: Improved Expose Armor
@@ -88,6 +140,11 @@ talents:
   rank_values:
     0: [-5.0, -10.0]
     1: [1.0, 2.0]
+  icon: 132354
+  icon_name: ability_warrior_riposte
+  descriptions:
+  - Reduces the Energy cost of your Expose Armor ability by 5, and refunds 1 Combo Point when cast with 5 Combo Points.
+  - Reduces the Energy cost of your Expose Armor ability by 10, and refunds 2 Combo Points when cast with 5 Combo Points.
 - node: 105716
   spell: 14128
   name: Lethality
@@ -98,6 +155,14 @@ talents:
   requires: 105722
   rank_values:
     0: [4.0, 8.0, 12.0, 16.0, 20.0]
+  icon: 132109
+  icon_name: ability_criticalstrike
+  descriptions:
+  - Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 4%.
+  - Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 8%.
+  - Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 12%.
+  - Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 16%.
+  - Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, Mutilate, Ghostly Strike, and Hemorrhage abilities by 20%.
 - node: 105714
   spell: 16513
   name: Vile Poisons
@@ -109,6 +174,14 @@ talents:
     0: [4.0, 8.0, 12.0, 16.0, 20.0]
     1: [4.0, 8.0, 12.0, 16.0, 20.0]
     2: [8.0, 16.0, 24.0, 32.0, 40.0]
+  icon: 132293
+  icon_name: ability_rogue_feigndeath
+  descriptions:
+  - Increases the damage dealt by your poisons by 4% and gives your poisons an additional 8% chance to resist dispel effects.
+  - Increases the damage dealt by your poisons by 8% and gives your poisons an additional 16% chance to resist dispel effects.
+  - Increases the damage dealt by your poisons by 12% and gives your poisons an additional 24% chance to resist dispel effects.
+  - Increases the damage dealt by your poisons by 16% and gives your poisons an additional 32% chance to resist dispel effects.
+  - Increases the damage dealt by your poisons by 20% and gives your poisons an additional 40% chance to resist dispel effects.
 - node: 105715
   spell: 14177
   name: Cold Blood
@@ -116,6 +189,10 @@ talents:
   tier: 3
   column: 1
   max_ranks: 1
+  icon: 135988
+  icon_name: spell_ice_lament
+  descriptions:
+  - When activated, increases the critical strike chance of your next Sinister Strike, Backstab, Ambush, Eviscerate, or Mutilate by 100%.
 - node: 105713
   spell: 14113
   name: Improved Poisons
@@ -126,6 +203,14 @@ talents:
   rank_values:
     0: [2.0, 4.0, 6.0, 8.0, 10.0]
     1: [10.0, 20.0, 30.0, 40.0, 50.0]
+  icon: 132273
+  icon_name: ability_poisons
+  descriptions:
+  - Increases the chance to apply Poisons to your target by 2%, and gives Poison applications a 10% chance to not consume a charge.
+  - Increases the chance to apply Poisons to your target by 4%, and gives Poison applications a 20% chance to not consume a charge.
+  - Increases the chance to apply Poisons to your target by 6%, and gives Poison applications a 30% chance to not consume a charge.
+  - Increases the chance to apply Poisons to your target by 8%, and gives Poison applications a 40% chance to not consume a charge.
+  - Increases the chance to apply Poisons to your target by 10%, and gives Poison applications a 50% chance to not consume a charge.
 - node: 105718
   spell: 14983
   name: Vigor
@@ -135,6 +220,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [5.0, 10.0]
+  icon: 136023
+  icon_name: spell_nature_earthbindtotem
+  descriptions:
+  - Increases your maximum Energy by 5.
+  - Increases your maximum Energy by 10.
 - node: 105709
   spell: 1310707
   name: Mutilate
@@ -142,6 +232,10 @@ talents:
   tier: 4
   column: 1
   max_ranks: 1
+  icon: 236270
+  icon_name: ability_rogue_deadlybrew
+  descriptions:
+  - Instantly attacks with both weapons for 75% weapon damage plus an additional 17.25 with each weapon. Damage increased by 20% against Poisoned targets. Awards 2 Combo Points.
 - node: 105711
   spell: 14174
   name: Improved Kidney Shot
@@ -151,6 +245,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [5.0, 10.0]
+  icon: 132298
+  icon_name: ability_rogue_kidneyshot
+  descriptions:
+  - Enemies Stunned by your Kidney Shot ability take 5% increased damage from your poisons and attacks.
+  - Enemies Stunned by your Kidney Shot ability take 10% increased damage from your poisons and attacks.
 - node: 105710
   spell: 14186
   name: Seal Fate
@@ -160,6 +259,14 @@ talents:
   max_ranks: 5
   rank_values:
     0: [20.0, 40.0, 60.0, 80.0, 100.0]
+  icon: 136130
+  icon_name: spell_shadow_chilltouch
+  descriptions:
+  - Your critical strikes from abilities that add Combo Points have a 20% chance to add an additional Combo Point.
+  - Your critical strikes from abilities that add Combo Points have a 40% chance to add an additional Combo Point.
+  - Your critical strikes from abilities that add Combo Points have a 60% chance to add an additional Combo Point.
+  - Your critical strikes from abilities that add Combo Points have a 80% chance to add an additional Combo Point.
+  - Your critical strikes from abilities that add Combo Points have a 100% chance to add an additional Combo Point.
 - node: 105712
   spell: 1310703
   name: Venom
@@ -168,6 +275,16 @@ talents:
   column: 1
   max_ranks: 1
   requires: 105709
+  icon: 135341
+  icon_name: inv_sword_31
+  descriptions:
+  - |-
+    Finishing move that increases the damage of your Poisons by 30% and your chance to apply Poisons by 10%. Lasts longer per combo point:
+       1 point  : 9 sec
+       2 points: 12 sec
+       3 points: 15 sec
+       4 points: 18 sec
+       5 points: 21 sec
 - node: 105708
   spell: 14162
   name: Improved Eviscerate
@@ -177,6 +294,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [7.0, 13.0, 20.0]
+  icon: 132292
+  icon_name: ability_rogue_eviscerate
+  descriptions:
+  - Increases the damage done by your Eviscerate ability by 7%.
+  - Increases the damage done by your Eviscerate ability by 13%.
+  - Increases the damage done by your Eviscerate ability by 20%.
 - node: 105741
   spell: 13732
   name: Improved Sinister Strike
@@ -186,6 +309,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [-3.0, -5.0]
+  icon: 136189
+  icon_name: spell_shadow_ritualofsacrifice
+  descriptions:
+  - Reduces the Energy cost of your Sinister Strike ability by 3.
+  - Reduces the Energy cost of your Sinister Strike ability by 5.
 - node: 113398
   spell: 13712
   name: Lightning Reflexes
@@ -195,6 +323,14 @@ talents:
   max_ranks: 5
   rank_values:
     0: [1.0, 2.0, 3.0, 4.0, 5.0]
+  icon: 136047
+  icon_name: spell_nature_invisibilty
+  descriptions:
+  - Increases your Dodge chance by 1%.
+  - Increases your Dodge chance by 2%.
+  - Increases your Dodge chance by 3%.
+  - Increases your Dodge chance by 4%.
+  - Increases your Dodge chance by 5%.
 - node: 105719
   spell: 1224716
   name: Puncturing Wounds
@@ -206,6 +342,12 @@ talents:
     0: [10.0, 20.0, 30.0]
     1: [15.0, 30.0, 45.0]
     2: [5.0, 10.0, 15.0]
+  icon: 132090
+  icon_name: ability_backstab
+  descriptions:
+  - Increases the critical strike chance of your Backstab by 10% and your Mutilate by 5%, and gives Backstab a 15% chance to add an additional Combo Point.
+  - Increases the critical strike chance of your Backstab by 20% and your Mutilate by 10%, and gives Backstab a 30% chance to add an additional Combo Point.
+  - Increases the critical strike chance of your Backstab by 30% and your Mutilate by 15%, and gives Backstab a 45% chance to add an additional Combo Point.
 - node: 105738
   spell: 13713
   name: Deflection
@@ -215,6 +357,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [2.0, 4.0, 6.0]
+  icon: 132269
+  icon_name: ability_parry
+  descriptions:
+  - Increases your Parry chance by 2%.
+  - Increases your Parry chance by 4%.
+  - Increases your Parry chance by 6%.
 - node: 105737
   spell: 13705
   name: Precision
@@ -225,6 +373,12 @@ talents:
   rank_values:
     0: [1.0, 2.0, 3.0]
     1: [1.0, 2.0, 3.0]
+  icon: 132222
+  icon_name: ability_marksmanship
+  descriptions:
+  - Improves your chance to hit by 1%.
+  - Improves your chance to hit by 2%.
+  - Improves your chance to hit by 3%.
 - node: 105736
   spell: 13742
   name: Endurance
@@ -234,6 +388,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [-30.0, -60.0]
+  icon: 136205
+  icon_name: spell_shadow_shadowward
+  descriptions:
+  - Reduces the cooldown of your Sprint and Evasion abilities by 30%.
+  - Reduces the cooldown of your Sprint and Evasion abilities by 60%.
 - node: 105735
   spell: 14251
   name: Riposte
@@ -242,6 +401,10 @@ talents:
   column: 1
   max_ranks: 1
   requires: 105738
+  icon: 132336
+  icon_name: ability_warrior_challange
+  descriptions:
+  - A strike that becomes active after parrying an opponent's attack.  This attack deals 150% weapon damage and disarms the target for $19718d.
 - node: 105732
   spell: 13743
   name: Improved Sprint
@@ -251,6 +414,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [50.0, 100.0]
+  icon: 132307
+  icon_name: ability_rogue_sprint
+  descriptions:
+  - Gives a 50% chance to remove all movement impairing effects when you activate your Sprint ability.
+  - Gives a 100% chance to remove all movement impairing effects when you activate your Sprint ability.
 - node: 105733
   spell: 13754
   name: Improved Kick
@@ -260,6 +428,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [50.0, 100.0]
+  icon: 132219
+  icon_name: ability_kick
+  descriptions:
+  - Gives your Kick ability a 50% chance to Silence the target for 2 sec.
+  - Gives your Kick ability a 100% chance to Silence the target for 2 sec.
 - node: 108100
   spell: 1310711
   name: Flawless Execution
@@ -267,6 +440,10 @@ talents:
   tier: 3
   column: 1
   max_ranks: 1
+  icon: 135345
+  icon_name: inv_sword_35
+  descriptions:
+  - Reduces the Energy cost of your Eviscerate ability by 10.
 - node: 105740
   spell: 13715
   name: Dual Wield Specialization
@@ -277,6 +454,14 @@ talents:
   requires: 105737
   rank_values:
     0: [5.0, 10.0, 15.0, 20.0, 25.0]
+  icon: 132147
+  icon_name: ability_dualwield
+  descriptions:
+  - Increases the damage done by your off-hand weapon by 5%.
+  - Increases the damage done by your off-hand weapon by 10%.
+  - Increases the damage done by your off-hand weapon by 15%.
+  - Increases the damage done by your off-hand weapon by 20%.
+  - Increases the damage done by your off-hand weapon by 25%.
 - node: 105728
   spell: 13877
   name: Blade Flurry
@@ -284,6 +469,10 @@ talents:
   tier: 4
   column: 1
   max_ranks: 1
+  icon: 132350
+  icon_name: ability_warrior_punishingblow
+  descriptions:
+  - Increases your melee attack speed by 20% and your melee attacks strike an additional nearby opponent. Lasts 15 sec.
 - node: 105727
   spell: 13960
   name: Hack and Slash
@@ -295,6 +484,14 @@ talents:
     0: [1.0, 2.0, 3.0, 4.0, 5.0]
     1: [3.0, 6.0, 9.0, 12.0, 15.0]
     2: [1.0, 2.0, 3.0, 4.0, 5.0]
+  icon: 135328
+  icon_name: inv_sword_27
+  descriptions:
+  - "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    |CFFFFFFFFAxe/Sword:|R Your successful\n    melee attacks have a 1% chance\n    to trigger an extra attack on the \n    target.\n\n    |CFFFFFFFFDagger/Fist:|R Increases your\n    critical strike chance by 1%.\n\n    |CFFFFFFFFMace:|R Your attacks ignore 3% of\n    your target's armor."
+  - "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    |CFFFFFFFFAxe/Sword:|R Your successful\n    melee attacks have a 2% chance\n    to trigger an extra attack on the \n    target.\n\n    |CFFFFFFFFDagger/Fist:|R Increases your\n    critical strike chance by 2%.\n\n    |CFFFFFFFFMace:|R Your attacks ignore 6% of\n    your target's armor."
+  - "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    |CFFFFFFFFAxe/Sword:|R Your successful\n    melee attacks have a 3% chance\n    to trigger an extra attack on the \n    target.\n\n    |CFFFFFFFFDagger/Fist:|R Increases your\n    critical strike chance by 3%.\n\n    |CFFFFFFFFMace:|R Your attacks ignore 9% of\n    your target's armor."
+  - "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    |CFFFFFFFFAxe/Sword:|R Your successful\n    melee attacks have a 4% chance\n    to trigger an extra attack on the \n    target.\n\n    |CFFFFFFFFDagger/Fist:|R Increases your\n    critical strike chance by 4%.\n\n    |CFFFFFFFFMace:|R Your attacks ignore 12% of\n    your target's armor."
+  - "Gives your melee weapon attacks a benefit depending on the weapon.\n\n    |CFFFFFFFFAxe/Sword:|R Your successful\n    melee attacks have a 5% chance\n    to trigger an extra attack on the \n    target.\n\n    |CFFFFFFFFDagger/Fist:|R Increases your\n    critical strike chance by 5%.\n\n    |CFFFFFFFFMace:|R Your attacks ignore 15% of\n    your target's armor."
 - node: 105726
   spell: 30919
   name: Weapon Expertise
@@ -305,6 +502,11 @@ talents:
   requires: 105728
   rank_values:
     0: [1.0, 2.0]
+  icon: 135882
+  icon_name: spell_holy_blessingofstrength
+  descriptions:
+  - Reduces the chance for your attacks to be Dodged or Parried by 1%.
+  - Reduces the chance for your attacks to be Dodged or Parried by 2%.
 - node: 105730
   spell: 18427
   name: Aggression
@@ -314,6 +516,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [2.0, 4.0, 6.0]
+  icon: 132275
+  icon_name: ability_racial_avatar
+  descriptions:
+  - Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 2%.
+  - Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 4%.
+  - Increases the damage of your Sinister Strike, Backstab, and Eviscerate abilities by 6%.
 - node: 105724
   spell: 13750
   name: Adrenaline Rush
@@ -321,6 +529,10 @@ talents:
   tier: 6
   column: 1
   max_ranks: 1
+  icon: 136206
+  icon_name: spell_shadow_shadowworddominate
+  descriptions:
+  - Increases your Energy regeneration rate by 100% for 15 sec.
 - node: 105756
   spell: 13975
   name: Camouflage
@@ -331,6 +543,14 @@ talents:
   rank_values:
     0: [3.0, 6.0, 9.0, 12.0, 15.0]
     1: [-2000.0, -3000.0, -4000.0, -5000.0, -6000.0]
+  icon: 132320
+  icon_name: ability_stealth
+  descriptions:
+  - Reduces your speed penalty from your Stealth ability by 3% and reduces its cooldown by 2 sec.
+  - Reduces your speed penalty from your Stealth ability by 6% and reduces its cooldown by 3 sec.
+  - Reduces your speed penalty from your Stealth ability by 9% and reduces its cooldown by 4 sec.
+  - Reduces your speed penalty from your Stealth ability by 12% and reduces its cooldown by 5 sec.
+  - Reduces your speed penalty from your Stealth ability by 15% and reduces its cooldown by 6 sec.
 - node: 105761
   spell: 13958
   name: Master of Deception
@@ -340,6 +560,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [5.0, 10.0, 15.0]
+  icon: 136129
+  icon_name: spell_shadow_charm
+  descriptions:
+  - Reduces the chance enemies have to detect you while in Stealth mode as if you were 1 level higher.
+  - Reduces the chance enemies have to detect you while in Stealth mode as if you were 2 levels higher.
+  - Reduces the chance enemies have to detect you while in Stealth mode as if you were 3 levels higher.
 - node: 105760
   spell: 14057
   name: Opportunity
@@ -350,6 +576,11 @@ talents:
   rank_values:
     0: [5.0, 10.0]
     1: [5.0, 10.0]
+  icon: 132366
+  icon_name: ability_warrior_warcry
+  descriptions:
+  - Increases the damage dealt by your Backstab, Garrote, Ambush, and Mutilate abilities by 5%.
+  - Increases the damage dealt by your Backstab, Garrote, Ambush, and Mutilate abilities by 10%.
 - node: 105751
   spell: 13983
   name: Setup
@@ -359,6 +590,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [33.0, 67.0, 100.0]
+  icon: 136056
+  icon_name: spell_nature_mirrorimage
+  descriptions:
+  - Gives you a 33% chance to add a Combo Point to your target after Dodging one of their attacks or fully resisting one of their spells.
+  - Gives you a 67% chance to add a Combo Point to your target after Dodging one of their attacks or fully resisting one of their spells.
+  - Gives you a 100% chance to add a Combo Point to your target after Dodging one of their attacks or fully resisting one of their spells.
 - node: 105753
   spell: 13981
   name: Elusiveness
@@ -368,6 +605,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [-45000.0, -90000.0]
+  icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
+  descriptions:
+  - Reduces the cooldown of your Vanish and Blind abilities by 45 sec.
+  - Reduces the cooldown of your Vanish and Blind abilities by 90 sec.
 - node: 105757
   spell: 1224782
   name: Dirty Tricks
@@ -377,6 +619,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [-25.0, -50.0]
+  icon: 132310
+  icon_name: ability_sap
+  descriptions:
+  - Reduces the Energy cost of your Sap and Blind abilities by 25%.
+  - Reduces the Energy cost of your Sap and Blind abilities by 50%.
 - node: 105749
   spell: 14079
   name: Improved Ambush
@@ -386,6 +633,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [15.0, 30.0, 45.0]
+  icon: 132282
+  icon_name: ability_rogue_ambush
+  descriptions:
+  - Increases the critical strike chance of your Ambush ability by 15%.
+  - Increases the critical strike chance of your Ambush ability by 30%.
+  - Increases the critical strike chance of your Ambush ability by 45%.
 - node: 105755
   spell: 13976
   name: Initiative
@@ -395,6 +648,12 @@ talents:
   max_ranks: 3
   rank_values:
     0: [33.0, 67.0, 100.0]
+  icon: 136159
+  icon_name: spell_shadow_fumble
+  descriptions:
+  - Gives you a 33% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability.
+  - Gives you a 67% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability.
+  - Gives you a 100% chance to add an additional combo point to your target when using your Ambush, Garrote, or Cheap Shot ability.
 - node: 105754
   spell: 14278
   name: Ghostly Strike
@@ -402,6 +661,10 @@ talents:
   tier: 2
   column: 1
   max_ranks: 1
+  icon: 136136
+  icon_name: spell_shadow_curse
+  descriptions:
+  - A strike that deals 125% (180% if a Dagger is equipped in your Main Hand) weapon damage and increases your chance to dodge by 15% for 7 sec.  Awards 1 combo point.
 - node: 110868
   spell: 14084
   name: Improved Distract
@@ -412,6 +675,11 @@ talents:
   rank_values:
     0: [3.0, 5.0]
     1: [-5.0, -10.0]
+  icon: 132289
+  icon_name: ability_rogue_distract
+  descriptions:
+  - Increases the radius of your Distract ability by 3 yds, and further reduces the Stealth detection of distracted enemies as though they were an additional 1 level lower.
+  - Increases the radius of your Distract ability by 5 yds, and further reduces the Stealth detection of distracted enemies as though they were an additional 2 levels lower.
 - node: 105747
   spell: 30894
   name: Heightened Senses
@@ -423,6 +691,11 @@ talents:
     0: [5.0, 15.0]
     1: [-2.0, -4.0]
     2: [-2.0, -4.0]
+  icon: 132089
+  icon_name: ability_ambush
+  descriptions:
+  - Increases your Stealth detection as if you were 1 level higher and reduces your chance to be hit by spells and ranged attacks by 2%.
+  - Increases your Stealth detection as if you were 3 levels higher and reduces your chance to be hit by spells and ranged attacks by 4%.
 - node: 105743
   spell: 14183
   name: Premeditation
@@ -430,6 +703,10 @@ talents:
   tier: 3
   column: 1
   max_ranks: 1
+  icon: 136183
+  icon_name: spell_shadow_possession
+  descriptions:
+  - Adds 2 Combo Points to your target. You must add to or use those combo points within 20 sec or the combo points are lost.
 - node: 105752
   spell: 14171
   name: Serrated Blades
@@ -440,6 +717,12 @@ talents:
   rank_values:
     0: [3.0, 6.0, 9.0]
     1: [10.0, 20.0, 30.0]
+  icon: 135315
+  icon_name: inv_sword_17
+  descriptions:
+  - Causes your attacks to ignore 3% of your target's Armor and increases the damage dealt by your Rupture ability by 10%.
+  - Causes your attacks to ignore 6% of your target's Armor and increases the damage dealt by your Rupture ability by 20%.
+  - Causes your attacks to ignore 9% of your target's Armor and increases the damage dealt by your Rupture ability by 30%.
 - node: 105745
   spell: 14082
   name: Dirty Deeds
@@ -449,6 +732,11 @@ talents:
   max_ranks: 2
   rank_values:
     0: [-10.0, -20.0]
+  icon: 136220
+  icon_name: spell_shadow_summonsuccubus
+  descriptions:
+  - Reduces the Energy cost of your Cheap Shot and Garrote abilities by 10, and your Garrote ability no longer requires you to be behind your target.
+  - Reduces the Energy cost of your Cheap Shot and Garrote abilities by 20, and your Garrote ability no longer requires you to be behind your target.
 - node: 105746
   spell: 14185
   name: Preparation
@@ -456,6 +744,10 @@ talents:
   tier: 4
   column: 1
   max_ranks: 1
+  icon: 136121
+  icon_name: spell_shadow_antishadow
+  descriptions:
+  - When activated, this ability immediately finishes the cooldown on your other Rogue abilities.
 - node: 105748
   spell: 16511
   name: Hemorrhage
@@ -464,6 +756,10 @@ talents:
   column: 2
   max_ranks: 1
   requires: 105752
+  icon: 136168
+  icon_name: spell_shadow_lifedrain
+  descriptions:
+  - An instant strike that deals 100% weapon damage (145% if a Dagger is equipped) and causes the target to take 15% increased Rupture damage from the Rogue. Lasts 15 sec. Awards 1 Combo Point.
 - node: 110867
   spell: 1310728
   name: Quietus
@@ -474,6 +770,14 @@ talents:
   requires: 105745
   rank_values:
     0: [2.0, 4.0, 6.0, 8.0, 10.0]
+  icon: 132297
+  icon_name: ability_rogue_garrote
+  descriptions:
+  - Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 2% more damage against targets below 35% health.
+  - Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 4% more damage against targets below 35% health.
+  - Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 6% more damage against targets below 35% health.
+  - Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 8% more damage against targets below 35% health.
+  - Your Sinister Strike, Ghostly Strike, and Hemorrhage abilities cause 10% more damage against targets below 35% health.
 - node: 105750
   spell: 462708
   name: Cutthroat
@@ -483,6 +787,14 @@ talents:
   max_ranks: 5
   rank_values:
     0: [3.0, 6.0, 9.0, 12.0, 15.0]
+  icon: 626005
+  icon_name: classicon_rogue
+  descriptions:
+  - Your Backstab has a 3% chance to cause your next Ambush within 10 sec to not require Stealth.
+  - Your Backstab has a 6% chance to cause your next Ambush within 10 sec to not require Stealth.
+  - Your Backstab has a 9% chance to cause your next Ambush within 10 sec to not require Stealth.
+  - Your Backstab has a 12% chance to cause your next Ambush within 10 sec to not require Stealth.
+  - Your Backstab has a 15% chance to cause your next Ambush within 10 sec to not require Stealth.
 - node: 110866
   spell: 1310721
   name: Thousand Cuts
@@ -493,3 +805,7 @@ talents:
   requires: 105746
   rank_values:
     0: [3.0]
+  icon: 132302
+  icon_name: ability_rogue_rupture
+  descriptions:
+  - When your Rupture ability deals periodic damage, the Energy cost of your next Hemorrhage or Backstab ability within 10 sec is reduced by 3, stacking up to 5 times.

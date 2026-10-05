@@ -69,6 +69,7 @@ pub struct Tables {
     abilities_by_spell: HashMap<u32, Vec<usize>>,
     skill_race_class_info: Vec<SkillRaceClassInfoRow>,
     skill_line_x_trait_tree: Vec<SkillLineXTraitTreeRow>,
+    talent_tabs: Vec<TalentTabRow>,
 
     trait_trees: HashMap<u32, TraitTreeRow>,
     trait_nodes: HashMap<u32, TraitNodeRow>,
@@ -379,6 +380,7 @@ impl Tables {
             abilities_by_spell,
             skill_race_class_info: dir.read()?,
             skill_line_x_trait_tree: dir.read()?,
+            talent_tabs: dir.read()?,
 
             trait_trees: by_key(dir.read::<TraitTreeRow>()?, |r| r.id),
             trait_nodes,
@@ -639,6 +641,11 @@ impl Tables {
     /// Every `SkillLineXTraitTree` row.
     pub fn skill_line_x_trait_tree(&self) -> &[SkillLineXTraitTreeRow] {
         &self.skill_line_x_trait_tree
+    }
+
+    /// Every `TalentTab` row.
+    pub fn talent_tabs(&self) -> &[TalentTabRow] {
+        &self.talent_tabs
     }
 
     // ----- Trait* --------------------------------------------------------------------------

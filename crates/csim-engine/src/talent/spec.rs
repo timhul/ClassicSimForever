@@ -31,6 +31,23 @@ pub struct TalentTab {
     pub skill_line: u32,
     /// `SkillLine.DisplayName_lang`.
     pub name: String,
+    /// `TalentTab.ID` of the tab's art (0 = none): Wowhead serves its background by it.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub talent_tab: u32,
+    /// `TalentTab.SpellIconID`: the icon's `FileDataID` (0 = none) and its texture name (see
+    /// [`SpellRecord::icon_name`](crate::spell::SpellRecord)).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub icon: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
+    /// `TalentTab.BackgroundFile`: the tab's art, `Interface/TalentFrame/<background>-TopLeft`
+    /// and its three other quarters.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub background: Option<String>,
+}
+
+fn is_zero(value: &u32) -> bool {
+    *value == 0
 }
 
 /// One talent (`TraitNode` → `TraitNodeEntry` → `TraitDefinition`).
@@ -60,6 +77,15 @@ pub struct TalentSpec {
     /// base points at rank `r`. Effects without an entry keep their table value at every rank.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub rank_values: BTreeMap<u32, Vec<f64>>,
+    /// The talent spell's icon (as [`TalentTab::icon`]).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub icon: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
+    /// The spell's description at each rank, its values resolved
+    /// ([`describe`](crate::spell::description::describe)): `descriptions[r − 1]` is rank `r`'s.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub descriptions: Vec<String>,
 }
 
 impl TalentSpec {

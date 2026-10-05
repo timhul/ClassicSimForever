@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod auto_attack;
 pub mod dbc;
+pub mod description;
 pub mod modifiers;
 pub mod overrides;
 pub mod periodic;

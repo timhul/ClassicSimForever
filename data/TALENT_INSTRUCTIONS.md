@@ -322,8 +322,10 @@ exporter (§1.10 of `SPELL_INSTRUCTIONS.md`).
 `csim-tables export-talents --class warrior` writes the walk above to `data/talents/warrior.yaml`
 (schema: `crates/csim-engine/src/talent/spec.rs`): the build, class, `TraitTree.ID`, the points
 (`TraitCurrency.SourcedMax`), the points per tier (the tier-1 gate of `TraitCond`), the tabs
-(`TraitNodeGroupDisplayInfo` in `OrderIndex` order with the skill line's name) and one entry
-per node:
+(`TraitNodeGroupDisplayInfo` in `OrderIndex` order with the skill line's name, and for the live
+viewer's talent calculator the `TalentTab` row of that name and class: its ID, by which Wowhead
+serves the tab's art (`images/wow/talents/backgrounds/classic/<ID>.jpg`), its icon and the
+`BackgroundFile` texture name) and one entry per node:
 
 ```yaml
 - node: 105950          # TraitNode.ID
@@ -336,7 +338,15 @@ per node:
   requires: 105956      # TraitEdge left node (Improved Rend), absent when none
   rank_values:          # TraitDefinitionEffectPoints → CurvePoint, per EffectIndex, one per rank
     0: [20.0, 40.0, 60.0]
+  icon: 132090          # SpellMisc.SpellIconFileDataID, and its listfile name
+  icon_name: ability_backstab
+  descriptions:         # Spell.Description_lang at each rank, its $ tokens resolved
+  - Your critical strikes cause your opponent to Bleed, dealing 20% of ...
 ```
+
+The descriptions are resolved at export time (`csim_engine::spell::description`) from the
+tables, not from `data/spells/`: the spell export prunes some talent spells (Piercing Howl, Iron
+Will) and descriptions name other spells (`$12964m1`). A token it cannot resolve stays as written.
 
 The tier rule (`points_per_tier × tier` points in the tab) and the prerequisite are the whole
 gating model; the `TraitCond` rows are only checked against it at export time. The runtime

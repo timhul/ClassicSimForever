@@ -439,6 +439,9 @@ mod tests {
                     max_ranks: 5,
                     requires: None,
                     rank_values: Default::default(),
+                    icon: 0,
+                    icon_name: None,
+                    descriptions: Vec::new(),
                 });
             }
         }
