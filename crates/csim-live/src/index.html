@@ -131,11 +131,11 @@
   }
   #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
   #edit-keybinds:not(:disabled), #equipment:not(:disabled), #talents:not(:disabled),
-  #buffs:not(:disabled) {
+  #externals:not(:disabled) {
     border-color: var(--accent); color: var(--accent); font-weight: 600;
   }
   #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled),
-  #talents:hover:not(:disabled), #buffs:hover:not(:disabled) {
+  #talents:hover:not(:disabled), #externals:hover:not(:disabled) {
     background: rgb(224 176 74 / 0.12);
   }
   #clock {
@@ -1150,7 +1150,7 @@
     <button id="reseed" type="button">New seed</button>
     <button id="talents" type="button" disabled>Talents</button>
     <button id="equipment" type="button" disabled>Equipment</button>
-    <button id="buffs" type="button" disabled>Buffs &amp; Debuffs</button>
+    <button id="externals" type="button" disabled>Buffs &amp; Debuffs</button>
     <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
     <button id="play" type="button">Play</button>
   </div>
@@ -1392,7 +1392,7 @@ async function begin(next) {
   $("edit-keybinds").disabled = false;
   $("equipment").disabled = false;
   $("talents").disabled = false;
-  $("buffs").disabled = false;
+  $("externals").disabled = false;
   gearChanges = info.gear.changes;
   talentCode = info.talents_code;
   externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
@@ -2856,7 +2856,7 @@ function loadExternals(changes) {
   });
 }
 
-$("buffs").addEventListener("click", openBuffs);
+$("externals").addEventListener("click", openBuffs);
 $("buffs-close").addEventListener("click", () => $("buffs-view").close());
 $("buffs-reset").addEventListener("click", () => loadExternals({ buffs: null, debuffs: null }));
 $("buffs-view").addEventListener("click", (event) => {

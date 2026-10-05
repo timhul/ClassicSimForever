@@ -751,10 +751,11 @@ fn the_target_debuffs_are_the_sims_and_the_setups() {
         .advance(20.0)
         .state;
     let names: Vec<&str> = state.debuffs.iter().map(|d| d.name.as_str()).collect();
-    assert_eq!(names, ["Deep Wound", "Sunder Armor", "Faerie Fire"]);
-    let deep_wound = &state.debuffs[0];
-    assert!(deep_wound.expires_at.unwrap() > 20.0);
-    let sunder = &state.debuffs[1];
+    assert_eq!(names, ["Rend", "Deep Wound", "Sunder Armor", "Faerie Fire"]);
+    let debuff = |name: &str| state.debuffs.iter().find(|d| d.name == name).unwrap();
+    assert!(debuff("Rend").expires_at.unwrap() > 20.0);
+    assert!(debuff("Deep Wound").expires_at.unwrap() > 20.0);
+    let sunder = debuff("Sunder Armor");
     assert_eq!(
         (sunder.stacks, sunder.expires_at),
         (5, None),
