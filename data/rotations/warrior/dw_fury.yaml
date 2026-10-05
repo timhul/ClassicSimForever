@@ -13,8 +13,6 @@ cast_if:
   - name: Berserker Stance
   - name: Bloodrage
     condition: resource "Rage" less 70
-  - name: Berserker Rage
-    condition: resource "Rage" less 50
   - name: Battle Shout
     condition: |
       buff_duration "Battle Shout" less 3
@@ -87,3 +85,8 @@ cast_if:
       and variable "time_remaining_execute" greater 0
       and variable "combo_points" eq 0
       and buff_duration "Eureka!" is false
+  - name: Berserker Rage
+    condition: |
+      resource "Rage" less 50
+      and spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
