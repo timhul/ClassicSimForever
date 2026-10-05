@@ -83,7 +83,6 @@ cast_if:
       and spell "Whirlwind" greater 1.5
       and resource "Rage" greater 35
       and variable "time_remaining_execute" greater 0
-      and variable "combo_points" eq 0
       and buff_duration "Eureka!" is false
   - name: Berserker Rage
     condition: |
