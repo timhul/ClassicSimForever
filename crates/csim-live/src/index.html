@@ -52,7 +52,8 @@
   #totals { font-variant-numeric: tabular-nums; }
   #build { color: var(--muted); font-size: 12px; margin-left: 8px; font-weight: 400; }
   #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
-  /* Three groups: the playback options, Play and Edit keybinds in the middle, the clock. */
+  /* Two groups: the playback options (ending with Talents, Equipment, Edit keybinds and Play),
+     the clock. */
   #controls {
     display: flex;
     flex-wrap: wrap;
@@ -61,7 +62,8 @@
     margin: 12px 0 8px;
   }
   #controls .group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-  #controls .options, #controls .time { flex: 1 1 0; }
+  #controls .options { flex: 1 1 auto; }
+  #controls .time { flex: 1 1 0; }
   #controls .time { justify-content: flex-end; }
   #setup-bar {
     display: flex;
@@ -1064,12 +1066,10 @@
     <button id="step-cast" type="button">Step to cast</button>
     <button id="restart" type="button">Restart</button>
     <button id="reseed" type="button">New seed</button>
-  </div>
-  <div class="group">
-    <button id="play" type="button">Play</button>
-    <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
-    <button id="equipment" type="button" disabled>Equipment</button>
     <button id="talents" type="button" disabled>Talents</button>
+    <button id="equipment" type="button" disabled>Equipment</button>
+    <button id="edit-keybinds" type="button" disabled>Edit keybinds</button>
+    <button id="play" type="button">Play</button>
   </div>
   <div class="group time">
     <span id="last-event"></span>
