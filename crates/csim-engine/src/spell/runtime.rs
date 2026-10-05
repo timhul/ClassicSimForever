@@ -201,14 +201,9 @@ pub trait SpellHost: EffectHost {
         false
     }
     fn total_threat_mod(&self) -> f64;
-    /// Average base damage of the weapon in `hand`, without attack power (Deep Wounds bleeds
-    /// for a share of it).
-    fn avg_weapon_damage(&self, hand: Hand) -> f64;
-    /// The hand of the hit whose procs are being checked: a proc's payload acts for that
-    /// weapon (Deep Wounds). The main hand outside a proc check.
-    fn proc_hand(&self) -> Hand {
-        Hand::Mainhand
-    }
+    /// Average base mainhand damage, without attack power (Deep Wounds bleeds for a share of it,
+    /// off-hand crits too).
+    fn avg_mh_weapon_damage(&self) -> f64;
 
     /// Whether ability `spell` also strikes with the off hand now: an `OFFHAND_COPY` aura
     /// names it and the character is dual wielding.

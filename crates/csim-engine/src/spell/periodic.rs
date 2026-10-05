@@ -16,10 +16,10 @@ use crate::effect::{Effect, EffectHost};
 use crate::engine::EventKind;
 use crate::ids::SpellId;
 use crate::resource::ResourceType;
+use crate::spell::SpellHost;
 use crate::spell::dbc::AuraType;
 use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::EffectRecord;
-use crate::spell::{Hand, SpellHost};
 
 /// The tick period of an aura effect in milliseconds, if it ticks: a periodic aura's
 /// `EffectAuraPeriod`, or the `period_ms` of a `PERIODIC_RESOURCE_GAIN` script on a `DUMMY`
@@ -52,9 +52,8 @@ pub enum PeriodicKind {
     /// damage modifier) on each of `ticks` ticks; a refresh re-arms the full count (Rend) and
     /// may add a stack (Deadly Poison).
     Damage { per_tick: f64, ticks: u32 },
-    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base damage of the weapon that crit (the
-    /// off hand's with the off-hand penalty) plus `ap_percent` % of the attack power, as of the
-    /// crit, per application, dealt in `ticks_per_application` ticks, times the damage done
+    /// `DEEP_WOUNDS_BLEED`: `percent` % of the average base main-hand weapon damage (an off-hand
+    /// crit's too) plus `ap_percent` % of the attack power, as of the crit, per application, dealt in `ticks_per_application` ticks, times the damage done
     /// modifiers of each tick. An application while the bleed runs adds its damage to what the
     /// bleed has left and spreads the pool over a fresh `ticks_per_application` ticks
     /// (on the running tick chain); the rounding remainder is carried between ticks. Port of
@@ -264,11 +263,7 @@ impl Periodic {
                 ap_percent,
                 ticks_per_application,
             } => {
-                let hand = host.proc_hand();
-                let mut weapon = host.avg_weapon_damage(hand);
-                if hand == Hand::Offhand {
-                    weapon *= host.offhand_penalty();
-                }
+                let weapon = host.avg_mh_weapon_damage();
                 let ap = f64::from(host.melee_ap());
                 let damage = weapon * percent / 100.0 + ap * ap_percent / 100.0;
                 self.add_bleed(damage, ticks_per_application);

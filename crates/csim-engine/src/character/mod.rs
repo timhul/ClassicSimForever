@@ -219,8 +219,6 @@ pub struct Character {
     resources_on_use: Vec<(u32, ResourceType, u32)>,
     /// Extra main-hand attacks granted by `ADD_EXTRA_ATTACKS` and not yet performed.
     pending_extra_attacks: u32,
-    /// The hand of the hit whose procs are being checked (Deep Wounds bleeds for its weapon).
-    proc_hand: Hand,
     regen_reactions: RegenReactions,
     /// The scheduled reaction to energy regeneration, if any.
     regen_wake: Option<f64>,
@@ -321,7 +319,6 @@ impl Character {
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
             pending_extra_attacks: 0,
-            proc_hand: Hand::Mainhand,
             regen_reactions: RegenReactions::default(),
             regen_wake: None,
             regen_wake_id: 0,
@@ -903,15 +900,6 @@ impl Character {
         self.pending_extra_attacks += count;
     }
 
-    /// The hand of the hit whose procs are being checked (the main hand outside a check).
-    pub fn proc_hand(&self) -> Hand {
-        self.proc_hand
-    }
-
-    pub(crate) fn set_proc_hand(&mut self, hand: Hand) {
-        self.proc_hand = hand;
-    }
-
     pub(crate) fn take_extra_attack(&mut self) -> bool {
         if self.pending_extra_attacks == 0 {
             return false;
@@ -1317,7 +1305,7 @@ impl Character {
     }
 
     /// Average base mainhand damage: the weapon's damage range plus flat weapon damage bonuses,
-    /// without attack power (1 unarmed). Deep Wounds bleeds for a share of it.
+    /// without attack power (1 unarmed). Deep Wounds bleeds for a share of it, off-hand crits too.
     pub fn avg_mh_weapon_damage(&self, target: &TargetStatView) -> f64 {
         let Some(weapon) = self.equipment.mainhand() else {
             return 1.0;
@@ -1325,19 +1313,6 @@ impl Character {
         let ctx = self.stat_context(target);
         (f64::from(weapon.min_dmg() + weapon.max_dmg())
             + f64::from(self.stats.get_mh_weapon_damage_bonus(&ctx)))
-            / 2.0
-    }
-
-    /// Average base offhand damage: the weapon's damage range plus flat weapon damage bonuses,
-    /// without attack power or the off-hand penalty (0 without an off-hand weapon). Deep Wounds
-    /// from an off-hand crit bleeds for a share of it.
-    pub fn avg_oh_weapon_damage(&self, target: &TargetStatView) -> f64 {
-        let Some(weapon) = self.equipment.offhand() else {
-            return 0.0;
-        };
-        let ctx = self.stat_context(target);
-        (f64::from(weapon.min_dmg() + weapon.max_dmg())
-            + f64::from(self.stats.get_oh_weapon_damage_bonus(&ctx)))
             / 2.0
     }
 

@@ -334,38 +334,36 @@ fn damage_after_crits_of(hands: &[Hand], dual_wield_specialization: u32) -> u64 
     deep_wounds_damage(&mut test)
 }
 
-/// An off-hand crit bleeds for 60 % of the off-hand weapon's 50 average damage, halved by the
-/// off-hand penalty, plus the full 2 % of the attack power: 15 + 20.
+/// An off-hand crit bleeds for 60 % of the main hand's 100 average damage, not the off hand's
+/// 50, plus 2 % of the attack power: 60 + 20.
 #[test]
-fn offhand_crit_bleeds_for_the_offhand_weapon_damage() {
-    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 0), 35);
+fn offhand_crit_bleeds_for_the_mainhand_weapon_damage() {
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 0), 80);
 }
 
-/// Dual Wield Specialization raises the off-hand penalty to 62.5 %: 50 * 0.625 * 0.6 + 20 =
-/// 38.75.
+/// The off-hand penalty plays no part: Dual Wield Specialization leaves the bleed as it is.
 #[test]
-fn dual_wield_specialization_raises_the_offhand_bleed() {
-    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 5), 39);
+fn dual_wield_specialization_does_not_change_the_offhand_bleed() {
+    assert_eq!(damage_after_crits_of(&[Hand::Offhand], 5), 80);
 }
 
-/// Each crit adds its own weapon's share to the pool: 80 + 35.
+/// Each crit adds the main hand's share to the pool, whichever hand crit: 80 + 80.
 #[test]
-fn mainhand_and_offhand_crits_pool_their_own_weapon_damage() {
+fn mainhand_and_offhand_crits_pool_the_mainhand_weapon_damage() {
     assert_eq!(
         damage_after_crits_of(&[Hand::Mainhand, Hand::Offhand], 0),
-        115
+        160
     );
     assert_eq!(
         damage_after_crits_of(&[Hand::Offhand, Hand::Mainhand], 0),
-        115
+        160
     );
 }
 
-/// A critical Whirlwind with Raging Blows' off-hand strike: the main-hand crit adds 60 % of the
-/// main hand's 100, the off-hand strike's crit 60 % of half the off hand's 50, each plus 2 % of
-/// the 1000 attack power.
+/// A critical Whirlwind with Raging Blows' off-hand strike: both crits add 60 % of the main
+/// hand's 100, each plus 2 % of the 1000 attack power.
 #[test]
-fn offhand_strike_crit_bleeds_for_the_offhand_weapon_damage() {
+fn offhand_strike_crit_bleeds_for_the_mainhand_weapon_damage() {
     let mut test = test();
     test.given_a_mainhand_weapon_with_100_min_max_dmg();
     test.given_an_offhand_weapon_with_50_min_max_dmg();
@@ -378,7 +376,7 @@ fn offhand_strike_crit_bleeds_for_the_offhand_weapon_damage() {
         report.offhand.is_some(),
         "Whirlwind strikes with the off hand"
     );
-    assert_eq!(deep_wounds_damage(&mut test), 115);
+    assert_eq!(deep_wounds_damage(&mut test), 160);
 }
 
 /// Death Wish's 20 % applies to the bleed once: 60 % of the 100 average weapon damage plus 2 %
