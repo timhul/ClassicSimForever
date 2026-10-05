@@ -8,6 +8,9 @@
 //!   ([`Catalog`](crate::app::Catalog)).
 //! - `POST /api/load {"setup": "warrior_fury_dw_orc", ...}`: loads a session
 //!   ([`LoadRequest`]); its info, as `api/info`.
+//! - `POST /api/talents/edit {"class": "WARRIOR", "ranks": {node: rank}, "op": "increment",
+//!   "node": n}`: a click in the talent calculator ([`EditRequest`]); the new
+//!   [`State`](crate::talents::State).
 //!
 //! The others answer 409 until a session is loaded:
 //!
@@ -15,6 +18,8 @@
 //!   its setup and keybinds ([`Loaded`](crate::app::Loaded)).
 //! - `GET /api/items`: the items the character can wear
 //!   ([`ItemEntry`](crate::sheet::ItemEntry)s, by id).
+//! - `GET /api/talents`: the character's talent tree ([`Layout`]) and the ranks it has
+//!   (`state`, a [`State`]).
 //! - `POST /api/advance {"to": t}`: runs the iteration up to sim time `t`; a frame.
 //! - `POST /api/step {"kind": "event" | "cast"}`: runs one event, or up to the next cast; a
 //!   frame.
@@ -32,6 +37,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::{App, LoadRequest};
 use crate::session::Session;
+use crate::talents::{EditRequest, Layout, State, edit};
 
 /// The page.
 pub const PAGE: &str = include_str!("index.html");
@@ -119,9 +125,10 @@ pub fn icon_dir(dir: &Path) -> impl Fn(u32) -> Option<Vec<u8>> + use<> {
 }
 
 /// The endpoints that need a loaded session.
-const SESSION_PATHS: [&str; 6] = [
+const SESSION_PATHS: [&str; 7] = [
     "/api/info",
     "/api/items",
+    "/api/talents",
     "/api/advance",
     "/api/step",
     "/api/restart",
@@ -163,6 +170,23 @@ pub fn route(
             Some(session) => Reply::json(&session.items()),
             None => no_session(),
         },
+        ("GET", "/api/talents") => match app.session() {
+            Some(session) => match session.talents() {
+                Some(talents) => Reply::json(&Talents {
+                    layout: Layout::of(talents.file()),
+                    state: State::of(talents),
+                }),
+                None => Reply::error(404, "the character's class has no talent tree"),
+            },
+            None => no_session(),
+        },
+        ("POST", "/api/talents/edit") => match serde_json::from_str::<EditRequest>(body) {
+            Ok(request) => match edit(app.data(), &request) {
+                Ok(state) => Reply::json(&state),
+                Err(error) => Reply::error(400, error),
+            },
+            Err(error) => Reply::error(400, error.to_string()),
+        },
         ("POST", "/api/advance" | "/api/step" | "/api/restart" | "/api/cast") => {
             let Some(session) = app.session_mut() else {
                 return no_session();
@@ -178,7 +202,7 @@ pub fn route(
             }
             session_route(session, path, body)
         }
-        (_, "/" | "/web.js" | "/api/catalog" | "/api/load") => {
+        (_, "/" | "/web.js" | "/api/catalog" | "/api/load" | "/api/talents/edit") => {
             Reply::error(405, format!("{method} not allowed on {path}"))
         }
         (_, path) if SESSION_PATHS.contains(&path) => {
@@ -186,6 +210,14 @@ pub fn route(
         }
         _ => Reply::error(404, format!("no {path}")),
     }
+}
+
+/// The answer of `api/talents`.
+#[derive(Serialize)]
+struct Talents {
+    #[serde(flatten)]
+    layout: Layout,
+    state: State,
 }
 
 /// The answer of a session endpoint before a load.
