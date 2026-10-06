@@ -30,15 +30,42 @@
     color: var(--text);
     font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  header, #setup-bar, #controls, main, footer { padding: 0 16px; }
+  header, #setup-bar, #controls, main, #sim-view, footer { padding: 0 16px; }
   header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: 8px 24px;
-    padding-top: 14px;
+    padding-top: 6px;
   }
+  /* The two views share the header, the dialogs and the status; the rest is one view's. */
+  body[data-view="sim"] .live-only, body:not([data-view="sim"]) .sim-only {
+    display: none !important;
+  }
+  #views {
+    flex-basis: 100%;
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  #views [role="tab"] {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  #views [role="tab"]:hover { color: var(--text); }
+  #views [role="tab"][aria-selected="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  #views [role="tab"]:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+  #sim-view { margin-top: 12px; color: var(--muted); }
   h1 { font-size: 20px; margin: 0; font-weight: 600; }
   h2 {
     font-size: 12px;
@@ -968,14 +995,20 @@
 </head>
 <body>
 <header>
+  <nav id="views" role="tablist" aria-label="View">
+    <button id="tab-live" type="button" role="tab" aria-selected="true" aria-controls="live-panes"
+      title="Watch one iteration unfold">Live</button>
+    <button id="tab-sim" type="button" role="tab" aria-selected="false" aria-controls="sim-view"
+      title="Simulate many iterations, as csim run does">Sim</button>
+  </nav>
   <div>
     <h1><span id="name">csim-live</span><span id="build"></span></h1>
     <div id="sub"></div>
   </div>
-  <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
+  <div id="totals" class="live-only"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
 </header>
 
-<form id="setup-bar" autocomplete="off">
+<form id="setup-bar" class="live-only" autocomplete="off">
   <select id="setup-select" aria-label="Character setup"></select>
   <select id="mode-select" aria-label="Played by"></select>
   <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
@@ -1132,7 +1165,7 @@
   </div>
 </dialog>
 
-<div id="controls">
+<div id="controls" class="live-only">
   <div class="group options">
     <select id="speed" aria-label="Speed">
       <option value="0.1">0.1×</option>
@@ -1159,9 +1192,9 @@
     <span id="clock">0:00.000</span>
   </div>
 </div>
-<div id="timeline"><div id="timeline-fill"></div></div>
+<div id="timeline" class="live-only"><div id="timeline-fill"></div></div>
 
-<main>
+<main id="live-panes" class="live-only" role="tabpanel" aria-labelledby="tab-live">
   <section id="feed-panel" class="panel">
     <h2>Damage & Proc History</h2>
     <ol id="feed"></ol>
@@ -1260,6 +1293,10 @@
     <ol id="decisions"></ol>
   </section>
 </main>
+
+<section id="sim-view" class="sim-only" role="tabpanel" aria-labelledby="tab-sim">
+  <p>The Sim view: many iterations of the loaded setup, as <code>csim run</code> reports them.</p>
+</section>
 <footer id="status" role="status"></footer>
 
 <!-- The browser build's server side (csim-web): it sets `csimReady` and `csimTransport`. The
@@ -1302,6 +1339,10 @@ const expanded = new Set();
 let breakdownAt = 0;
 
 let info = null;     // the iteration (seed as a string)
+/** The view shown: "live" (one iteration, watched) or "sim" (many, as `csim run`). */
+let view = "live";
+/** The Live view has not shown `info` yet (it was loaded while the Sim view was shown). */
+let liveStale = false;
 let frame = null;    // the latest frame from the server
 let simTime = 0;     // the sim time shown; runs ahead of `frame` while playing
 let playing = false;
@@ -1363,19 +1404,67 @@ function load(request) {
   return enqueue(async () => begin(await api("POST", "api/load", request)));
 }
 
-/** Shows the iteration `next` (the info of a load or a restart) from its start. */
+/**
+ * Takes the loaded session `next` (the info of a load or a restart): what both views show (the
+ * header, the setup bars, the dialogs, the address), then the Live view its iteration from the
+ * start, now when it is shown, else when it is next shown.
+ */
 async function begin(next) {
   info = next;
+  $("status").textContent = "";
+  renderHeader();
+  document.title = `${info.name} · csim-live`;
+  $("edit-keybinds").disabled = false;
+  $("equipment").disabled = false;
+  $("talents").disabled = false;
+  $("externals").disabled = false;
+  gearChanges = info.gear.changes;
+  talentCode = info.talents_code;
+  externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
+  raceOverride = info.race_override;
+  bareCharacter = info.source.bare;
+  syncForm();
+  updateUrl();
+  if ($("equipment-view").open) {
+    renderEquipment();
+  }
+  if ($("talents-view").open) {
+    await fetchTalents();
+  }
+  if ($("buffs-view").open) {
+    renderBuffs();
+  }
+  liveStale = true;
+  if (view === "live") {
+    await beginLive();
+  }
+}
+
+/** The header's name and line under it, for the view shown. */
+function renderHeader() {
+  if (!info) {
+    return;
+  }
+  $("name").textContent = info.name;
+  const settings = info.settings ? ` · ${info.settings}` : "";
+  const missing = info.missing_prerequisites.length
+    ? ` · lacks ${info.missing_prerequisites.map((missing) => missing.spell).join(", ")}`
+    : "";
+  $("sub").textContent = view === "live"
+    ? `${info.race} ${info.class} · ` +
+      (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
+      `${info.combat_length} s ± ${info.length_variance} % (this one ` +
+      `${info.end_at.toFixed(1)} s)${settings}${missing}`
+    : `${info.race} ${info.class} · ${info.rotation} · ` +
+      `${info.combat_length} s ± ${info.length_variance} %${settings}${missing}`;
+}
+
+/** The Live view's iteration of `info` from its start: the feed, the keys, the first frame. */
+async function beginLive() {
+  liveStale = false;
   $("feed").replaceChildren();
   $("floats").replaceChildren();
-  $("status").textContent = "";
   $("last-event").textContent = "";
-  $("name").textContent = info.name;
-  $("sub").textContent =
-    `${info.race} ${info.class} · ` +
-    (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
-    `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)` +
-    (info.settings ? ` · ${info.settings}` : "");
   // From the keyboard the rotation does not run: its entries are not what decides.
   $("entries").hidden = info.manual;
   hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
@@ -1388,30 +1477,47 @@ async function begin(next) {
   }
   macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
     .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
-  document.title = `${info.name} · csim-live`;
-  $("edit-keybinds").disabled = false;
-  $("equipment").disabled = false;
-  $("talents").disabled = false;
-  $("externals").disabled = false;
-  gearChanges = info.gear.changes;
-  talentCode = info.talents_code;
-  externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
   releaseKeys();
   renderEntries();
-  syncForm();
-  updateUrl();
-  if ($("equipment-view").open) {
-    renderEquipment();
-  }
-  if ($("talents-view").open) {
-    await fetchTalents();
-  }
-  if ($("buffs-view").open) {
-    renderBuffs();
-  }
   simTime = info.start_at;
   apply(await api("POST", "api/advance", { to: info.start_at }));
 }
+
+// ----- The views ----------------------------------------------------------------------------
+
+/**
+ * Shows the view `next` ("live" or "sim"). The Sim view stops the Live view's playback and its
+ * keys; back in the Live view, an iteration loaded meanwhile starts from the beginning.
+ */
+function showView(next) {
+  view = next === "sim" ? "sim" : "live";
+  document.body.dataset.view = view;
+  for (const [tab, name] of [[$("tab-live"), "live"], [$("tab-sim"), "sim"]]) {
+    tab.setAttribute("aria-selected", String(view === name));
+    tab.tabIndex = view === name ? 0 : -1;
+  }
+  if (view === "sim") {
+    setPlaying(false);
+    releaseKeys();
+  }
+  renderHeader();
+  updateUrl();
+  if (view === "live" && info && liveStale) {
+    enqueue(beginLive);
+  }
+}
+
+$("tab-live").addEventListener("click", () => showView("live"));
+$("tab-sim").addEventListener("click", () => showView("sim"));
+// The arrow keys move between the tabs, as a tab list's do.
+$("views").addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+    return;
+  }
+  event.preventDefault();
+  showView(view === "live" ? "sim" : "live");
+  $(view === "live" ? "tab-live" : "tab-sim").focus();
+});
 
 // ----- The setup bar ----------------------------------------------------------------------
 
@@ -1419,6 +1525,14 @@ async function begin(next) {
 let catalog = null;
 /** The "played by" choice of keybinds from the text box (pasted or edited), not a file. */
 const EDITED = ":edited";
+/**
+ * The race the loaded setup is played as instead of its own (`info.race_override`, e.g.
+ * "HUMAN"; null: its own), and the bare character loaded instead of a setup
+ * (`info.source.bare`, `{class, race, rotation}`; null: none). Like the gear, they stay over
+ * the setup bar's loads until another setup is chosen.
+ */
+let raceOverride = null;
+let bareCharacter = null;
 /** The setup the page loads when neither the address nor the server names one. */
 const DEFAULT_SETUP = "warrior_fury_dw_orc";
 
@@ -1429,6 +1543,7 @@ function fillForm() {
     const option = element("option", "", setup.error
       ? `${setup.name} (does not load)`
       : `${setup.title} · ${setup.race} ${setup.class}`);
+    option.dataset.label = option.textContent;
     option.value = setup.name;
     option.disabled = setup.error !== null;
     option.title = setup.error || setup.rotation;
@@ -1624,11 +1739,21 @@ function syncForm() {
   }
   const setups = $("setup-select");
   setups.querySelector("option.custom")?.remove();
+  for (const option of setups.options) {
+    option.textContent = option.dataset.label;
+  }
   if (info.source.setup) {
     setups.value = info.source.setup;
+    // Played as another race: the choice says so.
+    if (info.race_override && setups.selectedOptions[0]) {
+      setups.selectedOptions[0].textContent += ` · as ${info.race}`;
+    }
   } else {
-    // Pasted text, or a file outside the data directory: not one of the choices.
-    const custom = element("option", "custom", `${info.name} (custom)`);
+    // A bare character, pasted text, or a file outside the data directory: not one of the
+    // choices.
+    const custom = element("option", "custom", info.source.bare
+      ? `${info.name}, no gear or talents`
+      : `${info.name} (custom)`);
     custom.value = "";
     setups.prepend(custom);
     setups.value = "";
@@ -1645,14 +1770,37 @@ function syncForm() {
     info.target.armor ?? setupTarget.armor);
 }
 
+/**
+ * `request` (the setup bar's) changed to load what is loaded, a bundled setup or a bare
+ * character, whatever the bar's text says now: for the dialogs' changes of it.
+ */
+function pinLoadedSource(request) {
+  if (!info.source.setup && !info.source.bare) {
+    return;
+  }
+  delete request.setup_yaml;
+  delete request.setup;
+  delete request.bare;
+  if (info.source.setup) {
+    request.setup = info.source.setup;
+  } else {
+    request.bare = { ...info.source.bare };
+  }
+}
+
 /** The `api/load` request of the setup bar: pasted text wins over the selection. */
 function formRequest() {
   const request = {};
   const setupYaml = $("setup-yaml").value.trim();
   if (setupYaml) {
     request.setup_yaml = setupYaml;
+  } else if (bareCharacter) {
+    request.bare = { ...bareCharacter };
   } else if ($("setup-select").value) {
     request.setup = $("setup-select").value;
+  }
+  if (raceOverride) {
+    request.race = raceOverride;
   }
   const keybindsYaml = $("keybinds-yaml").value.trim();
   if (keybindsYaml) {
@@ -1689,17 +1837,33 @@ function formRequest() {
 }
 
 /**
- * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…&target_type=…&target_armor=…&gear=…&talents=…&buffs=…&debuffs=…`; pasted or
- * edited keybinds as `keys=`, their YAML in base64url; the gear's changes as `gearText` writes
- * them; changed talents as the server's talent code, `30532…-0505…`; changed buffs or debuffs
- * as their names, comma separated, empty for none), so a link reproduces it. Without a
- * bundled setup (pasted) there is nothing to name: no query.
+ * The address mirrors the loaded iteration (`?setup=…&race=…&keybinds=…&seed=…&length=…
+ * &variance=…&setting=…&target_type=…&target_armor=…&gear=…&talents=…&buffs=…&debuffs=…`; a
+ * race other than the setup's as its code, `NIGHT_ELF`; a bare character as `class=WARRIOR
+ * &race=HUMAN&rotation=DW Fury` instead of `setup=`; pasted or edited keybinds as `keys=`, their
+ * YAML in base64url; the gear's changes as `gearText` writes them; changed talents as the
+ * server's talent code, `30532…-0505…`; changed buffs or debuffs as their names, comma
+ * separated, empty for none) and the view (`view=sim`; the Live view without), so a link
+ * reproduces it. Without a bundled setup or a bare character (pasted) there is nothing to
+ * name: only the view.
  */
 function updateUrl() {
+  if (!info) {
+    return;
+  }
   const query = new URLSearchParams();
-  if (info.source.setup) {
-    query.set("setup", info.source.setup);
+  const bare = info.source.bare;
+  if (info.source.setup || bare) {
+    if (bare) {
+      query.set("class", bare.class);
+      query.set("race", bare.race);
+      query.set("rotation", bare.rotation);
+    } else {
+      query.set("setup", info.source.setup);
+      if (info.race_override) {
+        query.set("race", info.race_override);
+      }
+    }
     if (info.source.keybinds) {
       query.set("keybinds", info.source.keybinds);
     } else if (info.manual) {
@@ -1734,6 +1898,9 @@ function updateUrl() {
       }
     }
   }
+  if (view === "sim") {
+    query.set("view", "sim");
+  }
   const search = query.size ? `?${query}` : "";
   if (location.search !== search) {
     history.replaceState(null, "", `${location.pathname}${search}`);
@@ -1743,13 +1910,27 @@ function updateUrl() {
 /** What the address's query asked for that cannot be: said once the first load is shown. */
 const linkNotes = [];
 
-/** The setup bar filled from the address's query, when it names a setup. */
+/**
+ * The setup bar filled from the address's query, when it names a setup or a bare character
+ * (`class=`, `race=`, `rotation=`).
+ */
 function formFromQuery() {
   const query = new URLSearchParams(location.search);
-  if (!query.has("setup")) {
+  if (query.has("class")) {
+    bareCharacter = {
+      class: query.get("class"),
+      race: query.get("race") || "",
+      rotation: query.get("rotation") || "",
+    };
+    raceOverride = null;
+    $("setup-select").value = "";
+  } else if (query.has("setup")) {
+    bareCharacter = null;
+    raceOverride = query.get("race") || null;
+    $("setup-select").value = query.get("setup");
+  } else {
     return false;
   }
-  $("setup-select").value = query.get("setup");
   fillModes();
   $("mode-select").value = query.get("keybinds") || "";
   try {
@@ -1825,8 +2006,11 @@ function loadOrRotation(request) {
 // Choosing a setup loads it (with the seed, length and settings in the bar), as does choosing
 // how it is played; the text fields and pasted YAML wait for Load (or Enter).
 $("setup-select").addEventListener("change", () => {
-  // Pasted setup text would win over the choice; another setup wears its own gear.
+  // Pasted setup text would win over the choice; another setup wears its own gear and is its
+  // own race.
   $("setup-yaml").value = "";
+  raceOverride = null;
+  bareCharacter = null;
   gearChanges = [];
   talentCode = null;
   externalChanges = { buffs: null, debuffs: null };
@@ -2160,10 +2344,7 @@ function applyEditor() {
   const request = formRequest();
   delete request.keybinds;
   request.keybinds_yaml = yaml;
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   const playerClass = info.class;
   const entries = structuredClone(draft);
   setPlaying(false);
@@ -2625,10 +2806,7 @@ function loadGear(gear) {
   if (gear.length) {
     request.gear = gear;
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   hideTip();
   equipmentStatus("");
   setPlaying(false);
@@ -2838,10 +3016,7 @@ function loadExternals(changes) {
       request[kind] = changes[kind];
     }
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   buffsStatus("");
   setPlaying(false);
   enqueue(async () => {
@@ -3194,10 +3369,7 @@ function loadTalents(code) {
   if (code !== null) {
     request.talents_code = code;
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   hideTalentTip();
   talentsStatus("");
   setPlaying(false);
@@ -3279,6 +3451,7 @@ async function startPage() {
   await window.csimReady;
   catalog = await api("GET", "api/catalog");
   fillForm();
+  showView(new URLSearchParams(location.search).get("view"));
   if (formFromQuery()) {
     await loadOrSetupGear(formRequest());
     // The load cleared the status: the link's problems join what it says.
@@ -4189,7 +4362,8 @@ function releaseKeys() {
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open ||
+  if (!info || !info.manual || view !== "live" || inForm || $("keybinds-editor").open ||
+    $("equipment-view").open ||
     $("talents-view").open || $("buffs-view").open) {
     return;
   }
