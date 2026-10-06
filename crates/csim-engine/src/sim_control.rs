@@ -10,6 +10,9 @@
 //! per scaling option with the option's stat added to the first character; both hand the statistics of the raid's
 //! first character, with every member's result added, to a [`NumberCruncher`].
 //!
+//! [`SimRun`] runs the baseline in chunks the caller sizes (a page showing its progress), with
+//! the result of one [`SimControl::run_quick_sim`].
+//!
 //! [`IterationStepper`] runs one iteration through the same pieces an event at a time, for
 //! watching it unfold.
 //!
@@ -163,9 +166,16 @@ impl SimControl {
     /// Panics if a character was set up for another combat length (its DPS would be wrong).
     pub fn run_sim(&mut self, raid: &mut RaidControl, combat_length: u32, iterations: u32) {
         let mut set = self.begin_set_of_iterations(raid, combat_length);
+        self.run_iterations(raid, &mut set, iterations);
+        end_set_of_iterations(raid, &set);
+    }
+
+    /// Runs `iterations` iterations of the set `set` and reports them to the progress
+    /// callback, in groups of [`PROGRESS_INTERVAL`] and the rest at the end.
+    fn run_iterations(&mut self, raid: &mut RaidControl, set: &mut IterationSet, iterations: u32) {
         let mut reported = 0;
         for _ in 0..iterations {
-            self.begin_iteration(raid, &mut set);
+            self.begin_iteration(raid, set);
             raid.run();
             end_iteration(raid);
 
@@ -178,7 +188,6 @@ impl SimControl {
         if reported > 0 {
             self.report(reported);
         }
-        end_set_of_iterations(raid, &set);
     }
 
     /// Prepares the raid for a set of iterations of `combat_length` seconds.
@@ -326,6 +335,77 @@ fn collect(raid: &mut RaidControl, option: Option<SimOption>, cruncher: &mut Num
         first.add_player_result(result);
     }
     cruncher.add_class_statistics(option, first);
+}
+
+/// A baseline run ([`SimControl::run_quick_sim`]) whose iterations the caller runs in chunks
+/// of any size, for a page that shows its progress and can stop it. Seeded like the only
+/// thread of [`run_threaded`]: whatever the chunks, the result is that of a one-thread
+/// quick sim with the same seed.
+///
+/// Every call takes the raid the run was created with. A run dropped before
+/// [`SimRun::finish`] leaves that raid in the middle of a set of iterations: drop it too.
+pub struct SimRun {
+    control: SimControl,
+    set: IterationSet,
+    done: u32,
+    total: u32,
+}
+
+impl SimRun {
+    /// Seeds `raid` from `seed` (as [`SimControl::new`]) and begins a set of
+    /// `settings.iterations_quick_sim` iterations of `settings.combat_length` seconds; none
+    /// has run yet.
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length than `settings`'.
+    pub fn new(settings: SimSettings, seed: u64, raid: &mut RaidControl) -> Self {
+        let (combat_length, total) = (settings.combat_length, settings.iterations_quick_sim);
+        let mut control = SimControl::new(settings, seed);
+        let set = control.begin_set_of_iterations(raid, combat_length);
+        SimRun {
+            control,
+            set,
+            done: 0,
+            total,
+        }
+    }
+
+    /// Reports the iterations completed to `progress`, as [`SimControl::with_progress`].
+    pub fn with_progress(mut self, progress: Progress) -> Self {
+        self.control.progress = Some(progress);
+        self
+    }
+
+    /// Runs up to `iterations` more iterations, fewer when the run has fewer left, and
+    /// returns how many ran.
+    pub fn run(&mut self, raid: &mut RaidControl, iterations: u32) -> u32 {
+        let iterations = iterations.min(self.total - self.done);
+        self.control.run_iterations(raid, &mut self.set, iterations);
+        self.done += iterations;
+        iterations
+    }
+
+    /// The iterations run so far.
+    pub fn done(&self) -> u32 {
+        self.done
+    }
+
+    /// The iterations of the whole run.
+    pub fn total(&self) -> u32 {
+        self.total
+    }
+
+    pub fn is_done(&self) -> bool {
+        self.done == self.total
+    }
+
+    /// Runs the iterations left, ends the set and collects it into `cruncher`, as
+    /// [`SimControl::run_quick_sim`] does.
+    pub fn finish(mut self, raid: &mut RaidControl, cruncher: &mut NumberCruncher) {
+        self.run(raid, self.total - self.done);
+        end_set_of_iterations(raid, &self.set);
+        collect(raid, None, cruncher);
+    }
 }
 
 /// Runs one iteration of `raid` with the combat log recorded and returns the log; the raid's
