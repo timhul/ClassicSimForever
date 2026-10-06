@@ -11,8 +11,19 @@ precombat_actions:
 precast: Charge
 cast_if:
   - name: Berserker Stance
+    condition: |
+      spell "Bloodthirst" eq 0
+      or buff_duration "Rend" is true
+  - name: Battle Stance
+    condition: |
+      spell "Bloodthirst" greater 1.5
+      and spell "Whirlwind" greater 1.5
+      and buff_duration "Rend" is false
+      and resource "Rage" less 40
   - name: Bloodrage
-    condition: resource "Rage" less 70
+    condition: |
+      resource "Rage" less 70
+      and buff_duration "Berserker Stance" is true
   - name: Battle Shout
     condition: |
       buff_duration "Battle Shout" less 3
@@ -84,6 +95,8 @@ cast_if:
       and resource "Rage" greater 35
       and variable "time_remaining_execute" greater 0
       and buff_duration "Eureka!" is false
+  - name: Rend
+    condition: buff_duration "Rend" is false
   - name: Berserker Rage
     condition: |
       talent "Improved Berserker Rage" greater 0
