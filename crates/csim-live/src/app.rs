@@ -5,6 +5,9 @@
 //! creature type and armor, and changes of its race, gear, talents and external buffs and
 //! debuffs. Instead of a setup it can load a bare character ([`Bare`]): a class and race with
 //! nothing but a rotation, to put together in the page.
+//!
+//! Beside the session, the app runs at most one sim of many iterations ([`App::start_sim`],
+//! [`SimJob`]), of a setup resolved as a load's.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -24,6 +27,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
 use crate::session::{Info, Session};
+use crate::sim::{SimJob, SimProgress, SimRequest};
 use crate::talents::{self, Talents};
 
 /// The setups' directory under the data directory.
@@ -43,6 +47,22 @@ pub struct App {
     session: Option<Session>,
     source: Source,
     /// The race the load put in place of the setup's.
+    race_override: Option<Race>,
+    target: TargetChoice,
+    gear: GearChanged,
+    talents_changed: bool,
+    externals: Externals,
+    sim: Option<SimJob>,
+}
+
+/// What a load request resolves to: the setup as the request changed it, its settings, seed
+/// and keybinds, where it comes from and how it differs from the setup's own.
+struct Resolved {
+    setup: CharacterSetup,
+    settings: SimSettings,
+    seed: u64,
+    keybinds: Vec<Keybind>,
+    source: Source,
     race_override: Option<Race>,
     target: TargetChoice,
     gear: GearChanged,
@@ -296,6 +316,7 @@ impl App {
             gear: GearChanged::default(),
             talents_changed: false,
             externals: Externals::default(),
+            sim: None,
         }
     }
 
@@ -487,6 +508,70 @@ impl App {
         request: LoadRequest,
         new_seed: impl FnOnce() -> u64,
     ) -> Result<Loaded, String> {
+        let resolved = self.resolve(request, new_seed)?;
+        let session = Session::new(
+            Arc::clone(&self.data),
+            resolved.setup,
+            resolved.settings,
+            resolved.seed,
+            resolved.keybinds,
+        )?;
+        self.set_session(session, resolved.source);
+        self.race_override = resolved.race_override;
+        self.target = resolved.target;
+        self.gear = resolved.gear;
+        self.talents_changed = resolved.talents_changed;
+        self.externals = resolved.externals;
+        Ok(self.loaded().expect("a session was just loaded"))
+    }
+
+    /// Starts the sim `request` asks for in place of the current one, which stays when the
+    /// request fails. Its setup is the one `api/load` would load (but played by its rotation);
+    /// `new_seed` gives the seed when it names none.
+    ///
+    /// # Errors
+    /// As [`App::load`], and the iterations are not in `1..=`[`MAX_ITERATIONS`](crate::sim::MAX_ITERATIONS).
+    pub fn start_sim(
+        &mut self,
+        request: SimRequest,
+        new_seed: impl FnOnce() -> u64,
+    ) -> Result<SimProgress, String> {
+        let load = LoadRequest {
+            keybinds: None,
+            keybinds_yaml: None,
+            ..request.load
+        };
+        let resolved = self.resolve(load, new_seed)?;
+        let job = SimJob::new(
+            Arc::clone(&self.data),
+            resolved.setup,
+            resolved.settings,
+            resolved.seed,
+            request.iterations,
+        )?;
+        Ok(self.sim.insert(job).progress())
+    }
+
+    /// The sim started last, if any (until [`App::stop_sim`]).
+    pub fn sim(&self) -> Option<&SimJob> {
+        self.sim.as_ref()
+    }
+
+    pub fn sim_mut(&mut self) -> Option<&mut SimJob> {
+        self.sim.as_mut()
+    }
+
+    /// Drops the sim, done or not.
+    pub fn stop_sim(&mut self) {
+        self.sim = None;
+    }
+
+    /// What `request` asks for, resolved against the data: see [`App::load`].
+    fn resolve(
+        &self,
+        request: LoadRequest,
+        new_seed: impl FnOnce() -> u64,
+    ) -> Result<Resolved, String> {
         let (mut setup, setup_name) = self.load_setup(&request)?;
         let race_override = request.race.filter(|race| *race != setup.race);
         if let Some(race) = race_override {
@@ -545,21 +630,22 @@ impl App {
             None | Some("") => new_seed(),
             Some(seed) => seed.parse().map_err(|_| format!("invalid seed '{seed}'"))?,
         };
-        let session = Session::new(Arc::clone(&self.data), setup, settings, seed, keybinds)?;
-        self.set_session(
-            session,
-            Source {
+        Ok(Resolved {
+            setup,
+            settings,
+            seed,
+            keybinds,
+            source: Source {
                 setup: setup_name,
                 keybinds: keybinds_name,
                 bare: request.bare,
             },
-        );
-        self.race_override = race_override;
-        self.target = target;
-        self.gear = gear;
-        self.talents_changed = talents_changed;
-        self.externals = externals;
-        Ok(self.loaded().expect("a session was just loaded"))
+            race_override,
+            target,
+            gear,
+            talents_changed,
+            externals,
+        })
     }
 
     fn load_setup(

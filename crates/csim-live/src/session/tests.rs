@@ -2,6 +2,7 @@
 
 use std::sync::{Arc, OnceLock};
 
+use csim_engine::item::EquipmentSlot;
 use csim_engine::proc::Proc;
 use csim_engine::sim_control::run_logged_iteration;
 

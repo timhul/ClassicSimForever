@@ -7,8 +7,10 @@
 //! default); the browser build calls it directly, without the `server` feature.
 
 pub mod app;
+mod icons;
 pub mod keybinds;
 pub mod server;
 pub mod session;
 pub mod sheet;
+pub mod sim;
 pub mod talents;

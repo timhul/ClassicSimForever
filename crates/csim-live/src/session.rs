@@ -28,7 +28,7 @@ use csim_engine::data_bundle::DataBundle;
 use csim_engine::engine::{Event, EventKind};
 use csim_engine::faction::PlayerClass;
 use csim_engine::ids::{CharId, SpellId};
-use csim_engine::item::{EffectTrigger, EquipmentSlot, ItemSpec};
+use csim_engine::item::{EffectTrigger, ItemSpec};
 use csim_engine::proc::Proc;
 use csim_engine::raid::RaidControl;
 use csim_engine::resource::ResourceType;
@@ -45,6 +45,7 @@ use csim_engine::statistics::report::{
 use csim_engine::talent::CharacterTalents;
 use serde::Serialize;
 
+use crate::icons::IconLookup;
 use crate::keybinds::Keybind;
 use crate::sheet::{ItemEntry, StatSummary, WornItem, usable_items, worn_gear};
 
@@ -860,15 +861,13 @@ impl Session {
         if self.time <= 0.0 {
             return Vec::new();
         }
-        let buffs = self.buffs();
+        let icons = self.icons();
+        let buffs = icons.buffs();
         let statistics = self.raid.character(PLAYER).statistics();
         buff_rows_so_far(statistics, buffs.iter().copied(), self.time)
             .into_iter()
             .map(|row| {
-                let icon = buffs
-                    .iter()
-                    .find(|buff| buff.statistics_name() == row.name)
-                    .and_then(|buff| self.spell_icon(buff.spell()));
+                let icon = icons.buff(&buffs, &row.name);
                 BuffUptime { row, icon }
             })
             .collect()
@@ -883,11 +882,7 @@ impl Session {
         proc_rows_so_far(procs, self.time)
             .into_iter()
             .map(|row| {
-                let icon = procs
-                    .iter()
-                    .filter(|proc| proc.name() == row.name)
-                    .flat_map(|proc| std::iter::once(proc.game_id()).chain(proc.payload_spells()))
-                    .find_map(|id| self.spell_icon(id));
+                let icon = self.icons().proc(&row.name);
                 ProcCount { row, icon }
             })
             .collect()
@@ -924,52 +919,11 @@ impl Session {
         let rows = rows
             .into_iter()
             .map(|row| {
-                let icon = self.source_icon(&row.source);
+                let icon = self.icons().source(&row.source);
                 ResourceGain { row, icon }
             })
             .collect();
         (rows, totals)
-    }
-
-    /// The icon of a resource source (`" (rank N)"` appended above rank 1): a swing's weapon,
-    /// a spell's or a proc's.
-    fn source_icon(&self, source: &str) -> Option<Icon> {
-        let name = source
-            .rsplit_once(" (rank ")
-            .map_or(source, |(name, _)| name);
-        let spells = self.raid.character(PLAYER).spells();
-        if name == spells.mh_attack().name() {
-            return self.weapon_icon(Hand::Mainhand);
-        }
-        if name == spells.oh_attack().name() {
-            return self.weapon_icon(Hand::Offhand);
-        }
-        let spell = spells
-            .spell_ids()
-            .map(|id| spells.spell(id))
-            .filter(|spell| spell.name() == name)
-            .map(|spell| spell.game_id());
-        let procs = spells
-            .procs()
-            .procs()
-            .iter()
-            .filter(|proc| proc.name() == name)
-            .flat_map(|proc| std::iter::once(proc.game_id()).chain(proc.payload_spells()));
-        spell.chain(procs).find_map(|id| self.spell_icon(id))
-    }
-
-    /// Every buff of the character: its own and the ones it shares.
-    fn buffs(&self) -> Vec<&Buff> {
-        let spells = self.raid.character(PLAYER).spells();
-        spells
-            .buff_ids()
-            .filter_map(|id| match spells.buff_slot(id) {
-                csim_engine::character_spells::BuffSlot::Owned(buff) => Some(&**buff),
-                csim_engine::character_spells::BuffSlot::Shared(shared) => {
-                    self.raid.shared_buffs().buffs().get(shared.index())
-                }
-            })
-            .collect()
     }
 
     /// The character's spell rows over the combat so far.
@@ -1070,24 +1024,22 @@ impl Session {
         })
     }
 
+    /// The icons of the character's spells, weapons, buffs and procs.
+    fn icons(&self) -> IconLookup<'_> {
+        IconLookup {
+            data: &self.data,
+            raid: &self.raid,
+        }
+    }
+
     /// The icon of the game spell `id` (0 for spells made in code: none).
     fn spell_icon(&self, id: u32) -> Option<Icon> {
-        self.data
-            .spells
-            .get(id)
-            .and_then(|record| Icon::of_spell(record))
+        self.icons().spell(id)
     }
 
     /// The icon of the weapon in `hand`.
     fn weapon_icon(&self, hand: Hand) -> Option<Icon> {
-        let slot = match hand {
-            Hand::Mainhand => EquipmentSlot::Mainhand,
-            Hand::Offhand => EquipmentSlot::Offhand,
-        };
-        let equipment = self.raid.character(PLAYER).equipment();
-        equipment
-            .item(slot)
-            .and_then(|item| Icon::of_item(item.spec()))
+        self.icons().weapon(hand)
     }
 
     /// The spells bar: from the keyboard the keybinds, each named as bound with its main
@@ -1134,6 +1086,7 @@ impl Session {
             }
         };
         let shown: Vec<&Buff> = self
+            .icons()
             .buffs()
             .into_iter()
             .filter(|buff| buff.is_active() && !buff.is_hidden())
@@ -1226,7 +1179,10 @@ impl Session {
     }
 }
 
-fn as_string<S: serde::Serializer>(value: &u64, serializer: S) -> Result<S::Ok, S::Error> {
+pub(crate) fn as_string<S: serde::Serializer>(
+    value: &u64,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
     serializer.collect_str(value)
 }
 
