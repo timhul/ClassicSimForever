@@ -51,7 +51,7 @@
 //!   before.
 //! - `POST /api/sim/merge {"load": {..., "seed": "S"}, "iterations": N, "threads": T,
 //!   "shares": [...], "elapsed_seconds": s}`: the run's results from its shares' statistics
-//!   ([`MergeRequest`](crate::sim::MergeRequest)), as `results` answers them.
+//!   ([`MergeRequest`]), as `results` answers them.
 //!
 //! `step`, `results` and `statistics` answer 409 without a sim.
 //!

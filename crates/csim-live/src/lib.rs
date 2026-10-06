@@ -1,7 +1,8 @@
 //! One iteration of a character setup, played at the page's pace: the [`session`], the page and
 //! the JSON API that drives it ([`server::route`]), the keyboard bindings it can be played
 //! with ([`keybinds`]), the character's gear and stats ([`sheet`]) and its talents
-//! ([`talents`]).
+//! ([`talents`]). The page's Sim tab runs many iterations of the setup instead, as `csim run`
+//! does ([`sim`]).
 //!
 //! The native `csim-live` binary serves [`server::route`] over HTTP (feature `server`, on by
 //! default); the browser build calls it directly, without the `server` feature.
