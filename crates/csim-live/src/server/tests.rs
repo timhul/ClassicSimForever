@@ -593,8 +593,8 @@ fn bad_sim_requests_are_refused() {
             "missing.yaml",
         ),
         (
-            r#"{"load": {"setup": "warrior_fury_dw_orc"}, "iterations": 10, "threads": 4}"#,
-            "threads",
+            r#"{"load": {"setup": "warrior_fury_dw_orc"}, "iterations": 10, "workers": 4}"#,
+            "workers",
         ),
     ] {
         let reply = call(&mut app, "POST", "/api/sim/start", body);

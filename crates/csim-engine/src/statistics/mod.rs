@@ -19,6 +19,7 @@ pub mod buff;
 pub mod engine;
 pub mod executor;
 pub mod number_cruncher;
+mod pairs;
 pub mod proc;
 pub mod report;
 pub mod resource;
@@ -26,6 +27,8 @@ pub mod results;
 pub mod spell;
 
 use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
 
 use crate::resource::ResourceType;
 
@@ -38,7 +41,7 @@ pub use resource::ResourceStatistics;
 pub use spell::{Outcome, Ratio, SpellStatistics, Tally};
 
 /// A spell (or auto attack, or proc) as the statistics identify it.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct SpellKey {
     pub name: String,
     pub rank: u32,
@@ -70,7 +73,7 @@ fn resource_index(resource: ResourceType) -> usize {
 }
 
 /// One raid member's result. Port of `RaidMemberResult`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PlayerResult {
     pub player_name: String,
     pub dps: f64,
@@ -79,16 +82,19 @@ pub struct PlayerResult {
 }
 
 /// The statistics of one character for a set of combat iterations. Port of `ClassStatistics`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ClassStatistics {
     player_name: String,
     combat_length: f64,
+    #[serde(with = "pairs")]
     spells: BTreeMap<SpellKey, SpellStatistics>,
     buffs: BTreeMap<String, BuffStatistics>,
+    #[serde(with = "pairs")]
     resources: BTreeMap<SpellKey, ResourceStatistics>,
     /// Regeneration lost because the resource was full, per resource.
     lost_at_cap: [f64; ResourceType::ALL.len()],
     /// The finishers cast, by the combo points they spent (index 0 = 1 point).
+    #[serde(with = "pairs")]
     finishers: BTreeMap<SpellKey, [u64; 5]>,
     procs: BTreeMap<String, ProcStatistics>,
     executors: Vec<RotationExecutorStatistics>,

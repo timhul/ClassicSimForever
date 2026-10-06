@@ -16,6 +16,8 @@ fn by_name(setup: &str, seed: &str, iterations: u32) -> SimRequest {
             ..LoadRequest::default()
         },
         iterations,
+        threads: 1,
+        share: 0,
     }
 }
 
@@ -29,9 +31,9 @@ fn run(app: &mut App, request: SimRequest, chunk: u32) -> SimResults {
     job.results(Duration::from_secs(1)).unwrap()
 }
 
-/// What `csim run -n <iterations> -t 1 --seed <seed>` reports for the shipped setup `file`
-/// (taking a second).
-fn one_thread_run(app: &App, file: &str, seed: u64, iterations: u32) -> Results {
+/// What `csim run -n <iterations> -t <threads> --seed <seed>` reports for the shipped setup
+/// `file` (taking a second).
+fn threaded_run(app: &App, file: &str, seed: u64, iterations: u32, threads: usize) -> Results {
     let setup = CharacterSetup::load(
         &DataBundle::repository_dir()
             .join("characters")
@@ -40,7 +42,7 @@ fn one_thread_run(app: &App, file: &str, seed: u64, iterations: u32) -> Results 
     .unwrap();
     let mut settings = setup.sim_settings(&SimSettings::default());
     settings.iterations_quick_sim = iterations;
-    settings.threads = 1;
+    settings.threads = threads;
     let data = app.data();
     let cruncher = run_threaded(&settings, SimMode::Quick, seed, None, || {
         setup.build_raid(data, &settings)
@@ -59,7 +61,7 @@ fn one_thread_run(app: &App, file: &str, seed: u64, iterations: u32) -> Results 
 #[test]
 fn a_sim_has_the_results_of_the_one_thread_run_of_its_seed() {
     let mut app = empty_app();
-    let expected = one_thread_run(&app, "warrior_fury_dw_orc", 7, 40);
+    let expected = threaded_run(&app, "warrior_fury_dw_orc", 7, 40, 1);
     for chunk in [1, 13, 40, 1000] {
         let results = run(&mut app, by_name("warrior_fury_dw_orc", "7", 40), chunk);
         assert_eq!(results.results, expected, "chunks of {chunk}");
@@ -68,7 +70,7 @@ fn a_sim_has_the_results_of_the_one_thread_run_of_its_seed() {
     let rogue = run(&mut app, by_name("rogue_combat_swords_human", "7", 20), 7);
     assert_eq!(
         rogue.results,
-        one_thread_run(&app, "rogue_combat_swords_human", 7, 20)
+        threaded_run(&app, "rogue_combat_swords_human", 7, 20, 1)
     );
 }
 
@@ -167,6 +169,8 @@ fn a_sim_plays_the_rotation_of_any_setup_a_load_takes() {
             ..LoadRequest::default()
         },
         iterations: 5,
+        threads: 1,
+        share: 0,
     };
     let results = run(&mut app, request, 5).results;
     assert_eq!(results.setup.name, "Human Warrior");
@@ -214,4 +218,117 @@ fn a_sim_and_a_session_are_apart() {
     run(&mut app, by_name("warrior_fury_dw_orc", "1", 3), 3);
     assert_eq!(app.loaded().unwrap().info.name, "Combat Swords Human");
     assert_eq!(app.sim().unwrap().progress().name, "DW Fury Orc");
+}
+
+/// Runs each share of `request`'s run over `threads` threads apart, as the browser's workers do,
+/// and merges their statistics (through JSON).
+fn run_in_shares(app: &mut App, request: &SimRequest, threads: u32) -> SimResults {
+    let mut shares = Vec::new();
+    for share in 0..threads {
+        let start = SimRequest {
+            load: LoadRequest {
+                setup: request.load.setup.clone(),
+                seed: request.load.seed.clone(),
+                ..LoadRequest::default()
+            },
+            iterations: request.iterations,
+            threads,
+            share,
+        };
+        app.start_sim(start, || 42).unwrap();
+        let job = app.sim_mut().unwrap();
+        while !job.is_done() {
+            job.step(7);
+        }
+        if threads > 1 {
+            assert_eq!(
+                job.results(Duration::ZERO),
+                None,
+                "a share has no results of its own"
+            );
+        }
+        let json = serde_json::to_string(job.statistics().unwrap()).unwrap();
+        shares.push(serde_json::from_str(&json).unwrap());
+    }
+    app.merge_sim(MergeRequest {
+        load: LoadRequest {
+            setup: request.load.setup.clone(),
+            seed: request.load.seed.clone(),
+            ..LoadRequest::default()
+        },
+        iterations: request.iterations,
+        threads,
+        shares,
+        elapsed_seconds: 1.0,
+    })
+    .unwrap()
+}
+
+#[test]
+fn a_run_in_shares_has_the_results_of_the_threaded_run_of_its_seed() {
+    let mut app = empty_app();
+    for threads in [1, 3] {
+        let merged = run_in_shares(&mut app, &by_name("warrior_fury_dw_orc", "7", 40), threads);
+        let expected = threaded_run(&app, "warrior_fury_dw_orc", 7, 40, threads as usize);
+        assert_eq!(merged.results, expected, "{threads} threads");
+        assert_eq!(merged.results.run.threads, threads as usize);
+    }
+    // Every share ran on its own: the run's progress is the share's.
+    let mut start = by_name("warrior_fury_dw_orc", "7", 10);
+    start.threads = 4;
+    start.share = 3;
+    assert_eq!(
+        app.start_sim(start, || 42).unwrap().total,
+        2,
+        "10 over 4: 3, 3, 2, 2"
+    );
+}
+
+#[test]
+fn bad_shares_are_refused() {
+    let mut app = empty_app();
+    let mut start = by_name("warrior_fury_dw_orc", "7", 3);
+    start.threads = 4;
+    let error = app.start_sim(start, || 42).unwrap_err();
+    assert!(error.contains("at most one each"), "{error}");
+    let mut start = by_name("warrior_fury_dw_orc", "7", 10);
+    start.threads = 2;
+    start.share = 2;
+    let error = app.start_sim(start, || 42).unwrap_err();
+    assert!(error.contains("from 0 to 1"), "{error}");
+
+    let statistics = |app: &mut App| {
+        app.start_sim(by_name("warrior_fury_dw_orc", "7", 4), || 42)
+            .unwrap();
+        let job = app.sim_mut().unwrap();
+        job.step(10);
+        job.statistics().unwrap().clone()
+    };
+    let one = statistics(&mut app);
+    let merge = |seed: Option<&str>, threads, shares| MergeRequest {
+        load: LoadRequest {
+            setup: Some("warrior_fury_dw_orc".into()),
+            seed: seed.map(str::to_owned),
+            ..LoadRequest::default()
+        },
+        iterations: 4,
+        threads,
+        shares,
+        elapsed_seconds: 1.0,
+    };
+    for (request, message) in [
+        (merge(None, 1, vec![one.clone()]), "no seed"),
+        (
+            merge(Some("7"), 2, vec![one.clone()]),
+            "1 shares for 2 threads",
+        ),
+        (
+            merge(Some("7"), 2, vec![one.clone(), one.clone()]),
+            "share 0 has 4 iterations: 2",
+        ),
+    ] {
+        let error = app.merge_sim(request).unwrap_err();
+        assert!(error.contains(message), "{error}");
+    }
+    assert!(app.merge_sim(merge(Some("7"), 1, vec![one])).is_ok());
 }

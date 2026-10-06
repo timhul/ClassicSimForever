@@ -110,6 +110,7 @@
   #sim-form label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
   #sim-setup { max-width: 100%; }
   #sim-iterations { width: 11ch; }
+  #sim-threads { width: 6ch; }
   .run-fields, #sim-fields, #sim-details { display: contents; }
   .sim-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-basis: 100%; }
   #sim-run { min-width: 88px; }
@@ -1407,6 +1408,9 @@
     <label title="How many iterations to simulate (at most 1,000,000)">Iterations
       <input id="sim-iterations" type="number" min="1" max="1000000" step="1"
         placeholder="10000"></label>
+    <label title="The threads the iterations are split over: the browser runs them side by side
+(seed S, N iterations and T threads give csim run -n N -t T --seed S)">Threads
+      <input id="sim-threads" type="number" min="1" max="64" step="1"></label>
     <div id="sim-details"></div>
     <div class="sim-actions">
       <button id="sim-talents" class="dialog-button" type="button" disabled>Talents</button>
@@ -1559,17 +1563,18 @@ function enqueue(task) {
 
 /**
  * `method` `path` (relative, `api/...`) with the JSON `body`: in the browser build through
- * `csimTransport` (the WebAssembly server side, see web.js), else over HTTP to the native
- * server. The answer's JSON; an error with the status otherwise.
+ * `csimTransport` (the WebAssembly server side, see web.js; a sim's through
+ * `csimSimTransport`, in the worker of `lane`), else over HTTP to the native server. The
+ * answer's JSON; an error with the status otherwise.
  */
-async function api(method, path, body) {
+async function api(method, path, body, lane = 0) {
   const text = body === undefined ? "" : JSON.stringify(body);
   let status;
   let answer;
   // The browser build runs the sims in a worker (web.js), the rest in the page.
   const transport = path.startsWith("api/sim/") ? window.csimSimTransport : window.csimTransport;
   if (transport) {
-    ({ status, body: answer } = await transport(method, `/${path}`, text));
+    ({ status, body: answer } = await transport(method, `/${path}`, text, lane));
   } else {
     const options = { method };
     if (body !== undefined) {
@@ -3659,6 +3664,7 @@ async function startPage() {
   await window.csimReady;
   catalog = await api("GET", "api/catalog");
   fillForm();
+  $("sim-threads").placeholder = defaultThreads();
   showView(new URLSearchParams(location.search).get("view"));
   if (formFromQuery()) {
     await loadOrSetupGear(formRequest());
@@ -4632,6 +4638,7 @@ const DEFAULT_SIM_SETUP = "warrior_fury_dw_human";
 /** The iterations of a run when the field is empty. */
 const DEFAULT_ITERATIONS = 10000;
 const MAX_ITERATIONS = 1000000;
+const MAX_THREADS = 64;
 /** How long one step of a run should take, in ms: the progress shows at least this often. */
 const SIM_STEP_MS = 150;
 /** Wowhead's race icons by race code (Skyborne has none: its initials show). */
@@ -4921,6 +4928,24 @@ function simIterations() {
   return iterations;
 }
 
+/** The threads of a run when the field is empty: the browser's cores (at most 8), else 1. */
+function defaultThreads() {
+  return window.csimSimTransport ? Math.min(8, window.csimSimLanes ?? 1) : 1;
+}
+
+/**
+ * The threads asked for, at most one per iteration; throws when they are not a whole number
+ * from 1 to the most.
+ */
+function simThreads(iterations) {
+  const text = $("sim-threads").value.trim();
+  const threads = text ? Number(text) : defaultThreads();
+  if (!Number.isInteger(threads) || threads < 1 || threads > MAX_THREADS) {
+    throw new Error(`Threads: a whole number from 1 to ${MAX_THREADS}`);
+  }
+  return Math.min(threads, iterations);
+}
+
 function setSimRunning(on) {
   $("sim-run").textContent = on ? "Stop" : "Run";
   $("sim-run").classList.toggle("stop", on);
@@ -4946,8 +4971,10 @@ async function runSim() {
     return;
   }
   let iterations;
+  let threads;
   try {
     iterations = simIterations();
+    threads = simThreads(iterations);
   } catch (error) {
     $("status").textContent = error.message;
     return;
@@ -4967,25 +4994,51 @@ async function runSim() {
     const request = simRequest();
     const start = performance.now();
     const seconds = () => (performance.now() - start) / 1000;
-    let progress = await api("POST", "api/sim/start", { load: request, iterations });
-    showSimProgress(progress, seconds());
-    let chunk = 20;
-    while (progress.done < progress.total) {
-      if (run.stop) {
-        await api("POST", "api/sim/stop", {});
-        showSimProgress(progress, seconds(), " · stopped");
-        return;
+    // The shares of the run, a lane each in the browser's workers, one after another natively.
+    const lanes = window.csimSimTransport ? Math.min(threads, window.csimSimLanes ?? 1) : 1;
+    const done = new Array(threads).fill(0);
+    const shares = new Array(threads);
+    let seed = request.seed;
+    const shown = (note = "") =>
+      showSimProgress({ done: done.reduce((sum, n) => sum + n, 0), total: iterations }, seconds(), note);
+    const stopped = new Error("stopped");
+    const runLane = async (lane) => {
+      for (let share = lane; share < threads; share += lanes) {
+        let progress = await api("POST", "api/sim/start",
+          { load: request, iterations, threads, share }, lane);
+        seed = progress.seed;
+        let chunk = 20;
+        while (progress.done < progress.total) {
+          if (run.stop) {
+            throw stopped;
+          }
+          const stepStart = performance.now();
+          progress = await api("POST", "api/sim/step", { iterations: chunk }, lane);
+          const took = Math.max(performance.now() - stepStart, 1);
+          chunk = Math.max(1, Math.min(chunk * 4, Math.round(chunk * SIM_STEP_MS / took)));
+          done[share] = progress.done;
+          shown();
+        }
+        shares[share] = await api("POST", "api/sim/statistics", {}, lane);
       }
-      const stepStart = performance.now();
-      progress = await api("POST", "api/sim/step", { iterations: chunk });
-      const took = Math.max(performance.now() - stepStart, 1);
-      chunk = Math.max(1, Math.min(chunk * 4, Math.round(chunk * SIM_STEP_MS / took)));
-      showSimProgress(progress, seconds());
+    };
+    shown();
+    try {
+      await Promise.all(Array.from({ length: lanes }, (_, lane) => runLane(lane)));
+    } catch (error) {
+      if (error !== stopped) {
+        throw error;
+      }
+      await Promise.all(Array.from({ length: lanes }, (_, lane) =>
+        api("POST", "api/sim/stop", {}, lane).catch(() => {})));
+      shown(" · stopped");
+      return;
     }
     const elapsed = seconds();
-    const results = await api("POST", "api/sim/results", { elapsed_seconds: elapsed });
-    showSimProgress(progress, elapsed);
-    simShown = { key: JSON.stringify(request), results, seed: progress.seed };
+    const results = await api("POST", "api/sim/merge",
+      { load: request, iterations, threads, shares, elapsed_seconds: elapsed });
+    shown();
+    simShown = { key: JSON.stringify(request), results, seed };
     renderSimResults();
   } catch (error) {
     $("status").textContent = String(error.message || error);
@@ -5055,7 +5108,8 @@ function renderSimResults() {
   $("sim-meta").textContent =
     `${setup.name}: ${setup.race} ${setup.class} · ${setup.rotation} · ${setup.phase} · ` +
     `${setup.ruleset} ruleset · ${formatNumber(run.iterations)} iterations of ${run.combat_length} s ` +
-    `± ${run.length_variance} % · seed ${seed}` + (run.settings ? ` · ${run.settings}` : "") +
+    `± ${run.length_variance} % · ${run.threads} thread${run.threads === 1 ? "" : "s"} · ` +
+    `seed ${seed}` + (run.settings ? ` · ${run.settings}` : "") +
     ` · ${formatNumber(run.elapsed_seconds, 2)} s (${formatNumber(run.events)} events, ` +
     `${formatNumber(run.events_per_second / 1e6, 2)} M/s)`;
 

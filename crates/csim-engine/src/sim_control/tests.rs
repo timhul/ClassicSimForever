@@ -358,6 +358,60 @@ fn a_run_in_chunks_is_the_one_thread_run_of_its_seed() {
     );
 }
 
+/// The shares of a run of seed 5 over `threads` threads, each on a raid of its own, its
+/// statistics through JSON (as from a worker), collected in order.
+fn run_in_shares(data: &Data, settings: &SimSettings, threads: usize) -> NumberCruncher {
+    let mut cruncher = NumberCruncher::new();
+    for share in shares(settings.iterations_quick_sim, threads, 5) {
+        let mut raid = data.raid(settings, 2, true);
+        let mut run = SimRun::for_share(settings.clone(), &share, &mut raid);
+        run.run(&mut raid, 4);
+        let mut own = NumberCruncher::new();
+        run.finish(&mut raid, &mut own);
+        let statistics = &own.class_statistics(None)[0];
+        let json = serde_json::to_string(statistics).unwrap();
+        let back: ClassStatistics = serde_json::from_str(&json).unwrap();
+        assert_eq!(&back, statistics, "the statistics survive JSON");
+        cruncher.add_class_statistics(None, back);
+    }
+    cruncher
+}
+
+#[test]
+fn a_run_in_shares_is_the_threaded_run_of_its_seed() {
+    let data = Data::load();
+    for threads in [1, 3, 4, 40] {
+        let settings = SimSettings {
+            threads,
+            ..settings(30)
+        };
+        let threaded = run_threaded(&settings, SimMode::Quick, 5, None, || {
+            Ok::<_, ()>(data.raid(&settings, 2, true))
+        })
+        .unwrap();
+        let in_shares = run_in_shares(&data, &settings, threads);
+        assert_eq!(
+            fingerprint(&in_shares),
+            fingerprint(&threaded),
+            "{threads} threads"
+        );
+        assert_eq!(
+            in_shares.class_statistics(None).len(),
+            threads.min(30),
+            "a share per thread with iterations"
+        );
+    }
+    let shares = shares(10, 4, 1);
+    assert_eq!(
+        shares
+            .iter()
+            .map(|share| share.iterations)
+            .collect::<Vec<_>>(),
+        [3, 3, 2, 2]
+    );
+    assert_ne!(shares[0], shares[1], "seeded apart");
+}
+
 #[test]
 fn a_run_in_chunks_counts_and_reports_its_iterations() {
     let data = Data::load();

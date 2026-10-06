@@ -7,11 +7,13 @@
 
 use std::time::Duration;
 
+use serde::{Deserialize, Serialize};
+
 use crate::engine::{Engine, EventCounts, EventType};
 
 /// Event counts and elapsed wall-clock time of a set of combat iterations. Port of
 /// `StatisticsEngine`.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineStatistics {
     events: EventCounts,
     elapsed: Duration,

@@ -17,7 +17,8 @@ repository = "https://github.com/timhul/ClassicSimForever"
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
-serde_json = "1"
+# float_roundtrip: floats parse back exactly (the Sim view merges statistics sent as JSON).
+serde_json = { version = "1", features = ["float_roundtrip"] }
 thiserror = "2"
 approx = "0.5"
 csv = "1"

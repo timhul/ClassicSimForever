@@ -4,8 +4,10 @@
 //! parameter ([`crate::statistics::ClassStatistics::time_in_combat`]) so merged statistics
 //! report against the merged time.
 
+use serde::{Deserialize, Serialize};
+
 /// Attempts and successes of one proc. Port of `StatisticsProc`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProcStatistics {
     name: String,
     attempts: u64,

@@ -23,6 +23,8 @@ use std::collections::BTreeMap;
 use std::fmt;
 use std::sync::Arc;
 
+use serde::{Deserialize, Serialize};
+
 use crate::ids::{BuffId, SpellId};
 use crate::rotation::condition::{
     BuiltinVariable, Condition, ConditionContext, Measure, NextChange, Test, Watched,
@@ -33,7 +35,7 @@ use crate::spell::SpellStatus;
 /// What an executor counted since the statistics were last reset. Port of the counters in
 /// `RotationExecutor` that `finish_set_of_combat_iterations` hands to
 /// `StatisticsRotationExecutor`.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutorStatistics {
     /// The executor's spell was available, its condition held and the spell was cast.
     pub successful_casts: u64,

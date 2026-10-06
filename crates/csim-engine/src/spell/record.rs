@@ -1993,7 +1993,7 @@ overrides:
         assert_eq!(db.class_of(20572), Some(None));
         assert_eq!(db.class_of(1), None);
         assert_eq!(db.ids_of_class(None), [20572]);
-        assert_eq!(db.ids_of_class(Some(PlayerClass::Rogue)), []);
+        assert!(db.ids_of_class(Some(PlayerClass::Rogue)).is_empty());
         let spellbook: Vec<u32> = db
             .spellbook(PlayerClass::Warrior)
             .iter()

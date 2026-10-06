@@ -1,8 +1,10 @@
 //! Buff uptime statistics. Port of `Statistics/StatisticsBuff.*`.
 
+use serde::{Deserialize, Serialize};
+
 /// Uptime of one buff (or debuff): the shortest and longest single application in seconds,
 /// and the mean share of the encounter it was active. Port of `StatisticsBuff`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BuffStatistics {
     name: String,
     debuff: bool,

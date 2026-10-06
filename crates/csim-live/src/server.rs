@@ -41,10 +41,19 @@
 //! - `POST /api/sim/step {"iterations": k}`: runs up to `k` more iterations; the progress.
 //! - `POST /api/sim/results {"elapsed_seconds": s}`: the results once every iteration ran
 //!   ([`SimResults`](crate::sim::SimResults)); `s` is the wall-clock time the page measured.
-//!   409 before.
+//!   409 before, and for a share of a run over more threads.
 //! - `POST /api/sim/stop`: drops the sim.
 //!
-//! `step` and `results` answer 409 without a sim.
+//! A run over `T` threads runs a sim per share (`api/sim/start` with `"threads": T, "share":
+//! k`, in the browser each in a worker of its own), then merges them:
+//!
+//! - `POST /api/sim/statistics`: the share's statistics once it ran (JSON for `merge`); 409
+//!   before.
+//! - `POST /api/sim/merge {"load": {..., "seed": "S"}, "iterations": N, "threads": T,
+//!   "shares": [...], "elapsed_seconds": s}`: the run's results from its shares' statistics
+//!   ([`MergeRequest`](crate::sim::MergeRequest)), as `results` answers them.
+//!
+//! `step`, `results` and `statistics` answer 409 without a sim.
 //!
 //! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon lookup (natively the
 //!   icon directory `<data>/icons/`, filled by `tools/fetch_icons.py`; see [`icon_dir`]).
@@ -56,7 +65,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::{App, LoadRequest};
 use crate::session::Session;
-use crate::sim::SimRequest;
+use crate::sim::{MergeRequest, SimRequest};
 use crate::talents::{EditRequest, Layout, State, edit};
 
 /// The page.
@@ -157,11 +166,13 @@ pub fn icon_dir(dir: &Path) -> impl Fn(u32) -> Option<Vec<u8>> + use<> {
 }
 
 /// The sim's endpoints.
-const SIM_PATHS: [&str; 4] = [
+const SIM_PATHS: [&str; 6] = [
     "/api/sim/start",
     "/api/sim/step",
     "/api/sim/results",
     "/api/sim/stop",
+    "/api/sim/statistics",
+    "/api/sim/merge",
 ];
 
 /// The endpoints that need a loaded session.
@@ -227,9 +238,7 @@ pub fn route(
             },
             Err(error) => Reply::error(400, error.to_string()),
         },
-        ("POST", "/api/sim/start" | "/api/sim/step" | "/api/sim/results" | "/api/sim/stop") => {
-            sim_route(app, path, body, new_seed)
-        }
+        ("POST", path) if SIM_PATHS.contains(&path) => sim_route(app, path, body, new_seed),
         ("POST", "/api/advance" | "/api/step" | "/api/restart" | "/api/cast") => {
             let Some(session) = app.session_mut() else {
                 return no_session();
@@ -282,10 +291,23 @@ fn sim_route(app: &mut App, path: &str, body: &str, new_seed: impl FnOnce() -> u
             app.stop_sim();
             Reply::json(&serde_json::json!({}))
         }
+        "/api/sim/merge" => match serde_json::from_str::<MergeRequest>(body) {
+            Ok(request) => match app.merge_sim(request) {
+                Ok(results) => Reply::json(&results),
+                Err(error) => Reply::error(400, error),
+            },
+            Err(error) => Reply::error(400, error.to_string()),
+        },
         _ => {
             let Some(job) = app.sim_mut() else {
                 return Reply::error(409, "no sim: start one first (api/sim/start)");
             };
+            if path == "/api/sim/statistics" {
+                return match job.statistics() {
+                    Some(statistics) => Reply::json(statistics),
+                    None => not_done(job),
+                };
+            }
             if path == "/api/sim/step" {
                 return match serde_json::from_str::<SimStep>(body) {
                     Ok(SimStep { iterations }) => Reply::json(&job.step(iterations)),
@@ -298,16 +320,12 @@ fn sim_route(app: &mut App, path: &str, body: &str, new_seed: impl FnOnce() -> u
                 {
                     match job.results(Duration::from_secs_f64(elapsed_seconds)) {
                         Some(results) => Reply::json(&results),
-                        None => {
-                            let progress = job.progress();
-                            Reply::error(
-                                409,
-                                format!(
-                                    "the sim is not done: {} of {} iterations",
-                                    progress.done, progress.total
-                                ),
-                            )
-                        }
+                        None if !job.is_whole() => Reply::error(
+                            409,
+                            "a share of a run over more threads: merge the shares' statistics \
+                             (api/sim/merge)",
+                        ),
+                        None => not_done(job),
                     }
                 }
                 Ok(_) => Reply::error(400, "`elapsed_seconds` must be a finite number >= 0"),
@@ -315,6 +333,18 @@ fn sim_route(app: &mut App, path: &str, body: &str, new_seed: impl FnOnce() -> u
             }
         }
     }
+}
+
+/// The answer of a sim endpoint before the sim is done.
+fn not_done(job: &crate::sim::SimJob) -> Reply {
+    let progress = job.progress();
+    Reply::error(
+        409,
+        format!(
+            "the sim is not done: {} of {} iterations",
+            progress.done, progress.total
+        ),
+    )
 }
 
 /// The seed of a restart request; a new one when it names none.

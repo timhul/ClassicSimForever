@@ -1,10 +1,12 @@
 //! Spell availability and outcome enums. Port of `SpellStatus` / `SpellResult` in
 //! `Spells/Spell.h` and the status descriptions in `Statistics/StatisticsRotationExecutor.cpp`.
 
+use serde::{Deserialize, Serialize};
+
 use crate::stance::Stance;
 
 /// Why a spell can or cannot be cast right now. Port of `SpellStatus`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum SpellStatus {
     Available,
     BuffInactive,

@@ -12,6 +12,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::Duration;
 
 use csim_engine::character_loader::{CharacterSetup, GearChange, GearChanged, TargetSetup};
 use csim_engine::data_bundle::DataBundle;
@@ -22,12 +23,16 @@ use csim_engine::named_settings::{
 };
 use csim_engine::race::Race;
 use csim_engine::sim_settings::SimSettings;
+use csim_engine::statistics::NumberCruncher;
 use csim_engine::target::CreatureType;
 use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
 use crate::session::{Info, Session};
-use crate::sim::{SimJob, SimProgress, SimRequest};
+use crate::sim::{
+    MergeRequest, SimJob, SimProgress, SimRequest, SimResults, run_settings, run_shares,
+    sim_results,
+};
 use crate::talents::{self, Talents};
 
 /// The setups' directory under the data directory.
@@ -547,9 +552,71 @@ impl App {
             resolved.setup,
             resolved.settings,
             resolved.seed,
-            request.iterations,
+            (request.iterations, request.threads, request.share),
         )?;
         Ok(self.sim.insert(job).progress())
+    }
+
+    /// The results of a run whose shares ran apart (in the browser's workers, each its own
+    /// [`App::start_sim`]): `request` names the run as their starts did, with the seed they
+    /// ran with, and gives each share's statistics in order.
+    ///
+    /// # Errors
+    /// As [`App::start_sim`]; the request names no seed, or the shares are not the run's (their
+    /// number, or one's iterations).
+    pub fn merge_sim(&self, request: MergeRequest) -> Result<SimResults, String> {
+        if request
+            .load
+            .seed
+            .as_deref()
+            .is_none_or(|seed| seed.trim().is_empty())
+        {
+            return Err("no seed: name the one the shares ran with".into());
+        }
+        if !request.elapsed_seconds.is_finite() || request.elapsed_seconds < 0.0 {
+            return Err("`elapsed_seconds` must be a finite number >= 0".into());
+        }
+        let load = LoadRequest {
+            keybinds: None,
+            keybinds_yaml: None,
+            ..request.load
+        };
+        let resolved = self.resolve(load, || unreachable!("the seed is given"))?;
+        let shares = run_shares(request.iterations, request.threads, resolved.seed)?;
+        if shares.len() != request.shares.len() {
+            return Err(format!(
+                "{} shares for {} threads of {} iterations: {} expected",
+                request.shares.len(),
+                request.threads,
+                request.iterations,
+                shares.len()
+            ));
+        }
+        let mut cruncher = NumberCruncher::new();
+        for (index, (share, statistics)) in shares.iter().zip(request.shares).enumerate() {
+            if statistics.iterations() != u64::from(share.iterations) {
+                return Err(format!(
+                    "share {index} has {} iterations: {} expected",
+                    statistics.iterations(),
+                    share.iterations
+                ));
+            }
+            cruncher.add_class_statistics(None, statistics);
+        }
+        let settings = run_settings(resolved.settings, request.iterations, request.threads)?;
+        let raid = resolved
+            .setup
+            .build_raid(&self.data, &settings)
+            .map_err(|error| error.to_string())?;
+        Ok(sim_results(
+            &self.data,
+            &resolved.setup,
+            &settings,
+            resolved.seed,
+            Duration::from_secs_f64(request.elapsed_seconds),
+            &cruncher,
+            &raid,
+        ))
     }
 
     /// The sim started last, if any (until [`App::stop_sim`]).
