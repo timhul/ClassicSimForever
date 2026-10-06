@@ -10,6 +10,9 @@
 //! per scaling option with the option's stat added to the first character; both hand the statistics of the raid's
 //! first character, with every member's result added, to a [`NumberCruncher`].
 //!
+//! [`SimRun`] runs the baseline in chunks the caller sizes (a page showing its progress), with
+//! the result of one [`SimControl::run_quick_sim`].
+//!
 //! [`IterationStepper`] runs one iteration through the same pieces an event at a time, for
 //! watching it unfold.
 //!
@@ -163,9 +166,16 @@ impl SimControl {
     /// Panics if a character was set up for another combat length (its DPS would be wrong).
     pub fn run_sim(&mut self, raid: &mut RaidControl, combat_length: u32, iterations: u32) {
         let mut set = self.begin_set_of_iterations(raid, combat_length);
+        self.run_iterations(raid, &mut set, iterations);
+        end_set_of_iterations(raid, &set);
+    }
+
+    /// Runs `iterations` iterations of the set `set` and reports them to the progress
+    /// callback, in groups of [`PROGRESS_INTERVAL`] and the rest at the end.
+    fn run_iterations(&mut self, raid: &mut RaidControl, set: &mut IterationSet, iterations: u32) {
         let mut reported = 0;
         for _ in 0..iterations {
-            self.begin_iteration(raid, &mut set);
+            self.begin_iteration(raid, set);
             raid.run();
             end_iteration(raid);
 
@@ -178,7 +188,6 @@ impl SimControl {
         if reported > 0 {
             self.report(reported);
         }
-        end_set_of_iterations(raid, &set);
     }
 
     /// Prepares the raid for a set of iterations of `combat_length` seconds.
@@ -328,6 +337,96 @@ fn collect(raid: &mut RaidControl, option: Option<SimOption>, cruncher: &mut Num
     cruncher.add_class_statistics(option, first);
 }
 
+/// A baseline run ([`SimControl::run_quick_sim`]) whose iterations the caller runs in chunks
+/// of any size, for a page that shows its progress and can stop it. Seeded like the only
+/// thread of [`run_threaded`]: whatever the chunks, the result is that of a one-thread
+/// quick sim with the same seed.
+///
+/// Every call takes the raid the run was created with. A run dropped before
+/// [`SimRun::finish`] leaves that raid in the middle of a set of iterations: drop it too.
+pub struct SimRun {
+    control: SimControl,
+    set: IterationSet,
+    done: u32,
+    total: u32,
+}
+
+impl SimRun {
+    /// Seeds `raid` from `seed` (as [`SimControl::new`]) and begins a set of
+    /// `settings.iterations_quick_sim` iterations of `settings.combat_length` seconds; none
+    /// has run yet.
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length than `settings`'.
+    pub fn new(settings: SimSettings, seed: u64, raid: &mut RaidControl) -> Self {
+        let control = SimControl::new(settings, seed);
+        Self::begin(control, raid)
+    }
+
+    /// As [`SimRun::new`], for the thread of a run that `share` is ([`shares`]): its
+    /// iterations (instead of the settings') with its seeds. Its statistics are that thread's
+    /// of [`run_threaded`].
+    ///
+    /// # Panics
+    /// Panics if a character was set up for another combat length than `settings`'.
+    pub fn for_share(mut settings: SimSettings, share: &Share, raid: &mut RaidControl) -> Self {
+        settings.iterations_quick_sim = share.iterations;
+        let control = SimControl::with_seeds(settings, share.raid_seed, share.shuffle_seed);
+        Self::begin(control, raid)
+    }
+
+    fn begin(mut control: SimControl, raid: &mut RaidControl) -> Self {
+        let (combat_length, total) = (
+            control.settings.combat_length,
+            control.settings.iterations_quick_sim,
+        );
+        let set = control.begin_set_of_iterations(raid, combat_length);
+        SimRun {
+            control,
+            set,
+            done: 0,
+            total,
+        }
+    }
+
+    /// Reports the iterations completed to `progress`, as [`SimControl::with_progress`].
+    pub fn with_progress(mut self, progress: Progress) -> Self {
+        self.control.progress = Some(progress);
+        self
+    }
+
+    /// Runs up to `iterations` more iterations, fewer when the run has fewer left, and
+    /// returns how many ran.
+    pub fn run(&mut self, raid: &mut RaidControl, iterations: u32) -> u32 {
+        let iterations = iterations.min(self.total - self.done);
+        self.control.run_iterations(raid, &mut self.set, iterations);
+        self.done += iterations;
+        iterations
+    }
+
+    /// The iterations run so far.
+    pub fn done(&self) -> u32 {
+        self.done
+    }
+
+    /// The iterations of the whole run.
+    pub fn total(&self) -> u32 {
+        self.total
+    }
+
+    pub fn is_done(&self) -> bool {
+        self.done == self.total
+    }
+
+    /// Runs the iterations left, ends the set and collects it into `cruncher`, as
+    /// [`SimControl::run_quick_sim`] does.
+    pub fn finish(mut self, raid: &mut RaidControl, cruncher: &mut NumberCruncher) {
+        self.run(raid, self.total - self.done);
+        end_set_of_iterations(raid, &self.set);
+        collect(raid, None, cruncher);
+    }
+}
+
 /// Runs one iteration of `raid` with the combat log recorded and returns the log; the raid's
 /// statistics hold the iteration's results. Seeded like the only thread of [`run_threaded`], so
 /// it is the iteration a one-thread, one-iteration run with the same `seed` simulates.
@@ -440,21 +539,14 @@ pub fn run_threaded<E: Send>(
     progress: Option<Progress>,
     build: impl Fn() -> Result<RaidControl, E> + Sync,
 ) -> Result<NumberCruncher, E> {
-    let threads = settings.threads.max(1);
-    let iterations = mode.iterations(settings);
-    let mut seeds = Xoroshiro128Plus::from_seed(seed);
-    let jobs: Vec<(u32, u64, u64)> = split_iterations(iterations, threads)
-        .into_iter()
-        .map(|share| (share, seeds.next(), seeds.next()))
-        .filter(|&(share, _, _)| share > 0)
-        .collect();
+    let jobs = shares(mode.iterations(settings), settings.threads, seed);
 
     // One thread's share of the iterations, on a raid of its own.
-    let run_share = |(share, raid_seed, shuffle_seed): (u32, u64, u64)| {
+    let run_share = |share: Share| {
         let mut local = settings.clone();
-        mode.set_iterations(&mut local, share);
+        mode.set_iterations(&mut local, share.iterations);
         let mut raid = build()?;
-        let mut control = SimControl::with_seeds(local, raid_seed, shuffle_seed);
+        let mut control = SimControl::with_seeds(local, share.raid_seed, share.shuffle_seed);
         if let Some(progress) = progress.clone() {
             control = control.with_progress(progress);
         }
@@ -485,6 +577,31 @@ pub fn run_threaded<E: Send>(
         cruncher.absorb(result?);
     }
     Ok(cruncher)
+}
+
+/// One thread's share of a run: its iterations and seeds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Share {
+    pub iterations: u32,
+    raid_seed: u64,
+    shuffle_seed: u64,
+}
+
+/// The shares of a run of `iterations` over `threads` threads (at least one) seeded with
+/// `seed`, in thread order, as [`run_threaded`] runs them: the threads without an iteration
+/// (more threads than iterations) are left out. Each can run anywhere ([`SimRun::for_share`]);
+/// their statistics, collected in this order, are the run's.
+pub fn shares(iterations: u32, threads: usize, seed: u64) -> Vec<Share> {
+    let mut seeds = Xoroshiro128Plus::from_seed(seed);
+    split_iterations(iterations, threads.max(1))
+        .into_iter()
+        .map(|iterations| Share {
+            iterations,
+            raid_seed: seeds.next(),
+            shuffle_seed: seeds.next(),
+        })
+        .filter(|share| share.iterations > 0)
+        .collect()
 }
 
 /// `iterations` split over `threads`, the first threads taking one more of the remainder.

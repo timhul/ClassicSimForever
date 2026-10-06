@@ -2,6 +2,8 @@
 
 use std::path::Path;
 
+use csim_engine::item::EquipmentSlot;
+
 use super::*;
 use crate::session::tests::empty_app;
 
@@ -392,4 +394,229 @@ fn a_load_changes_the_buffs_and_debuffs() {
     // Another setup by itself: its own.
     let loaded = load(&mut app, by_name("rogue_combat_swords_human")).unwrap();
     assert_eq!(loaded.externals, Externals::default());
+}
+
+#[test]
+fn the_catalog_lists_each_class_s_races_and_rotations() {
+    let catalog = empty_app().catalog();
+    let class = |class| {
+        catalog
+            .classes
+            .iter()
+            .find(|entry| entry.class == class)
+            .unwrap()
+    };
+    let races = |of| {
+        class(of)
+            .races
+            .iter()
+            .map(|entry| entry.race)
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        races(PlayerClass::Warrior),
+        Race::ALL,
+        "every race, in order"
+    );
+    assert_eq!(
+        races(PlayerClass::Rogue),
+        Race::ALL
+            .into_iter()
+            .filter(|race| *race != Race::Tauren)
+            .collect::<Vec<_>>()
+    );
+    let warrior = class(PlayerClass::Warrior);
+    assert_eq!(warrior.name, "Warrior");
+    let human = &warrior.races[0];
+    assert_eq!((human.name, human.faction), ("Human", "Alliance"));
+    let fury = warrior
+        .rotations
+        .iter()
+        .find(|rotation| rotation.name == "DW Fury")
+        .unwrap();
+    assert_eq!(fury.prerequisites, ["Bloodthirst"]);
+    assert!(
+        class(PlayerClass::Rogue)
+            .rotations
+            .iter()
+            .any(|rotation| rotation.name == "Combat")
+    );
+
+    let json = serde_json::to_value(warrior).unwrap();
+    assert_eq!(json["class"], "WARRIOR");
+    assert_eq!(json["races"][3]["race"], "NIGHT_ELF");
+}
+
+#[test]
+fn a_load_changes_the_race_and_keeps_the_gear() {
+    let mut app = empty_app();
+    let orc = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    let human = load(
+        &mut app,
+        LoadRequest {
+            race: Some(Race::Human),
+            ..by_name("warrior_fury_dw_orc")
+        },
+    )
+    .unwrap();
+    assert_eq!(human.race_override, Some(Race::Human));
+    assert_eq!((orc.info.race, human.info.race), ("Orc", "Human"));
+    assert_eq!(human.info.name, "DW Fury Orc", "still the setup");
+    assert_eq!(human.source.setup.as_deref(), Some("warrior_fury_dw_orc"));
+    // The Horde gear, talents and buffs stay; the racials change the stats.
+    assert_eq!(human.info.equipment, orc.info.equipment);
+    assert_eq!(spent_talents(&app)["Fury"]["Bloodthirst"], 1);
+    assert_eq!(human.info.externals, orc.info.externals);
+    assert_ne!(human.info.stats, orc.info.stats);
+    assert_eq!(
+        serde_json::to_value(&human).unwrap()["race_override"],
+        "HUMAN"
+    );
+
+    // The setup's own race is no change; a race the class cannot be keeps the session.
+    let own = LoadRequest {
+        race: Some(Race::Orc),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    assert_eq!(load(&mut app, own).unwrap().race_override, None);
+    let tauren_rogue = LoadRequest {
+        race: Some(Race::Tauren),
+        ..by_name("rogue_combat_swords_human")
+    };
+    let error = load(&mut app, tauren_rogue).unwrap_err();
+    assert!(error.contains("Tauren is not available"), "{error}");
+    assert_eq!(app.loaded().unwrap().info.race, "Orc");
+
+    // Another load without one: the setup's race again.
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    assert_eq!((loaded.race_override, loaded.info.race), (None, "Orc"));
+}
+
+fn bare(class: PlayerClass, race: Race, rotation: &str) -> LoadRequest {
+    LoadRequest {
+        bare: Some(Bare {
+            class,
+            race,
+            rotation: rotation.to_owned(),
+        }),
+        ..LoadRequest::default()
+    }
+}
+
+#[test]
+fn a_bare_character_has_nothing_but_its_rotation() {
+    let mut app = empty_app();
+    let loaded = load(
+        &mut app,
+        bare(PlayerClass::Warrior, Race::HighOrderSkyborne, "DW Fury"),
+    )
+    .unwrap();
+    assert_eq!(loaded.info.name, "High Order Skyborne Warrior");
+    assert_eq!(
+        (
+            loaded.info.class,
+            loaded.info.race,
+            loaded.info.rotation.as_str()
+        ),
+        ("Warrior", "High Order Skyborne", "DW Fury")
+    );
+    assert_eq!(loaded.source.setup, None);
+    assert_eq!(
+        loaded.source.bare,
+        Some(Bare {
+            class: PlayerClass::Warrior,
+            race: Race::HighOrderSkyborne,
+            rotation: "DW Fury".into(),
+        })
+    );
+    assert!(loaded.info.equipment.is_empty());
+    assert!(spent_talents(&app).is_empty());
+    assert!(
+        loaded
+            .info
+            .externals
+            .iter()
+            .all(|external| !external.selected)
+    );
+    // It loads without Bloodthirst, and says so.
+    let missing = &loaded.info.missing_prerequisites;
+    assert_eq!(missing.len(), 1, "{missing:?}");
+    assert_eq!(missing[0].spell, "Bloodthirst");
+    assert!(missing[0].reason.contains("talent"), "{missing:?}");
+
+    // Its gear and buffs change as a setup's do.
+    let geared = load(
+        &mut app,
+        LoadRequest {
+            gear: vec![GearChange {
+                slot: EquipmentSlot::Mainhand,
+                item: Some(19019),
+            }],
+            buffs: Some(vec!["Juju Power".into()]),
+            ..bare(PlayerClass::Warrior, Race::HighOrderSkyborne, "DW Fury")
+        },
+    )
+    .unwrap();
+    assert_eq!(geared.info.equipment.len(), 1);
+    assert_eq!(geared.info.equipment[0].id, 19019);
+    // Not the bare character's (none): a link carries them.
+    assert_eq!(geared.externals.buffs, Some(vec!["Juju Power".to_owned()]));
+    assert!(
+        geared
+            .info
+            .externals
+            .iter()
+            .any(|external| external.name == "Juju Power" && external.selected)
+    );
+
+    // A rotation without prerequisites misses none.
+    let rogue = load(&mut app, bare(PlayerClass::Rogue, Race::Gnome, "Combat")).unwrap();
+    assert!(rogue.info.missing_prerequisites.is_empty());
+}
+
+#[test]
+fn a_bare_character_is_checked() {
+    let mut app = empty_app();
+    load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    for (request, message) in [
+        (
+            bare(PlayerClass::Warrior, Race::Human, "Combat"),
+            "no rotation \"Combat\"",
+        ),
+        (
+            bare(PlayerClass::Rogue, Race::Tauren, "Combat"),
+            "Tauren is not available",
+        ),
+        (
+            LoadRequest {
+                setup: Some("warrior_fury_dw_orc".into()),
+                ..bare(PlayerClass::Warrior, Race::Human, "DW Fury")
+            },
+            "more than one",
+        ),
+    ] {
+        let error = load(&mut app, request).unwrap_err();
+        assert!(error.contains(message), "{error}");
+    }
+    assert_eq!(app.loaded().unwrap().info.name, "DW Fury Orc");
+    assert!(
+        serde_json::from_str::<LoadRequest>(
+            r#"{"bare": {"class": "WARRIOR", "race": "HUMAN", "rotation": "DW Fury", "gear": []}}"#
+        )
+        .is_err(),
+        "unknown fields"
+    );
+}
+
+#[test]
+fn a_bundled_setup_still_needs_its_rotation_s_prerequisites() {
+    let mut app = empty_app();
+    let request = LoadRequest {
+        talents: Some(Talents::new()),
+        ..by_name("warrior_fury_dw_orc")
+    };
+    let error = load(&mut app, request).unwrap_err();
+    assert!(error.contains("prerequisite \"Bloodthirst\""), "{error}");
+    let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
+    assert!(loaded.info.missing_prerequisites.is_empty());
 }

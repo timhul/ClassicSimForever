@@ -2,6 +2,10 @@
 //! an HTTP request: the same routes ([`csim_live::server::route`]) over the same kind of
 //! [`App`], with the data embedded at build time ([`FILES`]) instead of read from disk.
 //!
+//! The Sim view's sims (`api/sim/*`) go to more [`LiveApp`]s, each in a Web Worker
+//! (`web/sim-worker.js`), so that their iterations do not hold up the page and a run's shares
+//! run side by side.
+//!
 //! Built for `wasm32-unknown-unknown` and bound with `wasm-bindgen --target web`; the host
 //! builds and tests it as an ordinary library.
 

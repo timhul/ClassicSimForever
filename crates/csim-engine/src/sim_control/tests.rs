@@ -306,6 +306,141 @@ fn a_build_error_is_returned() {
     assert_eq!(result.err(), Some("no raid"));
 }
 
+/// What a run's statistics are compared by: the DPS of every iteration, the engine's events,
+/// the members' results and the report's spell, buff, proc and resource rows.
+fn fingerprint(cruncher: &NumberCruncher) -> String {
+    use crate::statistics::report::{buff_rows, proc_rows, resource_rows, spell_rows};
+    let stats = baseline(cruncher);
+    format!(
+        "{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
+        stats.dps_per_iteration(),
+        stats.engine().events(),
+        cruncher.player_results(),
+        spell_rows(&stats, stats.iterations(), stats.time_in_combat()),
+        buff_rows(&stats),
+        proc_rows(&stats),
+        resource_rows(&stats),
+    )
+}
+
+/// `chunks` of a [`SimRun`] of `seed`, then its finish.
+fn chunked(data: &Data, settings: &SimSettings, seed: u64, chunks: &[u32]) -> NumberCruncher {
+    let mut raid = data.raid(settings, 2, true);
+    let mut run = SimRun::new(settings.clone(), seed, &mut raid);
+    for &chunk in chunks {
+        run.run(&mut raid, chunk);
+    }
+    let mut cruncher = NumberCruncher::new();
+    run.finish(&mut raid, &mut cruncher);
+    cruncher
+}
+
+#[test]
+fn a_run_in_chunks_is_the_one_thread_run_of_its_seed() {
+    let data = Data::load();
+    let settings = settings(30);
+    let one_thread = run_threaded(&settings, SimMode::Quick, 5, None, || {
+        Ok::<_, ()>(data.raid(&settings, 2, true))
+    })
+    .unwrap();
+    let expected = fingerprint(&one_thread);
+    assert_eq!(baseline(&one_thread).iterations(), 30);
+
+    // One chunk, uneven chunks, empty and oversized ones, and none (the finish runs them).
+    for chunks in [&[30][..], &[1, 7, 22], &[0, 4, 0, 100], &[11], &[]] {
+        let cruncher = chunked(&data, &settings, 5, chunks);
+        assert_eq!(fingerprint(&cruncher), expected, "{chunks:?}");
+    }
+    assert_ne!(
+        fingerprint(&chunked(&data, &settings, 6, &[30])),
+        expected,
+        "the fingerprint tells the seeds apart"
+    );
+}
+
+/// The shares of a run of seed 5 over `threads` threads, each on a raid of its own, its
+/// statistics through JSON (as from a worker), collected in order.
+fn run_in_shares(data: &Data, settings: &SimSettings, threads: usize) -> NumberCruncher {
+    let mut cruncher = NumberCruncher::new();
+    for share in shares(settings.iterations_quick_sim, threads, 5) {
+        let mut raid = data.raid(settings, 2, true);
+        let mut run = SimRun::for_share(settings.clone(), &share, &mut raid);
+        run.run(&mut raid, 4);
+        let mut own = NumberCruncher::new();
+        run.finish(&mut raid, &mut own);
+        let statistics = &own.class_statistics(None)[0];
+        let json = serde_json::to_string(statistics).unwrap();
+        let back: ClassStatistics = serde_json::from_str(&json).unwrap();
+        assert_eq!(&back, statistics, "the statistics survive JSON");
+        cruncher.add_class_statistics(None, back);
+    }
+    cruncher
+}
+
+#[test]
+fn a_run_in_shares_is_the_threaded_run_of_its_seed() {
+    let data = Data::load();
+    for threads in [1, 3, 4, 40] {
+        let settings = SimSettings {
+            threads,
+            ..settings(30)
+        };
+        let threaded = run_threaded(&settings, SimMode::Quick, 5, None, || {
+            Ok::<_, ()>(data.raid(&settings, 2, true))
+        })
+        .unwrap();
+        let in_shares = run_in_shares(&data, &settings, threads);
+        assert_eq!(
+            fingerprint(&in_shares),
+            fingerprint(&threaded),
+            "{threads} threads"
+        );
+        assert_eq!(
+            in_shares.class_statistics(None).len(),
+            threads.min(30),
+            "a share per thread with iterations"
+        );
+    }
+    let shares = shares(10, 4, 1);
+    assert_eq!(
+        shares
+            .iter()
+            .map(|share| share.iterations)
+            .collect::<Vec<_>>(),
+        [3, 3, 2, 2]
+    );
+    assert_ne!(shares[0], shares[1], "seeded apart");
+}
+
+#[test]
+fn a_run_in_chunks_counts_and_reports_its_iterations() {
+    let data = Data::load();
+    let settings = settings(25);
+    let mut raid = data.raid(&settings, 1, false);
+    let completed = Arc::new(AtomicU32::new(0));
+    let counter = Arc::clone(&completed);
+    let progress: Progress = Arc::new(move |n| {
+        counter.fetch_add(n, Ordering::Relaxed);
+    });
+    let mut run = SimRun::new(settings, 1, &mut raid).with_progress(progress);
+    assert_eq!((run.done(), run.total(), run.is_done()), (0, 25, false));
+
+    assert_eq!(run.run(&mut raid, 3), 3);
+    assert_eq!(completed.load(Ordering::Relaxed), 3);
+    assert_eq!(run.run(&mut raid, 15), 15);
+    assert_eq!(run.run(&mut raid, 15), 7, "only what is left");
+    assert_eq!(run.run(&mut raid, 1), 0);
+    assert_eq!((run.done(), run.is_done()), (25, true));
+    assert_eq!(completed.load(Ordering::Relaxed), 25);
+
+    let mut cruncher = NumberCruncher::new();
+    run.finish(&mut raid, &mut cruncher);
+    assert_eq!(baseline(&cruncher).iterations(), 25);
+    assert_eq!(completed.load(Ordering::Relaxed), 25);
+    // The raid is clean for another run.
+    assert!(raid.engine().queue().is_empty());
+}
+
 #[test]
 fn iterations_are_split_over_the_threads() {
     assert_eq!(split_iterations(10, 3), [4, 3, 3]);

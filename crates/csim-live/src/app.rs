@@ -2,24 +2,37 @@
 //! watched, if one is loaded. The page lists the bundled setups and keybinds
 //! ([`App::catalog`]) and loads one ([`App::load`]): a setup by name or as pasted YAML, played
 //! by its rotation or from the keyboard, with a seed, a length, named settings, the target's
-//! creature type and armor, and changes of its gear, talents and external buffs and debuffs.
+//! creature type and armor, and changes of its race, gear, talents and external buffs and
+//! debuffs. Instead of a setup it can load a bare character ([`Bare`]): a class and race with
+//! nothing but a rotation, to put together in the page.
+//!
+//! Beside the session, the app runs at most one sim of many iterations ([`App::start_sim`],
+//! [`SimJob`]), of a setup resolved as a load's.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::Duration;
 
 use csim_engine::character_loader::{CharacterSetup, GearChange, GearChanged, TargetSetup};
 use csim_engine::data_bundle::DataBundle;
+use csim_engine::faction::PlayerClass;
 use csim_engine::files::{Files, MemFiles, Overlay, yaml_files};
 use csim_engine::named_settings::{
     NAMED_SETTINGS, SettingKind, SettingRequirement, parse_setting_pairs,
 };
+use csim_engine::race::Race;
 use csim_engine::sim_settings::SimSettings;
+use csim_engine::statistics::NumberCruncher;
 use csim_engine::target::CreatureType;
 use serde::{Deserialize, Serialize};
 
 use crate::keybinds::{self, Keybind};
 use crate::session::{Info, Session};
+use crate::sim::{
+    MergeRequest, SimJob, SimProgress, SimRequest, SimResults, run_settings, run_shares,
+    sim_results,
+};
 use crate::talents::{self, Talents};
 
 /// The setups' directory under the data directory.
@@ -38,6 +51,24 @@ pub struct App {
     data: Arc<DataBundle>,
     session: Option<Session>,
     source: Source,
+    /// The race the load put in place of the setup's.
+    race_override: Option<Race>,
+    target: TargetChoice,
+    gear: GearChanged,
+    talents_changed: bool,
+    externals: Externals,
+    sim: Option<SimJob>,
+}
+
+/// What a load request resolves to: the setup as the request changed it, its settings, seed
+/// and keybinds, where it comes from and how it differs from the setup's own.
+struct Resolved {
+    setup: CharacterSetup,
+    settings: SimSettings,
+    seed: u64,
+    keybinds: Vec<Keybind>,
+    source: Source,
+    race_override: Option<Race>,
     target: TargetChoice,
     gear: GearChanged,
     talents_changed: bool,
@@ -53,11 +84,48 @@ pub struct Externals {
 }
 
 /// Where the session's setup and keybinds come from: their catalog names, `None` for pasted
-/// text or a file outside the data directory (or no keybinds).
+/// text or a file outside the data directory (or no keybinds); or the bare character.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
 pub struct Source {
     pub setup: Option<String>,
     pub keybinds: Option<String>,
+    pub bare: Option<Bare>,
+}
+
+/// A character of `class` and `race` with nothing but the class's `rotation` (by name): no
+/// gear, talents, buffs, debuffs or consumables; the default target, level 60. It loads
+/// although its rotation's prerequisites cannot hold without talents
+/// ([`Info::missing_prerequisites`](crate::session::Info::missing_prerequisites)).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Bare {
+    pub class: PlayerClass,
+    pub race: Race,
+    pub rotation: String,
+}
+
+impl Bare {
+    /// Its setup: `Human Warrior`.
+    fn setup(&self) -> CharacterSetup {
+        CharacterSetup {
+            name: format!("{} {}", self.race.name(), self.class.name()),
+            class: self.class,
+            race: self.race,
+            level: 60,
+            phase: None,
+            ruleset: None,
+            rotation: self.rotation.clone(),
+            tanking: false,
+            talents: BTreeMap::new(),
+            equipment: BTreeMap::new(),
+            buffs: Vec::new(),
+            debuffs: Vec::new(),
+            consumables: Vec::new(),
+            target: TargetSetup::default(),
+            path: None,
+            allow_missing_prerequisites: true,
+        }
+    }
 }
 
 /// The session's info and where it comes from: the answer to `api/info` and `api/load`.
@@ -66,6 +134,9 @@ pub struct Loaded {
     #[serde(flatten)]
     pub info: Info,
     pub source: Source,
+    /// The race in place of the setup's (`info.race` is the one played), if the load changed
+    /// it.
+    pub race_override: Option<Race>,
     pub target: TargetChoice,
     /// How the session's gear differs from the setup's, and the setup's enchants that did
     /// not fit the new items.
@@ -127,6 +198,9 @@ impl TargetChoice {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Catalog {
     pub setups: Vec<SetupEntry>,
+    /// The classes of the data, with their races and rotations (what a bare character and a
+    /// race change can be).
+    pub classes: Vec<ClassEntry>,
     /// The keybind files, by name.
     pub keybinds: Vec<String>,
     /// The keybinds of each file of `keybinds` that loads, by its name (the editor's starting
@@ -158,6 +232,35 @@ pub struct SetupEntry {
     pub error: Option<String>,
 }
 
+/// A class of the data.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ClassEntry {
+    /// As `api/load` takes it (`WARRIOR`).
+    pub class: PlayerClass,
+    pub name: &'static str,
+    /// The races it can be, in the game's race order.
+    pub races: Vec<RaceEntry>,
+    /// Its rotations, by name.
+    pub rotations: Vec<RotationEntry>,
+}
+
+/// A race a class can be.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct RaceEntry {
+    /// As `api/load` takes it (`NIGHT_ELF`).
+    pub race: Race,
+    pub name: &'static str,
+    pub faction: &'static str,
+}
+
+/// A rotation of a class.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct RotationEntry {
+    pub name: String,
+    /// The spells it cannot do without (a bare character lacks the talented ones).
+    pub prerequisites: Vec<String>,
+}
+
 /// A named setting (`--setting`).
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SettingEntry {
@@ -172,9 +275,12 @@ pub struct SettingEntry {
 #[derive(Debug, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LoadRequest {
-    /// A bundled setup, by name; or `setup_yaml`, a pasted one.
+    /// A bundled setup, by name; or `setup_yaml`, a pasted one; or `bare`, a bare character.
     pub setup: Option<String>,
     pub setup_yaml: Option<String>,
+    pub bare: Option<Bare>,
+    /// The race instead of the setup's; its gear, talents and buffs stay.
+    pub race: Option<Race>,
     /// Bundled keybinds, by name, or `keybinds_yaml`, pasted ones: played from the keyboard.
     /// Neither: the rotation plays.
     pub keybinds: Option<String>,
@@ -210,10 +316,12 @@ impl App {
             data,
             session: None,
             source: Source::default(),
+            race_override: None,
             target: TargetChoice::unchanged(&TargetSetup::default()),
             gear: GearChanged::default(),
             talents_changed: false,
             externals: Externals::default(),
+            sim: None,
         }
     }
 
@@ -233,6 +341,7 @@ impl App {
     /// Watches `session`, its setup and keybinds coming from `source` (its target, gear and
     /// talents as the setup has them).
     pub fn set_session(&mut self, session: Session, source: Source) {
+        self.race_override = None;
         self.target = TargetChoice::unchanged(session.target());
         self.gear = GearChanged::default();
         self.talents_changed = false;
@@ -246,6 +355,7 @@ impl App {
         self.session.as_ref().map(|session| Loaded {
             info: session.info(),
             source: self.source.clone(),
+            race_override: self.race_override,
             target: self.target,
             gear: self.gear.clone(),
             talents_code: self
@@ -304,6 +414,7 @@ impl App {
         let defaults = SimSettings::default();
         Catalog {
             setups,
+            classes: self.class_entries(),
             keybinds,
             keybind_entries,
             keys: keybinds::NAMED_KEYS,
@@ -321,6 +432,41 @@ impl App {
             length_variance: defaults.length_variance,
             build: self.data.build().map(str::to_owned),
         }
+    }
+
+    fn class_entries(&self) -> Vec<ClassEntry> {
+        self.data
+            .classes
+            .classes()
+            .filter_map(|class| {
+                let spec = self.data.classes.get(class).ok()?;
+                let races = Race::ALL
+                    .into_iter()
+                    .filter(|race| spec.race_available(*race))
+                    .map(|race| RaceEntry {
+                        race,
+                        name: race.name(),
+                        faction: race.faction().name(),
+                    })
+                    .collect();
+                let rotations = self
+                    .data
+                    .rotations
+                    .rotations_for(class)
+                    .iter()
+                    .map(|rotation| RotationEntry {
+                        name: rotation.name.clone(),
+                        prerequisites: rotation.prerequisites.clone(),
+                    })
+                    .collect();
+                Some(ClassEntry {
+                    class,
+                    name: class.name(),
+                    races,
+                    rotations,
+                })
+            })
+            .collect()
     }
 
     fn yaml_files(&self, dir: &str) -> Vec<PathBuf> {
@@ -358,15 +504,146 @@ impl App {
     /// stays when the request fails. `new_seed` gives the seed when it names none.
     ///
     /// # Errors
-    /// The request is malformed (no setup, or both a name and text; an unknown name), a file
-    /// does not load, the seed, a setting or a gear change is invalid, or the setup does not
-    /// build (talents that cannot be spent, a rotation's prerequisite not taken).
+    /// The request is malformed (no setup, or more than one; an unknown name), a file does not
+    /// load, the seed, a setting or a gear change is invalid, or the setup does not build (a
+    /// race the class cannot be, talents that cannot be spent, a rotation's prerequisite not
+    /// taken).
     pub fn load(
         &mut self,
         request: LoadRequest,
         new_seed: impl FnOnce() -> u64,
     ) -> Result<Loaded, String> {
+        let resolved = self.resolve(request, new_seed)?;
+        let session = Session::new(
+            Arc::clone(&self.data),
+            resolved.setup,
+            resolved.settings,
+            resolved.seed,
+            resolved.keybinds,
+        )?;
+        self.set_session(session, resolved.source);
+        self.race_override = resolved.race_override;
+        self.target = resolved.target;
+        self.gear = resolved.gear;
+        self.talents_changed = resolved.talents_changed;
+        self.externals = resolved.externals;
+        Ok(self.loaded().expect("a session was just loaded"))
+    }
+
+    /// Starts the sim `request` asks for in place of the current one, which stays when the
+    /// request fails. Its setup is the one `api/load` would load (but played by its rotation);
+    /// `new_seed` gives the seed when it names none.
+    ///
+    /// # Errors
+    /// As [`App::load`], and the iterations are not in `1..=`[`MAX_ITERATIONS`](crate::sim::MAX_ITERATIONS).
+    pub fn start_sim(
+        &mut self,
+        request: SimRequest,
+        new_seed: impl FnOnce() -> u64,
+    ) -> Result<SimProgress, String> {
+        let load = LoadRequest {
+            keybinds: None,
+            keybinds_yaml: None,
+            ..request.load
+        };
+        let resolved = self.resolve(load, new_seed)?;
+        let job = SimJob::new(
+            Arc::clone(&self.data),
+            resolved.setup,
+            resolved.settings,
+            resolved.seed,
+            (request.iterations, request.threads, request.share),
+        )?;
+        Ok(self.sim.insert(job).progress())
+    }
+
+    /// The results of a run whose shares ran apart (in the browser's workers, each its own
+    /// [`App::start_sim`]): `request` names the run as their starts did, with the seed they
+    /// ran with, and gives each share's statistics in order.
+    ///
+    /// # Errors
+    /// As [`App::start_sim`]; the request names no seed, or the shares are not the run's (their
+    /// number, or one's iterations).
+    pub fn merge_sim(&self, request: MergeRequest) -> Result<SimResults, String> {
+        if request
+            .load
+            .seed
+            .as_deref()
+            .is_none_or(|seed| seed.trim().is_empty())
+        {
+            return Err("no seed: name the one the shares ran with".into());
+        }
+        if !request.elapsed_seconds.is_finite() || request.elapsed_seconds < 0.0 {
+            return Err("`elapsed_seconds` must be a finite number >= 0".into());
+        }
+        let load = LoadRequest {
+            keybinds: None,
+            keybinds_yaml: None,
+            ..request.load
+        };
+        let resolved = self.resolve(load, || unreachable!("the seed is given"))?;
+        let shares = run_shares(request.iterations, request.threads, resolved.seed)?;
+        if shares.len() != request.shares.len() {
+            return Err(format!(
+                "{} shares for {} threads of {} iterations: {} expected",
+                request.shares.len(),
+                request.threads,
+                request.iterations,
+                shares.len()
+            ));
+        }
+        let mut cruncher = NumberCruncher::new();
+        for (index, (share, statistics)) in shares.iter().zip(request.shares).enumerate() {
+            if statistics.iterations() != u64::from(share.iterations) {
+                return Err(format!(
+                    "share {index} has {} iterations: {} expected",
+                    statistics.iterations(),
+                    share.iterations
+                ));
+            }
+            cruncher.add_class_statistics(None, statistics);
+        }
+        let settings = run_settings(resolved.settings, request.iterations, request.threads)?;
+        let raid = resolved
+            .setup
+            .build_raid(&self.data, &settings)
+            .map_err(|error| error.to_string())?;
+        Ok(sim_results(
+            &self.data,
+            &resolved.setup,
+            &settings,
+            resolved.seed,
+            Duration::from_secs_f64(request.elapsed_seconds),
+            &cruncher,
+            &raid,
+        ))
+    }
+
+    /// The sim started last, if any (until [`App::stop_sim`]).
+    pub fn sim(&self) -> Option<&SimJob> {
+        self.sim.as_ref()
+    }
+
+    pub fn sim_mut(&mut self) -> Option<&mut SimJob> {
+        self.sim.as_mut()
+    }
+
+    /// Drops the sim, done or not.
+    pub fn stop_sim(&mut self) {
+        self.sim = None;
+    }
+
+    /// What `request` asks for, resolved against the data: see [`App::load`].
+    fn resolve(
+        &self,
+        request: LoadRequest,
+        new_seed: impl FnOnce() -> u64,
+    ) -> Result<Resolved, String> {
         let (mut setup, setup_name) = self.load_setup(&request)?;
+        let race_override = request.race.filter(|race| *race != setup.race);
+        if let Some(race) = race_override {
+            setup.race = race;
+        }
         let target = TargetChoice::of(&setup.target, &request)?;
         target.apply(&mut setup.target);
         let (keybinds, keybinds_name) = self.load_keybinds(&request)?;
@@ -420,25 +697,39 @@ impl App {
             None | Some("") => new_seed(),
             Some(seed) => seed.parse().map_err(|_| format!("invalid seed '{seed}'"))?,
         };
-        let session = Session::new(Arc::clone(&self.data), setup, settings, seed, keybinds)?;
-        self.set_session(
-            session,
-            Source {
+        Ok(Resolved {
+            setup,
+            settings,
+            seed,
+            keybinds,
+            source: Source {
                 setup: setup_name,
                 keybinds: keybinds_name,
+                bare: request.bare,
             },
-        );
-        self.target = target;
-        self.gear = gear;
-        self.talents_changed = talents_changed;
-        self.externals = externals;
-        Ok(self.loaded().expect("a session was just loaded"))
+            race_override,
+            target,
+            gear,
+            talents_changed,
+            externals,
+        })
     }
 
     fn load_setup(
         &self,
         request: &LoadRequest,
     ) -> Result<(CharacterSetup, Option<String>), String> {
+        let given = [
+            request.setup.is_some(),
+            request.setup_yaml.is_some(),
+            request.bare.is_some(),
+        ];
+        if given.into_iter().filter(|given| *given).count() > 1 {
+            return Err("more than one of `setup`, `setup_yaml` and `bare`: give one".into());
+        }
+        if let Some(bare) = &request.bare {
+            return Ok((bare.setup(), None));
+        }
         let loaded = match (&request.setup, &request.setup_yaml) {
             (Some(name), None) => {
                 let path = self.catalog_path(CHARACTERS, name)?;
@@ -455,9 +746,13 @@ impl App {
                 CharacterSetup::load_from(&files, &path).map(|setup| (setup, None))
             }
             (None, None) => {
-                return Err("no setup: name one (`setup`) or paste one (`setup_yaml`)".into());
+                return Err(
+                    "no setup: name one (`setup`), paste one (`setup_yaml`) or ask for a bare \
+                     character (`bare`)"
+                        .into(),
+                );
             }
-            (Some(_), Some(_)) => return Err("both `setup` and `setup_yaml`: give one".into()),
+            (Some(_), Some(_)) => unreachable!("rejected above"),
         };
         loaded.map_err(|error| error.to_string())
     }

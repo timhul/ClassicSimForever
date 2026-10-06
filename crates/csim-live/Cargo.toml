@@ -1,6 +1,6 @@
 [package]
 name = "csim-live"
-description = "Watch one iteration of ClassicSimForever unfold in real time in a browser"
+description = "Watch one iteration of ClassicSimForever unfold in real time in a browser, or simulate many"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

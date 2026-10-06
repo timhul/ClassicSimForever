@@ -397,7 +397,7 @@ fn bad_loads_are_refused_and_keep_the_session() {
     for (body, says) in [
         ("", "EOF"),
         ("{}", "no setup"),
-        (r#"{"setup": "a", "setup_yaml": "b"}"#, "both"),
+        (r#"{"setup": "a", "setup_yaml": "b"}"#, "more than one"),
         (r#"{"setup": "../../Cargo"}"#, "no characters entry"),
         (r#"{"setup": "missing"}"#, "missing.yaml"),
         (r#"{"setup_yaml": "name: [unclosed"}"#, "pasted.yaml"),
@@ -507,4 +507,123 @@ fn the_talent_tree_and_its_edits() {
     // No points left: only the talents with points are lit.
     let lit = state["available"].as_array().unwrap();
     assert_eq!(lit.len(), state["ranks"].as_object().unwrap().len());
+}
+
+#[test]
+fn a_sim_runs_over_the_api() {
+    let mut app = empty_app();
+    let started = json(&call(
+        &mut app,
+        "POST",
+        "/api/sim/start",
+        r#"{"load": {"setup": "warrior_fury_dw_orc", "seed": "5"}, "iterations": 30}"#,
+    ));
+    assert_eq!(
+        started,
+        serde_json::json!({"name": "DW Fury Orc", "seed": "5", "done": 0, "total": 30})
+    );
+    let not_done = call(
+        &mut app,
+        "POST",
+        "/api/sim/results",
+        r#"{"elapsed_seconds": 0}"#,
+    );
+    assert_eq!(not_done.status, 409);
+    assert!(text(&not_done).contains("0 of 30"), "{}", text(&not_done));
+
+    let step = |app: &mut App, iterations: u32| {
+        json(&call(
+            app,
+            "POST",
+            "/api/sim/step",
+            &format!(r#"{{"iterations": {iterations}}}"#),
+        ))["done"]
+            .as_u64()
+            .unwrap()
+    };
+    assert_eq!(step(&mut app, 12), 12);
+    assert_eq!(step(&mut app, 100), 30);
+    let results = json(&call(
+        &mut app,
+        "POST",
+        "/api/sim/results",
+        r#"{"elapsed_seconds": 2.5}"#,
+    ));
+    assert_eq!(results["run"]["iterations"], 30);
+    assert_eq!(results["run"]["seed"], 5);
+    assert_eq!(results["run"]["elapsed_seconds"], 2.5);
+    assert!(results["dps"]["mean"].as_f64().unwrap() > 0.0);
+    assert!(results["icons"]["spells"]["Mainhand Attack"].is_object());
+
+    // The session is apart: none was loaded.
+    assert_eq!(call(&mut app, "GET", "/api/info", "").status, 409);
+
+    assert_eq!(
+        json(&call(&mut app, "POST", "/api/sim/stop", "")),
+        serde_json::json!({})
+    );
+    for path in ["/api/sim/step", "/api/sim/results"] {
+        let body = if path.ends_with("step") {
+            r#"{"iterations": 1}"#
+        } else {
+            r#"{"elapsed_seconds": 1}"#
+        };
+        let reply = call(&mut app, "POST", path, body);
+        assert_eq!(reply.status, 409, "{path}");
+        assert!(text(&reply).contains("no sim"), "{}", text(&reply));
+    }
+    // Stopping without a sim is no error.
+    assert_eq!(call(&mut app, "POST", "/api/sim/stop", "").status, 200);
+}
+
+#[test]
+fn bad_sim_requests_are_refused() {
+    let mut app = empty_app();
+    for (body, says) in [
+        (
+            r#"{"load": {"setup": "warrior_fury_dw_orc"}}"#,
+            "iterations",
+        ),
+        (
+            r#"{"load": {"setup": "warrior_fury_dw_orc"}, "iterations": 0}"#,
+            "from 1 to",
+        ),
+        (
+            r#"{"load": {"setup": "missing"}, "iterations": 10}"#,
+            "missing.yaml",
+        ),
+        (
+            r#"{"load": {"setup": "warrior_fury_dw_orc"}, "iterations": 10, "workers": 4}"#,
+            "workers",
+        ),
+    ] {
+        let reply = call(&mut app, "POST", "/api/sim/start", body);
+        assert_eq!(reply.status, 400, "{body}: {}", text(&reply));
+        assert!(text(&reply).contains(says), "{body}: {}", text(&reply));
+    }
+    json(&call(
+        &mut app,
+        "POST",
+        "/api/sim/start",
+        r#"{"load": {"setup": "warrior_fury_dw_orc"}, "iterations": 2}"#,
+    ));
+    for (path, body) in [
+        ("/api/sim/step", r#"{"iterations": -1}"#),
+        ("/api/sim/results", r#"{"elapsed_seconds": -1}"#),
+        ("/api/sim/results", r#"{}"#),
+    ] {
+        assert_eq!(
+            call(&mut app, "POST", path, body).status,
+            400,
+            "{path} {body}"
+        );
+    }
+    for path in [
+        "/api/sim/start",
+        "/api/sim/step",
+        "/api/sim/results",
+        "/api/sim/stop",
+    ] {
+        assert_eq!(call(&mut app, "GET", path, "").status, 405, "{path}");
+    }
 }

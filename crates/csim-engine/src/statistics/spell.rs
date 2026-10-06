@@ -7,6 +7,8 @@
 //!   successes it skipped for a zero cost / time. Each [`Ratio`] here counts its own samples.
 //! - Threat is tallied in whole points like the C++ `int thrt` parameter (truncated).
 
+use serde::{Deserialize, Serialize};
+
 use crate::combat_roll::{MagicAttackResult, MagicResistResult, PhysicalAttackResult};
 use crate::spell::AttackOutcome;
 
@@ -147,7 +149,7 @@ impl Outcome {
 }
 
 /// Total, min and max of the damage (or threat) dealt with one outcome.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Tally {
     total: u64,
     min: Option<u32>,
@@ -202,7 +204,7 @@ impl Tally {
 
 /// Running min / max / mean of a per-success ratio: damage or threat per resource point, or
 /// per second of execution time.
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
 pub struct Ratio {
     min: f64,
     max: f64,
@@ -266,7 +268,7 @@ impl Ratio {
 const EXECUTION_TIME_EPSILON: f64 = 0.0001;
 
 /// Statistics of one spell (or auto attack, or proc) of a character. Port of `StatisticsSpell`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellStatistics {
     name: String,
     rank: u32,

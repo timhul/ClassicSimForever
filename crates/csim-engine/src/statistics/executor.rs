@@ -6,6 +6,8 @@
 //! ([`crate::rotation::ExecutorStatistics`]); this wraps a snapshot with the executor's
 //! position, spell and condition for reporting.
 
+use serde::{Deserialize, Serialize};
+
 use crate::rotation::{ExecutorStatistics, RotationExecutor};
 use crate::spell::SpellStatus;
 
@@ -49,7 +51,7 @@ impl ExecutorOutcome {
 
 /// A `cast_if` line that was not linked, so it never ran. Not in C++, which dropped them
 /// silently.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SkippedExecutor {
     /// 1-based position among the rotation's `cast_if` lines.
     pub line: usize,
@@ -72,7 +74,7 @@ impl SkippedExecutor {
 }
 
 /// The statistics of one active executor of a rotation. Port of `StatisticsRotationExecutor`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RotationExecutorStatistics {
     /// `"(position) spell name"`, the C++ executor name.
     name: String,

@@ -7,7 +7,9 @@ This repository contains a raid simulator for World of Warcraft: Forever.
 
 https://timhul.github.io/ClassicSimForever/live/ plays one iteration of the simulation as it
 happens: pick a character setup, change its gear, play it by its rotation or from the keyboard,
-and step through the casts.
+and step through the casts. Its Sim tab simulates thousands of iterations, as `csim run` does:
+pick a class, a race and a setup, change its gear, talents and buffs, and run it for the DPS and
+its breakdown.
 
 ## Running locally
 

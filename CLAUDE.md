@@ -115,6 +115,25 @@ page then shows every time again with the pull at 0. Examples are in `data/keybi
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
 
+The page has two tabs over the same loaded setup (a load in one shows in the other; the address
+carries the tab as `view=sim`): Live, the iteration above, and Sim, the equivalent of `csim run`.
+The Sim tab picks the class and the race by their icons (every race the class can be,
+`available_races` of `data/classes/`) and a setup from a choice grouped as the race's own setups,
+the other races' setups played as that race (`api/load`'s `race`, kept as `race=NIGHT_ELF` in the
+address: the gear stays, nothing locks it to a faction), and a bare character per rotation of the
+class (no gear, talents or buffs; `class=…&race=…&rotation=…` instead of `setup=`; it loads
+although its rotation's prerequisites cannot hold, and says which are missing). A race without a
+setup of the class loads the bare character. Changing class or race keeps the kind of setup (DW
+Fury Orc → DW Fury Human), else the rotation. The seed, length, variance, Settings and Target are
+the Live bar's; Talents, Equipment and Buffs & Debuffs open the same dialogs. Run loads the setup,
+then simulates Iterations (10,000 without) split over Threads (the browser's cores, at most 8;
+1 natively) in steps with a progress bar (Stop ends it), and shows `csim run`'s results: the
+summary, the damage per spell, buffs, procs, resources, the rotation's lines, skipped lines,
+finishers and the engine's events (marked stale once another setup or seed is loaded). Seed S, N
+iterations and T threads give `csim run -n N -t T --seed S`: the run splits into the threads'
+shares (`api/sim/start` with `threads` and `share`), which the browser runs side by side in Web
+Workers and natively one after another, then merges (`api/sim/statistics`, `api/sim/merge`).
+
 Its spell and item icons come from Wowhead's CDN, by the `icon_name` of the exported spells and
 items (texture names from the community listfile, see `tools/fetch_listfile.py`). An icon
 without a name, or one that does not load (offline), falls back to `data/icons/`: a gitignored

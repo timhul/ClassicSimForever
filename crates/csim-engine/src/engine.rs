@@ -13,6 +13,8 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
+use serde::{Deserialize, Serialize};
+
 use crate::combat_log::{CombatLog, CombatLogEntry, CombatLogEvent, LogUnit};
 use crate::ids::{BuffId, CharId, SpellId};
 use crate::time::{Duration, Instant};
@@ -263,7 +265,7 @@ impl EventQueue {
 
 /// Per-event-type counters for a set of combat iterations.
 /// Only used for statistic purposes.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EventCounts {
     counts: [u64; EventType::ALL.len()],
 }

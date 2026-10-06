@@ -30,14 +30,134 @@
     color: var(--text);
     font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  header, #setup-bar, #controls, main, footer { padding: 0 16px; }
+  header, #setup-bar, #controls, main, #sim-view, footer { padding: 0 16px; }
   header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: 8px 24px;
-    padding-top: 14px;
+    padding-top: 6px;
+  }
+  /* The two views share the header, the dialogs and the status; the rest is one view's. */
+  body[data-view="sim"] .live-only, body:not([data-view="sim"]) .sim-only {
+    display: none !important;
+  }
+  #views {
+    flex-basis: 100%;
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  #views [role="tab"] {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  #views [role="tab"]:hover { color: var(--text); }
+  #views [role="tab"][aria-selected="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  #views [role="tab"]:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+  #sim-view { margin-top: 12px; }
+  .pickers { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+  .picker { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pick {
+    --pick: var(--accent);
+    width: 46px;
+    height: 46px;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 9px;
+  }
+  .pick img, .pick .initials { width: 36px; height: 36px; border-radius: 6px; display: block; }
+  .pick .initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--line);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pick[aria-checked="false"] img, .pick[aria-checked="false"] .initials {
+    filter: grayscale(0.7) brightness(0.7);
+  }
+  .pick:hover:not(:disabled) { border-color: var(--line); }
+  .pick:hover img, .pick:hover .initials { filter: none; }
+  .pick[aria-checked="true"], .pick[aria-checked="true"]:hover {
+    border-color: var(--pick);
+    box-shadow: 0 0 10px var(--pick);
+  }
+  .pick:focus-visible { outline: 1px solid var(--text); outline-offset: 1px; }
+  #sim-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  #sim-form label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  #sim-setup { max-width: 100%; }
+  #sim-iterations { width: 11ch; }
+  #sim-threads { width: 6ch; }
+  .run-fields, #sim-fields, #sim-details { display: contents; }
+  .sim-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-basis: 100%; }
+  #sim-run { min-width: 88px; }
+  #sim-run.stop { background: var(--panel); color: var(--accent); }
+  #sim-progress {
+    flex: 1 1 160px;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  #sim-progress-fill { height: 100%; width: 0; background: var(--accent); }
+  #sim-progress-text { color: var(--muted); font-variant-numeric: tabular-nums; }
+  #sim-totals { font-variant-numeric: tabular-nums; }
+  #sim-dps { font-size: 22px; font-weight: 700; color: var(--accent); }
+  #sim-ci { color: var(--muted); }
+  #sim-totals.stale { opacity: 0.5; }
+  #sim-results {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 440px);
+    gap: 16px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  #sim-results.stale > .panel { opacity: 0.55; }
+  #sim-stale { grid-column: 1 / -1; margin: 0; color: var(--accent); }
+  #sim-results h2:not(:first-child) { margin-top: 16px; }
+  #sim-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+  }
+  .sim-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .sim-stat-label { color: var(--muted); font-size: 12px; }
+  .sim-stat-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sim-stat:first-child .sim-stat-value { color: var(--accent); }
+  #sim-meta { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .empty-note { color: var(--muted); }
+  @media (max-width: 900px) {
+    #sim-results { grid-template-columns: minmax(0, 1fr); }
   }
   h1 { font-size: 20px; margin: 0; font-weight: 600; }
   h2 {
@@ -122,20 +242,23 @@
   }
   button:hover:not(:disabled), select:hover { border-color: var(--muted); }
   button:disabled { opacity: 0.4; cursor: default; }
-  #play {
+  #play, #sim-run {
     min-width: 88px;
     font-weight: 700;
     background: var(--accent);
     border-color: var(--accent);
     color: #1a1406;
   }
-  #play:hover:not(:disabled) { background: #edc36a; border-color: #edc36a; }
+  #play:hover:not(:disabled), #sim-run:hover:not(:disabled) {
+    background: #edc36a; border-color: #edc36a;
+  }
   #edit-keybinds:not(:disabled), #equipment:not(:disabled), #talents:not(:disabled),
-  #externals:not(:disabled) {
+  #externals:not(:disabled), .dialog-button:not(:disabled) {
     border-color: var(--accent); color: var(--accent); font-weight: 600;
   }
   #edit-keybinds:hover:not(:disabled), #equipment:hover:not(:disabled),
-  #talents:hover:not(:disabled), #externals:hover:not(:disabled) {
+  #talents:hover:not(:disabled), #externals:hover:not(:disabled),
+  .dialog-button:hover:not(:disabled) {
     background: rgb(224 176 74 / 0.12);
   }
   #clock {
@@ -968,19 +1091,30 @@
 </head>
 <body>
 <header>
+  <nav id="views" role="tablist" aria-label="View">
+    <button id="tab-live" type="button" role="tab" aria-selected="true" aria-controls="live-panes"
+      title="Watch one iteration unfold">Live</button>
+    <button id="tab-sim" type="button" role="tab" aria-selected="false" aria-controls="sim-view"
+      title="Simulate many iterations, as csim run does">Sim</button>
+  </nav>
   <div>
     <h1><span id="name">csim-live</span><span id="build"></span></h1>
     <div id="sub"></div>
   </div>
-  <div id="totals"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
+  <div id="totals" class="live-only"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
+  <div id="sim-totals" class="sim-only" hidden
+    title="The last run's mean DPS, with its 95 % confidence interval"><span id="sim-dps"></span>
+    <span id="sim-ci"></span> DPS</div>
 </header>
 
-<form id="setup-bar" autocomplete="off">
+<form id="setup-bar" class="live-only" autocomplete="off">
   <select id="setup-select" aria-label="Character setup"></select>
   <select id="mode-select" aria-label="Played by"></select>
-  <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
-  <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
-  <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
+  <span id="run-fields" class="run-fields">
+    <label>Seed <input id="seed-input" placeholder="random" inputmode="numeric"></label>
+    <label>Length <input id="length-input" type="number" min="1" step="1"> s</label>
+    <label>&plusmn; <input id="variance-input" type="number" min="0" step="any"> %</label>
+  </span>
   <button id="load" type="submit">Load</button>
   <details id="settings">
     <summary>Settings</summary>
@@ -1132,7 +1266,7 @@
   </div>
 </dialog>
 
-<div id="controls">
+<div id="controls" class="live-only">
   <div class="group options">
     <select id="speed" aria-label="Speed">
       <option value="0.1">0.1×</option>
@@ -1159,9 +1293,9 @@
     <span id="clock">0:00.000</span>
   </div>
 </div>
-<div id="timeline"><div id="timeline-fill"></div></div>
+<div id="timeline" class="live-only"><div id="timeline-fill"></div></div>
 
-<main>
+<main id="live-panes" class="live-only" role="tabpanel" aria-labelledby="tab-live">
   <section id="feed-panel" class="panel">
     <h2>Damage & Proc History</h2>
     <ol id="feed"></ol>
@@ -1260,6 +1394,113 @@
     <ol id="decisions"></ol>
   </section>
 </main>
+
+<section id="sim-view" class="sim-only" role="tabpanel" aria-labelledby="tab-sim">
+  <div class="pickers">
+    <div id="class-picker" class="picker" role="radiogroup" aria-label="Class"></div>
+    <div id="race-picker" class="picker" role="radiogroup" aria-label="Race"></div>
+  </div>
+  <form id="sim-form" autocomplete="off">
+    <select id="sim-setup" aria-label="Setup and rotation"></select>
+    <!-- The setup bar's seed, length and variance, and its Settings and Target, come here
+         while the Sim view is shown (placeSharedFields). -->
+    <span id="sim-fields"></span>
+    <label title="How many iterations to simulate (at most 1,000,000)">Iterations
+      <input id="sim-iterations" type="number" min="1" max="1000000" step="1"
+        placeholder="10000"></label>
+    <label title="The threads the iterations are split over: the browser runs them side by side
+(seed S, N iterations and T threads give csim run -n N -t T --seed S)">Threads
+      <input id="sim-threads" type="number" min="1" max="64" step="1"></label>
+    <div id="sim-details"></div>
+    <div class="sim-actions">
+      <button id="sim-talents" class="dialog-button" type="button" disabled>Talents</button>
+      <button id="sim-equipment" class="dialog-button" type="button" disabled>Equipment</button>
+      <button id="sim-externals" class="dialog-button" type="button" disabled>Buffs &amp; Debuffs</button>
+      <button id="sim-run" type="submit" disabled>Run</button>
+      <div id="sim-progress" hidden><div id="sim-progress-fill"></div></div>
+      <span id="sim-progress-text" role="status"></span>
+    </div>
+  </form>
+  <div id="sim-results" hidden>
+    <p id="sim-stale" hidden>The setup or its seed changed since this run: Run again for its results.</p>
+    <section class="panel">
+      <h2>Summary</h2>
+      <div id="sim-summary"></div>
+      <p id="sim-meta"></p>
+      <h2>Damage per fight</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-spells" class="breakdown">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="sim-spells-empty" class="empty-note">No damage dealt.</div>
+      <h2>Buffs</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-buffs" class="breakdown">
+          <thead><tr><th>Buff</th><th>Uptime</th><th>Shortest</th><th>Longest</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="sim-buffs-empty" class="empty-note">No buff up.</div>
+      <h2>Procs</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-procs" class="breakdown">
+          <thead><tr><th>Proc</th><th>Per fight</th><th>Proc rate</th><th>PPM</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="sim-procs-empty" class="empty-note">No proc tried.</div>
+      <h2>Resources</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-resources" class="breakdown">
+          <thead><tr><th>Source</th><th>Resource</th><th>Per fight</th><th>Per s</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="sim-resources-empty" class="empty-note">No resource gained.</div>
+    </section>
+    <section class="panel">
+      <h2>Rotation</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-rotation" class="breakdown">
+          <thead><tr><th>cast_if line</th><th>Outcome</th><th>Per fight</th><th>Share</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="sim-rotation-empty" class="empty-note">No line tried.</div>
+      <h2 id="sim-skipped-heading">Skipped lines</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-skipped" class="breakdown">
+          <thead><tr><th>Line</th><th>Spell</th><th>Why</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="sim-skipped-empty" class="empty-note" hidden></div>
+      <h2 id="sim-finishers-heading">Finishers</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-finishers" class="breakdown">
+          <thead><tr><th>Finisher</th><th>1 CP</th><th>2 CP</th><th>3 CP</th><th>4 CP</th>
+            <th>5 CP</th><th>Average</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="sim-finishers-empty" class="empty-note" hidden></div>
+      <h2>Engine</h2>
+      <div class="breakdown-scroll">
+        <table id="sim-engine" class="breakdown">
+          <thead><tr><th>Event</th><th>Count</th><th>Per fight</th><th>Handled k/s</th>
+            <th>Share</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="sim-engine-empty" class="empty-note">No event.</div>
+    </section>
+  </div>
+</section>
 <footer id="status" role="status"></footer>
 
 <!-- The browser build's server side (csim-web): it sets `csimReady` and `csimTransport`. The
@@ -1302,6 +1543,10 @@ const expanded = new Set();
 let breakdownAt = 0;
 
 let info = null;     // the iteration (seed as a string)
+/** The view shown: "live" (one iteration, watched) or "sim" (many, as `csim run`). */
+let view = "live";
+/** The Live view has not shown `info` yet (it was loaded while the Sim view was shown). */
+let liveStale = false;
 let frame = null;    // the latest frame from the server
 let simTime = 0;     // the sim time shown; runs ahead of `frame` while playing
 let playing = false;
@@ -1318,15 +1563,18 @@ function enqueue(task) {
 
 /**
  * `method` `path` (relative, `api/...`) with the JSON `body`: in the browser build through
- * `csimTransport` (the WebAssembly server side, see web.js), else over HTTP to the native
- * server. The answer's JSON; an error with the status otherwise.
+ * `csimTransport` (the WebAssembly server side, see web.js; a sim's through
+ * `csimSimTransport`, in the worker of `lane`), else over HTTP to the native server. The
+ * answer's JSON; an error with the status otherwise.
  */
-async function api(method, path, body) {
+async function api(method, path, body, lane = 0) {
   const text = body === undefined ? "" : JSON.stringify(body);
   let status;
   let answer;
-  if (window.csimTransport) {
-    ({ status, body: answer } = window.csimTransport(method, `/${path}`, text));
+  // The browser build runs the sims in a worker (web.js), the rest in the page.
+  const transport = path.startsWith("api/sim/") ? window.csimSimTransport : window.csimTransport;
+  if (transport) {
+    ({ status, body: answer } = await transport(method, `/${path}`, text, lane));
   } else {
     const options = { method };
     if (body !== undefined) {
@@ -1363,19 +1611,72 @@ function load(request) {
   return enqueue(async () => begin(await api("POST", "api/load", request)));
 }
 
-/** Shows the iteration `next` (the info of a load or a restart) from its start. */
+/**
+ * Takes the loaded session `next` (the info of a load or a restart): what both views show (the
+ * header, the setup bars, the dialogs, the address), then the Live view its iteration from the
+ * start, now when it is shown, else when it is next shown.
+ */
 async function begin(next) {
   info = next;
+  $("status").textContent = "";
+  renderHeader();
+  document.title = `${info.name} · csim-live`;
+  $("edit-keybinds").disabled = false;
+  $("equipment").disabled = false;
+  $("talents").disabled = false;
+  $("externals").disabled = false;
+  for (const id of ["sim-talents", "sim-equipment", "sim-externals", "sim-run"]) {
+    $(id).disabled = false;
+  }
+  gearChanges = info.gear.changes;
+  talentCode = info.talents_code;
+  externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
+  raceOverride = info.race_override;
+  bareCharacter = info.source.bare;
+  syncForm();
+  renderSimBar();
+  markSimStale();
+  updateUrl();
+  if ($("equipment-view").open) {
+    renderEquipment();
+  }
+  if ($("talents-view").open) {
+    await fetchTalents();
+  }
+  if ($("buffs-view").open) {
+    renderBuffs();
+  }
+  liveStale = true;
+  if (view === "live") {
+    await beginLive();
+  }
+}
+
+/** The header's name and line under it, for the view shown. */
+function renderHeader() {
+  if (!info) {
+    return;
+  }
+  $("name").textContent = info.name;
+  const settings = info.settings ? ` · ${info.settings}` : "";
+  const missing = info.missing_prerequisites.length
+    ? ` · lacks ${info.missing_prerequisites.map((missing) => missing.spell).join(", ")}`
+    : "";
+  $("sub").textContent = view === "live"
+    ? `${info.race} ${info.class} · ` +
+      (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
+      `${info.combat_length} s ± ${info.length_variance} % (this one ` +
+      `${info.end_at.toFixed(1)} s)${settings}${missing}`
+    : `${info.race} ${info.class} · ${info.rotation} · ` +
+      `${info.combat_length} s ± ${info.length_variance} %${settings}${missing}`;
+}
+
+/** The Live view's iteration of `info` from its start: the feed, the keys, the first frame. */
+async function beginLive() {
+  liveStale = false;
   $("feed").replaceChildren();
   $("floats").replaceChildren();
-  $("status").textContent = "";
   $("last-event").textContent = "";
-  $("name").textContent = info.name;
-  $("sub").textContent =
-    `${info.race} ${info.class} · ` +
-    (info.manual ? "played from the keyboard" : info.rotation) + ` · seed ${info.seed} · ` +
-    `${info.combat_length} s ± ${info.length_variance} % (this one ${info.end_at.toFixed(1)} s)` +
-    (info.settings ? ` · ${info.settings}` : "");
   // From the keyboard the rotation does not run: its entries are not what decides.
   $("entries").hidden = info.manual;
   hotkeys = new Map(info.keybinds.map((keybind) => [keybind.name, keybind.binding]));
@@ -1388,30 +1689,48 @@ async function begin(next) {
   }
   macroTitles = new Map(info.keybinds.filter((keybind) => keybind.macro)
     .map((keybind) => [keybind.name, `${keybind.name}: ${keybind.spells.join(", ")}`]));
-  document.title = `${info.name} · csim-live`;
-  $("edit-keybinds").disabled = false;
-  $("equipment").disabled = false;
-  $("talents").disabled = false;
-  $("externals").disabled = false;
-  gearChanges = info.gear.changes;
-  talentCode = info.talents_code;
-  externalChanges = { buffs: info.buffs, debuffs: info.debuffs };
   releaseKeys();
   renderEntries();
-  syncForm();
-  updateUrl();
-  if ($("equipment-view").open) {
-    renderEquipment();
-  }
-  if ($("talents-view").open) {
-    await fetchTalents();
-  }
-  if ($("buffs-view").open) {
-    renderBuffs();
-  }
   simTime = info.start_at;
   apply(await api("POST", "api/advance", { to: info.start_at }));
 }
+
+// ----- The views ----------------------------------------------------------------------------
+
+/**
+ * Shows the view `next` ("live" or "sim"). The Sim view stops the Live view's playback and its
+ * keys; back in the Live view, an iteration loaded meanwhile starts from the beginning.
+ */
+function showView(next) {
+  view = next === "sim" ? "sim" : "live";
+  document.body.dataset.view = view;
+  for (const [tab, name] of [[$("tab-live"), "live"], [$("tab-sim"), "sim"]]) {
+    tab.setAttribute("aria-selected", String(view === name));
+    tab.tabIndex = view === name ? 0 : -1;
+  }
+  if (view === "sim") {
+    setPlaying(false);
+    releaseKeys();
+  }
+  placeSharedFields();
+  renderHeader();
+  updateUrl();
+  if (view === "live" && info && liveStale) {
+    enqueue(beginLive);
+  }
+}
+
+$("tab-live").addEventListener("click", () => showView("live"));
+$("tab-sim").addEventListener("click", () => showView("sim"));
+// The arrow keys move between the tabs, as a tab list's do.
+$("views").addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+    return;
+  }
+  event.preventDefault();
+  showView(view === "live" ? "sim" : "live");
+  $(view === "live" ? "tab-live" : "tab-sim").focus();
+});
 
 // ----- The setup bar ----------------------------------------------------------------------
 
@@ -1419,6 +1738,14 @@ async function begin(next) {
 let catalog = null;
 /** The "played by" choice of keybinds from the text box (pasted or edited), not a file. */
 const EDITED = ":edited";
+/**
+ * The race the loaded setup is played as instead of its own (`info.race_override`, e.g.
+ * "HUMAN"; null: its own), and the bare character loaded instead of a setup
+ * (`info.source.bare`, `{class, race, rotation}`; null: none). Like the gear, they stay over
+ * the setup bar's loads until another setup is chosen.
+ */
+let raceOverride = null;
+let bareCharacter = null;
 /** The setup the page loads when neither the address nor the server names one. */
 const DEFAULT_SETUP = "warrior_fury_dw_orc";
 
@@ -1429,6 +1756,7 @@ function fillForm() {
     const option = element("option", "", setup.error
       ? `${setup.name} (does not load)`
       : `${setup.title} · ${setup.race} ${setup.class}`);
+    option.dataset.label = option.textContent;
     option.value = setup.name;
     option.disabled = setup.error !== null;
     option.title = setup.error || setup.rotation;
@@ -1624,11 +1952,21 @@ function syncForm() {
   }
   const setups = $("setup-select");
   setups.querySelector("option.custom")?.remove();
+  for (const option of setups.options) {
+    option.textContent = option.dataset.label;
+  }
   if (info.source.setup) {
     setups.value = info.source.setup;
+    // Played as another race: the choice says so.
+    if (info.race_override && setups.selectedOptions[0]) {
+      setups.selectedOptions[0].textContent += ` · as ${info.race}`;
+    }
   } else {
-    // Pasted text, or a file outside the data directory: not one of the choices.
-    const custom = element("option", "custom", `${info.name} (custom)`);
+    // A bare character, pasted text, or a file outside the data directory: not one of the
+    // choices.
+    const custom = element("option", "custom", info.source.bare
+      ? `${info.name}, no gear or talents`
+      : `${info.name} (custom)`);
     custom.value = "";
     setups.prepend(custom);
     setups.value = "";
@@ -1645,14 +1983,37 @@ function syncForm() {
     info.target.armor ?? setupTarget.armor);
 }
 
+/**
+ * `request` (the setup bar's) changed to load what is loaded, a bundled setup or a bare
+ * character, whatever the bar's text says now: for the dialogs' changes of it.
+ */
+function pinLoadedSource(request) {
+  if (!info.source.setup && !info.source.bare) {
+    return;
+  }
+  delete request.setup_yaml;
+  delete request.setup;
+  delete request.bare;
+  if (info.source.setup) {
+    request.setup = info.source.setup;
+  } else {
+    request.bare = { ...info.source.bare };
+  }
+}
+
 /** The `api/load` request of the setup bar: pasted text wins over the selection. */
 function formRequest() {
   const request = {};
   const setupYaml = $("setup-yaml").value.trim();
   if (setupYaml) {
     request.setup_yaml = setupYaml;
+  } else if (bareCharacter) {
+    request.bare = { ...bareCharacter };
   } else if ($("setup-select").value) {
     request.setup = $("setup-select").value;
+  }
+  if (raceOverride) {
+    request.race = raceOverride;
   }
   const keybindsYaml = $("keybinds-yaml").value.trim();
   if (keybindsYaml) {
@@ -1689,17 +2050,33 @@ function formRequest() {
 }
 
 /**
- * The address mirrors the loaded iteration (`?setup=…&keybinds=…&seed=…&length=…&variance=…
- * &setting=…&target_type=…&target_armor=…&gear=…&talents=…&buffs=…&debuffs=…`; pasted or
- * edited keybinds as `keys=`, their YAML in base64url; the gear's changes as `gearText` writes
- * them; changed talents as the server's talent code, `30532…-0505…`; changed buffs or debuffs
- * as their names, comma separated, empty for none), so a link reproduces it. Without a
- * bundled setup (pasted) there is nothing to name: no query.
+ * The address mirrors the loaded iteration (`?setup=…&race=…&keybinds=…&seed=…&length=…
+ * &variance=…&setting=…&target_type=…&target_armor=…&gear=…&talents=…&buffs=…&debuffs=…`; a
+ * race other than the setup's as its code, `NIGHT_ELF`; a bare character as `class=WARRIOR
+ * &race=HUMAN&rotation=DW Fury` instead of `setup=`; pasted or edited keybinds as `keys=`, their
+ * YAML in base64url; the gear's changes as `gearText` writes them; changed talents as the
+ * server's talent code, `30532…-0505…`; changed buffs or debuffs as their names, comma
+ * separated, empty for none) and the view (`view=sim`; the Live view without), so a link
+ * reproduces it. Without a bundled setup or a bare character (pasted) there is nothing to
+ * name: only the view.
  */
 function updateUrl() {
+  if (!info) {
+    return;
+  }
   const query = new URLSearchParams();
-  if (info.source.setup) {
-    query.set("setup", info.source.setup);
+  const bare = info.source.bare;
+  if (info.source.setup || bare) {
+    if (bare) {
+      query.set("class", bare.class);
+      query.set("race", bare.race);
+      query.set("rotation", bare.rotation);
+    } else {
+      query.set("setup", info.source.setup);
+      if (info.race_override) {
+        query.set("race", info.race_override);
+      }
+    }
     if (info.source.keybinds) {
       query.set("keybinds", info.source.keybinds);
     } else if (info.manual) {
@@ -1734,6 +2111,9 @@ function updateUrl() {
       }
     }
   }
+  if (view === "sim") {
+    query.set("view", "sim");
+  }
   const search = query.size ? `?${query}` : "";
   if (location.search !== search) {
     history.replaceState(null, "", `${location.pathname}${search}`);
@@ -1743,13 +2123,27 @@ function updateUrl() {
 /** What the address's query asked for that cannot be: said once the first load is shown. */
 const linkNotes = [];
 
-/** The setup bar filled from the address's query, when it names a setup. */
+/**
+ * The setup bar filled from the address's query, when it names a setup or a bare character
+ * (`class=`, `race=`, `rotation=`).
+ */
 function formFromQuery() {
   const query = new URLSearchParams(location.search);
-  if (!query.has("setup")) {
+  if (query.has("class")) {
+    bareCharacter = {
+      class: query.get("class"),
+      race: query.get("race") || "",
+      rotation: query.get("rotation") || "",
+    };
+    raceOverride = null;
+    $("setup-select").value = "";
+  } else if (query.has("setup")) {
+    bareCharacter = null;
+    raceOverride = query.get("race") || null;
+    $("setup-select").value = query.get("setup");
+  } else {
     return false;
   }
-  $("setup-select").value = query.get("setup");
   fillModes();
   $("mode-select").value = query.get("keybinds") || "";
   try {
@@ -1825,8 +2219,11 @@ function loadOrRotation(request) {
 // Choosing a setup loads it (with the seed, length and settings in the bar), as does choosing
 // how it is played; the text fields and pasted YAML wait for Load (or Enter).
 $("setup-select").addEventListener("change", () => {
-  // Pasted setup text would win over the choice; another setup wears its own gear.
+  // Pasted setup text would win over the choice; another setup wears its own gear and is its
+  // own race.
   $("setup-yaml").value = "";
+  raceOverride = null;
+  bareCharacter = null;
   gearChanges = [];
   talentCode = null;
   externalChanges = { buffs: null, debuffs: null };
@@ -2160,10 +2557,7 @@ function applyEditor() {
   const request = formRequest();
   delete request.keybinds;
   request.keybinds_yaml = yaml;
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   const playerClass = info.class;
   const entries = structuredClone(draft);
   setPlaying(false);
@@ -2625,10 +3019,7 @@ function loadGear(gear) {
   if (gear.length) {
     request.gear = gear;
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   hideTip();
   equipmentStatus("");
   setPlaying(false);
@@ -2838,10 +3229,7 @@ function loadExternals(changes) {
       request[kind] = changes[kind];
     }
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   buffsStatus("");
   setPlaying(false);
   enqueue(async () => {
@@ -3194,10 +3582,7 @@ function loadTalents(code) {
   if (code !== null) {
     request.talents_code = code;
   }
-  if (info.source.setup) {
-    delete request.setup_yaml;
-    request.setup = info.source.setup;
-  }
+  pinLoadedSource(request);
   hideTalentTip();
   talentsStatus("");
   setPlaying(false);
@@ -3279,6 +3664,8 @@ async function startPage() {
   await window.csimReady;
   catalog = await api("GET", "api/catalog");
   fillForm();
+  $("sim-threads").placeholder = defaultThreads();
+  showView(new URLSearchParams(location.search).get("view"));
   if (formFromQuery()) {
     await loadOrSetupGear(formRequest());
     // The load cleared the status: the link's problems join what it says.
@@ -3295,7 +3682,9 @@ async function startPage() {
     }
   }
   const loadable = catalog.setups.filter((setup) => setup.error === null);
-  const setup = loadable.find((entry) => entry.name === DEFAULT_SETUP) || loadable[0];
+  const preferred = view === "sim" ? DEFAULT_SIM_SETUP : DEFAULT_SETUP;
+  const setup = loadable.find((entry) => entry.name === preferred) ||
+    loadable.find((entry) => entry.name === DEFAULT_SETUP) || loadable[0];
   if (!setup) {
     throw new Error("no setup loads: see api/catalog");
   }
@@ -3661,17 +4050,85 @@ function shareCell(share) {
 }
 
 /**
- * The damage so far per spell, by damage: a row each, its outcome rows below it when expanded
- * (a click on it), and the total. A column only some spells have (`key`) shows when one does.
+ * A breakdown table: the table, the line shown instead of it without a row, and the spells
+ * whose outcome rows are shown. The Live view's tables show the iteration so far, the Sim
+ * view's (`sim-…`) a run's results.
  */
+const tables = {
+  spells: { table: "breakdown", empty: "breakdown-empty", expanded },
+  buffs: { table: "buff-uptimes", empty: "buff-uptimes-empty" },
+  procs: { table: "procs", empty: "procs-empty" },
+  resources: { table: "resources", empty: "resources-empty" },
+};
+const simTables = {
+  spells: { table: "sim-spells", empty: "sim-spells-empty", expanded: new Set() },
+  buffs: { table: "sim-buffs", empty: "sim-buffs-empty" },
+  procs: { table: "sim-procs", empty: "sim-procs-empty" },
+  resources: { table: "sim-resources", empty: "sim-resources-empty" },
+};
+
+/** `rows` into `target`'s table (hidden, with its empty line shown, without a row). */
+function fillTable(target, rows, body) {
+  $(target.empty).hidden = rows.length > 0;
+  $(target.table).hidden = rows.length === 0;
+  $(target.table).tBodies[0].replaceChildren(...body);
+}
+
+/** A first cell: the icon's slot (when `icon` is not undefined) and the label. */
+function nameCell(label, icon) {
+  const td = document.createElement("td");
+  const text = document.createElement("span");
+  text.className = "name";
+  if (icon !== undefined) {
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    const image = iconImage(icon);
+    if (image) {
+      slot.append(image);
+    }
+    text.append(slot);
+  }
+  text.append(label);
+  td.append(text);
+  return td;
+}
+
+/** A row of `cells`: text, or elements. */
+function tableRow(first, cells, className = "") {
+  const tr = document.createElement("tr");
+  tr.className = className;
+  tr.append(first, ...cells.map((content) => {
+    const td = document.createElement("td");
+    td.append(content);
+    return td;
+  }));
+  return tr;
+}
+
+/** The Live view's damage so far per spell. */
 function renderBreakdown(next) {
-  const rows = next.breakdown;
-  const time = next.time;
-  $("breakdown-empty").hidden = rows.length > 0;
-  $("breakdown").hidden = rows.length === 0;
+  renderSpellTable(tables.spells, next.breakdown, {
+    time: next.time,
+    // The statistics name the swings and off-hand strikes otherwise than the damage does.
+    icon: (plain) => iconsByName.get({ "Mainhand Attack": "Main hand", "Offhand Attack": "Off hand" }[plain]
+      ?? plain.replace(/ Off-Hand$/, "")) ?? null,
+    casts: (casts) => String(Math.round(casts)),
+  });
+}
+
+/**
+ * The damage per spell (`rows`, `csim run`'s spell rows over `time` seconds), by damage: a row
+ * each, its outcome rows below it when expanded (a click on it), and the total. A column only
+ * some spells have (`key`) shows when one does. `icon` gives a spell's icon by its name
+ * without rank, `casts` writes its casts.
+ */
+function renderSpellTable(target, rows, { time, icon, casts }) {
+  const table = $(target.table);
+  $(target.empty).hidden = rows.length > 0;
+  table.hidden = rows.length === 0;
   const columns = BREAKDOWN_COLUMNS.filter((column) => !column.key ||
     rows.some((row) => row[column.key]));
-  const heading = $("breakdown").tHead.rows[0];
+  const heading = table.tHead.rows[0];
   const names = ["Spell", ...columns.map((column) => column.name)];
   if (heading.textContent !== names.join("")) {
     heading.replaceChildren(...names.map((name) => {
@@ -3680,6 +4137,7 @@ function renderBreakdown(next) {
       return th;
     }));
   }
+  const cell = (column, row) => column.name === "Casts" ? casts(row.casts) : column.cell(row, time);
   const line = (row, part) => {
     const tr = document.createElement("tr");
     const name = document.createElement("td");
@@ -3695,16 +4153,13 @@ function renderBreakdown(next) {
       if (row.breakdown?.length) {
         tr.className = "expandable";
         tr.dataset.spell = row.name;
-        expander.textContent = expanded.has(row.name) ? "▼" : "▶";
+        expander.textContent = target.expanded.has(row.name) ? "▼" : "▶";
       }
       const slot = document.createElement("span");
       slot.className = "slot";
-      // The statistics name the swings and off-hand strikes otherwise than the damage does.
-      const iconName = { "Mainhand Attack": "Main hand", "Offhand Attack": "Off hand" }[plain]
-        ?? plain.replace(/ Off-Hand$/, "");
-      const icon = iconImage(iconsByName.get(iconName) ?? null);
-      if (icon) {
-        slot.append(icon);
+      const image = iconImage(icon(plain, row.name));
+      if (image) {
+        slot.append(image);
       }
       label.append(expander, slot, plain);
       label.title = row.name;
@@ -3712,7 +4167,7 @@ function renderBreakdown(next) {
     name.append(label);
     tr.append(name, ...columns.map((column) => {
       const td = document.createElement("td");
-      td.append(column.cell(row, time));
+      td.append(cell(column, row));
       return td;
     }));
     return tr;
@@ -3720,11 +4175,11 @@ function renderBreakdown(next) {
   const body = [];
   for (const row of rows) {
     body.push(line(row, false));
-    if (expanded.has(row.name)) {
+    if (target.expanded.has(row.name)) {
       body.push(...(row.breakdown || []).map((part) => line(part, true)));
     }
   }
-  $("breakdown").tBodies[0].replaceChildren(...body);
+  table.tBodies[0].replaceChildren(...body);
   const total = document.createElement("tr");
   const totalDamage = rows.reduce((sum, row) => sum + row.dps * time, 0);
   total.append(...["Total", ...columns.map((column) => column.name === "Damage"
@@ -3735,127 +4190,87 @@ function renderBreakdown(next) {
       td.textContent = text;
       return td;
     }));
-  $("breakdown").tFoot.replaceChildren(total);
+  table.tFoot.replaceChildren(total);
 }
 
-/** The procs so far: how many fired, the share of the attempts and the procs per minute. */
+/** The Live view's procs so far. */
 function renderProcs(next) {
-  const rows = next.procs;
-  $("procs-empty").hidden = rows.length > 0;
-  $("procs").hidden = rows.length === 0;
-  $("procs").tBodies[0].replaceChildren(...rows.map((row) => {
-    const tr = document.createElement("tr");
-    const name = document.createElement("td");
-    const label = document.createElement("span");
-    label.className = "name";
-    const slot = document.createElement("span");
-    slot.className = "slot";
-    const icon = iconImage(row.icon);
-    if (icon) {
-      slot.append(icon);
-    }
-    label.append(slot, row.name);
-    name.append(label);
-    const cells = [String(Math.round(row.per_fight)), `${(row.proc_rate * 100).toFixed(1)}%`,
-      row.ppm.toFixed(2)].map((text) => {
-      const td = document.createElement("td");
-      td.textContent = text;
-      return td;
-    });
-    tr.append(name, ...cells);
-    return tr;
-  }));
+  renderProcTable(tables.procs, next.procs, 0);
 }
 
-/** The resource gained so far per source, then the totals per resource and what was lost at the cap. */
+/**
+ * The procs (`rows`, with their icons): how many fired per fight (`digits` decimals), the
+ * share of the attempts and the procs per minute.
+ */
+function renderProcTable(target, rows, digits) {
+  fillTable(target, rows, rows.map((row) => tableRow(nameCell(row.name, row.icon),
+    [row.per_fight.toFixed(digits), `${(row.proc_rate * 100).toFixed(1)}%`, row.ppm.toFixed(2)])));
+}
+
+/** The Live view's resource gains so far. */
 function renderResources(next) {
-  const rows = next.resources;
-  $("resources-empty").hidden = rows.length > 0;
-  $("resources").hidden = rows.length === 0;
-  const line = (label, row, icon) => {
-    const tr = document.createElement("tr");
-    const name = document.createElement("td");
-    const text = document.createElement("span");
-    text.className = "name";
-    if (icon !== undefined) {
-      const slot = document.createElement("span");
-      slot.className = "slot";
-      const image = iconImage(icon);
-      if (image) {
-        slot.append(image);
-      }
-      text.append(slot);
-    }
-    text.append(label);
-    name.append(text);
-    const cells = [row.resource, row.per_fight.toFixed(1), row.per_second.toFixed(2)].map((value) => {
-      const td = document.createElement("td");
-      td.textContent = value;
-      return td;
-    });
-    tr.append(name, ...cells);
-    return tr;
-  };
-  $("resources").tBodies[0].replaceChildren(...rows.map((row) => line(row.source, row, row.icon)));
-  const totals = next.resource_totals.map((sum) => line("Total", sum));
-  const lost = next.resource_totals.filter((sum) => sum.lost_at_cap_per_fight > 0).map((sum) =>
+  renderResourceTable(tables.resources, next.resources, next.resource_totals);
+}
+
+/**
+ * The resource gained per source (`rows`, with their icons), then the totals per resource
+ * (`totals`) and what was lost at the cap.
+ */
+function renderResourceTable(target, rows, totals) {
+  const line = (label, row, icon) => tableRow(nameCell(label, icon),
+    [row.resource, row.per_fight.toFixed(1), row.per_second.toFixed(2)]);
+  fillTable(target, rows, rows.map((row) => line(row.source, row, row.icon)));
+  const lost = totals.filter((sum) => sum.lost_at_cap_per_fight > 0).map((sum) =>
     line("Lost at the cap", {
       resource: sum.resource,
       per_fight: sum.lost_at_cap_per_fight,
       per_second: sum.lost_at_cap_per_second,
     }));
-  $("resources").tFoot.replaceChildren(...totals, ...lost);
+  $(target.table).tFoot.replaceChildren(...totals.map((sum) => line("Total", sum)), ...lost);
 }
 
-/** The buffs' uptimes so far: the share of the combat, shortest and longest application. */
+/** The Live view's buff uptimes so far. */
 function renderBuffUptimes(next) {
-  const rows = next.buff_uptimes;
-  $("buff-uptimes-empty").hidden = rows.length > 0;
-  $("buff-uptimes").hidden = rows.length === 0;
+  renderBuffTable(tables.buffs, next.buff_uptimes);
+}
+
+/** The buffs' uptimes (`rows`, with their icons): the share of the combat, shortest and longest application. */
+function renderBuffTable(target, rows) {
   const seconds = (value) => value > 0 ? `${value.toFixed(1)} s` : "";
-  $("buff-uptimes").tBodies[0].replaceChildren(...rows.map((row) => {
-    const tr = document.createElement("tr");
-    const name = document.createElement("td");
-    const label = document.createElement("span");
-    label.className = "name";
-    const slot = document.createElement("span");
-    slot.className = "slot";
-    const icon = iconImage(row.icon);
-    if (icon) {
-      slot.append(icon);
-    }
-    label.append(slot, row.name);
+  fillTable(target, rows, rows.map((row) => {
+    const name = nameCell(row.name, row.icon);
     if (row.debuff) {
       const tag = document.createElement("span");
       tag.className = "debuff-tag";
       tag.textContent = "debuff";
-      label.append(tag);
+      name.firstChild.append(tag);
     }
-    name.append(label);
-    const cells = [shareCell(row.uptime), seconds(row.shortest_seconds),
-      seconds(row.longest_seconds)].map((content) => {
-      const td = document.createElement("td");
-      td.append(content);
-      return td;
-    });
-    tr.append(name, ...cells);
-    return tr;
+    return tableRow(name, [shareCell(row.uptime), seconds(row.shortest_seconds),
+      seconds(row.longest_seconds)]);
   }));
 }
 
-$("breakdown").tBodies[0].addEventListener("click", (event) => {
-  const row = event.target instanceof Element && event.target.closest("tr.expandable");
-  if (!row) {
-    return;
-  }
-  const spell = row.dataset.spell;
-  if (!expanded.delete(spell)) {
-    expanded.add(spell);
-  }
+/** A click on a spell row of `target` shows or hides its outcome rows (`rerender` draws them). */
+function expandOnClick(target, rerender) {
+  $(target.table).tBodies[0].addEventListener("click", (event) => {
+    const row = event.target instanceof Element && event.target.closest("tr.expandable");
+    if (!row) {
+      return;
+    }
+    const spell = row.dataset.spell;
+    if (!target.expanded.delete(spell)) {
+      target.expanded.add(spell);
+    }
+    rerender();
+  });
+}
+
+expandOnClick(tables.spells, () => {
   if (frame) {
     renderBreakdown(frame);
   }
 });
+expandOnClick(simTables.spells, () => renderSimResults());
 
 /**
  * An 18 px image of `icon` ({id, name}): Wowhead's copy by name (`size` `medium` or `large`),
@@ -4189,7 +4604,8 @@ function releaseKeys() {
 document.addEventListener("keydown", (event) => {
   const inForm = event.target instanceof Element &&
     event.target.closest("select, input, textarea, summary");
-  if (!info || !info.manual || inForm || $("keybinds-editor").open || $("equipment-view").open ||
+  if (!info || !info.manual || view !== "live" || inForm || $("keybinds-editor").open ||
+    $("equipment-view").open ||
     $("talents-view").open || $("buffs-view").open) {
     return;
   }
@@ -4214,6 +4630,543 @@ $("step-event").addEventListener("click", () => step("event"));
 $("step-cast").addEventListener("click", () => step("cast"));
 $("restart").addEventListener("click", () => restart(info ? info.seed : null));
 $("reseed").addEventListener("click", () => restart(null));
+
+// ----- The Sim view -------------------------------------------------------------------------
+
+/** The setup the Sim view loads when neither the address nor the server names one. */
+const DEFAULT_SIM_SETUP = "warrior_fury_dw_human";
+/** The iterations of a run when the field is empty. */
+const DEFAULT_ITERATIONS = 10000;
+const MAX_ITERATIONS = 1000000;
+const MAX_THREADS = 64;
+/** How long one step of a run should take, in ms: the progress shows at least this often. */
+const SIM_STEP_MS = 150;
+/** Wowhead's race icons by race code (Skyborne has none: its initials show). */
+const RACE_ICONS = {
+  HUMAN: "race_human_male",
+  ORC: "race_orc_male",
+  DWARF: "race_dwarf_male",
+  NIGHT_ELF: "race_nightelf_male",
+  UNDEAD: "race_scourge_male",
+  TAUREN: "race_tauren_male",
+  GNOME: "race_gnome_male",
+  TROLL: "race_troll_male",
+};
+
+/** The run going on: `{stop}`, set to stop it after the step in flight. */
+let simRunning = null;
+/**
+ * The last run's results (`api/sim/results`), the request it simulated (`key`, JSON, to tell
+ * when the loaded setup is no longer it) and its seed (a string).
+ */
+let simShown = null;
+
+/** The classes with a bundled setup that loads, as the catalog has them. */
+function simClasses() {
+  return catalog.classes.filter((entry) =>
+    catalog.setups.some((setup) => setup.error === null && setup.class === entry.name));
+}
+
+/** The loaded character's class and race, as the catalog has them (null before a load). */
+function loadedClassRace() {
+  const playerClass = catalog?.classes.find((entry) => entry.name === info?.class) ?? null;
+  const race = playerClass?.races.find((entry) => entry.name === info.race) ?? null;
+  return { playerClass, race };
+}
+
+/** The bundled setups of `playerClass` that load. */
+function setupsOf(playerClass) {
+  return catalog.setups.filter((setup) => setup.error === null && setup.class === playerClass.name);
+}
+
+/** The rotation most of `playerClass`'s setups play: the class's main one. */
+function mainRotation(playerClass) {
+  const counts = new Map();
+  for (const setup of setupsOf(playerClass)) {
+    counts.set(setup.rotation, (counts.get(setup.rotation) ?? 0) + 1);
+  }
+  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? playerClass.rotations[0]?.name;
+}
+
+/** What kind of setup `setup` is: its title without its race (`DW Fury Orc` → `DW Fury`). */
+function setupKind(setup) {
+  const race = new Set(setup.race.toLowerCase().split(/\s+/));
+  return setup.title.split(/\s+/).filter((word) => !race.has(word.toLowerCase())).join(" ");
+}
+
+/** `setups` of `playerClass`, the kinds most races have first. */
+function commonKindsFirst(playerClass, setups) {
+  const counts = new Map();
+  for (const setup of setupsOf(playerClass)) {
+    counts.set(setupKind(setup), (counts.get(setupKind(setup)) ?? 0) + 1);
+  }
+  return [...setups].sort((a, b) => counts.get(setupKind(b)) - counts.get(setupKind(a)));
+}
+
+/** The kind of the loaded bundled setup (`setupKind`); null for anything else. */
+function loadedKind() {
+  const setup = catalog.setups.find((entry) => entry.name === info?.source.setup);
+  return setup ? setupKind(setup) : null;
+}
+
+/**
+ * What to load for `playerClass` and `race`, keeping `kind` (`setupKind`) or else `rotation`
+ * when it can: the race's setup of that kind, else with that rotation, else with the class's
+ * main rotation, else its first (the kinds most races have first), else a bare character with
+ * that rotation (or the class's first).
+ */
+function choiceFor(playerClass, race, rotation, kind = null) {
+  const own = commonKindsFirst(playerClass,
+    setupsOf(playerClass).filter((setup) => setup.race === race.name));
+  const setup = own.find((entry) => kind !== null && setupKind(entry) === kind) ??
+    own.find((entry) => entry.rotation === rotation) ??
+    own.find((entry) => entry.rotation === mainRotation(playerClass)) ?? own[0];
+  if (setup) {
+    return { setup: setup.name };
+  }
+  const kept = playerClass.rotations.find((entry) => entry.name === rotation) ??
+    playerClass.rotations[0];
+  return { bare: { class: playerClass.class, race: race.race, rotation: kept.name } };
+}
+
+/**
+ * Loads `choice` as another setup chosen in the setup bar (its own gear, talents and buffs): a
+ * bundled setup (`setup`, played as `race` when given), or a bare character (`bare`).
+ */
+function loadChoice(choice) {
+  $("setup-yaml").value = "";
+  gearChanges = [];
+  talentCode = null;
+  externalChanges = { buffs: null, debuffs: null };
+  if (choice.bare) {
+    bareCharacter = choice.bare;
+    raceOverride = null;
+    $("setup-select").value = "";
+  } else {
+    bareCharacter = null;
+    raceOverride = choice.race ?? null;
+    $("setup-select").value = choice.setup;
+  }
+  fillModes();
+  loadOrRotation(formRequest());
+}
+
+/** A pick of a picker: the icon (`icon`, a texture name; else `initials`), lit when chosen. */
+function pickButton({ label, icon, initials, chosen, color, onPick }) {
+  const button = element("button", "pick");
+  button.type = "button";
+  button.setAttribute("role", "radio");
+  button.setAttribute("aria-checked", String(chosen));
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.tabIndex = chosen ? 0 : -1;
+  if (color) {
+    button.style.setProperty("--pick", color);
+  }
+  const fallback = () => button.replaceChildren(element("span", "initials", initials));
+  if (icon && !missingIcons.has(`${ICON_CDN}/large/${icon}.jpg`)) {
+    const image = document.createElement("img");
+    image.alt = "";
+    image.src = `${ICON_CDN}/large/${icon}.jpg`;
+    image.addEventListener("error", () => {
+      missingIcons.add(image.src);
+      fallback();
+    });
+    button.append(image);
+  } else {
+    fallback();
+  }
+  button.addEventListener("click", () => {
+    if (!chosen) {
+      onPick();
+    }
+  });
+  return button;
+}
+
+/** The initials of a name: `High Order Skyborne` → `HOS`. */
+function initialsOf(name) {
+  return name.split(/\s+/).map((word) => word[0]).join("").toUpperCase();
+}
+
+/** The Sim view's class and race pickers and its setup choice, for what is loaded. */
+function renderSimBar() {
+  if (!catalog) {
+    return;
+  }
+  const { playerClass, race } = loadedClassRace();
+  $("class-picker").replaceChildren(...simClasses().map((entry) => pickButton({
+    label: entry.name,
+    icon: `classicon_${entry.class.toLowerCase()}`,
+    initials: entry.name.slice(0, 2),
+    chosen: entry === playerClass,
+    color: CLASS_COLORS[entry.name],
+    onPick: () => {
+      // The race stays when the class can be it; else Human, else the class's first.
+      const nextRace = entry.races.find((candidate) => candidate.race === race?.race) ??
+        entry.races.find((candidate) => candidate.race === "HUMAN") ?? entry.races[0];
+      loadChoice(choiceFor(entry, nextRace, mainRotation(entry)));
+    },
+  })));
+  $("race-picker").replaceChildren(...(playerClass?.races ?? []).map((entry) => pickButton({
+    label: `${entry.name} (${entry.faction})` +
+      (setupsOf(playerClass).some((setup) => setup.race === entry.name)
+        ? "" : ": no setup, loads without gear or talents"),
+    icon: RACE_ICONS[entry.race],
+    initials: initialsOf(entry.name),
+    chosen: entry === race,
+    onPick: () => loadChoice(choiceFor(playerClass, entry, info.rotation, loadedKind())),
+  })));
+  renderSimSetups(playerClass, race);
+}
+
+/**
+ * The setup choice for `playerClass` and `race`: the race's setups, the other races' setups
+ * played as the race, and a bare character per rotation of the class.
+ */
+function renderSimSetups(playerClass, race) {
+  const select = $("sim-setup");
+  if (!playerClass || !race) {
+    select.replaceChildren();
+    return;
+  }
+  const option = (value, text, title = "") => {
+    const entry = element("option", "", text);
+    entry.value = value;
+    entry.title = title;
+    return entry;
+  };
+  const group = (label, options) => {
+    const entry = document.createElement("optgroup");
+    entry.label = label;
+    entry.append(...options);
+    return options.length ? [entry] : [];
+  };
+  const setups = setupsOf(playerClass);
+  const own = setups.filter((setup) => setup.race === race.name);
+  const others = setups.filter((setup) => setup.race !== race.name);
+  select.replaceChildren(
+    ...group(`${race.name} setups`, own.map((setup) =>
+      option(`setup:${setup.name}`, `${setup.title} · ${setup.rotation}`, setup.name))),
+    ...group(`Other races' setups, as ${race.name}`, others.map((setup) =>
+      option(`as:${setup.name}`, `${setup.title} as ${race.name} · ${setup.rotation}`,
+        `${setup.name}, its gear, talents and buffs on a ${race.name}`))),
+    ...group("No gear or talents", playerClass.rotations.map((rotation) =>
+      option(`bare:${rotation.name}`, `${race.name} ${playerClass.name} · ${rotation.name}`,
+        rotation.prerequisites.length
+          ? `Needs ${rotation.prerequisites.join(", ")}: add the talents` : ""))),
+  );
+  const bare = info.source.bare;
+  if (bare) {
+    select.value = `bare:${bare.rotation}`;
+  } else if (info.source.setup) {
+    const setup = setups.find((entry) => entry.name === info.source.setup);
+    select.value = `${setup?.race === race.name ? "setup" : "as"}:${info.source.setup}`;
+  }
+  if (select.selectedIndex < 0) {
+    // Pasted text: not one of the choices.
+    select.prepend(option("", `${info.name} (custom)`));
+    select.value = "";
+  }
+}
+
+$("sim-setup").addEventListener("change", () => {
+  const value = $("sim-setup").value;
+  const { playerClass, race } = loadedClassRace();
+  if (!value || !playerClass || !race) {
+    return;
+  }
+  const [kind, name] = [value.slice(0, value.indexOf(":")), value.slice(value.indexOf(":") + 1)];
+  loadChoice(kind === "bare"
+    ? { bare: { class: playerClass.class, race: race.race, rotation: name } }
+    : { setup: name, race: kind === "as" ? race.race : null });
+});
+
+// The arrow keys move between a picker's picks, as a radio group's do.
+for (const picker of [$("class-picker"), $("race-picker")]) {
+  picker.addEventListener("keydown", (event) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    if (!step) {
+      return;
+    }
+    event.preventDefault();
+    const picks = [...picker.querySelectorAll(".pick")];
+    const at = picks.indexOf(document.activeElement);
+    picks[(at + step + picks.length) % picks.length]?.focus();
+  });
+}
+
+/**
+ * The seed, length and variance fields and the Settings and Target sections are the setup
+ * bar's: they move into the view shown, so both views share their values.
+ */
+function placeSharedFields() {
+  if (view === "sim") {
+    $("sim-fields").append($("run-fields"));
+    $("sim-details").append($("settings"), $("target"));
+  } else {
+    $("load").before($("run-fields"));
+    $("custom").before($("settings"), $("target"));
+  }
+}
+
+/** The Sim view's request: the setup bar's, played by the rotation. */
+function simRequest() {
+  const request = formRequest();
+  delete request.keybinds;
+  delete request.keybinds_yaml;
+  return request;
+}
+
+/** The iterations asked for; throws when they are not a whole number from 1 to the most. */
+function simIterations() {
+  const text = $("sim-iterations").value.trim();
+  const iterations = text ? Number(text) : DEFAULT_ITERATIONS;
+  if (!Number.isInteger(iterations) || iterations < 1 || iterations > MAX_ITERATIONS) {
+    throw new Error(`Iterations: a whole number from 1 to ${MAX_ITERATIONS.toLocaleString("en-US")}`);
+  }
+  return iterations;
+}
+
+/** The threads of a run when the field is empty: the browser's cores (at most 8), else 1. */
+function defaultThreads() {
+  return window.csimSimTransport ? Math.min(8, window.csimSimLanes ?? 1) : 1;
+}
+
+/**
+ * The threads asked for, at most one per iteration; throws when they are not a whole number
+ * from 1 to the most.
+ */
+function simThreads(iterations) {
+  const text = $("sim-threads").value.trim();
+  const threads = text ? Number(text) : defaultThreads();
+  if (!Number.isInteger(threads) || threads < 1 || threads > MAX_THREADS) {
+    throw new Error(`Threads: a whole number from 1 to ${MAX_THREADS}`);
+  }
+  return Math.min(threads, iterations);
+}
+
+function setSimRunning(on) {
+  $("sim-run").textContent = on ? "Stop" : "Run";
+  $("sim-run").classList.toggle("stop", on);
+}
+
+/** The progress bar: `progress` (`{done, total}`) after `seconds`. */
+function showSimProgress(progress, seconds, note = "") {
+  $("sim-progress").hidden = false;
+  $("sim-progress-fill").style.width = `${(progress.done / progress.total * 100).toFixed(1)}%`;
+  $("sim-progress-text").textContent =
+    `${progress.done.toLocaleString("en-US")} / ${progress.total.toLocaleString("en-US")} ` +
+    `iterations · ${seconds.toFixed(1)} s${note}`;
+}
+
+/**
+ * Runs the setup bar's setup: loads it (so that the header, the dialogs and the Live view show
+ * what was simulated, with its seed), then simulates it in steps of about `SIM_STEP_MS` ms,
+ * showing the progress, and shows the results. A run going on stops instead.
+ */
+async function runSim() {
+  if (simRunning) {
+    simRunning.stop = true;
+    return;
+  }
+  let iterations;
+  let threads;
+  try {
+    iterations = simIterations();
+    threads = simThreads(iterations);
+  } catch (error) {
+    $("status").textContent = error.message;
+    return;
+  }
+  const run = simRunning = { stop: false };
+  setSimRunning(true);
+  $("status").textContent = "";
+  try {
+    let loaded = null;
+    await enqueue(async () => {
+      loaded = await api("POST", "api/load", formRequest());
+      await begin(loaded);
+    });
+    if (!loaded) {
+      return;
+    }
+    const request = simRequest();
+    const start = performance.now();
+    const seconds = () => (performance.now() - start) / 1000;
+    // The shares of the run, a lane each in the browser's workers, one after another natively.
+    const lanes = window.csimSimTransport ? Math.min(threads, window.csimSimLanes ?? 1) : 1;
+    const done = new Array(threads).fill(0);
+    const shares = new Array(threads);
+    let seed = request.seed;
+    const shown = (note = "") =>
+      showSimProgress({ done: done.reduce((sum, n) => sum + n, 0), total: iterations }, seconds(), note);
+    const stopped = new Error("stopped");
+    const runLane = async (lane) => {
+      for (let share = lane; share < threads; share += lanes) {
+        let progress = await api("POST", "api/sim/start",
+          { load: request, iterations, threads, share }, lane);
+        seed = progress.seed;
+        let chunk = 20;
+        while (progress.done < progress.total) {
+          if (run.stop) {
+            throw stopped;
+          }
+          const stepStart = performance.now();
+          progress = await api("POST", "api/sim/step", { iterations: chunk }, lane);
+          const took = Math.max(performance.now() - stepStart, 1);
+          chunk = Math.max(1, Math.min(chunk * 4, Math.round(chunk * SIM_STEP_MS / took)));
+          done[share] = progress.done;
+          shown();
+        }
+        shares[share] = await api("POST", "api/sim/statistics", {}, lane);
+      }
+    };
+    shown();
+    try {
+      await Promise.all(Array.from({ length: lanes }, (_, lane) => runLane(lane)));
+    } catch (error) {
+      if (error !== stopped) {
+        throw error;
+      }
+      await Promise.all(Array.from({ length: lanes }, (_, lane) =>
+        api("POST", "api/sim/stop", {}, lane).catch(() => {})));
+      shown(" · stopped");
+      return;
+    }
+    const elapsed = seconds();
+    const results = await api("POST", "api/sim/merge",
+      { load: request, iterations, threads, shares, elapsed_seconds: elapsed });
+    shown();
+    simShown = { key: JSON.stringify(request), results, seed };
+    renderSimResults();
+  } catch (error) {
+    $("status").textContent = String(error.message || error);
+  } finally {
+    simRunning = null;
+    setSimRunning(false);
+  }
+}
+
+$("sim-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  runSim();
+});
+$("sim-talents").addEventListener("click", () => $("talents").click());
+$("sim-equipment").addEventListener("click", () => $("equipment").click());
+$("sim-externals").addEventListener("click", () => $("externals").click());
+
+/** Whether the shown results are of another setup (or seed) than the setup bar's now. */
+function simStale() {
+  return simShown !== null && info !== null && JSON.stringify(simRequest()) !== simShown.key;
+}
+
+/** Marks the shown results stale when the loaded setup is no longer theirs. */
+function markSimStale() {
+  if (!simShown) {
+    return;
+  }
+  const stale = simStale();
+  $("sim-results").classList.toggle("stale", stale);
+  $("sim-stale").hidden = !stale;
+  $("sim-totals").classList.toggle("stale", stale);
+}
+
+/** A formatted number: `digits` decimals, thousands separated. */
+function formatNumber(value, digits = 0) {
+  return value.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+/** The last run's results, in the Sim view's tables. */
+function renderSimResults() {
+  if (!simShown) {
+    return;
+  }
+  const { results, seed } = simShown;
+  const icons = results.icons;
+  const { run, dps } = results;
+  $("sim-results").hidden = false;
+  $("sim-totals").hidden = false;
+  $("sim-dps").textContent = formatNumber(dps.mean, 1);
+  $("sim-ci").textContent = `± ${formatNumber(dps.confidence_interval, 1)}`;
+
+  const stat = (label, value, title = "") => {
+    const tile = element("div", "sim-stat");
+    tile.title = title;
+    tile.append(element("span", "sim-stat-label", label), element("span", "sim-stat-value", value));
+    return tile;
+  };
+  $("sim-summary").replaceChildren(
+    stat("DPS", `${formatNumber(dps.mean, 2)} ± ${formatNumber(dps.confidence_interval, 2)}`,
+      "The mean DPS of the iterations, with its 95 % confidence interval"),
+    stat("Std dev", formatNumber(dps.standard_deviation, 2)),
+    stat("Min", formatNumber(dps.min, 2)),
+    stat("Max", formatNumber(dps.max, 2)),
+    stat("TPS", formatNumber(results.tps, 2)),
+  );
+  const setup = results.setup;
+  $("sim-meta").textContent =
+    `${setup.name}: ${setup.race} ${setup.class} · ${setup.rotation} · ${setup.phase} · ` +
+    `${setup.ruleset} ruleset · ${formatNumber(run.iterations)} iterations of ${run.combat_length} s ` +
+    `± ${run.length_variance} % · ${run.threads} thread${run.threads === 1 ? "" : "s"} · ` +
+    `seed ${seed}` + (run.settings ? ` · ${run.settings}` : "") +
+    ` · ${formatNumber(run.elapsed_seconds, 2)} s (${formatNumber(run.events)} events, ` +
+    `${formatNumber(run.events_per_second / 1e6, 2)} M/s)`;
+
+  renderSpellTable(simTables.spells, results.spells, {
+    time: run.combat_length,
+    icon: (plain, name) => icons.spells[name] ?? null,
+    casts: (casts) => casts.toFixed(1),
+  });
+  const withIcons = (rows, map, key = "name") =>
+    rows.map((row) => ({ ...row, icon: map[row[key]] ?? null }));
+  renderBuffTable(simTables.buffs, withIcons(results.buffs, icons.buffs));
+  renderProcTable(simTables.procs, withIcons(results.procs, icons.procs), 1);
+  renderResourceTable(simTables.resources, withIcons(results.resources, icons.resources, "source"),
+    results.resource_totals);
+  renderSimRotation(results);
+  renderSimEngine(results);
+  markSimStale();
+}
+
+/** The rotation's lines (how each attempt ended), the skipped lines and the finishers. */
+function renderSimRotation(results) {
+  const icons = results.icons.rotation;
+  const lines = [];
+  for (const row of results.rotation) {
+    row.outcomes.forEach((outcome, index) => {
+      const first = index === 0 ? nameCell(row.name, icons[row.name] ?? null) : nameCell("");
+      lines.push(tableRow(first, [outcome.outcome, formatNumber(outcome.per_fight, 1),
+        percent(outcome.share)], index === 0 ? "" : "part"));
+    });
+  }
+  fillTable({ table: "sim-rotation", empty: "sim-rotation-empty" }, results.rotation, lines);
+
+  const skipped = results.skipped_rotation_lines ?? [];
+  $("sim-skipped-heading").hidden = skipped.length === 0;
+  fillTable({ table: "sim-skipped", empty: "sim-skipped-empty" }, skipped,
+    skipped.map((row) => tableRow(nameCell(String(row.line)), [row.spell, row.reason])));
+  $("sim-skipped-empty").hidden = true;
+
+  const finishers = results.finishers ?? [];
+  $("sim-finishers-heading").hidden = finishers.length === 0;
+  fillTable({ table: "sim-finishers", empty: "sim-finishers-empty" }, finishers,
+    finishers.map((row) => tableRow(nameCell(row.name, icons[row.name] ?? null),
+      [...row.per_fight.map((casts) => formatNumber(casts, 1)), formatNumber(row.average, 2)])));
+  $("sim-finishers-empty").hidden = true;
+}
+
+/** The engine's events by type: how many, per fight, handled per second and their share. */
+function renderSimEngine(results) {
+  const { run, engine } = results;
+  fillTable({ table: "sim-engine", empty: "sim-engine-empty" }, engine,
+    engine.map((row) => tableRow(nameCell(row.event), [formatNumber(row.count), formatNumber(row.per_fight, 1),
+      formatNumber(row.per_second / 1000), percent(row.share)])));
+  const total = tableRow(nameCell("Total"), [formatNumber(run.events),
+    formatNumber(run.iterations ? run.events / run.iterations : 0, 1), formatNumber(run.events_per_second / 1000),
+    percent(engine.length ? 1 : 0)]);
+  $("sim-engine").tFoot.replaceChildren(total);
+}
 
 startPage().catch(fail);
 requestAnimationFrame(tick);

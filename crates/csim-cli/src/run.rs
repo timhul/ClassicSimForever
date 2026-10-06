@@ -3,13 +3,16 @@
 //! (`--output-file`). With `--scale`, `--weights-file` also writes the stat weights per item
 //! stat point (see [`crate::weights`]). `--combat-log` instead prints the combat log of one
 //! iteration.
+//!
+//! The results are the engine's [`Results`], which the web page's Sim view also shows; this
+//! module prints them ([`ResultsText`]).
 
 use std::fmt::Write;
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 use clap::{Args, ValueEnum};
 use csim_engine::character_loader::CharacterSetup;
@@ -19,12 +22,8 @@ use csim_engine::raid::RaidControl;
 use csim_engine::raid_loader::RaidSetup;
 use csim_engine::sim_control::{Progress, SimMode, run_logged_iteration, run_threaded};
 use csim_engine::sim_settings::{SimOption, SimSettings};
-use csim_engine::statistics::report::{
-    BuffRow, ProcRow, ResourceRow, ResourceTotal, SpellRow, buff_rows, proc_rows, resource_rows,
-    resource_totals, spell_rows,
-};
-use csim_engine::statistics::{ClassStatistics, NumberCruncher};
-use serde::Serialize;
+use csim_engine::statistics::report::SpellRow;
+use csim_engine::statistics::results::{RaidRoster, Report, Results, per};
 
 use crate::Result;
 use crate::table::{Table, percent};
@@ -300,244 +299,18 @@ pub(crate) fn progress_bar(total: u32) -> Progress {
     })
 }
 
-/// What a run's results are collected from.
-pub struct Report<'a> {
-    pub setup: &'a CharacterSetup,
-    pub settings: &'a SimSettings,
-    pub seed: u64,
-    pub elapsed: Duration,
-    pub cruncher: &'a NumberCruncher,
-    /// With `--raid`.
-    pub raid: Option<&'a RaidRoster>,
-}
-
-/// The raid's name and, in `CharId` order, each member's party (1-based) and setup name.
-pub struct RaidRoster {
-    pub name: String,
-    pub members: Vec<(u8, String)>,
-}
-
-/// The results of a run, as printed and as written by `--output-file`. Rates and shares are
-/// fractions (0.25 for 25 %); per fight values are averages per iteration.
-#[derive(Debug, Serialize)]
-pub struct Results {
-    pub setup: SetupInfo,
-    pub run: RunInfo,
-    pub dps: DpsSummary,
-    pub tps: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub raid: Option<RaidSummary>,
-    pub spells: Vec<SpellRow>,
-    /// The sums over `spells`; absent without spells.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub spell_total: Option<SpellTotal>,
-    pub buffs: Vec<BuffRow>,
-    pub procs: Vec<ProcRow>,
-    pub resources: Vec<ResourceRow>,
-    /// The sums over `resources`, one per resource.
-    pub resource_totals: Vec<ResourceTotal>,
-    /// The finishers cast, by combo points spent.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub finishers: Vec<FinisherRow>,
-    pub rotation: Vec<ExecutorRow>,
-    /// The rotation lines that never run, and why.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub skipped_rotation_lines: Vec<SkippedRow>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub stat_weights: Vec<StatWeightRow>,
-    /// Engine events by type, most frequent first.
-    pub engine: Vec<EngineRow>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct SetupInfo {
-    pub name: String,
-    pub race: String,
-    pub class: String,
-    pub rotation: String,
-    pub phase: String,
-    pub ruleset: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct RunInfo {
-    pub iterations: u64,
-    pub combat_length: u32,
-    /// Percent.
-    pub length_variance: f64,
-    /// The named settings that are not the default (`--setting`), as `name:value,...`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub settings: Option<String>,
-    pub threads: usize,
-    pub seed: u64,
-    pub elapsed_seconds: f64,
-    /// Engine events handled per second of wall-clock time.
-    pub events_per_second: f64,
-    pub events: u64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct DpsSummary {
-    pub mean: f64,
-    pub confidence_interval: f64,
-    pub standard_deviation: f64,
-    pub min: f64,
-    pub max: f64,
-}
-
-/// The raid's results; the player is the first member.
-#[derive(Debug, Serialize)]
-pub struct RaidSummary {
-    pub name: String,
-    pub dps: f64,
-    pub tps: f64,
-    pub members: Vec<RaidMemberRow>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct RaidMemberRow {
-    /// 1-based.
-    pub party: u8,
-    pub name: String,
-    pub dps: f64,
-    pub dps_share: f64,
-    pub tps: f64,
-}
-
-/// A finisher's casts per fight by the combo points they spent.
-#[derive(Debug, Serialize)]
-pub struct FinisherRow {
-    pub name: String,
-    /// Casts per fight with 1 to 5 combo points.
-    pub per_fight: [f64; 5],
-    /// The average combo points spent.
-    pub average: f64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct SpellTotal {
-    pub dps: f64,
-    pub damage_share: f64,
-    pub tps: f64,
-    pub casts: f64,
-}
-
-impl SpellTotal {
-    fn of(spells: &[SpellRow]) -> Option<SpellTotal> {
-        let sum = |value: fn(&SpellRow) -> f64| spells.iter().map(value).sum::<f64>();
-        (!spells.is_empty()).then(|| SpellTotal {
-            dps: sum(|s| s.dps),
-            damage_share: sum(|s| s.damage_share),
-            tps: sum(|s| s.tps),
-            casts: sum(|s| s.casts),
-        })
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct ExecutorRow {
-    pub name: String,
-    pub outcomes: Vec<OutcomeRow>,
-}
-
-/// A `cast_if` line that was not linked to the character.
-#[derive(Debug, Serialize)]
-pub struct SkippedRow {
-    /// 1-based position among the rotation's `cast_if` lines.
-    pub line: usize,
-    pub spell: String,
-    pub reason: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct OutcomeRow {
-    pub outcome: String,
-    pub per_fight: f64,
-    pub share: f64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct EngineRow {
-    pub event: String,
-    pub count: u64,
-    pub per_fight: f64,
-    /// Handled per second of wall-clock time.
-    pub per_second: f64,
-    pub share: f64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct StatWeightRow {
-    pub option: String,
-    pub dps: f64,
-    pub relative: f64,
-    pub confidence_interval: f64,
-    pub tps: f64,
-}
-
-impl Results {
-    pub fn collect(r: &Report) -> Results {
-        let stats = r
-            .cruncher
-            .merged(None)
-            .expect("a run collects the baseline");
-        let distribution = r.cruncher.dps_distribution();
-        let spells = spell_rows(&stats, stats.iterations(), stats.time_in_combat());
-        let resources = resource_rows(&stats);
-        Results {
-            setup: SetupInfo {
-                name: r.setup.name.clone(),
-                race: r.setup.race.name().to_string(),
-                class: r.setup.class.name().to_string(),
-                rotation: r.setup.rotation.clone(),
-                phase: r.settings.phase.description().to_string(),
-                ruleset: crate::serde_name(&r.settings.ruleset).to_lowercase(),
-            },
-            run: RunInfo {
-                iterations: stats.iterations(),
-                combat_length: r.settings.combat_length,
-                length_variance: r.settings.length_variance,
-                settings: r.settings.named_settings_text(),
-                threads: r.settings.threads,
-                seed: r.seed,
-                elapsed_seconds: r.elapsed.as_secs_f64(),
-                events_per_second: per_second(stats.engine().total_events(), r.elapsed),
-                events: stats.engine().total_events(),
-            },
-            dps: DpsSummary {
-                mean: stats.personal_dps(),
-                confidence_interval: distribution.confidence_interval,
-                standard_deviation: distribution.standard_deviation,
-                min: distribution.min_dps,
-                max: distribution.max_dps,
-            },
-            tps: stats.personal_tps(),
-            raid: r.raid.map(|roster| raid_summary(roster, r.cruncher)),
-            spell_total: SpellTotal::of(&spells),
-            spells,
-            buffs: buff_rows(&stats),
-            procs: proc_rows(&stats),
-            resource_totals: resource_totals(
-                &resources,
-                |kind| stats.lost_at_cap(kind),
-                stats.iterations(),
-                stats.time_in_combat(),
-            ),
-            resources,
-            finishers: finisher_rows(&stats),
-            rotation: executor_rows(&stats),
-            skipped_rotation_lines: skipped_rows(&stats),
-            stat_weights: if r.settings.options.is_empty() {
-                Vec::new()
-            } else {
-                stat_weight_rows(r.cruncher)
-            },
-            engine: engine_rows(&stats, r.elapsed),
-        }
-    }
-
+/// How `csim run` prints [`Results`]: as text tables or YAML (HTML: [`crate::html`]).
+pub trait ResultsText {
     /// The results as the text `csim run` prints.
-    pub fn text(&self) -> String {
+    fn text(&self) -> String;
+    /// The breakdowns as titled tables, leaving out the empty ones.
+    fn tables(&self) -> Vec<(&'static str, Table)>;
+    /// The results as YAML.
+    fn yaml(&self) -> Result<String>;
+}
+
+impl ResultsText for Results {
+    fn text(&self) -> String {
         let mut out = String::new();
         let (setup, run) = (&self.setup, &self.run);
         let _ = writeln!(
@@ -586,352 +359,222 @@ Raid {}: {} players, DPS {:.2}, TPS {:.2}",
         out
     }
 
-    /// The breakdowns as titled tables, leaving out the empty ones.
-    pub fn tables(&self) -> Vec<(&'static str, Table)> {
+    fn tables(&self) -> Vec<(&'static str, Table)> {
         [
-            ("Raid members", self.raid_table()),
-            ("Damage and threat", self.spell_table()),
-            ("Stat weights", self.stat_weight_table()),
-            ("Buffs and debuffs", self.buff_table()),
-            ("Procs", self.proc_table()),
-            ("Resource gains", self.resource_table()),
-            ("Finishers", self.finisher_table()),
-            ("Rotation", self.executor_table()),
-            ("Skipped rotation lines", self.skipped_table()),
-            ("Engine", self.engine_table()),
+            ("Raid members", raid_table(self)),
+            ("Damage and threat", spell_table(self)),
+            ("Stat weights", stat_weight_table(self)),
+            ("Buffs and debuffs", buff_table(self)),
+            ("Procs", proc_table(self)),
+            ("Resource gains", resource_table(self)),
+            ("Finishers", finisher_table(self)),
+            ("Rotation", executor_table(self)),
+            ("Skipped rotation lines", skipped_table(self)),
+            ("Engine", engine_table(self)),
         ]
         .into_iter()
         .filter(|(_, table)| !table.is_empty())
         .collect()
     }
 
-    /// The results as YAML.
-    pub fn yaml(&self) -> Result<String> {
+    fn yaml(&self) -> Result<String> {
         Ok(serde_yaml::to_string(self)?)
     }
+}
 
-    fn raid_table(&self) -> Table {
-        let mut table = Table::new(["Party", "Member", "DPS", "Damage", "TPS"]).left(1);
-        for member in self.raid.iter().flat_map(|raid| &raid.members) {
-            table.row(vec![
-                member.party.to_string(),
-                member.name.clone(),
-                format!("{:.2}", member.dps),
-                percent(member.dps_share),
-                format!("{:.2}", member.tps),
-            ]);
-        }
-        table
-    }
-
-    fn spell_table(&self) -> Table {
-        let mut table = Table::new([
-            "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "DPR", "Hit", "Crit", "Glance",
-            "Miss", "Dodge", "Parry", "Block", "Resist",
+fn raid_table(results: &Results) -> Table {
+    let mut table = Table::new(["Party", "Member", "DPS", "Damage", "TPS"]).left(1);
+    for member in results.raid.iter().flat_map(|raid| &raid.members) {
+        table.row(vec![
+            member.party.to_string(),
+            member.name.clone(),
+            format!("{:.2}", member.dps),
+            percent(member.dps_share),
+            format!("{:.2}", member.tps),
         ]);
-        let cells = |spell: &SpellRow| {
-            vec![
-                spell.name.clone(),
-                format!("{:.1}", spell.dps),
-                percent(spell.damage_share),
-                format!("{:.1}", spell.tps),
-                format!("{:.1}", spell.casts),
-                spell.min_hit.map_or(String::new(), |min| min.to_string()),
-                spell.max_hit.map_or(String::new(), |max| max.to_string()),
-                spell
-                    .damage_per_resource
-                    .map_or(String::new(), |dpr| format!("{dpr:.1}")),
-                percent(spell.hit),
-                percent(spell.crit),
-                percent(spell.glance),
-                percent(spell.miss),
-                percent(spell.dodge),
-                percent(spell.parry),
-                percent(spell.block),
-                percent(spell.resist),
-            ]
-        };
-        for spell in &self.spells {
-            table.row_with_sub_rows(cells(spell), spell.breakdown.iter().map(cells).collect());
-        }
-        if let Some(sum) = &self.spell_total {
-            let mut total = vec![
-                "Total".to_string(),
-                format!("{:.1}", sum.dps),
-                percent(sum.damage_share),
-                format!("{:.1}", sum.tps),
-                format!("{:.1}", sum.casts),
-            ];
-            total.resize(table.headers().len(), String::new());
-            table.total(total);
-        }
-        table
     }
+    table
+}
 
-    fn buff_table(&self) -> Table {
-        let mut table = Table::new(["Buff", "Kind", "Uptime", "Shortest", "Longest"]).left(1);
-        for buff in &self.buffs {
-            table.row(vec![
-                buff.name.clone(),
-                if buff.debuff { "debuff" } else { "buff" }.to_string(),
-                percent(buff.uptime),
-                format!("{:.1} s", buff.shortest_seconds),
-                format!("{:.1} s", buff.longest_seconds),
-            ]);
-        }
-        table
+fn spell_table(results: &Results) -> Table {
+    let mut table = Table::new([
+        "Spell", "DPS", "Damage", "TPS", "Casts", "Min", "Max", "DPR", "Hit", "Crit", "Glance",
+        "Miss", "Dodge", "Parry", "Block", "Resist",
+    ]);
+    let cells = |spell: &SpellRow| {
+        vec![
+            spell.name.clone(),
+            format!("{:.1}", spell.dps),
+            percent(spell.damage_share),
+            format!("{:.1}", spell.tps),
+            format!("{:.1}", spell.casts),
+            spell.min_hit.map_or(String::new(), |min| min.to_string()),
+            spell.max_hit.map_or(String::new(), |max| max.to_string()),
+            spell
+                .damage_per_resource
+                .map_or(String::new(), |dpr| format!("{dpr:.1}")),
+            percent(spell.hit),
+            percent(spell.crit),
+            percent(spell.glance),
+            percent(spell.miss),
+            percent(spell.dodge),
+            percent(spell.parry),
+            percent(spell.block),
+            percent(spell.resist),
+        ]
+    };
+    for spell in &results.spells {
+        table.row_with_sub_rows(cells(spell), spell.breakdown.iter().map(cells).collect());
     }
-
-    fn proc_table(&self) -> Table {
-        let mut table = Table::new(["Proc", "Per fight", "Proc rate", "PPM"]);
-        for proc in &self.procs {
-            table.row(vec![
-                proc.name.clone(),
-                format!("{:.1}", proc.per_fight),
-                format!("{:.1}%", proc.proc_rate * 100.0),
-                format!("{:.2}", proc.ppm),
-            ]);
-        }
-        table
+    if let Some(sum) = &results.spell_total {
+        let mut total = vec![
+            "Total".to_string(),
+            format!("{:.1}", sum.dps),
+            percent(sum.damage_share),
+            format!("{:.1}", sum.tps),
+            format!("{:.1}", sum.casts),
+        ];
+        total.resize(table.headers().len(), String::new());
+        table.total(total);
     }
+    table
+}
 
-    fn resource_table(&self) -> Table {
-        let mut table = Table::new(["Source", "Resource", "Per fight", "Per s"]).left(1);
-        for gain in &self.resources {
-            table.row(vec![
-                gain.source.clone(),
-                gain.resource.clone(),
-                format!("{:.1}", gain.per_fight),
-                format!("{:.2}", gain.per_second),
-            ]);
-        }
-        for sum in &self.resource_totals {
+fn buff_table(results: &Results) -> Table {
+    let mut table = Table::new(["Buff", "Kind", "Uptime", "Shortest", "Longest"]).left(1);
+    for buff in &results.buffs {
+        table.row(vec![
+            buff.name.clone(),
+            if buff.debuff { "debuff" } else { "buff" }.to_string(),
+            percent(buff.uptime),
+            format!("{:.1} s", buff.shortest_seconds),
+            format!("{:.1} s", buff.longest_seconds),
+        ]);
+    }
+    table
+}
+
+fn proc_table(results: &Results) -> Table {
+    let mut table = Table::new(["Proc", "Per fight", "Proc rate", "PPM"]);
+    for proc in &results.procs {
+        table.row(vec![
+            proc.name.clone(),
+            format!("{:.1}", proc.per_fight),
+            format!("{:.1}%", proc.proc_rate * 100.0),
+            format!("{:.2}", proc.ppm),
+        ]);
+    }
+    table
+}
+
+fn resource_table(results: &Results) -> Table {
+    let mut table = Table::new(["Source", "Resource", "Per fight", "Per s"]).left(1);
+    for gain in &results.resources {
+        table.row(vec![
+            gain.source.clone(),
+            gain.resource.clone(),
+            format!("{:.1}", gain.per_fight),
+            format!("{:.2}", gain.per_second),
+        ]);
+    }
+    for sum in &results.resource_totals {
+        table.total(vec![
+            "Total".to_string(),
+            sum.resource.clone(),
+            format!("{:.1}", sum.per_fight),
+            format!("{:.2}", sum.per_second),
+        ]);
+    }
+    for sum in &results.resource_totals {
+        if sum.lost_at_cap_per_fight > 0.0 {
             table.total(vec![
-                "Total".to_string(),
+                "Lost at the cap".to_string(),
                 sum.resource.clone(),
-                format!("{:.1}", sum.per_fight),
-                format!("{:.2}", sum.per_second),
+                format!("{:.1}", sum.lost_at_cap_per_fight),
+                format!("{:.2}", sum.lost_at_cap_per_second),
             ]);
         }
-        for sum in &self.resource_totals {
-            if sum.lost_at_cap_per_fight > 0.0 {
-                table.total(vec![
-                    "Lost at the cap".to_string(),
-                    sum.resource.clone(),
-                    format!("{:.1}", sum.lost_at_cap_per_fight),
-                    format!("{:.2}", sum.lost_at_cap_per_second),
-                ]);
-            }
-        }
-        table
     }
+    table
+}
 
-    fn finisher_table(&self) -> Table {
-        let mut table = Table::new([
-            "Finisher", "1 CP", "2 CP", "3 CP", "4 CP", "5 CP", "Average",
-        ])
-        .left(1);
-        for finisher in &self.finishers {
-            let mut row = vec![finisher.name.clone()];
-            row.extend(finisher.per_fight.iter().map(|casts| format!("{casts:.1}")));
-            row.push(format!("{:.2}", finisher.average));
-            table.row(row);
-        }
-        table
+fn finisher_table(results: &Results) -> Table {
+    let mut table = Table::new([
+        "Finisher", "1 CP", "2 CP", "3 CP", "4 CP", "5 CP", "Average",
+    ])
+    .left(1);
+    for finisher in &results.finishers {
+        let mut row = vec![finisher.name.clone()];
+        row.extend(finisher.per_fight.iter().map(|casts| format!("{casts:.1}")));
+        row.push(format!("{:.2}", finisher.average));
+        table.row(row);
     }
+    table
+}
 
-    fn executor_table(&self) -> Table {
-        let mut table = Table::new(["Executor", "Outcome", "Per fight", "Share"]).left(1);
-        for executor in &self.rotation {
-            let mut name = executor.name.clone();
-            for outcome in &executor.outcomes {
-                table.row(vec![
-                    std::mem::take(&mut name),
-                    outcome.outcome.clone(),
-                    format!("{:.1}", outcome.per_fight),
-                    format!("{:.1}%", outcome.share * 100.0),
-                ]);
-            }
-        }
-        table
-    }
-
-    fn skipped_table(&self) -> Table {
-        let mut table = Table::new(["Line", "Spell", "Reason"]).left(1).left(2);
-        for row in &self.skipped_rotation_lines {
+fn executor_table(results: &Results) -> Table {
+    let mut table = Table::new(["Executor", "Outcome", "Per fight", "Share"]).left(1);
+    for executor in &results.rotation {
+        let mut name = executor.name.clone();
+        for outcome in &executor.outcomes {
             table.row(vec![
-                row.line.to_string(),
-                row.spell.clone(),
-                row.reason.clone(),
+                std::mem::take(&mut name),
+                outcome.outcome.clone(),
+                format!("{:.1}", outcome.per_fight),
+                format!("{:.1}%", outcome.share * 100.0),
             ]);
         }
-        table
     }
+    table
+}
 
-    fn engine_table(&self) -> Table {
-        let mut table = Table::new(["Event", "Count", "Per fight", "Handled k/s", "Share"]);
-        for row in &self.engine {
-            table.row(vec![
-                row.event.clone(),
-                row.count.to_string(),
-                format!("{:.1}", row.per_fight),
-                format!("{:.0}", row.per_second / 1000.0),
-                percent(row.share),
-            ]);
-        }
-        if !self.engine.is_empty() {
-            table.total(vec![
-                "Total".to_string(),
-                self.run.events.to_string(),
-                format!("{:.1}", per(self.run.events, self.run.iterations)),
-                format!("{:.0}", self.run.events_per_second / 1000.0),
-                percent(1.0),
-            ]);
-        }
-        table
+fn skipped_table(results: &Results) -> Table {
+    let mut table = Table::new(["Line", "Spell", "Reason"]).left(1).left(2);
+    for row in &results.skipped_rotation_lines {
+        table.row(vec![
+            row.line.to_string(),
+            row.spell.clone(),
+            row.reason.clone(),
+        ]);
     }
+    table
+}
 
-    fn stat_weight_table(&self) -> Table {
-        let mut table = Table::new(["Option", "DPS", "Relative", "± 95% CI", "TPS"]);
-        for weight in &self.stat_weights {
-            table.row(vec![
-                weight.option.clone(),
-                format!("{:+.2}", weight.dps),
-                format!("{:+.2}%", weight.relative * 100.0),
-                format!("{:.2}", weight.confidence_interval),
-                format!("{:+.2}", weight.tps),
-            ]);
-        }
-        table
+fn engine_table(results: &Results) -> Table {
+    let mut table = Table::new(["Event", "Count", "Per fight", "Handled k/s", "Share"]);
+    for row in &results.engine {
+        table.row(vec![
+            row.event.clone(),
+            row.count.to_string(),
+            format!("{:.1}", row.per_fight),
+            format!("{:.0}", row.per_second / 1000.0),
+            percent(row.share),
+        ]);
     }
-}
-
-fn per(count: u64, iterations: u64) -> f64 {
-    if iterations == 0 {
-        0.0
-    } else {
-        count as f64 / iterations as f64
+    if !results.engine.is_empty() {
+        table.total(vec![
+            "Total".to_string(),
+            results.run.events.to_string(),
+            format!("{:.1}", per(results.run.events, results.run.iterations)),
+            format!("{:.0}", results.run.events_per_second / 1000.0),
+            percent(1.0),
+        ]);
     }
+    table
 }
 
-fn raid_summary(roster: &RaidRoster, cruncher: &NumberCruncher) -> RaidSummary {
-    let raid_dps = cruncher.raid_dps();
-    let results = cruncher.player_results();
-    assert_eq!(results.len(), roster.members.len(), "a result per member");
-    RaidSummary {
-        name: roster.name.clone(),
-        dps: raid_dps,
-        tps: cruncher.raid_tps(),
-        members: roster
-            .members
-            .iter()
-            .zip(results)
-            .map(|((party, name), result)| RaidMemberRow {
-                party: *party,
-                name: name.clone(),
-                dps: result.dps,
-                dps_share: if raid_dps > 0.0 {
-                    result.dps / raid_dps
-                } else {
-                    0.0
-                },
-                tps: result.tps,
-            })
-            .collect(),
+fn stat_weight_table(results: &Results) -> Table {
+    let mut table = Table::new(["Option", "DPS", "Relative", "± 95% CI", "TPS"]);
+    for weight in &results.stat_weights {
+        table.row(vec![
+            weight.option.clone(),
+            format!("{:+.2}", weight.dps),
+            format!("{:+.2}%", weight.relative * 100.0),
+            format!("{:.2}", weight.confidence_interval),
+            format!("{:+.2}", weight.tps),
+        ]);
     }
-}
-
-fn finisher_rows(stats: &ClassStatistics) -> Vec<FinisherRow> {
-    let iterations = stats.iterations().max(1) as f64;
-    stats
-        .finishers()
-        .map(|(key, counts)| {
-            let casts: u64 = counts.iter().sum();
-            let points: u64 = counts.iter().zip(1..).map(|(n, cp)| n * cp).sum();
-            FinisherRow {
-                name: key.display_name(),
-                per_fight: counts.map(|n| n as f64 / iterations),
-                average: points as f64 / casts.max(1) as f64,
-            }
-        })
-        .collect()
-}
-
-fn executor_rows(stats: &ClassStatistics) -> Vec<ExecutorRow> {
-    let iterations = stats.iterations();
-    stats
-        .executors()
-        .iter()
-        .filter(|executor| executor.attempts() > 0)
-        .map(|executor| {
-            let attempts = executor.attempts();
-            ExecutorRow {
-                name: executor.name().to_string(),
-                outcomes: executor
-                    .outcomes()
-                    .into_iter()
-                    .filter(|outcome| outcome.count > 0)
-                    .map(|outcome| OutcomeRow {
-                        outcome: outcome.description().to_string(),
-                        per_fight: per(outcome.count, iterations),
-                        share: per(outcome.count, attempts),
-                    })
-                    .collect(),
-            }
-        })
-        .collect()
-}
-
-fn skipped_rows(stats: &ClassStatistics) -> Vec<SkippedRow> {
-    stats
-        .skipped_executors()
-        .iter()
-        .map(|skipped| SkippedRow {
-            line: skipped.line,
-            spell: skipped.spell_name.clone(),
-            reason: skipped.reason.clone(),
-        })
-        .collect()
-}
-
-fn per_second(count: u64, elapsed: Duration) -> f64 {
-    let seconds = elapsed.as_secs_f64();
-    if seconds > 0.0 {
-        count as f64 / seconds
-    } else {
-        0.0
-    }
-}
-
-fn engine_rows(stats: &ClassStatistics, elapsed: Duration) -> Vec<EngineRow> {
-    let engine = stats.engine();
-    let mut events = engine.non_zero();
-    events.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
-    events
-        .into_iter()
-        .map(|(event, count)| EngineRow {
-            event: event.name().to_string(),
-            count,
-            per_fight: per(count, stats.iterations()),
-            per_second: per_second(count, elapsed),
-            share: per(count, engine.total_events()),
-        })
-        .collect()
-}
-
-fn stat_weight_rows(cruncher: &NumberCruncher) -> Vec<StatWeightRow> {
-    cruncher
-        .stat_weights_dps()
-        .into_iter()
-        .zip(cruncher.stat_weights_tps())
-        .map(|(dps, tps)| StatWeightRow {
-            option: dps.option.map_or("", SimOption::description).to_string(),
-            dps: dps.absolute_value,
-            relative: dps.relative_value,
-            confidence_interval: dps.confidence_interval,
-            tps: tps.absolute_value,
-        })
-        .collect()
+    table
 }
 
 #[cfg(test)]

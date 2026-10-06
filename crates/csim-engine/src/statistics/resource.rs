@@ -3,10 +3,12 @@
 //! As with the proc statistics, the gain per 5 seconds takes the time in combat as a parameter
 //! instead of storing it.
 
+use serde::{Deserialize, Serialize};
+
 use crate::resource::ResourceType;
 
 /// Resource gained by one spell, proc or auto attack. Port of `StatisticsResource`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceStatistics {
     name: String,
     rank: u32,

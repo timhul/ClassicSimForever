@@ -196,6 +196,26 @@ fn a_rotation_whose_prerequisite_the_character_lacks_is_an_issue() {
 }
 
 #[test]
+fn a_setup_may_allow_its_rotation_s_missing_prerequisites() {
+    let mut setup = minimal();
+    setup.rotation = "DW Fury".to_string();
+    setup.allow_missing_prerequisites = true;
+    let raid = setup.build_raid(data(), &settings()).unwrap();
+    // The rotation still knows what is missing (and skips its lines).
+    let rotation = raid.character(CharId(0)).rotation().unwrap();
+    assert_eq!(
+        rotation
+            .missing_prerequisites()
+            .iter()
+            .map(|(spell, _)| spell.as_str())
+            .collect::<Vec<_>>(),
+        ["Bloodthirst"]
+    );
+    // Not a field of the file.
+    assert!(!serde_yaml::to_string(&setup).unwrap().contains("allow"));
+}
+
+#[test]
 fn unknown_fields_are_parse_errors() {
     let text = format!("{MINIMAL}talent:\n  Fury:\n    Cruelty: 5\n");
     let error = serde_yaml::from_str::<CharacterSetup>(&text).unwrap_err();

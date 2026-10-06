@@ -4,10 +4,12 @@
 //! - `GET /`: the page.
 //! - `GET /web.js`: an empty module. In the browser build the page's `web.js` runs the server
 //!   side in the page; natively the page finds none and talks over HTTP.
-//! - `GET /api/catalog`: the setups, keybinds and named settings the page can load
-//!   ([`Catalog`](crate::app::Catalog)).
+//! - `GET /api/catalog`: the setups, keybinds and named settings the page can load, and the
+//!   classes with their races and rotations ([`Catalog`](crate::app::Catalog)).
 //! - `POST /api/load {"setup": "warrior_fury_dw_orc", ...}`: loads a session
-//!   ([`LoadRequest`]); its info, as `api/info`.
+//!   ([`LoadRequest`]): a setup, possibly as another race (`"race": "HUMAN"`), or a bare
+//!   character (`"bare": {"class": "WARRIOR", "race": "HUMAN", "rotation": "DW Fury"}`); its
+//!   info, as `api/info`.
 //! - `POST /api/talents/edit {"class": "WARRIOR", "ranks": {node: rank}, "op": "increment",
 //!   "node": n}`: a click in the talent calculator ([`EditRequest`]); the new
 //!   [`State`](crate::talents::State).
@@ -28,15 +30,42 @@
 //!   `api/info`.
 //! - `POST /api/cast {"spell": "Bloodthirst", "at": t}`: a key press of a bound spell at sim
 //!   time `t` (played from the keyboard only); a frame.
+//!
+//! The Sim view's sim, many iterations of a setup ([`SimJob`](crate::sim::SimJob)), beside
+//! the session:
+//!
+//! - `POST /api/sim/start {"load": {"setup": ...}, "iterations": N}`: starts a sim of the
+//!   setup `api/load` would load (played by its rotation) in place of the current one
+//!   ([`SimRequest`]); its [`SimProgress`](crate::sim::SimProgress) (`{name, seed, done,
+//!   total}`).
+//! - `POST /api/sim/step {"iterations": k}`: runs up to `k` more iterations; the progress.
+//! - `POST /api/sim/results {"elapsed_seconds": s}`: the results once every iteration ran
+//!   ([`SimResults`](crate::sim::SimResults)); `s` is the wall-clock time the page measured.
+//!   409 before, and for a share of a run over more threads.
+//! - `POST /api/sim/stop`: drops the sim.
+//!
+//! A run over `T` threads runs a sim per share (`api/sim/start` with `"threads": T, "share":
+//! k`, in the browser each in a worker of its own), then merges them:
+//!
+//! - `POST /api/sim/statistics`: the share's statistics once it ran (JSON for `merge`); 409
+//!   before.
+//! - `POST /api/sim/merge {"load": {..., "seed": "S"}, "iterations": N, "threads": T,
+//!   "shares": [...], "elapsed_seconds": s}`: the run's results from its shares' statistics
+//!   ([`MergeRequest`]), as `results` answers them.
+//!
+//! `step`, `results` and `statistics` answer 409 without a sim.
+//!
 //! - `GET /icons/<FileDataID>.png`: an icon of the frames, from the icon lookup (natively the
 //!   icon directory `<data>/icons/`, filled by `tools/fetch_icons.py`; see [`icon_dir`]).
 
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
 use crate::app::{App, LoadRequest};
 use crate::session::Session;
+use crate::sim::{MergeRequest, SimRequest};
 use crate::talents::{EditRequest, Layout, State, edit};
 
 /// The page.
@@ -115,6 +144,18 @@ struct Cast {
     at: f64,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SimStep {
+    iterations: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SimResultsRequest {
+    elapsed_seconds: f64,
+}
+
 /// The PNG of icon `FileDataID`, if there is one.
 pub type Icons<'a> = &'a dyn Fn(u32) -> Option<Vec<u8>>;
 
@@ -123,6 +164,16 @@ pub fn icon_dir(dir: &Path) -> impl Fn(u32) -> Option<Vec<u8>> + use<> {
     let dir: PathBuf = dir.to_owned();
     move |id| std::fs::read(dir.join(format!("{id}.png"))).ok()
 }
+
+/// The sim's endpoints.
+const SIM_PATHS: [&str; 6] = [
+    "/api/sim/start",
+    "/api/sim/step",
+    "/api/sim/results",
+    "/api/sim/stop",
+    "/api/sim/statistics",
+    "/api/sim/merge",
+];
 
 /// The endpoints that need a loaded session.
 const SESSION_PATHS: [&str; 7] = [
@@ -187,6 +238,7 @@ pub fn route(
             },
             Err(error) => Reply::error(400, error.to_string()),
         },
+        ("POST", path) if SIM_PATHS.contains(&path) => sim_route(app, path, body, new_seed),
         ("POST", "/api/advance" | "/api/step" | "/api/restart" | "/api/cast") => {
             let Some(session) = app.session_mut() else {
                 return no_session();
@@ -205,7 +257,7 @@ pub fn route(
         (_, "/" | "/web.js" | "/api/catalog" | "/api/load" | "/api/talents/edit") => {
             Reply::error(405, format!("{method} not allowed on {path}"))
         }
-        (_, path) if SESSION_PATHS.contains(&path) => {
+        (_, path) if SESSION_PATHS.contains(&path) || SIM_PATHS.contains(&path) => {
             Reply::error(405, format!("{method} not allowed on {path}"))
         }
         _ => Reply::error(404, format!("no {path}")),
@@ -223,6 +275,76 @@ struct Talents {
 /// The answer of a session endpoint before a load.
 fn no_session() -> Reply {
     Reply::error(409, "no session loaded: load one first (api/load)")
+}
+
+/// A `POST` to `path`, one of the sim's endpoints.
+fn sim_route(app: &mut App, path: &str, body: &str, new_seed: impl FnOnce() -> u64) -> Reply {
+    match path {
+        "/api/sim/start" => match serde_json::from_str::<SimRequest>(body) {
+            Ok(request) => match app.start_sim(request, new_seed) {
+                Ok(progress) => Reply::json(&progress),
+                Err(error) => Reply::error(400, error),
+            },
+            Err(error) => Reply::error(400, error.to_string()),
+        },
+        "/api/sim/stop" => {
+            app.stop_sim();
+            Reply::json(&serde_json::json!({}))
+        }
+        "/api/sim/merge" => match serde_json::from_str::<MergeRequest>(body) {
+            Ok(request) => match app.merge_sim(request) {
+                Ok(results) => Reply::json(&results),
+                Err(error) => Reply::error(400, error),
+            },
+            Err(error) => Reply::error(400, error.to_string()),
+        },
+        _ => {
+            let Some(job) = app.sim_mut() else {
+                return Reply::error(409, "no sim: start one first (api/sim/start)");
+            };
+            if path == "/api/sim/statistics" {
+                return match job.statistics() {
+                    Some(statistics) => Reply::json(statistics),
+                    None => not_done(job),
+                };
+            }
+            if path == "/api/sim/step" {
+                return match serde_json::from_str::<SimStep>(body) {
+                    Ok(SimStep { iterations }) => Reply::json(&job.step(iterations)),
+                    Err(error) => Reply::error(400, error.to_string()),
+                };
+            }
+            match serde_json::from_str::<SimResultsRequest>(body) {
+                Ok(SimResultsRequest { elapsed_seconds })
+                    if elapsed_seconds.is_finite() && elapsed_seconds >= 0.0 =>
+                {
+                    match job.results(Duration::from_secs_f64(elapsed_seconds)) {
+                        Some(results) => Reply::json(&results),
+                        None if !job.is_whole() => Reply::error(
+                            409,
+                            "a share of a run over more threads: merge the shares' statistics \
+                             (api/sim/merge)",
+                        ),
+                        None => not_done(job),
+                    }
+                }
+                Ok(_) => Reply::error(400, "`elapsed_seconds` must be a finite number >= 0"),
+                Err(error) => Reply::error(400, error.to_string()),
+            }
+        }
+    }
+}
+
+/// The answer of a sim endpoint before the sim is done.
+fn not_done(job: &crate::sim::SimJob) -> Reply {
+    let progress = job.progress();
+    Reply::error(
+        409,
+        format!(
+            "the sim is not done: {} of {} iterations",
+            progress.done, progress.total
+        ),
+    )
 }
 
 /// The seed of a restart request; a new one when it names none.
