@@ -94,6 +94,18 @@ pub struct Info {
     /// The external buffs and debuffs the character is offered (its class and faction), in
     /// `data/external_buffs.yaml`'s order, with the session's selection.
     pub externals: Vec<ExternalInfo>,
+    /// The rotation's prerequisites the character lacks, in file order: only a setup that
+    /// allows them loads with any
+    /// ([`allow_missing_prerequisites`](CharacterSetup::allow_missing_prerequisites)).
+    pub missing_prerequisites: Vec<MissingPrerequisite>,
+}
+
+/// A spell the rotation cannot do without that the character lacks: its lines are skipped.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MissingPrerequisite {
+    pub spell: String,
+    /// Why the character lacks it (`talent Bloodthirst not taken`).
+    pub reason: String,
 }
 
 /// An external buff or debuff the character is offered.
@@ -526,6 +538,19 @@ impl Session {
                     mutex: entry.spec.mutex.clone(),
                 })
                 .collect(),
+            missing_prerequisites: character
+                .rotation()
+                .map(|rotation| {
+                    rotation
+                        .missing_prerequisites()
+                        .iter()
+                        .map(|(spell, reason)| MissingPrerequisite {
+                            spell: spell.clone(),
+                            reason: reason.to_string(),
+                        })
+                        .collect()
+                })
+                .unwrap_or_default(),
         }
     }
 

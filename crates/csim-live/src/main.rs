@@ -133,6 +133,7 @@ fn load_flags(app: &mut App, args: &Args, path: &Path) -> Result<()> {
             .keybinds
             .as_deref()
             .and_then(|path| app.keybinds_name(path)),
+        bare: None,
     };
     app.set_session(session, source);
     Ok(())

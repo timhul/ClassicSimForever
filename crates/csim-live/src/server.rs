@@ -4,10 +4,12 @@
 //! - `GET /`: the page.
 //! - `GET /web.js`: an empty module. In the browser build the page's `web.js` runs the server
 //!   side in the page; natively the page finds none and talks over HTTP.
-//! - `GET /api/catalog`: the setups, keybinds and named settings the page can load
-//!   ([`Catalog`](crate::app::Catalog)).
+//! - `GET /api/catalog`: the setups, keybinds and named settings the page can load, and the
+//!   classes with their races and rotations ([`Catalog`](crate::app::Catalog)).
 //! - `POST /api/load {"setup": "warrior_fury_dw_orc", ...}`: loads a session
-//!   ([`LoadRequest`]); its info, as `api/info`.
+//!   ([`LoadRequest`]): a setup, possibly as another race (`"race": "HUMAN"`), or a bare
+//!   character (`"bare": {"class": "WARRIOR", "race": "HUMAN", "rotation": "DW Fury"}`); its
+//!   info, as `api/info`.
 //! - `POST /api/talents/edit {"class": "WARRIOR", "ranks": {node: rank}, "op": "increment",
 //!   "node": n}`: a click in the talent calculator ([`EditRequest`]); the new
 //!   [`State`](crate::talents::State).

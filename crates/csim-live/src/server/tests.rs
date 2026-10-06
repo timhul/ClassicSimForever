@@ -397,7 +397,7 @@ fn bad_loads_are_refused_and_keep_the_session() {
     for (body, says) in [
         ("", "EOF"),
         ("{}", "no setup"),
-        (r#"{"setup": "a", "setup_yaml": "b"}"#, "both"),
+        (r#"{"setup": "a", "setup_yaml": "b"}"#, "more than one"),
         (r#"{"setup": "../../Cargo"}"#, "no characters entry"),
         (r#"{"setup": "missing"}"#, "missing.yaml"),
         (r#"{"setup_yaml": "name: [unclosed"}"#, "pasted.yaml"),

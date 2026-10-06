@@ -275,6 +275,11 @@ pub struct CharacterSetup {
     /// The file the setup was loaded from, for error messages.
     #[serde(skip)]
     pub path: Option<PathBuf>,
+    /// Builds even when the character lacks a spell its rotation names as a prerequisite (the
+    /// rotation then skips the lines casting it). Not in the file: for a character still being
+    /// put together, such as one without talents yet.
+    #[serde(skip)]
+    pub allow_missing_prerequisites: bool,
 }
 
 /// One problem with a setup: the field it is about and what is wrong.
@@ -945,7 +950,12 @@ impl CharacterSetup {
             if let Some(rotation) = rotation {
                 ctx.set_rotation(Arc::clone(rotation));
                 let linked = ctx.character.rotation().expect("the rotation was just set");
-                for (spell, reason) in linked.missing_prerequisites() {
+                let missing = if self.allow_missing_prerequisites {
+                    &[][..]
+                } else {
+                    linked.missing_prerequisites()
+                };
+                for (spell, reason) in missing {
                     issues.push(
                         "rotation",
                         format!(
