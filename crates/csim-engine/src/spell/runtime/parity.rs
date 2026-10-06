@@ -81,7 +81,7 @@ fn mortal_strike_and_the_spells_sharing_its_category() {
 }
 
 #[test]
-fn rend_rank_7_deals_147_over_21_seconds() {
+fn rend_rank_7_deals_287_over_21_seconds_at_1000_ap() {
     let mut world = shipped();
     world.learn(REND_7);
     assert_eq!(world.spell(REND_7).resource_cost(&world), 10);
@@ -89,7 +89,8 @@ fn rend_rank_7_deals_147_over_21_seconds() {
     world.perform(REND_7);
     world.run(21.5);
     assert_eq!(world.ticks.len(), 7);
-    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 147);
+    // 7 * (21 + 1000 * 0.02): the table's 21 per tick plus the server's 2 % of attack power.
+    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 287);
 }
 
 #[test]

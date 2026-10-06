@@ -140,6 +140,27 @@ overrides:
     effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
   - id: 11581
     effects: [{ index: 0, script: AP_COEFFICIENT, params: { value: 0.03 } }]
+  - id: 772
+    note: Rend r1; each tick adds 2 % of attack power, scaled by Improved Rend (2.7 % per tick, 18.9 % over the bleed at 3/3), per a knowledgeable player for the max rank; the lower ranks are assumed the same
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 6546
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 6547
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 6548
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 11572
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 11573
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
+  - id: 11574
+    note: Rend, see r1
+    effects: [{ index: 0, script: ATTACK_POWER_PER_TICK, params: { value: 2 } }]
 
   # ----- Sim-only threat (the client has no threat table) --------------------------------------
   - id: 78

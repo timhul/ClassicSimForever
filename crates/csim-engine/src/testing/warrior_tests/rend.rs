@@ -137,14 +137,14 @@ fn rend_damage(improved_rend: u32) -> (u64, f64) {
     (test.damage_dealt(), test.now())
 }
 
-// Forever's rank 7 deals a flat 21 per tick over 21 s (the C++ added a share of the weapon
-// damage, for 162), and Improved Rend adds 12, 23 and 35 % to each tick (the C++ 15, 25 and
-// 35 % to the total).
+// Forever's rank 7 deals 21 plus 2 % of the attack power per tick over 21 s (the C++ added a
+// share of the weapon damage, for 162), and Improved Rend adds 12, 23 and 35 % to each tick
+// (the C++ 15, 25 and 35 % to the total).
 
 #[test]
 fn damage_of_improved_rend() {
-    for (rank, damage) in [(0, 147), (1, 168), (2, 182), (3, 196)] {
-        // [Damage] = 7 * round(21 * improved_rend_percent)
+    for (rank, damage) in [(0, 287), (1, 322), (2, 350), (3, 385)] {
+        // [Damage] = 7 * round((21 + 1000 * 0.02) * improved_rend_percent)
         assert_eq!(
             rend_damage(rank),
             (damage, 21.0),
@@ -154,12 +154,13 @@ fn damage_of_improved_rend() {
 }
 
 /// Rend's ticks crit (its `PERIODIC_CAN_CRIT`) at the melee ability crit chance, for double
-/// damage on top of Improved Rend: 7 * round(21 * 2) and 7 * round(21 * 1.35 * 2).
+/// damage on top of Improved Rend, at 1000 AP: 7 * round(41 * 2) and 7 * round(41 * 1.35 * 2).
 #[test]
 fn rend_ticks_crit() {
-    for (improved_rend, damage) in [(0, 294), (3, 399)] {
+    for (improved_rend, damage) in [(0, 574), (3, 777)] {
         let mut test = test();
         test.given_a_guaranteed_melee_ability_crit();
+        test.given_1000_melee_ap();
         if improved_rend > 0 {
             test.given_arms_talent_with_rank("Improved Rend", improved_rend);
         }
@@ -181,11 +182,11 @@ fn rend_ticks_crit() {
     }
 }
 
-/// Death Wish's 20 % applies to every tick, on top of Improved Rend: 7 * round(21 * 1.2) and
-/// 7 * round(21 * 1.35 * 1.2).
+/// Death Wish's 20 % applies to every tick, on top of Improved Rend, at 1000 AP:
+/// 7 * round(41 * 1.2) and 7 * round(41 * 1.35 * 1.2).
 #[test]
 fn death_wish_increases_rend_damage() {
-    for (improved_rend, damage) in [(0, 175), (3, 238)] {
+    for (improved_rend, damage) in [(0, 343), (3, 462)] {
         let mut test = WarriorTest::unprepared(SPELL);
         test.given_a_mainhand_weapon_with_100_min_max_dmg();
         test.enable_spell("Death Wish");
@@ -194,6 +195,7 @@ fn death_wish_increases_rend_damage() {
         }
         test.prepare_set_of_combat_iterations();
         test.given_a_guaranteed_melee_ability_hit();
+        test.given_1000_melee_ap();
         test.given_warrior_has_rage(100);
         test.cast("Death Wish");
         test.given_engine_priority_pushed_forward(1.5);

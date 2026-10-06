@@ -359,7 +359,8 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
   Skill line 26 with `ClassMask` 1 although the ability is a `TraitDefinition` spell, so `ClassMask` 0
   marks only some talent-granted spells (Deep Wounds, Improved Heroic Strike, …): decide what is a
   talent from the Trait tables, not from `ClassMask`. Ranks 2–4 are 21551–21553 via `SupercedesSpell`.
-- **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total.
+- **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total; the server adds 2 % of attack power per tick (an
+  `ATTACK_POWER_PER_TICK` override, the tables carry no coefficient).
 - **Sunder Armor r5 11597**: E0 aura 22 MOD_RESISTANCE −450 misc 1 (armor), `CumulativeAura` 5,
   30 s; E1 effect 63 THREAT 206 (1013 before build 1.60.1.70009).
 - **Flurry 12319** (talent, 5 ranks): aura 4 DUMMY, `ProcTypeMask` 0x15554 (crits), triggers the
@@ -490,7 +491,7 @@ overrides:
 | `OFFHAND_COPY` | ability `spell` also strikes with the off-hand weapon: own roll, off-hand weapon damage × off-hand penalty, own `OFFHAND_SPELL` proc event, statistics as "<name> Off-Hand" | `spell` | none since the 70205 hotfixes (was Raging Blows on Whirlwind; see `OFFHAND_STRIKE`) |
 | `TWO_HAND_ENERGIZE_MULTIPLIER` | an `ENERGIZE` effect gives `value` × its amount while a two-hand weapon is equipped | `value` | none since the 70205 hotfixes (was Unbridled Wrath's payload 12964) |
 | `COMBO_POINT_AP_DAMAGE` | a finisher's attack power share: `value` % of attack power per combo point, or the `per_combo_point` entry (1 to 5 points). Without `effect` the effect deals it with the direct damage; with `effect` it is spread over that periodic aura's ticks, taken at the cast | `value` or `per_combo_point`, `effect` | Eviscerate E1 (3 %/point), Rupture E2 → E0 (4/10/18/21/24 %) |
-| `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %) |
+| `ATTACK_POWER_PER_TICK` | `value` % of attack power added to every tick of this periodic aura effect, taken at the cast | `value` | Garrote E0 (3 %), Rend E0 (2 %) |
 | `AP_COEFFICIENT` | the attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`): `value` × attack power added to a direct damage effect's hit, or to every tick (per stack) of a periodic damage aura, taken at the cast | `value` | Instant Poison VI E0 (0.005), Deadly Poison V E0 (0.0045), Thunder Clap E0 (0.03) |
 | `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
