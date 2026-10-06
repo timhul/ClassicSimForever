@@ -116,3 +116,34 @@ fn unnamed_seeds_follow_the_seed_given() {
     assert_eq!(a.0, seeds.next().to_string());
     assert_ne!(first_seed(7, 9), a);
 }
+
+#[test]
+fn the_web_app_sims_as_the_native_server() {
+    let mut web = LiveApp::new(0, 1).unwrap();
+    let data = Arc::new(DataBundle::load(&DataBundle::repository_dir()).unwrap());
+    let mut native = App::new(Box::new(FsFiles), DataBundle::repository_dir(), data);
+    let mut native_handle = |method: &str, path: &str, body: &str| {
+        let reply = server::route(&mut native, &|_| None, method, path, body, || 99);
+        String::from_utf8(reply.body).unwrap()
+    };
+
+    let start =
+        r#"{"load": {"setup": "rogue_combat_swords_human", "seed": "4"}, "iterations": 20}"#;
+    let started = json(&web.handle("POST", "/api/sim/start", start));
+    assert_eq!(started["total"], 20);
+    assert_eq!(started["seed"], "4");
+    native_handle("POST", "/api/sim/start", start);
+    for _ in 0..3 {
+        let step = r#"{"iterations": 8}"#;
+        let progress = web.handle("POST", "/api/sim/step", step);
+        assert_eq!(progress.body, native_handle("POST", "/api/sim/step", step));
+    }
+    let request = r#"{"elapsed_seconds": 1.5}"#;
+    let results = web.handle("POST", "/api/sim/results", request);
+    assert_eq!(json(&results)["run"]["iterations"], 20);
+    assert_eq!(
+        results.body,
+        native_handle("POST", "/api/sim/results", request),
+        "the same results"
+    );
+}

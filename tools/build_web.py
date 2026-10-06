@@ -7,8 +7,8 @@ Run from anywhere: `python tools/build_web.py [options]`. It
    workspace pins (`wasm-bindgen = "=X"` in Cargo.toml): `cargo install wasm-bindgen-cli
    --version X --locked`;
 3. shrinks it with `wasm-opt -Oz` (binaryen) when that is on the PATH, else leaves it as is;
-4. copies the page (`crates/csim-live/src/index.html`) and `crates/csim-web/web/web.js` next to
-   it;
+4. copies the page (`crates/csim-live/src/index.html`), `crates/csim-web/web/web.js` and the Sim
+   view's Web Worker (`crates/csim-web/web/sim-worker.js`) next to it;
 5. writes `site/index.html`, a redirect to `live/` (other tools can get their own subpages
    later without moving the viewer), and `site/.nojekyll` (Pages serves the files as they are).
 
@@ -32,6 +32,7 @@ TARGET = "wasm32-unknown-unknown"
 WASM = os.path.join(ROOT, "target", TARGET, "release", "csim_web.wasm")
 PAGE = os.path.join(ROOT, "crates", "csim-live", "src", "index.html")
 WEB_JS = os.path.join(ROOT, "crates", "csim-web", "web", "web.js")
+SIM_WORKER = os.path.join(ROOT, "crates", "csim-web", "web", "sim-worker.js")
 
 REDIRECT = """<!doctype html>
 <html lang="en">
@@ -138,6 +139,7 @@ def main():
 
     shutil.copy(PAGE, os.path.join(live, "index.html"))
     shutil.copy(WEB_JS, os.path.join(live, "web.js"))
+    shutil.copy(SIM_WORKER, os.path.join(live, "sim-worker.js"))
     with open(os.path.join(args.out, "index.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(REDIRECT)
     open(os.path.join(args.out, ".nojekyll"), "w").close()
