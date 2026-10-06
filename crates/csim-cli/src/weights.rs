@@ -11,10 +11,10 @@ use csim_engine::item::ItemStat;
 use csim_engine::phase::Phase;
 use csim_engine::sim_settings::SimOption;
 use csim_engine::statistics::NumberCruncher;
+use csim_engine::statistics::results::Report;
 use serde::{Deserialize, Serialize};
 
 use crate::Result;
-use crate::run::Report;
 
 /// The stat weights of one setup.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

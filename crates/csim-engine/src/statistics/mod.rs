@@ -22,6 +22,7 @@ pub mod number_cruncher;
 pub mod proc;
 pub mod report;
 pub mod resource;
+pub mod results;
 pub mod spell;
 
 use std::collections::BTreeMap;

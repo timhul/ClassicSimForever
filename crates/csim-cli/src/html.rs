@@ -3,7 +3,9 @@
 
 use std::fmt::Write;
 
-use crate::run::Results;
+use csim_engine::statistics::results::Results;
+
+use crate::run::ResultsText;
 use crate::table::Table;
 
 const STYLE: &str = r#"
