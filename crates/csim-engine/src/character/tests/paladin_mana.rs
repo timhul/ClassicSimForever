@@ -1,6 +1,6 @@
 //! The Paladin's mana at runtime: the 2 second regeneration ticks under the five-second rule,
 //! Reverence, costs in percent of base mana and the cost talents, the mana consumables, the
-//! `resource_percent` variable, and a fight that runs dry.
+//! `resource_missing` variable, and a fight that runs dry.
 
 use super::energy::{data, pull};
 use super::paladin::{paladin, with_talents};
@@ -156,16 +156,15 @@ fn a_spell_needs_its_mana() {
     );
 }
 
-/// `resource_percent` reads the mana as a percent of the maximum.
+/// `resource_missing` reads what the mana lacks to the maximum.
 #[test]
-fn resource_percent_reads_the_mana() {
+fn resource_missing_reads_the_mana_to_the_maximum() {
     let mut f = paladin(Race::Undead, &[]);
     pull(&mut f);
     f.advance_to(0.01);
-    assert_eq!(f.ctx().variable(BuiltinVariable::ResourcePercent), 100.0);
-    let max = f.character.max_resource_level(ResourceType::Mana);
-    f.character.resource_mut().lose(max / 2, 0.01);
-    assert_eq!(f.ctx().variable(BuiltinVariable::ResourcePercent), 50.0);
+    assert_eq!(f.ctx().variable(BuiltinVariable::ResourceMissing), 0.0);
+    f.character.resource_mut().lose(2250, 0.01);
+    assert_eq!(f.ctx().variable(BuiltinVariable::ResourceMissing), 2250.0);
 }
 
 /// The mana consumables: Major Mana Potion 1350-2250 on the potion category, Demonic Rune

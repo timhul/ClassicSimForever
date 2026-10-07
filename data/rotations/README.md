@@ -112,5 +112,5 @@ Builtin variables:
 | `melee_ap`                 | melee attack power                                           |
 | `combo_points`             | combo points on the target                                   |
 | `time_remaining_gcd`       | seconds until the global cooldown ends                       |
-| `resource_percent`         | the resource as a percent of its maximum (a Paladin's mana)  |
+| `resource_missing`         | what the resource lacks to its maximum (potion: `geq 2250`)  |
 | `target_is_type`           | the target's creature type, compared with `eq "<type>"`      |

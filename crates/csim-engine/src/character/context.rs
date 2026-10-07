@@ -2530,14 +2530,10 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),
             BuiltinVariable::ComboPoints => f64::from(self.character.combo_points(now)),
             BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
-            BuiltinVariable::ResourcePercent => {
+            BuiltinVariable::ResourceMissing => {
                 let resource = self.character.resource_type();
                 let max = self.character.max_resource_level(resource);
-                if max == 0 {
-                    0.0
-                } else {
-                    100.0 * f64::from(self.character.resource_level(resource, now)) / f64::from(max)
-                }
+                f64::from(max.saturating_sub(self.character.resource_level(resource, now)))
             }
         }
     }

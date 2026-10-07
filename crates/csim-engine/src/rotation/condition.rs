@@ -148,10 +148,9 @@ pub enum BuiltinVariable {
     ComboPoints,
     /// Seconds until the global cooldown ends.
     TimeRemainingGcd,
-    /// The character's resource as a percent of its maximum (mana: 0-100). A mana gain wakes
-    /// the rotation by itself; an energy user's rotation is woken by `resource` levels, not by
-    /// this.
-    ResourcePercent,
+    /// What the character's resource lacks to its maximum: a mana potion restoring up to 2250
+    /// is drunk when `geq 2250`, the same for any gear.
+    ResourceMissing,
 }
 
 impl BuiltinVariable {
@@ -165,7 +164,7 @@ impl BuiltinVariable {
         BuiltinVariable::MeleeAp,
         BuiltinVariable::ComboPoints,
         BuiltinVariable::TimeRemainingGcd,
-        BuiltinVariable::ResourcePercent,
+        BuiltinVariable::ResourceMissing,
     ];
 
     /// The name as written in a rotation file. Port of
@@ -181,7 +180,7 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "melee_ap",
             BuiltinVariable::ComboPoints => "combo_points",
             BuiltinVariable::TimeRemainingGcd => "time_remaining_gcd",
-            BuiltinVariable::ResourcePercent => "resource_percent",
+            BuiltinVariable::ResourceMissing => "resource_missing",
         }
     }
 
@@ -204,14 +203,14 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "Melee Attack Power",
             BuiltinVariable::ComboPoints => "Combo Points",
             BuiltinVariable::TimeRemainingGcd => "Time Remaining GCD",
-            BuiltinVariable::ResourcePercent => "Resource",
+            BuiltinVariable::ResourceMissing => "Resource Missing",
         }
     }
 
     /// The unit suffix of the description (`seconds`, `%` or nothing).
     fn unit(self) -> &'static str {
         match self {
-            BuiltinVariable::TargetHealth | BuiltinVariable::ResourcePercent => "%",
+            BuiltinVariable::TargetHealth => "%",
             BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => "",
             _ => " seconds",
         }
@@ -429,9 +428,17 @@ impl<B, S> Sentence<B, S> {
                     BuiltinVariable::TimeSinceSwing | BuiltinVariable::TimeSinceAutoShot => {
                         crossing(value, rhs, 1.0, None)
                     }
-                    BuiltinVariable::MeleeAp
-                    | BuiltinVariable::ComboPoints
-                    | BuiltinVariable::ResourcePercent => f64::INFINITY,
+                    BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => f64::INFINITY,
+                    // The watched resource regenerating: the level at which what it lacks to
+                    // the maximum crosses the threshold.
+                    BuiltinVariable::ResourceMissing => {
+                        let level = context.resource_level(watched.resource);
+                        let missing = |at: u32| f64::from(watched.max.saturating_sub(at));
+                        let holds = cmp.holds(missing(level), rhs);
+                        return (level + 1..=watched.max)
+                            .find(|&next| cmp.holds(missing(next), rhs) != holds)
+                            .map_or(NextChange::NEVER, NextChange::at_level);
+                    }
                 }
             }
             Measure::Resource(resource) if *resource == watched.resource => {
@@ -968,6 +975,27 @@ mod tests {
         );
         ctx.resources.insert(ResourceType::Energy, 100);
         assert_eq!(next(greater, &ctx), NextChange::NEVER);
+    }
+
+    /// What the watched resource lacks shrinks as it regenerates: `resource_missing geq 50`
+    /// stops holding at the level 51, `less 30` starts holding at 71.
+    #[test]
+    fn next_change_of_resource_missing_is_the_level_that_flips_it() {
+        let mut ctx = Mock::default();
+        ctx.resources.insert(ResourceType::Energy, 40);
+        let next = |text: &str| sentence(text).next_change(&ctx, WATCHED);
+        assert_eq!(
+            next("variable \"resource_missing\" geq 50"),
+            NextChange::at_level(51)
+        );
+        assert_eq!(
+            next("variable \"resource_missing\" less 30"),
+            NextChange::at_level(71)
+        );
+        assert_eq!(
+            next("variable \"resource_missing\" geq 0"),
+            NextChange::NEVER
+        );
     }
 
     #[test]
