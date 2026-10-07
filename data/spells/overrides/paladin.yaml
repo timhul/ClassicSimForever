@@ -68,9 +68,10 @@
 #     Justice 1311705: DUMMY auras with one charge, no duration, proc mask 0x4 (white swings
 #     only, [I]: "your next auto-attack"). The next landed white swing applies the replaced seal
 #     once and uses the charge. [T]
-#   - Not in the data (named settings, P.13): whether an Echo of Command rolls the 7 PPM (the
-#     default: it "applies the replaced Seal's effects", and the seal's effect is a chance) or
-#     always fires; whether its proc shares the seal's 1 s proc cooldown.
+#   - An Echo always applies its seal on the swing that uses it: Echo of Command fires the
+#     Seal of Command damage (20424) without rolling the 7 PPM or waiting for the seal's 1 s
+#     proc cooldown, as the Twist of Light tooltip reads ("your next melee attack applies the
+#     replaced Seal's effects, consuming the Echo"). [U]
 #
 # Vindication (9452; buff 440668, target debuff 440667)
 #   - The talent aura procs at 100 % on damaging melee hits (mask 0x14, white and special). [T]
@@ -87,7 +88,7 @@
 #   - SpellTargetRestrictions.TargetCreatureType 36: Undead and Demon targets only. [T] [I]
 #     Exorcist 415076 (Exorcism on any target, ranks 415068..415073) is in the Retribution skill
 #     line with ClassMask 2, but it is the SoD rune; Icy Veins and the guides keep Exorcism for
-#     Undead/Demons. Kept out unless a named setting asks for it (P.13).
+#     Undead/Demons. Not used. [U]
 #
 # Consecration (20116 .. 20924; damage 1280345 .. 1280349)
 #   - Rank 5: 8 ticks, one a second, of 1280349: 12 holy (no coefficient) plus 27 holy
@@ -98,11 +99,10 @@
 # Holy Strike (678 .. 10333)
 #   - Rank 8: NORMALIZED_WEAPON_DMG 93 (+3.2/level, ±25 %, coefficient 0.429) and
 #     WEAPON_PERCENT_DAMAGE 50, holy, melee defense type, 10 s cooldown, 20 mana. [T]
-#   - The server multiplies the flat part by the weapon percent too: 50 % x (normalized weapon
-#     damage + 93), holy, without armor, with the spell bonuses. [V] SpellEffects.cpp
-#     EffectWeaponDmg ("SPELL_EFFECT_WEAPON_PERCENT_DAMAGE pct that is applied to both fixed
-#     bonus damage ... and to base weapon swing damage"). The tooltip reads as if the flat part
-#     were whole; check against a combat log (named setting until then, P.13).
+#   - As the tooltip reads ("$m2% weapon damage plus an additional $s1 as Holy damage"):
+#     50 % x normalized weapon damage + the whole 93 (± 25 %, + 0.429 x spell power), holy,
+#     without armor, with the spell bonuses. [T] [U]  The 1.12 server code would multiply the
+#     flat part by the 50 % too ([V] SpellEffects.cpp EffectWeaponDmg); not used.
 #   - Effect 2 (SCRIPT_EFFECT) is Sacred Arbiter's refresh of the Judgement debuffs. [T]
 #
 # Hammer of Wrath (24239, 24274, 24275)
@@ -122,8 +122,8 @@
 #   - Base melee crit 0.7 % (and 0.7 % dodge). [V] StatSystem.cpp UpdateCritPercentage
 #   - Base attributes Str 85 / Agi 45 / Sta 80 / Int 50 / Spi 55, melee attack power 160, spirit
 #     regeneration 15 + spirit / 5 mana per 5 s, GCD 1.5 s: ClassicSim's Paladin.cpp. Base health
-#     (1381, vanilla player_classlevelstats) and base spell crit (about 3.3 %) are not in the
-#     tables: to check against an in-game character sheet.
+#     1381 (vanilla player_classlevelstats) and base spell crit 3.336 % (the vanilla Paladin
+#     value): not in the tables and not checkable before release, used as they are. [U]
 #   - Racials: Human Sword Specialization and Dwarf Mace Specialization now give melee and spell
 #     crit with the weapon (2 % / 1 %), Dwarf Big Game Hunter +5 % vs beasts, Undead Touch of the
 #     Grave. [I]  These are the exported racials (data/spells/racials.yaml).
