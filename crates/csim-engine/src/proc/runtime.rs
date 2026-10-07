@@ -36,6 +36,15 @@ use crate::spell::overrides::ScriptKind;
 use crate::spell::record::EquippedItems;
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellResult};
 
+/// The damage per swing a `WEAPON_SPEED_SWING_DAMAGE` aura of value `total` deals with a
+/// main-hand weapon of `speed` seconds: `total` / 87 at 1.5 s and `total` / 25 at 4.0 s, linear
+/// in the speed (and beyond those speeds). Seal of Righteousness rank 8 at level 60 (1880):
+/// 21.6 with a 1.5 s weapon, 64.5 with a 3.5 s two-hander.
+pub fn swing_damage_by_speed(total: f64, speed: f64) -> f64 {
+    let (fast, slow) = (total / 87.0, total / 25.0);
+    fast + (speed - 1.5) / (4.0 - 1.5) * (slow - fast)
+}
+
 /// Rolls are out of 10 000 (100 = 1%).
 pub const PROC_ROLL_RANGE: u32 = 10_000;
 
@@ -196,7 +205,11 @@ impl Proc {
     /// name.
     fn record_sources(spell: &Spell) -> Vec<ProcSource> {
         let record = spell.record();
-        assert!(spell.is_passive(), "{} is not a passive spell", record.name);
+        assert!(
+            spell.is_passive() || spell.setup().buff_proc,
+            "{} is not a passive spell",
+            record.name
+        );
         let setup = spell.setup();
         let type_mask = setup
             .overrides
@@ -461,12 +474,24 @@ impl Proc {
     /// trigger the server replaced), else the proc trigger's own trigger spell.
     fn payload(effect: &Effect, host: &impl ProcHost) -> Option<Payload> {
         match effect.script_kind() {
+            // Explicitly nothing, the table's trigger spell included.
+            Some(ScriptKind::NoOp) => return None,
             Some(ScriptKind::TriggerWithValue) => {
                 let params = &effect.script()?.params;
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
                     value: effect.effective_value(host),
+                });
+            }
+            // The damage per swing by the main-hand weapon's speed (Seal of Righteousness).
+            Some(ScriptKind::WeaponSpeedSwingDamage) => {
+                let params = &effect.script()?.params;
+                let speed = host.base_weapon_speed(Hand::Mainhand)?;
+                return Some(Payload::TriggerWithValue {
+                    spell: params.spell?,
+                    effect: params.effect?,
+                    value: swing_damage_by_speed(effect.effective_value(host), speed),
                 });
             }
             // The server-side script: the value is the payload's id, not a number the payload
@@ -518,7 +543,9 @@ impl Proc {
             }
             ProcKind::Aura => {}
         }
-        let mut report = if self.spell.effects().is_empty() {
+        // A cast buff's proc (a seal's) casts its payloads only: the direct effects are the
+        // cast's.
+        let mut report = if self.spell.effects().is_empty() || self.spell.setup().buff_proc {
             self.spell.start_cooldown(host);
             CastReport {
                 result: SpellResult::Success,

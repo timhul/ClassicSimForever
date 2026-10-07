@@ -110,6 +110,24 @@ pub trait EffectHost {
     /// Adds (`apply`) or removes an off-hand copy of ability `spell` (`OFFHAND_COPY`: Raging
     /// Blows makes Whirlwind also strike with the off hand).
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool);
+    /// The judgement of the caster's active seal (`SEAL_JUDGEMENT`), `None` without a seal.
+    fn seal_judgement(&self) -> Option<u32> {
+        None
+    }
+    /// Multiplies (`apply`) or divides the main-hand weapon damage by `factor`
+    /// (`ATTACK_SPEED_DAMAGE_PENALTY`: Seal of the Crusader).
+    fn adjust_mainhand_damage_multiplier(&mut self, _factor: f64, _apply: bool) {}
+    /// Adds (`apply`) or removes the return of `percent` % of the judged seal's mana cost by
+    /// each judgement, at the chance the value of effect `chance_effect` of `spell`'s aura
+    /// gives (`JUDGED_SEAL_MANA_RETURN`: Sanctified Judgement).
+    fn adjust_judged_seal_mana_return(
+        &mut self,
+        _spell: u32,
+        _chance_effect: u32,
+        _percent: f64,
+        _apply: bool,
+    ) {
+    }
     /// Adds (`apply`) or removes a gain of `amount` of `resource` when ability `spell` is used
     /// (`GAIN_RESOURCE_ON_USE`: Improved Berserker Rage).
     fn adjust_resource_on_use(
@@ -186,6 +204,11 @@ pub struct EffectOutcome {
     /// Percent added to the damage of the spells this one triggers (Mutilate's strikes
     /// against a poisoned target).
     pub triggered_damage_percent: f64,
+    /// The multiplier on the damage of `trigger` (`TRIGGER_SPELL_DAMAGE_PERCENT`: Judgement of
+    /// Command's half damage).
+    pub trigger_damage_scale: Option<f64>,
+    /// The effect cast the judgement of the caster's seal (`JUDGE_SEAL`).
+    pub judged_seal: bool,
 }
 
 impl EffectOutcome {
@@ -198,6 +221,8 @@ impl EffectOutcome {
         threat: 0.0,
         consumes_all_resource: false,
         triggered_damage_percent: 0.0,
+        trigger_damage_scale: None,
+        judged_seal: false,
     };
 
     fn plain(success: bool) -> Self {
@@ -695,7 +720,7 @@ impl Effect {
                 host.add_extra_attacks(self.effective_value(host).round().max(0.0) as u32);
                 EffectOutcome::plain(true)
             }
-            E::Dummy => self.perform_script(host, resource_cost, extra_crit),
+            E::Dummy | E::ScriptEffect => self.perform_script(host, resource_cost, extra_crit),
             // A melee debuff (Rend, Sunder Armor) must land on the attack table before it is
             // applied; an aura cannot crit.
             _ if self.is_melee_debuff() => {
@@ -755,6 +780,23 @@ impl Effect {
                     self.damage_dealt = f64::from(host.melee_ap()) * percent / 100.0;
                 }
                 EffectOutcome::rolled(hit, rolled)
+            }
+            // The judgement of the active seal; nothing without one.
+            Some(ScriptKind::JudgeSeal) => match host.seal_judgement() {
+                Some(judgement) => EffectOutcome {
+                    trigger: Some(judgement),
+                    judged_seal: true,
+                    ..EffectOutcome::plain(true)
+                },
+                None => EffectOutcome::plain(true),
+            },
+            Some(ScriptKind::TriggerSpellDamagePercent) => {
+                let params = self.script.map(|s| s.params).unwrap_or_default();
+                EffectOutcome {
+                    trigger: params.spell,
+                    trigger_damage_scale: params.value.map(|percent| percent / 100.0),
+                    ..EffectOutcome::plain(true)
+                }
             }
             Some(ScriptKind::DamagePercentVsPoisoned) => EffectOutcome {
                 triggered_damage_percent: if host.target_poisoned_by_caster() {
@@ -1239,6 +1281,11 @@ impl Effect {
                 } else {
                     host.decrease_melee_attack_speed(rounded as u32);
                 }
+                // Faster swings that each deal less: the white damage per second stays.
+                if self.script_kind() == Some(ScriptKind::AttackSpeedDamagePenalty) {
+                    let factor = 100.0 / (100.0 + value);
+                    host.adjust_mainhand_damage_multiplier(factor, apply);
+                }
             }
             A::ModCastingSpeedNotStack if !on_target => {
                 adjust(
@@ -1425,6 +1472,16 @@ impl Effect {
                         } else {
                             modifiers.remove_below_health(&modifier, threshold);
                         }
+                    }
+                }
+                Some(ScriptKind::JudgedSealManaReturn) => {
+                    if let Some(chance_effect) = self.script().and_then(|s| s.params.effect) {
+                        host.adjust_judged_seal_mana_return(
+                            self.spell,
+                            chance_effect,
+                            value,
+                            apply,
+                        );
                     }
                 }
                 Some(ScriptKind::GainResourceOnUse) => {

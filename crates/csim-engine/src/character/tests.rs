@@ -1248,6 +1248,7 @@ mod energy;
 mod paladin;
 mod paladin_damage;
 mod paladin_mana;
+mod paladin_seals;
 mod paladin_talents;
 mod rogue;
 mod rogue_items;

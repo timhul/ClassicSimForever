@@ -43,7 +43,7 @@ use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
 
-use super::{Character, RegenReactions, SimParams, StanceLink};
+use super::{Character, JudgedSealManaReturn, RegenReactions, SimParams, StanceLink};
 
 /// The resource statistics source of regeneration ticks.
 pub const REGENERATION: &str = "Regeneration";
@@ -423,6 +423,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             spell.payload_spells()
         });
         self.set_payloads_enabled(&payloads, true);
+        if let Some(proc) = self.character.spells().buff_proc(id) {
+            self.enable_proc(proc);
+        }
     }
 
     /// Disables a spell and its hidden payloads.
@@ -435,6 +438,21 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             spell.payload_spells()
         });
         self.set_payloads_enabled(&payloads, false);
+        if let Some(proc) = self.character.spells().buff_proc(id) {
+            self.disable_proc(proc);
+        }
+    }
+
+    /// The caster's seal whose buff is up, if any (one at a time).
+    fn active_seal(&self) -> Option<SpellId> {
+        let spells = self.character.spells();
+        spells.spell_ids().find(|&id| {
+            let spell = spells.spell(id);
+            spell.setup().is_seal()
+                && spell
+                    .marker_buff()
+                    .is_some_and(|buff| self.buff_ref(buff).is_active())
+        })
     }
 
     /// Enables proc `id`, unless the overrides mark it `IGNORED` (the other classes' Touch of
@@ -1257,26 +1275,40 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// one event: server-side scripts the client tables do not carry (Overpower's combo point
     /// when the target dodges). Like a proc, a reaction fires at most once per event, and the
     /// ranks of one spell react once between them: Overpower's four ranks grant one combo
-    /// point per dodge, not four.
+    /// point per dodge, not four. A `REFRESH_AURA` is of each rank's own aura.
     fn run_event_scripts(&mut self, sources: &[ProcSource]) {
         let spells = &self.character.spells;
         let mut seen: Vec<(&str, usize)> = Vec::new();
-        let mut reactions: Vec<EventScript> = Vec::new();
+        let mut reactions: Vec<(Option<BuffId>, EventScript)> = Vec::new();
         for &id in spells.event_reactors() {
             let spell = spells.spell(id);
             if !spell.is_enabled() {
                 continue;
             }
             for (index, event) in spell.event_scripts().iter().enumerate() {
-                if !sources.contains(&event.source) || seen.contains(&(spell.name(), index)) {
+                if !sources.contains(&event.source) {
                     continue;
                 }
-                seen.push((spell.name(), index));
-                reactions.push(*event);
+                // A refresh is of each rank's own aura: every rank reacts.
+                if event.script != ScriptKind::RefreshAura {
+                    if seen.contains(&(spell.name(), index)) {
+                        continue;
+                    }
+                    seen.push((spell.name(), index));
+                }
+                reactions.push((spell.marker_buff(), *event));
             }
         }
-        for event in reactions {
+        for (buff, event) in reactions {
             match event.script {
+                // The spell's own aura, when up, starts its duration again.
+                ScriptKind::RefreshAura => {
+                    if let Some(buff) = buff
+                        && self.buff_ref(buff).is_active()
+                    {
+                        <Self as SpellHost>::apply_buff(self, buff);
+                    }
+                }
                 ScriptKind::AddComboPoints => {
                     // Validated as present and positive when the overrides were loaded.
                     let value = event.params.value.unwrap_or(0.0).round() as u32;
@@ -2654,6 +2686,30 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         gained
     }
 
+    fn seal_judgement(&self) -> Option<u32> {
+        let seal = self.active_seal()?;
+        self.character.spells().spell(seal).setup().seal_judgement()
+    }
+
+    fn adjust_mainhand_damage_multiplier(&mut self, factor: f64, apply: bool) {
+        self.character.adjust_mainhand_damage_factor(factor, apply);
+    }
+
+    fn adjust_judged_seal_mana_return(
+        &mut self,
+        spell: u32,
+        chance_effect: u32,
+        percent: f64,
+        apply: bool,
+    ) {
+        self.character
+            .set_judged_seal_mana_return(apply.then_some(JudgedSealManaReturn {
+                spell,
+                chance_effect,
+                percent,
+            }));
+    }
+
     fn adjust_mana_regen_while_casting(&mut self, percent: i32) {
         if let Some(mana) = self.character.resource_mut().as_mana_mut() {
             mana.adjust_within_5sr_percent(percent);
@@ -3001,6 +3057,8 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             AuraState::Defensive | AuraState::Defensive2 => {
                 self.character.in_defensive_state(self.now())
             }
+            // The vanilla `AURA_STATE_JUDGEMENT`: a seal is up (Judgement needs one).
+            AuraState::Marked => self.active_seal().is_some(),
             AuraState::Enraged => {
                 let spells = self.character.spells();
                 spells.spell_ids().any(|id| {
@@ -3138,6 +3196,51 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         });
         self.record_cast(id, &report, None);
         Some(report)
+    }
+
+    fn trigger_scaled(&mut self, spell: u32, scale: f64) -> Option<CastReport> {
+        let id = self.character.spells().spell_by_game_id(spell)?;
+        let report = self.with_spell(id, |s, ctx| {
+            s.set_damage_scale(Some(scale));
+            let report = s.perform_triggered(ctx);
+            s.set_damage_scale(None);
+            report
+        });
+        self.record_cast(id, &report, None);
+        Some(report)
+    }
+
+    fn end_other_seals(&mut self, keep: BuffId) {
+        let spells = self.character.spells();
+        let others: Vec<BuffId> = spells
+            .spell_ids()
+            .map(|id| spells.spell(id))
+            .filter(|spell| spell.setup().is_seal())
+            .filter_map(|spell| spell.marker_buff())
+            .filter(|&buff| buff != keep && self.buff_ref(buff).is_active())
+            .collect();
+        for buff in others {
+            <Self as SpellHost>::cancel_buff(self, buff);
+        }
+    }
+
+    /// Sanctified Judgement: at its chance, the judgement returns its percent of the judged
+    /// seal's mana cost (the seal's cost now, after its modifiers).
+    fn return_judged_seal_mana(&mut self) -> Option<(ResourceType, u32)> {
+        let JudgedSealManaReturn {
+            spell,
+            chance_effect,
+            percent,
+        } = self.character.judged_seal_mana_return()?;
+        let seal = self.active_seal()?;
+        let chance = self.aura_effect_value(spell, chance_effect).unwrap_or(0.0);
+        if chance < 100.0 && self.character.random_in_range(0.0, 100.0) >= chance {
+            return None;
+        }
+        let cost = self.character.spells().spell(seal).resource_cost(self);
+        let amount = (f64::from(cost) * percent / 100.0).round() as u32;
+        let gained = <Self as EffectHost>::gain_resource(self, ResourceType::Mana, amount);
+        (gained > 0).then_some((ResourceType::Mana, gained))
     }
 
     fn reset_cooldowns(&mut self, matches: &dyn Fn(&crate::spell::SpellRecord) -> bool) {

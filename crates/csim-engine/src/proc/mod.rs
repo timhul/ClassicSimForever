@@ -242,4 +242,6 @@ mod tests {
 
 pub mod runtime;
 
-pub use runtime::{EnabledProcs, PROC_ROLL_RANGE, Proc, ProcHost, ProcKind, ProcRate};
+pub use runtime::{
+    EnabledProcs, PROC_ROLL_RANGE, Proc, ProcHost, ProcKind, ProcRate, swing_damage_by_speed,
+};

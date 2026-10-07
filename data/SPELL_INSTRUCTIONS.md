@@ -506,7 +506,19 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
 | `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
-| `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
+| `SEAL_JUDGEMENT` | on the seal aura effect that names the seal's judgement: `spell` is what `JUDGE_SEAL` casts while the seal is up; it makes the spell a seal (one at a time: casting one ends the others) | `spell` | every seal's E2 (Seal of Command r5 → 20968) |
+| `JUDGE_SEAL` | casts the judgement of the active seal (nothing without one); the seal stays up. The `MARKED` caster aura state (vanilla's `AURA_STATE_JUDGEMENT`) holds while a seal is up | — | Judgement 20271 E0 |
+| `TRIGGER_SPELL_DAMAGE_PERCENT` | casts `spell` with its damage × `value` % | `spell`, `value` | Judgement of Command 20968 E0 → 20966 at 50 % (a raid boss is never stunned) |
+| `WEAPON_SPEED_SWING_DAMAGE` | a proc aura's payload: casts `spell` with effect `effect` set to the damage per swing of this aura's value T by the unhasted main-hand speed, T / 87 at 1.5 s to T / 25 at 4.0 s, linear | `spell`, `effect` | Seal of Righteousness E0 → 25713 (rank 8) |
+| `ATTACK_SPEED_DAMAGE_PENALTY` | on a `MOD_ATTACKSPEED` aura: main-hand weapon damage × 100 / (100 + the haste) while it is up | — | Seal of the Crusader E1 (40 % → 100 / 140) |
+| `JUDGED_SEAL_MANA_RETURN` | on the talent aura effect whose value is the percent of the judged seal's mana cost (its cost now, after modifiers) each judgement returns, at the chance effect `effect`'s value gives | `effect` | Sanctified Judgement E1 (20/40/60 %, E0 33/66/100 %) |
+| `REFRESH_AURA` | an `on_event` reaction: the spell's own aura, when up, starts its duration again (every rank reacts for its own aura) | — | Judgement of the Crusader, on the paladin's melee strikes |
+| `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check`. On a proc aura's effect it also silences the table's trigger spell | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560, Seal of Wisdom E0 |
+
+**Cast buffs that are proc auras** (a seal: an ability with a `ProcTypeMask` whose aura has a
+payload) get a proc of their own, built from the same record, that fires while the buff the cast
+applies is up, at the record's chance or the `proc` override's rate (Seal of Command: `ppm: 7`),
+with the record's proc cooldown (`ProcCategoryRecovery`). The direct effects stay the cast's.
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),

@@ -141,6 +141,9 @@ pub struct CharacterSpells {
     start_of_combat_spells: Vec<SpellId>,
     /// The spells whose overrides attach event reactions (`on_event`).
     event_reactors: Vec<SpellId>,
+    /// The proc of each cast buff that is a proc aura (a seal), firing while the buff is up
+    /// ([`SpellSetup::has_buff_proc`]).
+    buff_procs: BTreeMap<SpellId, ProcId>,
     next_instance_id: u32,
     next_proc_seed: u64,
     attack_mode: AttackMode,
@@ -173,6 +176,7 @@ impl CharacterSpells {
             event_reactors: Vec::new(),
             next_instance_id: 0,
             next_proc_seed: proc_seed,
+            buff_procs: BTreeMap::new(),
             attack_mode: AttackMode::MeleeAttack,
             attack_mode_active: false,
             mh_attack: AutoAttack::new(Hand::Mainhand),
@@ -237,6 +241,10 @@ impl CharacterSpells {
             record.name,
             record.id
         );
+        let buff_proc_setup = setup.has_buff_proc().then(|| SpellSetup {
+            buff_proc: true,
+            ..setup.clone()
+        });
         let (spell, marker) = self.build_spell(setup, overrides, party, shared);
         let mut spell = spell;
         let enable_now = record.class_mask != 0 || record.race_mask != 0;
@@ -267,6 +275,9 @@ impl CharacterSpells {
         }
         self.spells[id.index()] = Some(spell);
         self.by_game_id.insert(record.id, SpellHandle::Spell(id));
+        if let Some(proc) = buff_proc_setup.and_then(|setup| self.add_buff_proc(setup, marker)) {
+            self.buff_procs.insert(id, proc);
+        }
 
         // Rank groups: what a rotation names. Only spellbook abilities join, not the payloads
         // another spell triggers; a second spell of the same name and rank stays out and is
@@ -322,6 +333,33 @@ impl CharacterSpells {
         self.rank_groups
             .insert(name.clone(), SpellRankGroup::new(&name, [(rank, id)]));
         id
+    }
+
+    /// Registers the proc of a cast buff's proc aura: a spell of its own from the same record,
+    /// with the proc's internal cooldown, that shares the buff `marker` the cast applies (the
+    /// proc only fires while it is up). `None` for a proc on events the sim does not have
+    /// (Cannibalize's).
+    fn add_buff_proc(&mut self, setup: SpellSetup, marker: Option<BuffId>) -> Option<ProcId> {
+        let cooldown = match Spell::own_cooldown_ms(&setup) {
+            0 => None,
+            ms => Some(
+                self.cooldowns
+                    .new_spell_cooldown(setup.record.id, f64::from(ms) / 1000.0),
+            ),
+        };
+        let mut spell = Spell::new(setup, cooldown, None, marker);
+        if Proc::sources_of(&spell).is_empty() {
+            return None;
+        }
+        spell.set_instance_id(self.next_instance_id());
+        let seed = self.next_proc_seed;
+        self.next_proc_seed = self.next_proc_seed.wrapping_add(1);
+        Some(self.procs.add_proc(Proc::new(spell, seed)))
+    }
+
+    /// The proc of spell `id`'s buff, when its buff is a proc aura (a seal's swings).
+    pub fn buff_proc(&self, id: SpellId) -> Option<ProcId> {
+        self.buff_procs.get(&id).copied()
     }
 
     fn reserve_spell_id(&mut self) -> SpellId {
