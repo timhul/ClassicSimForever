@@ -1023,13 +1023,24 @@ impl Effect {
                 CharacterStats::add_health_mod,
                 CharacterStats::remove_health_mod,
             ),
-            A::ModTotalStatPercentage => multiplier(
-                host.stats_mut(),
-                apply,
-                rounded,
-                CharacterStats::add_total_stat_mod,
-                CharacterStats::remove_total_stat_mod,
-            ),
+            A::ModTotalStatPercentage => {
+                for stat in total_stat_percentage_stats(self.record.misc_value) {
+                    let stats = host.stats_mut();
+                    match (stat, apply) {
+                        (ItemStat::Strength, true) => stats.add_strength_mod(rounded),
+                        (ItemStat::Strength, false) => stats.remove_strength_mod(rounded),
+                        (ItemStat::Agility, true) => stats.add_agility_mod(rounded),
+                        (ItemStat::Agility, false) => stats.remove_agility_mod(rounded),
+                        (ItemStat::Stamina, true) => stats.add_stamina_mod(rounded),
+                        (ItemStat::Stamina, false) => stats.remove_stamina_mod(rounded),
+                        (ItemStat::Intellect, true) => stats.add_intellect_mod(rounded),
+                        (ItemStat::Intellect, false) => stats.remove_intellect_mod(rounded),
+                        (ItemStat::Spirit, true) => stats.add_spirit_mod(rounded),
+                        (ItemStat::Spirit, false) => stats.remove_spirit_mod(rounded),
+                        _ => unreachable!("not an attribute: {stat:?}"),
+                    }
+                }
+            }
             A::ModResistance if school.is_physical() => {
                 if on_target && self.script_kind() == Some(ScriptKind::ExclusiveArmorReduction) {
                     host.target_mut()
@@ -1358,6 +1369,32 @@ fn adjust(
 /// Adds (`apply`) or removes the percentage effect `percent` on a multiplicative stack. The
 /// sign of the value cannot pick the direction as with [`adjust`]: a stack holds negative
 /// effects too, and a 0 % effect must be removed like any other.
+/// The attributes a `MOD_TOTAL_STAT_PERCENTAGE` aura scales: the stat bitmask in its second misc
+/// value (1 strength, 2 agility, 4 stamina, 8 intellect, 16 spirit; Blessing of Kings 31, The
+/// Human Spirit 16, Divine Intellect 8), or without one the first misc value (−1 all, else the
+/// stat index). The first value alone is not reliable: Divine Intellect's is 0 (strength).
+fn total_stat_percentage_stats(misc_value: [i32; 2]) -> Vec<ItemStat> {
+    const ATTRIBUTES: [ItemStat; 5] = [
+        ItemStat::Strength,
+        ItemStat::Agility,
+        ItemStat::Stamina,
+        ItemStat::Intellect,
+        ItemStat::Spirit,
+    ];
+    let mask = match misc_value {
+        [_, mask] if mask > 0 => mask,
+        [-1, _] => 31,
+        [index @ 0..=4, _] => 1 << index,
+        _ => 0,
+    };
+    ATTRIBUTES
+        .into_iter()
+        .enumerate()
+        .filter(|&(i, _)| mask & (1 << i) != 0)
+        .map(|(_, stat)| stat)
+        .collect()
+}
+
 fn multiplier(
     stats: &mut CharacterStats,
     apply: bool,
@@ -2124,6 +2161,40 @@ mod tests {
 
     /// Expose Armor and Sunder Armor share the exclusive armor reduction; Hemorrhage's debuff
     /// is a modifier of the caster's own spells.
+    /// The stat mask of `MOD_TOTAL_STAT_PERCENTAGE`, with the first misc value as the fallback.
+    #[test]
+    fn total_stat_percentage_scales_the_named_attributes() {
+        use ItemStat::{Agility, Intellect, Spirit, Stamina, Strength};
+        let all = vec![Strength, Agility, Stamina, Intellect, Spirit];
+        assert_eq!(
+            total_stat_percentage_stats([-1, 31]),
+            all,
+            "Blessing of Kings"
+        );
+        assert_eq!(
+            total_stat_percentage_stats([4, 16]),
+            [Spirit],
+            "The Human Spirit"
+        );
+        assert_eq!(
+            total_stat_percentage_stats([0, 8]),
+            [Intellect],
+            "Divine Intellect"
+        );
+        assert_eq!(
+            total_stat_percentage_stats([0, 1]),
+            [Strength],
+            "Divine Strength"
+        );
+        assert_eq!(
+            total_stat_percentage_stats([0, 4]),
+            [Stamina],
+            "Sacred Duty"
+        );
+        assert_eq!(total_stat_percentage_stats([-1, 0]), all);
+        assert_eq!(total_stat_percentage_stats([1, 0]), [Agility]);
+    }
+
     #[test]
     fn exclusive_armor_and_damage_from_caster_auras() {
         let mut host = MockHost::new();
