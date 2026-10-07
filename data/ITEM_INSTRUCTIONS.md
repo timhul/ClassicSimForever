@@ -170,11 +170,12 @@ Derived budgets for ~560 Classic items agreed with the table for every (ilvl, qu
 hit and crit rating (31 / 32) and the `HIT_CHANCE` / `CRIT_CHANCE` item stats of the hand-written
 data (`data/enchants.yaml`) raise all three. The tables agree: there is no spell-only rating, and
 Forever's own equip and set bonus spells carry the melee and the spell aura together ("Increased
-Hit Chance 01" 432639, the Tier 1 2P "Hit" bonuses 1300940…1300966, the reworked Zandalar signets
-1219510 / 1219512: `MOD_HIT_CHANCE` + `MOD_SPELL_HIT_CHANCE`, `MOD_CRIT_PERCENT` +
-`MOD_SPELL_CRIT_CHANCE`). `SPELL_HIT_CHANCE` / `SPELL_CRIT_CHANCE` stay **spell only**: they only
+Hit Chance 01" 432639, the Tier 1 2P "Hit" bonuses 1300940…1300966: `MOD_HIT_CHANCE` +
+`MOD_SPELL_HIT_CHANCE`; the reworked Might and Power of the Scourge 1220743 / 1220735:
+`MOD_CRIT_PERCENT` + `MOD_SPELL_CRIT_CHANCE`, which `data/enchants.yaml` uses in place of the old
+29483 / 29467 that the shoulder items of this build still teach). `SPELL_HIT_CHANCE` / `SPELL_CRIT_CHANCE` stay **spell only**: they only
 describe enchants whose table spell has the spell aura alone (Brilliant Wizard Oil 25113,
-Presence of Sight 24156, Power of the Scourge 29468), as "Increased Critical Spell" 18382 / 18384
+Presence of Sight 24156), as "Increased Critical Spell" 18382 / 18384
 on the old sets. Equip spells apply the auras they have, so an old melee-only bonus ("Increased
 Critical 1" 7597) stays melee only. Talents and buffs keep their own split the same way.
 
