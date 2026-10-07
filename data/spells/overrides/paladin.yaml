@@ -291,19 +291,16 @@ overrides:
     effects:
       - { index: 2, script: SEAL_JUDGEMENT, params: { spell: 20346 } }
   - id: 20166
-    note: Seal of Wisdom r1; E0 the mana per strike (not simulated; the tables' 100 % on every strike is not the game's rate, and no Retribution rotation uses the seal), E2 the judgement
+    note: Seal of Wisdom r1; E0 90 mana on every melee strike (the tables' 100 %), E2 the judgement
     effects:
-      - { index: 0, script: NO_OP }
       - { index: 2, script: SEAL_JUDGEMENT, params: { spell: 20186 } }
   - id: 20356
-    note: Seal of Wisdom r2; E0 the mana per strike (not simulated; the tables' 100 % on every strike is not the game's rate, and no Retribution rotation uses the seal), E2 the judgement
+    note: Seal of Wisdom r2; E0 90 mana on every melee strike (the tables' 100 %), E2 the judgement
     effects:
-      - { index: 0, script: NO_OP }
       - { index: 2, script: SEAL_JUDGEMENT, params: { spell: 20354 } }
   - id: 20357
-    note: Seal of Wisdom r3; E0 the mana per strike (not simulated; the tables' 100 % on every strike is not the game's rate, and no Retribution rotation uses the seal), E2 the judgement
+    note: Seal of Wisdom r3; E0 90 mana on every melee strike (the tables' 100 %), E2 the judgement
     effects:
-      - { index: 0, script: NO_OP }
       - { index: 2, script: SEAL_JUDGEMENT, params: { spell: 20355 } }
 
   # ----- Judgements ----------------------------------------------------------------------------------

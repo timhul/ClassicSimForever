@@ -378,15 +378,17 @@ fn improved_seals_raise_seal_and_judgement_damage() {
     );
 }
 
-/// Seal of Wisdom's mana per strike is not simulated (`NO_OP` silences the proc's trigger):
-/// its swings restore nothing.
+/// Seal of Wisdom: every landed melee strike, white or special, restores 90 mana (rank 3).
 #[test]
-fn seal_of_wisdom_restores_no_mana() {
+fn seal_of_wisdom_restores_mana_on_each_strike() {
     let mut f = pulled(&[]);
     seal(&mut f, "Seal of Wisdom");
     let t = now(&f);
     f.character.resource_mut().lose(500, t);
-    let before = mana(&f);
-    assert!(swing(&mut f).is_empty());
-    assert_eq!(mana(&f), before);
+    for source in [ProcSource::MainhandSwing, ProcSource::MainhandSpell] {
+        let before = mana(&f);
+        let reports = f.ctx().run_proc_checks(&[source]);
+        assert_eq!(reports.len(), 1, "{source:?}");
+        assert_eq!(mana(&f), before + 90, "{source:?}");
+    }
 }
