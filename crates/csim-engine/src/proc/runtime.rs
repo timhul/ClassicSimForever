@@ -474,8 +474,6 @@ impl Proc {
     /// trigger the server replaced), else the proc trigger's own trigger spell.
     fn payload(effect: &Effect, host: &impl ProcHost) -> Option<Payload> {
         match effect.script_kind() {
-            // Explicitly nothing, the table's trigger spell included.
-            Some(ScriptKind::NoOp) => return None,
             Some(ScriptKind::TriggerWithValue) => {
                 let params = &effect.script()?.params;
                 return Some(Payload::TriggerWithValue {
