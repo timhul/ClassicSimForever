@@ -215,6 +215,33 @@ spells:
     aura: MOD_STAT
     base_points: 17.0
     implicit_target: [UNIT_TARGET_ALLY, NONE]
+- id: 15701
+  name: Night Dragon's Breath
+  attributes: [134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 4
+    defense_type: MAGIC
+  levels:
+    spell: 35
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana and $s2 health.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 425.0
+    variance: 0.14588235
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: HEAL
+    base_points: 425.0
+    variance: 0.14588235
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 16323
   name: Juju Power
   attributes: [65792, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -271,6 +298,32 @@ spells:
     aura: MOD_RANGED_ATTACK_POWER
     base_points: 40.0
     implicit_target: [UNIT_TARGET_ALLY, NONE]
+- id: 16666
+  name: Demonic Rune
+  attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  icon: 134417
+  icon_name: inv_misc_rune_04
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 30
+  levels:
+    spell: 58
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana at the cost of $s2 life.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1200.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: SCHOOL_DAMAGE
+    base_points: 800.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 16928
   name: Armor Shatter
   attributes: [0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -313,6 +366,27 @@ spells:
     effect: APPLY_AURA
     aura: MOD_ATTACK_POWER
     base_points: 35.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 17531
+  name: Restore Mana
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 4
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Restores $s1 mana.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1800.0
+    variance: 0.5
     implicit_target: [UNIT_CASTER, NONE]
 - id: 17537
   name: Elixir of Brute Force
@@ -633,6 +707,32 @@ spells:
     base_points: 53.0
     radius_yd: [30.0, 30.0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 27869
+  name: Dark Rune
+  attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  icon: 134417
+  icon_name: inv_misc_rune_04
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 30
+  levels:
+    spell: 58
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana at the cost of $s2 life.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1200.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: SCHOOL_DAMAGE
+    base_points: 800.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
 consumable_items:
 - id: 7676
   name: Thistle Tea
@@ -640,6 +740,38 @@ consumable_items:
   - trigger: USE
     spell: 9512
     cooldown_ms: 300000
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 11952
+  name: Night Dragon's Breath
+  effects:
+  - trigger: USE
+    spell: 15701
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 12662
+  name: Demonic Rune
+  effects:
+  - trigger: USE
+    spell: 16666
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 13444
+  name: Major Mana Potion
+  effects:
+  - trigger: USE
+    spell: 17531
+    category: 4
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 20520
+  name: Dark Rune
+  effects:
+  - trigger: USE
+    spell: 27869
     category: 1153
     category_cooldown_ms: 120000
     charges: -1

@@ -918,6 +918,19 @@ impl SpellRecord {
             .sum()
     }
 
+    /// The cost of `power_type` in stored units for a caster with `base_mana`: the flat cost
+    /// plus the `PowerCostPct` share of the base mana, rounded down (Judgement: 6 % of 1512 =
+    /// 90 mana).
+    pub fn power_cost_with_base(&self, power_type: PowerType, base_mana: u32) -> f64 {
+        self.power
+            .iter()
+            .filter(|p| p.power_type == power_type)
+            .map(|p| {
+                f64::from(p.cost) + (f64::from(base_mana) * f64::from(p.cost_pct) / 100.0).floor()
+            })
+            .sum()
+    }
+
     /// The stances the spell can be used in (`shapeshift_mask` decoded); empty = any.
     pub fn shapeshift_forms(&self) -> Vec<ShapeshiftForm> {
         ShapeshiftForm::from_mask(self.shapeshift_mask)

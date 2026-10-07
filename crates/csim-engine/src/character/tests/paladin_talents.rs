@@ -3,7 +3,7 @@
 //! (seals, judgements, Vengeance, Vindication, Champion of the Light, ...) come with their
 //! mechanics (TASKS.md P.4-P.9).
 
-use super::paladin::{paladin, stat};
+use super::paladin::{paladin, stat, with_talents};
 use super::*;
 use crate::magic_school::MagicSchool;
 
@@ -46,25 +46,6 @@ const DEEP_RETRIBUTION: [(u32, u32); 17] = [
     (TOUGHNESS, 5),
     (PRECISION, 3),
 ];
-
-/// A Human Paladin with `talents` forced in (the tiers below them need no points), ready for
-/// an iteration.
-fn with_talents(talents: &[(u32, u32)]) -> Fixture {
-    let mut f = paladin(Race::Human, &[]);
-    for &(node, rank) in talents {
-        for _ in 0..rank {
-            let change = f
-                .character
-                .talents_mut()
-                .and_then(|t| t.force_increment_rank(node))
-                .unwrap_or_else(|| panic!("a point in {node}"));
-            f.ctx().apply_talent_changes([change]);
-        }
-    }
-    f.ctx().prepare_set_of_combat_iterations();
-    f.ctx().reset();
-    f
-}
 
 #[test]
 fn the_deep_retribution_build_spends_51_points() {

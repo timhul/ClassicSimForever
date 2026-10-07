@@ -182,6 +182,9 @@ pub struct Mana {
     last_use: f64,
     /// Fraction of spirit regen that continues inside the five-second rule (talents).
     mp5_from_spirit_within_5sr_modifier: f64,
+    /// Σ `MOD_MANA_REGEN_INTERRUPT`: percent of spirit regen that continues inside the
+    /// five-second rule (Reverence).
+    within_5sr_percent: i32,
     ignore_5sr: bool,
     bonus_regen_modifier: f64,
 }
@@ -197,6 +200,7 @@ impl Default for Mana {
             remainder: 0.0,
             last_use: -5.0,
             mp5_from_spirit_within_5sr_modifier: 0.0,
+            within_5sr_percent: 0,
             ignore_5sr: false,
             bonus_regen_modifier: 1.0,
         }
@@ -225,6 +229,11 @@ impl Mana {
 
     pub fn max(&self) -> u32 {
         self.max
+    }
+
+    /// The class base mana, what `PowerCostPct` costs are a percent of.
+    pub fn base_mana(&self) -> u32 {
+        self.base_mana
     }
 
     /// Sets the class base mana and refills (the C++ `set_base_mana` resets).
@@ -296,6 +305,13 @@ impl Mana {
 
     pub fn set_mp5_from_spirit_within_5sr_modifier(&mut self, modifier: f64) {
         self.mp5_from_spirit_within_5sr_modifier = modifier;
+    }
+
+    /// Adds `percent` (negative to remove) to the share of spirit regen that continues inside
+    /// the five-second rule (`MOD_MANA_REGEN_INTERRUPT`: Reverence 10/20/30 %).
+    pub fn adjust_within_5sr_percent(&mut self, percent: i32) {
+        self.within_5sr_percent += percent;
+        self.mp5_from_spirit_within_5sr_modifier = f64::from(self.within_5sr_percent) / 100.0;
     }
 
     pub fn set_ignore_5sr(&mut self, ignore: bool) {
@@ -757,6 +773,13 @@ impl Resource {
     pub fn as_rage_mut(&mut self) -> Option<&mut Rage> {
         match self {
             Resource::Rage(r) => Some(r),
+            _ => None,
+        }
+    }
+
+    pub fn as_mana(&self) -> Option<&Mana> {
+        match self {
+            Resource::Mana(r) => Some(r),
             _ => None,
         }
     }

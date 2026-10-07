@@ -35,6 +35,9 @@ stat_rules:
   melee_ap_per_strength: 2
   melee_ap_per_agility: 0
   ranged_ap_per_agility: 0
+# Spirit regeneration outside the five-second rule: 15 + spirit / 5 mana per 5 seconds
+# (ClassicSim's Paladin::get_mp5_from_spirit), ticking every 2 seconds.
+mana_regen: { mp5_base: 15.0, mp5_per_spirit: 0.2 }
 global_cooldown: 1.5
 highest_armor_type: PLATE
 weapon_proficiencies:

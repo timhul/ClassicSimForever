@@ -56,6 +56,10 @@ pub trait SpellHost: EffectHost {
     /// The resource the character spends and gains (which of an aura's per-power
     /// `PERIODIC_ENERGIZE` effects ticks).
     fn resource_type(&self) -> ResourceType;
+    /// The caster's class base mana, the base of `PowerCostPct` costs (0 without mana).
+    fn base_mana(&self) -> u32 {
+        0
+    }
     fn engine(&self) -> &Engine;
     fn engine_mut(&mut self) -> &mut Engine;
     /// Configured encounter length in seconds (execute range is derived from it).
@@ -1058,16 +1062,17 @@ impl Spell {
     /// Strike: −10 stored = −1 rage; Eureka! −10 %). Costs are whole units, so a fractional
     /// cost rounds to the nearest one. Port of `Spell::get_resource_cost`.
     pub fn resource_cost(&self, host: &impl SpellHost) -> u32 {
-        self.resource_cost_with(host.spell_modifiers())
+        self.resource_cost_with(host.spell_modifiers(), host.base_mana())
     }
 
-    /// [`Self::resource_cost`] under the caster's spell `modifiers`.
-    pub fn resource_cost_with(&self, modifiers: &SpellModifiers) -> u32 {
+    /// [`Self::resource_cost`] under the caster's spell `modifiers`, for a caster with
+    /// `base_mana` (the base of `PowerCostPct` costs).
+    pub fn resource_cost_with(&self, modifiers: &SpellModifiers, base_mana: u32) -> u32 {
         let record = &self.setup.record;
         let Some(resource) = self.resource_type() else {
             return 0;
         };
-        let stored = f64::from(record.power_cost(resource.power_type()));
+        let stored = record.power_cost_with_base(resource.power_type(), base_mana);
         let class = record.class_options.as_ref();
         let stored = modifiers.apply(class, SpellModOp::PowerCost0, stored)
             * modifiers.multiplier(class, SpellModOp::PowerCostPct);

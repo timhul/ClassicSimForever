@@ -27,6 +27,25 @@ pub(super) fn paladin(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
     f
 }
 
+/// A Human Paladin with `talents` forced in (the tiers below them need no points), ready for
+/// an iteration.
+pub(super) fn with_talents(talents: &[(u32, u32)]) -> Fixture {
+    let mut f = paladin(Race::Human, &[]);
+    for &(node, rank) in talents {
+        for _ in 0..rank {
+            let change = f
+                .character
+                .talents_mut()
+                .and_then(|t| t.force_increment_rank(node))
+                .unwrap_or_else(|| panic!("a point in {node}"));
+            f.ctx().apply_talent_changes([change]);
+        }
+    }
+    f.ctx().prepare_set_of_combat_iterations();
+    f.ctx().reset();
+    f
+}
+
 pub(super) fn stat<R>(
     f: &Fixture,
     read: impl FnOnce(&crate::stats::CharacterStats, &crate::stats::StatContext) -> R,

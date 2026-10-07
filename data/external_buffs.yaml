@@ -113,3 +113,17 @@ consumables:
   - name: Thistle Tea
     item: 7676
     classes: [ROGUE]
+  # Mana: the potion has its own 2 minute category (4); the runes and Night Dragon's Breath
+  # share the 2 minute category 1153 with Thistle Tea.
+  - name: Major Mana Potion
+    item: 13444
+    classes: [PALADIN]
+  - name: Demonic Rune
+    item: 12662
+    classes: [PALADIN]
+  - name: Dark Rune
+    item: 20520
+    classes: [PALADIN]
+  - name: Night Dragon's Breath
+    item: 11952
+    classes: [PALADIN]

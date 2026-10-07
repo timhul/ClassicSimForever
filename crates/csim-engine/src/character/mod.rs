@@ -35,7 +35,7 @@ use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
 use crate::rage_formula::RageFormula;
-use crate::resource::{Rage, Resource, ResourceType};
+use crate::resource::{Mana, Rage, Resource, ResourceType};
 use crate::rng::{Random, Xoroshiro128Plus};
 use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
@@ -993,6 +993,12 @@ impl Character {
         } else {
             0
         }
+    }
+
+    /// The class base mana of a mana user (what `PowerCostPct` costs are a percent of); 0 for
+    /// the other resources.
+    pub fn base_mana(&self) -> u32 {
+        self.resource.as_mana().map_or(0, Mana::base_mana)
     }
 
     /// A mana user's maximum mana from its intellect against `target` (buffs and talents

@@ -46,6 +46,22 @@ pub struct ClassBaseStats {
     pub health: u32,
 }
 
+/// Spirit-based mana regeneration: `mp5_base + mp5_per_spirit × spirit` mana per 5 seconds
+/// outside the five-second rule (the Paladin: 15 + spirit / 5).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ManaRegen {
+    pub mp5_base: f64,
+    pub mp5_per_spirit: f64,
+}
+
+impl ManaRegen {
+    /// Mana per 5 seconds from `spirit`.
+    pub fn mp5_from_spirit(&self, spirit: u32) -> f64 {
+        self.mp5_base + self.mp5_per_spirit * f64::from(spirit)
+    }
+}
+
 /// Stat conversion rules as written in the data file (percent-crit divisors and AP per stat).
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -102,6 +118,9 @@ pub struct ClassSpec {
     pub resource: ResourceType,
     pub base_stats: ClassBaseStats,
     pub stat_rules: StatRules,
+    /// How a mana user regenerates from spirit; absent for the other resources.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mana_regen: Option<ManaRegen>,
     /// Length of the global cooldown in seconds.
     pub global_cooldown: f64,
     /// The stance the character starts in (the spell data decides what each stance allows).

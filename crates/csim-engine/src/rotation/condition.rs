@@ -148,10 +148,14 @@ pub enum BuiltinVariable {
     ComboPoints,
     /// Seconds until the global cooldown ends.
     TimeRemainingGcd,
+    /// The character's resource as a percent of its maximum (mana: 0-100). A mana gain wakes
+    /// the rotation by itself; an energy user's rotation is woken by `resource` levels, not by
+    /// this.
+    ResourcePercent,
 }
 
 impl BuiltinVariable {
-    pub const ALL: [BuiltinVariable; 9] = [
+    pub const ALL: [BuiltinVariable; 10] = [
         BuiltinVariable::TargetHealth,
         BuiltinVariable::TimeRemainingEncounter,
         BuiltinVariable::TimeRemainingExecute,
@@ -161,6 +165,7 @@ impl BuiltinVariable {
         BuiltinVariable::MeleeAp,
         BuiltinVariable::ComboPoints,
         BuiltinVariable::TimeRemainingGcd,
+        BuiltinVariable::ResourcePercent,
     ];
 
     /// The name as written in a rotation file. Port of
@@ -176,6 +181,7 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "melee_ap",
             BuiltinVariable::ComboPoints => "combo_points",
             BuiltinVariable::TimeRemainingGcd => "time_remaining_gcd",
+            BuiltinVariable::ResourcePercent => "resource_percent",
         }
     }
 
@@ -198,13 +204,14 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "Melee Attack Power",
             BuiltinVariable::ComboPoints => "Combo Points",
             BuiltinVariable::TimeRemainingGcd => "Time Remaining GCD",
+            BuiltinVariable::ResourcePercent => "Resource",
         }
     }
 
     /// The unit suffix of the description (`seconds`, `%` or nothing).
     fn unit(self) -> &'static str {
         match self {
-            BuiltinVariable::TargetHealth => "%",
+            BuiltinVariable::TargetHealth | BuiltinVariable::ResourcePercent => "%",
             BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => "",
             _ => " seconds",
         }
@@ -422,7 +429,9 @@ impl<B, S> Sentence<B, S> {
                     BuiltinVariable::TimeSinceSwing | BuiltinVariable::TimeSinceAutoShot => {
                         crossing(value, rhs, 1.0, None)
                     }
-                    BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => f64::INFINITY,
+                    BuiltinVariable::MeleeAp
+                    | BuiltinVariable::ComboPoints
+                    | BuiltinVariable::ResourcePercent => f64::INFINITY,
                 }
             }
             Measure::Resource(resource) if *resource == watched.resource => {

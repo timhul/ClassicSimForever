@@ -44,6 +44,9 @@ pub trait EffectHost {
     fn adjust_power_regen_percent(&mut self, _resource: ResourceType, _percent: i32) {}
     /// Changes the maximum of `resource` by `amount` (`MOD_INCREASE_ENERGY`: Vigor).
     fn adjust_max_power(&mut self, _resource: ResourceType, _amount: i32) {}
+    /// Changes by `percent` the share of spirit regen that continues inside the five-second
+    /// rule (`MOD_MANA_REGEN_INTERRUPT`: Reverence).
+    fn adjust_mana_regen_while_casting(&mut self, _percent: i32) {}
 
     fn melee_ap(&self) -> u32;
     /// The caster's maximum health (`HEALTH_LEECH`: Touch of the Grave).
@@ -583,6 +586,10 @@ impl Effect {
                     trigger: self.script.and_then(|s| s.params.spell),
                     ..EffectOutcome::plain(true)
                 }
+            }
+            // Damage to the caster itself (Demonic Rune's 800 shadow damage) is not simulated.
+            E::SchoolDamage if self.record.targets_caster() && !self.record.targets_enemy() => {
+                EffectOutcome::plain(true)
             }
             E::SchoolDamage => {
                 let outcome = self.roll_attack(host, extra_crit, self.can_crit);
@@ -1214,6 +1221,7 @@ impl Effect {
                     }
                 }
             }
+            A::ModManaRegenInterrupt if !on_target => host.adjust_mana_regen_while_casting(signed),
             // Armor ignored by the attacks with the weapon types the spell requires
             // (Weaponmaster: maces, staves).
             A::ModArmorPenetrationPct if !on_target => {

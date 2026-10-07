@@ -21,7 +21,7 @@ use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::proc::{ProcHost, ProcSource, ProcTrigger};
-use crate::resource::ResourceType;
+use crate::resource::{REGEN_TICK_RATE, ResourceType};
 use crate::rotation::{
     BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec, Watched,
 };
@@ -1660,6 +1660,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(energy) = self.character.resource_mut().as_energy_mut() {
             energy.take_regen_counters(now);
         }
+        if self.character.resource().as_mana().is_some() {
+            self.schedule_mana_tick();
+        }
         for id in self.character.spells.start_of_combat_buffs().to_vec() {
             self.apply_buff(id);
         }
@@ -1704,6 +1707,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             EventKind::Precast { character } if character == me => {
                 self.cast_precast();
+            }
+            EventKind::ManaTick { character } if character == me => {
+                self.mana_tick();
             }
             EventKind::RegenReaction { character, wake } if character == me => {
                 // A reaction replaced by a later plan is not handled.
@@ -1939,6 +1945,48 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Records the energy regenerated since the pull and the ticks lost at the cap (regeneration
     /// is not logged).
+    /// The next mana tick, [`REGEN_TICK_RATE`] seconds from now.
+    fn schedule_mana_tick(&mut self) {
+        let character = self.character.id();
+        self.engine
+            .add_event_in(REGEN_TICK_RATE, EventKind::ManaTick { character });
+    }
+
+    /// A mana regeneration tick: the gear's mana per 5 seconds always, the spirit regeneration
+    /// of the class's rule outside the five-second rule (inside it, the share Reverence lets
+    /// continue), the maximum following the current intellect. The gain wakes the player, is
+    /// recorded as regeneration, and the next tick follows 2 seconds later.
+    fn mana_tick(&mut self) {
+        let now = self.now();
+        let view = self.target_view();
+        let (mp5, from_spirit, intellect) = {
+            let ctx = self.character.stat_context(&view);
+            let stats = self.character.stats();
+            let from_spirit = self
+                .character
+                .class()
+                .mana_regen
+                .map_or(0.0, |rule| rule.mp5_from_spirit(stats.get_spirit(&ctx)));
+            (
+                f64::from(stats.get_mp5(&ctx)),
+                from_spirit,
+                stats.get_intellect(&ctx),
+            )
+        };
+        let Some(mana) = self.character.resource_mut().as_mana_mut() else {
+            return;
+        };
+        mana.update_max(intellect);
+        let amount = mana.regen_per_tick(mp5, from_spirit, now);
+        let gained = <Self as EffectHost>::gain_resource(self, ResourceType::Mana, amount);
+        let statistics = &mut self.character.statistics;
+        statistics
+            .resource(REGENERATION, 1)
+            .add_gain(ResourceType::Mana, gained);
+        statistics.add_lost_at_cap(ResourceType::Mana, f64::from(amount - gained));
+        self.schedule_mana_tick();
+    }
+
     fn record_regeneration(&mut self) {
         let now = self.now();
         let Some(energy) = self.character.resource_mut().as_energy_mut() else {
@@ -2482,6 +2530,15 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),
             BuiltinVariable::ComboPoints => f64::from(self.character.combo_points(now)),
             BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
+            BuiltinVariable::ResourcePercent => {
+                let resource = self.character.resource_type();
+                let max = self.character.max_resource_level(resource);
+                if max == 0 {
+                    0.0
+                } else {
+                    100.0 * f64::from(self.character.resource_level(resource, now)) / f64::from(max)
+                }
+            }
         }
     }
 
@@ -2599,6 +2656,12 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
             self.add_player_reaction_event();
         }
         gained
+    }
+
+    fn adjust_mana_regen_while_casting(&mut self, percent: i32) {
+        if let Some(mana) = self.character.resource_mut().as_mana_mut() {
+            mana.adjust_within_5sr_percent(percent);
+        }
     }
 
     fn adjust_power_regen_percent(&mut self, resource: ResourceType, percent: i32) {
@@ -2793,6 +2856,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn resource_type(&self) -> ResourceType {
         self.character.resource_type()
+    }
+
+    fn base_mana(&self) -> u32 {
+        self.character.base_mana()
     }
 
     fn engine(&self) -> &Engine {
