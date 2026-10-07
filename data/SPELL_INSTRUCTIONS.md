@@ -401,8 +401,11 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
    exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
-   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes) and `ADD_TARGET_TRIGGER`
-   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side).
+   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes), `ADD_TARGET_TRIGGER`
+   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side),
+   `MOD_DAMAGE_TAKEN` (Judgement of the Crusader's holy damage taken, and the item procs'
+   damage taken debuffs) and `MOD_MANA_REGEN_INTERRUPT` (Reverence, item mana regeneration while
+   casting).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
    `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it
@@ -410,7 +413,7 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    changes. `SupercedesSpell` links to dropped ranks are cleared. Mocking Blow keeps its
    `SCHOOL_DAMAGE` and stays; Bloodthirst loses its run-speed aura and stays.
 3. Spells the overrides mention (their own entry, or another entry's `params.spell` /
-   `stance_passive`) are never dropped, even when empty: Berserker Rage keeps existing as the
+   `stance_passive` / `walk`) are never dropped, even when empty: Berserker Rage keeps existing as the
    spell Improved Berserker Rage's `GAIN_RESOURCE_ON_USE` reacts to.
 
 The exporter prints what it pruned. Build 1.60.1.70009: 63 effects and 16 spells from the
@@ -465,7 +468,13 @@ overrides:
     debuff_shared: true              # one raid-wide instance (default: true when it stacks)
     ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)
     cast_time_ms: 1000               # in place of SpellCastTimes.Base (Charge's run to the target)
+    walk: [1311701, 1311703]         # spells the export carries although no table field reaches
+                                     #   them (Twist of Light's Echoes)
 ```
+
+A `NO_OP` script may carry `params.spell`: the walk follows it and the pruning keeps the spell,
+without giving the effect any behaviour (the Paladin's seals name their judgements in a
+`DUMMY`'s base points, Consecration its tick damage only in its description).
 
 **Scripts** (`ScriptKind`; the interpreter implements each once, the data says where it applies):
 

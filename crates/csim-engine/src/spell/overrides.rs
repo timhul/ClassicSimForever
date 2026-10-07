@@ -32,6 +32,8 @@
 //!     on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
 //!   - id: 12292                          # Sweeping Strikes: multi-target, no-op here
 //!     sim_flags: [IGNORED]
+//!   - id: 1310735                        # Twist of Light: the Echoes it grants
+//!     walk: [1311701, 1311703, 1311704, 1311705]
 //! ```
 //!
 //! The *mechanics* behind a script are a closed Rust enum ([`ScriptKind`]); the mapping from a
@@ -546,6 +548,11 @@ pub struct SpellOverride {
     /// takes time in the sim (Charge's run to the target).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cast_time_ms: Option<u32>,
+    /// Spells the export must carry with this one although no table field reaches them (the
+    /// Echoes Twist of Light grants on a seal change): the walk follows them like any other
+    /// reference and the pruning keeps them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub walk: Vec<u32>,
 }
 
 impl SpellOverride {
@@ -591,6 +598,9 @@ impl SpellOverride {
             push(event.params.duration_spell);
         }
         for &id in &self.ends_auras {
+            push(Some(id));
+        }
+        for &id in &self.walk {
             push(Some(id));
         }
         push(self.proc.and_then(|p| p.target_aura));

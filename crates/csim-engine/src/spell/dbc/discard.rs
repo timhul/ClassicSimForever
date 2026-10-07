@@ -13,7 +13,8 @@
 //! Kept although `discard.txt` lists them as candidates: `MOD_THREAT` and `MOD_TOTAL_THREAT`
 //! (the simulator tracks threat: stance passives, Defiance) and `OVERRIDE_ACTIONBAR_SPELLS`
 //! (Improved Slam's and the runes' rank replacement), `ADD_TARGET_TRIGGER` (Relentless
-//! Strikes' energy on finishers).
+//! Strikes' energy on finishers), `MOD_DAMAGE_TAKEN` (Judgement of the Crusader's holy damage
+//! taken) and `MOD_MANA_REGEN_INTERRUPT` (Reverence's mana regeneration while casting).
 
 use super::{AuraType, SpellEffectName};
 
@@ -27,7 +28,6 @@ pub const DISCARDED_AURA_IDS: &[u32] = &[
     8,   // PERIODIC_HEAL
     11,  // MOD_TAUNT
     12,  // MOD_STUN
-    14,  // MOD_DAMAGE_TAKEN
     15,  // DAMAGE_SHIELD
     17,  // MOD_STEALTH_DETECT
     18,  // MOD_INVISIBILITY
@@ -86,7 +86,6 @@ pub const DISCARDED_AURA_IDS: &[u32] = &[
     128, // MOD_POSSESS_PET
     129, // MOD_SPEED_ALWAYS
     130, // MOD_MOUNTED_SPEED_ALWAYS
-    134, // MOD_MANA_REGEN_INTERRUPT
     135, // MOD_HEALING_DONE
     136, // MOD_HEALING_DONE_PERCENT
     139, // FORCE_REACTION

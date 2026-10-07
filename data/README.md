@@ -13,6 +13,7 @@ data/
 │                         listfile-icons.csv the icon texture names by FileDataID
 ├── spells/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
+│   ├── paladin.yaml      generated: the Paladin spellbook, talents, runes and their payloads
 │   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
 │   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
@@ -20,6 +21,7 @@ data/
 │   ├── items.yaml        generated: the spells the items and set bonuses grant
 │   └── overrides/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
+│       ├── paladin.yaml  also the Paladin's server-side numbers and their sources (header)
 │       ├── rogue.yaml
 │       ├── racials.yaml
 │       ├── externals.yaml
@@ -28,6 +30,7 @@ data/
 │       └── discard.txt   the effects the exporter drops (see "Pruning")
 ├── talents/
 │   ├── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
+│   ├── paladin.yaml      generated: the Paladin talent tree
 │   └── rogue.yaml        generated: the Rogue talent tree
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
@@ -59,11 +62,13 @@ data/tables/<Table>.<build>.csv
         │  csim-tables (crates/csim-tables): loads the tables, walks the class
         ▼
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
+csim-tables export-spells --class paladin   →  data/spells/paladin.yaml
 csim-tables export-spells --class rogue     →  data/spells/rogue.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
 csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the poisons' SpellItemEnchantment rows)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
+csim-tables export-talents --class paladin  →  data/talents/paladin.yaml
 csim-tables export-talents --class rogue    →  data/talents/rogue.yaml
 csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml
 csim-tables export-spells --items           →  data/spells/items.yaml      (item and set bonus spells)
@@ -127,11 +132,13 @@ csim_engine::talent::TalentDb::load("data/talents")
    which runs every export below in this order, then `check` (`--strict` passes through):
    ```
    cargo run -p csim-tables -- export-spells --class warrior
+   cargo run -p csim-tables -- export-spells --class paladin
    cargo run -p csim-tables -- export-spells --class rogue
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-spells --enchants
    cargo run -p csim-tables -- export-talents --class warrior
+   cargo run -p csim-tables -- export-talents --class paladin
    cargo run -p csim-tables -- export-talents --class rogue
    cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- export-spells --items

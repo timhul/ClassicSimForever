@@ -19,6 +19,9 @@ dbc_enum! {
         /// Threat done %, misc = school mask (stance passives, Defiance).
         ModThreat = 10 => "MOD_THREAT",
         ModDamageDone = 13 => "MOD_DAMAGE_DONE",
+        /// Flat damage taken by the aura's holder, misc = school mask (Judgement of the Crusader:
+        /// +161 holy).
+        ModDamageTaken = 14 => "MOD_DAMAGE_TAKEN",
         ModStealth = 16 => "MOD_STEALTH",
         ObsModHealth = 20 => "OBS_MOD_HEALTH",
         ObsModPower = 21 => "OBS_MOD_POWER",
@@ -89,6 +92,9 @@ dbc_enum! {
         ModRangedAttackPowerVersus = 131 => "MOD_RANGED_ATTACK_POWER_VERSUS",
         ModIncreaseEnergyPercent = 132 => "MOD_INCREASE_ENERGY_PERCENT",
         ModIncreaseHealthPercent = 133 => "MOD_INCREASE_HEALTH_PERCENT",
+        /// Percent of the spirit-based mana regeneration that continues inside the five-second
+        /// rule (Reverence).
+        ModManaRegenInterrupt = 134 => "MOD_MANA_REGEN_INTERRUPT",
         ModTotalStatPercentage = 137 => "MOD_TOTAL_STAT_PERCENTAGE",
         ModMeleeHaste = 138 => "MOD_MELEE_HASTE",
         ModRangedHaste = 140 => "MOD_RANGED_HASTE",

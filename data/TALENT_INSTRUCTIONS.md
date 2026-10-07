@@ -317,17 +317,18 @@ exporter (§1.10 of `SPELL_INSTRUCTIONS.md`).
 | Subtlety | 5 | Cutthroat (462708) | 5 | proc(dummy) | DUMMY 3/6/9/12/15 | `TRIGGER_SPELL` 462707: a `MOD_IGNORE_SHAPESHIFT` charge for the next Ambush without Stealth |
 | Subtlety | 6 | Thousand Cuts (1310721) ← Preparation | 1 | proc | PROC 3 → 1310723 (Thousand Cuts) | proc: `family_mask` Rupture ticks; the discount is used up whole |
 
-## 1.9 Paladin talent reference (from a trial export, build 1.60.1.70205)
+## 1.9 Paladin talent reference (generated from the exported data)
 
-As §1.7, from a trial `export-talents --class paladin` / `export-spells --class paladin` (the
-files land in `data/` with `TASKS.md` P.2). Forever reworked the tree: Holy Strike, Twist of
-Light, Champion of the Light, Sacred Arbiter, Sanctified Judgement, Holy Conduit, Instrument of
+As §1.7, from `data/talents/paladin.yaml` and `data/spells/paladin.yaml` (build
+1.60.1.70205). Forever reworked the tree: Holy Strike, Twist of Light, Champion of the Light, Sacred Arbiter, Sanctified Judgement, Holy Conduit, Instrument of
 Law, Reverence, Divine Precision, Consecrated Ground, Light's Vigil, Swift Judgement, Sacred
 Duty, Iron Creed, Templar's Bulwark and Improved Seal of Fury are new (spell ids ≥ 1 200 000,
 plus Purifying Power and Infusion of Light from SoD); Improved Seal of the Crusader, Sanctity
-Aura, Improved Blessing of Might and Improved Retribution Aura are gone. The tree has **no
-prerequisites** (no `TraitEdge` rows), only the tier rule. Twist of Light (tier 6, 31 points)
-and Holy Shock (tier 4 of Holy, 21 points) cannot both be taken in 51 points.
+Aura, Improved Blessing of Might and Improved Retribution Aura are gone. Seven talents have a
+prerequisite (`←` below). Twist of Light (tier 6, 31 points) and Holy Shock (tier 4 of Holy, 21
+points) cannot both be taken in 51 points, and Divine Precision and Light's Vigil need Holy
+Shock: none of the three is open to a deep Retribution build. Vengeance needs Sanctified
+Judgement.
 
 Only Retribution DPS is simulated (`TASKS.md` P.0b): the last column says what the sim does with
 the talent, *P.n* naming the task that implements it; *not simulated* talents load and do
@@ -347,16 +348,16 @@ times, not 5.
 | Holy | 1 | Improved Seals (20224) | 3 | modifier | PCT DAMAGE/HEALING 5/10/15 → Seal of Command, Seal of Righteousness, Seal of Fury and their judgements | tables (P.6; on Seal of Righteousness the base before spell power) |
 | Holy | 1 | Unyielding Faith (9453) | 2 | pruned | nothing the sim uses | pruned |
 | Holy | 2 | Voice of Truth (1310897) | 1 | pruned | nothing the sim uses | pruned |
-| Holy | 2 | Reverence (1310899) | 3 | pruned | (30 % of mana regeneration continues while casting) | P.4: kept by an override, spirit regeneration inside the five-second rule |
+| Holy | 2 | Reverence (1310899) | 3 | stat aura | MOD_MANA_REGEN_INTERRUPT 10/20/30 | P.4: spirit regeneration inside the five-second rule |
 | Holy | 2 | Purifying Power (429144) | 2 | modifier | PCT POWER_COST -10/-20 → Cleanse, Purify; PCT COOLDOWN -17/-33 → Exorcism, Holy Wrath | tables (Undead/Demon targets only) |
 | Holy | 3 | Infusion of Light (426065) | 2 | dummy | DUMMY -500/-1000 | not simulated (Holy Light) |
-| Holy | 3 | Illumination (20210) | 5 | proc | PROC 20/40/60/80/100 → 18350; DUMMY 10..50; DUMMY 50; DUMMY 10 | not simulated (heal crits) |
+| Holy | 3 | Illumination (20210) ← Reverence | 5 | proc | PROC 20/40/60/80/100 → 18350; DUMMY 10..50; DUMMY 50; DUMMY 10 | not simulated (heal crits) |
 | Holy | 3 | Divine Favor (20216) | 1 | ability, modifier | FLAT CRIT_CHANCE 100 → the heals, Holy Shock | not simulated (heals; Holy Shock out of scope) |
-| Holy | 4 | Divine Precision (1310904) | 3 | modifier | FLAT HIT_CHANCE 6/12/18 → Consecration, Exorcism, Holy Shock, Holy Strike, Holy Wrath, Hammer of Wrath, … | tables (P.5) |
+| Holy | 4 | Divine Precision (1310904) ← Holy Shock | 3 | modifier | FLAT HIT_CHANCE 6/12/18 → Consecration, Exorcism, Holy Shock, Holy Strike, Holy Wrath, Hammer of Wrath, … | not simulated (needs Holy Shock, out of scope) |
 | Holy | 4 | Holy Shock (1311606) | 1 | ability | DUMMY → 1311604 (134 holy) / 1311605 (heal) | not simulated (Holy Shock build out of scope) |
 | Holy | 4 | Consecrated Ground (1310905) | 2 | dummy | DUMMY 5/10 | P.8: holy damage +5/10 % against the target standing in the Consecration |
 | Holy | 5 | Holy Power (5923) | 5 | modifier | PCT CRIT_CHANCE 1..5 → Consecration, Exorcism, Hammer of Wrath, the seals and judgements, …; PCT CRIT_CHANCE 3..15 → Holy Shock, Holy Strike | tables (P.5) |
-| Holy | 6 | Light's Vigil (1310911) | 1 | ability | DUMMY; DUMMY 75 | not simulated (out of scope) |
+| Holy | 6 | Light's Vigil (1310911) ← Holy Shock | 1 | ability | DUMMY; DUMMY 75 | not simulated (out of scope) |
 | Protection | 0 | Toughness (20143) | 5 | stat aura | MOD_BASE_RESISTANCE_PCT 2..10 (armor); aura 466 2..10 | not simulated (armor) |
 | Protection | 0 | Redoubt (20127) | 5 | proc(dummy) | DUMMY 4..20 | not simulated (block) |
 | Protection | 1 | Precision (20189) | 3 | stat aura | MOD_HIT_CHANCE 1/2/3; MOD_SPELL_HIT_CHANCE 1/2/3 | tables |
@@ -364,15 +365,15 @@ times, not 5.
 | Protection | 1 | Anticipation (20096) | 5 | stat aura | MOD_SKILL 4..20 (defense) | not simulated |
 | Protection | 2 | Improved Seal of Fury (1314103) | 1 | dummy | DUMMY; DUMMY 15; DUMMY 3 | not simulated (absorb shield) |
 | Protection | 2 | Improved Righteous Fury (20468) | 3 | modifier | FLAT op12 -2/-4/-6 → Righteous Fury | not simulated |
-| Protection | 2 | Shield Specialization (20150) | 3 | stat aura, proc | MOD_BLOCK_VALUE_PCT 10/20/30; PROC 33/66/100 → 1310925 (mana on block) | not simulated (block) |
+| Protection | 2 | Shield Specialization (20150) ← Redoubt | 3 | stat aura, proc | MOD_BLOCK_VALUE_PCT 10/20/30; PROC 33/66/100 → 1310925 (mana on block) | not simulated (block) |
 | Protection | 2 | Sacred Duty (1224697) | 2 | stat aura, modifier | MOD_TOTAL_STAT_PERCENTAGE 2/4 (stamina); FLAT COOLDOWN → Divine Shield | not simulated |
-| Protection | 3 | Swift Judgement (1310994) | 1 | ability, modifier | PCT POWER_COST -100 → Judgement (one charge), finishes Judgement's cooldown | P.6 |
+| Protection | 3 | Swift Judgement (1310994) ← Improved Seal of Fury | 1 | ability, modifier | PCT POWER_COST -100 → Judgement (one charge), finishes Judgement's cooldown | P.6 |
 | Protection | 3 | One-Handed Weapon Specialization (20196) | 3 | stat aura | MOD_DAMAGE_PERCENT_DONE 3/7/10 misc 1 (physical) | tables (one-handers only, not the holy damage) |
 | Protection | 3 | Improved Hammer of Justice (20487) | 3 | modifier | FLAT COOLDOWN → Hammer of Justice | not simulated (stun) |
 | Protection | 4 | Templar's Bulwark (1311015) | 1 | pruned | nothing the sim uses | pruned |
 | Protection | 4 | Reckoning (20177) | 5 | proc | PROC 8..40 → 20178 (extra attack) | not simulated (the paladin is not attacked) |
 | Protection | 5 | Iron Creed (1311034) | 5 | modifier, proc | PCT THREAT → Holy Strike; PROC with value → 1311033 | not simulated (threat, Righteous Fury) |
-| Protection | 6 | Holy Shield (20925) | 1 | ability | MOD_BLOCK_PERCENT 30; PROC_TRIGGER_DAMAGE 110; DUMMY 1 | not simulated (block) |
+| Protection | 6 | Holy Shield (20925) ← Templar's Bulwark | 1 | ability | MOD_BLOCK_PERCENT 30; PROC_TRIGGER_DAMAGE 110; DUMMY 1 | not simulated (block) |
 | Retribution | 0 | Deflection (20060) | 5 | stat aura | MOD_PARRY_PERCENT 1..5 | not simulated (parry) |
 | Retribution | 0 | Benediction (20101) | 5 | modifier | PCT POWER_COST -2..-10 → the instant spells (blessings, seals, Judgement, Holy Strike, …) | tables (P.4) |
 | Retribution | 1 | Improved Judgement (25956) | 2 | modifier | FLAT COOLDOWN -1000/-2000 → Judgement | tables |
@@ -385,7 +386,7 @@ times, not 5.
 | Retribution | 3 | Eye for an Eye (9799) | 2 | proc(dummy) | DUMMY 5/10 | not simulated (the paladin is not attacked) |
 | Retribution | 3 | Sacred Arbiter (1311087) | 1 | modifier | PCT DAMAGE/HEALING 20 → Holy Strike | tables; P.8: Holy Strike's `SCRIPT_EFFECT` refreshes the judgement debuffs |
 | Retribution | 4 | Two-Handed Weapon Specialization (20111) | 3 | stat aura | MOD_DAMAGE_PERCENT_DONE 2/4/6 misc 1 (physical) | tables (two-handers only, not the holy damage) |
-| Retribution | 4 | Vengeance (20049) | 3 | proc | PROC with value 1/2/3 → 20050 (physical and holy +1/2/3 % a stack, 3 stacks, 30 s) | P.9 |
+| Retribution | 4 | Vengeance (20049) ← Sanctified Judgement | 3 | proc | PROC with value 1/2/3 → 20050 (physical and holy +1/2/3 % a stack, 3 stacks, 30 s) | P.9 |
 | Retribution | 4 | Repentance (20066) | 1 | pruned | nothing the sim uses | pruned |
 | Retribution | 5 | Champion of the Light (1311084) | 3 | stat aura | MOD_SPELL_DAMAGE_OF_STAT_PERCENT 20/40/60 misc 126 (intellect) | P.5 |
 | Retribution | 5 | Instrument of Law (1311085) | 2 | modifier | FLAT CAST_TIME -500/-1000 → Hammer of Wrath; MOD_THREAT 10/20 | tables (cast time); threat not simulated |
