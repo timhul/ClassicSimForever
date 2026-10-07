@@ -119,18 +119,27 @@ impl Stats {
         Ok(result)
     }
 
+    /// Gear hit (`HIT_CHANCE`, hit rating): one stat for melee, ranged and spells on Forever.
+    /// Talents and buffs keep their own split (their auras name what they raise).
+    fn increase_gear_hit(&mut self, units: u32) {
+        self.increase_melee_hit(units);
+        self.increase_ranged_hit(units);
+        self.increase_spell_hit(units);
+    }
+
+    /// Gear crit (`CRIT_CHANCE`, crit rating), like [`Self::increase_gear_hit`].
+    fn increase_gear_crit(&mut self, units: u32) {
+        self.increase_melee_aura_crit(units);
+        self.increase_ranged_crit(units);
+        self.increase_spell_crit(units);
+    }
+
     /// Adds a chance stat in internal units (`100` = 1 %).
     fn apply_chance_units(&mut self, stat: ItemStat, units: u32) {
         let fraction = f64::from(units) / 10_000.0;
         match stat {
-            ItemStat::HitChance => {
-                self.increase_melee_hit(units);
-                self.increase_ranged_hit(units);
-            }
-            ItemStat::CritChance => {
-                self.increase_melee_aura_crit(units);
-                self.increase_ranged_crit(units);
-            }
+            ItemStat::HitChance => self.increase_gear_hit(units),
+            ItemStat::CritChance => self.increase_gear_crit(units),
             ItemStat::DodgeChance => self.increase_dodge(fraction),
             ItemStat::ParryChance => self.increase_parry(fraction),
             ItemStat::BlockChance => self.increase_block_chance(fraction),
@@ -155,14 +164,8 @@ impl Stats {
             ItemStat::Stamina => self.increase_stamina(flat()),
             ItemStat::Intellect => self.increase_intellect(flat()),
             ItemStat::Spirit => self.increase_spirit(flat()),
-            ItemStat::CritChance => {
-                self.increase_melee_aura_crit(chance());
-                self.increase_ranged_crit(chance());
-            }
-            ItemStat::HitChance => {
-                self.increase_melee_hit(chance());
-                self.increase_ranged_hit(chance());
-            }
+            ItemStat::CritChance => self.increase_gear_crit(chance()),
+            ItemStat::HitChance => self.increase_gear_hit(chance()),
             ItemStat::RangedHitChance => self.increase_ranged_hit(chance()),
             ItemStat::AttackPower => {
                 self.increase_base_melee_ap(flat());
@@ -789,6 +792,8 @@ mod tests {
         assert_eq!(stats.get_ranged_crit_chance(), 200);
         assert_eq!(stats.get_melee_hit_chance(), 150);
         assert_eq!(stats.get_ranged_hit_chance(), 150);
+        assert_eq!(stats.get_spell_hit_chance(MagicSchool::Fire), 150);
+        assert_eq!(stats.get_spell_crit_chance(MagicSchool::Fire), 200);
         assert!((stats.get_dodge_chance() - 0.01).abs() < 1e-9);
         assert!((stats.get_parry_chance() - 0.01).abs() < 1e-9);
         assert!((stats.get_block_chance() - 0.01).abs() < 1e-9);
@@ -830,8 +835,41 @@ mod tests {
         assert_eq!(stats.get_melee_ap_against_type(CreatureType::Undead), 60);
         assert_eq!(stats.get_spell_damage(MagicSchool::Fire), 30);
         assert_eq!(stats.get_spell_damage(MagicSchool::Frost), 0);
-        assert_eq!(stats.get_spell_crit_chance(MagicSchool::Holy), 200);
+        // 1 % gear crit and 2 % spell-only crit.
+        assert_eq!(stats.get_spell_crit_chance(MagicSchool::Holy), 300);
+        assert_eq!(stats.get_spell_hit_chance(MagicSchool::Holy), 200);
         assert_eq!(stats.get_mp5(), 6);
+    }
+
+    /// Gear hit and crit are one stat each on Forever: 1 % hit and 14 crit rating raise melee,
+    /// ranged and spell hit and crit alike. The spell-only stats stay spell-only.
+    #[test]
+    fn gear_hit_and_crit_count_for_melee_ranged_and_spells() {
+        for (hit, crit) in [
+            ((ItemStat::HitChance, 0.01), (ItemStat::CritChance, 0.01)),
+            ((ItemStat::HitRating, 10.0), (ItemStat::CritRating, 14.0)),
+        ] {
+            let stats = Stats::from_item_stats([hit, crit]).unwrap();
+            assert_eq!(stats.get_melee_hit_chance(), 100);
+            assert_eq!(stats.get_ranged_hit_chance(), 100);
+            assert_eq!(stats.get_melee_crit_chance(), 100);
+            assert_eq!(stats.get_ranged_crit_chance(), 100);
+            for school in MagicSchool::MAGIC {
+                assert_eq!(stats.get_spell_hit_chance(school), 100);
+                assert_eq!(stats.get_spell_crit_chance(school), 100);
+            }
+        }
+        let stats = Stats::from_item_stats([
+            (ItemStat::SpellHitChance, 0.01),
+            (ItemStat::SpellCritChance, 0.01),
+        ])
+        .unwrap();
+        assert_eq!(stats.get_spell_hit_chance(MagicSchool::Holy), 100);
+        assert_eq!(stats.get_spell_crit_chance(MagicSchool::Holy), 100);
+        assert_eq!(stats.get_melee_hit_chance(), 0);
+        assert_eq!(stats.get_ranged_hit_chance(), 0);
+        assert_eq!(stats.get_melee_crit_chance(), 0);
+        assert_eq!(stats.get_ranged_crit_chance(), 0);
     }
 
     #[test]

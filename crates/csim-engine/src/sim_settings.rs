@@ -102,10 +102,12 @@ impl SimOption {
             SimOption::ScaleHitChance => {
                 stats.increase_melee_hit(100);
                 stats.increase_ranged_hit(100);
+                stats.increase_spell_hit(100);
             }
             SimOption::ScaleCritChance => {
                 stats.increase_melee_aura_crit(100);
                 stats.increase_ranged_crit(100);
+                stats.increase_spell_crit(100);
             }
             SimOption::ScaleAxeSkill
             | SimOption::ScaleDaggerSkill
@@ -142,10 +144,12 @@ impl SimOption {
             SimOption::ScaleHitChance => {
                 stats.decrease_melee_hit(100);
                 stats.decrease_ranged_hit(100);
+                stats.decrease_spell_hit(100);
             }
             SimOption::ScaleCritChance => {
                 stats.decrease_melee_aura_crit(100);
                 stats.decrease_ranged_crit(100);
+                stats.decrease_spell_crit(100);
             }
             SimOption::ScaleAxeSkill
             | SimOption::ScaleDaggerSkill
