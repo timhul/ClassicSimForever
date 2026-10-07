@@ -1,0 +1,131 @@
+# Hand-written Paladin spell overrides: what the client tables (data/spells/paladin.yaml, exported
+# from build 1.60.1.70205 with its hotfixes) do not contain. See
+# crates/csim-engine/src/spell/overrides.rs for the schema and data/SPELL_INSTRUCTIONS.md §1.7-1.11
+# for the table side. Only Retribution DPS is simulated (TASKS.md P.0b); everything else is
+# IGNORED / NO_OP once the class is exported (P.2).
+#
+# Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
+#
+# ----- Server-side numbers (TASKS.md P.1) -------------------------------------------------------
+# The entries below this header come in P.2-P.9; these notes are the numbers they implement and
+# where each comes from. Sources:
+#   [T]  the tables (`csim-tables spell <id>`, SpellEffect.EffectBonusCoefficient, talent curves)
+#   [V]  vmangos (github.com/vmangos/core, branch development): UnitAuraProcHandler.cpp,
+#        SpellEffects.cpp, SpellAuras.cpp, Unit.cpp - the 1.12 server behaviour where Forever's
+#        tables are silent
+#   [I]  Icy Veins, "Paladin Class Guide - WoW Forever" (pre-beta, 2026-09-12); older than the
+#        tables, which win where the two differ
+#   [U]  the user's decision
+#
+# Seal of Command (20375..20920, payload 20424)
+#   - 7 procs per minute on landed white swings (aura proc mask 0x4), chance = 7 x unhasted
+#     main-hand speed / 60. [U]  The tables give proc chance 100 and a 1 s proc cooldown, which
+#     stays. [T]
+#   - 20424: WEAPON_PERCENT_DAMAGE 70 % of a normal (non-normalized) main-hand swing, holy school,
+#     melee defense type, spell power coefficient 0.29. [T]  The weapon damage goes through the
+#     spell bonuses (spell power x coefficient, holy % modifiers, the target's taken modifiers)
+#     and not through armor: SpellEffects.cpp EffectWeaponDmg, "Seal of Command" branch. [V]
+#     It rolls the special melee table like any melee-class spell (miss, dodge, parry, crit at
+#     200 %). [V]
+#   - Judgement of Command (20968 -> 20966): 356 (+6.1/level, ±9.6 %) holy, coefficient 0.429,
+#     half of it unless the target is stunned or incapacitated (the description's $/2). [T]
+#
+# Seal of Righteousness (20154, 21084, 20287..20293; per-swing damage 25713 at rank 8)
+#   - On every landed white swing (proc mask 0x4): damage = lerp between T/87 at 1.5 s and T/25 at
+#     4.0 s by the main hand's item speed (unhasted, not clamped), T = the seal's effect 0 value
+#     (rank 8: 1786 + 47 x (level - 58), max level 64 -> 1880 at 60: 21.6 to 75.2, 64.5 with a
+#     3.5 s two-hander). Improved Seals multiplies that base. [V] UnitAuraProcHandler.cpp
+#     HandleDummyAuraProc "Seal of Righteousness - melee proc dummy"
+#   - Spell power coefficient 0.1: the damage spell 25713's effect 0 (the seal auras carry none
+#     past rank 1). [T]  vmangos applies the seal aura's coefficient instead; Forever moved it to
+#     the damage spell.
+#   - Judgement of Righteousness 20286: 170 (+4.1/level, ±9.4 %) holy, coefficient 0.5. Its
+#     effect 2 (DUMMY 1786 +47/level, coefficient 0.2) only carries the seal's number for the
+#     tooltip. [T]
+#
+# Seal of the Crusader (21082, 20162, 20305..20308)
+#   - Rank 6: +306 (+2.4/level) attack power and 40 % attack speed; the server lowers main-hand
+#     damage by 100 x 40 / 140 = 28.57 % (TOTAL_PCT) so the white DPS does not change. [T] [V]
+#     SpellAuras.cpp HandleModMeleeRangedSpeedPct "Seal of the Crusader damage reduction"
+#   - Judgement of the Crusader 20303 (rank 6; 21183 rank 1): MOD_DAMAGE_TAKEN +161 holy for 40 s
+#     on the target. [T]  The taken bonus goes through the spell's coefficient like spell power
+#     (holy spells only; white swings never see it). [V] Unit.cpp SpellDamageBonusTaken
+#   - Improved Seal of the Crusader and Sanctity Aura (20218) are not in the Forever tree or any
+#     Paladin skill line: not available. [T]
+#
+# Seal of Fury (20163 .. 1311656; per-hit proc 1311654)
+#   - Every landed white swing: 1311654 deals 9 holy, coefficient 0.1; the seal's effect 0
+#     (317 +20.7/level, coefficient 0.09) is the shield, effect 1 the absorb share. [T]
+#     Judgement of Fury 20414: 153 (+3.69/level) holy, coefficient 0.45; its taunt is ignored. [T]
+#
+# Judgement (20271)
+#   - Does not consume the seal (description, [I]); casts the spell named by the active seal's
+#     effect 2. [T] [V] SpellEffects.cpp "all seals have aura dummy ... in 2 effect"
+#   - 10 s cooldown, costs 6 % of base mana: int(1512 x 0.06) = 90. [T]
+#
+# Twist of Light (1310735) and the Echoes
+#   - Echo of Command 1311703, Echo of Righteousness 1311704, Echo of Fury 1311701, Echo of
+#     Justice 1311705: DUMMY auras with one charge, no duration, proc mask 0x4 (white swings
+#     only, [I]: "your next auto-attack"). The next landed white swing applies the replaced seal
+#     once and uses the charge. [T]
+#   - Not in the data (named settings, P.13): whether an Echo of Command rolls the 7 PPM (the
+#     default: it "applies the replaced Seal's effects", and the seal's effect is a chance) or
+#     always fires; whether its proc shares the seal's 1 s proc cooldown.
+#
+# Vindication (9452; buff 440668, target debuff 440667)
+#   - The talent aura procs at 100 % on damaging melee hits (mask 0x14, white and special). [T]
+#     The buff: MOD_ATTACK_POWER_PCT of the talent value (1/2/3 %) for 30 s. Any plausible chance
+#     keeps a 30 s buff up all fight, so the table's 100 % is used. The target's attack power
+#     reduction (440667) is not simulated.
+#
+# Vengeance (20049 -> 20050)
+#   - 1/2/3 % physical and holy damage (misc 3) per stack, 3 stacks, 30 s, on non-periodic crits
+#     of the proc mask 0x11154 (white, melee and ranged specials, holy spells). [T]  Icy Veins'
+#     pre-beta "up to 5 stacks" is not what the tables say. Seal of Command crits trigger it. [V]
+#
+# Exorcism (879 .. 10314) and Holy Wrath (2812, 10318)
+#   - SpellTargetRestrictions.TargetCreatureType 36: Undead and Demon targets only. [T] [I]
+#     Exorcist 415076 (Exorcism on any target, ranks 415068..415073) is in the Retribution skill
+#     line with ClassMask 2, but it is the SoD rune; Icy Veins and the guides keep Exorcism for
+#     Undead/Demons. Kept out unless a named setting asks for it (P.13).
+#
+# Consecration (20116 .. 20924; damage 1280345 .. 1280349)
+#   - Rank 5: 8 ticks, one a second, of 1280349: 12 holy (no coefficient) plus 27 holy
+#     (coefficient 0.095) for the first 4 enemies to enter, so 39 + 0.095 x spell power a tick
+#     against one boss. [T]  The damage spells are only named in the description and reached by
+#     the area trigger: P.2 walks them through override references.
+#
+# Holy Strike (678 .. 10333)
+#   - Rank 8: NORMALIZED_WEAPON_DMG 93 (+3.2/level, ±25 %, coefficient 0.429) and
+#     WEAPON_PERCENT_DAMAGE 50, holy, melee defense type, 10 s cooldown, 20 mana. [T]
+#   - The server multiplies the flat part by the weapon percent too: 50 % x (normalized weapon
+#     damage + 93), holy, without armor, with the spell bonuses. [V] SpellEffects.cpp
+#     EffectWeaponDmg ("SPELL_EFFECT_WEAPON_PERCENT_DAMAGE pct that is applied to both fixed
+#     bonus damage ... and to base weapon swing damage"). The tooltip reads as if the flat part
+#     were whole; check against a combat log (named setting until then, P.13).
+#   - Effect 2 (SCRIPT_EFFECT) is Sacred Arbiter's refresh of the Judgement debuffs. [T]
+#
+# Hammer of Wrath (24239, 24274, 24275)
+#   - Rank 3: 288 (+2.4/level, ±10 %) holy, coefficient 0.429, 1 s cast (Instrument of Law:
+#     -0.5 s per rank), 6 s cooldown, target at or below 20 % health (aura state 2). [T]
+#
+# Holy partial resists
+#   - Holy is a resistible school: the boss's level-based 24 resistance applies, as for the other
+#     magic schools, which is what the engine does today. [V] Unit.cpp CalcAbsorbResist
+#     ("canResist = (schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0")
+#
+# Gear hit and crit (TASKS.md Q3): one stat each for melee, ranged and spells. [U]
+#
+# Class numbers (data/classes/paladin.yaml, P.3)
+#   - Base mana 1512, 19.76 agility per 1 % crit, 59.88 intellect per 1 % spell crit
+#     (PlayerExpectedStat 60/2); 2 attack power per strength (ChrClasses). [T]
+#   - Base melee crit 0.7 % (and 0.7 % dodge). [V] StatSystem.cpp UpdateCritPercentage
+#   - Base attributes Str 85 / Agi 45 / Sta 80 / Int 50 / Spi 55, melee attack power 160, spirit
+#     regeneration 15 + spirit / 5 mana per 5 s, GCD 1.5 s: ClassicSim's Paladin.cpp. Base health
+#     (1381, vanilla player_classlevelstats) and base spell crit (about 3.3 %) are not in the
+#     tables: to check against an in-game character sheet.
+#   - Racials: Human Sword Specialization and Dwarf Mace Specialization now give melee and spell
+#     crit with the weapon (2 % / 1 %), Dwarf Big Game Hunter +5 % vs beasts, Undead Touch of the
+#     Grave. [I]  These are the exported racials (data/spells/racials.yaml).
+
+overrides: []
