@@ -21,9 +21,6 @@ const EXPORTED_CLASSES: [PlayerClass; 3] = [
     PlayerClass::Rogue,
 ];
 
-/// The exported classes the engine loads, with a `data/classes/<class>.yaml`.
-const LOADED_CLASSES: [PlayerClass; 2] = [PlayerClass::Warrior, PlayerClass::Rogue];
-
 /// A shipped spell or item file as a fresh export of `tables` renders it: LF line ends, and
 /// without its `icon_name` lines when the table directory has no listfile (the export then
 /// writes none).
@@ -211,7 +208,7 @@ fn shipped_classes_match_the_tables() {
     let tables = Tables::load(&dir).unwrap();
     let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
     let classes = ClassDb::load(&root.join("data/classes"), Some(&enchants)).unwrap();
-    for class in LOADED_CLASSES {
+    for class in EXPORTED_CLASSES {
         let spec = classes.get(class).unwrap();
         let class_row = tables
             .chr_classes()
@@ -245,12 +242,22 @@ fn shipped_classes_match_the_tables() {
             "{class:?}: {agility_per_percent_crit} vs {}",
             rules.agility_per_percent_crit
         );
-        assert_eq!(expected.spell_crit_per_intellect, 0.0, "{class:?}");
-        assert_eq!(
-            rules.intellect_per_percent_spell_crit,
-            f64::MAX,
-            "{class:?}"
-        );
+        if expected.spell_crit_per_intellect == 0.0 {
+            assert_eq!(
+                rules.intellect_per_percent_spell_crit,
+                f64::MAX,
+                "{class:?}"
+            );
+        } else {
+            let intellect_per_percent_spell_crit =
+                1.0 / (f64::from(expected.spell_crit_per_intellect) * 100.0);
+            assert!(
+                (intellect_per_percent_spell_crit - rules.intellect_per_percent_spell_crit).abs()
+                    < 1e-3,
+                "{class:?}: {intellect_per_percent_spell_crit} vs {}",
+                rules.intellect_per_percent_spell_crit
+            );
+        }
         assert_eq!(expected.base_mana, spec.base_stats.mana, "{class:?}");
 
         let races: Vec<u32> = tables

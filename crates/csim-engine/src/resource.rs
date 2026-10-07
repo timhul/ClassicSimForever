@@ -205,6 +205,15 @@ impl Default for Mana {
 
 impl Mana {
     pub const MANA_PER_INTELLECT: u32 = 15;
+    /// The first points of intellect give one mana each, the rest [`Mana::MANA_PER_INTELLECT`].
+    pub const INTELLECT_AT_ONE_MANA: u32 = 20;
+
+    /// The mana `intellect` adds to the maximum: 1 for each of the first 20 points, 15 for each
+    /// point beyond.
+    pub fn mana_from_intellect(intellect: u32) -> u32 {
+        let low = intellect.min(Self::INTELLECT_AT_ONE_MANA);
+        low + (intellect - low) * Self::MANA_PER_INTELLECT
+    }
 
     pub fn new() -> Self {
         Self::default()
@@ -228,7 +237,7 @@ impl Mana {
     pub fn update_max(&mut self, intellect: u32) {
         self.intellect = intellect;
         self.max = (self.max_mod.modifier()
-            * f64::from(self.base_mana + intellect * Self::MANA_PER_INTELLECT))
+            * f64::from(self.base_mana + Self::mana_from_intellect(intellect)))
         .round() as u32;
         self.current = self.current.min(self.max);
     }
@@ -891,16 +900,19 @@ mod tests {
         let mut mana = Mana::new();
         mana.set_base_mana(1000);
         mana.update_max(100);
-        assert_eq!(mana.max(), 2500);
+        // 20 + 80 x 15.
+        assert_eq!(mana.max(), 2220);
         mana.reset();
-        assert_eq!(mana.current(), 2500);
+        assert_eq!(mana.current(), 2220);
+        assert_eq!(Mana::mana_from_intellect(12), 12);
+        assert_eq!(Mana::mana_from_intellect(21), 35);
 
         // Fresh after reset: outside the 5sr, spirit regen counts in full.
         assert!(!mana.within_5sr(0.0));
         assert_eq!(mana.regen_per_tick(25.0, 50.0, 0.0), 30);
 
         mana.lose(500, 10.0);
-        assert_eq!(mana.current(), 2000);
+        assert_eq!(mana.current(), 1720);
         assert!(mana.within_5sr(14.9));
         assert!(!mana.within_5sr(15.0));
         // Inside the 5sr only gear mp5 ticks (10 per 2 s).

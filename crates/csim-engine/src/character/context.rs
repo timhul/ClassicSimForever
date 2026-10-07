@@ -1611,6 +1611,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.with_procs(|procs, ctx| procs.reset(ctx));
         self.character.reset_state();
         self.reevaluate_passives();
+        let view = self.target_view();
+        self.character.refill_mana(&view);
     }
 
     /// Re-applies the permanent auras of the enabled passives (after a reset, or after the

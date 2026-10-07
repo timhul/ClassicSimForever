@@ -35,6 +35,9 @@ pub struct ClassBaseStats {
     /// Base melee crit in hundredths of a percent (200 = 2 %).
     #[serde(default)]
     pub melee_crit: u32,
+    /// Base spell crit of every school in hundredths of a percent, before intellect.
+    #[serde(default)]
+    pub spell_crit: u32,
     /// Base mana of mana users.
     #[serde(default)]
     pub mana: u32,

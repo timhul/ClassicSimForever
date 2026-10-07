@@ -165,12 +165,17 @@ impl Fixture {
 
     /// An orc of `class` whose items and enchants are `equipment`'s.
     pub fn orc_with(class: Arc<ClassSpec>, equipment: Arc<EquipmentDb>) -> Self {
+        Self::of_race(class, Race::Orc, equipment)
+    }
+
+    /// A character of `class` and `race` whose items and enchants are `equipment`'s.
+    pub fn of_race(class: Arc<ClassSpec>, race_kind: Race, equipment: Arc<EquipmentDb>) -> Self {
         let mut engine = Engine::new();
         engine.prepare_iteration(0.0);
         let character = Character::new(
             CharId(0),
             class,
-            &race(Race::Orc),
+            &race(race_kind),
             equipment,
             Phase::MoltenCore,
             SimParams::default(),
@@ -1240,6 +1245,8 @@ fn shipped_rogue_data_learns_and_runs() {
 }
 
 mod energy;
+mod paladin;
+mod paladin_talents;
 mod rogue;
 mod rogue_items;
 mod rogue_poisons;

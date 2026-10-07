@@ -279,6 +279,7 @@ impl Character {
         stats.increase_melee_ap(base.melee_ap);
         stats.increase_ranged_ap(base.ranged_ap);
         stats.increase_melee_base_crit(base.melee_crit);
+        stats.increase_spell_crit(base.spell_crit);
         stats.increase_melee_aura_crit(sim.ruleset.melee_aura_crit());
         let mut resource = Resource::new(class.resource);
         if let Some(mana) = resource.as_mana_mut() {
@@ -991,6 +992,16 @@ impl Character {
             self.resource.max()
         } else {
             0
+        }
+    }
+
+    /// A mana user's maximum mana from its intellect against `target` (buffs and talents
+    /// included), full: the state at the start of an iteration. Nothing for other resources.
+    pub fn refill_mana(&mut self, target: &TargetStatView) {
+        let intellect = self.stats.get_intellect(&self.stat_context(target));
+        if let Some(mana) = self.resource.as_mana_mut() {
+            mana.update_max(intellect);
+            mana.gain(mana.max());
         }
     }
 
