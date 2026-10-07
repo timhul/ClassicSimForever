@@ -2675,6 +2675,13 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         self.character.melee_ap(&self.target_view())
     }
 
+    fn spell_damage(&self, school: MagicSchool) -> u32 {
+        let view = self.target_view();
+        self.character
+            .stats()
+            .get_spell_damage(&self.character.stat_context(&view), school)
+    }
+
     fn max_health(&self) -> u32 {
         self.character.max_health(&self.target_view())
     }
@@ -3211,6 +3218,13 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character
             .stats()
             .get_total_physical_damage_mod(&self.character.stat_context(&view))
+    }
+
+    fn magic_school_damage_mod(&self, school: MagicSchool) -> f64 {
+        let view = self.target_view();
+        self.character
+            .stats()
+            .get_magic_school_damage_mod(&self.character.stat_context(&view), school)
     }
 
     fn flat_physical_damage_bonus(&self) -> u32 {

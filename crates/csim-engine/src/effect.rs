@@ -26,6 +26,7 @@ use crate::spell::overrides::{EffectScript, ScriptKind};
 use crate::spell::record::{ClassOptions, EffectRecord, EquippedItems, Levels, SpellRecord};
 use crate::stance::Stance;
 use crate::stats::CharacterStats;
+use crate::stats::character_stats::ATTRIBUTE_COUNT;
 use crate::target::{CreatureType, CreatureTypes, Target};
 
 /// What an effect needs from the world. Port of the `Character` / `CombatRoll` / `Spell` calls
@@ -49,6 +50,11 @@ pub trait EffectHost {
     fn adjust_mana_regen_while_casting(&mut self, _percent: i32) {}
 
     fn melee_ap(&self) -> u32;
+    /// The caster's spell damage of `school`, the target's flat damage taken of it included
+    /// (Judgement of the Crusader). A host without spells has none.
+    fn spell_damage(&self, _school: MagicSchool) -> u32 {
+        0
+    }
     /// The caster's maximum health (`HEALTH_LEECH`: Touch of the Grave).
     fn max_health(&self) -> u32;
     /// A uniformly random value in `[min, max]`.
@@ -286,6 +292,11 @@ pub struct Effect {
     pub last_spell: Option<SpellRoll>,
     /// Damage produced by the last perform; the spell collects and zeroes it.
     pub damage_dealt: f64,
+    /// The part of the last perform's damage that the spell's weapon damage multiplier does
+    /// not scale: the flat damage and spell power of a magic school weapon strike (Holy
+    /// Strike's 93 + 0.429 × spell power beside its 50 % weapon damage). Collected with
+    /// `damage_dealt`.
+    pub flat_damage: f64,
     reroll_result: bool,
     /// The roll of the perform in progress cannot be avoided ([`ChainState::hit_guaranteed`]).
     hit_guaranteed: bool,
@@ -348,6 +359,7 @@ impl Effect {
             last_result: None,
             last_spell: None,
             damage_dealt: 0.0,
+            flat_damage: 0.0,
             reroll_result: true,
             hit_guaranteed: false,
             effect_success: false,
@@ -611,16 +623,16 @@ impl Effect {
             E::WeaponDamageNoschool | E::WeaponDamage => {
                 let (hit, rolled) = self.roll_melee(host, extra_crit);
                 if hit {
-                    self.damage_dealt =
-                        host.random_non_normalized_mh_dmg() + self.effective_value(host);
+                    let weapon = host.random_non_normalized_mh_dmg();
+                    self.deal_weapon_damage(host, weapon);
                 }
                 EffectOutcome::rolled(hit, rolled)
             }
             E::NormalizedWeaponDmg => {
                 let (hit, rolled) = self.roll_melee(host, extra_crit);
                 if hit {
-                    self.damage_dealt =
-                        host.random_normalized_mh_dmg() + self.effective_value(host);
+                    let weapon = host.random_normalized_mh_dmg();
+                    self.deal_weapon_damage(host, weapon);
                 }
                 EffectOutcome::rolled(hit, rolled)
             }
@@ -631,6 +643,7 @@ impl Effect {
                 if hit && !self.scales_weapon_damage {
                     self.damage_dealt =
                         host.random_non_normalized_mh_dmg() * self.effective_value(host) / 100.0;
+                    self.flat_damage = self.spell_power_damage(host);
                 }
                 EffectOutcome::rolled(hit, rolled)
             }
@@ -827,19 +840,48 @@ impl Effect {
             && self.record.targets_enemy()
     }
 
-    /// `SCHOOL_DAMAGE`: the level-scaled value with its variance, combo points and attack
-    /// power coefficient.
+    /// `SCHOOL_DAMAGE`: the level-scaled value with its variance, combo points, attack
+    /// power coefficient and spell power coefficient.
     fn direct_damage(&mut self, host: &mut impl EffectHost) -> f64 {
+        let mut damage = self.rolled_value(host);
+        damage += f64::from(self.record.points_per_resource) * f64::from(host.combo_points());
+        damage += self.ap_coefficient() * f64::from(host.melee_ap());
+        damage += self.spell_power_damage(host);
+        damage
+    }
+
+    /// The level-scaled value, rolled within its variance.
+    fn rolled_value(&self, host: &mut impl EffectHost) -> f64 {
         let base = self.effective_value(host);
-        let (min, max) = self.record.variance_range(base as f32);
-        let mut damage = if self.record.variance > 0.0 {
+        if self.record.variance > 0.0 {
+            let (min, max) = self.record.variance_range(base as f32);
             host.random_in_range(f64::from(min), f64::from(max))
         } else {
             base
-        };
-        damage += f64::from(self.record.points_per_resource) * f64::from(host.combo_points());
-        damage += self.ap_coefficient() * f64::from(host.melee_ap());
-        damage
+        }
+    }
+
+    /// The damage of a weapon damage effect: the weapon's plus the effect's flat value. Of a
+    /// physical spell, the spell's weapon damage multiplier scales both (Raging Blow). Of a
+    /// magic school spell (a holy weapon strike), it scales the weapon damage only: the flat
+    /// value, rolled within its variance, and the spell power are added whole
+    /// ([`Effect::flat_damage`]), as Holy Strike's tooltip reads.
+    fn deal_weapon_damage(&mut self, host: &mut impl EffectHost, weapon: f64) {
+        if self.school == MagicSchool::Physical {
+            self.damage_dealt = weapon + self.effective_value(host);
+        } else {
+            self.damage_dealt = weapon;
+            self.flat_damage = self.rolled_value(host) + self.spell_power_damage(host);
+        }
+    }
+
+    /// The spell power share of the effect's damage: its `EffectBonusCoefficient` times the
+    /// caster's spell damage of the spell's school. A physical spell has none.
+    pub fn spell_power_damage(&self, host: &impl EffectHost) -> f64 {
+        if self.school == MagicSchool::Physical {
+            return 0.0;
+        }
+        f64::from(self.record.bonus_coefficient) * f64::from(host.spell_damage(self.school))
     }
 
     /// The attack power coefficient of the effect's damage: the table's
@@ -1072,12 +1114,62 @@ impl Effect {
                     CharacterStats::remove_armor_mod,
                 );
             }
-            A::ModDamageDone if physical => adjust(
-                host.stats_mut(),
-                signed,
-                |s, v| s.increase_flat_physical_damage_bonus(v),
-                |s, v| s.decrease_flat_physical_damage_bonus(v),
-            ),
+            A::ModDamageDone if !on_target => {
+                if physical {
+                    adjust(
+                        host.stats_mut(),
+                        signed,
+                        |s, v| s.increase_flat_physical_damage_bonus(v),
+                        |s, v| s.decrease_flat_physical_damage_bonus(v),
+                    );
+                }
+                // Spell damage: of every magic school at once (gear's "Increase Spell Dam"),
+                // else of each school of the mask.
+                if school.contains(SpellSchoolMask::MAGIC) {
+                    adjust(
+                        host.stats_mut(),
+                        signed,
+                        |s, v| s.increase_base_spell_damage(v),
+                        |s, v| s.decrease_base_spell_damage(v),
+                    );
+                } else {
+                    for magic in MagicSchool::magic_schools_of(school) {
+                        adjust(
+                            host.stats_mut(),
+                            signed,
+                            |s, v| s.increase_spell_damage_vs_school(v, magic),
+                            |s, v| s.decrease_spell_damage_vs_school(v, magic),
+                        );
+                    }
+                }
+            }
+            // Flat damage the target takes from the magic schools of the mask (Judgement of
+            // the Crusader's holy): spell damage of every attacker, scaled by each spell's
+            // coefficient like the caster's own.
+            A::ModDamageTaken if on_target => {
+                for magic in MagicSchool::magic_schools_of(school) {
+                    let stats = host.target_mut().stats_mut();
+                    if signed >= 0 {
+                        stats.increase_spell_damage_vs_school(signed as u32, magic);
+                    } else {
+                        stats.decrease_spell_damage_vs_school(signed.unsigned_abs(), magic);
+                    }
+                }
+            }
+            // Spell damage of the schools of the mask as a percentage of an attribute
+            // (Champion of the Light: intellect).
+            A::ModSpellDamageOfStatPercent if !on_target => {
+                let attribute = self.record.misc_value[1];
+                if (0..ATTRIBUTE_COUNT as i32).contains(&attribute) {
+                    for magic in MagicSchool::magic_schools_of(school) {
+                        host.stats_mut().change_spell_damage_of_stat_percent(
+                            magic,
+                            attribute as usize,
+                            signed,
+                        );
+                    }
+                }
+            }
             A::ModDamagePercentDone => {
                 if physical {
                     if apply {
@@ -1086,15 +1178,28 @@ impl Effect {
                         host.stats_mut().decrease_total_phys_dmg_mod(rounded);
                     }
                 }
-                if magic {
-                    // A multiplicative stack: a negative aura (Defensive Stance's -10 %) is
-                    // added as-is and removed by the same value.
+                // A multiplicative stack per magic school of the mask (Vengeance: holy): a
+                // negative aura (Defensive Stance's -10 %) is added as-is and removed by the
+                // same value.
+                for magic in MagicSchool::magic_schools_of(school) {
                     if apply {
                         host.stats_mut()
-                            .increase_magic_school_damage_mod_all(rounded);
+                            .increase_magic_school_damage_mod(rounded, magic);
                     } else {
                         host.stats_mut()
-                            .decrease_magic_school_damage_mod_all(rounded);
+                            .decrease_magic_school_damage_mod(rounded, magic);
+                    }
+                }
+            }
+            // The damage the target takes from the magic schools of the mask, from everyone.
+            A::ModDamagePercentTaken if on_target => {
+                for magic in MagicSchool::magic_schools_of(school) {
+                    if apply {
+                        host.target_mut()
+                            .increase_magic_school_damage_mod(rounded, magic);
+                    } else {
+                        host.target_mut()
+                            .decrease_magic_school_damage_mod(rounded, magic);
                     }
                 }
             }
@@ -1374,9 +1479,6 @@ fn adjust(
     }
 }
 
-/// Adds (`apply`) or removes the percentage effect `percent` on a multiplicative stack. The
-/// sign of the value cannot pick the direction as with [`adjust`]: a stack holds negative
-/// effects too, and a 0 % effect must be removed like any other.
 /// The attributes a `MOD_TOTAL_STAT_PERCENTAGE` aura scales: the stat bitmask in its second misc
 /// value (1 strength, 2 agility, 4 stamina, 8 intellect, 16 spirit; Blessing of Kings 31, The
 /// Human Spirit 16, Divine Intellect 8), or without one the first misc value (−1 all, else the
@@ -1403,6 +1505,9 @@ fn total_stat_percentage_stats(misc_value: [i32; 2]) -> Vec<ItemStat> {
         .collect()
 }
 
+/// Adds (`apply`) or removes the percentage effect `percent` on a multiplicative stack. The
+/// sign of the value cannot pick the direction as with [`adjust`]: a stack holds negative
+/// effects too, and a 0 % effect must be removed like any other.
 fn multiplier(
     stats: &mut CharacterStats,
     apply: bool,
@@ -2410,6 +2515,47 @@ mod tests {
         assert!(host.attack_speed_calls.is_empty());
         aura(AuraType::ModDamagePercentTaken, 10.0, 127).apply_aura(&mut host, true);
         assert_eq!(host.stats.get_physical_damage_taken_mod(), 1.0);
+    }
+
+    /// Spell damage auras: the caster's of every magic school (126) or of the mask's schools,
+    /// a physical one stays flat physical damage; the target's flat holy damage taken
+    /// (Judgement of the Crusader) and percent damage taken of magic schools.
+    #[test]
+    fn spell_damage_auras() {
+        let mut host = MockHost::new();
+        let all_magic = aura(AuraType::ModDamageDone, 23.0, 126);
+        all_magic.apply_aura(&mut host, false);
+        let holy = aura(AuraType::ModDamageDone, 10.0, 2);
+        holy.apply_aura(&mut host, false);
+        let spell_damage =
+            |host: &MockHost, school| host.stats.base_stats().get_spell_damage(school);
+        assert_eq!(spell_damage(&host, MagicSchool::Holy), 33);
+        assert_eq!(spell_damage(&host, MagicSchool::Fire), 23);
+        assert_eq!(host.stats.get_flat_physical_damage_bonus(), 0);
+        all_magic.remove_aura(&mut host, false);
+        holy.remove_aura(&mut host, false);
+        assert_eq!(spell_damage(&host, MagicSchool::Holy), 0);
+        let physical = aura(AuraType::ModDamageDone, 8.0, 1);
+        physical.apply_aura(&mut host, false);
+        assert_eq!(host.stats.get_flat_physical_damage_bonus(), 8);
+        assert_eq!(spell_damage(&host, MagicSchool::Holy), 0);
+
+        let mut crusader = aura_record(0, AuraType::ModDamageTaken, 161.0, 2);
+        crusader.implicit_target = [ImplicitTarget::UnitTargetEnemy, ImplicitTarget::None];
+        let crusader = Effect::new(&crusader, &melee_spell(), None, false);
+        crusader.apply_aura(&mut host, true);
+        assert_eq!(host.target.spell_damage(MagicSchool::Holy), 161);
+        assert_eq!(host.target.spell_damage(MagicSchool::Fire), 0);
+        crusader.remove_aura(&mut host, true);
+        assert_eq!(host.target.spell_damage(MagicSchool::Holy), 0);
+
+        let curse = aura(AuraType::ModDamagePercentTaken, 10.0, 4 | 16);
+        curse.apply_aura(&mut host, true);
+        assert!((host.target.magic_school_damage_mod(MagicSchool::Fire) - 1.1).abs() < 1e-12);
+        assert!((host.target.magic_school_damage_mod(MagicSchool::Frost) - 1.1).abs() < 1e-12);
+        assert_eq!(host.target.magic_school_damage_mod(MagicSchool::Holy), 1.0);
+        curse.remove_aura(&mut host, true);
+        assert_eq!(host.target.magic_school_damage_mod(MagicSchool::Fire), 1.0);
     }
 
     #[test]

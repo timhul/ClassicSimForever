@@ -170,6 +170,9 @@ pub struct CharacterStats {
     armor: MultiplicativeStack,
     magic_damage_per_creature: [MultiplicativeStack; CreatureType::COUNT],
     magic_school_damage: [MultiplicativeStack; MagicSchool::ALL.len()],
+    /// Spell damage of each school as a percentage of each attribute (strength, agility,
+    /// stamina, intellect, spirit): `MOD_SPELL_DAMAGE_OF_STAT_PERCENT` (Champion of the Light).
+    spell_damage_of_stat_percent: [[i32; ATTRIBUTE_COUNT]; MagicSchool::ALL.len()],
 
     casting_time_suppression_buffs: Vec<BuffId>,
     crit_bonuses_per_weapon_type: [u32; WeaponType::COUNT],
@@ -201,6 +204,10 @@ pub struct CharacterStats {
     ranged_ability_crit_dmg_mod: f64,
     spell_crit_dmg_mod: f64,
 }
+
+/// The attributes in the tables' `UnitMods` order (`MOD_SPELL_DAMAGE_OF_STAT_PERCENT`'s second
+/// misc value): strength, agility, stamina, intellect, spirit.
+pub const ATTRIBUTE_COUNT: usize = 5;
 
 fn sub_checked(current: u32, value: u32, what: &str) -> u32 {
     current
@@ -1166,14 +1173,48 @@ impl CharacterStats {
             .decrease_spell_crit_for_school(school, value);
     }
 
-    /// Spell damage from gear, buffs, creature-type bonuses and target debuffs.
+    /// Spell damage from gear, buffs, creature-type bonuses, a share of an attribute
+    /// (Champion of the Light) and target debuffs (Judgement of the Crusader).
     pub fn get_spell_damage(&self, ctx: &StatContext, school: MagicSchool) -> u32 {
         let creature = ctx.target.creature_type;
         self.base_stats.get_spell_damage(school)
             + self.base_stats.get_spell_damage_against_type(creature)
             + ctx.equipment.get_spell_damage(school)
             + ctx.equipment.get_spell_damage_against_type(creature)
+            + self.spell_damage_from_attributes(ctx, school)
             + ctx.target.spell_damage[school as usize]
+    }
+
+    /// The spell damage of `school` from `MOD_SPELL_DAMAGE_OF_STAT_PERCENT`, rounded down.
+    fn spell_damage_from_attributes(&self, ctx: &StatContext, school: MagicSchool) -> u32 {
+        let percents = &self.spell_damage_of_stat_percent[school as usize];
+        if percents.iter().all(|&percent| percent == 0) {
+            return 0;
+        }
+        let attributes = [
+            self.get_strength(ctx),
+            self.get_agility(ctx),
+            self.get_stamina(ctx),
+            self.get_intellect(ctx),
+            self.get_spirit(ctx),
+        ];
+        let damage: i64 = percents
+            .iter()
+            .zip(attributes)
+            .map(|(&percent, value)| i64::from(percent) * i64::from(value))
+            .sum();
+        (damage / 100).max(0) as u32
+    }
+
+    /// Adds `percent` of `attribute` (an index in the `UnitMods` order, see
+    /// [`ATTRIBUTE_COUNT`]) to the spell damage of `school`; a negative `percent` removes it.
+    pub fn change_spell_damage_of_stat_percent(
+        &mut self,
+        school: MagicSchool,
+        attribute: usize,
+        percent: i32,
+    ) {
+        self.spell_damage_of_stat_percent[school as usize][attribute] += percent;
     }
 
     pub fn increase_base_spell_damage(&mut self, value: u32) {

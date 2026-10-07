@@ -1246,6 +1246,7 @@ fn shipped_rogue_data_learns_and_runs() {
 
 mod energy;
 mod paladin;
+mod paladin_damage;
 mod paladin_mana;
 mod paladin_talents;
 mod rogue;

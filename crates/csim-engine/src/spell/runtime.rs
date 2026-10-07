@@ -186,6 +186,11 @@ pub trait SpellHost: EffectHost {
     /// Damage a blocked attack loses (the target's block value).
     fn target_block_value(&self) -> u32;
     fn total_physical_damage_mod(&self) -> f64;
+    /// The damage done multiplier of a magic `school`: the caster's (Vengeance), the target's
+    /// damage taken (a curse) and the creature type talents. 1 for a host without them.
+    fn magic_school_damage_mod(&self, _school: MagicSchool) -> f64 {
+        1.0
+    }
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
     /// The damage multiplier of a spell crit (1.5 before talents).
@@ -1662,18 +1667,22 @@ impl Spell {
     }
 
     /// The raw damage of the effects: summed, their weapon damage multipliers and the spell's
-    /// damage modifiers applied. The effects' damage is zeroed.
+    /// damage modifiers applied (the multipliers leave out the effects' `flat_damage`). The
+    /// effects' damage is zeroed.
     fn take_raw_damage(&mut self, host: &impl SpellHost) -> f64 {
         let mut raw_damage = 0.0;
+        let mut flat_damage = 0.0;
         let mut weapon_damage_multiplier = 1.0;
         for effect in &mut self.effects {
             raw_damage += effect.damage_dealt;
+            flat_damage += effect.flat_damage;
             effect.damage_dealt = 0.0;
+            effect.flat_damage = 0.0;
             if let Some(multiplier) = effect.weapon_damage_multiplier(host) {
                 weapon_damage_multiplier *= multiplier;
             }
         }
-        raw_damage * weapon_damage_multiplier * self.damage_mod(host)
+        (raw_damage * weapon_damage_multiplier + flat_damage) * self.damage_mod(host)
     }
 
     /// The attack outcome of a spell that landed on the magic table: its damage with the spell
@@ -1975,6 +1984,16 @@ impl Spell {
                         _ => {}
                     }
                 }
+                // A magic damage-over-time's ticks take its spell power share, the spell
+                // damage of when it was cast.
+                if effect.is_periodic_aura()
+                    && matches!(
+                        effect.aura(),
+                        AuraType::PeriodicDamage | AuraType::PeriodicLeech
+                    )
+                {
+                    bonus += effect.spell_power_damage(&*host);
+                }
                 bonus
             })
             .collect();
@@ -1994,26 +2013,31 @@ impl Spell {
         }
     }
 
+    /// The magic school of a spell that is not physical (its school mask has no physical
+    /// bit), else `None`.
+    fn magic_school(&self) -> Option<MagicSchool> {
+        let school = self.setup.record.school_mask;
+        (!school.is_empty() && !school.is_physical()).then(|| MagicSchool::from_school_mask(school))
+    }
+
     /// The damage done multiplier of the spell's school: the physical one (Death Wish, Enrage)
-    /// for a physical spell, none otherwise (magic damage modifiers are not ported), as in
+    /// for a physical spell, the magic school's (Vengeance's holy) otherwise, as in
     /// [`Spell::damage_after_modifiers`].
     fn school_damage_mod(&self, host: &impl SpellHost) -> f64 {
-        let school = self.setup.record.school_mask;
-        if !school.is_empty() && !school.is_physical() {
-            return 1.0;
+        match self.magic_school() {
+            Some(school) => host.magic_school_damage_mod(school),
+            None => host.total_physical_damage_mod(),
         }
-        host.total_physical_damage_mod()
     }
 
     /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
-    /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
-    /// it is, magic damage modifiers not being ported (its resistance is the magic table's
-    /// partial resist, [`Spell::collect_spell_damage`]). `hand` is the weapon the spell strikes
-    /// with, whose armor penetration applies.
+    /// apply to physical spells: the damage of another school (a holy weapon strike, an item's
+    /// Nature proc) takes its school's damage modifiers and no armor (its resistance is the
+    /// magic table's partial resist, [`Spell::collect_spell_damage`]). `hand` is the weapon the
+    /// spell strikes with, whose armor penetration applies.
     pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64, hand: Hand) -> f64 {
-        let school = self.setup.record.school_mask;
-        if !school.is_empty() && !school.is_physical() {
-            return damage;
+        if let Some(school) = self.magic_school() {
+            return damage * host.magic_school_damage_mod(school);
         }
         let armor = host.target_armor_against(hand);
         let armor_reduction = 1.0 - Mechanics::reduction_from_armor(armor, host.caster_level());

@@ -864,6 +864,10 @@ pub(crate) struct World {
     pub periodic_crits: VecDeque<bool>,
     /// The extra crit chance of every periodic crit roll.
     pub periodic_crit_log: Vec<u32>,
+    /// The caster's spell damage, of every school.
+    pub spell_damage: u32,
+    /// The damage done multiplier of every magic school.
+    pub magic_damage_mod: f64,
 }
 
 impl World {
@@ -919,6 +923,8 @@ impl World {
             periodic_resist_log: Vec::new(),
             periodic_crits: VecDeque::new(),
             periodic_crit_log: Vec::new(),
+            spell_damage: 0,
+            magic_damage_mod: 1.0,
         }
     }
 
@@ -1107,6 +1113,9 @@ impl EffectHost for World {
     }
     fn melee_ap(&self) -> u32 {
         1000
+    }
+    fn spell_damage(&self, _school: MagicSchool) -> u32 {
+        self.spell_damage
     }
     fn max_health(&self) -> u32 {
         4000
@@ -1383,6 +1392,9 @@ impl SpellHost for World {
     }
     fn total_physical_damage_mod(&self) -> f64 {
         1.0
+    }
+    fn magic_school_damage_mod(&self, _school: MagicSchool) -> f64 {
+        self.magic_damage_mod
     }
     fn flat_physical_damage_bonus(&self) -> u32 {
         0
