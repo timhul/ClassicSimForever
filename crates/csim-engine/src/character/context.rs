@@ -471,21 +471,32 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
     }
 
-    /// Twist of Light: applies the enabled Echo of the replaced `seal` (`SEAL_ECHO` naming a
-    /// rank of it), which remembers the seal for the swing that uses its charge.
-    fn echo_seal(&mut self, seal: SpellId) {
+    /// The enabled Echo of the seal called `name` (`SEAL_ECHO` naming a rank of it): Twist of
+    /// Light's.
+    fn seal_echo_of(&self, name: &str) -> Option<SpellId> {
         let spells = self.character.spells();
-        let name = spells.spell(seal).name();
-        let echo = spells.spell_ids().find(|&id| {
+        // By name, or by the rank group for the seal being cast (out of the registry).
+        let ranks = spells.rank_group(name);
+        let is_seal = |echoed: SpellId| match spells.try_spell(echoed) {
+            Some(seal) => seal.name() == name,
+            None => ranks.is_some_and(|ranks| ranks.spells().any(|rank| rank == echoed)),
+        };
+        spells.spell_ids().find(|&id| {
             let spell = spells.spell(id);
             spell.is_enabled()
                 && spell
                     .setup()
                     .seal_echo()
                     .and_then(|echoed| spells.spell_by_game_id(echoed))
-                    .is_some_and(|echoed| spells.spell(echoed).name() == name)
-        });
-        let Some(echo) = echo else {
+                    .is_some_and(is_seal)
+        })
+    }
+
+    /// Twist of Light: applies the Echo of the replaced `seal`, which remembers the seal for
+    /// the swing that uses its charge.
+    fn echo_seal(&mut self, seal: SpellId) {
+        let name = self.character.spells().spell(seal).name().to_owned();
+        let Some(echo) = self.seal_echo_of(&name) else {
             return;
         };
         self.character.set_echoed_seal(echo, seal);
@@ -3361,6 +3372,18 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     }
 
     fn end_other_seals(&mut self, keep: BuffId) {
+        // The seal cast ends its own Echo: the swing does not deal the seal twice (once from
+        // the seal, once from its Echo). TODO: the user's assumption (TASKS.md P.17); the
+        // tooltip only speaks of the replaced seal, and the game may keep the Echo.
+        // By its buff's name: the seal being cast is out of the registry.
+        let kept = self.buff_ref(keep).name().to_owned();
+        let own_echo = self
+            .seal_echo_of(&kept)
+            .and_then(|echo| self.character.spells().spell(echo).marker_buff())
+            .filter(|&buff| self.buff_ref(buff).is_active());
+        if let Some(buff) = own_echo {
+            <Self as SpellHost>::cancel_buff(self, buff);
+        }
         let spells = self.character.spells();
         let others: Vec<(SpellId, BuffId)> = spells
             .spell_ids()

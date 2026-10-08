@@ -632,6 +632,11 @@ impl CharacterSpells {
             .unwrap_or_else(|| panic!("spell {id:?} is taken out or is a proc"))
     }
 
+    /// The spell `id`, `None` while it is taken out (being cast) or for a proc.
+    pub fn try_spell(&self, id: SpellId) -> Option<&Spell> {
+        self.spells[id.index()].as_ref()
+    }
+
     pub fn spell_mut(&mut self, id: SpellId) -> &mut Spell {
         self.spells[id.index()]
             .as_mut()

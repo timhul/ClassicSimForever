@@ -181,6 +181,41 @@ fn a_second_replacement_refreshes_the_echo() {
     assert!(!echo_up(&mut f, ECHO_OF_COMMAND));
 }
 
+/// Casting a seal ends its own Echo: Righteousness replaced by Command gives an Echo of
+/// Righteousness, which Righteousness cast again before the swing ends, so the swing deals
+/// Righteousness once (the seal) and Command through its Echo (TASKS.md P.17, the user's
+/// assumption).
+#[test]
+fn casting_a_seal_ends_its_own_echo() {
+    let mut f = twisting();
+    seal(&mut f, "Seal of Righteousness");
+    // Right after a swing: the next two seals (1.5 s apart) go before the next one.
+    let next_swing = |f: &Fixture| {
+        f.character
+            .spells()
+            .auto_attack(Hand::Mainhand)
+            .next_expected_use(now(f))
+    };
+    let swing_at = next_swing(&f);
+    f.advance_to(swing_at + 0.01);
+    seal(&mut f, "Seal of Command");
+    assert!(echo_up(&mut f, ECHO_OF_RIGHTEOUSNESS));
+    seal(&mut f, "Seal of Righteousness");
+    assert!(now(&f) < next_swing(&f), "no swing used the Echo");
+    assert!(
+        !echo_up(&mut f, ECHO_OF_RIGHTEOUSNESS),
+        "the seal ends its own Echo"
+    );
+    assert!(echo_up(&mut f, ECHO_OF_COMMAND), "the replaced seal's");
+    let stats = swing(&mut f);
+    assert_eq!(
+        damage_named(&stats, "Seal of Righteousness"),
+        67,
+        "once, not twice"
+    );
+    assert!(damage_named(&stats, "Seal of Command") > 0);
+}
+
 /// Without Twist of Light no seal gives an Echo.
 #[test]
 fn no_echo_without_twist_of_light() {
