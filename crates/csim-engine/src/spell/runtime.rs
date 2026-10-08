@@ -521,6 +521,15 @@ impl SpellSetup {
             .and_then(|script| script.params.spell)
     }
 
+    /// The seal (a rank of it) this Echo echoes when it is replaced (`SEAL_ECHO`'s spell).
+    pub fn seal_echo(&self) -> Option<u32> {
+        self.overrides
+            .effects
+            .iter()
+            .find(|script| script.script == ScriptKind::SealEcho)
+            .and_then(|script| script.params.spell)
+    }
+
     pub fn has_sim_flag(&self, flag: SimFlag) -> bool {
         self.overrides.has_sim_flag(flag)
     }
@@ -855,7 +864,9 @@ impl Spell {
                     .on_event
                     .iter()
                     .filter_map(|script| script.params.spell),
-            );
+            )
+            // The spells the server applies for this one (Twist of Light's Echoes).
+            .chain(self.setup.overrides.walk.iter().copied());
         for id in scripted {
             if id != self.game_id() && !ids.contains(&id) {
                 ids.push(id);

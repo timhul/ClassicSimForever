@@ -485,25 +485,25 @@ overrides:
     effects:
       - { index: 0, script: NO_OP }
   - id: 1310735
-    note: Twist of Light; the Echoes of the replaced seal (P.7)
+    note: Twist of Light; the Echoes of the replaced seal (the server applies them, each names its seal)
     walk: [1311701, 1311703, 1311704, 1311705]
   - id: 1311701
-    note: Echo of Fury; one charge, the next landed white swing applies the replaced seal once (P.7)
+    note: Echo of Fury; one charge, the next landed white swing applies the replaced seal once
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: SEAL_ECHO, params: { spell: 1311649 } }
   - id: 1311703
-    note: Echo of Command; one charge, the next landed white swing applies the replaced seal once (P.7)
+    note: Echo of Command; one charge, the next landed white swing applies the replaced seal once
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: SEAL_ECHO, params: { spell: 20375 } }
   - id: 1311704
-    note: Echo of Righteousness; one charge, the next landed white swing applies the replaced seal once (P.7)
+    note: Echo of Righteousness; one charge, the next landed white swing applies the replaced seal once
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: SEAL_ECHO, params: { spell: 21084 } }
       - { index: 1, script: NO_OP }
   - id: 1311705
-    note: Echo of Justice; one charge, the next landed white swing applies the replaced seal once (P.7)
+    note: Echo of Justice; one charge, the next landed white swing applies the replaced seal once
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: SEAL_ECHO, params: { spell: 20164 } }
   - id: 20127
     note: Redoubt; block (not simulated)
     effects:

@@ -240,6 +240,11 @@ pub enum ScriptKind {
     /// An event reaction (`on_event`): refreshes the duration of the spell's own aura when it
     /// is up (Judgement of the Crusader, refreshed by the paladin's melee strikes).
     RefreshAura,
+    /// Goes on an Echo's aura effect (Twist of Light): `params.spell` is a seal (any rank).
+    /// While the Echo spell is enabled, replacing that seal with another one applies the Echo,
+    /// and the next landed white swing, which uses its charge, applies the replaced seal's
+    /// proc once: its payloads, without the chance roll or the proc cooldown.
+    SealEcho,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -353,7 +358,8 @@ impl EffectScript {
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy
             | ScriptKind::EnableProc
-            | ScriptKind::SealJudgement => need(p.spell.is_some(), "spell"),
+            | ScriptKind::SealJudgement
+            | ScriptKind::SealEcho => need(p.spell.is_some(), "spell"),
             ScriptKind::TriggerSpellDamagePercent => {
                 need(p.spell.is_some(), "spell")?;
                 need(p.value.is_some_and(|v| v >= 0.0), "value (>= 0)")

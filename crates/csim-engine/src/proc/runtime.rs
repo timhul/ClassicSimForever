@@ -543,7 +543,7 @@ impl Proc {
         }
         // A cast buff's proc (a seal's) casts its payloads only: the direct effects are the
         // cast's.
-        let mut report = if self.spell.effects().is_empty() || self.spell.setup().buff_proc {
+        let report = if self.spell.effects().is_empty() || self.spell.setup().buff_proc {
             self.spell.start_cooldown(host);
             CastReport {
                 result: SpellResult::Success,
@@ -552,6 +552,21 @@ impl Proc {
         } else {
             self.spell.perform(host)
         };
+        self.cast_payloads(report, host)
+    }
+
+    /// Casts the payloads of the aura effects once, without the chance roll, the internal
+    /// cooldown or the statistics' count: an Echo applying its replaced seal (Twist of Light).
+    pub fn perform_payloads(&mut self, host: &mut impl ProcHost) -> CastReport {
+        let report = CastReport {
+            result: SpellResult::Success,
+            ..CastReport::default()
+        };
+        self.cast_payloads(report, host)
+    }
+
+    /// Casts the payloads of the aura effects into `report`.
+    fn cast_payloads(&mut self, mut report: CastReport, host: &mut impl ProcHost) -> CastReport {
         for payload in self.payloads(host) {
             match payload {
                 Payload::Trigger { spell, value } => {
@@ -747,6 +762,22 @@ impl EnabledProcs {
         }
 
         self.end_check();
+        reports
+    }
+
+    /// Casts the payloads of proc `id` once, whatever its chance and cooldown (an Echo of a
+    /// seal), then runs the proc sources they produced. Part of the current check.
+    pub fn fire_payloads(
+        &mut self,
+        id: ProcId,
+        host: &mut impl ProcHost,
+    ) -> Vec<(ProcId, CastReport)> {
+        let report = self.procs[id.index()].perform_payloads(host);
+        let nested = report.all_proc_sources();
+        let mut reports = vec![(id, report)];
+        for nested_source in nested {
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
+        }
         reports
     }
 

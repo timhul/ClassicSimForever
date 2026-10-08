@@ -22,7 +22,7 @@ const JUDGEMENT_OF_THE_CRUSADER: u32 = 20303;
 const SEAL_OF_RIGHTEOUSNESS_SWING: u32 = 25713;
 const SEAL_OF_FURY_SWING: u32 = 20418;
 
-const SEAL_OF_COMMAND_TALENT: u32 = 105696;
+pub(super) const SEAL_OF_COMMAND_TALENT: u32 = 105696;
 const IMPROVED_JUDGEMENT: u32 = 105705;
 const IMPROVED_SEALS: u32 = 105334;
 const SANCTIFIED_JUDGEMENT: u32 = 105701;
@@ -33,7 +33,7 @@ const SWIFT_JUDGEMENT_SPELL: u32 = 1310994;
 /// A Human Paladin with `talents` (and the Seal of Command talent) at the pull against a
 /// level 60 target, seeded the same every time, every roll rigged to a hit; the pull's first
 /// swing is done.
-fn pulled(talents: &[(u32, u32)]) -> Fixture {
+pub(super) fn pulled(talents: &[(u32, u32)]) -> Fixture {
     let mut all = vec![(SEAL_OF_COMMAND_TALENT, 1)];
     all.extend_from_slice(talents);
     let mut f = with_talents(&all);
@@ -45,7 +45,7 @@ fn pulled(talents: &[(u32, u32)]) -> Fixture {
     f
 }
 
-fn now(f: &Fixture) -> f64 {
+pub(super) fn now(f: &Fixture) -> f64 {
     f.engine.current_time()
 }
 
@@ -60,7 +60,7 @@ fn cast(f: &mut Fixture, id: SpellId) -> CastReport {
 }
 
 /// Casts the highest rank of the seal `name` after the global cooldown of the last cast.
-fn seal(f: &mut Fixture, name: &str) -> SpellId {
+pub(super) fn seal(f: &mut Fixture, name: &str) -> SpellId {
     let t = now(f) + 1.5;
     f.advance_to(t);
     let id = highest_rank(f, name);
@@ -68,7 +68,7 @@ fn seal(f: &mut Fixture, name: &str) -> SpellId {
     id
 }
 
-fn is_up(f: &mut Fixture, id: SpellId) -> bool {
+pub(super) fn is_up(f: &mut Fixture, id: SpellId) -> bool {
     let buff = f.character.spells().spell(id).marker_buff().unwrap();
     f.ctx().buff_ref(buff).is_active()
 }
@@ -97,7 +97,7 @@ fn damage_of(report: &CastReport, game_id: u32) -> Option<u32> {
 }
 
 /// The proc of the seal `id`'s buff.
-fn seal_proc(f: &Fixture, id: SpellId) -> ProcId {
+pub(super) fn seal_proc(f: &Fixture, id: SpellId) -> ProcId {
     f.character
         .spells()
         .buff_proc(id)

@@ -114,3 +114,18 @@ Builtin variables:
 | `time_remaining_gcd`       | seconds until the global cooldown ends                       |
 | `resource_missing`         | what the resource lacks to its maximum (potion: `geq 2250`)  |
 | `target_is_type`           | the target's creature type, compared with `eq "<type>"`      |
+
+A character with energy or mana also acts when a timer condition flips by itself: an energy user
+on the energy tick that sees it, a mana user right when it flips. A Paladin's seal twist before
+the swing (Twist of Light's Echo):
+
+```
+- name: Seal of Righteousness
+  condition: |-
+    buff_duration "Seal of Command" is true
+    and variable "time_remaining_swing" less 0.5
+- name: Seal of Command
+  condition: |-
+    buff_duration "Seal of Command" is false
+    and buff_duration "Echo of Command" is false
+```

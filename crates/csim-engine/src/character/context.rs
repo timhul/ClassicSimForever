@@ -56,6 +56,12 @@ pub const REGENERATION: &str = "Regeneration";
 /// makes a spell affordable, whichever event runs the rotation at that instant.
 pub const TICK_READ_LAG: f64 = 1e-6;
 
+/// How long after the time a rotation condition's crossing is planned for (two
+/// [`crate::rotation::condition::EPSILON`]s early) a character without energy reacts to it: past
+/// the comparisons' tolerance of one more, so that the pass sees the condition flipped
+/// (`time_remaining_swing less 0.5`).
+const CONDITION_WAKE_LAG: f64 = 4.0 * crate::rotation::condition::EPSILON;
+
 /// `SpellCategories.DispelType` of poisons.
 const DISPEL_TYPE_POISON: u32 = 4;
 
@@ -441,6 +447,53 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(proc) = self.character.spells().buff_proc(id) {
             self.disable_proc(proc);
         }
+    }
+
+    /// Twist of Light: applies the enabled Echo of the replaced `seal` (`SEAL_ECHO` naming a
+    /// rank of it), which remembers the seal for the swing that uses its charge.
+    fn echo_seal(&mut self, seal: SpellId) {
+        let spells = self.character.spells();
+        let name = spells.spell(seal).name();
+        let echo = spells.spell_ids().find(|&id| {
+            let spell = spells.spell(id);
+            spell.is_enabled()
+                && spell
+                    .setup()
+                    .seal_echo()
+                    .and_then(|echoed| spells.spell_by_game_id(echoed))
+                    .is_some_and(|echoed| spells.spell(echoed).name() == name)
+        });
+        let Some(echo) = echo else {
+            return;
+        };
+        self.character.set_echoed_seal(echo, seal);
+        let report = self.with_spell(echo, |s, ctx| s.perform_triggered(ctx));
+        self.record_cast(echo, &report, None);
+    }
+
+    /// The procs of the seals the active Echoes apply on `source` (a landed white swing that
+    /// uses their charge): each casts its payloads once, without the chance roll or the proc
+    /// cooldown.
+    fn fire_seal_echoes(&mut self, source: ProcSource) -> Vec<(ProcId, CastReport)> {
+        let spells = &self.character.spells;
+        let procs: Vec<ProcId> = self
+            .character
+            .echoed_seals()
+            .iter()
+            .filter(|&&(echo, _)| {
+                spells
+                    .spell(echo)
+                    .marker_buff()
+                    .and_then(|buff| spells.owned_buff(buff))
+                    .is_some_and(|buff| buff.is_active() && buff.consumes_charge_on(source))
+            })
+            .filter_map(|&(_, seal)| spells.buff_proc(seal))
+            .collect();
+        let mut fired = Vec::new();
+        for proc in procs {
+            fired.extend(self.with_procs(|procs, ctx| procs.fire_payloads(proc, ctx)));
+        }
+        fired
     }
 
     /// The caster's seal whose buff is up, if any (one at a time).
@@ -1357,6 +1410,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             if source == ProcSource::Manual {
                 continue;
             }
+            fired.extend(self.fire_seal_echoes(source));
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
         between(self);
@@ -1819,6 +1873,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// the one scheduled before: whatever the event just handled changed is accounted for. The
     /// reaction is the one to the first tick that gains energy and brings what the rotation
     /// waits for ([`Rotation::next_change`]), or to the next such tick in the per-tick mode.
+    /// A character with mana reacts when a condition flips with time (a timer crossing its
+    /// threshold: `time_remaining_swing less 0.5` for a seal swap before the swing); mana gains
+    /// wake it on their own.
     fn plan_regen_reaction(&mut self) {
         let now = self.now();
         // A reaction due now has not happened yet: it plans again once it has.
@@ -1860,6 +1917,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                         energy.next_reaction(now, after_now, not_before, PLAYER_REACTION_DELAY)
                     })
                     .flatten()
+            }
+            (None, Some(rotation)) if !manual && now >= 0.0 => {
+                self.character.resource().as_mana().and_then(|mana| {
+                    let watched = Watched {
+                        resource: ResourceType::Mana,
+                        max: mana.max(),
+                        encounter_length: self.character.sim().combat_length,
+                    };
+                    let delay = rotation.next_change(self, watched).delay;
+                    (delay > 0.0 && delay.is_finite()).then_some(now + delay + CONDITION_WAKE_LAG)
+                })
             }
             _ => None,
         };
@@ -3212,15 +3280,15 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
 
     fn end_other_seals(&mut self, keep: BuffId) {
         let spells = self.character.spells();
-        let others: Vec<BuffId> = spells
+        let others: Vec<(SpellId, BuffId)> = spells
             .spell_ids()
-            .map(|id| spells.spell(id))
-            .filter(|spell| spell.setup().is_seal())
-            .filter_map(|spell| spell.marker_buff())
-            .filter(|&buff| buff != keep && self.buff_ref(buff).is_active())
+            .filter(|&id| spells.spell(id).setup().is_seal())
+            .filter_map(|id| Some((id, spells.spell(id).marker_buff()?)))
+            .filter(|&(_, buff)| buff != keep && self.buff_ref(buff).is_active())
             .collect();
-        for buff in others {
+        for (seal, buff) in others {
             <Self as SpellHost>::cancel_buff(self, buff);
+            self.echo_seal(seal);
         }
     }
 

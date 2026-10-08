@@ -469,7 +469,8 @@ overrides:
     ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)
     cast_time_ms: 1000               # in place of SpellCastTimes.Base (Charge's run to the target)
     walk: [1311701, 1311703]         # spells the export carries although no table field reaches
-                                     #   them (Twist of Light's Echoes)
+                                     #   them (Twist of Light's Echoes); payloads of the spell
+                                     #   at runtime, enabled with it
 ```
 
 A `NO_OP` script may carry `params.spell`: the walk follows it and the pruning keeps the spell,
@@ -513,6 +514,7 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `ATTACK_SPEED_DAMAGE_PENALTY` | on a `MOD_ATTACKSPEED` aura: main-hand weapon damage × 100 / (100 + the haste) while it is up | — | Seal of the Crusader E1 (40 % → 100 / 140) |
 | `JUDGED_SEAL_MANA_RETURN` | on the talent aura effect whose value is the percent of the judged seal's mana cost (its cost now, after modifiers) each judgement returns, at the chance effect `effect`'s value gives | `effect` | Sanctified Judgement E1 (20/40/60 %, E0 33/66/100 %) |
 | `REFRESH_AURA` | an `on_event` reaction: the spell's own aura, when up, starts its duration again (every rank reacts for its own aura) | — | Judgement of the Crusader, on the paladin's melee strikes |
+| `SEAL_ECHO` | on an Echo's aura effect: `spell` is a seal (any rank). While the Echo spell is enabled (a payload of Twist of Light through its `walk`), a seal of that name ended by another seal applies the Echo; the next landed white swing, which uses its charge, casts the replaced seal's proc payloads once, with no chance roll and no proc cooldown | `spell` | Echo of Command 1311703 E0 → Seal of Command 20375 |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
 **Cast buffs that are proc auras** (a seal: an ability with a `ProcTypeMask` whose aura has a

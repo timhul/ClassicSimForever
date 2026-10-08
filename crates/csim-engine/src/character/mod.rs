@@ -216,6 +216,9 @@ pub struct Character {
     /// What each judgement of a seal returns of the seal's mana cost
     /// (`JUDGED_SEAL_MANA_RETURN`: Sanctified Judgement).
     judged_seal_mana_return: Option<JudgedSealManaReturn>,
+    /// The seal each Echo applies when its charge is used, as `(echo, seal)` (Twist of Light:
+    /// the seal the Echo's last application replaced).
+    echoed_seals: Vec<(SpellId, SpellId)>,
     /// Off-hand rage generation bonus in percent (`OFFHAND_RAGE_PERCENT`).
     offhand_rage_percent: i32,
     /// Abilities that also strike with the off hand (`OFFHAND_COPY`), once per active aura.
@@ -333,6 +336,7 @@ impl Character {
             offhand_damage_percent: 0,
             mainhand_damage_factors: Vec::new(),
             judged_seal_mana_return: None,
+            echoed_seals: Vec::new(),
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
@@ -892,6 +896,19 @@ impl Character {
         self.judged_seal_mana_return = value;
     }
 
+    /// The Echoes applied so far with the seal each applies, as `(echo, seal)`.
+    pub fn echoed_seals(&self) -> &[(SpellId, SpellId)] {
+        &self.echoed_seals
+    }
+
+    /// Echo `echo` now applies `seal`, the seal it replaced last.
+    pub fn set_echoed_seal(&mut self, echo: SpellId, seal: SpellId) {
+        match self.echoed_seals.iter_mut().find(|(id, _)| *id == echo) {
+            Some(entry) => entry.1 = seal,
+            None => self.echoed_seals.push((echo, seal)),
+        }
+    }
+
     pub fn offhand_rage_percent(&self) -> i32 {
         self.offhand_rage_percent
     }
@@ -1443,6 +1460,7 @@ impl Character {
         self.combo_points = 0;
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
+        self.echoed_seals.clear();
         self.queued_input = None;
         self.input_failure = None;
         self.clear_regen_wake();
