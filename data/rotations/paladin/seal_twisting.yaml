@@ -7,7 +7,9 @@ description: >-
   the swing deals both (the Echo of Command fires without its PPM roll), Seal of Command again
   once the Echo is used. Judgement of the Crusader kept on the target as in the Seal of the
   Crusader rotation. The other global cooldowns go where they end before the next twist window;
-  otherwise as the Seal of Command rotation.
+  otherwise as the Seal of Command rotation. The twist and Exorcism wait above 1000 mana and
+  Consecration above 2500, so that Seal of Command and its judgement always have mana: twisting
+  into an empty bar loses ~35 DPS (TASKS.md P.15).
 precombat_actions:
   - Blessing of Might  # not castable under a Greater Blessing of Might
   - Seal of the Crusader
@@ -28,6 +30,7 @@ cast_if:
     condition: |
       buff_duration "Seal of Command" is true
       and variable "time_remaining_swing" less 0.5
+      and resource "Mana" greater 1000
   - name: Seal of Command
     condition: |
       buff_duration "Seal of Command" is false
@@ -46,8 +49,10 @@ cast_if:
   - name: Holy Strike
     condition: variable "time_remaining_swing" greater 1.7
   - name: Exorcism
-    condition: variable "time_remaining_swing" greater 1.7
+    condition: |-
+      resource "Mana" greater 1000
+      and variable "time_remaining_swing" greater 1.7
   - name: Consecration
     condition: |
-      resource "Mana" greater 1500
+      resource "Mana" greater 2500
       and variable "time_remaining_swing" greater 1.7
