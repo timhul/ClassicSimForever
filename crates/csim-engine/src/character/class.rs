@@ -263,7 +263,10 @@ impl ClassSpec {
         if let Some(slot) = self.weapon_proficiencies.keys().find(|slot| {
             !matches!(
                 slot,
-                EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+                EquipmentSlot::Mainhand
+                    | EquipmentSlot::Offhand
+                    | EquipmentSlot::Ranged
+                    | EquipmentSlot::Relic
             )
         }) {
             return Err(ClassSpecError::NotAWeaponSlot {
@@ -370,12 +373,15 @@ impl ClassSpec {
     }
 
     /// Whether the class can use `item` in `slot`: the item's class restrictions, its armor
-    /// type, and in a weapon slot its weapon type. Whether the item fits the slot is not
-    /// checked.
+    /// type, and in a weapon slot or the relic slot its weapon type (a Paladin's librams, not
+    /// the totems and idols). Whether the item fits the slot is not checked.
     pub fn can_equip(&self, item: &Item, slot: EquipmentSlot) -> bool {
         let weapon_slot = matches!(
             slot,
-            EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+            EquipmentSlot::Mainhand
+                | EquipmentSlot::Offhand
+                | EquipmentSlot::Ranged
+                | EquipmentSlot::Relic
         );
         item.available_for_class(self.class)
             && item
@@ -385,6 +391,8 @@ impl ClassSpec {
             && (!weapon_slot
                 || item
                     .weapon_type()
+                    // A relic has no weapon data: its type is the libram, totem or idol.
+                    .or_else(|| item.item_type().weapon_type())
                     .is_none_or(|weapon| self.can_wield(slot, weapon)))
     }
 

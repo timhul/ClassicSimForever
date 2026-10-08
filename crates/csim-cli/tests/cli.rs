@@ -578,6 +578,30 @@ fn lists_filter_by_class_slot_and_name() {
     assert!(shields.contains("No items"), "{shields}");
 }
 
+/// A Paladin's relics are librams (not the totems and idols); it wields shields and
+/// two-handers, not daggers; a Rogue wears no relic.
+#[test]
+fn list_items_filters_the_paladins_relics_and_weapons() {
+    let list =
+        |class: &str, slot: &str| stdout(&csim(&["list-items", "--class", class, "--slot", slot]));
+    let relics = list("paladin", "relic");
+    assert!(relics.contains("Libram of Fervor"), "{relics}");
+    assert!(
+        !relics.contains("TOTEM") && !relics.contains("IDOL"),
+        "{relics}"
+    );
+    assert!(list("rogue", "relic").contains("No items"));
+    let offhands = list("paladin", "offhand");
+    assert!(offhands.contains("SHIELD"), "{offhands}");
+    assert!(!offhands.contains("DAGGER"), "{offhands}");
+    let mainhands = list("paladin", "mainhand");
+    assert!(mainhands.contains("TWOHAND_SWORD"), "{mainhands}");
+    assert!(
+        !mainhands.contains("DAGGER") && !mainhands.contains("STAFF"),
+        "{mainhands}"
+    );
+}
+
 const SWEEP: &str = "data/sweeps/dw_fury_last_3_points.yaml";
 
 #[test]

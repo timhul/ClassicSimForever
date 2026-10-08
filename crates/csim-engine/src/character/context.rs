@@ -1124,6 +1124,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 spec.name,
                 spec.spell
             );
+            let record = &external_record(record);
             let buff = Buff::from_record(record, BuffKind::External, db.overrides())
                 .with_name(&spec.name)
                 .with_duration(None)
@@ -3721,6 +3722,25 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
         }
     }
     ids
+}
+
+/// The record an external buff is built from: a periodic mana gain is its rate in mana per 5 s
+/// (`MOD_POWER_REGEN`), since no caster ticks it (Greater Blessing of Wisdom: 40 every 5 s).
+fn external_record(record: &crate::spell::SpellRecord) -> crate::spell::SpellRecord {
+    use crate::spell::dbc::AuraType;
+    let mut record = record.clone();
+    for effect in &mut record.effects {
+        if effect.is_apply_aura()
+            && effect.aura == AuraType::PeriodicEnergize
+            && effect.aura_period_ms > 0
+            && ResourceType::from_power_type(effect.power_type()) == Some(ResourceType::Mana)
+        {
+            effect.aura = AuraType::ModPowerRegen;
+            effect.base_points *= 5000.0 / effect.aura_period_ms as f32;
+            effect.aura_period_ms = 0;
+        }
+    }
+    record
 }
 
 /// `sources` with no spell behind them (a swing's).

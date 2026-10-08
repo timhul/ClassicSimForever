@@ -176,6 +176,8 @@ pub struct Mana {
     base_mana: u32,
     intellect: u32,
     max_mod: MultiplicativeStack,
+    /// Flat maximum mana from auras (`MOD_MAX_POWER`: Flask of Distilled Wisdom).
+    max_bonus: i32,
     /// Fractional mana carried between ticks.
     remainder: f64,
     /// Engine time of the last mana spend; `-5.0` after a reset so regen starts unhindered.
@@ -197,6 +199,7 @@ impl Default for Mana {
             base_mana: 0,
             intellect: 0,
             max_mod: MultiplicativeStack::default(),
+            max_bonus: 0,
             remainder: 0.0,
             last_use: -5.0,
             mp5_from_spirit_within_5sr_modifier: 0.0,
@@ -245,10 +248,16 @@ impl Mana {
     /// Recomputes the maximum from the current intellect; the current mana is clamped.
     pub fn update_max(&mut self, intellect: u32) {
         self.intellect = intellect;
-        self.max = (self.max_mod.modifier()
-            * f64::from(self.base_mana + Self::mana_from_intellect(intellect)))
-        .round() as u32;
+        let flat = i64::from(self.base_mana + Self::mana_from_intellect(intellect))
+            + i64::from(self.max_bonus);
+        self.max = (self.max_mod.modifier() * flat.max(0) as f64).round() as u32;
         self.current = self.current.min(self.max);
+    }
+
+    /// Adds `amount` to the maximum (`MOD_MAX_POWER`); the mana is clamped when it drops.
+    pub fn adjust_max_bonus(&mut self, amount: i32) {
+        self.max_bonus += amount;
+        self.update_max(self.intellect);
     }
 
     pub fn gain(&mut self, amount: u32) -> u32 {

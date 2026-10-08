@@ -10,9 +10,18 @@ use crate::talent::{CharacterTalents, TalentDb};
 /// A Paladin of `race` with the shipped spells and tree, `talents` spent, a two-handed axe in
 /// the main hand, ready for an iteration.
 pub(super) fn paladin(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
+    paladin_on(equipment_db_with_enchants(), race_kind, talents)
+}
+
+/// [`paladin`] with the items of `equipment` (the shipped ones: `rogue_items::shipped_equipment`).
+pub(super) fn paladin_on(
+    equipment: Arc<EquipmentDb>,
+    race_kind: Race,
+    talents: &[(u32, u32)],
+) -> Fixture {
     let classes = crate::character::ClassDb::load(&data().join("classes"), None).unwrap();
     let class = Arc::clone(classes.get(crate::faction::PlayerClass::Paladin).unwrap());
-    let mut f = Fixture::of_race(class, race_kind, equipment_db_with_enchants());
+    let mut f = Fixture::of_race(class, race_kind, equipment);
     f.db = SpellDb::load(&data().join("spells")).expect("shipped spell data loads");
     let trees = TalentDb::load(&data().join("talents")).unwrap();
     let tree = Arc::clone(trees.get(crate::faction::PlayerClass::Paladin).unwrap());
@@ -30,7 +39,12 @@ pub(super) fn paladin(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
 /// A Human Paladin with `talents` forced in (the tiers below them need no points), ready for
 /// an iteration.
 pub(super) fn with_talents(talents: &[(u32, u32)]) -> Fixture {
-    let mut f = paladin(Race::Human, &[]);
+    with_talents_on(equipment_db_with_enchants(), talents)
+}
+
+/// [`with_talents`] with the items of `equipment`.
+pub(super) fn with_talents_on(equipment: Arc<EquipmentDb>, talents: &[(u32, u32)]) -> Fixture {
+    let mut f = paladin_on(equipment, Race::Human, &[]);
     for &(node, rank) in talents {
         for _ in 0..rank {
             let change = f
@@ -127,7 +141,7 @@ fn proficiencies() {
     let class = f.character.class();
     assert!(class.can_wield(EquipmentSlot::Mainhand, WeaponType::TwohandAxe));
     assert!(class.can_wield(EquipmentSlot::Offhand, WeaponType::Shield));
-    assert!(class.can_wield(EquipmentSlot::Ranged, WeaponType::Libram));
+    assert!(class.can_wield(EquipmentSlot::Relic, WeaponType::Libram));
     assert!(!class.can_wield(EquipmentSlot::Mainhand, WeaponType::Dagger));
     assert!(!class.can_wield(EquipmentSlot::Offhand, WeaponType::Sword));
     assert!(class.can_wear(crate::item::ArmorType::Plate));

@@ -1386,7 +1386,9 @@ impl Effect {
                     }
                 }
             }
-            A::ModPowerRegenPercent | A::ModIncreaseEnergy if !on_target => {
+            // The maximum of a resource: Improved Energy (`MOD_INCREASE_ENERGY`), Flask of
+            // Distilled Wisdom's 2000 mana (`MOD_MAX_POWER`).
+            A::ModPowerRegenPercent | A::ModIncreaseEnergy | A::ModMaxPower if !on_target => {
                 if let Some(resource) = ResourceType::from_power_type(self.record.power_type()) {
                     if self.record.aura == A::ModPowerRegenPercent {
                         host.adjust_power_regen_percent(resource, signed);
@@ -1396,6 +1398,33 @@ impl Effect {
                 }
             }
             A::ModManaRegenInterrupt if !on_target => host.adjust_mana_regen_while_casting(signed),
+            // Melee attack power against the creature types of the mask (Justice Battlegear 4:
+            // +36 against Undead).
+            A::ModMeleeAttackPowerVersus if !on_target => {
+                let types = CreatureTypes::from_game_mask(self.record.misc_value[0] as u32);
+                let amount = rounded.max(0) as u32;
+                let stats = host.stats_mut();
+                for creature in Vec::<CreatureType>::from(types) {
+                    if apply {
+                        stats.increase_ap_vs_type(creature, amount);
+                    } else {
+                        stats.decrease_ap_vs_type(creature, amount);
+                    }
+                }
+            }
+            // Mana every 5 s, as the gear's mp5 (Lightforge Armor 6, Freethinker's Armor 2).
+            A::ModPowerRegen
+                if !on_target
+                    && ResourceType::from_power_type(self.record.power_type())
+                        == Some(ResourceType::Mana) =>
+            {
+                let amount = rounded.max(0) as u32;
+                if apply {
+                    host.stats_mut().increase_mp5(amount);
+                } else {
+                    host.stats_mut().decrease_mp5(amount);
+                }
+            }
             // Armor ignored by the attacks with the weapon types the spell requires
             // (Weaponmaster: maces, staves).
             A::ModArmorPenetrationPct if !on_target => {

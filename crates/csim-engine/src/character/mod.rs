@@ -1145,10 +1145,13 @@ impl Character {
 
     /// Changes the maximum of `resource` by `amount` at `now` (`MOD_INCREASE_ENERGY`).
     pub fn adjust_max_power(&mut self, resource: ResourceType, amount: i32, now: f64) {
-        if resource == self.class.resource
-            && let Some(energy) = self.resource.as_energy_mut()
-        {
+        if resource != self.class.resource {
+            return;
+        }
+        if let Some(energy) = self.resource.as_energy_mut() {
             energy.adjust_max_bonus(amount, now);
+        } else if let Some(mana) = self.resource.as_mana_mut() {
+            mana.adjust_max_bonus(amount);
         }
     }
 

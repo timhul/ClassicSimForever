@@ -26,7 +26,7 @@ const REVEALED_FLAW_BUFF: u32 = 28815;
 
 /// The test items (the fixture's sword and dagger) and the shipped items, item sets and
 /// enchants.
-fn shipped_equipment() -> Arc<EquipmentDb> {
+pub(super) fn shipped_equipment() -> Arc<EquipmentDb> {
     static DB: OnceLock<Arc<EquipmentDb>> = OnceLock::new();
     Arc::clone(DB.get_or_init(|| {
         let items: Vec<ItemSpec> = serde_yaml::from_str(ITEMS_YAML).unwrap();
@@ -91,7 +91,7 @@ fn status_of(f: &mut Fixture, name: &str) -> SpellStatus {
 }
 
 /// The proc a set bonus registered for `game_id`.
-fn set_bonus_proc(f: &Fixture, game_id: u32) -> ProcId {
+pub(super) fn set_bonus_proc(f: &Fixture, game_id: u32) -> ProcId {
     find_set_bonus_proc(f, game_id).unwrap_or_else(|| panic!("no set bonus proc {game_id}"))
 }
 

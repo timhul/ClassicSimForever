@@ -259,6 +259,32 @@ are **stats** (ids 31/32/…), not on-equip spells; only genuine auras use trigg
 the bonus spell. `ChrSpecID`/`TraitSubTreeID`/`SetFlags`/`RequiredSkill` are always 0.
 Battlegear of Might = set 209: (3) 23562, (5) 21838, (8) 23561.
 
+### Paladin relics and set bonuses
+
+- **Librams** fit the relic slot (`RELIC`, separate from the ranged slot). A class equips a relic
+  only of a type its `weapon_proficiencies` list under `RELIC` (the Paladin: `LIBRAM`), so
+  totems and idols are not offered to a Paladin and no relic to a Warrior or Rogue. A relic has
+  no weapon data: its item type gives the weapon type. The Retribution librams: Libram of Fervor
+  23203 (Seal of the Crusader +48 attack power, Judgement of the Crusader +33 holy damage taken,
+  `EFFECT1` / `ALL_EFFECTS` modifiers), Libram of Law 272435 (+4 % judgement damage: its mask
+  `[1024, 8, 64, 0]` selects Righteousness and Fury but not Judgement of Command's
+  `[0, 512, 0, 0]`, as the tables have it), Sentinel's Libram 272434 (Swift Judgement −10 s).
+- **Sets.** Lightforge (3: +18 spell damage, 5: Crusader's Wrath 450625, 6: 8 mana per 5 s),
+  Soulforge (4: Crusader's Wrath 27498, 6: +40 attack power), Avenger's Battlegear (3: judgements
+  last 20 % longer, 5: +71 spell damage), Battlegear of Eternal Justice (3: 20 % chance for 100
+  mana on a landed judgement), Justice Battlegear (Forever's tier 1: 2 +1 % attack and casting
+  speed, 4 +36 attack power against Undead, 5 Judgement −0.5 s; its raid pieces 280925..280930
+  are not exported yet, the four exported ones are "Artisan's Tier" crafts worn one at a time),
+  Zandalar Freethinker's Armor (2: 4 mana per 5 s), the PvP sets (+23 spell damage).
+- **Overrides** (`data/spells/overrides/items.yaml`): Crusader's Wrath fires at 1 PPM, not the
+  table's 100 % (no server number is known; the user's call). Battlegear of Eternal Justice's
+  table type mask is harmful spells, which the judgements (melee defense type) are not: it fires
+  on the judgement spells by family mask.
+- **Auras** the Paladin's items brought in: `MOD_POWER_REGEN` (mana per 5 s, as the gear's
+  mp5), `MOD_MAX_POWER` (Flask of Distilled Wisdom's +2000 mana), `MOD_MELEE_ATTACK_POWER_VERSUS`
+  (attack power against the creature types of the mask). An external buff's periodic mana gain
+  is its rate as mana per 5 s, no caster ticking it (Greater Blessing of Wisdom: 40 every 5 s).
+
 ## 1.9 Random-suffix items ("of the Bear")
 
 Vanilla's `ItemRandomSuffix` is replaced by the retail item-bonus system. 1 707 Classic items have an

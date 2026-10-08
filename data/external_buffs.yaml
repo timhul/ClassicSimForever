@@ -48,9 +48,27 @@ buffs:
     spell: 25289
     classes: [DRUID, HUNTER, PALADIN, ROGUE, SHAMAN]
     raid: true
+  # The caster raid buffs a Paladin uses (intellect for mana and Champion of the Light, mana
+  # regeneration).
+  - name: Arcane Brilliance
+    spell: 23028
+    classes: [PALADIN]
+    raid: true
+  - name: Greater Blessing of Wisdom
+    spell: 25918
+    classes: [PALADIN]
+    raid: true
   # Flasks
   - name: Flask of the Titans
     spell: 17626
+    mutex: flask
+  - name: Flask of Supreme Power
+    spell: 17628
+    classes: [PALADIN]
+    mutex: flask
+  - name: Flask of Distilled Wisdom
+    spell: 17627
+    classes: [PALADIN]
     mutex: flask
   # Elixirs
   - name: Elixir of the Mongoose
@@ -68,6 +86,26 @@ buffs:
   - name: Juju Power
     spell: 16323
     mutex: strength_elixir
+  # Spell damage and intellect elixirs (Paladin: holy damage through the coefficients, mana).
+  - name: Greater Arcane Elixir
+    spell: 17539
+    classes: [PALADIN]
+    mutex: spell_power_elixir
+  - name: Arcane Elixir
+    spell: 11390
+    classes: [PALADIN]
+    mutex: spell_power_elixir
+  - name: Elixir of Greater Intellect
+    spell: 11396
+    classes: [PALADIN]
+    mutex: intellect_elixir
+  - name: Elixir of the Sages
+    spell: 17535
+    classes: [PALADIN]
+    mutex: intellect_elixir
+  - name: Mageblood Potion
+    spell: 24363
+    classes: [PALADIN]
   # Farmables
   - name: Juju Might
     spell: 16329
@@ -94,6 +132,14 @@ buffs:
     mutex: food
   - name: Blessed Sunfruit
     spell: 18125
+    mutex: food
+  - name: Runn Tum Tuber Surprise
+    spell: 22730
+    classes: [PALADIN]
+    mutex: food
+  - name: Nightfin Soup
+    spell: 18194
+    classes: [PALADIN]
     mutex: food
 
 debuffs:

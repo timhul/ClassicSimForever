@@ -43,7 +43,7 @@ highest_armor_type: PLATE
 weapon_proficiencies:
   MAINHAND: [AXE, MACE, SWORD, POLEARM, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
   OFFHAND: [CASTER_OFFHAND, SHIELD]
-  RANGED: [LIBRAM]
+  RELIC: [LIBRAM]
 available_races: [HUMAN, DWARF, UNDEAD]
 enchants:
   MAINHAND:

@@ -1249,6 +1249,7 @@ mod paladin;
 mod paladin_abilities;
 mod paladin_damage;
 mod paladin_echo;
+mod paladin_items;
 mod paladin_mana;
 mod paladin_seals;
 mod paladin_talents;
@@ -1595,7 +1596,7 @@ debuffs:
         let db = SpellDb::load(&data.join("spells")).unwrap();
         let registry = ExternalBuffDb::load(&data.join("external_buffs.yaml")).unwrap();
         registry.validate(&db).unwrap();
-        assert_eq!(registry.buffs().len(), 21);
+        assert_eq!(registry.buffs().len(), 32);
         assert_eq!(registry.debuffs().len(), 4);
         for spec in registry.entries() {
             assert!(
