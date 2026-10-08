@@ -1,0 +1,19 @@
+# Keys for playing a Retribution Paladin from the keyboard in csim-live:
+#   cargo run --release -p csim-live -- data/characters/paladin_ret_2h_human.yaml --keybinds data/keybinds/ret.yaml
+#
+# 'spell name': [Ctrl+][Shift+][Alt+]key (see dw_fury.yaml). Without the rotation nothing is cast
+# before the pull: put up a seal (and Blessing of Might without a Greater Blessing of Might),
+# then attack to pull. Twisting: Seal of Righteousness right before the swing while Seal of
+# Command is up, Seal of Command again after it.
+Seal of Command: 1
+Seal of Righteousness: 2
+Judgement: 3
+Holy Strike: 4
+Consecration: 5
+Hammer of Wrath: F
+Exorcism: E
+Seal of the Crusader: Shift+1
+Blessing of Might: Shift+B
+Earthstrike: Shift+E
+Major Mana Potion: Shift+M
+Demonic Rune: Shift+R

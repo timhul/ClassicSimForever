@@ -288,7 +288,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     pub fn learn(&mut self, db: &SpellDb, id: u32) -> AddedSpell {
         let party = self.character.party();
         let mut added = self.character.spells.add_spell(db, id, party, self.raid);
-        let base = base_rank(db, id);
+        let base = self.talent_spell_of(db, id, added.spell);
         let granted = self.character.talent_grants(base);
         if granted {
             added.enable_now = false;
@@ -340,6 +340,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
         self.sync_stance_passives();
         added
+    }
+
+    /// The talent spell that grants spell `id` (registered as `spell`): the base of its rank
+    /// chain, or, when the tables do not chain the ranks (Forever's Seal of Command ranks 2-5),
+    /// the talent spell in its rank group. `base_rank` when no talent grants it.
+    fn talent_spell_of(&self, db: &SpellDb, id: u32, spell: Option<SpellId>) -> u32 {
+        let base = base_rank(db, id);
+        if self.character.talent_grants(base) {
+            return base;
+        }
+        let spells = &self.character.spells;
+        spell
+            .and_then(|spell| spells.rank_group_of(spell))
+            .and_then(|group| {
+                group
+                    .spells()
+                    .map(|member| base_rank(db, spells.spell(member).game_id()))
+                    .find(|&member| self.character.talent_grants(member))
+            })
+            .unwrap_or(base)
     }
 
     /// Whether an enabled spell or proc of the registry casts `game_id` as a payload.

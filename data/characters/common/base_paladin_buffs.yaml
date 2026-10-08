@@ -1,0 +1,24 @@
+# The raid buffs and target debuffs of base_buffs.yaml plus a warrior's Battle Shout and a
+# mage's Arcane Brilliance, a spell damage elixir for the holy damage, and the mana consumables
+# the rotations drink.
+buffs:
+  - Strength of Earth Totem
+  - Greater Blessing of Kings
+  - Greater Blessing of Might
+  - Battle Shout
+  - Trueshot Aura
+  - Gift of the Wild
+  - Arcane Brilliance
+  - Elixir of the Mongoose
+  - Juju Power
+  - Juju Might
+  - R.O.I.D.S.
+  - Greater Arcane Elixir
+  - Grilled Squid
+  - Flask of the Titans
+debuffs:
+  - Sunder Armor
+  - Faerie Fire
+consumables:
+  - Major Mana Potion
+  - Demonic Rune

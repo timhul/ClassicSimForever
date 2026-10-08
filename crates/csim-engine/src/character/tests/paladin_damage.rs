@@ -259,6 +259,7 @@ fn precision_raises_spell_hit_on_the_magic_table() {
     let miss_rate = |talents: &[(u32, u32)]| {
         let mut f = with_talents(talents);
         f.target.set_creature_type(CreatureType::Undead);
+        f.character.set_seed(1);
         pull(&mut f);
         f.advance_to(0.01);
         let casts = 20_000;

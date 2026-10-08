@@ -394,11 +394,25 @@ impl Rotation {
             .prerequisites
             .iter()
             .filter_map(|name| {
-                Self::available_spell(name, crate::spell::MAX_RANK, host)
+                Self::prerequisite_holds(name, host)
                     .err()
                     .map(|reason| (name.clone(), reason))
             })
             .collect();
+    }
+
+    /// Whether the prerequisite `name` holds: the character can cast the spell of that name,
+    /// or, for a talent without a spell to cast (Twist of Light), has points in it.
+    fn prerequisite_holds(name: &str, host: &impl RotationHost) -> Result<(), SkipReason> {
+        match Self::available_spell(name, crate::spell::MAX_RANK, host) {
+            Ok(_) => Ok(()),
+            Err(SkipReason::UnknownSpell) => match host.talent_rank(name) {
+                Some(0) => Err(SkipReason::TalentNotTaken(name.to_string())),
+                Some(_) => Ok(()),
+                None => Err(SkipReason::UnknownSpell),
+            },
+            Err(reason) => Err(reason),
+        }
     }
 
     /// The enabled spell `name` at `rank`, or why the character cannot cast it.
@@ -912,6 +926,29 @@ mod tests {
         );
         host.enabled.insert(mortal_strike, true);
         host.spell("Rampage", 1, 3);
+        rotation.link(&host);
+        assert!(rotation.missing_prerequisites().is_empty());
+    }
+
+    /// A prerequisite may name a talent without a spell to cast (Twist of Light): it holds with
+    /// points in the talent.
+    #[test]
+    fn a_prerequisite_may_name_a_passive_talent() {
+        let mut host = Mock::default();
+        host.spell("Seal of Command", 1, 1);
+        host.talent_ranks.insert("Twist of Light".to_string(), 0);
+        let mut spec = Arc::unwrap_or_clone(spec(vec![CastIfSpec::always("Seal of Command")]));
+        spec.prerequisites = vec!["Twist of Light".to_string()];
+        let mut rotation = Rotation::new(Arc::new(spec));
+        rotation.link(&host);
+        assert_eq!(
+            rotation.missing_prerequisites(),
+            [(
+                "Twist of Light".to_string(),
+                SkipReason::TalentNotTaken("Twist of Light".to_string())
+            )]
+        );
+        host.talent_ranks.insert("Twist of Light".to_string(), 1);
         rotation.link(&host);
         assert!(rotation.missing_prerequisites().is_empty());
     }

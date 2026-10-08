@@ -1,0 +1,37 @@
+class: PALADIN
+name: Seal of the Crusader
+attack_mode: melee
+prerequisite: Seal of Command
+description: >-
+  Judgement of the Crusader kept on the target (+161 holy damage taken, refreshed by every melee
+  strike, so it is judged again only when it runs low), Seal of Command for the swings and the
+  other judgements; otherwise as the Seal of Command rotation.
+precombat_actions:
+  - Blessing of Might  # not castable under a Greater Blessing of Might
+  - Seal of the Crusader
+cast_if:
+  - name: Major Mana Potion
+    condition: variable "resource_missing" geq 2250
+  - name: Demonic Rune
+    condition: variable "resource_missing" geq 1500
+  - name: Earthstrike
+  - name: Seal of the Crusader
+    condition: |
+      buff_duration "Judgement of the Crusader" less 5
+      and buff_duration "Seal of the Crusader" is false
+      and spell "Judgement" less 1.5
+  - name: Judgement
+    condition: buff_duration "Seal of the Crusader" is true
+  - name: Seal of Command
+    condition: |
+      buff_duration "Seal of Command" less 3
+      and buff_duration "Judgement of the Crusader" geq 5
+  - name: Judgement
+    condition: |
+      buff_duration "Seal of Command" geq 3
+      and buff_duration "Judgement of the Crusader" greater 12
+  - name: Hammer of Wrath
+  - name: Holy Strike
+  - name: Exorcism
+  - name: Consecration
+    condition: resource "Mana" greater 1500

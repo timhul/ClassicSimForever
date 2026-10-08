@@ -1022,3 +1022,45 @@ fn emptying_a_slot_and_bad_gear_changes() {
     let (_, wrong_slot) = with_changes(&[change(Head, Some(19406))]);
     assert!(wrong_slot.unwrap_err().contains("does not fit"));
 }
+
+/// The Paladin setups build with each Paladin rotation (Twist of Light, a talent, is the
+/// twisting rotation's prerequisite), with Seal of Command's highest rank: the tables do not
+/// chain its ranks, its rank group ties them to the talent.
+#[test]
+fn the_paladin_setups_build_with_every_paladin_rotation() {
+    for file in [
+        "paladin_ret_2h_human.yaml",
+        "paladin_ret_2h_dwarf.yaml",
+        "paladin_ret_2h_undead.yaml",
+    ] {
+        for rotation in ["Seal Twisting", "Seal of Command", "Seal of the Crusader"] {
+            let mut setup = shipped(file);
+            setup.rotation = rotation.to_string();
+            let raid = setup
+                .build_raid(data(), &settings())
+                .unwrap_or_else(|error| panic!("{file} {rotation}: {error}"));
+            let character = raid.character(CharId(0));
+            assert_eq!(character.rotation_name(), rotation);
+            let spells = character.spells();
+            let group = spells.rank_group("Seal of Command").unwrap();
+            let highest = group
+                .get_max_available_spell_rank(|id| spells.spell(id).is_enabled())
+                .unwrap();
+            assert_eq!(spells.spell(highest).game_id(), 20920, "{file}: rank 5");
+        }
+    }
+    // Without the talent the twisting rotation's prerequisite is missing.
+    let mut setup = shipped("paladin_ret_2h_human.yaml");
+    setup
+        .talents
+        .get_mut("Retribution")
+        .unwrap()
+        .remove("Twist of Light");
+    let issues = issues(&setup);
+    assert!(
+        issues.iter().any(|issue| issue
+            .message
+            .contains("prerequisite \"Twist of Light\": talent Twist of Light not taken")),
+        "{issues:?}"
+    );
+}

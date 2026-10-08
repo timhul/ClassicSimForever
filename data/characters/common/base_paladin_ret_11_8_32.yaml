@@ -1,0 +1,27 @@
+# Deep Retribution, 11/8/32 (TASKS.md P.0b Q1): Twist of Light with Seal of Command, Vengeance,
+# Champion of the Light and Holy Conduit; Divine Strength and Improved Seals in Holy, Precision's
+# hit in Protection (Toughness only opens its tier). A valid build, not a recommendation: the
+# sweeps try the other points.
+class: PALADIN
+rotation: Seal Twisting
+talents:
+  Holy:
+    Divine Strength: 5
+    Divine Intellect: 3
+    Improved Seals: 3
+  Protection:
+    Toughness: 5
+    Precision: 3
+  Retribution:
+    Benediction: 5
+    Improved Judgement: 2
+    Holy Conduit: 2
+    Conviction: 5
+    Vindication: 3
+    Sanctified Judgement: 3
+    Seal of Command: 1
+    Sacred Arbiter: 1
+    Two-Handed Weapon Specialization: 3
+    Vengeance: 3
+    Champion of the Light: 3
+    Twist of Light: 1

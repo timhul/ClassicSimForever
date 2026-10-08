@@ -212,8 +212,9 @@ against each other:
 `cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_profiles.yaml`
 
 A rotation can name the spells it cannot do without (`prerequisite: Mortal Strike`, one or a
-list): a setup whose character lacks one (no such spell, or its talent not taken) is invalid, so
-`run` rejects it and a sweep skips that variant (e.g. the arms rotation on a fury character).
+list), or a talent without a spell to cast (`prerequisite: Twist of Light`): a setup whose
+character lacks one (no such spell, or its talent not taken) is invalid, so `run` rejects it and
+a sweep skips that variant (e.g. the arms rotation on a fury character).
 
 The Rogue's: `data/sweeps/combat_swords_last_3_points.yaml` and `data/sweeps/dw_rogue_profiles.yaml`.
 
