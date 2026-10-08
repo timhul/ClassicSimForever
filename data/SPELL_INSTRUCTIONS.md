@@ -168,6 +168,12 @@ column = (PosX - tab origin) / 600
 - Forever-only Warrior talents (spell ≥ 1 200 000): Boundless Rage, Spearing Strike, Raging
   Blows, Vanguard, Bloodthrill, Weaponmaster (1290261, replaces the three weapon-spec talents),
   Precision, Master of Defense; Focused Rage 29787 and Iron Will 12962 were moved in.
+- **Ranked talent abilities**: a talent grants its ability's whole rank chain, found through
+  `SupercedesSpell` back to the talent's spell. Forever's
+  tables do not chain every such ability: Seal of Command's ranks 2-5 (20915, 20918, 20919,
+  20920) have no `SupercedesSpell` back to the talent's rank 1 20375. The engine then takes a
+  spell's rank group (the same name) as its chain: a rank in the group of a talent spell is
+  granted by that talent (`talent_spell_of`).
 
 ## 1.5 Class → runes (Engraving)
 
@@ -523,12 +529,17 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `SEAL_ECHO` | on an Echo's aura effect: `spell` is a seal (any rank). While the Echo spell is enabled (a payload of Twist of Light through its `walk`), a seal of that name ended by another seal applies the Echo; the next landed white swing, which uses its charge, casts the replaced seal's proc payloads once, with no chance roll and no proc cooldown | `spell` | Echo of Command 1311703 E0 → Seal of Command 20375 |
 | `REFRESH_JUDGEMENTS` | on a strike's `SCRIPT_EFFECT`: while the caster has the aura `spell`, the judgements of the caster's seals that are up on the target start their duration again | `spell` | Holy Strike E2, with Sacred Arbiter 1311087 |
 | `SCHOOL_DAMAGE_PERCENT_WHILE_AURA` | on a `DUMMY` talent aura: the caster's damage of `spell`'s school is `base_points` % higher while the caster's aura of that spell (any rank, or one that ended this instant) is up | `spell` | Consecrated Ground E0 → Consecration 26573 (holy, +5/10 %) |
+| `EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES` | against the `creature_types`, the spell's weapon damage gains `base_points` times itself | `creature_types` | Spearing Strike E2 (2 × 40 % against giants and dragonkin) |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
 **Cast buffs that are proc auras** (a seal: an ability with a `ProcTypeMask` whose aura has a
 payload) get a proc of their own, built from the same record, that fires while the buff the cast
 applies is up, at the record's chance or the `proc` override's rate (Seal of Command: `ppm: 7`),
 with the record's proc cooldown (`ProcCategoryRecovery`). The direct effects stay the cast's.
+A proc whose aura is down is not tried: the swings made without the seal are no attempts, so
+the proc rate is per swing while the seal is up (Seal of Command at 7 PPM with a 3.6 s weapon:
+42 %). Procs of the same name (the ranks of a seal, a poison on each weapon) add up in the
+statistics.
 
 `SEAL_ECHO`, `REFRESH_JUDGEMENTS` and `SCHOOL_DAMAGE_PERCENT_WHILE_AURA` name a condition, not
 a payload: the spell they name is not enabled with the scripted one.

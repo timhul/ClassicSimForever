@@ -42,12 +42,16 @@ data/
 ├── classes/<class>.yaml  hand-written: stat rules from ChrClasses / PlayerExpectedStat, races from
 │                         CharBaseInfo, base stats, proficiencies, enchant lists per slot
 ├── rotations/<class>/    hand-written: the rotations (precombat actions, ordered cast_if
-│                         executors with conditions), see rotations/README.md; the six
+│                         executors with conditions), see rotations/README.md; the three
 │                         Warrior and five Rogue rotations are ports of the ClassicSim XML
-│                         files
+│                         files, the three Paladin rotations are new (ClassicSim had no
+│                         Twist of Light, and its Judgement consumed the seal)
 ├── characters/           hand-written: character setups for `csim run` (class, race, talents,
 │                         gear, buffs, rotation, target); common/ holds the shared parts
 │                         (buffs, talent builds, gear per faction) they include
+├── keybinds/             hand-written: keys for playing a setup from the keyboard in csim-live
+│                         (dw_fury, combat, ret)
+├── sweeps/               hand-written: `csim sweep` files (last talent points, profiles)
 ├── raids/                hand-written: raid setups for `csim run --raid`, up to 8 parties of 5
 │                         (counting the player) listing setups of characters/ by file name
 ├── SPELL_INSTRUCTIONS.md how the Spell* / SkillLine* / Trait* tables fit together
