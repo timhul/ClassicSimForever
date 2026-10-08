@@ -941,15 +941,15 @@ impl Spell {
         (after_mod - flat_reduction).max(0.0)
     }
 
-    /// Crit chance added by modifiers (`CRIT_CHANCE`), hundredths of a percent.
+    /// Crit chance added by modifiers (`CRIT_CHANCE`), hundredths of a percent. A percent
+    /// modifier adds its value in points too, as its tooltip reads (Holy Power's "+15 % critical
+    /// strike chance" on Holy Strike), not 15 % of the chance.
     pub fn crit_chance_bonus(&self, host: &impl SpellHost) -> u32 {
-        let record = &self.setup.record;
-        (host
-            .spell_modifiers()
-            .flat(record.class_options.as_ref(), SpellModOp::CritChance)
-            * 100.0)
-            .round()
-            .max(0.0) as u32
+        let class = self.setup.record.class_options.as_ref();
+        let modifiers = host.spell_modifiers();
+        let points = modifiers.flat(class, SpellModOp::CritChance)
+            + modifiers.pct(class, SpellModOp::CritChance);
+        (points * 100.0).round().max(0.0) as u32
     }
 
     /// The proc chance of a passive: `SpellAuraOptions.ProcChance` in percent (0 and 101 mean
@@ -2340,8 +2340,24 @@ impl Spell {
         let Some(id) = self.marker_buff else {
             return;
         };
-        let reapply = host.buff(id).is_active() && !self.is_periodic();
-        if reapply {
+        // The same value again (Vengeance's rank on every proc): nothing to re-apply.
+        let current = host
+            .buff(id)
+            .effects
+            .iter()
+            .find(|e| e.index() == index)
+            .map(Effect::value);
+        if current.is_none_or(|current| current == value) {
+            return;
+        }
+        // Re-applied with its stacks, so that the auras take the new value.
+        let buff = host.buff(id);
+        let stacks = if buff.is_active() && !self.is_periodic() {
+            buff.stacks().max(1)
+        } else {
+            0
+        };
+        if stacks > 0 {
             host.cancel_buff(id);
         }
         if let Some(effect) = host
@@ -2352,7 +2368,7 @@ impl Spell {
         {
             effect.set_value(value);
         }
-        if reapply {
+        for _ in 0..stacks {
             host.apply_buff(id);
         }
     }

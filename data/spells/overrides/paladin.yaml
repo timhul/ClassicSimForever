@@ -533,10 +533,13 @@ overrides:
 
   # ----- Talents -------------------------------------------------------------------------------------
   - id: 9452
-    note: Vindication; E0 the paladin's attack power buff 440668, E1 the target's attack power debuff 440667 (not simulated) (P.9)
+    note: Vindication; E0 the paladin's attack power buff 440668 at the talent's 1/2/3 %, E1 the target's attack power debuff 440667 (not simulated)
     effects:
-      - { index: 0, script: NO_OP, params: { spell: 440668 } }
+      - { index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 440668, effect: 0 } }
       - { index: 1, script: NO_OP, params: { spell: 440667 } }
+  - id: 20049
+    note: Vengeance; on non-periodic crits only (the talent's "after landing a critical strike"; the table's hit mask is any hit)
+    proc: { hit_mask: [CRITICAL] }
   - id: 1311074
     note: Sanctified Judgement; E0 the chance, E1 the % of the judged seal's cost a judgement returns
     effects:

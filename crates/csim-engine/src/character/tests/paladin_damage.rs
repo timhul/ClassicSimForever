@@ -16,6 +16,7 @@ use crate::target::CreatureType;
 
 const EXORCISM: u32 = 10314;
 const HOLY_STRIKE: u32 = 10333;
+const HAMMER_OF_WRATH: u32 = 24275;
 const SEAL_OF_COMMAND_PROC: u32 = 20424;
 const JUDGEMENT_OF_COMMAND: u32 = 20966;
 const JUDGEMENT_OF_THE_CRUSADER: u32 = 20303;
@@ -215,8 +216,8 @@ fn vengeance_raises_holy_damage_too() {
     );
 }
 
-/// A crit on the melee table doubles (Holy Strike, the Seal of Command strike); on the magic
-/// table it is 1.5 times (Exorcism).
+/// A crit on the melee table doubles (Holy Strike, the Seal of Command strike, Hammer of Wrath
+/// on the ranged table); on the magic table it is 1.5 times (Exorcism).
 #[test]
 fn crits_multiply_by_the_table_they_roll_on() {
     // Every crit chance at 100 %, the rolls in the middle of the tables: past the misses,
@@ -240,6 +241,7 @@ fn crits_multiply_by_the_table_they_roll_on() {
         (HOLY_STRIKE, 2.0),
         (SEAL_OF_COMMAND_PROC, 2.0),
         (EXORCISM, 1.5),
+        (HAMMER_OF_WRATH, 2.0),
     ] {
         let crit = crit_damage(game_id);
         let hit = damage(game_id, nothing);

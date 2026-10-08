@@ -296,9 +296,9 @@ fn a_spell_is_usable_when_its_demands_beyond_rage_hold() {
                 .usable
         };
         // In execute range: the last 20 % of the fight (by the engine's clock, at the last event
-        // before the time shown: not checked right at the edge).
+        // before the time shown, which can be a swing earlier: not checked near the edge).
         let in_range = (end - frame.time) / end <= 0.2;
-        if (frame.time - 0.8 * end).abs() > 0.3 {
+        if (frame.time - 0.8 * end).abs() > 1.5 {
             assert_eq!(usable("Execute"), in_range, "{}", frame.time);
         }
         executable.push(usable("Execute"));

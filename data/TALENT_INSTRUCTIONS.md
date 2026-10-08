@@ -332,7 +332,8 @@ Judgement.
 
 Only Retribution DPS is simulated (`TASKS.md` P.0b): the last column says what the sim does with
 the talent, *P.n* naming the task that implements it; *not simulated* talents load and do
-nothing. Rank values are the curves (`rank_values`); the server-side numbers behind the
+nothing (`character/tests/paladin_talents.rs` fights with all of them and without, roll for
+roll, for the same damage). Rank values are the curves (`rank_values`); the server-side numbers behind the
 `DUMMY`s and seals, and their sources, are the header of `data/spells/overrides/paladin.yaml`.
 Two things the tables settle that the pre-beta guides got wrong or left open: Two-Handed and
 One-Handed Weapon Specialization are `MOD_DAMAGE_PERCENT_DONE` with misc 1, **physical only**
@@ -355,8 +356,8 @@ times, not 5.
 | Holy | 3 | Divine Favor (20216) | 1 | ability, modifier | FLAT CRIT_CHANCE 100 → the heals, Holy Shock | not simulated (heals; Holy Shock out of scope) |
 | Holy | 4 | Divine Precision (1310904) ← Holy Shock | 3 | modifier | FLAT HIT_CHANCE 6/12/18 → Consecration, Exorcism, Holy Shock, Holy Strike, Holy Wrath, Hammer of Wrath, … | not simulated (needs Holy Shock, out of scope) |
 | Holy | 4 | Holy Shock (1311606) | 1 | ability | DUMMY → 1311604 (134 holy) / 1311605 (heal) | not simulated (Holy Shock build out of scope) |
-| Holy | 4 | Consecrated Ground (1310905) | 2 | dummy | DUMMY 5/10 | P.8: holy damage +5/10 % against the target standing in the Consecration |
-| Holy | 5 | Holy Power (5923) | 5 | modifier | PCT CRIT_CHANCE 1..5 → Consecration, Exorcism, Hammer of Wrath, the seals and judgements, …; PCT CRIT_CHANCE 3..15 → Holy Shock, Holy Strike | tables (P.5) |
+| Holy | 4 | Consecrated Ground (1310905) | 2 | dummy | DUMMY 5/10 | `SCHOOL_DAMAGE_PERCENT_WHILE_AURA`: holy damage +5/10 % while the Consecration is up (the target stands in it) |
+| Holy | 5 | Holy Power (5923) | 5 | modifier | PCT CRIT_CHANCE 1..5 → Consecration, Exorcism, Hammer of Wrath, the seals and judgements, …; PCT CRIT_CHANCE 3..15 → Holy Shock, Holy Strike | tables: a percent crit chance modifier adds its value in points, as the tooltip reads (Holy Strike +15 %) |
 | Holy | 6 | Light's Vigil (1310911) ← Holy Shock | 1 | ability | DUMMY; DUMMY 75 | not simulated (out of scope) |
 | Protection | 0 | Toughness (20143) | 5 | stat aura | MOD_BASE_RESISTANCE_PCT 2..10 (armor); aura 466 2..10 | not simulated (armor) |
 | Protection | 0 | Redoubt (20127) | 5 | proc(dummy) | DUMMY 4..20 | not simulated (block) |
@@ -379,14 +380,14 @@ times, not 5.
 | Retribution | 1 | Improved Judgement (25956) | 2 | modifier | FLAT COOLDOWN -1000/-2000 → Judgement | tables |
 | Retribution | 1 | Holy Conduit (1237268) | 2 | modifier | PCT POWER_COST -20/-40 → Consecration, Exorcism, Hammer of Wrath, Holy Wrath | tables (P.4) |
 | Retribution | 1 | Conviction (20117) | 5 | stat aura | MOD_WEAPON_CRIT_PERCENT 1..5 | tables |
-| Retribution | 2 | Vindication (9452) | 3 | proc(dummy) | DUMMY 1/2/3; DUMMY | P.9: 100 % on damaging melee hits → 440668 (+1/2/3 % attack power, 30 s) |
-| Retribution | 2 | Sanctified Judgement (1311074) | 3 | proc(dummy) | DUMMY 33/66/100 (chance); DUMMY 20/40/60 (% of the seal's cost) | P.6: mana back on Judgement |
+| Retribution | 2 | Vindication (9452) | 3 | proc(dummy) | DUMMY 1/2/3; DUMMY | `TRIGGER_WITH_VALUE`: 100 % on landed melee hits → 440668 at +1/2/3 % attack power, 30 s; the target's debuff 440667 is not simulated |
+| Retribution | 2 | Sanctified Judgement (1311074) | 3 | proc(dummy) | DUMMY 33/66/100 (chance); DUMMY 20/40/60 (% of the seal's cost) | `JUDGED_SEAL_MANA_RETURN`: mana back on Judgement |
 | Retribution | 2 | Seal of Command (20375) | 1 | ability | PROC_TRIGGER_SPELL → 20424; DUMMY 20425 (the judgement) | P.6: 7 PPM |
 | Retribution | 2 | Pursuit of Justice (26022) | 2 | pruned | nothing the sim uses | pruned |
 | Retribution | 3 | Eye for an Eye (9799) | 2 | proc(dummy) | DUMMY 5/10 | not simulated (the paladin is not attacked) |
-| Retribution | 3 | Sacred Arbiter (1311087) | 1 | modifier | PCT DAMAGE/HEALING 20 → Holy Strike | tables; P.8: Holy Strike's `SCRIPT_EFFECT` refreshes the judgement debuffs |
+| Retribution | 3 | Sacred Arbiter (1311087) | 1 | modifier | PCT DAMAGE/HEALING 20 → Holy Strike | tables; Holy Strike's `REFRESH_JUDGEMENTS` restarts the judgements on the target |
 | Retribution | 4 | Two-Handed Weapon Specialization (20111) | 3 | stat aura | MOD_DAMAGE_PERCENT_DONE 2/4/6 misc 1 (physical) | tables (two-handers only, not the holy damage) |
-| Retribution | 4 | Vengeance (20049) ← Sanctified Judgement | 3 | proc | PROC with value 1/2/3 → 20050 (physical and holy +1/2/3 % a stack, 3 stacks, 30 s) | P.9 |
+| Retribution | 4 | Vengeance (20049) ← Sanctified Judgement | 3 | proc | PROC with value 1/2/3 → 20050 (physical and holy +1/2/3 % a stack, 3 stacks, 30 s) | `proc.hit_mask: [CRITICAL]` (the table's mask is any hit): crits of white swings, strikes and spells, 3 stacks |
 | Retribution | 4 | Repentance (20066) | 1 | pruned | nothing the sim uses | pruned |
 | Retribution | 5 | Champion of the Light (1311084) | 3 | stat aura | MOD_SPELL_DAMAGE_OF_STAT_PERCENT 20/40/60 misc 126 (intellect) | P.5 |
 | Retribution | 5 | Instrument of Law (1311085) | 2 | modifier | FLAT CAST_TIME -500/-1000 → Hammer of Wrath; MOD_THREAT 10/20 | tables (cast time); threat not simulated |
