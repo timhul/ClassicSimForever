@@ -114,6 +114,12 @@ pub trait EffectHost {
     fn seal_judgement(&self) -> Option<u32> {
         None
     }
+    /// While the caster has the aura `enabling_aura`, starts the duration of each of its seals'
+    /// judgements that is up on the target again (`REFRESH_JUDGEMENTS`: Sacred Arbiter).
+    fn refresh_seal_judgements(&mut self, _enabling_aura: u32) {}
+    /// Adds (`apply`) or removes `percent` % more damage of `spell`'s school while the
+    /// caster's aura of `spell` is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`: Consecrated Ground).
+    fn adjust_school_damage_while_aura(&mut self, _spell: u32, _percent: f64, _apply: bool) {}
     /// Multiplies (`apply`) or divides the main-hand weapon damage by `factor`
     /// (`ATTACK_SPEED_DAMAGE_PENALTY`: Seal of the Crusader).
     fn adjust_mainhand_damage_multiplier(&mut self, _factor: f64, _apply: bool) {}
@@ -343,7 +349,10 @@ impl Effect {
         } else {
             Dependency::PartialSuccess
         };
-        let no_active_defense = spell.ignores_active_defense();
+        // A ranged attack can miss and crit, never be dodged, parried or blocked
+        // (`MeleeSpellHitResult` of the server for `RANGED_ATTACK`: Hammer of Wrath).
+        let no_active_defense =
+            spell.ignores_active_defense() || spell.categories.defense_type == DefenseType::Ranged;
         let scales_weapon_damage = record.effect == SpellEffectName::WeaponPercentDamage
             && spell.effects.iter().any(|e| {
                 matches!(
@@ -798,6 +807,12 @@ impl Effect {
                     ..EffectOutcome::plain(true)
                 }
             }
+            Some(ScriptKind::RefreshJudgements) => {
+                if let Some(aura) = self.script.and_then(|s| s.params.spell) {
+                    host.refresh_seal_judgements(aura);
+                }
+                EffectOutcome::plain(true)
+            }
             Some(ScriptKind::DamagePercentVsPoisoned) => EffectOutcome {
                 triggered_damage_percent: if host.target_poisoned_by_caster() {
                     self.effective_value(host)
@@ -822,7 +837,7 @@ impl Effect {
     /// damage-over-time of a spell on the magic table.
     pub fn rolls_attack(&self) -> bool {
         use SpellEffectName as E;
-        let melee = self.defense == DefenseType::Melee;
+        let melee = self.rolls_melee_table();
         self.weapon_damage_kind()
             || match self.record.effect {
                 E::SchoolDamage | E::HealthLeech => melee || self.rolls_spell_table(),
@@ -832,6 +847,13 @@ impl Effect {
                         || self.is_spell_damage_debuff()
                 }
             }
+    }
+
+    /// Whether the spell rolls the special attack table: a melee spell, or a ranged one
+    /// (without dodge, parry and block: see [`Effect::new`]), which crits for double as melee
+    /// attacks do. A paladin has no ranged weapon: the melee hit and crit chances apply.
+    pub fn rolls_melee_table(&self) -> bool {
+        matches!(self.defense, DefenseType::Melee | DefenseType::Ranged)
     }
 
     /// Whether the spell's damage rolls on the magic table (spell hit, resistance, spell crit):
@@ -937,17 +959,17 @@ impl Effect {
         }
     }
 
-    /// Rolls the table of the effect's spell: the special attack table for a melee spell
-    /// (`DefenseType::Melee`), the magic table for a spell on it
-    /// ([`Effect::rolls_spell_table`]); any other spell (ranged, a physical spell without a
-    /// defense type) always lands.
+    /// Rolls the table of the effect's spell: the special attack table for a melee or ranged
+    /// spell ([`Effect::rolls_melee_table`]), the magic table for a spell on it
+    /// ([`Effect::rolls_spell_table`]); any other spell (a physical spell without a defense
+    /// type) always lands.
     fn roll_attack(
         &mut self,
         host: &mut impl EffectHost,
         extra_crit: u32,
         can_crit: bool,
     ) -> EffectOutcome {
-        if self.defense == DefenseType::Melee {
+        if self.rolls_melee_table() {
             let (hit, rolled) = self.roll_melee_with(host, extra_crit, can_crit);
             EffectOutcome::rolled(hit, rolled)
         } else if self.rolls_spell_table() {
@@ -1472,6 +1494,11 @@ impl Effect {
                         } else {
                             modifiers.remove_below_health(&modifier, threshold);
                         }
+                    }
+                }
+                Some(ScriptKind::SchoolDamagePercentWhileAura) => {
+                    if let Some(spell) = self.script().and_then(|s| s.params.spell) {
+                        host.adjust_school_damage_while_aura(spell, value, apply);
                     }
                 }
                 Some(ScriptKind::JudgedSealManaReturn) => {
@@ -2005,7 +2032,8 @@ mod tests {
     }
 
     /// The magic table is for spells whose `DefenseType` is magic, or none with a magic school;
-    /// a physical spell without one (Sweeping Strikes' copy) and ranged spells always land.
+    /// a physical spell without one (Sweeping Strikes' copy) always lands; melee and ranged
+    /// spells roll the special attack table.
     #[test]
     fn which_spells_roll_the_spell_table() {
         let rolls = |school, defense_type| {

@@ -41,6 +41,7 @@ use crate::spell::periodic::{Periodic, PeriodicCrit, PeriodicKind, TickReport};
 use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
+use crate::target::CreatureTypes;
 
 /// Tolerance when comparing the cooldown's ready time with the current time.
 const COOLDOWN_EPSILON: f64 = 0.0001;
@@ -857,6 +858,7 @@ impl Spell {
             .overrides
             .effects
             .iter()
+            .filter(|script| !script.script.names_condition())
             .filter_map(|script| script.params.spell)
             .chain(
                 self.setup
@@ -1230,7 +1232,9 @@ impl Spell {
     /// Applies or cancels a passive's aura according to its conditions (called after enabling,
     /// and by the character when the equipment or stance changes).
     pub fn reevaluate_passive(&mut self, host: &mut impl SpellHost) {
-        if !self.enabled || !self.is_passive() {
+        // An `IGNORED` passive is learned but never applies its auras (the Season of Discovery
+        // runes a class learns, such as Exorcist).
+        if !self.enabled || !self.is_passive() || self.is_ignored() {
             return;
         }
         let Some(id) = self.marker_buff else {
@@ -1366,6 +1370,21 @@ impl Spell {
         }
         if record.requires_behind_target() && !host.attacking_from_behind() {
             return SpellStatus::NotBehindTarget;
+        }
+        if self
+            .setup
+            .overrides
+            .exclusive_auras
+            .iter()
+            .any(|&aura| host.aura_active(aura))
+        {
+            return SpellStatus::StrongerAuraActive;
+        }
+        if record.target_creature_type != 0
+            && !CreatureTypes::from_game_mask(record.target_creature_type)
+                .contains(host.target_creature_type())
+        {
+            return SpellStatus::InvalidTarget;
         }
         SpellStatus::Available
     }

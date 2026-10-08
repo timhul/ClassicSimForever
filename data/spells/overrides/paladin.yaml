@@ -94,7 +94,15 @@
 #   - Rank 5: 8 ticks, one a second, of 1280349: 12 holy (no coefficient) plus 27 holy
 #     (coefficient 0.095) for the first 4 enemies to enter, so 39 + 0.095 x spell power a tick
 #     against one boss. [T]  The damage spells are only named in the description and reached by
-#     the area trigger: P.2 walks them through override references.
+#     the area trigger: P.2 walks them through override references. The ticks are E2's
+#     PERIODIC_DUMMY (1 s) casting the damage spell, the one as the aura ends included: the
+#     description's x8. [T]
+#   - Consecrated Ground: +5/10 % holy damage against the first 4 enemies in the Consecration;
+#     a single target is in it while it is up. [T]
+#
+# Blessing of Might (19740 .. 25291)
+#   - Cast on oneself before the pull: +133 attack power (rank 7) for an hour. It does not stack
+#     with another paladin's Greater Blessing of Might (the same 133): not castable under one. [T]
 #
 # Holy Strike (678 .. 10333)
 #   - Rank 8: NORMALIZED_WEAPON_DMG 93 (+3.2/level, ±25 %, coefficient 0.429) and
@@ -108,6 +116,9 @@
 # Hammer of Wrath (24239, 24274, 24275)
 #   - Rank 3: 288 (+2.4/level, ±10 %) holy, coefficient 0.429, 1 s cast (Instrument of Law:
 #     -0.5 s per rank), 6 s cooldown, target at or below 20 % health (aura state 2). [T]
+#   - DefenseType ranged: the ranged attack table, which misses and crits (for double) but is
+#     never dodged, parried or blocked. [T] TrinityCore MeleeSpellHitResult (RANGED_ATTACK)
+#     The paladin has no ranged weapon: the melee hit and crit chances apply. [U]
 #
 # Holy partial resists
 #   - Holy is a resistible school: the boss's level-based 24 resistance applies, as for the other
@@ -438,32 +449,87 @@ overrides:
       - { index: 1, script: NO_OP }
       - { index: 2, script: NO_OP }
 
-  # ----- Consecration (P.8): the area trigger's ticks deal the damage spell its description names ----
+  # ----- Consecration: the area's ticks deal the damage spell its description names -----------------
   - id: 26573
-    note: Consecration r1; E0 the area, E2 one tick a second of 1280345 (P.8)
+    note: Consecration r1; E0 the area (the target is in it), E2 one tick a second of 1280345
     effects:
       - { index: 0, script: NO_OP }
-      - { index: 2, script: NO_OP, params: { spell: 1280345 } }
+      - { index: 2, script: TRIGGER_SPELL, params: { spell: 1280345 } }
   - id: 20116
-    note: Consecration r2; E0 the area, E2 one tick a second of 1280346 (P.8)
+    note: Consecration r2; E0 the area (the target is in it), E2 one tick a second of 1280346
     effects:
       - { index: 0, script: NO_OP }
-      - { index: 2, script: NO_OP, params: { spell: 1280346 } }
+      - { index: 2, script: TRIGGER_SPELL, params: { spell: 1280346 } }
   - id: 20922
-    note: Consecration r3; E0 the area, E2 one tick a second of 1280347 (P.8)
+    note: Consecration r3; E0 the area (the target is in it), E2 one tick a second of 1280347
     effects:
       - { index: 0, script: NO_OP }
-      - { index: 2, script: NO_OP, params: { spell: 1280347 } }
+      - { index: 2, script: TRIGGER_SPELL, params: { spell: 1280347 } }
   - id: 20923
-    note: Consecration r4; E0 the area, E2 one tick a second of 1280348 (P.8)
+    note: Consecration r4; E0 the area (the target is in it), E2 one tick a second of 1280348
     effects:
       - { index: 0, script: NO_OP }
-      - { index: 2, script: NO_OP, params: { spell: 1280348 } }
+      - { index: 2, script: TRIGGER_SPELL, params: { spell: 1280348 } }
   - id: 20924
-    note: Consecration r5; E0 the area, E2 one tick a second of 1280349 (P.8)
+    note: Consecration r5; E0 the area (the target is in it), E2 one tick a second of 1280349
     effects:
       - { index: 0, script: NO_OP }
-      - { index: 2, script: NO_OP, params: { spell: 1280349 } }
+      - { index: 2, script: TRIGGER_SPELL, params: { spell: 1280349 } }
+
+  # ----- Abilities ---------------------------------------------------------------------------------
+  - id: 679
+    note: Holy Strike r1; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 678
+    note: Holy Strike r2; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 1866
+    note: Holy Strike r3; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 680
+    note: Holy Strike r4; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 2495
+    note: Holy Strike r5; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 5569
+    note: Holy Strike r6; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 10332
+    note: Holy Strike r7; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 10333
+    note: Holy Strike r8; E2 Sacred Arbiter's refresh of the judgements on the target
+    effects:
+      - { index: 2, script: REFRESH_JUDGEMENTS, params: { spell: 1311087 } }
+  - id: 19740
+    note: Blessing of Might r1; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 19834
+    note: Blessing of Might r2; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 19835
+    note: Blessing of Might r3; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 19836
+    note: Blessing of Might r4; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 19837
+    note: Blessing of Might r5; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 19838
+    note: Blessing of Might r6; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
+  - id: 25291
+    note: Blessing of Might r7; not with another paladin's Greater Blessing of Might
+    exclusive_auras: [25782, 25916]
 
   # ----- Talents -------------------------------------------------------------------------------------
   - id: 9452
@@ -481,9 +547,9 @@ overrides:
     effects:
       - { index: 0, script: RESET_COOLDOWN, params: { spell: 20271 } }
   - id: 1310905
-    note: Consecrated Ground; holy damage +5/10 % against the target in the Consecration (P.8)
+    note: Consecrated Ground; holy damage +5/10 % against the target in the Consecration (one of the first 4 to enter)
     effects:
-      - { index: 0, script: NO_OP }
+      - { index: 0, script: SCHOOL_DAMAGE_PERCENT_WHILE_AURA, params: { spell: 26573 } }
   - id: 1310735
     note: Twist of Light; the Echoes of the replaced seal (the server applies them, each names its seal)
     walk: [1311701, 1311703, 1311704, 1311705]
@@ -641,6 +707,24 @@ overrides:
     sim_flags: [IGNORED]
   - id: 412019
     note: Sacred Shield; the SoD rune
+    sim_flags: [IGNORED]
+  - id: 415076
+    note: Exorcist; the SoD rune (Exorcism on any target)
+    sim_flags: [IGNORED]
+  - id: 20254
+    note: Improved Concentration Aura; not in the Forever tree (learned with the class)
+    sim_flags: [IGNORED]
+  - id: 20359
+    note: Lasting Judgement r1; not in the Forever tree (learned with the class)
+    sim_flags: [IGNORED]
+  - id: 20360
+    note: Lasting Judgement r2; not in the Forever tree (learned with the class)
+    sim_flags: [IGNORED]
+  - id: 20361
+    note: Lasting Judgement r3; not in the Forever tree (learned with the class)
+    sim_flags: [IGNORED]
+  - id: 435984
+    note: Enhanced Blessings; the SoD rune
     sim_flags: [IGNORED]
   - id: 415068
     note: Exorcism r1; the SoD rune

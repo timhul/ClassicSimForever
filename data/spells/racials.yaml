@@ -190,6 +190,7 @@ spells:
   aura_options:
     proc_chance: 100
     proc_type_mask: 2
+  target_creature_type: 96
   labels: [5710]
   description: When activated, regenerates $20578s1% of total Health and $20578s2% of total Mana every $20578t1 sec for $20578d. Only works on Humanoid or Undead corpses within $a1 yds. Any movement, action, or damage taken while Cannibalizing will cancel the effect.
   effects:

@@ -699,6 +699,10 @@ pub struct SpellRecord {
     /// `SpellTargetRestrictions.MaxTargets`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub max_targets: u32,
+    /// `SpellTargetRestrictions.TargetCreatureType`: the creature types the spell can target,
+    /// bit `CreatureType.ID − 1` per type (36: Undead and Demon); 0 for any.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub target_creature_type: u32,
     /// `SpellLabel` ids.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub labels: Vec<u32>,
@@ -741,6 +745,7 @@ impl SpellRecord {
             equipped_items: None,
             aura_restrictions: AuraRestrictions::default(),
             max_targets: 0,
+            target_creature_type: 0,
             labels: Vec::new(),
             description: String::new(),
             effects: Vec::new(),

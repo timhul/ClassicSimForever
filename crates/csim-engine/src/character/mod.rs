@@ -219,6 +219,9 @@ pub struct Character {
     /// The seal each Echo applies when its charge is used, as `(echo, seal)` (Twist of Light:
     /// the seal the Echo's last application replaced).
     echoed_seals: Vec<(SpellId, SpellId)>,
+    /// The damage bonuses of a school while an aura is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`),
+    /// once per active aura.
+    school_damage_while_aura: Vec<SchoolDamageWhileAura>,
     /// Off-hand rage generation bonus in percent (`OFFHAND_RAGE_PERCENT`).
     offhand_rage_percent: i32,
     /// Abilities that also strike with the off hand (`OFFHAND_COPY`), once per active aura.
@@ -251,6 +254,15 @@ pub struct Character {
     player_name: String,
     /// The statistics of the current set of iterations (the context records into them).
     statistics: ClassStatistics,
+}
+
+/// `percent` % more damage of `school` while the character's aura called `aura` (any rank)
+/// is up (Consecrated Ground: holy, while the Consecration is up).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SchoolDamageWhileAura {
+    pub aura: String,
+    pub school: MagicSchool,
+    pub percent: f64,
 }
 
 /// The judged seal's mana a judgement returns (Sanctified Judgement): `percent` of the seal's
@@ -337,6 +349,7 @@ impl Character {
             mainhand_damage_factors: Vec::new(),
             judged_seal_mana_return: None,
             echoed_seals: Vec::new(),
+            school_damage_while_aura: Vec::new(),
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
@@ -894,6 +907,24 @@ impl Character {
     /// Sets (`Some`) or clears what a judgement of a seal returns.
     pub fn set_judged_seal_mana_return(&mut self, value: Option<JudgedSealManaReturn>) {
         self.judged_seal_mana_return = value;
+    }
+
+    /// The damage bonuses of a school while an aura is up.
+    pub fn school_damage_while_aura(&self) -> &[SchoolDamageWhileAura] {
+        &self.school_damage_while_aura
+    }
+
+    /// Adds (`apply`) or removes a damage bonus of a school while an aura is up.
+    pub fn adjust_school_damage_while_aura(&mut self, bonus: SchoolDamageWhileAura, apply: bool) {
+        if apply {
+            self.school_damage_while_aura.push(bonus);
+        } else if let Some(at) = self
+            .school_damage_while_aura
+            .iter()
+            .position(|entry| *entry == bonus)
+        {
+            self.school_damage_while_aura.swap_remove(at);
+        }
     }
 
     /// The Echoes applied so far with the seal each applies, as `(echo, seal)`.

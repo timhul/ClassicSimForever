@@ -23,6 +23,9 @@ pub enum SpellStatus {
     InCombat,
     IncorrectWeaponType,
     InsufficientComboPoints,
+    /// The target is not of a creature type the spell can target (Exorcism: Undead and
+    /// Demon).
+    InvalidTarget,
     InsufficientResources,
     /// The spell must be used from behind the target and the character faces it (tanking).
     NotBehindTarget,
@@ -35,11 +38,14 @@ pub enum SpellStatus {
     OnStanceCooldown,
     OnTrinketCooldown,
     OvercapResource,
+    /// An aura the spell's does not stack with is up (`exclusive_auras`: Blessing of Might under
+    /// a Greater Blessing of Might).
+    StrongerAuraActive,
 }
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 24] = [
+    pub const ALL: [SpellStatus; 26] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -55,6 +61,7 @@ impl SpellStatus {
         SpellStatus::IncorrectWeaponType,
         SpellStatus::InsufficientComboPoints,
         SpellStatus::InsufficientResources,
+        SpellStatus::InvalidTarget,
         SpellStatus::NotBehindTarget,
         SpellStatus::NotEnabled,
         SpellStatus::NotInExecuteRange,
@@ -64,6 +71,7 @@ impl SpellStatus {
         SpellStatus::OnStanceCooldown,
         SpellStatus::OnTrinketCooldown,
         SpellStatus::OvercapResource,
+        SpellStatus::StrongerAuraActive,
     ];
 
     pub fn is_available(self) -> bool {
@@ -132,6 +140,7 @@ impl SpellStatus {
             SpellStatus::IncorrectWeaponType => "FAIL: Incorrect weapon type",
             SpellStatus::InsufficientComboPoints => "FAIL: Insufficient combo points",
             SpellStatus::InsufficientResources => "FAIL: Insufficient resources",
+            SpellStatus::InvalidTarget => "FAIL: Invalid target type",
             SpellStatus::NotBehindTarget => "FAIL: Not behind the target",
             SpellStatus::NotEnabled => "FAIL: Not enabled",
             SpellStatus::NotInExecuteRange => "FAIL: Not in execute range",
@@ -141,6 +150,7 @@ impl SpellStatus {
             SpellStatus::OnStanceCooldown => "FAIL: On stance cooldown",
             SpellStatus::OnTrinketCooldown => "FAIL: On shared trinket cooldown",
             SpellStatus::OvercapResource => "FAIL: Cast would exceed resource cap",
+            SpellStatus::StrongerAuraActive => "FAIL: A more powerful spell is already active",
         }
     }
 }

@@ -43,7 +43,9 @@ use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
 
-use super::{Character, JudgedSealManaReturn, RegenReactions, SimParams, StanceLink};
+use super::{
+    Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
+};
 
 /// The resource statistics source of regeneration ticks.
 pub const REGENERATION: &str = "Regeneration";
@@ -494,6 +496,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             fired.extend(self.with_procs(|procs, ctx| procs.fire_payloads(proc, ctx)));
         }
         fired
+    }
+
+    /// The multiplier of `school`'s damage from the bonuses that hold while an aura of the
+    /// caster's is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`: Consecrated Ground while the
+    /// Consecration is up).
+    fn school_damage_while_aura_mod(&self, school: MagicSchool) -> f64 {
+        let now = self.now();
+        self.character
+            .school_damage_while_aura()
+            .iter()
+            .filter(|bonus| {
+                bonus.school == school
+                    && self.character.spells().buff_ids().any(|id| {
+                        let buff = self.buff_ref(id);
+                        // Or ended at this instant: the area's last tick.
+                        buff.name() == bonus.aura && (buff.is_active() || buff.expired_at() == now)
+                    })
+            })
+            .map(|bonus| 1.0 + bonus.percent / 100.0)
+            .product()
     }
 
     /// The caster's seal whose buff is up, if any (one at a time).
@@ -2754,6 +2776,37 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         gained
     }
 
+    fn adjust_school_damage_while_aura(&mut self, spell: u32, percent: f64, apply: bool) {
+        let spells = self.character.spells();
+        let Some(id) = spells.spell_by_game_id(spell) else {
+            return;
+        };
+        let aura = spells.spell(id);
+        let bonus = SchoolDamageWhileAura {
+            aura: aura.name().to_string(),
+            school: MagicSchool::from_school_mask(aura.record().school_mask),
+            percent,
+        };
+        self.character.adjust_school_damage_while_aura(bonus, apply);
+    }
+
+    fn refresh_seal_judgements(&mut self, enabling_aura: u32) {
+        if !<Self as SpellHost>::aura_active(self, enabling_aura) {
+            return;
+        }
+        let spells = self.character.spells();
+        let judgements: Vec<BuffId> = spells
+            .spell_ids()
+            .filter_map(|id| spells.spell(id).setup().seal_judgement())
+            .filter_map(|judgement| spells.spell_by_game_id(judgement))
+            .filter_map(|id| spells.spell(id).marker_buff())
+            .filter(|&buff| self.buff_ref(buff).is_active())
+            .collect();
+        for buff in judgements {
+            <Self as SpellHost>::apply_buff(self, buff);
+        }
+    }
+
     fn seal_judgement(&self) -> Option<u32> {
         let seal = self.active_seal()?;
         self.character.spells().spell(seal).setup().seal_judgement()
@@ -3396,6 +3449,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character
             .stats()
             .get_magic_school_damage_mod(&self.character.stat_context(&view), school)
+            * self.school_damage_while_aura_mod(school)
     }
 
     fn flat_physical_damage_bonus(&self) -> u32 {
@@ -3659,7 +3713,7 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
     for id in db
         .overrides()
         .get(spell)
-        .map(SpellOverride::referenced_spells)
+        .map(SpellOverride::payload_references)
         .unwrap_or_default()
     {
         if id != spell && !ids.contains(&id) {

@@ -245,8 +245,32 @@ pub enum ScriptKind {
     /// and the next landed white swing, which uses its charge, applies the replaced seal's
     /// proc once: its payloads, without the chance roll or the proc cooldown.
     SealEcho,
+    /// While the caster has the aura `params.spell` (Sacred Arbiter), the strike starts the
+    /// duration of every judgement of the caster's seals that is up on the target again (Holy
+    /// Strike's `SCRIPT_EFFECT`).
+    RefreshJudgements,
+    /// Goes on a `DUMMY` aura effect: the caster's damage of `params.spell`'s school is
+    /// `base_points` % higher while the caster's aura of that spell (any rank) is up
+    /// (Consecrated Ground: holy damage against the enemies in the Consecration, which a
+    /// single target always is).
+    SchoolDamagePercentWhileAura,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
+}
+
+impl ScriptKind {
+    /// Whether the script's `params.spell` is a condition (an aura the caster must have, a
+    /// seal an Echo echoes) rather than a spell it casts: the named spell is no payload, and
+    /// enabling the scripted spell does not enable it (Holy Strike would otherwise give every
+    /// paladin Sacred Arbiter).
+    pub fn names_condition(self) -> bool {
+        matches!(
+            self,
+            ScriptKind::SealEcho
+                | ScriptKind::RefreshJudgements
+                | ScriptKind::SchoolDamagePercentWhileAura
+        )
+    }
 }
 
 /// Parameters a script may need beyond its effect row. Which ones are required depends on the
@@ -359,7 +383,9 @@ impl EffectScript {
             | ScriptKind::OffhandCopy
             | ScriptKind::EnableProc
             | ScriptKind::SealJudgement
-            | ScriptKind::SealEcho => need(p.spell.is_some(), "spell"),
+            | ScriptKind::SealEcho
+            | ScriptKind::RefreshJudgements
+            | ScriptKind::SchoolDamagePercentWhileAura => need(p.spell.is_some(), "spell"),
             ScriptKind::TriggerSpellDamagePercent => {
                 need(p.spell.is_some(), "spell")?;
                 need(p.value.is_some_and(|v| v >= 0.0), "value (>= 0)")
@@ -599,6 +625,11 @@ pub struct SpellOverride {
     /// reference and the pruning keeps them.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub walk: Vec<u32>,
+    /// Auras this spell's does not stack with: while one of them is up on the caster the spell
+    /// cannot be cast (Blessing of Might under another paladin's Greater Blessing of Might, the
+    /// game's "a more powerful spell is already active").
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub exclusive_auras: Vec<u32>,
 }
 
 impl SpellOverride {
@@ -625,6 +656,16 @@ impl SpellOverride {
 
     /// The spells this override refers to (targets that must exist), without duplicates.
     pub fn referenced_spells(&self) -> Vec<u32> {
+        self.references(true)
+    }
+
+    /// [`SpellOverride::referenced_spells`] that the spell casts or applies: without the
+    /// spells a script names as a condition ([`ScriptKind::names_condition`]).
+    pub fn payload_references(&self) -> Vec<u32> {
+        self.references(false)
+    }
+
+    fn references(&self, conditions: bool) -> Vec<u32> {
         let mut ids = Vec::new();
         let mut push = |id: Option<u32>| {
             if let Some(id) = id
@@ -636,7 +677,9 @@ impl SpellOverride {
         };
         push(self.stance_passive);
         for script in &self.effects {
-            push(script.params.spell);
+            if conditions || !script.script.names_condition() {
+                push(script.params.spell);
+            }
             push(script.params.duration_spell);
         }
         for event in &self.on_event {
