@@ -1,10 +1,11 @@
 # The raid buffs and target debuffs of base_buffs.yaml plus a warrior's Battle Shout and a
 # mage's Arcane Brilliance, a spell damage elixir for the holy damage, and the mana consumables
-# the rotations drink.
+# the rotations drink. A raid with several Paladins gives a Ret Paladin both Might and Wisdom.
 buffs:
   - Strength of Earth Totem
   - Greater Blessing of Kings
   - Greater Blessing of Might
+  - Greater Blessing of Wisdom
   - Battle Shout
   - Trueshot Aura
   - Gift of the Wild
