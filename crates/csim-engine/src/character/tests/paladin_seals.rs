@@ -166,7 +166,8 @@ fn judgement_unleashes_the_seal_and_keeps_it() {
 }
 
 /// Seal of Command: the landed white swings proc its strike at 7 PPM (42 % with the 3.6 s
-/// axe), not more often than once a second, and only while the seal is up.
+/// axe), not more often than once a second, and only while the seal is up: the swings
+/// without it are no attempts (the proc rate of the breakdown).
 #[test]
 fn seal_of_command_procs_at_7_ppm_with_a_1_second_cooldown() {
     let mut f = pulled(&[]);
@@ -182,10 +183,13 @@ fn seal_of_command_procs_at_7_ppm_with_a_1_second_cooldown() {
     };
     assert_eq!(range, 4200);
     assert!(swing(&mut f).is_empty(), "no seal, no strike");
+    let attempts = |f: &Fixture| f.character.spells().procs().get(proc).attempts();
+    assert_eq!(attempts(&f), 0, "no seal, no attempt");
 
     seal(&mut f, "Seal of Command");
     let first = (0..100).position(|_| !swing(&mut f).is_empty());
     assert!(first.is_some(), "a strike within 100 swings");
+    assert_eq!(attempts(&f), first.unwrap() as u32 + 1);
     let at_once: usize = (0..50).map(|_| swing(&mut f).len()).sum();
     assert_eq!(at_once, 0, "the 1 s proc cooldown");
     let t = now(&f) + 1.01;

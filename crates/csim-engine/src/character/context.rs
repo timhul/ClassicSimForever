@@ -1776,6 +1776,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.buff_ctx(id).0.initialize();
         }
         self.reevaluate_passives();
+        // The first iteration starts full, as the resets give the next ones: the mana set with
+        // the base mana did not count the intellect.
+        let view = self.target_view();
+        self.character.refill_mana(&view);
         self.relink_rotation();
         if let Some(rotation) = self.character.rotation.as_mut() {
             rotation.prepare_set_of_combat_iterations();
@@ -2375,19 +2379,23 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// elapsed time. Idempotent; called before the statistics are read or taken.
     pub fn sync_statistics(&mut self) {
         let procs = self.character.spells.procs();
-        let counts: Vec<(String, u64, u64)> = procs
+        // Procs of the same name (a seal's ranks, a poison on each weapon) add up.
+        let mut counts: Vec<(String, u64, u64)> = Vec::new();
+        for (_, proc) in procs
             .procs()
             .iter()
             .enumerate()
             .filter(|(i, proc)| procs.is_enabled(ProcId(*i as u32)) || proc.attempts() > 0)
-            .map(|(_, proc)| {
-                (
-                    proc.name().to_string(),
-                    u64::from(proc.attempts()),
-                    u64::from(proc.procs()),
-                )
-            })
-            .collect();
+        {
+            let (attempts, successes) = (u64::from(proc.attempts()), u64::from(proc.procs()));
+            match counts.iter_mut().find(|(name, _, _)| name == proc.name()) {
+                Some((_, a, p)) => {
+                    *a += attempts;
+                    *p += successes;
+                }
+                None => counts.push((proc.name().to_string(), attempts, successes)),
+            }
+        }
         let executors: Vec<RotationExecutorStatistics> = self
             .character
             .rotation

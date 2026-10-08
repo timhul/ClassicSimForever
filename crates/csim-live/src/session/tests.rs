@@ -79,6 +79,7 @@ fn the_session_shows_the_iteration_the_cli_logs() {
     for (file, seed) in [
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
+        ("paladin_ret_2h_human.yaml", 5),
     ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
@@ -163,6 +164,7 @@ fn the_procs_at_the_end_are_the_ones_csim_run_reports() {
     for (file, seed) in [
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
+        ("paladin_ret_2h_human.yaml", 5),
     ] {
         let mut session = session_of(file, seed);
         assert!(session.advance(0.0).procs.is_empty(), "before the pull");
@@ -203,6 +205,7 @@ fn the_resources_at_the_end_are_the_ones_csim_run_reports() {
     for (file, seed) in [
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
+        ("paladin_ret_2h_human.yaml", 5),
     ] {
         let mut session = session_of(file, seed);
         let first = session.advance(0.0);
@@ -443,6 +446,40 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
     assert_eq!(state.resource.max, 100);
     assert!(state.combo_points.is_some());
     assert!(state.buffs.iter().any(|buff| buff.name == "Slice and Dice"));
+}
+
+/// A Paladin: a mana bar, full at the start (its intellect counted, not 1512 base mana), no stance and no combo
+/// points; the seals and Twist of Light's Echoes show in the buff lanes as they change.
+#[test]
+fn a_paladin_has_mana_and_its_seals_and_echoes_in_the_lanes() {
+    let mut session = session_of("paladin_ret_2h_human.yaml", 1);
+    let start = session.advance(session.info().start_at).state;
+    assert_eq!(start.resource.kind, "Mana");
+    assert!(start.resource.max > 3000, "{:?}", start.resource);
+    // Full but for the pre-pull Seal of the Crusader.
+    let spent = start.resource.max - start.resource.current;
+    assert!(spent < 200, "{:?}", start.resource);
+    assert_eq!((start.stance, start.combo_points), (None, None));
+    assert!(start.offhand.is_none(), "a two-hander");
+
+    let mut seen = std::collections::BTreeSet::new();
+    let mut time = 0.0;
+    while time < 30.0 {
+        let state = session.advance(time).state;
+        assert!(state.resource.current <= state.resource.max);
+        seen.extend(state.buffs.into_iter().map(|buff| buff.name));
+        time += 0.25;
+    }
+    for name in [
+        "Seal of Command",
+        "Seal of Righteousness",
+        "Echo of Command",
+        "Echo of Righteousness",
+        "Vengeance",
+        "Vindication",
+    ] {
+        assert!(seen.contains(name), "{name}: {seen:?}");
+    }
 }
 
 #[test]
@@ -690,6 +727,7 @@ fn procs_are_in_the_feed() {
     for (file, seed) in [
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
+        ("paladin_ret_2h_human.yaml", 5),
     ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);

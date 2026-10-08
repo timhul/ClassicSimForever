@@ -1064,3 +1064,22 @@ fn the_paladin_setups_build_with_every_paladin_rotation() {
         "{issues:?}"
     );
 }
+
+/// A mana user starts its first iteration as full as the next ones: its maximum counts its
+/// intellect (gear and buffs), not the base mana alone.
+#[test]
+fn the_first_iteration_starts_with_the_mana_of_the_intellect() {
+    let mut raid = shipped("paladin_ret_2h_human.yaml")
+        .build_raid(data(), &settings())
+        .unwrap();
+    raid.prepare_set_of_combat_iterations();
+    let mana = |raid: &RaidControl| {
+        let resource = raid.character(CharId(0)).resource();
+        (resource.current(0.0), resource.max())
+    };
+    let first = mana(&raid);
+    assert!(first.1 > 3000, "{first:?}");
+    assert_eq!(first.0, first.1, "full");
+    raid.reset();
+    assert_eq!(mana(&raid), first, "as after a reset");
+}

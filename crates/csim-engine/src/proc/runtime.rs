@@ -392,11 +392,7 @@ impl Proc {
     /// proc, the triggering hand holds a weapon. Port of the
     /// `proc_specific_conditions_fulfilled` overrides.
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
-        // An on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a
-        // condition.
-        if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff())
-            && !host.buff(id).is_active()
-        {
+        if !self.aura_is_up(host) {
             return false;
         }
         let hand_source = matches!(
@@ -425,6 +421,15 @@ impl Proc {
         true
     }
 
+    /// Whether the aura of an [`ProcKind::Aura`] proc is up (a seal while it is active); an
+    /// on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a condition.
+    fn aura_is_up(&self, host: &impl ProcHost) -> bool {
+        match (self.kind, self.spell.marker_buff()) {
+            (ProcKind::Aura, Some(id)) => host.buff(id).is_active(),
+            _ => true,
+        }
+    }
+
     /// Whether the proc is off its internal cooldown.
     pub fn is_ready(&self, host: &impl ProcHost) -> bool {
         self.spell.cooldown_remaining(host) <= 0.0
@@ -440,6 +445,11 @@ impl Proc {
         host: &impl ProcHost,
     ) -> bool {
         self.current_source = Some(source);
+        // A proc whose aura is down is not tried (the C++ disables it with its buff): a seal
+        // counts the swings made while it is up.
+        if !self.aura_is_up(host) {
+            return false;
+        }
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
