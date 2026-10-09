@@ -208,12 +208,16 @@ fn talent_helpers() {
     // Deep in the tree without the tiers above it.
     test.given_fury_talent_with_rank("Death Wish", 1);
     test.given_fury_talent_with_rank("Flurry", 3);
-    test.given_talent_ranks("Arms", &[("Deflection", 5), ("Improved Rend", 2)]);
+    test.given_talent_ranks("Arms", &[("Deflection", 5), ("Improved Heroic Strike", 2)]);
     let talents = test.character().talents().unwrap();
     let flurry = talents.node_of_name("Flurry", None).unwrap();
     assert_eq!(talents.rank(flurry), 3);
-    let rend = talents.node_of_name("Improved Rend", None).unwrap();
-    assert_eq!(talents.rank(rend), 2);
+    let heroic_strike = talents
+        .node_of_name("Improved Heroic Strike", None)
+        .unwrap();
+    assert_eq!(talents.rank(heroic_strike), 2);
+    let deep_wounds = talents.node_of_name("Deep Wounds", None).unwrap();
+    assert_eq!(talents.rank(deep_wounds), 3, "Impale's prerequisite");
 }
 
 #[test]

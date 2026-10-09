@@ -2,7 +2,7 @@
 # Do not edit: re-export from a new table dump instead. What a talent does is in its
 # spell (data/spells/<class>.yaml); the rank values here replace the spell's effect
 # base points at each rank (see data/TALENT_INSTRUCTIONS.md).
-build: 1.60.1.70205
+build: 1.60.1.70291
 class: WARRIOR
 tree: 1117
 points: 51
@@ -157,7 +157,7 @@ talents:
   icon: 135124
   icon_name: inv_spear_01
   descriptions:
-  - A brutal attack that deals 40% weapon damage, plus an additional 80% weapon damage against Giants, Dragonkin, and mounted targets.
+  - A brutal attack that deals 40% weapon damage. Deals an additional 80% weapon damage against Giants, Dragonkin, and mounted targets. Mounted targets are dismounted.
 - node: 105948
   spell: 12163
   name: Two-Handed Weapon Specialization
@@ -180,6 +180,7 @@ talents:
   tier: 3
   column: 2
   max_ranks: 2
+  requires: 105950
   rank_values:
     0: [10.0, 20.0]
   icon: 132312

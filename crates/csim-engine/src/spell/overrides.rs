@@ -208,7 +208,7 @@ pub enum ScriptKind {
     DamagePercentVsPoisoned,
     /// An armor reduction on the target that shares one slot with the other exclusive ones:
     /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
-    /// the `MOD_RESISTANCE` aura effect itself.
+    /// the armor aura effect itself (`MOD_RESISTANCE` / `MOD_ARMOR_NO_MODS`).
     ExclusiveArmorReduction,
     /// The spells of `params.family_mask` deal `base_points` % more damage while the target's
     /// health is below effect `params.effect`'s value in percent (Quietus: 2-10 % below 35 %).

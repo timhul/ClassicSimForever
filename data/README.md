@@ -121,7 +121,14 @@ csim_engine::talent::TalentDb::load("data/talents")
    ID or removes it. It prints the hotfixed spell names and the hotfixed tables that are not
    fetched. Blizzard keeps pushing hotfixes to the same build: `python tools/fetch_hotfixes.py
    --force` (or `fetch_tables.py --refresh-hotfixes`) downloads them again and re-applies them;
-   `--no-apply` (`--no-hotfixes`) restores the raw tables. And `python tools/fetch_listfile.py`
+   `--no-apply` (`--no-hotfixes`) restores the raw tables. A new build has no hotfixes on
+   wago.tools for a few days (the script then stops), while its items still come only from
+   them; the spell and talent hotfixes usually reach the next client build itself. Until then
+   the item hotfixes of the last build that has them do: `python tools/fetch_tables.py
+   --hotfix-build 1.60.1.70235 --hotfix-tables 'Item*'` (`fetch_hotfixes.py --from-build …
+   --tables …`); the other tables stay raw. The current tables are build 70291 with 70235's
+   item hotfixes (every other 70235 hotfix row was already in the 70291 tables).
+   And `python tools/fetch_listfile.py`
    refreshes `data/tables/listfile-icons.csv`. That file holds the `interface/icons/` rows of
    the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each
    icon FileDataID, by which Wowhead's CDN serves the icon. The client tables do not have

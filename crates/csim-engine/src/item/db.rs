@@ -483,7 +483,7 @@ mod tests {
 
         // Sets and enchants are attached.
         assert!(db.sets().sets().len() > 100);
-        assert_eq!(db.build(), Some("1.60.1.70205"));
+        assert_eq!(db.build(), Some("1.60.1.70291"));
         assert!(!db.enchants().is_empty());
 
         // Every weapon slot item carries weapon data, every set item exists.

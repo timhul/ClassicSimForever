@@ -79,7 +79,7 @@ impl DataBundle {
         })
     }
 
-    /// The game client build the data was exported from (`1.60.1.70205`): the spell files'
+    /// The game client build the data was exported from (`1.60.1.70291`): the spell files'
     /// (the item files are exported with them).
     pub fn build(&self) -> Option<&str> {
         self.spells.build()

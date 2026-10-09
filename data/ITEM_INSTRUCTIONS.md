@@ -10,8 +10,8 @@ is a good secondary reference for anything not covered here.
 
 - **`ItemSparse` is incomplete.** `Item` has 31 675 rows, `ItemSparse` only 19 172 in the client
   files (build 70009). Modern clients only ship a subset of `ItemSparse` and receive the rest as
-  server-side hotfixes. `tools/fetch_hotfixes.py` applies them: 4 581 rows on build 70205
-  (Fiery War Axe, Corpsemaker, the dungeon and PvP sets, ...). Some are still missing after that
+  server-side hotfixes. `tools/fetch_hotfixes.py` applies them: 4 581 rows on build 70205,
+  4 643 of build 70235 on build 70291, which had none of its own yet (Fiery War Axe, Corpsemaker, the dungeon and PvP sets, ...). Some are still missing after that
   (Hand of Justice 11815). `Item`, `ItemEffect`, `ItemXItemEffect`, `ItemSet` look complete.
 - **Three games' items.** Item IDs go up to ~286 000: Classic's below ~30 000, Season of
   Discovery's from 200 000 to 249 999 (Scarlet Enclave and its "Sanctified" items, SoD's remade

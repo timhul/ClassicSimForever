@@ -43,10 +43,13 @@ fn spending_talent_points() {
         assert!(!t.dec("Improved Rend"));
     }
     assert!(t.increment("Improved Overpower", 2));
-    assert!(t.increment("Impale", 2));
-    // Forever's Impale does not need Deep Wounds (the C++ refused this).
+    // Impale needs 3 of 3 Deep Wounds (again since build 1.60.1.70291, as in the C++).
     assert!(t.dec("Deep Wounds"));
+    assert!(!t.inc("Impale"));
     assert!(t.inc("Deep Wounds"));
+    assert!(t.increment("Impale", 2));
+    // Deep Wounds cannot lose points once Impale has some.
+    assert!(!t.dec("Deep Wounds"));
     assert_eq!(t.tree_points(), 20);
     assert!(t.inc("Sweeping Strikes"));
 
@@ -72,12 +75,14 @@ fn spending_talent_points() {
     assert!(t.inc("Improved Tactical Mastery"));
     assert!(t.dec("Improved Charge"));
 
-    // Shifting points in tier 3 (Anger Management needs 5 of 5 Improved Tactical Mastery).
+    // Shifting points through tier 3 (Anger Management needs 5 of 5 Improved Tactical
+    // Mastery); Deep Wounds stays for Impale.
     assert!(t.inc("Anger Management"));
-    assert!(t.dec("Deep Wounds"));
-    assert!(!t.dec("Anger Management"));
     assert!(!t.dec("Deep Wounds"));
-    assert!(t.inc("Deep Wounds"));
+    assert!(t.dec("Improved Overpower"));
+    assert!(!t.dec("Anger Management"));
+    assert!(!t.dec("Improved Overpower"));
+    assert!(t.inc("Improved Overpower"));
     assert!(t.dec("Anger Management"));
 
     // Shifting points in tier 4.

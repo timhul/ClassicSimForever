@@ -88,10 +88,13 @@ impl WarriorTest {
     }
 
     /// `rank` of 2 Impale: +10 % critical strike damage bonus of abilities per rank (a spell
-    /// modifier in Forever; the C++ raised the crit damage stat).
+    /// modifier in Forever; the C++ raised the crit damage stat). Takes its prerequisites too:
+    /// 3 of 3 Deep Wounds, which needs 3 of 3 Improved Rend.
     pub fn given_impale(&mut self, rank: u32) {
         assert_eq!(self.ability_crit_damage_pct(), 0.0);
         if rank > 0 {
+            self.given_arms_talent_with_rank("Improved Rend", 3);
+            self.given_arms_talent_with_rank("Deep Wounds", 3);
             self.given_arms_talent_with_rank("Impale", rank);
         }
         assert_eq!(self.ability_crit_damage_pct(), 10.0 * f64::from(rank));
