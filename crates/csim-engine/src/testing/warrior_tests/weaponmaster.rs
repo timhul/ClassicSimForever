@@ -34,8 +34,17 @@ fn rank_crit(setup: impl Fn(&mut WarriorTest), rank: u32, crit: fn(&WarriorTest)
     crit(&test) - before
 }
 
-fn armor_against(test: &mut WarriorTest, hand: Hand) -> i32 {
+fn armor_against(test: &mut WarriorTest, hand: Hand) -> f64 {
     test.with_ctx(|ctx| ctx.target_armor_against(hand))
+}
+
+/// The target's armor against `hand` is `expected` (not rounded).
+fn assert_armor(test: &mut WarriorTest, hand: Hand, expected: f64, what: &str) {
+    let armor = armor_against(test, hand);
+    assert!(
+        (armor - expected).abs() < 1e-9,
+        "{what}: {armor} != {expected}"
+    );
 }
 
 fn node(test: &WarriorTest) -> u32 {
@@ -138,15 +147,11 @@ fn maces_and_staves_ignore_armor_per_rank() {
         ] {
             let mut test = test();
             given(&mut test);
-            let armor = test.target().armor();
-            assert_eq!(armor_against(&mut test, Hand::Mainhand), armor);
+            let armor = f64::from(test.target().armor());
+            assert_armor(&mut test, Hand::Mainhand, armor, "without");
             test.given_arms_talent_with_rank(TALENT, rank);
-            let expected = (f64::from(armor) * (1.0 - 0.03 * f64::from(rank))).round() as i32;
-            assert_eq!(
-                armor_against(&mut test, Hand::Mainhand),
-                expected,
-                "rank {rank}"
-            );
+            let expected = armor * (1.0 - 0.03 * f64::from(rank));
+            assert_armor(&mut test, Hand::Mainhand, expected, &format!("rank {rank}"));
         }
     }
 }
@@ -163,8 +168,8 @@ fn other_weapons_do_not_ignore_armor() {
         let mut test = test();
         given(&mut test);
         test.given_arms_talent_with_rank(TALENT, 5);
-        let armor = test.target().armor();
-        assert_eq!(armor_against(&mut test, Hand::Mainhand), armor);
+        let armor = f64::from(test.target().armor());
+        assert_armor(&mut test, Hand::Mainhand, armor, "not a mace");
     }
 }
 
@@ -174,10 +179,9 @@ fn armor_penetration_counts_for_the_hand_holding_the_mace() {
     test.given_1h_sword_equipped_in_mainhand();
     test.given_1h_mace_equipped_in_offhand();
     test.given_arms_talent_with_rank(TALENT, 5);
-    let armor = test.target().armor();
-    assert_eq!(armor_against(&mut test, Hand::Mainhand), armor);
-    let expected = (f64::from(armor) * 0.85).round() as i32;
-    assert_eq!(armor_against(&mut test, Hand::Offhand), expected);
+    let armor = f64::from(test.target().armor());
+    assert_armor(&mut test, Hand::Mainhand, armor, "sword");
+    assert_armor(&mut test, Hand::Offhand, armor * 0.85, "mace");
 }
 
 #[test]
@@ -185,13 +189,13 @@ fn armor_penetration_follows_rank_changes_and_removal() {
     let mut test = test();
     test.given_2h_mace_equipped();
     test.given_arms_talent_with_rank(TALENT, 5);
-    let armor = test.target().armor();
-    let at = |rank: f64| (f64::from(armor) * (1.0 - 0.03 * rank)).round() as i32;
-    assert_eq!(armor_against(&mut test, Hand::Mainhand), at(5.0));
+    let armor = f64::from(test.target().armor());
+    let at = |rank: f64| armor * (1.0 - 0.03 * rank);
+    assert_armor(&mut test, Hand::Mainhand, at(5.0), "rank 5");
     when_decrementing(&mut test);
-    assert_eq!(armor_against(&mut test, Hand::Mainhand), at(4.0));
+    assert_armor(&mut test, Hand::Mainhand, at(4.0), "rank 4");
     test.with_ctx(|ctx| ctx.clear_talents());
-    assert_eq!(armor_against(&mut test, Hand::Mainhand), armor);
+    assert_armor(&mut test, Hand::Mainhand, armor, "cleared");
 }
 
 #[test]

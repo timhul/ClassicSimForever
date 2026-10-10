@@ -45,10 +45,13 @@ pub enum SimOption {
     ScaleSpellCritChance,
     ScaleSpellHitChance,
     ScaleSpellPenetration,
+    /// 1 % of the target's armor ignored by every attack. No item carries it: a weight for
+    /// talents, not for `rank-items`.
+    ScaleArmorPenetration,
 }
 
 impl SimOption {
-    pub const ALL: [SimOption; 16] = [
+    pub const ALL: [SimOption; 17] = [
         SimOption::ScaleAgility,
         SimOption::ScaleStrength,
         SimOption::ScaleHitChance,
@@ -65,6 +68,7 @@ impl SimOption {
         SimOption::ScaleSpellCritChance,
         SimOption::ScaleSpellHitChance,
         SimOption::ScaleSpellPenetration,
+        SimOption::ScaleArmorPenetration,
     ];
 
     /// What the option adds, for output.
@@ -86,6 +90,7 @@ impl SimOption {
             SimOption::ScaleSpellCritChance => "+1% Spell Critical Strike",
             SimOption::ScaleSpellHitChance => "+1% Spell Hit",
             SimOption::ScaleSpellPenetration => "+10 Spell Penetration",
+            SimOption::ScaleArmorPenetration => "+1% Armor Penetration",
         }
     }
 
@@ -129,6 +134,7 @@ impl SimOption {
                     stats.increase_spell_penetration(school, 10);
                 }
             }
+            SimOption::ScaleArmorPenetration => stats.increase_armor_penetration(1),
         }
     }
 
@@ -171,6 +177,7 @@ impl SimOption {
                     stats.decrease_spell_penetration(school, 10);
                 }
             }
+            SimOption::ScaleArmorPenetration => stats.decrease_armor_penetration(1),
         }
     }
 
@@ -210,6 +217,8 @@ impl SimOption {
             SimOption::ScaleSpellCritChance => vec![(ItemStat::SpellCritChance, 0.01)],
             SimOption::ScaleSpellHitChance => vec![(ItemStat::SpellHitChance, 0.01)],
             SimOption::ScaleSpellPenetration => vec![(ItemStat::SpellPenetration, 10.0)],
+            // The armor penetration rating has no known conversion (`item::rating`).
+            SimOption::ScaleArmorPenetration => Vec::new(),
         }
     }
 
@@ -513,7 +522,11 @@ mod tests {
     #[test]
     fn every_option_has_item_stat_equivalents() {
         use crate::stats::Stats;
-        for option in SimOption::ALL {
+        assert!(SimOption::ScaleArmorPenetration.item_stats().is_empty());
+        for option in SimOption::ALL
+            .into_iter()
+            .filter(|&option| option != SimOption::ScaleArmorPenetration)
+        {
             let stats: Vec<_> = option
                 .item_stats()
                 .into_iter()
@@ -535,6 +548,18 @@ mod tests {
                 "{option:?}"
             );
         }
+    }
+
+    #[test]
+    fn the_armor_penetration_option_counts_for_every_attack() {
+        let mut stats = CharacterStats::new();
+        SimOption::ScaleArmorPenetration.add_to(&mut stats);
+        assert_eq!(stats.get_armor_penetration_percent(None), 1, "unarmed");
+        let mace = crate::stats::WeaponProfile {
+            weapon_type: WeaponType::Mace,
+            speed: 2.6,
+        };
+        assert_eq!(stats.get_armor_penetration_percent(Some(mace)), 1);
     }
 
     #[test]

@@ -210,7 +210,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     world.run(20.5);
     world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(BLOODTHIRST);
-    let reduction = Mechanics::reduction_from_armor(3731, 60);
+    let reduction = Mechanics::reduction_from_armor(3731.0, 60);
     assert_eq!(
         report.attack.unwrap().damage,
         (480.0 * (1.0 - reduction)).round() as u32

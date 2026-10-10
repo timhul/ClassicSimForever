@@ -96,6 +96,10 @@ pub struct MeleeStats {
     pub mainhand_skill: u32,
     /// `None` without an off-hand weapon (a shield has no skill).
     pub offhand_skill: Option<u32>,
+    /// Percent of the target's armor the main-hand attacks ignore (unarmed without a weapon).
+    pub mainhand_armor_penetration: f64,
+    /// `None` without an off-hand weapon.
+    pub offhand_armor_penetration: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -243,6 +247,11 @@ impl StatSummary {
                 attack_power: stats.get_melee_ap(&ctx),
                 mainhand_skill: stats.get_mh_wpn_skill(&ctx),
                 offhand_skill: skilled(ctx.offhand).then(|| stats.get_oh_wpn_skill(&ctx)),
+                mainhand_armor_penetration: f64::from(
+                    stats.get_armor_penetration_percent(ctx.mainhand),
+                ),
+                offhand_armor_penetration: skilled(ctx.offhand)
+                    .then(|| f64::from(stats.get_armor_penetration_percent(ctx.offhand))),
             },
             ranged: RangedStats {
                 attack_power: stats.get_ranged_ap(&ctx),

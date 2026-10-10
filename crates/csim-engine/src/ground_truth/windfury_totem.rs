@@ -231,13 +231,13 @@ fn melee_ap(f: &Fixture) -> u32 {
 
 /// Damage of a plain main-hand hit (100 weapon damage at 2.6 speed) with `ap` attack power.
 fn mh_hit_damage(f: &Fixture, ap: u32) -> u32 {
-    let armor = 1.0 - Mechanics::reduction_from_armor(f.target.armor(), 60);
+    let armor = 1.0 - Mechanics::reduction_from_armor(f64::from(f.target.armor()), 60);
     ((100.0 + 2.6 * f64::from(ap) / 14.0) * armor).round() as u32
 }
 
 /// Damage of a plain off-hand hit (50 weapon damage at 1.8 speed, 50 % penalty).
 fn oh_hit_damage(f: &Fixture, ap: u32) -> u32 {
-    let armor = 1.0 - Mechanics::reduction_from_armor(f.target.armor(), 60);
+    let armor = 1.0 - Mechanics::reduction_from_armor(f64::from(f.target.armor()), 60);
     ((50.0 + 1.8 * f64::from(ap) / 14.0) * 0.5 * armor).round() as u32
 }
 

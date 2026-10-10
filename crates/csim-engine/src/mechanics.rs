@@ -155,9 +155,10 @@ impl Mechanics {
         aura_crit.saturating_sub(penalty)
     }
 
-    /// Damage reduction from armor against an attacker of level `clvl`.
-    pub fn reduction_from_armor(armor: i32, clvl: u32) -> f64 {
-        let armor = f64::from(armor);
+    /// Damage reduction from `armor` (the target's after its debuffs and the attacker's armor
+    /// penetration, at least 0) against an attacker of level `clvl`: the vanilla formula, which
+    /// Forever logs confirm (<https://github.com/magey/forever-warrior/issues/24>).
+    pub fn reduction_from_armor(armor: f64, clvl: u32) -> f64 {
         armor / (armor + 400.0 + 85.0 * f64::from(clvl))
     }
 
@@ -427,10 +428,10 @@ mod tests {
 
     #[test]
     fn reduction_from_armor() {
-        assert_close(0.0, Mechanics::reduction_from_armor(0, 60));
+        assert_close(0.0, Mechanics::reduction_from_armor(0.0, 60));
         assert_close(
             3750.0 / (3750.0 + 400.0 + 85.0 * 60.0),
-            Mechanics::reduction_from_armor(Mechanics::BOSS_BASE_ARMOR, 60),
+            Mechanics::reduction_from_armor(f64::from(Mechanics::BOSS_BASE_ARMOR), 60),
         );
     }
 

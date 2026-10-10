@@ -404,6 +404,11 @@ impl Effect {
         &self.record
     }
 
+    /// Whether the spell has a weapon requirement (`SpellEquippedItems` of an item class).
+    pub fn requires_weapon(&self) -> bool {
+        self.equipped_items.is_some_and(|items| items.class > 0)
+    }
+
     /// The weapon types the spell's weapon requirement accepts; every weapon type without one.
     pub fn weapon_types(&self) -> Vec<WeaponType> {
         WeaponType::ALL
@@ -1425,17 +1430,25 @@ impl Effect {
                     host.stats_mut().decrease_mp5(amount);
                 }
             }
-            // Armor ignored by the attacks with the weapon types the spell requires
-            // (Weaponmaster: maces, staves).
+            // Armor ignored by every attack (Serrated Blades), or by the attacks with the weapon
+            // types the spell requires (Weaponmaster: maces, staves).
             A::ModArmorPenetrationPct if !on_target => {
                 let percent = rounded.max(0) as u32;
-                for weapon_type in self.weapon_types() {
+                if !self.requires_weapon() {
                     if apply {
-                        host.stats_mut()
-                            .increase_armor_penetration_for_weapon_type(weapon_type, percent);
+                        host.stats_mut().increase_armor_penetration(percent);
                     } else {
-                        host.stats_mut()
-                            .decrease_armor_penetration_for_weapon_type(weapon_type, percent);
+                        host.stats_mut().decrease_armor_penetration(percent);
+                    }
+                } else {
+                    for weapon_type in self.weapon_types() {
+                        if apply {
+                            host.stats_mut()
+                                .increase_armor_penetration_for_weapon_type(weapon_type, percent);
+                        } else {
+                            host.stats_mut()
+                                .decrease_armor_penetration_for_weapon_type(weapon_type, percent);
+                        }
                     }
                 }
             }

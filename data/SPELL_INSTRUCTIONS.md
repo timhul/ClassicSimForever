@@ -309,8 +309,11 @@ MOD_DAMAGE_TAKEN, 7 MOD_FEAR, 36 MOD_SHAPESHIFT, 24 PERIODIC_ENERGIZE, 52
 MOD_WEAPON_CRIT_PERCENT (Cruelty), 55 MOD_SPELL_HIT_CHANCE, 53 PERIODIC_LEECH, 57
 MOD_SPELL_CRIT_CHANCE, 5 MOD_CONFUSE, 49 MOD_DODGE_PERCENT, 290 MOD_CRIT_PCT (Berserker Stance
 +3), 41 DISPEL_IMMUNITY, 16 MOD_STEALTH, 134 MOD_MANA_REGEN_INTERRUPT, 85 MOD_POWER_REGEN (Anger
-Management: misc 1 rage), 280 MOD_ARMOR_PENETRATION_PCT (Weaponmaster 12284: percent of the
-target's armor ignored by attacks with the weapon types the spell requires), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
+Management: misc 1 rage), 280 MOD_ARMOR_PENETRATION_PCT (percent of the target's armor
+ignored: by every attack without a `SpellEquippedItems` requirement, Serrated Blades; by the
+attacks with the weapon types the spell requires otherwise, Weaponmaster 12284; the sources add
+up, and the percent comes off the armor the debuffs leave, at least 0, not rounded:
+<https://github.com/magey/forever-warrior/issues/24#issuecomment-6055888787>), 122 MOD_OFFHAND_DAMAGE_PCT, 166 MOD_ATTACK_POWER_PCT, 137
 MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK, 271
 MOD_SPELL_DAMAGE_FROM_CASTER (Hemorrhage: the target takes `base_points` % more damage from the
 caster's spells in the effect's class mask, Rupture; a multiplier of the caster's own spells
