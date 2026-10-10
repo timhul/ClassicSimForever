@@ -185,6 +185,10 @@ dbc_enum! {
         ModSpellCooldownByHaste = 347 => "MOD_SPELL_COOLDOWN_BY_HASTE",
         /// Max power, misc = power type (Boundless Rage); retail name unverified.
         ModMaxPower = 418 => "MOD_MAX_POWER",
+        /// Armor, misc 1 = armor, as `MOD_RESISTANCE` (Sunder Armor −450, Devotion Aura; the
+        /// armor auras since 70291). Named after its "(DNT) Mod Armor No Mods" spell: retail
+        /// names stop before 674.
+        ModArmorNoMods = 674 => "MOD_ARMOR_NO_MODS",
     }
 }
 
@@ -241,6 +245,7 @@ mod tests {
             (319, "MOD_MELEE_HASTE_3"),
             (332, "OVERRIDE_ACTIONBAR_SPELLS"),
             (418, "MOD_MAX_POWER"),
+            (674, "MOD_ARMOR_NO_MODS"),
         ];
         for (id, name) in seen {
             assert_eq!(AuraType::from_id(id).name(), Some(name), "{id}");

@@ -2,7 +2,7 @@
 //! by the sim threads (TASKS.md §1.5, the `Arc<DataBundle>`).
 
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use crate::buff::external::{ExternalBuffDb, ExternalBuffError};
 use crate::character::{ClassDb, ClassSpecError};
@@ -79,8 +79,8 @@ impl DataBundle {
         })
     }
 
-    /// The game client build the data was exported from (`1.60.1.70205`): the spell files'
-    /// (the item files are exported with them).
+    /// The game client build the data was exported from: the spell files' (the item files are
+    /// exported with them).
     pub fn build(&self) -> Option<&str> {
         self.spells.build()
     }
@@ -88,6 +88,27 @@ impl DataBundle {
     /// The repository's `data/` directory (for tests and tools run from the workspace).
     pub fn repository_dir() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
+    }
+
+    /// The build of the repository's data: the `build:` header the exporter writes into every
+    /// generated file, read once from `spells/warrior.yaml`. The tests take their build from
+    /// here, so a re-export is the only place it changes.
+    ///
+    /// # Panics
+    ///
+    /// When the file cannot be read or has no `build:` line.
+    pub fn repository_build() -> &'static str {
+        static BUILD: OnceLock<String> = OnceLock::new();
+        BUILD.get_or_init(|| {
+            let path = Self::repository_dir().join("spells/warrior.yaml");
+            let text = std::fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+            text.lines()
+                .find_map(|line| line.strip_prefix("build:"))
+                .unwrap_or_else(|| panic!("{}: no build", path.display()))
+                .trim()
+                .to_owned()
+        })
     }
 }
 
@@ -100,6 +121,7 @@ mod tests {
         let data = DataBundle::load(&DataBundle::repository_dir()).unwrap();
         let build = data.build().expect("the spell files name their build");
         assert!(build.starts_with("1.60."), "{build}");
+        assert_eq!(build, DataBundle::repository_build());
         assert_eq!(data.equipment.build(), Some(build), "items and spells");
     }
 

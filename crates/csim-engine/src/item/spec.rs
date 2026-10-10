@@ -21,7 +21,7 @@ use super::types::{ItemSlot, ItemStat, ItemType, Quality};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ItemFile {
-    /// The client build the items were exported from (`1.60.1.70009`).
+    /// The client build the items were exported from (e.g. `1.60.1.70291`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     #[serde(default)]
@@ -197,6 +197,8 @@ pub struct ItemSuffix {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_bundle::DataBundle;
+    use crate::testing::with_build;
 
     const THRASH_BLADE: &str = r#"
 id: 17705
@@ -287,7 +289,7 @@ mutex: [2]
     }
 
     const GENERATED: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 items:
   - id: 19019
     name: Thunderfury, Blessed Blade of the Windseeker
@@ -333,8 +335,8 @@ items:
 
     #[test]
     fn parses_a_generated_item_file() {
-        let file: ItemFile = serde_yaml::from_str(GENERATED).unwrap();
-        assert_eq!(file.build, "1.60.1.70009");
+        let file: ItemFile = serde_yaml::from_str(&with_build(GENERATED)).unwrap();
+        assert_eq!(file.build, DataBundle::repository_build());
         let [thunderfury, arena, lens] = &file.items[..] else {
             panic!("{:?}", file.items)
         };
@@ -370,7 +372,7 @@ items:
 
     #[test]
     fn item_file_round_trips_through_yaml() {
-        let file: ItemFile = serde_yaml::from_str(GENERATED).unwrap();
+        let file: ItemFile = serde_yaml::from_str(&with_build(GENERATED)).unwrap();
         let yaml = serde_yaml::to_string(&file).unwrap();
         assert!(!yaml.contains("charges: 0"), "{yaml}");
         assert!(!yaml.contains("school: physical"), "{yaml}");

@@ -13,7 +13,9 @@ build in the directory) unless `--keep-old` is given. Nothing is removed if a do
 
 Then the build's server-side hotfixes are applied (`tools/fetch_hotfixes.py`: downloaded once into
 `data/tables/hotfixes.<build>.json`, `--refresh-hotfixes` downloads them again; the raw tables are
-kept in `data/tables/raw/`). `--no-hotfixes` leaves the raw tables in place.
+kept in `data/tables/raw/`). `--no-hotfixes` leaves the raw tables in place. Until wago.tools has
+a new build's hotfixes, `--hotfix-build` and `--hotfix-tables` take some of an older build's
+(`--hotfix-build 1.60.1.70235 --hotfix-tables 'Item*'`, see `fetch_hotfixes.py`).
 
 Only the standard library is used.
 """
@@ -134,6 +136,10 @@ def main():
                    help="keep the raw tables, without the server-side hotfixes")
     p.add_argument("--refresh-hotfixes", action="store_true",
                    help="download the hotfixes again over their cache")
+    p.add_argument("--hotfix-build", metavar="BUILD",
+                   help="apply this build's hotfixes instead of the fetched build's")
+    p.add_argument("--hotfix-tables", nargs="+", metavar="PATTERN",
+                   help="apply only the hotfixes of the matching tables ('Item*')")
     args = p.parse_args()
 
     builds = local_files(args.dir)
@@ -183,11 +189,13 @@ def main():
         fetch_hotfixes.restore_raw(args.dir, build)
     else:
         try:
-            hotfixes = fetch_hotfixes.fetch_hotfixes(args.dir, build, jobs=args.jobs,
+            hotfixes = fetch_hotfixes.fetch_hotfixes(args.dir, args.hotfix_build or build,
+                                                     jobs=args.jobs,
                                                      force=args.refresh_hotfixes)
         except (fetch_hotfixes.PageError, urllib.error.URLError) as e:
             sys.exit(f"hotfixes: {e}; none applied by this run "
                      "(--no-hotfixes restores the raw tables)")
+        hotfixes = fetch_hotfixes.only_tables(hotfixes, args.hotfix_tables)
         fetch_hotfixes.print_spells(hotfixes)
         fetch_hotfixes.apply_hotfixes(args.dir, build, hotfixes)
     print("done; re-run the exports in data/README.md ('Re-exporting from a new dump')")

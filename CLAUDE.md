@@ -17,7 +17,9 @@ different.
 The tables are the client build plus its server-side hotfixes (talent reworks, spell values and
 whole items come as hotfixes; Wowhead shows them). `python tools/fetch_tables.py` applies them;
 when Wowhead differs from the data on the same build, refresh them with
-`python tools/fetch_hotfixes.py --force` and re-export (`data/README.md`).
+`python tools/fetch_hotfixes.py --force` and re-export (`data/README.md`). A build that wago.tools
+has no hotfixes for yet takes the item hotfixes of the last build that has them
+(`fetch_tables.py --hotfix-build <build> --hotfix-tables 'Item*'`).
 
 # Development flow
 

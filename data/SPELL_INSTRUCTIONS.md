@@ -296,7 +296,8 @@ basepoints, Heroic Strike), 114 ATTACK_ME (Taunt; 91 is THREAT_ALL), 65 APPLY_AR
 **`EffectAura` values seen** (count): 4 DUMMY (795 — scripted, needs hand-written logic),
 108 ADD_PCT_MODIFIER (693), 107 ADD_FLAT_MODIFIER (630), 332 OVERRIDE_ACTIONBAR_SPELLS (426,
 runes), 3 PERIODIC_DAMAGE (342), 42 PROC_TRIGGER_SPELL (309), 22 MOD_RESISTANCE (212; misc 1 =
-armor), 33 MOD_DECREASE_SPEED, 8 PERIODIC_HEAL, 99 MOD_ATTACK_POWER (103), 69 SCHOOL_ABSORB,
+armor; the armor buffs and debuffs moved to 674 MOD_ARMOR_NO_MODS in build 1.60.1.70291),
+33 MOD_DECREASE_SPEED, 8 PERIODIC_HEAL, 99 MOD_ATTACK_POWER (103), 69 SCHOOL_ABSORB,
 23 PERIODIC_TRIGGER_SPELL, 79 MOD_DAMAGE_PERCENT_DONE (misc = school mask), 29 MOD_STAT,
 12 MOD_STUN, 77 MECHANIC_IMMUNITY, 226 PERIODIC_DUMMY, 87 MOD_DAMAGE_PERCENT_TAKEN,
 319 MOD_MELEE_HASTE_3 (melee attack speed %, Flurry buff 30), 31 MOD_INCREASE_SPEED, 118 MOD_HEALING_PCT
@@ -371,7 +372,8 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
   talent from the Trait tables, not from `ClassMask`. Ranks 2–4 are 21551–21553 via `SupercedesSpell`.
 - **Rend r7 11574**: E0 aura 3 PERIODIC_DAMAGE 21 every 3000 ms, duration 21 s → 147 total; the server adds 2 % of attack power per tick (an
   `ATTACK_POWER_PER_TICK` override, the tables carry no coefficient).
-- **Sunder Armor r5 11597**: E0 aura 22 MOD_RESISTANCE −450 misc 1 (armor), `CumulativeAura` 5,
+- **Sunder Armor r5 11597**: E0 aura 674 MOD_ARMOR_NO_MODS (22 MOD_RESISTANCE before build
+  1.60.1.70291) −450 misc 1 (armor), `CumulativeAura` 5,
   30 s; E1 effect 63 THREAT 206 (1013 before build 1.60.1.70009).
 - **Flurry 12319** (talent, 5 ranks): aura 4 DUMMY, `ProcTypeMask` 0x15554 (crits), triggers the
   buff **12966**: aura 319 haste 30, 15 s, `ProcCharges` 3 consumed on `ProcTypeMask` 0x4 (melee
@@ -518,7 +520,7 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
-| `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
+| `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` / `MOD_ARMOR_NO_MODS` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
 | `SEAL_JUDGEMENT` | on the seal aura effect that names the seal's judgement: `spell` is what `JUDGE_SEAL` casts while the seal is up; it makes the spell a seal (one at a time: casting one ends the others) | `spell` | every seal's E2 (Seal of Command r5 → 20968) |
 | `JUDGE_SEAL` | casts the judgement of the active seal (nothing without one); the seal stays up. The `MARKED` caster aura state (vanilla's `AURA_STATE_JUDGEMENT`) holds while a seal is up | — | Judgement 20271 E0 |
 | `TRIGGER_SPELL_DAMAGE_PERCENT` | casts `spell` with its damage × `value` % | `spell`, `value` | Judgement of Command 20968 E0 → 20966 at 50 % (a raid boss is never stunned) |

@@ -182,7 +182,7 @@ mod tests {
 
     fn file(spells: Vec<SpellRecord>) -> SpellFile {
         SpellFile {
-            build: "1.60.1.70009".into(),
+            build: csim_engine::data_bundle::DataBundle::repository_build().into(),
             class: None,
             learnable: true,
             spells,

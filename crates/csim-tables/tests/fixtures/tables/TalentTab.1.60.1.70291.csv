@@ -14,13 +14,13 @@ ID,Name_lang,BackgroundFile,Description_lang,OrderIndex,Field_4_4_0_53627_004,Cl
 261,Elemental,ShamanElementalCombat,,0,0,64,0,136048,0,0,0
 262,Restoration,ShamanRestoration,,2,0,64,0,136052,0,0,0
 263,Enhancement,ShamanEnhancement,,1,0,64,0,136051,0,0,0
-281,"Feral Combat",DruidFeralCombat,,1,0,1024,0,132276,0,0,0
+281,Feral Combat,DruidFeralCombat,,1,0,1024,0,132276,0,0,0
 282,Restoration,DruidRestoration,,2,0,1024,0,136041,0,0,0
 283,Balance,DruidBalance,,0,0,1024,0,136096,0,0,0
 301,Destruction,WarlockDestruction,,2,0,256,0,136186,0,0,0
 302,Affliction,WarlockCurses,,0,0,256,0,136145,0,0,0
 303,Demonology,WarlockSummoning,,1,0,256,0,136172,0,0,0
-361,"Beast Mastery",HunterBeastMastery,,0,0,4,0,132164,0,0,0
+361,Beast Mastery,HunterBeastMastery,,0,0,4,0,132164,0,0,0
 362,Survival,HunterSurvival,,2,0,4,0,132215,0,0,0
 363,Marksmanship,HunterMarksmanship,,1,0,4,0,132222,0,0,0
 381,Retribution,PaladinCombat,,2,0,2,0,135873,0,0,0

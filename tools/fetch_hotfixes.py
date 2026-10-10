@@ -21,6 +21,12 @@ in it stops the script.
    public) delete it, 3 (invalidated) leaves the `.db2` record. Records the hotfixes do not
    change keep their bytes, so a table without hotfixes is identical to its raw copy.
 
+A new build often has no hotfixes on wago.tools for a few days. `--from-build` takes another
+build's hotfixes (cached as that build's), and `--tables` keeps only the tables matching its
+patterns (`--from-build 1.60.1.70235 --tables 'Item*'`: the item rows, which exist only as
+hotfixes, while the spell and talent hotfixes of the older build are left out, since a newer
+client usually has them and may have changed those rows since). The other tables stay raw.
+
 Neither `raw/` nor the JSON cache matches `<Table>.<build>.csv`, so `TableDir` ignores them.
 
 Only the standard library is used.
@@ -28,6 +34,7 @@ Only the standard library is used.
 import argparse
 import concurrent.futures
 import datetime
+import fnmatch
 import html
 import io
 import json
@@ -379,6 +386,16 @@ def restore_raw(directory, build):
     apply_hotfixes(directory, build, [])
 
 
+def only_tables(hotfixes, patterns):
+    """The hotfixes of the tables matching one of the patterns (all of them without patterns)."""
+    if not patterns:
+        return hotfixes
+    kept = [f for f in hotfixes if any(fnmatch.fnmatchcase(f["table"], p) for p in patterns)]
+    tables = sorted({f["table"] for f in kept})
+    print(f"hotfixes: {len(kept)} of {len(hotfixes)} kept, of {', '.join(tables) or 'no table'}")
+    return kept
+
+
 def print_spells(hotfixes):
     """The hotfixed `SpellName` rows, the quickest view of which spells changed."""
     names = [(f["record_id"], f["status"], (f["data"] or [None, None])[1])
@@ -406,14 +423,20 @@ def main():
     p.add_argument("--force", action="store_true", help="download again over the cache")
     p.add_argument("--no-apply", action="store_true",
                    help="only fetch; restore the raw tables")
+    p.add_argument("--from-build", metavar="BUILD",
+                   help="apply this build's hotfixes instead of the tables' own")
+    p.add_argument("--tables", nargs="+", metavar="PATTERN",
+                   help="apply only the hotfixes of the matching tables ('Item*')")
     p.add_argument("--jobs", type=int, default=6, help="parallel requests (default: %(default)s)")
     args = p.parse_args()
 
     build = args.build or single_build(args.dir)
     try:
-        hotfixes = fetch_hotfixes(args.dir, build, args.region, args.locale, args.jobs, args.force)
+        hotfixes = fetch_hotfixes(args.dir, args.from_build or build, args.region, args.locale,
+                                  args.jobs, args.force)
     except (PageError, urllib.error.URLError) as e:
         sys.exit(f"hotfixes: {e}")
+    hotfixes = only_tables(hotfixes, args.tables)
     print_spells(hotfixes)
     if args.no_apply:
         restore_raw(args.dir, build)

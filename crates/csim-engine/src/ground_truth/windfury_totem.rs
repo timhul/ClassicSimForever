@@ -36,6 +36,7 @@ use crate::spell::overrides::OverrideFile;
 use crate::spell::record::{SpellDb, SpellFile};
 use crate::spell::{Hand, SpellHost, SpellResult};
 use crate::stance::Stance;
+use crate::testing::with_build;
 
 /// Windfury Totem Passive (Rank 3): the 20 % proc.
 const WINDFURY_PASSIVE: u32 = 10612;
@@ -64,7 +65,7 @@ const DAGGER: u32 = 2;
 const SHIELD: u32 = 3;
 
 const WINDFURY_YAML: &str = r#"
-build: 1.60.1.70205
+build: $BUILD
 spells:
 - id: 910612
   name: Windfury Totem Passive (always)
@@ -150,7 +151,8 @@ fn fixture() -> Fixture {
     let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let mut f = Fixture::orc_warrior();
     f.db = SpellDb::load(&data.join("spells")).expect("shipped spell data loads");
-    let file: SpellFile = serde_yaml::from_str(WINDFURY_YAML).expect("valid Windfury yaml");
+    let file: SpellFile =
+        serde_yaml::from_str(&with_build(WINDFURY_YAML)).expect("valid Windfury yaml");
     f.db.add_file(file).expect("Windfury records are valid");
     let overrides: OverrideFile =
         serde_yaml::from_str(WINDFURY_OVERRIDES_YAML).expect("valid override yaml");

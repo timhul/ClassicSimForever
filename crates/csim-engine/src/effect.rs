@@ -1154,7 +1154,7 @@ impl Effect {
                     }
                 }
             }
-            A::ModResistance if school.is_physical() => {
+            A::ModResistance | A::ModArmorNoMods if school.is_physical() => {
                 if on_target && self.script_kind() == Some(ScriptKind::ExclusiveArmorReduction) {
                     host.target_mut()
                         .change_exclusive_armor_reduction(self.spell, signed);

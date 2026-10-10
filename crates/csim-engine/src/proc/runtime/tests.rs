@@ -1,6 +1,6 @@
 use super::*;
 use crate::spell::SpellResult;
-use crate::spell::test_world::World;
+use crate::spell::test_world::{World, db_with};
 
 const FLURRY: u32 = 12319;
 const FLURRY_BUFF: u32 = 12966;
@@ -26,11 +26,9 @@ fn procs_read_sources_rates_and_payloads_from_the_record() {
     assert_eq!(dw.name(), "Deep Wounds");
     assert_eq!(dw.game_id(), DEEP_WOUNDS);
     assert_eq!(dw.rate(), ProcRate::Chance);
-    // ProcTypeMask 0x11154 (swings, melee abilities, ranged, spells) with a CRITICAL hit mask.
-    assert_eq!(
-        dw.sources(),
-        &[ProcSource::MeleeCritical, ProcSource::SpellCritical]
-    );
+    // ProcTypeMask 0x11154 (swings, melee abilities, ranged, spells), narrowed by the override
+    // to swings and melee abilities, with a CRITICAL hit mask.
+    assert_eq!(dw.sources(), &[ProcSource::MeleeCritical]);
     assert!(dw.procs_from_source(ProcSource::MeleeCritical));
     assert!(!dw.procs_from_source(ProcSource::MeleeHit));
     assert_eq!(
@@ -46,7 +44,8 @@ fn procs_read_sources_rates_and_payloads_from_the_record() {
         &[ProcSource::MainhandSwing, ProcSource::OffhandSwing],
         "ProcTypeMask 0x4 with the default HIT | CRITICAL mask"
     );
-    assert_eq!(uw.proc_range(ProcSource::MainhandSwing, &world), 6000);
+    // The chance is the talent's rank value in effect 0 (`chance_effect`), none without a rank.
+    assert_eq!(uw.proc_range(ProcSource::MainhandSwing, &world), 0);
     assert_eq!(
         world.spells.proc_by_game_id(UNBRIDLED_WRATH),
         Some(ProcId(1))
@@ -217,7 +216,15 @@ fn flurry_hands_its_rank_value_to_the_haste_buff_and_loses_charges_on_swings() {
 
 #[test]
 fn chance_procs_roll_and_nested_sources_are_checked() {
-    let mut world = World::new();
+    // The chance is the talent's rank value in effect 0 (`chance_effect`): 60 at rank 5.
+    let mut world = World::with_db(db_with(|file| {
+        let wrath = file
+            .spells
+            .iter_mut()
+            .find(|s| s.id == UNBRIDLED_WRATH)
+            .unwrap();
+        wrath.effects[0].base_points = 60.0;
+    }));
     world.learn(UNBRIDLED_WRATH_RAGE);
     let proc = world.learn(UNBRIDLED_WRATH).proc.unwrap();
     world.rage = 0;

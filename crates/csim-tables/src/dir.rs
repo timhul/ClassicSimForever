@@ -233,16 +233,17 @@ mod tests {
 
     #[test]
     fn file_names_split_into_table_and_build() {
+        let build = csim_engine::data_bundle::DataBundle::repository_build();
         assert_eq!(
-            split_file_name("SpellEffect.1.60.1.70009.csv"),
-            Some(("SpellEffect", "1.60.1.70009"))
+            split_file_name(&format!("SpellEffect.{build}.csv")),
+            Some(("SpellEffect", build))
         );
         assert_eq!(
             split_file_name("TraitNodeXTraitNodeEntry.2.0.csv"),
             Some(("TraitNodeXTraitNodeEntry", "2.0"))
         );
         assert_eq!(split_file_name("Spell.csv"), None);
-        assert_eq!(split_file_name("Spell.1.60.1.70009.txt"), None);
+        assert_eq!(split_file_name(&format!("Spell.{build}.txt")), None);
         assert_eq!(split_file_name("notes.1.txt.csv"), None);
         assert_eq!(split_file_name(".1.2.csv"), None);
         assert_eq!(split_file_name("Spell..csv"), None);

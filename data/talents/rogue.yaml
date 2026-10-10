@@ -2,7 +2,7 @@
 # Do not edit: re-export from a new table dump instead. What a talent does is in its
 # spell (data/spells/<class>.yaml); the rank values here replace the spell's effect
 # base points at each rank (see data/TALENT_INSTRUCTIONS.md).
-build: 1.60.1.70205
+build: 1.60.1.70291
 class: ROGUE
 tree: 1111
 points: 51

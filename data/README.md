@@ -121,7 +121,14 @@ csim_engine::talent::TalentDb::load("data/talents")
    ID or removes it. It prints the hotfixed spell names and the hotfixed tables that are not
    fetched. Blizzard keeps pushing hotfixes to the same build: `python tools/fetch_hotfixes.py
    --force` (or `fetch_tables.py --refresh-hotfixes`) downloads them again and re-applies them;
-   `--no-apply` (`--no-hotfixes`) restores the raw tables. And `python tools/fetch_listfile.py`
+   `--no-apply` (`--no-hotfixes`) restores the raw tables. A new build has no hotfixes on
+   wago.tools for a few days (the script then stops), while its items still come only from
+   them; the spell and talent hotfixes usually reach the next client build itself. Until then
+   the item hotfixes of the last build that has them do: `python tools/fetch_tables.py
+   --hotfix-build 1.60.1.70235 --hotfix-tables 'Item*'` (`fetch_hotfixes.py --from-build …
+   --tables …`); the other tables stay raw. Then, once wago.tools has the build's own
+   (70291's came after two days), `fetch_hotfixes.py --force` applies them instead.
+   And `python tools/fetch_listfile.py`
    refreshes `data/tables/listfile-icons.csv`. That file holds the `interface/icons/` rows of
    the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each
    icon FileDataID, by which Wowhead's CDN serves the icon. The client tables do not have
@@ -166,8 +173,12 @@ csim_engine::talent::TalentDb::load("data/talents")
    `crates/csim-tables/tests/fixtures/classic_item_differences.txt` (regenerate with
    `csim-tables compare-items` after reviewing the change). The parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
-5. Regenerate the test fixtures if the spells they use changed:
-   `python crates/csim-tables/tests/fixtures/make_fixtures.py`.
+5. Regenerate the csim-tables test fixtures:
+   `python crates/csim-tables/tests/fixtures/make_fixtures.py` (from the build in
+   `data/tables/`). The tests take their build from the shipped data
+   (`DataBundle::repository_build`, the `build:` header of `data/spells/`), so the fixtures of
+   another build fail them; the engine's test spells (`spell/test_world.rs`) are read from the
+   shipped files.
 
 A different build changes the `build:` header; every file in `data/spells/` must carry the
 same build.

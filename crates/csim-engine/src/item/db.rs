@@ -272,6 +272,7 @@ impl EquipmentDb {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_bundle::DataBundle;
     use crate::item::{ItemSlot, ItemStat, ItemType, Quality, WeaponDamageSpec};
     use crate::magic_school::MagicSchool;
     use std::fs;
@@ -483,7 +484,7 @@ mod tests {
 
         // Sets and enchants are attached.
         assert!(db.sets().sets().len() > 100);
-        assert_eq!(db.build(), Some("1.60.1.70205"));
+        assert_eq!(db.build(), Some(DataBundle::repository_build()));
         assert!(!db.enchants().is_empty());
 
         // Every weapon slot item carries weapon data, every set item exists.
@@ -571,9 +572,11 @@ mod tests {
     fn exported_files_share_one_build() {
         let dir = std::env::temp_dir().join(format!("csim-db-build-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
+        let build = DataBundle::repository_build();
         fs::write(
             dir.join("head.yaml"),
-            "build: 1.60.1.70009
+            format!(
+                "build: {build}
 items:
   - id: 1
     name: Exported Helm
@@ -581,13 +584,14 @@ items:
     slot: HEAD
     type: PLATE
     quality: EPIC
-    stats: {STAMINA: 20}
-",
+    stats: {{STAMINA: 20}}
+"
+            ),
         )
         .unwrap();
 
         let db = EquipmentDb::load(&dir, None, None).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.70009"));
+        assert_eq!(db.build(), Some(build));
         assert_eq!(db.len(), 1);
         assert_eq!(db.item(1).unwrap().name(), "Exported Helm");
 
