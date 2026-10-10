@@ -186,8 +186,10 @@ pub struct CharacterStats {
     /// Specialization), out of 10 000.
     offhand_melee_hit: u32,
     damage_bonuses_per_weapon_type: [i32; WeaponType::COUNT],
+    /// Percent of the target's armor ignored by every attack (Serrated Blades).
+    armor_penetration: u32,
     /// Percent of the target's armor ignored by attacks with each weapon type (Weaponmaster's
-    /// maces and staves).
+    /// maces and staves), on top of [`CharacterStats::armor_penetration`].
     armor_penetration_per_weapon_type: [u32; WeaponType::COUNT],
     damage_bonuses_per_creature: [f64; CreatureType::COUNT],
     crit_dmg_bonuses_per_creature: [f64; CreatureType::COUNT],
@@ -622,11 +624,21 @@ impl CharacterStats {
         *bonus = sub_checked(*bonus, percent, "armor penetration for weapon type");
     }
 
-    /// Percent of the target's armor the attacks with `weapon` ignore, at most 100.
+    pub fn increase_armor_penetration(&mut self, percent: u32) {
+        self.armor_penetration += percent;
+    }
+
+    pub fn decrease_armor_penetration(&mut self, percent: u32) {
+        self.armor_penetration = sub_checked(self.armor_penetration, percent, "armor penetration");
+    }
+
+    /// Percent of the target's armor the attacks with `weapon` (`None`: unarmed) ignore: the
+    /// part of every attack plus the weapon type's, the sources adding up, at most 100.
     pub fn get_armor_penetration_percent(&self, weapon: Option<WeaponProfile>) -> u32 {
-        weapon.map_or(0, |weapon| {
-            self.armor_penetration_per_weapon_type[weapon.weapon_type.index()].min(100)
-        })
+        let per_weapon_type = weapon.map_or(0, |weapon| {
+            self.armor_penetration_per_weapon_type[weapon.weapon_type.index()]
+        });
+        (self.armor_penetration + per_weapon_type).min(100)
     }
 
     pub fn increase_total_phys_dmg_for_weapon_type(&mut self, weapon_type: WeaponType, value: i32) {

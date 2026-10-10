@@ -8,6 +8,7 @@ use super::rogue::{
 };
 use super::*;
 use crate::magic_school::MagicSchool;
+use crate::mechanics::Mechanics;
 use crate::target::CreatureType;
 
 const MALICE: u32 = 105722;
@@ -350,6 +351,43 @@ fn hack_and_slash_armor_penetration_with_maces() {
     let mut f = with_talents(&[(HACK_AND_SLASH, 2)]);
     wield(&mut f, EquipmentSlot::Mainhand, MACE);
     assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 6);
+}
+
+/// Serrated Blades has no weapon requirement: it counts for every attack, unarmed too; Hack
+/// and Slash's mace part adds to it.
+#[test]
+fn armor_penetration_sources_add_up() {
+    let mut f = with_talents(&[(SERRATED_BLADES, 3), (HACK_AND_SLASH, 5)]);
+    assert_eq!(
+        stat(&f, |s, _| s.get_armor_penetration_percent(None)),
+        9,
+        "unarmed"
+    );
+    wield(&mut f, EquipmentSlot::Mainhand, SWORD);
+    assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 9);
+    wield(&mut f, EquipmentSlot::Mainhand, MACE);
+    assert_eq!(f.ctx().armor_penetration_percent(Hand::Mainhand), 24);
+}
+
+/// The armor penetration takes its percent of the armor the debuffs leave, not rounded, and a
+/// debuff below 0 leaves it nothing to take. The comment's rogue (Serrated Blades, Expose Armor
+/// −900): 1,072 armor → (1,072 − 900) × 0.91, where 1,072 × 0.91 − 900 would leave 75.5.
+/// <https://github.com/magey/forever-warrior/issues/24#issuecomment-6055888787>
+#[test]
+fn armor_penetration_takes_its_percent_after_the_armor_debuffs() {
+    let mut f = with_talents(&[(SERRATED_BLADES, 3)]);
+    f.target.set_base_armor(1072);
+    assert!(close(
+        f.ctx().target_armor_against(Hand::Mainhand),
+        1072.0 * 0.91
+    ));
+    f.target.decrease_armor(900);
+    let armor = f.ctx().target_armor_against(Hand::Mainhand);
+    assert!(close(armor, 172.0 * 0.91), "{armor}");
+    // A bear: 466 − 900 armor is none, and the attacks deal their full damage.
+    f.target.set_base_armor(466);
+    assert_eq!(f.ctx().target_armor_against(Hand::Mainhand), 0.0);
+    assert_eq!(Mechanics::reduction_from_armor(0.0, 60), 0.0);
 }
 
 /// Hack and Slash: the talent is a plain passive; its hidden proc gives swords and axes a

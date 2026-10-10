@@ -793,7 +793,7 @@ mod tests {
         let mut mh = AutoAttack::new(Hand::Mainhand);
         world.rolls.push_back(PhysicalAttackResult::Hit);
         let report = mh.perform(&mut world);
-        let reduction = crate::mechanics::Mechanics::reduction_from_armor(3731, 60);
+        let reduction = crate::mechanics::Mechanics::reduction_from_armor(3731.0, 60);
         assert_eq!(
             report.attack.damage,
             (285.714 * (1.0 - reduction)).round() as u32

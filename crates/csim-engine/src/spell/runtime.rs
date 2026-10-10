@@ -185,16 +185,21 @@ pub trait SpellHost: EffectHost {
     /// `matches` (Preparation). The spell being cast is taken out and never matches.
     fn reset_cooldowns(&mut self, _matches: &dyn Fn(&SpellRecord) -> bool) {}
 
+    /// The target's armor after its debuffs, at least 0.
     fn target_armor(&self) -> i32;
     /// Percent of the target's armor that attacks with the weapon in `hand` ignore
-    /// (Weaponmaster's maces and staves).
+    /// (Serrated Blades; Weaponmaster's maces and staves).
     fn armor_penetration_percent(&self, _hand: Hand) -> u32 {
         0
     }
-    /// The target's armor against an attack with the weapon in `hand`.
-    fn target_armor_against(&self, hand: Hand) -> i32 {
+    /// The target's armor against an attack with the weapon in `hand`: the armor penetration
+    /// takes its percent of what the debuffs leave (Expose Armor first, then the percent; a
+    /// debuff below 0 leaves nothing to take), not rounded. Forever combat logs,
+    /// <https://github.com/magey/forever-warrior/issues/24#issuecomment-6055888787>: at
+    /// 1,072 − 900 armor a 9 % ignore leaves (1,072 − 900) × 0.91, not 1,072 × 0.91 − 900.
+    fn target_armor_against(&self, hand: Hand) -> f64 {
         let ignored = f64::from(self.armor_penetration_percent(hand).min(100)) / 100.0;
-        (f64::from(self.target_armor()) * (1.0 - ignored)).round() as i32
+        f64::from(self.target_armor().max(0)) * (1.0 - ignored)
     }
     /// Damage a blocked attack loses (the target's block value).
     fn target_block_value(&self) -> u32;
