@@ -1,0 +1,210 @@
+# Hand-written Shaman spell overrides: what the client tables (data/spells/shaman.yaml, exported
+# from build 1.60.1.70291 with its hotfixes) do not contain. See
+# crates/csim-engine/src/spell/overrides.rs for the schema and data/SPELL_INSTRUCTIONS.md §1.7-1.11
+# for the table side. Enhancement and Elemental DPS are simulated (TASKS.md SH.0); Restoration's
+# healing and the Season of Discovery runes are IGNORED / NO_OP once the class is exported (SH.2).
+#
+# Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
+#
+# ----- Server-side numbers (TASKS.md SH.1) ------------------------------------------------------
+# The entries below this header come in SH.2-SH.13; these notes are the numbers they implement
+# and where each comes from. Sources:
+#   [T]  the tables (`csim-tables spell <id>`, SpellItemEnchantment, talent curves)
+#   [V]  vmangos (github.com/vmangos/core, branch development): StatSystem.cpp, Unit.cpp,
+#        UnitAuraProcHandler.cpp, TotemAI.cpp - the 1.12 server behaviour where Forever's tables
+#        are silent
+#   [C]  ClassicSim (github.com/timhul/ClassicSim, Class/Shaman/Shaman.cpp)
+#   [G]  github.com/ClassicWoWCommunity/forever-bugs, AidanZMoon's answers (ground truth)
+#   [U]  the user's decision (TASKS.md SH.0)
+#   [?]  open: an assumption to confirm (listed at the end of this header)
+#
+# Forever's damage numbers
+#   - The Shaman's base damage is about half the 1.12 value with the 1.12 coefficients: Lightning
+#     Bolt rank 10 196 (1.12: 428-477), Chain Lightning rank 4 123 (505-563), Earth Shock rank 7
+#     301 (517-545). The tables carry 1.12 numbers elsewhere (Exorcism rank 6 502), so this is
+#     Forever's tuning, not a unit difference. [T]
+#
+# Lightning Bolt (403 .. 15208), Chain Lightning (421 .. 10605)
+#   - Lightning Bolt rank 10: 196 (+1.2/level, ±10.8 %) nature, coefficient 0.714, 2.5 s cast,
+#     220 mana. [T]
+#   - Chain Lightning rank 4: 123 (+0.8/level, ±11.1 %) nature, coefficient 0.571, 2.0 s cast,
+#     6 s cooldown, 485 mana. One target: the jumps never land. [T]
+#   - No travel time: the damage lands as the cast ends, as for every spell in the engine.
+#
+# Lava Burst (408490, 1238299, 1238300)
+#   - Rank 3: 220 (±25.3 %) fire, coefficient 0.714, 2.5 s cast, 10 s cooldown, 265 mana. [T]
+#   - Effect 1 (DUMMY 20): +20 % damage while the caster's Flame Shock is on the target; the
+#     Flame Shock stays. [T]  Lava Burst never auto-crits (the SoD rune's Flame Shock crit is
+#     not in the description). [T]
+#
+# Shocks: Earth Shock (8042 .. 10414), Flame Shock (8050 .. 29228), Frost Shock (8056 .. 10473)
+#   - One shared 6 s category cooldown, 1.5 s GCD; Reverberation -0.2 s a rank. [T]
+#   - Earth Shock rank 7: 301 (±5.3 %) nature, coefficient 0.386, 450 mana; the interrupt and
+#     school lockout do nothing against a boss. [T]
+#   - Flame Shock rank 6: 166 fire, coefficient 0.214, plus 44 a tick every 3 s for 12 s
+#     (coefficient 0.1 a tick), 410 mana. [T]
+#   - Frost Shock rank 4: 283 (+1.8/level from 58, ±5.6 %) frost, coefficient 0.386, 430 mana;
+#     the slow does nothing. [T]
+#
+# Lightning Overload (408438, talent: 3 / 7 / 10 %)
+#   - The rank value replaces the table's DUMMY 30; it procs on the damage of Lightning Bolt,
+#     Chain Lightning and Lava Burst (proc mask 0x10000). [T]  Lava Burst overloads too: its
+#     overload copies are in the tables. [U]
+#   - The overload casts the copy of the cast's rank: Lightning Bolt 408439 .. 408477, Chain
+#     Lightning 408479 .. 408484, Lava Burst 408491 / 1238373 / 1238376 - half the base points
+#     and half the coefficient (Lightning Bolt rank 10 98 at 0.357, Lava Burst rank 3 110 at
+#     0.357), no cost, no cast time. [T]
+#   - The copy rolls its own hit and crit, lands right after the cast, does not overload again
+#     and does not count as a cast for Elemental Focus. [?]
+#
+# Stormstrike (17364)
+#   - NORMALIZED_WEAPON_DMG (100 %, normalized speed), physical, the special melee table; 8 s
+#     cooldown, 125 mana. [T]
+#   - The target aura (271, MOD_DAMAGE_PERCENT_TAKEN_FROM_CASTER) +20 % to the caster's next
+#     Lightning Bolt, Chain Lightning or Earth Shock (class mask 0x100003) for 12 s, one charge.
+#     One charge where 1.12 had two, and no longer all nature damage. [T]
+#   - The charge goes to the cast; its Lightning Overload copy (same class mask) lands after the
+#     charge is used and gets no bonus. [?]
+#
+# Flurry (16256 -> 16257, talent: 5 / 10 / 15 / 20 / 25 %)
+#   - Procs on melee crits (white and special, mask 0x14); 16257: melee haste (aura 319) of the
+#     rank value, three charges used by white swings, 15 s, 500 ms between charges. [T]
+#   - Not from Windfury extra attacks, and a crit on the last charge reapplies it without using
+#     the charge. [V] UnitAuraProcHandler.cpp IsTriggeredAtSpellProcEvent, HandleHasteAuraProc
+#
+# Windfury Weapon (8232 .. 16362; enchant 1669 "Windfury 4", 60 min)
+#   - The enchant's equip spell 439431: 20 % chance (the enchant's 20 and the aura's
+#     ProcChance) on white and special melee hits (0x14), 1.5 s internal cooldown. [T] [U]
+#   - It casts the rank's payload, 16361 at rank 4 (439431 only names a DUMMY 46): 333 attack
+#     power (Elemental Weapons +13 / 27 / 40 %: 466) for 1.5 s with three charges used by
+#     swings, and two extra attacks. [T]
+#   - The extra attacks cannot proc it. [U]  On the main hand it replaces the shaman's own benefit
+#     from a Windfury Totem (the description), so the two share the WINDFURY temp group. [T]
+#
+# Flametongue Weapon (8024 .. 16342; enchant 1666 "Flametongue 6", 60 min)
+#   - The enchant's equip spell 436519 procs on every white and special melee hit (0x14, the
+#     enchant's 100); the damage spell is Flametongue Attack 10444 (fire), its amount 16344's
+#     2498 (+78/level from 56: 2810 at 60) x the weapon's speed / 100, which is the description's
+#     m/77 at 1.3 s and m/25 at 4.0 s: 98 a hit with a 3.5 s two-hander. [T]
+#   - It scales with spell power [G #80]; the coefficient is not in the tables. [?]
+#   - Elemental Weapons +5 / 10 / 15 %. [T]
+#
+# Rockbiter Weapon (8017 .. 16316; enchant 1664 "Rockbiter 7", 60 min)
+#   - The enchant's equip spell 16313: +554 (+16.5/level from 54: 653 at 60) melee attack power
+#     while the weapon is equipped, and extra threat (not simulated). [T]  The 1.12 server added
+#     weapon damage per second instead (vmangos Player.cpp ITEM_ENCHANTMENT_TYPE_TOTEM); Forever
+#     made it attack power. Elemental Weapons +7 / 13 / 20 %. [T]
+#
+# Frostbrand Weapon (8033 .. 16356; enchant 1668 "Frostbrand 5")
+#   - Chance on hit of 16353: 158 (+5.6/level from 58) frost and a slow. The enchant row has no
+#     chance (EffectPointsMin 0) and the tables no PPM: not offered until a rate is known. [?]
+#
+# Totems
+#   - One totem per element, the summon's SummonProperties naming the slot: 63 fire (Searing,
+#     Magma, Flametongue), 81 earth (Strength of Earth), 82 water (Mana Spring, Mana Tide), 83 air
+#     (Windfury, Grace of Air). A new totem of an element replaces the old one. [T] [V]
+#     SpellEffects.cpp EffectSummonTotem ("unsummon old totem")
+#   - Totem casts have a 1 s GCD. [T]  Totemic Focus -5 .. -25 % their mana. [T]
+#   - The damage totems and Fire Nova use the shaman's spell damage, spell hit and spell crit. [U]
+#     The 1.12 server let totems benefit from spell damage since 1.10 (vmangos
+#     UnitAuraProcHandler.cpp, the Zandalarian Hero Charm note). [V]
+#   - Searing Totem rank 6 (10438): 55 s, 170 mana; it casts its attack 10436 (47 fire, ±29.8 %,
+#     2.2 s cast) again as soon as the last one ends: one attack every 2.2 s. [T] [V] TotemAI.cpp
+#     UpdateAI (an active totem recasts its spell when it is not casting)
+#   - Magma Totem rank 4 (10587): 20 s, 650 mana; 10584 pulses 10581 (73 fire, area) every 2 s:
+#     ten pulses. [T]
+#   - Fire Nova rank 5 (408345): a spell, not a totem: 10 s cooldown, 520 mana, 11307 (419
+#     +3.4/level from 52, ±11 % fire) at the active fire totem; it needs one. Improved Fire Nova
+#     +10 / 20 % and -2 / -4 s. [T]
+#   - The totem attacks and Fire Nova carry no coefficient in the tables. [?]
+#   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
+#     ticks), Elemental Fury on the totem attacks' crits. [T]
+#   - Strength of Earth rank 5 (25361 -> 25362): +53 strength, 300 s, 275 mana. Grace of Air
+#     rank 3 (25359 -> 25360): +89 agility, 300 s, 310 mana. [T]
+#   - Mana Spring rank 4 (10497 -> 10494): 10 mana every 2 s, 300 s, 100 mana. [T]
+#   - Windfury Totem rank 3 (10614): 300 s, 250 mana; the party aura 10612 (20 %, 100 ms internal
+#     cooldown, melee hits 0x14) casts 10610: +246 attack power for 1 s with two charges and one
+#     extra attack. [T]  In a party the totem pulses once a second, each pulse refreshing the
+#     enchant. [U]  The enchant rows (563 "Windfury Totem 2", 1783 "Windfury Totem 1") last
+#     10 s, not the ~5 s of the decision. [T]
+#   - Flametongue Totem rank 4 (16387): 275 mana; the party aura 15036 procs on main-hand hits
+#     (0x4) into 16389: 1363 x the weapon's speed / 100 fire (as Flametongue Weapon). [T] It uses
+#     the weapon's speed [G #220].
+#   - Mana Tide rank 3 (17359, Restoration talent): 290 mana every 3 s for 12 s, 5 min cooldown;
+#     not in the builds. [T]
+#
+# Baseline passives
+#   - Forever's class deep dive moved Enhancing Totems, Two-Handed Axes and Maces and Improved
+#     Weapon Totems to baseline; Weapon Mastery and Shield Specialization were listed by mistake
+#     [G #280, #276]. The tables cannot say which the character knows (all are acquire 0 in
+#     the Enhancement skill line, none in the tree): Enhancing Totems rank 2 (16295: Strength of
+#     Earth and Grace of Air +15 %) and Improved Weapon Totems rank 2 (29193: Windfury Totem
+#     attack power +30 %, Flametongue Totem +12 %) known by every Shaman, Weapon Mastery (29088)
+#     and Shield Specialization (16301) not. [?]
+#
+# Elemental talents the tables leave to the server
+#   - Elemental Focus (16164): 10 % on casting a fire, frost or nature damage spell (mask
+#     0x15550); Clearcasting 16246: -100 % mana of the next damage spell, one charge, 15 s. [T]
+#     A Clearcasting from the spell that used the last one stays up. [G #235]
+#   - Elemental Devastation (30160 -> 30165): +3 / 6 / 9 % melee crit (aura 52) for 10 s on a
+#     harmful non-periodic spell crit; Flame Shock's ticks, the totems and the weapon procs
+#     (Flametongue) do not trigger it. [G #257]
+#   - Elemental Fury (16089): +20 .. 100 % of the crit bonus (CRIT_DAMAGE_BONUS), spells and the
+#     totem attacks: a spell crit deals 200 % at rank 5 (1.5 x the bonus doubled). [T]
+#
+# Enhancement talents the tables leave to the server
+#   - Maelstrom Weapon (408498 -> 408505): 10 procs per minute (chance = 10 x unhasted main-hand
+#     speed / 60) on white and special melee hits. [U]  The aura's mask 0x10014 also names
+#     spell damage (0x10000); the description says melee attacks only, which is used. [?]
+#   - 408505 stacks to 5 (the talent's E2) for 30 s; each stack takes the rank value (-4 .. -20
+#     %, the talent's E0) off the next Lightning Bolt's cast time and mana; the payload carries
+#     the rank-5 -20 %. That Lightning Bolt uses every stack. [T]  The talent's E1 (DUMMY 50)
+#     has no use. [?]  Five stacks at rank 5 make it instant, so it does not touch the swing
+#     (the swing rule below is for cast times > 0). [U]
+#   - Improved Stormstrike (1223031): Stormstrike gives 1238931 (50 % of spirit regeneration
+#     continues while casting, 15 s) at 50 / 100 %; the dodge / parry reset does nothing (the
+#     boss does not attack the character). [T]  Regeneration-while-casting sources add up,
+#     capped at 100 % (Mindfulness 50 % + Improved Stormstrike 50 %). [V] StatSystem.cpp
+#     UpdateManaRegen
+#   - Mental Dexterity (415140): aura 598, attack power = 33 / 67 / 100 % of intellect. Its E1
+#     (DUMMY 20 +5/level, in no tooltip) is ignored. [T] [U]
+#   - Rage of the Farseer (425336): +30 % melee and ranged attack speed (aura 342) for 25 s,
+#     3 min cooldown, off the GCD; aura 61 is the model size. [T]
+#
+# Casting and the swing timer
+#   - A cast with a cast time > 0 pauses the melee swing timers and resets them at its end,
+#     completed or cancelled: the next swing starts from zero. Every class (the Paladin's Hammer
+#     of Wrath too). [U]
+#
+# Gear hit and crit: one stat each for melee, ranged and spells. [U]
+#
+# Class numbers (data/classes/shaman.yaml, SH.3)
+#   - Base mana 1520, 19.69 agility per 1 % crit, 59.17 intellect per 1 % spell crit
+#     (PlayerExpectedStat 60/7); 2 attack power per strength, none per agility (ChrClasses);
+#     relic slot (totems). [T]
+#   - Base attributes Str 65 / Agi 35 / Sta 75 / Int 70 / Spi 80, melee attack power 160, GCD
+#     1.5 s, mail. [C]
+#   - Base melee crit 1.7 % (and 1.7 % dodge). [V] StatSystem.cpp UpdateCritPercentage
+#   - Base spell crit 3.54 %. [V] Unit.cpp GetSpellCritFromIntellect (its intellect rate at 60 is
+#     59.5, the tables' 59.17 is used)
+#   - Spirit regeneration 17 + spirit / 5 mana per 5 s outside the five-second rule. [V] Unit.cpp
+#     GetRegenMPPerSpirit (ClassicSim used 15 + spirit / 5)
+#   - Base health: not in the tables or vmangos' source (player_classlevelstats is database
+#     data); it does not change the damage. [?]
+#   - Races: Orc, Tauren, Troll, Dwarf (new in Forever) and Windshaper Skyborne (CharBaseInfo).
+#     No Dual Wield in any Shaman skill line: two-handers or a one-hander with a shield or
+#     off-hand. [T]  Weapon proficiencies: one-handed axes, maces, daggers, fist weapons,
+#     staves, two-handed axes and maces (the baseline Two-Handed Axes and Maces). [C] [T]
+#
+# Open points ([?] above)
+#   1. Lightning Overload's copy: own hit / crit rolls, lands right after, does not overload or
+#      count as a cast for Elemental Focus.
+#   2. Stormstrike's charge goes to the cast, not its overload copy.
+#   3. The coefficients of Flametongue Weapon, the totem attacks and Fire Nova (none in the
+#      tables).
+#   4. Frostbrand Weapon's proc rate (not offered until known).
+#   5. The baseline passives: Enhancing Totems and Improved Weapon Totems rank 2 known.
+#   6. Maelstrom Weapon from melee only; its E1 (50) unused.
+#   7. Base health.
+
+overrides: []
