@@ -67,7 +67,8 @@ pub struct RunArgs {
     seed: Option<u64>,
     /// Also runs the stat-weight scaling options and prints the stat weights. Without a list:
     /// agility, strength, hit, crit, attack power and the skills of the equipped weapons.
-    /// Otherwise a comma separated list, e.g. `--scale=strength,hit,sword`.
+    /// Otherwise a comma separated list, e.g. `--scale=strength,hit,sword`; `arp` (+1 % armor
+    /// penetration, no item stat) only from the list.
     #[arg(
         long,
         num_args = 0..=1,
@@ -130,6 +131,7 @@ fn parse_scale_option(text: &str) -> std::result::Result<SimOption, String> {
         "HIT" => "HIT_CHANCE",
         "CRIT" => "CRIT_CHANCE",
         "AP" => "ATTACK_POWER",
+        "ARP" => "ARMOR_PENETRATION",
         "AXE" | "DAGGER" | "MACE" | "SWORD" => return parse_scale_option(&format!("{name}_SKILL")),
         "INT" => "INTELLECT",
         "SPELL_CRIT" => "SPELL_CRIT_CHANCE",
@@ -622,6 +624,10 @@ mod tests {
         assert_eq!(parse_scale_option("hit"), Ok(SimOption::ScaleHitChance));
         assert_eq!(parse_scale_option("AP"), Ok(SimOption::ScaleAttackPower));
         assert_eq!(parse_scale_option("sword"), Ok(SimOption::ScaleSwordSkill));
+        assert_eq!(
+            parse_scale_option("arp"),
+            Ok(SimOption::ScaleArmorPenetration)
+        );
         assert_eq!(
             parse_scale_option("SCALE_SPELL_PENETRATION"),
             Ok(SimOption::ScaleSpellPenetration)
