@@ -15,6 +15,7 @@ data/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── paladin.yaml      generated: the Paladin spellbook, talents, runes and their payloads
 │   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
+│   ├── shaman.yaml       generated: the Shaman spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
 │   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
 │   ├── enchants.yaml     generated: the spells the enchant procs name
@@ -23,6 +24,7 @@ data/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
 │       ├── paladin.yaml  also the Paladin's server-side numbers and their sources (header)
 │       ├── rogue.yaml
+│       ├── shaman.yaml   also the Shaman's server-side numbers and their sources (header)
 │       ├── racials.yaml
 │       ├── externals.yaml
 │       ├── enchants.yaml
@@ -31,7 +33,8 @@ data/
 ├── talents/
 │   ├── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
 │   ├── paladin.yaml      generated: the Paladin talent tree
-│   └── rogue.yaml        generated: the Rogue talent tree
+│   ├── rogue.yaml        generated: the Rogue talent tree
+│   └── shaman.yaml       generated: the Shaman talent tree
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/
@@ -68,12 +71,14 @@ data/tables/<Table>.<build>.csv
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --class paladin   →  data/spells/paladin.yaml
 csim-tables export-spells --class rogue     →  data/spells/rogue.yaml
+csim-tables export-spells --class shaman    →  data/spells/shaman.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
 csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the poisons' SpellItemEnchantment rows)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
 csim-tables export-talents --class paladin  →  data/talents/paladin.yaml
 csim-tables export-talents --class rogue    →  data/talents/rogue.yaml
+csim-tables export-talents --class shaman   →  data/talents/shaman.yaml
 csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml
 csim-tables export-spells --items           →  data/spells/items.yaml      (item and set bonus spells)
 csim-tables export-all                      →  all of the above, then check
@@ -91,7 +96,8 @@ csim_engine::talent::TalentDb::load("data/talents")
    `Spell*` rows in snake_case (§1.7), effects included. The external buffs are walked the
    same way from the aura spell ids `data/external_buffs.yaml` names (Greater Blessing of
    Kings 25898, Faerie Fire 9907, …); ids another spell file already carries (the Warrior's
-   Sunder Armor and Battle Shout) are not repeated, since the engine loads every file.
+   Sunder Armor and Battle Shout, the Shaman's Strength of Earth and Windfury Totem) are not
+   repeated, since the engine loads every file.
 2. The walk is **pruned** (§1.10): effects the simulator has no use for are dropped, spells left
    with nothing to do are left out.
 3. The generated files are committed so the engine and its tests never need the dump.
@@ -145,12 +151,14 @@ csim_engine::talent::TalentDb::load("data/talents")
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --class paladin
    cargo run -p csim-tables -- export-spells --class rogue
+   cargo run -p csim-tables -- export-spells --class shaman
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-spells --enchants
    cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- export-talents --class paladin
    cargo run -p csim-tables -- export-talents --class rogue
+   cargo run -p csim-tables -- export-talents --class shaman
    cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- export-spells --items
    cargo run -p csim-tables -- check

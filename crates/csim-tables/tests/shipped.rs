@@ -15,7 +15,15 @@ use csim_tables::export;
 use csim_tables::{TableDir, Tables};
 
 /// The classes whose spell and talent files are exported (`csim-tables export-all`).
-const EXPORTED_CLASSES: [PlayerClass; 3] = [
+const EXPORTED_CLASSES: [PlayerClass; 4] = [
+    PlayerClass::Warrior,
+    PlayerClass::Paladin,
+    PlayerClass::Rogue,
+    PlayerClass::Shaman,
+];
+
+/// The exported classes the engine loads, with a `data/classes/<class>.yaml`.
+const LOADED_CLASSES: [PlayerClass; 3] = [
     PlayerClass::Warrior,
     PlayerClass::Paladin,
     PlayerClass::Rogue,
@@ -208,7 +216,7 @@ fn shipped_classes_match_the_tables() {
     let tables = Tables::load(&dir).unwrap();
     let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
     let classes = ClassDb::load(&root.join("data/classes"), Some(&enchants)).unwrap();
-    for class in EXPORTED_CLASSES {
+    for class in LOADED_CLASSES {
         let spec = classes.get(class).unwrap();
         let class_row = tables
             .chr_classes()

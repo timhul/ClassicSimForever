@@ -910,29 +910,6 @@ spells:
     base_points: 20.0
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
-- id: 25362
-  name: Strength of Earth
-  rank_text: Rank 5
-  attributes: [320, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  icon: 136023
-  icon_name: spell_nature_earthbindtotem
-  categories:
-    defense_type: MAGIC
-  levels:
-    base: 60
-    spell: 60
-  class_options:
-    set: 11
-    mask: [65536, 0, 0, 134217728]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: APPLY_AREA_AURA_PARTY
-    aura: MOD_STAT
-    base_points: 53.0
-    radius_yd: [30.0, 30.0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 27869
   name: Dark Rune
   attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]

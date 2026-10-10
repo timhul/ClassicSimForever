@@ -1603,9 +1603,11 @@ debuffs:
                 !db.is_learnable(spec.spell)
                     || matches!(
                         db.class_of(spec.spell),
-                        Some(Some(PlayerClass::Warrior | PlayerClass::Paladin))
+                        Some(Some(
+                            PlayerClass::Warrior | PlayerClass::Paladin | PlayerClass::Shaman
+                        ))
                     ),
-                "{}: the aura is an externals.yaml record, a Warrior or a Paladin spell",
+                "{}: the aura is an externals.yaml record or a Warrior, Paladin or Shaman spell",
                 spec.name
             );
         }

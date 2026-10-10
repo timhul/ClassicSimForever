@@ -187,6 +187,9 @@ dbc_enum! {
         RemoveTalent = 181 => "REMOVE_TALENT",
         DespawnAreatrigger = 182 => "DESPAWN_AREATRIGGER",
         Reputation2 = 184 => "REPUTATION_2",
+        /// A Shaman weapon imbue: misc = `SpellItemEnchantment` (Windfury Weapon: 1669); retail
+        /// name unverified.
+        EnchantItemImbue = 360 => "ENCHANT_ITEM_IMBUE",
     }
 }
 

@@ -649,8 +649,18 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
             ],
             attributes: e.effect_attributes,
         })
+        .filter(|e| !swaps_missing_spell(tables, e))
         .collect();
     record
+}
+
+/// An action-bar override naming a spell the tables lack (Improved Ghost Wolf's 1271481).
+fn swaps_missing_spell(tables: &Tables, effect: &EffectRecord) -> bool {
+    effect.is_apply_aura()
+        && effect.aura == AuraType::OverrideActionbarSpells
+        && [effect.misc_value[0] as u32, effect.base_points as u32]
+            .into_iter()
+            .any(|id| !tables.spell_exists(id))
 }
 
 /// Renders a file as YAML with a header naming its origin; the output is deterministic for a

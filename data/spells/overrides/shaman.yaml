@@ -203,4 +203,297 @@
 #      (0 until known).
 #   2. Base health (the Rogue's until known).
 
-overrides: []
+# ----- Overrides ------------------------------------------------------------------------------
+# Scripts the Shaman work has not implemented yet are NO_OP with the task (TASKS.md SH.n) that
+# replaces them in the note; their params.spell names the payload the export must carry (the
+# tables only name it in a DUMMY's base points or a description). `walk` reaches what only a
+# totem's creature or an imbue's SpellItemEnchantment row names. Healing, utility, the 1.12
+# talents left in the skill lines and the Season of Discovery runes are IGNORED or NO_OP, so
+# `csim-tables check` lists nothing of the Shaman.
+
+overrides:
+  # ----- Elemental
+  - id: 408490
+    note: Lava Burst r1; E1 +20 % with the caster's Flame Shock on the target (SH.5)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1238299
+    note: Lava Burst r2; E1 +20 % with the caster's Flame Shock on the target (SH.5)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 1238300
+    note: Lava Burst r3; E1 +20 % with the caster's Flame Shock on the target (SH.5)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 8050
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 8052
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 8053
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 10447
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 10448
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 29228
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 408341
+    note: Fire Nova r1; E0 the damage 8349 at the active fire totem (SH.7)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 8349 } }]
+  - id: 408342
+    note: Fire Nova r2; E0 the damage 8502 at the active fire totem (SH.7)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 8502 } }]
+  - id: 408343
+    note: Fire Nova r3; E0 the damage 8503 at the active fire totem (SH.7)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 8503 } }]
+  - id: 408344
+    note: Fire Nova r4; E0 the damage 11306 at the active fire totem (SH.7)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 11306 } }]
+  - id: 408345
+    note: Fire Nova r5; E0 the damage 11307 at the active fire totem (SH.7)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 11307 } }]
+  - id: 408438
+    note: Lightning Overload (talent); E0 the rank value is the chance to cast the overload copy (SH.8)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 30160
+    note: Elemental Devastation (talent); E0 the rank value is 30165's melee crit (SH.8)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 30165 } }]
+
+  # ----- Enhancement
+  - id: 16256
+    note: Flurry (talent); E0 the rank value is 16257's haste (SH.8)
+    effects: [{ index: 0, script: NO_OP, params: { spell: 16257 } }]
+  - id: 408498
+    note: Maelstrom Weapon (talent); E0 the reduction per stack of 408505, E1 unused, E2 the stacks (SH.8)
+    effects:
+      - { index: 0, script: NO_OP, params: { spell: 408505 } }
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 1223031
+    note: Improved Stormstrike (talent); E0 the chance of 1238931 (SH.8), E1 the dodge / parry reset, E2 unused
+    effects:
+      - { index: 0, script: NO_OP, params: { spell: 1238931 } }
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 415140
+    note: Mental Dexterity (talent); E1 is in no tooltip and ignored (SH.0 Q4)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 16268
+    note: Spirit Weapons (talent); E2 the parry chance (the character is not attacked)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 26545
+    note: Lightning Shield's orb (the character is not attacked)
+    effects: [{ index: 0, script: NO_OP }]
+
+  # ----- Weapon imbues (SH.6): the enchant's equip spell and payloads of the highest rank
+  - id: 16362
+    note: Windfury Weapon r4; enchant 1669's equip spell 439431 and its payload 16361
+    walk: [439431, 16361]
+  - id: 16342
+    note: Flametongue Weapon r6; enchant 1666's equip spell 436519, 16344's amount and the damage 10444
+    walk: [436519, 16344, 10444]
+  - id: 16316
+    note: Rockbiter Weapon r7; enchant 1664's equip spell 16313 (attack power)
+    walk: [16313]
+  - id: 439431
+    note: Windfury Weapon's proc aura; E0 casts the imbue rank's payload (16361 at rank 4) (SH.6)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 16344
+    note: Flametongue Weapon Proc r6; E0 the amount 436519 scales by weapon speed (SH.6)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 436519
+    note: Flametongue Weapon's proc aura; E0 deals 16344's amount x weapon speed / 100 as 10444 (SH.6)
+    effects: [{ index: 0, script: NO_OP }]
+
+  # ----- Totems (SH.7): the highest rank's creature spells
+  - id: 10438
+    note: Searing Totem r6; the totem casts its attack 10436
+    walk: [10436]
+  - id: 10587
+    note: Magma Totem r4; the totem's passive 10584 pulses 10581
+    walk: [10584]
+  - id: 25361
+    note: Strength of Earth Totem r5; the totem's aura 25362
+    walk: [25362]
+  - id: 25359
+    note: Grace of Air Totem r3; the totem's aura 25360
+    walk: [25360]
+  - id: 10497
+    note: Mana Spring Totem r4; the totem's aura 10494
+    walk: [10494]
+  - id: 10614
+    note: Windfury Totem r3; the totem's party aura 10612 (its payload 10610 in base points)
+    walk: [10612, 10610]
+  - id: 16387
+    note: Flametongue Totem r4; the totem's party aura 15036 (its payload 16389 in base points)
+    walk: [15036, 16389]
+  - id: 16389
+    note: Flametongue Totem's proc; E0 deals its amount x weapon speed / 100 fire (SH.7)
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 29193
+    note: Improved Weapon Totems r2 (baseline, SH.3); E0 Windfury Totem attack power +30 %, E1 Flametongue Totem +12 % (SH.7)
+    effects:
+      - { index: 0, script: NO_OP }
+      - { index: 1, script: NO_OP }
+
+  # ----- Not simulated
+
+  - id: 29192
+    note: Improved Weapon Totems r1 (rank 2 is baseline)
+    sim_flags: [IGNORED]
+  - id: 16259
+    note: Enhancing Totems r1 (rank 2 is baseline)
+    sim_flags: [IGNORED]
+  - id: 29082
+    note: Weapon Mastery r1 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29084
+    note: Weapon Mastery r2 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29086
+    note: Weapon Mastery r3 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29087
+    note: Weapon Mastery r4 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29088
+    note: Weapon Mastery r5 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 16253
+    note: Shield Specialization r1 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16298
+    note: Shield Specialization r2 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16299
+    note: Shield Specialization r3 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16300
+    note: Shield Specialization r4 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16301
+    note: Shield Specialization r5 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16180
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16196
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16198
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16579
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16580
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16581
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16582
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16189
+    note: Totemic Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 29189
+    note: Healing Grace (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 29191
+    note: Healing Grace (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 408507
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 425339
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408696
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 425874
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 437009
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409324
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409333
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409337
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408514
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408519
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 415236
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 415242
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 1231681
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408510
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 408511
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 408521
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1239242
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1239243
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 16176
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1222988
+    note: Earthbound (talent), an Earthbind Totem root
+    sim_flags: [IGNORED]
+  - id: 556
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 6196
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 6495
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20608
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 21169
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 2008
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20609
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20610
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20776
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20777
+    note: utility
+    sim_flags: [IGNORED]

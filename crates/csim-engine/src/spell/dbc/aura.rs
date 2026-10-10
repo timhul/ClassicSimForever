@@ -185,6 +185,9 @@ dbc_enum! {
         ModSpellCooldownByHaste = 347 => "MOD_SPELL_COOLDOWN_BY_HASTE",
         /// Max power, misc = power type (Boundless Rage); retail name unverified.
         ModMaxPower = 418 => "MOD_MAX_POWER",
+        /// Attack power from a percent of a stat, misc = stat (Mental Dexterity: intellect);
+        /// retail name unverified.
+        ModAttackPowerOfStatPercent = 598 => "MOD_ATTACK_POWER_OF_STAT_PERCENT",
         /// Armor, misc 1 = armor, as `MOD_RESISTANCE` (Sunder Armor −450, Devotion Aura; the
         /// armor auras since 70291). Named after its "(DNT) Mod Armor No Mods" spell: retail
         /// names stop before 674.

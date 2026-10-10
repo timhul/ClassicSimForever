@@ -672,4 +672,50 @@ talents:
         );
         assert_eq!(named("Vengeance").values_at(3), [(0, 3.0)]);
     }
+
+    #[test]
+    fn the_shipped_shaman_tree_loads_with_its_prerequisites() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/talents/shaman.yaml");
+        let file = TalentFile::load(&path).expect("shipped talent data loads");
+        assert_eq!(file.class, PlayerClass::Shaman);
+        assert_eq!(file.tree, 1082);
+        assert_eq!(file.points, 51);
+        assert_eq!(file.points_per_tier, 5);
+        assert_eq!(
+            file.tabs
+                .iter()
+                .map(|t| t.name.as_str())
+                .collect::<Vec<_>>(),
+            ["Elemental Combat", "Enhancement", "Restoration"]
+        );
+        assert_eq!(file.talents.len(), 50);
+        let named = |name: &str| {
+            file.talent_by_name(name, None)
+                .unwrap_or_else(|| panic!("{name}"))
+        };
+        for (talent, parent) in [
+            ("Call of Thunder", "Elemental Alacrity"),
+            ("Elemental Fury", "Call of Thunder"),
+            ("Lava Burst", "Lightning Overload"),
+            ("Flurry", "Mental Dexterity"),
+            ("Improved Stormstrike", "Stormstrike"),
+            ("Rage of the Farseer", "Mental Quickness"),
+            ("Riptide", "Healing Way"),
+        ] {
+            assert_eq!(named(talent).requires, Some(named(parent).node), "{talent}");
+        }
+        let with_prerequisite = file.talents.iter().filter(|t| t.requires.is_some());
+        assert_eq!(with_prerequisite.count(), 7);
+        let lava_burst = named("Lava Burst");
+        assert_eq!((lava_burst.spell, lava_burst.tier), (408490, 6));
+        // Forever values: Lightning Overload 10 %, Maelstrom Weapon 20 % a stack, Mental
+        // Dexterity 100 % of intellect, Tidal Focus's hit in its second and third effects.
+        assert_eq!(named("Lightning Overload").values_at(3), [(0, 10.0)]);
+        assert_eq!(named("Maelstrom Weapon").values_at(5), [(0, -20.0)]);
+        assert_eq!(named("Mental Dexterity").values_at(3), [(0, 100.0)]);
+        assert_eq!(
+            named("Tidal Focus").values_at(5),
+            [(0, -5.0), (1, 5.0), (2, 5.0)]
+        );
+    }
 }

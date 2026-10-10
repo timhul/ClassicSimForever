@@ -426,7 +426,9 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it
    triggers; Improved Hamstring: a proc whose only payload is a root) — repeated until nothing
    changes. `SupercedesSpell` links to dropped ranks are cleared. Mocking Blow keeps its
-   `SCHOOL_DAMAGE` and stays; Bloodthirst loses its run-speed aura and stays.
+   `SCHOOL_DAMAGE` and stays; Bloodthirst loses its run-speed aura and stays. An action-bar
+   override naming a spell the tables lack is never exported (Improved Ghost Wolf's swap of
+   1271481).
 3. Spells the overrides mention (their own entry, or another entry's `params.spell` /
    `stance_passive` / `walk`) are never dropped, even when empty: Berserker Rage keeps existing as the
    spell Improved Berserker Rage's `GAIN_RESOURCE_ON_USE` reacts to.
