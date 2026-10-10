@@ -1149,7 +1149,8 @@ impl Session {
                 on_gcd: spell.triggers_gcd(),
                 affordable: spell.resource_type().is_none_or(|resource| {
                     character.resource_level(resource, shown_at)
-                        >= spell.resource_cost_with(character.spell_modifiers())
+                        >= spell
+                            .resource_cost_with(character.spell_modifiers(), character.base_mana())
                 }),
                 usable,
             });

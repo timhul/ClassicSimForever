@@ -35,7 +35,7 @@ use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
 use crate::race::{Race, RaceSpec};
 use crate::rage_formula::RageFormula;
-use crate::resource::{Rage, Resource, ResourceType};
+use crate::resource::{Mana, Rage, Resource, ResourceType};
 use crate::rng::{Random, Xoroshiro128Plus};
 use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
@@ -210,6 +210,18 @@ pub struct Character {
     stance_rage_retained: u32,
     /// Off-hand damage bonus in percent (Dual Wield Specialization).
     offhand_damage_percent: i32,
+    /// The factors on the main-hand weapon damage (`ATTACK_SPEED_DAMAGE_PENALTY`: Seal of the
+    /// Crusader's 100 / 140), one per active aura.
+    mainhand_damage_factors: Vec<f64>,
+    /// What each judgement of a seal returns of the seal's mana cost
+    /// (`JUDGED_SEAL_MANA_RETURN`: Sanctified Judgement).
+    judged_seal_mana_return: Option<JudgedSealManaReturn>,
+    /// The seal each Echo applies when its charge is used, as `(echo, seal)` (Twist of Light:
+    /// the seal the Echo's last application replaced).
+    echoed_seals: Vec<(SpellId, SpellId)>,
+    /// The damage bonuses of a school while an aura is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`),
+    /// once per active aura.
+    school_damage_while_aura: Vec<SchoolDamageWhileAura>,
     /// Off-hand rage generation bonus in percent (`OFFHAND_RAGE_PERCENT`).
     offhand_rage_percent: i32,
     /// Abilities that also strike with the off hand (`OFFHAND_COPY`), once per active aura.
@@ -242,6 +254,24 @@ pub struct Character {
     player_name: String,
     /// The statistics of the current set of iterations (the context records into them).
     statistics: ClassStatistics,
+}
+
+/// `percent` % more damage of `school` while the character's aura called `aura` (any rank)
+/// is up (Consecrated Ground: holy, while the Consecration is up).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SchoolDamageWhileAura {
+    pub aura: String,
+    pub school: MagicSchool,
+    pub percent: f64,
+}
+
+/// The judged seal's mana a judgement returns (Sanctified Judgement): `percent` of the seal's
+/// cost, at the chance the value of effect `chance_effect` of the talent `spell` gives.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct JudgedSealManaReturn {
+    pub spell: u32,
+    pub chance_effect: u32,
+    pub percent: f64,
 }
 
 impl Character {
@@ -279,6 +309,7 @@ impl Character {
         stats.increase_melee_ap(base.melee_ap);
         stats.increase_ranged_ap(base.ranged_ap);
         stats.increase_melee_base_crit(base.melee_crit);
+        stats.increase_spell_crit(base.spell_crit);
         stats.increase_melee_aura_crit(sim.ruleset.melee_aura_crit());
         let mut resource = Resource::new(class.resource);
         if let Some(mana) = resource.as_mana_mut() {
@@ -315,6 +346,10 @@ impl Character {
             member,
             stance_rage_retained: 0,
             offhand_damage_percent: 0,
+            mainhand_damage_factors: Vec::new(),
+            judged_seal_mana_return: None,
+            echoed_seals: Vec::new(),
+            school_damage_while_aura: Vec::new(),
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
             resources_on_use: Vec::new(),
@@ -846,6 +881,65 @@ impl Character {
         self.spells.oh_attack_mut().set_offhand_penalty(penalty);
     }
 
+    /// Adds (`apply`) or removes a factor on the main-hand weapon damage.
+    pub fn adjust_mainhand_damage_factor(&mut self, factor: f64, apply: bool) {
+        if apply {
+            self.mainhand_damage_factors.push(factor);
+        } else if let Some(at) = self
+            .mainhand_damage_factors
+            .iter()
+            .position(|&f| f == factor)
+        {
+            self.mainhand_damage_factors.swap_remove(at);
+        }
+    }
+
+    /// The product of the factors on the main-hand weapon damage.
+    pub fn mainhand_damage_factor(&self) -> f64 {
+        self.mainhand_damage_factors.iter().product()
+    }
+
+    /// What a judgement of a seal returns of the seal's mana cost, if anything.
+    pub fn judged_seal_mana_return(&self) -> Option<JudgedSealManaReturn> {
+        self.judged_seal_mana_return
+    }
+
+    /// Sets (`Some`) or clears what a judgement of a seal returns.
+    pub fn set_judged_seal_mana_return(&mut self, value: Option<JudgedSealManaReturn>) {
+        self.judged_seal_mana_return = value;
+    }
+
+    /// The damage bonuses of a school while an aura is up.
+    pub fn school_damage_while_aura(&self) -> &[SchoolDamageWhileAura] {
+        &self.school_damage_while_aura
+    }
+
+    /// Adds (`apply`) or removes a damage bonus of a school while an aura is up.
+    pub fn adjust_school_damage_while_aura(&mut self, bonus: SchoolDamageWhileAura, apply: bool) {
+        if apply {
+            self.school_damage_while_aura.push(bonus);
+        } else if let Some(at) = self
+            .school_damage_while_aura
+            .iter()
+            .position(|entry| *entry == bonus)
+        {
+            self.school_damage_while_aura.swap_remove(at);
+        }
+    }
+
+    /// The Echoes applied so far with the seal each applies, as `(echo, seal)`.
+    pub fn echoed_seals(&self) -> &[(SpellId, SpellId)] {
+        &self.echoed_seals
+    }
+
+    /// Echo `echo` now applies `seal`, the seal it replaced last.
+    pub fn set_echoed_seal(&mut self, echo: SpellId, seal: SpellId) {
+        match self.echoed_seals.iter_mut().find(|(id, _)| *id == echo) {
+            Some(entry) => entry.1 = seal,
+            None => self.echoed_seals.push((echo, seal)),
+        }
+    }
+
     pub fn offhand_rage_percent(&self) -> i32 {
         self.offhand_rage_percent
     }
@@ -994,6 +1088,22 @@ impl Character {
         }
     }
 
+    /// The class base mana of a mana user (what `PowerCostPct` costs are a percent of); 0 for
+    /// the other resources.
+    pub fn base_mana(&self) -> u32 {
+        self.resource.as_mana().map_or(0, Mana::base_mana)
+    }
+
+    /// A mana user's maximum mana from its intellect against `target` (buffs and talents
+    /// included), full: the state at the start of an iteration. Nothing for other resources.
+    pub fn refill_mana(&mut self, target: &TargetStatView) {
+        let intellect = self.stats.get_intellect(&self.stat_context(target));
+        if let Some(mana) = self.resource.as_mana_mut() {
+            mana.update_max(intellect);
+            mana.gain(mana.max());
+        }
+    }
+
     /// Gains `amount` of the character's resource at `now`; returns what was actually gained.
     pub fn gain_resource(&mut self, resource: ResourceType, amount: u32, now: f64) -> u32 {
         if resource != self.class.resource {
@@ -1035,10 +1145,13 @@ impl Character {
 
     /// Changes the maximum of `resource` by `amount` at `now` (`MOD_INCREASE_ENERGY`).
     pub fn adjust_max_power(&mut self, resource: ResourceType, amount: i32, now: f64) {
-        if resource == self.class.resource
-            && let Some(energy) = self.resource.as_energy_mut()
-        {
+        if resource != self.class.resource {
+            return;
+        }
+        if let Some(energy) = self.resource.as_energy_mut() {
             energy.adjust_max_bonus(amount, now);
+        } else if let Some(mana) = self.resource.as_mana_mut() {
+            mana.adjust_max_bonus(amount);
         }
     }
 
@@ -1240,6 +1353,7 @@ impl Character {
             .unwrap_or(0.0)
             + bonus;
         Self::non_normalized_dmg(damage, ap, Self::normalized_speed(profile.0, profile.1))
+            * self.mainhand_damage_factor()
     }
 
     /// Random off-hand damage normalized to the weapon type's standard speed, before the
@@ -1286,7 +1400,11 @@ impl Character {
             return 0.0;
         };
         let damage = self.random_weapon_dmg(slot).unwrap_or(0.0) + f64::from(bonus);
-        Self::non_normalized_dmg(damage, ap, speed)
+        let factor = match slot {
+            EquipmentSlot::Mainhand => self.mainhand_damage_factor(),
+            _ => 1.0,
+        };
+        Self::non_normalized_dmg(damage, ap, speed) * factor
     }
 
     /// Average mainhand damage including attack power, rounded. Port of
@@ -1376,6 +1494,7 @@ impl Character {
         self.combo_points = 0;
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
+        self.echoed_seals.clear();
         self.queued_input = None;
         self.input_failure = None;
         self.clear_regen_wake();

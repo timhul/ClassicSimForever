@@ -319,6 +319,9 @@
 
 # ---------------------------------------------------------------- shoulders
 
+# The Scourge enchants are Forever's reworks (1219512 -> 1220743, 1219510 -> 1220735): each
+# carries the melee and the spell crit aura, so their crit is the gear stat (CRIT_CHANCE). The
+# shoulder items of this build still teach the old ones (29483 melee crit, 29467 spell crit).
 - name: MightOfTheScourge
   display_name: Might of the Scourge
   unique_name: Might of the Scourge
@@ -329,9 +332,9 @@
 - name: PowerOfTheScourge
   display_name: Power Of The Scourge
   unique_name: Power Of The Scourge
-  effect: "+15 Spell Damage/Healing\n+1% Spell Crit"
+  effect: "+15 Spell Damage/Healing\n+1% Crit"
   slots: [SHOULDERS]
-  stats: { SPELL_DAMAGE: 15, SPELL_CRIT_CHANCE: 0.01 }
+  stats: { SPELL_DAMAGE: 15, CRIT_CHANCE: 0.01 }
 
 - name: ZandalarSignetOfMight
   display_name: Zandalar Signet Of Might

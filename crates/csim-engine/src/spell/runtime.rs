@@ -41,6 +41,7 @@ use crate::spell::periodic::{Periodic, PeriodicCrit, PeriodicKind, TickReport};
 use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
+use crate::target::CreatureTypes;
 
 /// Tolerance when comparing the cooldown's ready time with the current time.
 const COOLDOWN_EPSILON: f64 = 0.0001;
@@ -56,6 +57,10 @@ pub trait SpellHost: EffectHost {
     /// The resource the character spends and gains (which of an aura's per-power
     /// `PERIODIC_ENERGIZE` effects ticks).
     fn resource_type(&self) -> ResourceType;
+    /// The caster's class base mana, the base of `PowerCostPct` costs (0 without mana).
+    fn base_mana(&self) -> u32 {
+        0
+    }
     fn engine(&self) -> &Engine;
     fn engine_mut(&mut self) -> &mut Engine;
     /// Configured encounter length in seconds (execute range is derived from it).
@@ -161,6 +166,18 @@ pub trait SpellHost: EffectHost {
     fn trigger_strike(&mut self, spell: u32, _damage_mod: f64) -> Option<CastReport> {
         self.trigger_spell(spell, None)
     }
+    /// Casts spell `spell` (by game id) as [`SpellHost::trigger_spell`] does, its damage
+    /// multiplied by `scale` (Judgement of Command's half damage).
+    fn trigger_scaled(&mut self, spell: u32, _scale: f64) -> Option<CastReport> {
+        self.trigger_spell(spell, None)
+    }
+    /// Ends every seal of the caster but the one whose buff is `keep`: one seal at a time.
+    fn end_other_seals(&mut self, _keep: BuffId) {}
+    /// A judgement of the active seal was cast: rolls the judged seal's mana return
+    /// (Sanctified Judgement) and returns the mana gained.
+    fn return_judged_seal_mana(&mut self) -> Option<(ResourceType, u32)> {
+        None
+    }
     /// Replaces the value of effect `index` of spell `spell` (`TRIGGER_WITH_VALUE`: Flurry's
     /// talent rank into its haste buff).
     fn set_spell_effect_value(&mut self, spell: u32, index: u32, value: f64);
@@ -182,6 +199,11 @@ pub trait SpellHost: EffectHost {
     /// Damage a blocked attack loses (the target's block value).
     fn target_block_value(&self) -> u32;
     fn total_physical_damage_mod(&self) -> f64;
+    /// The damage done multiplier of a magic `school`: the caster's (Vengeance), the target's
+    /// damage taken (a curse) and the creature type talents. 1 for a host without them.
+    fn magic_school_damage_mod(&self, _school: MagicSchool) -> f64 {
+        1.0
+    }
     fn flat_physical_damage_bonus(&self) -> u32;
     fn melee_ability_crit_dmg_mod(&self) -> f64;
     /// The damage multiplier of a spell crit (1.5 before talents).
@@ -346,6 +368,9 @@ pub struct SpellSetup {
     /// Another spell casts this one (`TRIGGER_SPELL`): a payload, never an ability a rotation
     /// names, whatever the record looks like.
     pub triggered: bool,
+    /// The proc of a cast buff's proc aura (a seal's), which fires while the buff the spell
+    /// casts is up ([`SpellSetup::has_buff_proc`]): its cooldown is the proc's internal one.
+    pub buff_proc: bool,
 }
 
 impl SpellSetup {
@@ -376,6 +401,7 @@ impl SpellSetup {
             enabled_by: db.overrides().enabled_by(id),
             target_aura_ranks,
             triggered: db.is_triggered(id),
+            buff_proc: false,
         })
     }
 
@@ -391,6 +417,7 @@ impl SpellSetup {
             enabled_by: None,
             target_aura_ranks: Vec::new(),
             triggered: false,
+            buff_proc: false,
         }
     }
 
@@ -414,6 +441,7 @@ impl SpellSetup {
                 .into_iter()
                 .collect(),
             triggered: false,
+            buff_proc: false,
         }
     }
 
@@ -433,18 +461,74 @@ impl SpellSetup {
     /// direct effect or an aura that has a payload. A passive whose auras only enable others
     /// (Hack and Slash) or modify spells (Improved Revenge) stays a plain passive.
     pub fn is_proc(&self) -> bool {
-        let reacts = !self.record.aura_options.proc_type_mask.is_empty()
-            || self.overrides.proc.is_some_and(|p| p.finisher);
-        let has_payload = self.record.effects.iter().any(|effect| {
+        if self.buff_proc {
+            return self.reacts() && self.has_payload(false);
+        }
+        self.is_passive() && self.reacts() && self.has_payload(true)
+    }
+
+    /// Whether the spell is an ability the player casts (not a passive, nor a payload or an
+    /// enchant's aura) and its buff is a proc aura with a payload: a seal's swings deal damage
+    /// while it is up. The proc is a spell of its own, built from the same record with
+    /// [`SpellSetup::buff_proc`], that shares the buff.
+    pub fn has_buff_proc(&self) -> bool {
+        self.record.is_ability()
+            && !self.triggered
+            && !self.is_passive()
+            && !self.buff_proc
+            && self.reacts()
+            && self.has_payload(false)
+    }
+
+    /// Whether the spell reacts to events: its `ProcTypeMask`, or the finishers for a
+    /// `proc.finisher` override.
+    fn reacts(&self) -> bool {
+        !self.record.aura_options.proc_type_mask.is_empty()
+            || self.overrides.proc.is_some_and(|p| p.finisher)
+    }
+
+    /// Whether firing does something: an aura with a payload, or (`direct`) a direct effect.
+    /// A cast buff's direct effects belong to its cast, not to its proc.
+    fn has_payload(&self, direct: bool) -> bool {
+        self.record.effects.iter().any(|effect| {
             if !effect.is_apply_aura() {
-                return true;
+                return direct;
             }
             match self.overrides.effect_script(effect.index).map(|s| s.script) {
-                Some(ScriptKind::TriggerSpell | ScriptKind::TriggerWithValue) => true,
+                Some(
+                    ScriptKind::TriggerSpell
+                    | ScriptKind::TriggerWithValue
+                    | ScriptKind::WeaponSpeedSwingDamage,
+                ) => true,
                 _ => effect.is_proc_trigger() && effect.trigger_spell != 0,
             }
-        });
-        self.is_passive() && reacts && has_payload
+        })
+    }
+
+    /// Whether the spell is a seal (`SEAL_JUDGEMENT`): one is up at a time.
+    pub fn is_seal(&self) -> bool {
+        self.overrides
+            .effects
+            .iter()
+            .any(|script| script.script == ScriptKind::SealJudgement)
+    }
+
+    /// The judgement this seal unleashes (`SEAL_JUDGEMENT`'s spell).
+    pub fn seal_judgement(&self) -> Option<u32> {
+        self.overrides
+            .effects
+            .iter()
+            .find(|script| script.script == ScriptKind::SealJudgement)
+            .and_then(|script| script.params.spell)
+    }
+
+    /// The seal (a rank of it) this Echo echoes when it is replaced (`SEAL_ECHO`'s spell).
+    pub fn seal_echo(&self) -> Option<u32> {
+        self.overrides
+            .effects
+            .iter()
+            .find(|script| script.script == ScriptKind::SealEcho)
+            .and_then(|script| script.params.spell)
     }
 
     pub fn has_sim_flag(&self, flag: SimFlag) -> bool {
@@ -494,6 +578,8 @@ pub struct Spell {
     /// While the spell is performed as the strike of a landed attack
     /// ([`SpellHost::trigger_strike`]): the multiplier on its damage.
     strike: Option<f64>,
+    /// A multiplier on the damage of the cast in progress ([`SpellHost::trigger_scaled`]).
+    damage_scale: Option<f64>,
     /// The spell's roll is a hostile trigger's (Mutilate): the strikes it triggers deal the
     /// damage and report the procs, the spell itself only its avoided rolls.
     rolls_for_strikes: bool,
@@ -650,6 +736,7 @@ impl Spell {
             cast_id: None,
             trigger_value: None,
             strike: None,
+            damage_scale: None,
             rolls_for_strikes,
         }
     }
@@ -660,7 +747,7 @@ impl Spell {
         let record = &setup.record;
         if record.cooldown.recovery_ms > 0 {
             record.cooldown.recovery_ms
-        } else if setup.is_passive() {
+        } else if setup.is_passive() || setup.buff_proc {
             record.aura_options.proc_category_recovery_ms
         } else {
             0
@@ -771,6 +858,7 @@ impl Spell {
             .overrides
             .effects
             .iter()
+            .filter(|script| !script.script.names_condition())
             .filter_map(|script| script.params.spell)
             .chain(
                 self.setup
@@ -778,7 +866,9 @@ impl Spell {
                     .on_event
                     .iter()
                     .filter_map(|script| script.params.spell),
-            );
+            )
+            // The spells the server applies for this one (Twist of Light's Echoes).
+            .chain(self.setup.overrides.walk.iter().copied());
         for id in scripted {
             if id != self.game_id() && !ids.contains(&id) {
                 ids.push(id);
@@ -851,15 +941,15 @@ impl Spell {
         (after_mod - flat_reduction).max(0.0)
     }
 
-    /// Crit chance added by modifiers (`CRIT_CHANCE`), hundredths of a percent.
+    /// Crit chance added by modifiers (`CRIT_CHANCE`), hundredths of a percent. A percent
+    /// modifier adds its value in points too, as its tooltip reads (Holy Power's "+15 % critical
+    /// strike chance" on Holy Strike), not 15 % of the chance.
     pub fn crit_chance_bonus(&self, host: &impl SpellHost) -> u32 {
-        let record = &self.setup.record;
-        (host
-            .spell_modifiers()
-            .flat(record.class_options.as_ref(), SpellModOp::CritChance)
-            * 100.0)
-            .round()
-            .max(0.0) as u32
+        let class = self.setup.record.class_options.as_ref();
+        let modifiers = host.spell_modifiers();
+        let points = modifiers.flat(class, SpellModOp::CritChance)
+            + modifiers.pct(class, SpellModOp::CritChance);
+        (points * 100.0).round().max(0.0) as u32
     }
 
     /// The proc chance of a passive: `SpellAuraOptions.ProcChance` in percent (0 and 101 mean
@@ -937,6 +1027,7 @@ impl Spell {
             * modifiers.damage_from_caster_multiplier(class)
             * modifiers.below_health_multiplier(class, host.target_health())
             * self.strike.unwrap_or(1.0)
+            * self.damage_scale.unwrap_or(1.0)
     }
 
     /// Multiplier on periodic damage from `PERIODIC_HEALING_AND_DAMAGE` modifiers (Improved
@@ -989,6 +1080,11 @@ impl Spell {
     /// damage, or (`None`) as an ordinary cast again.
     pub fn set_strike(&mut self, damage_mod: Option<f64>) {
         self.strike = damage_mod;
+    }
+
+    /// Multiplies the damage of the next casts by `scale`, or (`None`) no longer.
+    pub fn set_damage_scale(&mut self, scale: Option<f64>) {
+        self.damage_scale = scale;
     }
 
     /// Whether the spell is a finisher: it spends combo points, and its effects read them.
@@ -1058,16 +1154,17 @@ impl Spell {
     /// Strike: −10 stored = −1 rage; Eureka! −10 %). Costs are whole units, so a fractional
     /// cost rounds to the nearest one. Port of `Spell::get_resource_cost`.
     pub fn resource_cost(&self, host: &impl SpellHost) -> u32 {
-        self.resource_cost_with(host.spell_modifiers())
+        self.resource_cost_with(host.spell_modifiers(), host.base_mana())
     }
 
-    /// [`Self::resource_cost`] under the caster's spell `modifiers`.
-    pub fn resource_cost_with(&self, modifiers: &SpellModifiers) -> u32 {
+    /// [`Self::resource_cost`] under the caster's spell `modifiers`, for a caster with
+    /// `base_mana` (the base of `PowerCostPct` costs).
+    pub fn resource_cost_with(&self, modifiers: &SpellModifiers, base_mana: u32) -> u32 {
         let record = &self.setup.record;
         let Some(resource) = self.resource_type() else {
             return 0;
         };
-        let stored = f64::from(record.power_cost(resource.power_type()));
+        let stored = record.power_cost_with_base(resource.power_type(), base_mana);
         let class = record.class_options.as_ref();
         let stored = modifiers.apply(class, SpellModOp::PowerCost0, stored)
             * modifiers.multiplier(class, SpellModOp::PowerCostPct);
@@ -1135,7 +1232,9 @@ impl Spell {
     /// Applies or cancels a passive's aura according to its conditions (called after enabling,
     /// and by the character when the equipment or stance changes).
     pub fn reevaluate_passive(&mut self, host: &mut impl SpellHost) {
-        if !self.enabled || !self.is_passive() {
+        // An `IGNORED` passive is learned but never applies its auras (the Season of Discovery
+        // runes a class learns, such as Exorcist).
+        if !self.enabled || !self.is_passive() || self.is_ignored() {
             return;
         }
         let Some(id) = self.marker_buff else {
@@ -1271,6 +1370,21 @@ impl Spell {
         }
         if record.requires_behind_target() && !host.attacking_from_behind() {
             return SpellStatus::NotBehindTarget;
+        }
+        if self
+            .setup
+            .overrides
+            .exclusive_auras
+            .iter()
+            .any(|&aura| host.aura_active(aura))
+        {
+            return SpellStatus::StrongerAuraActive;
+        }
+        if record.target_creature_type != 0
+            && !CreatureTypes::from_game_mask(record.target_creature_type)
+                .contains(host.target_creature_type())
+        {
+            return SpellStatus::InvalidTarget;
         }
         SpellStatus::Available
     }
@@ -1477,6 +1591,7 @@ impl Spell {
         let mut triggers = Vec::new();
         let mut consumes_all = false;
         let mut triggered_damage_percent = 0.0;
+        let mut judged_seal = false;
         if self.effects.is_empty() {
             // Nothing that must succeed (a pure buff): apply the buff immediately.
             self.last_result = SpellResult::Success;
@@ -1520,8 +1635,13 @@ impl Spell {
                 if outcome.success {
                     innate_threat += outcome.threat;
                     if let Some(trigger) = outcome.trigger {
-                        triggers.push((trigger, effect.is_strike_trigger()));
+                        triggers.push((
+                            trigger,
+                            effect.is_strike_trigger(),
+                            outcome.trigger_damage_scale,
+                        ));
                     }
+                    judged_seal |= outcome.judged_seal;
                     consumes_all |= outcome.consumes_all_resource;
                     triggered_damage_percent += outcome.triggered_damage_percent;
                 }
@@ -1536,6 +1656,9 @@ impl Spell {
             && self.last_result.applies_buff()
         {
             self.prepare_buff(host, id, combo_points);
+            if self.setup.is_seal() {
+                host.end_other_seals(id);
+            }
             let application = host.apply_buff(id);
             report.buff = Some(application);
             self.on_buff_applied(application, host);
@@ -1611,17 +1734,21 @@ impl Spell {
             self.reset_cooldowns(host);
         }
 
+        if judged_seal && let Some(gained) = host.return_judged_seal_mana() {
+            report.resource_gained.push(gained);
+        }
+
         let offhand_strike = self.has_sim_flag(SimFlag::OffhandStrike) && host.is_dual_wielding();
         if offhand_strike || host.offhand_copy_active(self.game_id()) {
             report.offhand = self.offhand_strike(host);
         }
 
         let strike_damage_mod = 1.0 + triggered_damage_percent / 100.0;
-        for (trigger, strike) in triggers {
-            let triggered = if strike {
-                host.trigger_strike(trigger, strike_damage_mod)
-            } else {
-                host.trigger_spell(trigger, None)
+        for (trigger, strike, scale) in triggers {
+            let triggered = match (strike, scale) {
+                (true, _) => host.trigger_strike(trigger, strike_damage_mod),
+                (false, Some(scale)) => host.trigger_scaled(trigger, scale),
+                (false, None) => host.trigger_spell(trigger, None),
             };
             if let Some(triggered) = triggered {
                 report.triggered.push((trigger, triggered));
@@ -1657,18 +1784,22 @@ impl Spell {
     }
 
     /// The raw damage of the effects: summed, their weapon damage multipliers and the spell's
-    /// damage modifiers applied. The effects' damage is zeroed.
+    /// damage modifiers applied (the multipliers leave out the effects' `flat_damage`). The
+    /// effects' damage is zeroed.
     fn take_raw_damage(&mut self, host: &impl SpellHost) -> f64 {
         let mut raw_damage = 0.0;
+        let mut flat_damage = 0.0;
         let mut weapon_damage_multiplier = 1.0;
         for effect in &mut self.effects {
             raw_damage += effect.damage_dealt;
+            flat_damage += effect.flat_damage;
             effect.damage_dealt = 0.0;
+            effect.flat_damage = 0.0;
             if let Some(multiplier) = effect.weapon_damage_multiplier(host) {
                 weapon_damage_multiplier *= multiplier;
             }
         }
-        raw_damage * weapon_damage_multiplier * self.damage_mod(host)
+        (raw_damage * weapon_damage_multiplier + flat_damage) * self.damage_mod(host)
     }
 
     /// The attack outcome of a spell that landed on the magic table: its damage with the spell
@@ -1970,6 +2101,16 @@ impl Spell {
                         _ => {}
                     }
                 }
+                // A magic damage-over-time's ticks take its spell power share, the spell
+                // damage of when it was cast.
+                if effect.is_periodic_aura()
+                    && matches!(
+                        effect.aura(),
+                        AuraType::PeriodicDamage | AuraType::PeriodicLeech
+                    )
+                {
+                    bonus += effect.spell_power_damage(&*host);
+                }
                 bonus
             })
             .collect();
@@ -1989,26 +2130,31 @@ impl Spell {
         }
     }
 
+    /// The magic school of a spell that is not physical (its school mask has no physical
+    /// bit), else `None`.
+    fn magic_school(&self) -> Option<MagicSchool> {
+        let school = self.setup.record.school_mask;
+        (!school.is_empty() && !school.is_physical()).then(|| MagicSchool::from_school_mask(school))
+    }
+
     /// The damage done multiplier of the spell's school: the physical one (Death Wish, Enrage)
-    /// for a physical spell, none otherwise (magic damage modifiers are not ported), as in
+    /// for a physical spell, the magic school's (Vengeance's holy) otherwise, as in
     /// [`Spell::damage_after_modifiers`].
     fn school_damage_mod(&self, host: &impl SpellHost) -> f64 {
-        let school = self.setup.record.school_mask;
-        if !school.is_empty() && !school.is_physical() {
-            return 1.0;
+        match self.magic_school() {
+            Some(school) => host.magic_school_damage_mod(school),
+            None => host.total_physical_damage_mod(),
         }
-        host.total_physical_damage_mod()
     }
 
     /// Port of `Spell::damage_after_modifiers`. The physical damage modifiers and armor only
-    /// apply to physical spells: the damage of another school (an item's Nature proc) lands as
-    /// it is, magic damage modifiers not being ported (its resistance is the magic table's
-    /// partial resist, [`Spell::collect_spell_damage`]). `hand` is the weapon the spell strikes
-    /// with, whose armor penetration applies.
+    /// apply to physical spells: the damage of another school (a holy weapon strike, an item's
+    /// Nature proc) takes its school's damage modifiers and no armor (its resistance is the
+    /// magic table's partial resist, [`Spell::collect_spell_damage`]). `hand` is the weapon the
+    /// spell strikes with, whose armor penetration applies.
     pub fn damage_after_modifiers(&self, host: &impl SpellHost, damage: f64, hand: Hand) -> f64 {
-        let school = self.setup.record.school_mask;
-        if !school.is_empty() && !school.is_physical() {
-            return damage;
+        if let Some(school) = self.magic_school() {
+            return damage * host.magic_school_damage_mod(school);
         }
         let armor = host.target_armor_against(hand);
         let armor_reduction = 1.0 - Mechanics::reduction_from_armor(armor, host.caster_level());
@@ -2194,8 +2340,24 @@ impl Spell {
         let Some(id) = self.marker_buff else {
             return;
         };
-        let reapply = host.buff(id).is_active() && !self.is_periodic();
-        if reapply {
+        // The same value again (Vengeance's rank on every proc): nothing to re-apply.
+        let current = host
+            .buff(id)
+            .effects
+            .iter()
+            .find(|e| e.index() == index)
+            .map(Effect::value);
+        if current.is_none_or(|current| current == value) {
+            return;
+        }
+        // Re-applied with its stacks, so that the auras take the new value.
+        let buff = host.buff(id);
+        let stacks = if buff.is_active() && !self.is_periodic() {
+            buff.stacks().max(1)
+        } else {
+            0
+        };
+        if stacks > 0 {
             host.cancel_buff(id);
         }
         if let Some(effect) = host
@@ -2206,7 +2368,7 @@ impl Spell {
         {
             effect.set_value(value);
         }
-        if reapply {
+        for _ in 0..stacks {
             host.apply_buff(id);
         }
     }

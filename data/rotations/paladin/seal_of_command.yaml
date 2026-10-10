@@ -1,0 +1,26 @@
+class: PALADIN
+name: Seal of Command
+attack_mode: melee
+prerequisite: Seal of Command
+description: >-
+  Seal of Command kept up and judged on cooldown (Judgement leaves the seal up in Forever), Holy
+  Strike on cooldown, Hammer of Wrath in execute range, Exorcism against Undead and Demons,
+  Consecration while the mana allows; mana potions and runes when they fit.
+precombat_actions:
+  - Blessing of Might  # not castable under a Greater Blessing of Might
+  - Seal of Command
+cast_if:
+  - name: Major Mana Potion
+    condition: variable "resource_missing" geq 2250
+  - name: Demonic Rune
+    condition: variable "resource_missing" geq 1500
+  - name: Earthstrike
+  - name: Seal of Command
+    condition: buff_duration "Seal of Command" less 3
+  - name: Judgement
+    condition: buff_duration "Seal of Command" geq 3
+  - name: Hammer of Wrath
+  - name: Holy Strike
+  - name: Exorcism
+  - name: Consecration
+    condition: resource "Mana" greater 1500

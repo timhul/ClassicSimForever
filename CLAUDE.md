@@ -181,11 +181,22 @@ rotations are in `data/rotations/rogue/`):
 
 `cargo run --release -p csim-cli -- run data/characters/rogue_combat_swords_human.yaml --iterations 10000`
 
+A Retribution Paladin too, with a paladin setup (`paladin_ret_2h_human`, `paladin_ret_2h_dwarf`,
+`paladin_ret_2h_undead`; their rotations are in `data/rotations/paladin/`: Seal Twisting, the
+setups' default, which needs Twist of Light, Seal of Command and Seal of the Crusader), and
+from the keyboard in csim-live with `data/keybinds/ret.yaml`:
+
+`cargo run --release -p csim-cli -- run data/characters/paladin_ret_2h_human.yaml --iterations 10000`
+
+`cargo run --release -p csim-live -- data/characters/paladin_ret_2h_human.yaml --keybinds data/keybinds/ret.yaml`
+
 In a raid (`data/raids/`, members refer to `data/characters/`):
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --raid data/raids/horde_melee.yaml`
 
 `cargo run --release -p csim-cli -- run data/characters/rogue_combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml`
+
+`cargo run --release -p csim-cli -- run data/characters/paladin_ret_2h_human.yaml --raid data/raids/alliance_paladin.yaml`
 
 Stat weights per item stat point, then items ranked by them (static stats only; weapon damage,
 effects, set bonuses and suffixes are not scored):
@@ -209,13 +220,15 @@ with the same seed and ranked by DPS; `--dry-run` only counts and lists the vari
 Instead of a base, a `characters` variation point lists whole character files, to sim profiles
 against each other:
 
-`cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_profiles.yaml`
+`cargo run --release -p csim-cli -- sweep data/sweeps/warrior_fury_dw_profiles.yaml`
 
 A rotation can name the spells it cannot do without (`prerequisite: Mortal Strike`, one or a
-list): a setup whose character lacks one (no such spell, or its talent not taken) is invalid, so
-`run` rejects it and a sweep skips that variant (e.g. the arms rotation on a fury character).
+list), or a talent without a spell to cast (`prerequisite: Twist of Light`): a setup whose
+character lacks one (no such spell, or its talent not taken) is invalid, so `run` rejects it and
+a sweep skips that variant (e.g. the arms rotation on a fury character).
 
-The Rogue's: `data/sweeps/combat_swords_last_3_points.yaml` and `data/sweeps/dw_rogue_profiles.yaml`.
+The Rogue's: `data/sweeps/combat_swords_last_3_points.yaml` and `data/sweeps/rogue_profiles.yaml`.
+The Paladin's: `data/sweeps/ret_last_points.yaml` and `data/sweeps/ret_profiles.yaml`.
 
 # Good cross-reference information sources
 

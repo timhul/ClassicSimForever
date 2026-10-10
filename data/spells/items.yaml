@@ -2055,20 +2055,6 @@ spells:
     variance: 0.5
     amplitude: 1.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 18350
-  name: Dummy Trigger
-  attributes: [384, 268435456, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  icon: 136235
-  icon_name: temp
-  range_yd: 50000.0
-  aura_options:
-    proc_chance: 101
-  effects:
-  - index: 0
-    effect: DUMMY
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ANY, NONE]
 - id: 18364
   name: Cloak of Fire
   attributes: [2048, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -2607,6 +2593,19 @@ spells:
     effect: APPLY_AURA
     aura: MOD_POWER_REGEN
     base_points: 12.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 21894
+  name: Meditation
+  attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136090
+  icon_name: spell_nature_sleep
+  description: Allows $s1% of your Mana regeneration to continue while casting.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_MANA_REGEN_INTERRUPT
+    base_points: 15.0
     implicit_target: [UNIT_CASTER, NONE]
 - id: 21919
   name: Thrash
@@ -5668,6 +5667,23 @@ spells:
     base_points: 65.0
     misc_value: [126, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 27518
+  name: Spell Damage Reduction
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  description: Spell Damage received is reduced by $s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_TAKEN
+    base_points: -10.0
+    misc_value: [126, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 27522
   name: Mana Drain Trigger
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -6351,6 +6367,55 @@ spells:
     aura: DUMMY
     bonus_coefficient: 1.0
     implicit_target: [UNIT_CASTER, NONE]
+- id: 28771
+  name: Elemental Vulnerability
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  duration_ms: -1
+  aura_options:
+    proc_chance: 20
+    proc_type_mask: 65536
+  description: Your damage spells have a chance to cause your target to take up to $28772s1 increased damage from subsequent spells.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    trigger_spell: 28772
+    bonus_coefficient: 1.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 28772
+  name: Elemental Vulnerability
+  attributes: [65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  icon: 135899
+  icon_name: spell_holy_dizzy
+  duration_ms: 30000
+  range_yd: 30.0
+  cooldown:
+    start_recovery_ms: 1500
+  categories:
+    start_recovery_category: 133
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    base: 60
+    spell: 60
+  aura_options:
+    proc_chance: 100
+    proc_charges: 1
+    proc_type_mask: 131072
+  class_options:
+    set: 3
+  labels: [17]
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_TAKEN
+    base_points: 200.0
+    misc_value: [126, 0]
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 28773
   name: Glyph of Deflection
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -8180,6 +8245,42 @@ spells:
     effect: OPEN_LOCK
     real_points_per_level: 5.0
     implicit_target: [GAMEOBJECT_TARGET, NONE]
+- id: 1291906
+  name: Gold-plated
+  attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136243
+  icon_name: trade_engineering
+  levels:
+    spell: 22
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 134217728
+  description: After entering combat, reduce the next instance of Physical damage taken within $1291908d by $1291908s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    trigger_spell: 1291908
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1291908
+  name: Gold-plated
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134948
+  icon_name: inv_shield_02
+  duration_ms: 20000
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 139944
+  description: After entering combat, reduce the next instance of physical damage taken within $1291908d by $1291908s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_TAKEN
+    base_points: -15.0
+    misc_value: [1, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 1291915
   name: Improved Smelting 01
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -8210,6 +8311,22 @@ spells:
     misc_value: [16, 0]
     spell_class_mask: [2147487744, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 1292008
+  name: Tenderized
+  attributes: [67371008, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 132906
+  icon_name: inv_fabric_silk_02
+  duration_ms: 60000
+  range_yd: 100.0
+  description: Tenderize the target, increasing physical damage taken by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_TAKEN
+    base_points: 1.0
+    misc_value: [1, 0]
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 1292025
   name: Humanoid Slaying 15
   attributes: [192, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -8539,6 +8656,20 @@ spells:
     aura: MOD_THREAT
     base_points: 1.0
     misc_value: [127, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1292692
+  name: Spell Damage Reduction 05
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  description: Spell Damage received is reduced by $s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_TAKEN
+    base_points: -5.0
+    misc_value: [126, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1292746
   name: Martyrdom

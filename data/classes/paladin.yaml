@@ -1,0 +1,103 @@
+# The Paladin class. Schema: crates/csim-engine/src/character/class.rs (`ClassSpec`).
+#
+# `stat_rules` and the base mana come from the client tables (build 1.60.1.70205): ChrClasses
+# (AttackPowerPerStrength 2, AttackPowerPerAgility 0, RangedAttackPowerPerAgility 0) and
+# PlayerExpectedStat at level 60 (CritPerAgility 0.000506 = 19.76 agility per 1 % crit,
+# SpellCritPerIntellect 0.000167 = 59.88 intellect per 1 % spell crit, BaseMana 1512).
+# `available_races` are the CharBaseInfo rows of class 2: Human, Dwarf and, new in Forever, Undead.
+#
+# The base attributes and attack power are ClassicSim's (Class/Paladin/Paladin.cpp); the tables do
+# not carry them. Base melee crit 0.7 % is vmangos' (StatSystem.cpp). The base health 1381
+# (vanilla player_classlevelstats) and base spell crit 3.336 % (the vanilla Paladin value) are not
+# in the tables either and cannot be checked before release: used as they are (TASKS.md P.1).
+# Proficiencies, armor type and the global cooldown are Paladin.cpp, and agree with the weapon
+# skills SkillLineAbility gives class 2 (one- and two-handed axes, maces and swords, polearms,
+# shields). The enchant lists per slot are PaladinEnchants.cpp plus Windfury Totem for the Horde
+# Undead; whether an enchant physically fits (two-handers only, sharp vs blunt weapons, faction)
+# is decided by data/enchants.yaml.
+
+class: PALADIN
+resource: mana
+base_stats:
+  strength: 85
+  agility: 45
+  stamina: 80
+  intellect: 50
+  spirit: 55
+  melee_ap: 160
+  melee_crit: 70           # hundredths of a percent
+  spell_crit: 334          # hundredths of a percent (3.336 %)
+  mana: 1512
+  health: 1381             # before stamina
+stat_rules:
+  agility_per_percent_crit: 19.7628
+  intellect_per_percent_spell_crit: 59.8802
+  melee_ap_per_strength: 2
+  melee_ap_per_agility: 0
+  ranged_ap_per_agility: 0
+# Spirit regeneration outside the five-second rule: 15 + spirit / 5 mana per 5 seconds
+# (ClassicSim's Paladin::get_mp5_from_spirit), ticking every 2 seconds.
+mana_regen: { mp5_base: 15.0, mp5_per_spirit: 0.2 }
+global_cooldown: 1.5
+highest_armor_type: PLATE
+weapon_proficiencies:
+  MAINHAND: [AXE, MACE, SWORD, POLEARM, TWOHAND_AXE, TWOHAND_MACE, TWOHAND_SWORD]
+  OFFHAND: [CASTER_OFFHAND, SHIELD]
+  RELIC: [LIBRAM]
+available_races: [HUMAN, DWARF, UNDEAD]
+enchants:
+  MAINHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponSpellPower
+    - EnchantWeaponAgility
+    - Enchant2HWeaponAgility
+    - Enchant2HWeaponSuperiorImpact
+    - IronCounterweight
+  HEAD:
+    - ArcanumOfFocus
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityStrength
+    - LesserArcanumOfVoracityAgility
+  LEGS:
+    - ArcanumOfFocus
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityStrength
+    - LesserArcanumOfVoracityAgility
+  SHOULDERS:
+    - ZandalarSignetOfMight
+    - ZandalarSignetOfMojo
+    - MightOfTheScourge
+    - PowerOfTheScourge
+  BACK:
+    - EnchantCloakLesserAgility
+  WRIST:
+    - EnchantBracerGreaterStrength
+    - EnchantBracerSuperiorStrength
+    - EnchantBracerGreaterIntellect
+  GLOVES:
+    - EnchantGlovesSuperiorAgility
+    - EnchantGlovesGreaterAgility
+    - EnchantGlovesMinorHaste
+    - EnchantGlovesGreaterStrength
+  CHEST:
+    - EnchantChestMajorMana
+    - EnchantChestStats
+    - EnchantChestGreaterStats
+  BOOTS:
+    - EnchantBootsMinorSpeed
+    - EnchantBootsAgility
+    - EnchantBootsGreaterAgility
+    - EnchantBootsSpirit
+temp_enchants:
+  MAINHAND:
+    - WindfuryTotem
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - BrilliantWizardOil
+    - ShadowOil

@@ -1,0 +1,10 @@
+name: Ret profiles
+iterations: 10000
+# Every Paladin setup with each Paladin rotation.
+variations:
+  - characters:
+      - ../characters/paladin_*.yaml
+  - options:
+      - { label: twist, rotation: Seal Twisting }
+      - { label: command, rotation: Seal of Command }
+      - { label: crusader, rotation: Seal of the Crusader }

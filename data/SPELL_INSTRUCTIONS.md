@@ -168,6 +168,12 @@ column = (PosX - tab origin) / 600
 - Forever-only Warrior talents (spell ≥ 1 200 000): Boundless Rage, Spearing Strike, Raging
   Blows, Vanguard, Bloodthrill, Weaponmaster (1290261, replaces the three weapon-spec talents),
   Precision, Master of Defense; Focused Rage 29787 and Iron Will 12962 were moved in.
+- **Ranked talent abilities**: a talent grants its ability's whole rank chain, found through
+  `SupercedesSpell` back to the talent's spell. Forever's
+  tables do not chain every such ability: Seal of Command's ranks 2-5 (20915, 20918, 20919,
+  20920) have no `SupercedesSpell` back to the talent's rank 1 20375. The engine then takes a
+  spell's rank group (the same name) as its chain: a rank in the group of a talent spell is
+  granted by that talent (`talent_spell_of`).
 
 ## 1.5 Class → runes (Engraving)
 
@@ -239,12 +245,16 @@ Racials are ordinary spells (Blood Fury 20572, Berserking 20554, Sword Specializ
   8 yd, Battle Shout 9 = 20 yd).
 - Category / hit table: `SpellCategories` — `Category` = shared-cooldown group (the
   `CategoryRecoveryTime` in `SpellCooldowns` applies to it), `StartRecoveryCategory` 133 = on
-  the GCD, `DefenseType` 2 melee / 3 ranged / 1 magic / 0 none, `Mechanic`.
+  the GCD, `DefenseType` 2 melee / 3 ranged / 1 magic / 0 none, `Mechanic`. A ranged spell
+  rolls the special attack table without dodge, parry and block (it misses and crits for
+  double; a paladin's Hammer of Wrath uses the melee hit and crit chances).
 - Stance: `SpellShapeshift.ShapeshiftMask_0` (Overpower 65536 Battle, Whirlwind/Recklessness
   262144 Berserker, Rend 196608 Battle|Defensive, Execute 327680 Battle|Berserker; no row =
   any). Aura state: `SpellAuraRestrictions` (Execute `TargetAuraState` 2, Revenge
   `CasterAuraState` 1). Weapon: `SpellEquippedItems` (Shield Slam needs a shield). Targets:
-  `SpellTargetRestrictions.MaxTargets`.
+  `SpellTargetRestrictions.MaxTargets`, and `TargetCreatureType` (`target_creature_type`, bit
+  `CreatureType.ID − 1` per type): Exorcism and Holy Wrath's 36 (Undead, Demon) make them
+  uncastable on another target (`InvalidTarget`).
 
 ### `SpellEffect` rows
 
@@ -258,7 +268,7 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 | `EffectRealPointsPerLevel` | value += this × (casterLevel − `SpellLevels.SpellLevel`), level capped at `MaxLevel`. |
 | `Variance` | damage/heal range: value × (1 ± Variance/2). Frostbolt r11: 475 ± 3.7 %. |
 | `EffectPointsPerResource` | value += this × combo points (finishers). An aura's value is taken when the cast applies it (Expose Armor −450 per point, Rupture's ticks); a new cast with other values re-applies the aura. |
-| `EffectBonusCoefficient` | spell-power coefficient (Frostbolt r11 0.814, Lightning Bolt r10 0.714, Mind Blast r9 0.429 — the Classic values). 1 on melee rows is meaningless. |
+| `EffectBonusCoefficient` | spell-power coefficient (Frostbolt r11 0.814, Lightning Bolt r10 0.714, Mind Blast r9 0.429 — the Classic values). 1 on melee rows is meaningless: the engine uses it for spells of a magic school only. It multiplies the spell damage of the spell's school (gear, buffs, Champion of the Light, the target's flat damage taken such as Judgement of the Crusader) and adds it to `SCHOOL_DAMAGE`, to every tick of a periodic damage aura (the spell damage of the cast), and to a weapon damage effect of a holy weapon strike, outside its weapon damage multiplier (Holy Strike, the Seal of Command strike). Item procs carry none. |
 | `BonusCoefficientFromAP` | attack-power coefficient (only Hammer of Wrath 429151 uses it; SoD-style AP scaling is otherwise expressed as a `DUMMY` + description). |
 | `EffectAuraPeriod` | tick interval ms for periodic auras (Rend 3000). Ticks = duration / period; `$o1` = value × ticks. |
 | `EffectAmplitude`, `EffectChainAmplitude`, `EffectChainTargets` | chain/multiplier data (Chain Lightning); Execute abuses `EffectChainAmplitude` 1.5. |
@@ -401,8 +411,11 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    `dbc/discard.rs` lists their ids as `DISCARDED_AURA_IDS` / `DISCARDED_EFFECT_IDS` so the
    exporter can tell them from a genuinely new value. Kept although the list names them as
    candidates: `MOD_THREAT` / `MOD_TOTAL_THREAT` (stance passives, Defiance — threat is
-   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes) and `ADD_TARGET_TRIGGER`
-   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side).
+   simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes), `ADD_TARGET_TRIGGER`
+   (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side),
+   `MOD_DAMAGE_TAKEN` (Judgement of the Crusader's holy damage taken, and the item procs'
+   damage taken debuffs) and `MOD_MANA_REGEN_INTERRUPT` (Reverence, item mana regeneration while
+   casting).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
    `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it
@@ -410,7 +423,7 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    changes. `SupercedesSpell` links to dropped ranks are cleared. Mocking Blow keeps its
    `SCHOOL_DAMAGE` and stays; Bloodthirst loses its run-speed aura and stays.
 3. Spells the overrides mention (their own entry, or another entry's `params.spell` /
-   `stance_passive`) are never dropped, even when empty: Berserker Rage keeps existing as the
+   `stance_passive` / `walk`) are never dropped, even when empty: Berserker Rage keeps existing as the
    spell Improved Berserker Rage's `GAIN_RESOURCE_ON_USE` reacts to.
 
 The exporter prints what it pruned. Build 1.60.1.70009: 63 effects and 16 spells from the
@@ -465,7 +478,16 @@ overrides:
     debuff_shared: true              # one raid-wide instance (default: true when it stacks)
     ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)
     cast_time_ms: 1000               # in place of SpellCastTimes.Base (Charge's run to the target)
+    walk: [1311701, 1311703]         # spells the export carries although no table field reaches
+                                     #   them (Twist of Light's Echoes); payloads of the spell
+                                     #   at runtime, enabled with it
+    exclusive_auras: [25782, 25916]  # not castable while one of these is up on the caster
+                                     #   (Blessing of Might under a Greater Blessing of Might)
 ```
+
+A `NO_OP` script may carry `params.spell`: the walk follows it and the pruning keeps the spell,
+without giving the effect any behaviour (the Paladin's seals name their judgements in a
+`DUMMY`'s base points, Consecration its tick damage only in its description).
 
 **Scripts** (`ScriptKind`; the interpreter implements each once, the data says where it applies):
 
@@ -475,7 +497,7 @@ overrides:
 | `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
 | `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of the average base main-hand weapon damage (no attack power, off-hand crits too) over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
 | `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
-| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell` | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
+| `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell`; on a `PERIODIC_DUMMY` aura every tick casts `spell`, the one due as the aura expires included (Consecration 20924 E2 → 1280349, 8 ticks over 8 s) | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
 | `OFFHAND_RAGE_PERCENT` | off-hand rage generation += `base_points` × `value` (1 if absent) % | — (`value` optional) | Dual Wield Specialization E1 (10-50 %) |
@@ -497,9 +519,33 @@ overrides:
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
 | `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
+| `SEAL_JUDGEMENT` | on the seal aura effect that names the seal's judgement: `spell` is what `JUDGE_SEAL` casts while the seal is up; it makes the spell a seal (one at a time: casting one ends the others) | `spell` | every seal's E2 (Seal of Command r5 → 20968) |
+| `JUDGE_SEAL` | casts the judgement of the active seal (nothing without one); the seal stays up. The `MARKED` caster aura state (vanilla's `AURA_STATE_JUDGEMENT`) holds while a seal is up | — | Judgement 20271 E0 |
+| `TRIGGER_SPELL_DAMAGE_PERCENT` | casts `spell` with its damage × `value` % | `spell`, `value` | Judgement of Command 20968 E0 → 20966 at 50 % (a raid boss is never stunned) |
+| `WEAPON_SPEED_SWING_DAMAGE` | a proc aura's payload: casts `spell` with effect `effect` set to the damage per swing of this aura's value T by the unhasted main-hand speed, T / 87 at 1.5 s to T / 25 at 4.0 s, linear | `spell`, `effect` | Seal of Righteousness E0 → 25713 (rank 8) |
+| `ATTACK_SPEED_DAMAGE_PENALTY` | on a `MOD_ATTACKSPEED` aura: main-hand weapon damage × 100 / (100 + the haste) while it is up | — | Seal of the Crusader E1 (40 % → 100 / 140) |
+| `JUDGED_SEAL_MANA_RETURN` | on the talent aura effect whose value is the percent of the judged seal's mana cost (its cost now, after modifiers) each judgement returns, at the chance effect `effect`'s value gives | `effect` | Sanctified Judgement E1 (20/40/60 %, E0 33/66/100 %) |
+| `REFRESH_AURA` | an `on_event` reaction: the spell's own aura, when up, starts its duration again (every rank reacts for its own aura) | — | Judgement of the Crusader, on the paladin's melee strikes |
+| `SEAL_ECHO` | on an Echo's aura effect: `spell` is a seal (any rank). While the Echo spell is enabled (a payload of Twist of Light through its `walk`), a seal of that name ended by another seal applies the Echo; the next landed white swing, which uses its charge, casts the replaced seal's proc payloads once, with no chance roll and no proc cooldown. Casting a seal ends its own Echo (an assumption, TASKS.md P.17: the tooltip only speaks of the replaced seal) | `spell` | Echo of Command 1311703 E0 → Seal of Command 20375 |
+| `REFRESH_JUDGEMENTS` | on a strike's `SCRIPT_EFFECT`: while the caster has the aura `spell`, the judgements of the caster's seals that are up on the target start their duration again | `spell` | Holy Strike E2, with Sacred Arbiter 1311087 |
+| `SCHOOL_DAMAGE_PERCENT_WHILE_AURA` | on a `DUMMY` talent aura: the caster's damage of `spell`'s school is `base_points` % higher while the caster's aura of that spell (any rank, or one that ended this instant) is up | `spell` | Consecrated Ground E0 → Consecration 26573 (holy, +5/10 %) |
+| `EXTRA_WEAPON_DAMAGE_VS_CREATURE_TYPES` | against the `creature_types`, the spell's weapon damage gains `base_points` times itself | `creature_types` | Spearing Strike E2 (2 × 40 % against giants and dragonkin) |
 | `NO_OP` | nothing; keeps the dummy (or an unknown aura) out of `csim-tables check` | — | markers, unmodelled halves, Bloodthrill payload 1282733 E1 aura 560 |
 
-**Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups),
+**Cast buffs that are proc auras** (a seal: an ability with a `ProcTypeMask` whose aura has a
+payload) get a proc of their own, built from the same record, that fires while the buff the cast
+applies is up, at the record's chance or the `proc` override's rate (Seal of Command: `ppm: 7`),
+with the record's proc cooldown (`ProcCategoryRecovery`). The direct effects stay the cast's.
+A proc whose aura is down is not tried: the swings made without the seal are no attempts, so
+the proc rate is per swing while the seal is up (Seal of Command at 7 PPM with a 3.6 s weapon:
+42 %). Procs of the same name (the ranks of a seal, a poison on each weapon) add up in the
+statistics.
+
+`SEAL_ECHO`, `REFRESH_JUDGEMENTS` and `SCHOOL_DAMAGE_PERCENT_WHILE_AURA` name a condition, not
+a payload: the spell they name is not enabled with the scripted one.
+
+**Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups; a passive's
+auras are never applied: the Season of Discovery runes a class learns, such as Exorcist),
 `RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
 `RUN_TO_TARGET` (Charge: the cast time is the run to the target, not a cast; spells that do not
 hit the enemy and have no cast time of their own can be cast during it),

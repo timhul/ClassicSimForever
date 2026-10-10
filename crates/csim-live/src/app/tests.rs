@@ -620,3 +620,89 @@ fn a_bundled_setup_still_needs_its_rotation_s_prerequisites() {
     let loaded = load(&mut app, by_name("warrior_fury_dw_orc")).unwrap();
     assert!(loaded.info.missing_prerequisites.is_empty());
 }
+
+/// The Paladin in the catalog (its setups, its three races, its rotations with Twist of Light
+/// as a prerequisite, the Ret keybinds) and loaded: played by its rotation or from the
+/// keyboard, as another of its races, its talents by Wowhead's string.
+#[test]
+fn a_paladin_is_in_the_catalog_and_loads() {
+    let catalog = empty_app().catalog();
+    for race in ["human", "dwarf", "undead"] {
+        let name = format!("paladin_ret_2h_{race}");
+        let setup = catalog.setups.iter().find(|setup| setup.name == name);
+        let setup = setup.unwrap_or_else(|| panic!("{name}"));
+        assert_eq!(setup.class, "Paladin");
+        assert_eq!(setup.rotation, "Seal Twisting");
+        assert_eq!(setup.error, None);
+    }
+    assert!(catalog.keybinds.contains(&"ret".to_owned()));
+    let paladin = catalog
+        .classes
+        .iter()
+        .find(|entry| entry.class == PlayerClass::Paladin)
+        .unwrap();
+    assert_eq!(paladin.name, "Paladin");
+    let races: Vec<Race> = paladin.races.iter().map(|entry| entry.race).collect();
+    assert_eq!(races, [Race::Human, Race::Dwarf, Race::Undead]);
+    let rotation = |name: &str| {
+        paladin
+            .rotations
+            .iter()
+            .find(|rotation| rotation.name == name)
+            .unwrap_or_else(|| panic!("{name}"))
+    };
+    assert_eq!(rotation("Seal Twisting").prerequisites, ["Twist of Light"]);
+    rotation("Seal of Command");
+    rotation("Seal of the Crusader");
+
+    let mut app = empty_app();
+    let loaded = load(&mut app, by_name("paladin_ret_2h_human")).unwrap();
+    assert_eq!((loaded.info.class, loaded.info.race), ("Paladin", "Human"));
+    assert!(!loaded.info.manual);
+    assert!(loaded.info.missing_prerequisites.is_empty());
+    let code = loaded.talents_code.clone();
+    assert_eq!(code, None, "the setup's own talents");
+
+    let keyboard = LoadRequest {
+        keybinds: Some("ret".to_owned()),
+        ..by_name("paladin_ret_2h_human")
+    };
+    let loaded = load(&mut app, keyboard).unwrap();
+    assert!(loaded.info.manual);
+    let bound: Vec<&str> = loaded
+        .info
+        .keybinds
+        .iter()
+        .map(|key| key.name.as_str())
+        .collect();
+    for spell in [
+        "Seal of Command",
+        "Seal of Righteousness",
+        "Judgement",
+        "Holy Strike",
+    ] {
+        assert!(bound.contains(&spell), "{spell}: {bound:?}");
+    }
+
+    let undead = LoadRequest {
+        race: Some(Race::Undead),
+        ..by_name("paladin_ret_2h_human")
+    };
+    assert_eq!(load(&mut app, undead).unwrap().info.race, "Undead");
+    let orc = LoadRequest {
+        race: Some(Race::Orc),
+        ..by_name("paladin_ret_2h_human")
+    };
+    assert!(load(&mut app, orc).is_err(), "no Orc Paladin");
+
+    // Without Twist of Light the setup cannot twist.
+    let mut talents = spent_talents(&app);
+    let retribution = talents.get_mut("Retribution").unwrap();
+    assert_eq!(retribution.remove("Twist of Light"), Some(1));
+    let request = LoadRequest {
+        talents: Some(talents),
+        ..by_name("paladin_ret_2h_human")
+    };
+    let error = load(&mut app, request).unwrap_err();
+    assert!(error.contains("prerequisite \"Twist of Light\""), "{error}");
+}

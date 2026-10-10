@@ -699,6 +699,10 @@ pub struct SpellRecord {
     /// `SpellTargetRestrictions.MaxTargets`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub max_targets: u32,
+    /// `SpellTargetRestrictions.TargetCreatureType`: the creature types the spell can target,
+    /// bit `CreatureType.ID − 1` per type (36: Undead and Demon); 0 for any.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub target_creature_type: u32,
     /// `SpellLabel` ids.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub labels: Vec<u32>,
@@ -741,6 +745,7 @@ impl SpellRecord {
             equipped_items: None,
             aura_restrictions: AuraRestrictions::default(),
             max_targets: 0,
+            target_creature_type: 0,
             labels: Vec::new(),
             description: String::new(),
             effects: Vec::new(),
@@ -915,6 +920,19 @@ impl SpellRecord {
             .iter()
             .filter(|p| p.power_type == power_type)
             .map(|p| p.cost)
+            .sum()
+    }
+
+    /// The cost of `power_type` in stored units for a caster with `base_mana`: the flat cost
+    /// plus the `PowerCostPct` share of the base mana, rounded down (Judgement: 6 % of 1512 =
+    /// 90 mana).
+    pub fn power_cost_with_base(&self, power_type: PowerType, base_mana: u32) -> f64 {
+        self.power
+            .iter()
+            .filter(|p| p.power_type == power_type)
+            .map(|p| {
+                f64::from(p.cost) + (f64::from(base_mana) * f64::from(p.cost_pct) / 100.0).floor()
+            })
             .sum()
     }
 
@@ -2333,16 +2351,51 @@ spells:
             "Eviscerate r9"
         );
 
+        // The Paladin: Judgement of the Crusader and Reverence kept now that their auras are
+        // named, the payloads only a DUMMY or a description names reached through the
+        // overrides, the Season of Discovery runes ignored.
+        assert!(db.ids_of_class(Some(PlayerClass::Paladin)).len() > 300);
+        let crusader = db.get(20303).unwrap();
+        assert_eq!(crusader.name, "Judgement of the Crusader");
+        assert_eq!(crusader.effects[0].aura, AuraType::ModDamageTaken);
+        assert_eq!(crusader.effects[0].base_points, 161.0);
+        assert_eq!(
+            db.get(1310899).unwrap().effects[0].aura,
+            AuraType::ModManaRegenInterrupt,
+            "Reverence"
+        );
+        for (id, name) in [
+            (1280349, "Consecration"),
+            (25713, "Seal of Righteousness"),
+            (20966, "Judgement of Command"),
+            (21183, "Judgement of the Crusader"),
+            (440668, "Vindication"),
+            (1311703, "Echo of Command"),
+        ] {
+            assert_eq!(
+                db.get(id).unwrap().name,
+                name,
+                "{id} reached through the overrides"
+            );
+        }
+        let holy_strike = db.get(10333).unwrap();
+        assert_eq!(holy_strike.cooldown.category_recovery_ms, 10_000);
+        assert_eq!(holy_strike.effects[0].bonus_coefficient, 0.429);
+        assert!(
+            db.overrides().has_sim_flag(407778, SimFlag::Ignored),
+            "Divine Storm"
+        );
+
         // The effects the sim cannot interpret yet; extend the overrides rather than this list.
         let mut pending: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();
         pending.dedup();
         assert_eq!(
             pending,
             [
-                71, 11826, 12299, 13567, 13983, 14537, 18350, 24658, 24661, 28839, 29275, 29284,
-                29286, 402911, 403196, 450608, 1259813, 1282503, 1287808, 1291698, 1291749,
-                1291915, 1292851, 1293433, 1293501, 1295744, 1301488, 1301697, 1301715, 1317432,
-                1318325, 1318470, 1318514, 1320579, 1322218, 1322303, 1322312
+                71, 11826, 12299, 13567, 13983, 14537, 24658, 24661, 28839, 29275, 29284, 29286,
+                402911, 403196, 450608, 1259813, 1282503, 1287808, 1291698, 1291749, 1291915,
+                1292851, 1293433, 1293501, 1295744, 1301488, 1301697, 1301715, 1317432, 1318325,
+                1318470, 1318514, 1320579, 1322218, 1322303, 1322312
             ],
             "Toughness (aura 466), Raging Blow, Devastate, and item              spells whose DUMMY effects wait for a script (Zandalarian              trinkets, Six Demon Bag, Arcanite Dragonling, creature-type damage bonuses, ...)"
         );

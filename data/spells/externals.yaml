@@ -134,6 +134,48 @@ spells:
     base_points: 25.0
     misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 11390
+  name: Arcane Elixir
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134810
+  icon_name: inv_potion_30
+  duration_ms: 1800000
+  cooldown:
+    category_recovery_ms: 1000
+  categories:
+    category: 99
+  levels:
+    spell: 46
+  class_options:
+    set: 13
+  description: Increases spell damage by up to $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_DONE
+    base_points: 20.0
+    misc_value: [126, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 11396
+  name: Greater Intellect
+  attributes: [671088640, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134721
+  icon_name: inv_potion_10
+  duration_ms: 3600000
+  levels:
+    spell: 47
+  class_options:
+    set: 13
+  description: Increases Intellect by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 25.0
+    misc_value: [3, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 11405
   name: Greater Strength
   attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -215,6 +257,33 @@ spells:
     aura: MOD_STAT
     base_points: 17.0
     implicit_target: [UNIT_TARGET_ALLY, NONE]
+- id: 15701
+  name: Night Dragon's Breath
+  attributes: [134217728, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 4
+    defense_type: MAGIC
+  levels:
+    spell: 35
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana and $s2 health.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 425.0
+    variance: 0.14588235
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: HEAL
+    base_points: 425.0
+    variance: 0.14588235
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 16323
   name: Juju Power
   attributes: [65792, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -271,6 +340,32 @@ spells:
     aura: MOD_RANGED_ATTACK_POWER
     base_points: 40.0
     implicit_target: [UNIT_TARGET_ALLY, NONE]
+- id: 16666
+  name: Demonic Rune
+  attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  icon: 134417
+  icon_name: inv_misc_rune_04
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 30
+  levels:
+    spell: 58
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana at the cost of $s2 life.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1200.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: SCHOOL_DAMAGE
+    base_points: 800.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 16928
   name: Armor Shatter
   attributes: [0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -313,6 +408,50 @@ spells:
     effect: APPLY_AURA
     aura: MOD_ATTACK_POWER
     base_points: 35.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 17531
+  name: Restore Mana
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 4
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Restores $s1 mana.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 1800.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 17535
+  name: Elixir of the Sages
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134809
+  icon_name: inv_potion_29
+  duration_ms: 3600000
+  class_options:
+    set: 13
+  description: Increases Intellect and Spirit by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 18.0
+    misc_value: [3, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 18.0
+    misc_value: [4, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 17537
   name: Elixir of Brute Force
@@ -362,6 +501,27 @@ spells:
     aura: MOD_CRIT_PCT
     base_points: 2.0
     implicit_target: [UNIT_CASTER, NONE]
+- id: 17539
+  name: Greater Arcane Elixir
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134731
+  icon_name: inv_potion_109
+  duration_ms: 3600000
+  cooldown:
+    category_recovery_ms: 1000
+  categories:
+    category: 99
+  class_options:
+    set: 13
+  description: Increases spell damage by up to $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_DONE
+    base_points: 35.0
+    misc_value: [126, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 17626
   name: Flask of the Titans
   attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -381,6 +541,51 @@ spells:
     effect: APPLY_AURA
     aura: MOD_INCREASE_HEALTH
     base_points: 1200.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 17627
+  name: Distilled Wisdom
+  attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134877
+  icon_name: inv_potion_97
+  duration_ms: 7200000
+  levels:
+    spell: 15
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Increases the player's maximum Mana by $s1 for $d. You can only have the effect of one flask at a time. This effect persists through death.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_MAX_POWER
+    base_points: 2000.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 17628
+  name: Supreme Power
+  attributes: [671088640, 0, 1, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134821
+  icon_name: inv_potion_41
+  duration_ms: 7200000
+  cooldown:
+    category_recovery_ms: 1000
+  categories:
+    category: 99
+  levels:
+    spell: 46
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Increases damage done by magical spells and effects by up to $s1 for $d. You can only have the effect of one flask at a time. This effect persists through death.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_DAMAGE_DONE
+    base_points: 150.0
+    misc_value: [126, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 18125
   name: Blessed Sunfruit
@@ -425,6 +630,26 @@ spells:
     aura: MOD_STAT
     base_points: 10.0
     misc_value: [1, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 18194
+  name: Mana Regeneration
+  attributes: [671088640, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136053
+  icon_name: spell_nature_manaregentotem
+  duration_ms: 600000
+  levels:
+    spell: 16
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PERIODIC_ENERGIZE
+    base_points: 8.0
+    aura_period_ms: 5000
     implicit_target: [UNIT_CASTER, NONE]
 - id: 19506
   name: Trueshot Aura
@@ -544,6 +769,61 @@ spells:
     misc_value: [64, 0]
     radius_yd: [100.0, 0.0]
     implicit_target: [UNIT_CASTER_AREA_RAID, NONE]
+- id: 22730
+  name: Increased Intellect
+  attributes: [671088640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134340
+  icon_name: inv_misc_organ_03
+  duration_ms: 600000
+  levels:
+    spell: 16
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 13
+  description: Increases Intellect by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 10.0
+    misc_value: [3, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 23028
+  name: Arcane Brilliance
+  attributes: [65536, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 64
+  icon: 135869
+  icon_name: spell_holy_arcaneintellect
+  duration_ms: 3600000
+  range_yd: 40.0
+  power:
+  - type: MANA
+    cost: 3400
+  cooldown:
+    start_recovery_ms: 1500
+  categories:
+    start_recovery_category: 133
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    base: 56
+    spell: 56
+    max: 66
+  class_options:
+    set: 3
+    mask: [1024, 0, 0, 0]
+  labels: [17]
+  description: Infuses the target's party and raid with brilliance, increasing their Intellect by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 31.0
+    misc_value: [3, 0]
+    radius_yd: [100.0, 0.0]
+    implicit_target: [UNIT_CASTER_AREA_RAID, NONE]
 - id: 23060
   name: Battle Squawk
   attributes: [262160, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -595,6 +875,26 @@ spells:
     misc_value: [1, 0]
     radius_yd: [100.0, 0.0]
     implicit_target: [SRC_CASTER, UNIT_SRC_AREA_ENEMY]
+- id: 24363
+  name: Mana Regeneration
+  attributes: [671088896, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134762
+  icon_name: inv_potion_137
+  duration_ms: 3600000
+  categories:
+    defense_type: MAGIC
+  levels:
+    spell: 45
+  class_options:
+    set: 13
+  description: Regenerate $s1 mana per 5 sec for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_POWER_REGEN
+    base_points: 12.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 24799
   name: Well Fed
   attributes: [134217984, 32, 2415935488, 5242880, 0, 0, 4, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -633,74 +933,32 @@ spells:
     base_points: 53.0
     radius_yd: [30.0, 30.0]
     implicit_target: [UNIT_CASTER, NONE]
-- id: 25898
-  name: Greater Blessing of Kings
-  attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 2
-  icon: 135993
-  icon_name: spell_magic_greaterblessingofkings
-  duration_ms: 3600000
-  range_yd: 40.0
-  power:
-  - type: MANA
-    cost: 150
+- id: 27869
+  name: Dark Rune
+  attributes: [536870912, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 32
+  icon: 134417
+  icon_name: inv_misc_rune_04
   cooldown:
-    start_recovery_ms: 1500
+    category_recovery_ms: 60000
   categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-    dispel_type: 1
+    category: 30
   levels:
-    base: 60
-    spell: 60
-  class_options:
-    set: 10
-    mask: [285212672, 0, 0, 0]
-  labels: [26]
-  description: Gives all members of the raid or group that share the same class with the target the Greater Blessing of Kings, increasing total stats by $s1% for $d.  Players may only have one Blessing on them per Paladin at any one time.
+    spell: 58
+  aura_options:
+    proc_chance: 101
+  description: Restores $s1 mana at the cost of $s2 life.
   effects:
   - index: 0
-    effect: APPLY_AURA
-    aura: MOD_TOTAL_STAT_PERCENTAGE
-    base_points: 10.0
-    misc_value: [-1, 31]
-    radius_yd: [100.0, 0.0]
-    implicit_target: [153, NONE]
-- id: 25916
-  name: Greater Blessing of Might
-  rank_text: Rank 2
-  attributes: [327680, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 2
-  icon: 135908
-  icon_name: spell_holy_greaterblessingofkings
-  duration_ms: 3600000
-  range_yd: 40.0
-  power:
-  - type: MANA
-    cost: 260
-  cooldown:
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-    dispel_type: 1
-  levels:
-    base: 60
-    spell: 60
-    max: 60
-  class_options:
-    set: 10
-    mask: [268435458, 0, 0, 0]
-  labels: [26]
-  description: Gives all members of the raid or group that share the same class with the target the Greater Blessing of Might, increasing melee attack power by $s1 for $d.  Players may only have one Blessing on them per Paladin at any one time.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 133.0
-    bonus_coefficient: 1.0
-    radius_yd: [100.0, 0.0]
-    implicit_target: [153, NONE]
+    effect: ENERGIZE
+    base_points: 1200.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: SCHOOL_DAMAGE
+    base_points: 800.0
+    variance: 0.5
+    implicit_target: [UNIT_CASTER, NONE]
 consumable_items:
 - id: 7676
   name: Thistle Tea
@@ -708,6 +966,38 @@ consumable_items:
   - trigger: USE
     spell: 9512
     cooldown_ms: 300000
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 11952
+  name: Night Dragon's Breath
+  effects:
+  - trigger: USE
+    spell: 15701
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 12662
+  name: Demonic Rune
+  effects:
+  - trigger: USE
+    spell: 16666
+    category: 1153
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 13444
+  name: Major Mana Potion
+  effects:
+  - trigger: USE
+    spell: 17531
+    category: 4
+    category_cooldown_ms: 120000
+    charges: -1
+- id: 20520
+  name: Dark Rune
+  effects:
+  - trigger: USE
+    spell: 27869
     category: 1153
     category_cooldown_ms: 120000
     charges: -1

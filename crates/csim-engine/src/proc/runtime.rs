@@ -36,6 +36,15 @@ use crate::spell::overrides::ScriptKind;
 use crate::spell::record::EquippedItems;
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellResult};
 
+/// The damage per swing a `WEAPON_SPEED_SWING_DAMAGE` aura of value `total` deals with a
+/// main-hand weapon of `speed` seconds: `total` / 87 at 1.5 s and `total` / 25 at 4.0 s, linear
+/// in the speed (and beyond those speeds). Seal of Righteousness rank 8 at level 60 (1880):
+/// 21.6 with a 1.5 s weapon, 64.5 with a 3.5 s two-hander.
+pub fn swing_damage_by_speed(total: f64, speed: f64) -> f64 {
+    let (fast, slow) = (total / 87.0, total / 25.0);
+    fast + (speed - 1.5) / (4.0 - 1.5) * (slow - fast)
+}
+
 /// Rolls are out of 10 000 (100 = 1%).
 pub const PROC_ROLL_RANGE: u32 = 10_000;
 
@@ -196,7 +205,11 @@ impl Proc {
     /// name.
     fn record_sources(spell: &Spell) -> Vec<ProcSource> {
         let record = spell.record();
-        assert!(spell.is_passive(), "{} is not a passive spell", record.name);
+        assert!(
+            spell.is_passive() || spell.setup().buff_proc,
+            "{} is not a passive spell",
+            record.name
+        );
         let setup = spell.setup();
         let type_mask = setup
             .overrides
@@ -379,11 +392,7 @@ impl Proc {
     /// proc, the triggering hand holds a weapon. Port of the
     /// `proc_specific_conditions_fulfilled` overrides.
     pub fn conditions_fulfilled(&self, source: ProcSource, host: &impl ProcHost) -> bool {
-        // An on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a
-        // condition.
-        if let (ProcKind::Aura, Some(id)) = (self.kind, self.spell.marker_buff())
-            && !host.buff(id).is_active()
-        {
+        if !self.aura_is_up(host) {
             return false;
         }
         let hand_source = matches!(
@@ -412,6 +421,15 @@ impl Proc {
         true
     }
 
+    /// Whether the aura of an [`ProcKind::Aura`] proc is up (a seal while it is active); an
+    /// on-hit spell's marker buff is what it applies (Thunderfury's debuff), not a condition.
+    fn aura_is_up(&self, host: &impl ProcHost) -> bool {
+        match (self.kind, self.spell.marker_buff()) {
+            (ProcKind::Aura, Some(id)) => host.buff(id).is_active(),
+            _ => true,
+        }
+    }
+
     /// Whether the proc is off its internal cooldown.
     pub fn is_ready(&self, host: &impl ProcHost) -> bool {
         self.spell.cooldown_remaining(host) <= 0.0
@@ -427,6 +445,11 @@ impl Proc {
         host: &impl ProcHost,
     ) -> bool {
         self.current_source = Some(source);
+        // A proc whose aura is down is not tried (the C++ disables it with its buff): a seal
+        // counts the swings made while it is up.
+        if !self.aura_is_up(host) {
+            return false;
+        }
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
@@ -467,6 +490,16 @@ impl Proc {
                     spell: params.spell?,
                     effect: params.effect?,
                     value: effect.effective_value(host),
+                });
+            }
+            // The damage per swing by the main-hand weapon's speed (Seal of Righteousness).
+            Some(ScriptKind::WeaponSpeedSwingDamage) => {
+                let params = &effect.script()?.params;
+                let speed = host.base_weapon_speed(Hand::Mainhand)?;
+                return Some(Payload::TriggerWithValue {
+                    spell: params.spell?,
+                    effect: params.effect?,
+                    value: swing_damage_by_speed(effect.effective_value(host), speed),
                 });
             }
             // The server-side script: the value is the payload's id, not a number the payload
@@ -518,7 +551,9 @@ impl Proc {
             }
             ProcKind::Aura => {}
         }
-        let mut report = if self.spell.effects().is_empty() {
+        // A cast buff's proc (a seal's) casts its payloads only: the direct effects are the
+        // cast's.
+        let report = if self.spell.effects().is_empty() || self.spell.setup().buff_proc {
             self.spell.start_cooldown(host);
             CastReport {
                 result: SpellResult::Success,
@@ -527,6 +562,21 @@ impl Proc {
         } else {
             self.spell.perform(host)
         };
+        self.cast_payloads(report, host)
+    }
+
+    /// Casts the payloads of the aura effects once, without the chance roll, the internal
+    /// cooldown or the statistics' count: an Echo applying its replaced seal (Twist of Light).
+    pub fn perform_payloads(&mut self, host: &mut impl ProcHost) -> CastReport {
+        let report = CastReport {
+            result: SpellResult::Success,
+            ..CastReport::default()
+        };
+        self.cast_payloads(report, host)
+    }
+
+    /// Casts the payloads of the aura effects into `report`.
+    fn cast_payloads(&mut self, mut report: CastReport, host: &mut impl ProcHost) -> CastReport {
         for payload in self.payloads(host) {
             match payload {
                 Payload::Trigger { spell, value } => {
@@ -722,6 +772,22 @@ impl EnabledProcs {
         }
 
         self.end_check();
+        reports
+    }
+
+    /// Casts the payloads of proc `id` once, whatever its chance and cooldown (an Echo of a
+    /// seal), then runs the proc sources they produced. Part of the current check.
+    pub fn fire_payloads(
+        &mut self,
+        id: ProcId,
+        host: &mut impl ProcHost,
+    ) -> Vec<(ProcId, CastReport)> {
+        let report = self.procs[id.index()].perform_payloads(host);
+        let nested = report.all_proc_sources();
+        let mut reports = vec![(id, report)];
+        for nested_source in nested {
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
+        }
         reports
     }
 

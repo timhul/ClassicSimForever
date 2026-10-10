@@ -1,0 +1,10 @@
+include: common/base_target.yaml
+include: common/base_paladin_buffs.yaml
+include: common/base_paladin_ret_11_8_32.yaml
+include: common/base_paladin_alliance.yaml
+name: Ret 2h Human
+race: HUMAN
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18876, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # Grand Marshal's Claymore

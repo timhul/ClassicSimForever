@@ -15,7 +15,11 @@ use csim_tables::export;
 use csim_tables::{TableDir, Tables};
 
 /// The classes whose spell and talent files are exported (`csim-tables export-all`).
-const EXPORTED_CLASSES: [PlayerClass; 2] = [PlayerClass::Warrior, PlayerClass::Rogue];
+const EXPORTED_CLASSES: [PlayerClass; 3] = [
+    PlayerClass::Warrior,
+    PlayerClass::Paladin,
+    PlayerClass::Rogue,
+];
 
 /// A shipped spell or item file as a fresh export of `tables` renders it: LF line ends, and
 /// without its `icon_name` lines when the table directory has no listfile (the export then
@@ -238,12 +242,22 @@ fn shipped_classes_match_the_tables() {
             "{class:?}: {agility_per_percent_crit} vs {}",
             rules.agility_per_percent_crit
         );
-        assert_eq!(expected.spell_crit_per_intellect, 0.0, "{class:?}");
-        assert_eq!(
-            rules.intellect_per_percent_spell_crit,
-            f64::MAX,
-            "{class:?}"
-        );
+        if expected.spell_crit_per_intellect == 0.0 {
+            assert_eq!(
+                rules.intellect_per_percent_spell_crit,
+                f64::MAX,
+                "{class:?}"
+            );
+        } else {
+            let intellect_per_percent_spell_crit =
+                1.0 / (f64::from(expected.spell_crit_per_intellect) * 100.0);
+            assert!(
+                (intellect_per_percent_spell_crit - rules.intellect_per_percent_spell_crit).abs()
+                    < 1e-3,
+                "{class:?}: {intellect_per_percent_spell_crit} vs {}",
+                rules.intellect_per_percent_spell_crit
+            );
+        }
         assert_eq!(expected.base_mana, spec.base_stats.mana, "{class:?}");
 
         let races: Vec<u32> = tables

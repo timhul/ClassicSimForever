@@ -578,6 +578,30 @@ fn lists_filter_by_class_slot_and_name() {
     assert!(shields.contains("No items"), "{shields}");
 }
 
+/// A Paladin's relics are librams (not the totems and idols); it wields shields and
+/// two-handers, not daggers; a Rogue wears no relic.
+#[test]
+fn list_items_filters_the_paladins_relics_and_weapons() {
+    let list =
+        |class: &str, slot: &str| stdout(&csim(&["list-items", "--class", class, "--slot", slot]));
+    let relics = list("paladin", "relic");
+    assert!(relics.contains("Libram of Fervor"), "{relics}");
+    assert!(
+        !relics.contains("TOTEM") && !relics.contains("IDOL"),
+        "{relics}"
+    );
+    assert!(list("rogue", "relic").contains("No items"));
+    let offhands = list("paladin", "offhand");
+    assert!(offhands.contains("SHIELD"), "{offhands}");
+    assert!(!offhands.contains("DAGGER"), "{offhands}");
+    let mainhands = list("paladin", "mainhand");
+    assert!(mainhands.contains("TWOHAND_SWORD"), "{mainhands}");
+    assert!(
+        !mainhands.contains("DAGGER") && !mainhands.contains("STAFF"),
+        "{mainhands}"
+    );
+}
+
 const SWEEP: &str = "data/sweeps/dw_fury_last_3_points.yaml";
 
 #[test]
@@ -763,4 +787,55 @@ fn a_negative_length_variance_is_rejected() {
     assert!(!output.status.success());
     let error = String::from_utf8(output.stderr).unwrap();
     assert!(error.contains("must be at least 0"), "{error}");
+}
+
+/// A Retribution Paladin runs its twisting rotation (Seal of Command, Seal of Righteousness and
+/// the judgements deal damage, mana is gained), alone and in the Alliance raid; the Paladin
+/// sweeps list their variants.
+#[test]
+fn a_paladin_runs_alone_in_a_raid_and_in_the_sweeps() {
+    let run = [
+        "run",
+        "data/characters/paladin_ret_2h_human.yaml",
+        "--iterations",
+        "20",
+        "--threads",
+        "2",
+        "--length",
+        "120",
+        "--seed",
+        "3",
+    ];
+    let report = stdout(&csim(&run));
+    for expected in [
+        "Ret 2h Human: Human Paladin, rotation \"Seal Twisting\"",
+        "Seal of Command",
+        "Seal of Righteousness",
+        "Judgement of Command",
+        "Holy Strike",
+        "Mana",
+    ] {
+        assert!(
+            report.contains(expected),
+            "{expected:?} missing:
+{report}"
+        );
+    }
+    let raid = stdout(&csim(
+        &[&run[..], &["--raid", "data/raids/alliance_paladin.yaml"]].concat(),
+    ));
+    assert!(raid.contains("Raid Alliance paladin: 6 players"), "{raid}");
+    assert!(raid.contains("Ret 2h Dwarf"), "{raid}");
+
+    let profiles = csim(&["sweep", "data/sweeps/ret_profiles.yaml", "--dry-run"]);
+    let header = String::from_utf8(profiles.stderr).unwrap();
+    assert!(header.contains("9 variants"), "{header}");
+    assert!(stdout_of(&profiles.stdout).contains("Ret 2h Undead | crusader"));
+    let points = csim(&["sweep", "data/sweeps/ret_last_points.yaml", "--dry-run"]);
+    let header = String::from_utf8(points.stderr).unwrap();
+    assert!(header.contains("8 variants"), "{header}");
+}
+
+fn stdout_of(bytes: &[u8]) -> String {
+    String::from_utf8_lossy(bytes).into_owned()
 }

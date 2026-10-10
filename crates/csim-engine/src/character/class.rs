@@ -35,12 +35,31 @@ pub struct ClassBaseStats {
     /// Base melee crit in hundredths of a percent (200 = 2 %).
     #[serde(default)]
     pub melee_crit: u32,
+    /// Base spell crit of every school in hundredths of a percent, before intellect.
+    #[serde(default)]
+    pub spell_crit: u32,
     /// Base mana of mana users.
     #[serde(default)]
     pub mana: u32,
     /// Base health, before stamina.
     #[serde(default)]
     pub health: u32,
+}
+
+/// Spirit-based mana regeneration: `mp5_base + mp5_per_spirit × spirit` mana per 5 seconds
+/// outside the five-second rule (the Paladin: 15 + spirit / 5).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ManaRegen {
+    pub mp5_base: f64,
+    pub mp5_per_spirit: f64,
+}
+
+impl ManaRegen {
+    /// Mana per 5 seconds from `spirit`.
+    pub fn mp5_from_spirit(&self, spirit: u32) -> f64 {
+        self.mp5_base + self.mp5_per_spirit * f64::from(spirit)
+    }
 }
 
 /// Stat conversion rules as written in the data file (percent-crit divisors and AP per stat).
@@ -99,6 +118,9 @@ pub struct ClassSpec {
     pub resource: ResourceType,
     pub base_stats: ClassBaseStats,
     pub stat_rules: StatRules,
+    /// How a mana user regenerates from spirit; absent for the other resources.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mana_regen: Option<ManaRegen>,
     /// Length of the global cooldown in seconds.
     pub global_cooldown: f64,
     /// The stance the character starts in (the spell data decides what each stance allows).
@@ -241,7 +263,10 @@ impl ClassSpec {
         if let Some(slot) = self.weapon_proficiencies.keys().find(|slot| {
             !matches!(
                 slot,
-                EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+                EquipmentSlot::Mainhand
+                    | EquipmentSlot::Offhand
+                    | EquipmentSlot::Ranged
+                    | EquipmentSlot::Relic
             )
         }) {
             return Err(ClassSpecError::NotAWeaponSlot {
@@ -348,12 +373,15 @@ impl ClassSpec {
     }
 
     /// Whether the class can use `item` in `slot`: the item's class restrictions, its armor
-    /// type, and in a weapon slot its weapon type. Whether the item fits the slot is not
-    /// checked.
+    /// type, and in a weapon slot or the relic slot its weapon type (a Paladin's librams, not
+    /// the totems and idols). Whether the item fits the slot is not checked.
     pub fn can_equip(&self, item: &Item, slot: EquipmentSlot) -> bool {
         let weapon_slot = matches!(
             slot,
-            EquipmentSlot::Mainhand | EquipmentSlot::Offhand | EquipmentSlot::Ranged
+            EquipmentSlot::Mainhand
+                | EquipmentSlot::Offhand
+                | EquipmentSlot::Ranged
+                | EquipmentSlot::Relic
         );
         item.available_for_class(self.class)
             && item
@@ -363,6 +391,8 @@ impl ClassSpec {
             && (!weapon_slot
                 || item
                     .weapon_type()
+                    // A relic has no weapon data: its type is the libram, totem or idol.
+                    .or_else(|| item.item_type().weapon_type())
                     .is_none_or(|weapon| self.can_wield(slot, weapon)))
     }
 

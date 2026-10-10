@@ -1,0 +1,31 @@
+name: Ret last 3 points
+base: ../characters/paladin_ret_2h_human.yaml
+iterations: 10000
+# The deep Retribution build without Divine Intellect's 3 points: where do they go?
+overrides:
+  talents:
+    Holy:
+      Divine Strength: 5
+      Improved Seals: 3
+    Protection:
+      Toughness: 5
+      Precision: 3
+    Retribution:
+      Benediction: 5
+      Improved Judgement: 2
+      Holy Conduit: 2
+      Conviction: 5
+      Vindication: 3
+      Sanctified Judgement: 3
+      Seal of Command: 1
+      Sacred Arbiter: 1
+      Two-Handed Weapon Specialization: 3
+      Vengeance: 3
+      Champion of the Light: 3
+      Twist of Light: 1
+variations:
+  - talent_points:
+      points: 3
+      talents:
+        Holy: [Divine Intellect]
+        Retribution: [Instrument of Law, Eye for an Eye]

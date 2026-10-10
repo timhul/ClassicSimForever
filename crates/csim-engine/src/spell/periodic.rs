@@ -63,8 +63,10 @@ pub enum PeriodicKind {
         percent: f64,
         ticks_per_application: u32,
     },
-    /// `PERIODIC_TRIGGER_SPELL`: casts `spell` on every tick.
-    TriggerSpell { spell: u32 },
+    /// `PERIODIC_TRIGGER_SPELL`: casts `spell` on every tick. `at_expiry`: the tick due as the
+    /// aura expires casts it too (an area's damage: Consecration's 8 ticks over 8 s); a table
+    /// trigger's does not.
+    TriggerSpell { spell: u32, at_expiry: bool },
 }
 
 impl PeriodicKind {
@@ -101,8 +103,20 @@ impl PeriodicKind {
             AuraType::PeriodicTriggerSpell if record.trigger_spell != 0 => {
                 PeriodicKind::TriggerSpell {
                     spell: record.trigger_spell,
+                    at_expiry: false,
                 }
             }
+            // A server-side periodic trigger: the spell a `TRIGGER_SPELL` script names
+            // (Consecration's ticks of its damage spell).
+            AuraType::PeriodicDummy => match effect.script() {
+                Some(script) if script.script == ScriptKind::TriggerSpell => {
+                    PeriodicKind::TriggerSpell {
+                        spell: script.params.spell?,
+                        at_expiry: true,
+                    }
+                }
+                _ => return None,
+            },
             _ => return None,
         };
         Some((kind, period))
@@ -319,9 +333,14 @@ impl Periodic {
             }
             // The tick due as the buff expires (queued after its removal) casts nothing: what
             // it would apply outlives the aura that should end it (Jom Gabbar's stacks).
-            PeriodicKind::TriggerSpell { .. } if !buff_active => None,
-            PeriodicKind::TriggerSpell { spell: trigger } => {
-                self.schedule_tick(spell, host);
+            PeriodicKind::TriggerSpell {
+                at_expiry: false, ..
+            } if !buff_active => None,
+            // The last tick of an area as the aura expires: no tick follows it.
+            PeriodicKind::TriggerSpell { spell: trigger, .. } => {
+                if buff_active {
+                    self.schedule_tick(spell, host);
+                }
                 Some(TickReport {
                     trigger: Some(trigger),
                     ..quiet

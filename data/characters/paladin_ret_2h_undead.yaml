@@ -1,0 +1,10 @@
+include: common/base_target.yaml
+include: common/base_paladin_buffs.yaml
+include: common/base_paladin_ret_11_8_32.yaml
+include: common/base_paladin_horde.yaml
+name: Ret 2h Undead
+race: UNDEAD
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18877, enchant: Crusader, temp_enchants: [WindfuryTotem, ElementalSharpeningStone] }  # High Warlord's Greatsword

@@ -608,6 +608,7 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
     }
     if let Some(target) = tables.spell_target_restrictions(id) {
         record.max_targets = target.max_targets;
+        record.target_creature_type = target.target_creature_type;
     }
     let mut labels = tables.spell_labels(id).to_vec();
     labels.sort_unstable();

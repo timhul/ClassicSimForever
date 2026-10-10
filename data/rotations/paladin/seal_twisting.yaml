@@ -1,0 +1,58 @@
+class: PALADIN
+name: Seal Twisting
+attack_mode: melee
+prerequisite: Twist of Light
+description: >-
+  Twist of Light: Seal of Command up, Seal of Righteousness cast right before the swing so that
+  the swing deals both (the Echo of Command fires without its PPM roll), Seal of Command again
+  once the Echo is used. Judgement of the Crusader kept on the target as in the Seal of the
+  Crusader rotation. The other global cooldowns go where they end before the next twist window;
+  otherwise as the Seal of Command rotation. The twist and Exorcism wait above 1000 mana and
+  Consecration above 2500, so that Seal of Command and its judgement always have mana: twisting
+  into an empty bar loses ~35 DPS (TASKS.md P.15).
+precombat_actions:
+  - Blessing of Might  # not castable under a Greater Blessing of Might
+  - Seal of the Crusader
+cast_if:
+  - name: Major Mana Potion
+    condition: variable "resource_missing" geq 2250
+  - name: Demonic Rune
+    condition: variable "resource_missing" geq 1500
+  - name: Earthstrike
+  - name: Seal of the Crusader
+    condition: |
+      buff_duration "Judgement of the Crusader" less 5
+      and buff_duration "Seal of the Crusader" is false
+      and spell "Judgement" less 1.5
+  - name: Judgement
+    condition: buff_duration "Seal of the Crusader" is true
+  - name: Seal of Righteousness
+    condition: |
+      buff_duration "Seal of Command" is true
+      and variable "time_remaining_swing" less 0.5
+      and resource "Mana" greater 1000
+  - name: Seal of Command
+    condition: |
+      buff_duration "Seal of Command" is false
+      and buff_duration "Echo of Command" is false
+      and buff_duration "Seal of the Crusader" is false
+      or buff_duration "Seal of Command" is false
+      and buff_duration "Echo of Command" is false
+      and buff_duration "Judgement of the Crusader" geq 5
+  # A global cooldown started now ends before the next twist window (0.5 s before the swing).
+  - name: Hammer of Wrath
+    condition: variable "time_remaining_swing" greater 1.7
+  - name: Judgement
+    condition: |
+      buff_duration "Seal of Command" is true
+      and variable "time_remaining_swing" greater 1.7
+  - name: Holy Strike
+    condition: variable "time_remaining_swing" greater 1.7
+  - name: Exorcism
+    condition: |-
+      resource "Mana" greater 1000
+      and variable "time_remaining_swing" greater 1.7
+  - name: Consecration
+    condition: |
+      resource "Mana" greater 2500
+      and variable "time_remaining_swing" greater 1.7

@@ -32,6 +32,8 @@
 //!     on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
 //!   - id: 12292                          # Sweeping Strikes: multi-target, no-op here
 //!     sim_flags: [IGNORED]
+//!   - id: 1310735                        # Twist of Light: the Echoes it grants
+//!     walk: [1311701, 1311703, 1311704, 1311705]
 //! ```
 //!
 //! The *mechanics* behind a script are a closed Rust enum ([`ScriptKind`]); the mapping from a
@@ -211,8 +213,64 @@ pub enum ScriptKind {
     /// The spells of `params.family_mask` deal `base_points` % more damage while the target's
     /// health is below effect `params.effect`'s value in percent (Quietus: 2-10 % below 35 %).
     DamagePercentBelowHealth,
+    /// Goes on the seal aura effect that names the seal's judgement (`DUMMY`, base points the
+    /// judgement's id): `params.spell` is the judgement a `JUDGE_SEAL` casts while the seal is
+    /// up. It also makes the spell a seal: only one is up at a time, casting one ends the others.
+    SealJudgement,
+    /// Casts the judgement of the caster's active seal (Judgement's `SCRIPT_EFFECT`); does
+    /// nothing without a seal.
+    JudgeSeal,
+    /// Casts `params.spell` with its damage times `params.value` % (Judgement of Command: half
+    /// damage against a target that is not stunned or incapacitated, which a raid boss never
+    /// is).
+    TriggerSpellDamagePercent,
+    /// A proc aura's payload for each landed swing: casts `params.spell` with effect
+    /// `params.effect` set to the damage per swing of this effect's value T, by the main-hand
+    /// weapon's speed (unhasted): T / 87 at 1.5 s, T / 25 at 4.0 s, linear between and beyond
+    /// (Seal of Righteousness).
+    WeaponSpeedSwingDamage,
+    /// Goes on an attack speed aura (`MOD_ATTACKSPEED`) that does not raise the white damage:
+    /// main-hand weapon damage is multiplied by 100 / (100 + the haste) while it is up (Seal
+    /// of the Crusader's "faster, but deals less damage with each attack").
+    AttackSpeedDamagePenalty,
+    /// Goes on the talent aura effect whose value is the percent of the judged seal's mana
+    /// cost a judgement returns; `params.effect` is the aura effect whose value is the chance in
+    /// percent (Sanctified Judgement).
+    JudgedSealManaReturn,
+    /// An event reaction (`on_event`): refreshes the duration of the spell's own aura when it
+    /// is up (Judgement of the Crusader, refreshed by the paladin's melee strikes).
+    RefreshAura,
+    /// Goes on an Echo's aura effect (Twist of Light): `params.spell` is a seal (any rank).
+    /// While the Echo spell is enabled, replacing that seal with another one applies the Echo,
+    /// and the next landed white swing, which uses its charge, applies the replaced seal's
+    /// proc once: its payloads, without the chance roll or the proc cooldown.
+    SealEcho,
+    /// While the caster has the aura `params.spell` (Sacred Arbiter), the strike starts the
+    /// duration of every judgement of the caster's seals that is up on the target again (Holy
+    /// Strike's `SCRIPT_EFFECT`).
+    RefreshJudgements,
+    /// Goes on a `DUMMY` aura effect: the caster's damage of `params.spell`'s school is
+    /// `base_points` % higher while the caster's aura of that spell (any rank) is up
+    /// (Consecrated Ground: holy damage against the enemies in the Consecration, which a
+    /// single target always is).
+    SchoolDamagePercentWhileAura,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
+}
+
+impl ScriptKind {
+    /// Whether the script's `params.spell` is a condition (an aura the caster must have, a
+    /// seal an Echo echoes) rather than a spell it casts: the named spell is no payload, and
+    /// enabling the scripted spell does not enable it (Holy Strike would otherwise give every
+    /// paladin Sacred Arbiter).
+    pub fn names_condition(self) -> bool {
+        matches!(
+            self,
+            ScriptKind::SealEcho
+                | ScriptKind::RefreshJudgements
+                | ScriptKind::SchoolDamagePercentWhileAura
+        )
+    }
 }
 
 /// Parameters a script may need beyond its effect row. Which ones are required depends on the
@@ -323,7 +381,20 @@ impl EffectScript {
             ScriptKind::ExtraAttack
             | ScriptKind::TriggerSpell
             | ScriptKind::OffhandCopy
-            | ScriptKind::EnableProc => need(p.spell.is_some(), "spell"),
+            | ScriptKind::EnableProc
+            | ScriptKind::SealJudgement
+            | ScriptKind::SealEcho
+            | ScriptKind::RefreshJudgements
+            | ScriptKind::SchoolDamagePercentWhileAura => need(p.spell.is_some(), "spell"),
+            ScriptKind::TriggerSpellDamagePercent => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.value.is_some_and(|v| v >= 0.0), "value (>= 0)")
+            }
+            ScriptKind::WeaponSpeedSwingDamage => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.effect.is_some(), "effect")
+            }
+            ScriptKind::JudgedSealManaReturn => need(p.effect.is_some(), "effect"),
             ScriptKind::EnableAura => {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")
@@ -364,6 +435,9 @@ impl EffectScript {
             | ScriptKind::OffhandHitChance
             | ScriptKind::DamagePercentVsPoisoned
             | ScriptKind::ExclusiveArmorReduction
+            | ScriptKind::JudgeSeal
+            | ScriptKind::AttackSpeedDamagePenalty
+            | ScriptKind::RefreshAura
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -546,6 +620,16 @@ pub struct SpellOverride {
     /// takes time in the sim (Charge's run to the target).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cast_time_ms: Option<u32>,
+    /// Spells the export must carry with this one although no table field reaches them (the
+    /// Echoes Twist of Light grants on a seal change): the walk follows them like any other
+    /// reference and the pruning keeps them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub walk: Vec<u32>,
+    /// Auras this spell's does not stack with: while one of them is up on the caster the spell
+    /// cannot be cast (Blessing of Might under another paladin's Greater Blessing of Might, the
+    /// game's "a more powerful spell is already active").
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub exclusive_auras: Vec<u32>,
 }
 
 impl SpellOverride {
@@ -572,6 +656,16 @@ impl SpellOverride {
 
     /// The spells this override refers to (targets that must exist), without duplicates.
     pub fn referenced_spells(&self) -> Vec<u32> {
+        self.references(true)
+    }
+
+    /// [`SpellOverride::referenced_spells`] that the spell casts or applies: without the
+    /// spells a script names as a condition ([`ScriptKind::names_condition`]).
+    pub fn payload_references(&self) -> Vec<u32> {
+        self.references(false)
+    }
+
+    fn references(&self, conditions: bool) -> Vec<u32> {
         let mut ids = Vec::new();
         let mut push = |id: Option<u32>| {
             if let Some(id) = id
@@ -583,7 +677,9 @@ impl SpellOverride {
         };
         push(self.stance_passive);
         for script in &self.effects {
-            push(script.params.spell);
+            if conditions || !script.script.names_condition() {
+                push(script.params.spell);
+            }
             push(script.params.duration_spell);
         }
         for event in &self.on_event {
@@ -591,6 +687,9 @@ impl SpellOverride {
             push(event.params.duration_spell);
         }
         for &id in &self.ends_auras {
+            push(Some(id));
+        }
+        for &id in &self.walk {
             push(Some(id));
         }
         push(self.proc.and_then(|p| p.target_aura));
@@ -616,9 +715,12 @@ impl SpellOverride {
         for event in &self.on_event {
             // The engine runs event reactions in `CharacterContext::run_event_scripts`; a
             // script it does not run there is refused here rather than silently ignored.
-            if event.script != ScriptKind::AddComboPoints {
+            if !matches!(
+                event.script,
+                ScriptKind::AddComboPoints | ScriptKind::RefreshAura
+            ) {
                 return Err(invalid(format!(
-                    "on_event does not support {:?} (only ADD_COMBO_POINTS)",
+                    "on_event does not support {:?} (only ADD_COMBO_POINTS, REFRESH_AURA)",
                     event.script
                 )));
             }

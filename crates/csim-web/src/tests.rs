@@ -25,6 +25,14 @@ fn the_embedded_files_are_the_data_the_viewer_reads() {
         "items/one_hand.yaml",
         "item_sets.yaml",
         "races.yaml",
+        "characters/paladin_ret_2h_human.yaml",
+        "characters/common/base_paladin_buffs.yaml",
+        "classes/paladin.yaml",
+        "keybinds/ret.yaml",
+        "rotations/paladin/seal_twisting.yaml",
+        "spells/paladin.yaml",
+        "spells/overrides/paladin.yaml",
+        "talents/paladin.yaml",
     ] {
         assert!(paths.contains(&expected), "{expected} is embedded");
     }
@@ -141,6 +149,78 @@ fn the_web_app_sims_as_the_native_server() {
     let request = r#"{"elapsed_seconds": 1.5}"#;
     let results = web.handle("POST", "/api/sim/results", request);
     assert_eq!(json(&results)["run"]["iterations"], 20);
+    assert_eq!(
+        results.body,
+        native_handle("POST", "/api/sim/results", request),
+        "the same results"
+    );
+}
+
+/// A Paladin as the native server shows it: from the keyboard with the Ret keybinds (Seal of
+/// Command's key pressed), and simmed.
+#[test]
+fn the_web_app_plays_and_sims_a_paladin_as_the_native_server() {
+    let mut web = LiveApp::new(0, 1).unwrap();
+    let data = Arc::new(DataBundle::load(&DataBundle::repository_dir()).unwrap());
+    let mut native = App::new(Box::new(FsFiles), DataBundle::repository_dir(), data);
+    let mut native_handle = |method: &str, path: &str, body: &str| {
+        let reply = server::route(&mut native, &|_| None, method, path, body, || 99);
+        String::from_utf8(reply.body).unwrap()
+    };
+
+    let load = r#"{"setup": "paladin_ret_2h_human", "keybinds": "ret", "seed": "1", "length": 60}"#;
+    let info = json(&web.handle("POST", "/api/load", load));
+    assert_eq!(
+        (&info["class"], &info["race"]),
+        (&"Paladin".into(), &"Human".into())
+    );
+    assert_eq!(info["manual"], true);
+    assert_eq!(
+        info,
+        serde_json::from_str::<Value>(&native_handle("POST", "/api/load", load)).unwrap()
+    );
+
+    let start = info["start_at"].as_f64().unwrap();
+    let advance = format!(r#"{{"to": {}}}"#, start + 1.0);
+    let frame = json(&web.handle("POST", "/api/advance", &advance));
+    assert_eq!(frame["state"]["resource"]["kind"], "Mana");
+    native_handle("POST", "/api/advance", &advance);
+    let cast = format!(r#"{{"spell": "Seal of Command", "at": {}}}"#, start + 1.0);
+    let pressed = web.handle("POST", "/api/cast", &cast);
+    assert_eq!(
+        pressed.body,
+        native_handle("POST", "/api/cast", &cast),
+        "the same press"
+    );
+    let advance = format!(r#"{{"to": {}}}"#, start + 3.0);
+    let frame = web.handle("POST", "/api/advance", &advance);
+    let buffs = &json(&frame)["state"]["buffs"];
+    assert!(
+        buffs
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|buff| buff["name"] == "Seal of Command"),
+        "{buffs}"
+    );
+    assert_eq!(
+        frame.body,
+        native_handle("POST", "/api/advance", &advance),
+        "the same frame"
+    );
+
+    let start = r#"{"load": {"setup": "paladin_ret_2h_dwarf", "seed": "2"}, "iterations": 10}"#;
+    json(&web.handle("POST", "/api/sim/start", start));
+    native_handle("POST", "/api/sim/start", start);
+    let step = r#"{"iterations": 10}"#;
+    assert_eq!(
+        web.handle("POST", "/api/sim/step", step).body,
+        native_handle("POST", "/api/sim/step", step)
+    );
+    let request = r#"{"elapsed_seconds": 1.0}"#;
+    let results = web.handle("POST", "/api/sim/results", request);
+    let resources = &json(&results)["resources"];
+    assert!(resources.to_string().contains("Mana"), "{resources}");
     assert_eq!(
         results.body,
         native_handle("POST", "/api/sim/results", request),

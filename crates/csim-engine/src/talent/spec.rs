@@ -623,4 +623,52 @@ talents:
         assert_eq!(named("Lethality").values_at(5), [(0, 20.0)]);
         assert_eq!(named("Improved Eviscerate").values_at(3), [(0, 20.0)]);
     }
+
+    #[test]
+    fn the_shipped_paladin_tree_loads_with_its_prerequisites() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/talents/paladin.yaml");
+        let file = TalentFile::load(&path).expect("shipped talent data loads");
+        assert_eq!(file.class, PlayerClass::Paladin);
+        assert_eq!(file.tree, 1100);
+        assert_eq!(file.points, 51);
+        assert_eq!(file.points_per_tier, 5);
+        assert_eq!(
+            file.tabs
+                .iter()
+                .map(|t| t.name.as_str())
+                .collect::<Vec<_>>(),
+            ["Holy", "Protection", "Retribution"]
+        );
+        assert_eq!(file.talents.len(), 50);
+        let named = |name: &str| {
+            file.talent_by_name(name, None)
+                .unwrap_or_else(|| panic!("{name}"))
+        };
+        for (talent, parent) in [
+            ("Illumination", "Reverence"),
+            ("Divine Precision", "Holy Shock"),
+            ("Light's Vigil", "Holy Shock"),
+            ("Shield Specialization", "Redoubt"),
+            ("Swift Judgement", "Improved Seal of Fury"),
+            ("Holy Shield", "Templar's Bulwark"),
+            ("Vengeance", "Sanctified Judgement"),
+        ] {
+            assert_eq!(named(talent).requires, Some(named(parent).node), "{talent}");
+        }
+        let with_prerequisite = file.talents.iter().filter(|t| t.requires.is_some());
+        assert_eq!(with_prerequisite.count(), 7);
+        // The deep Retribution capstone and the Holy Shock tier cannot share 51 points.
+        let twist = named("Twist of Light");
+        assert_eq!((twist.spell, twist.tab, twist.tier), (1310735, 184, 6));
+        let shock = named("Holy Shock");
+        assert_eq!((shock.tab, shock.tier), (594, 4));
+        // Forever values: Champion of the Light 20-60 % of intellect, Two-Handed Weapon
+        // Specialization 2-6 %, Vengeance 1-3 % a stack.
+        assert_eq!(named("Champion of the Light").values_at(3), [(0, 60.0)]);
+        assert_eq!(
+            named("Two-Handed Weapon Specialization").values_at(3),
+            [(0, 6.0)]
+        );
+        assert_eq!(named("Vengeance").values_at(3), [(0, 3.0)]);
+    }
 }

@@ -626,6 +626,38 @@ fn magic_damage_over_time_rolls_its_hit_and_its_ticks_resists() {
     assert_eq!(world.ticks[2].damage, 21);
 }
 
+/// The ticks of a magic damage-over-time take its spell power coefficient times the spell
+/// damage of when it was cast, and the magic school's damage multiplier.
+#[test]
+fn magic_damage_over_time_ticks_take_spell_power() {
+    use crate::spell::dbc::{AuraType, DefenseType, SpellSchoolMask};
+
+    let mut world = World::with_db(db_with(|file| {
+        let rend = file.spells.iter_mut().find(|s| s.id == REND).unwrap();
+        rend.school_mask = SpellSchoolMask::NATURE;
+        rend.categories.defense_type = DefenseType::Magic;
+        let tick = rend
+            .effects
+            .iter_mut()
+            .find(|e| e.aura == AuraType::PeriodicDamage)
+            .unwrap();
+        tick.bonus_coefficient = 0.1;
+    }));
+    world.learn(REND);
+    world.spell_damage = 100;
+    world.magic_damage_mod = 1.1;
+    world.perform(REND);
+    world.spell_damage = 500;
+    world.run(21.5);
+    assert_eq!(world.ticks.len(), 7);
+    // (21 + 0.1 × 100) × 1.1 = 34.1: the spell damage of the cast, not the later 500.
+    assert!(
+        world.ticks.iter().all(|tick| tick.damage == 34),
+        "{:?}",
+        world.ticks[0]
+    );
+}
+
 /// Physical ticks (Rend's bleed) roll no resist.
 #[test]
 fn physical_ticks_roll_no_resist() {

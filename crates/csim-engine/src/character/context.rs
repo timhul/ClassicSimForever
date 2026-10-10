@@ -21,7 +21,7 @@ use crate::ids::{BuffId, CharId, CooldownId, ProcId, SpellId};
 use crate::item::{EffectTrigger, EquipmentSlot, ItemEffect, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::proc::{ProcHost, ProcSource, ProcTrigger};
-use crate::resource::ResourceType;
+use crate::resource::{REGEN_TICK_RATE, ResourceType};
 use crate::rotation::{
     BuiltinVariable, ConditionContext, Rotation, RotationHost, RotationSpec, Watched,
 };
@@ -43,7 +43,9 @@ use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
 
-use super::{Character, RegenReactions, SimParams, StanceLink};
+use super::{
+    Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
+};
 
 /// The resource statistics source of regeneration ticks.
 pub const REGENERATION: &str = "Regeneration";
@@ -55,6 +57,12 @@ pub const REGENERATION: &str = "Regeneration";
 /// it reacts to, not the one landing with it, so the player acts 0.1 s after the tick that
 /// makes a spell affordable, whichever event runs the rotation at that instant.
 pub const TICK_READ_LAG: f64 = 1e-6;
+
+/// How long after the time a rotation condition's crossing is planned for (two
+/// [`crate::rotation::condition::EPSILON`]s early) a character without energy reacts to it: past
+/// the comparisons' tolerance of one more, so that the pass sees the condition flipped
+/// (`time_remaining_swing less 0.5`).
+const CONDITION_WAKE_LAG: f64 = 4.0 * crate::rotation::condition::EPSILON;
 
 /// `SpellCategories.DispelType` of poisons.
 const DISPEL_TYPE_POISON: u32 = 4;
@@ -280,7 +288,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     pub fn learn(&mut self, db: &SpellDb, id: u32) -> AddedSpell {
         let party = self.character.party();
         let mut added = self.character.spells.add_spell(db, id, party, self.raid);
-        let base = base_rank(db, id);
+        let base = self.talent_spell_of(db, id, added.spell);
         let granted = self.character.talent_grants(base);
         if granted {
             added.enable_now = false;
@@ -332,6 +340,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         }
         self.sync_stance_passives();
         added
+    }
+
+    /// The talent spell that grants spell `id` (registered as `spell`): the base of its rank
+    /// chain, or, when the tables do not chain the ranks (Forever's Seal of Command ranks 2-5),
+    /// the talent spell in its rank group. `base_rank` when no talent grants it.
+    fn talent_spell_of(&self, db: &SpellDb, id: u32, spell: Option<SpellId>) -> u32 {
+        let base = base_rank(db, id);
+        if self.character.talent_grants(base) {
+            return base;
+        }
+        let spells = &self.character.spells;
+        spell
+            .and_then(|spell| spells.rank_group_of(spell))
+            .and_then(|group| {
+                group
+                    .spells()
+                    .map(|member| base_rank(db, spells.spell(member).game_id()))
+                    .find(|&member| self.character.talent_grants(member))
+            })
+            .unwrap_or(base)
     }
 
     /// Whether an enabled spell or proc of the registry casts `game_id` as a payload.
@@ -423,6 +451,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             spell.payload_spells()
         });
         self.set_payloads_enabled(&payloads, true);
+        if let Some(proc) = self.character.spells().buff_proc(id) {
+            self.enable_proc(proc);
+        }
     }
 
     /// Disables a spell and its hidden payloads.
@@ -435,6 +466,99 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             spell.payload_spells()
         });
         self.set_payloads_enabled(&payloads, false);
+        if let Some(proc) = self.character.spells().buff_proc(id) {
+            self.disable_proc(proc);
+        }
+    }
+
+    /// The enabled Echo of the seal called `name` (`SEAL_ECHO` naming a rank of it): Twist of
+    /// Light's.
+    fn seal_echo_of(&self, name: &str) -> Option<SpellId> {
+        let spells = self.character.spells();
+        // By name, or by the rank group for the seal being cast (out of the registry).
+        let ranks = spells.rank_group(name);
+        let is_seal = |echoed: SpellId| match spells.try_spell(echoed) {
+            Some(seal) => seal.name() == name,
+            None => ranks.is_some_and(|ranks| ranks.spells().any(|rank| rank == echoed)),
+        };
+        spells.spell_ids().find(|&id| {
+            let spell = spells.spell(id);
+            spell.is_enabled()
+                && spell
+                    .setup()
+                    .seal_echo()
+                    .and_then(|echoed| spells.spell_by_game_id(echoed))
+                    .is_some_and(is_seal)
+        })
+    }
+
+    /// Twist of Light: applies the Echo of the replaced `seal`, which remembers the seal for
+    /// the swing that uses its charge.
+    fn echo_seal(&mut self, seal: SpellId) {
+        let name = self.character.spells().spell(seal).name().to_owned();
+        let Some(echo) = self.seal_echo_of(&name) else {
+            return;
+        };
+        self.character.set_echoed_seal(echo, seal);
+        let report = self.with_spell(echo, |s, ctx| s.perform_triggered(ctx));
+        self.record_cast(echo, &report, None);
+    }
+
+    /// The procs of the seals the active Echoes apply on `source` (a landed white swing that
+    /// uses their charge): each casts its payloads once, without the chance roll or the proc
+    /// cooldown.
+    fn fire_seal_echoes(&mut self, source: ProcSource) -> Vec<(ProcId, CastReport)> {
+        let spells = &self.character.spells;
+        let procs: Vec<ProcId> = self
+            .character
+            .echoed_seals()
+            .iter()
+            .filter(|&&(echo, _)| {
+                spells
+                    .spell(echo)
+                    .marker_buff()
+                    .and_then(|buff| spells.owned_buff(buff))
+                    .is_some_and(|buff| buff.is_active() && buff.consumes_charge_on(source))
+            })
+            .filter_map(|&(_, seal)| spells.buff_proc(seal))
+            .collect();
+        let mut fired = Vec::new();
+        for proc in procs {
+            fired.extend(self.with_procs(|procs, ctx| procs.fire_payloads(proc, ctx)));
+        }
+        fired
+    }
+
+    /// The multiplier of `school`'s damage from the bonuses that hold while an aura of the
+    /// caster's is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`: Consecrated Ground while the
+    /// Consecration is up).
+    fn school_damage_while_aura_mod(&self, school: MagicSchool) -> f64 {
+        let now = self.now();
+        self.character
+            .school_damage_while_aura()
+            .iter()
+            .filter(|bonus| {
+                bonus.school == school
+                    && self.character.spells().buff_ids().any(|id| {
+                        let buff = self.buff_ref(id);
+                        // Or ended at this instant: the area's last tick.
+                        buff.name() == bonus.aura && (buff.is_active() || buff.expired_at() == now)
+                    })
+            })
+            .map(|bonus| 1.0 + bonus.percent / 100.0)
+            .product()
+    }
+
+    /// The caster's seal whose buff is up, if any (one at a time).
+    fn active_seal(&self) -> Option<SpellId> {
+        let spells = self.character.spells();
+        spells.spell_ids().find(|&id| {
+            let spell = spells.spell(id);
+            spell.setup().is_seal()
+                && spell
+                    .marker_buff()
+                    .is_some_and(|buff| self.buff_ref(buff).is_active())
+        })
     }
 
     /// Enables proc `id`, unless the overrides mark it `IGNORED` (the other classes' Touch of
@@ -1031,6 +1155,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 spec.name,
                 spec.spell
             );
+            let record = &external_record(record);
             let buff = Buff::from_record(record, BuffKind::External, db.overrides())
                 .with_name(&spec.name)
                 .with_duration(None)
@@ -1257,26 +1382,40 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// one event: server-side scripts the client tables do not carry (Overpower's combo point
     /// when the target dodges). Like a proc, a reaction fires at most once per event, and the
     /// ranks of one spell react once between them: Overpower's four ranks grant one combo
-    /// point per dodge, not four.
+    /// point per dodge, not four. A `REFRESH_AURA` is of each rank's own aura.
     fn run_event_scripts(&mut self, sources: &[ProcSource]) {
         let spells = &self.character.spells;
         let mut seen: Vec<(&str, usize)> = Vec::new();
-        let mut reactions: Vec<EventScript> = Vec::new();
+        let mut reactions: Vec<(Option<BuffId>, EventScript)> = Vec::new();
         for &id in spells.event_reactors() {
             let spell = spells.spell(id);
             if !spell.is_enabled() {
                 continue;
             }
             for (index, event) in spell.event_scripts().iter().enumerate() {
-                if !sources.contains(&event.source) || seen.contains(&(spell.name(), index)) {
+                if !sources.contains(&event.source) {
                     continue;
                 }
-                seen.push((spell.name(), index));
-                reactions.push(*event);
+                // A refresh is of each rank's own aura: every rank reacts.
+                if event.script != ScriptKind::RefreshAura {
+                    if seen.contains(&(spell.name(), index)) {
+                        continue;
+                    }
+                    seen.push((spell.name(), index));
+                }
+                reactions.push((spell.marker_buff(), *event));
             }
         }
-        for event in reactions {
+        for (buff, event) in reactions {
             match event.script {
+                // The spell's own aura, when up, starts its duration again.
+                ScriptKind::RefreshAura => {
+                    if let Some(buff) = buff
+                        && self.buff_ref(buff).is_active()
+                    {
+                        <Self as SpellHost>::apply_buff(self, buff);
+                    }
+                }
                 ScriptKind::AddComboPoints => {
                     // Validated as present and positive when the overrides were loaded.
                     let value = event.params.value.unwrap_or(0.0).round() as u32;
@@ -1325,6 +1464,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             if source == ProcSource::Manual {
                 continue;
             }
+            fired.extend(self.fire_seal_echoes(source));
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
         between(self);
@@ -1611,6 +1751,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         self.with_procs(|procs, ctx| procs.reset(ctx));
         self.character.reset_state();
         self.reevaluate_passives();
+        let view = self.target_view();
+        self.character.refill_mana(&view);
     }
 
     /// Re-applies the permanent auras of the enabled passives (after a reset, or after the
@@ -1645,6 +1787,10 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.buff_ctx(id).0.initialize();
         }
         self.reevaluate_passives();
+        // The first iteration starts full, as the resets give the next ones: the mana set with
+        // the base mana did not count the intellect.
+        let view = self.target_view();
+        self.character.refill_mana(&view);
         self.relink_rotation();
         if let Some(rotation) = self.character.rotation.as_mut() {
             rotation.prepare_set_of_combat_iterations();
@@ -1657,6 +1803,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let now = self.now();
         if let Some(energy) = self.character.resource_mut().as_energy_mut() {
             energy.take_regen_counters(now);
+        }
+        if self.character.resource().as_mana().is_some() {
+            self.schedule_mana_tick();
         }
         for id in self.character.spells.start_of_combat_buffs().to_vec() {
             self.apply_buff(id);
@@ -1702,6 +1851,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
             EventKind::Precast { character } if character == me => {
                 self.cast_precast();
+            }
+            EventKind::ManaTick { character } if character == me => {
+                self.mana_tick();
             }
             EventKind::RegenReaction { character, wake } if character == me => {
                 // A reaction replaced by a later plan is not handled.
@@ -1779,6 +1931,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// the one scheduled before: whatever the event just handled changed is accounted for. The
     /// reaction is the one to the first tick that gains energy and brings what the rotation
     /// waits for ([`Rotation::next_change`]), or to the next such tick in the per-tick mode.
+    /// A character with mana reacts when a condition flips with time (a timer crossing its
+    /// threshold: `time_remaining_swing less 0.5` for a seal swap before the swing); mana gains
+    /// wake it on their own.
     fn plan_regen_reaction(&mut self) {
         let now = self.now();
         // A reaction due now has not happened yet: it plans again once it has.
@@ -1820,6 +1975,17 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                         energy.next_reaction(now, after_now, not_before, PLAYER_REACTION_DELAY)
                     })
                     .flatten()
+            }
+            (None, Some(rotation)) if !manual && now >= 0.0 => {
+                self.character.resource().as_mana().and_then(|mana| {
+                    let watched = Watched {
+                        resource: ResourceType::Mana,
+                        max: mana.max(),
+                        encounter_length: self.character.sim().combat_length,
+                    };
+                    let delay = rotation.next_change(self, watched).delay;
+                    (delay > 0.0 && delay.is_finite()).then_some(now + delay + CONDITION_WAKE_LAG)
+                })
             }
             _ => None,
         };
@@ -1937,6 +2103,48 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     /// Records the energy regenerated since the pull and the ticks lost at the cap (regeneration
     /// is not logged).
+    /// The next mana tick, [`REGEN_TICK_RATE`] seconds from now.
+    fn schedule_mana_tick(&mut self) {
+        let character = self.character.id();
+        self.engine
+            .add_event_in(REGEN_TICK_RATE, EventKind::ManaTick { character });
+    }
+
+    /// A mana regeneration tick: the gear's mana per 5 seconds always, the spirit regeneration
+    /// of the class's rule outside the five-second rule (inside it, the share Reverence lets
+    /// continue), the maximum following the current intellect. The gain wakes the player, is
+    /// recorded as regeneration, and the next tick follows 2 seconds later.
+    fn mana_tick(&mut self) {
+        let now = self.now();
+        let view = self.target_view();
+        let (mp5, from_spirit, intellect) = {
+            let ctx = self.character.stat_context(&view);
+            let stats = self.character.stats();
+            let from_spirit = self
+                .character
+                .class()
+                .mana_regen
+                .map_or(0.0, |rule| rule.mp5_from_spirit(stats.get_spirit(&ctx)));
+            (
+                f64::from(stats.get_mp5(&ctx)),
+                from_spirit,
+                stats.get_intellect(&ctx),
+            )
+        };
+        let Some(mana) = self.character.resource_mut().as_mana_mut() else {
+            return;
+        };
+        mana.update_max(intellect);
+        let amount = mana.regen_per_tick(mp5, from_spirit, now);
+        let gained = <Self as EffectHost>::gain_resource(self, ResourceType::Mana, amount);
+        let statistics = &mut self.character.statistics;
+        statistics
+            .resource(REGENERATION, 1)
+            .add_gain(ResourceType::Mana, gained);
+        statistics.add_lost_at_cap(ResourceType::Mana, f64::from(amount - gained));
+        self.schedule_mana_tick();
+    }
+
     fn record_regeneration(&mut self) {
         let now = self.now();
         let Some(energy) = self.character.resource_mut().as_energy_mut() else {
@@ -2182,19 +2390,23 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// elapsed time. Idempotent; called before the statistics are read or taken.
     pub fn sync_statistics(&mut self) {
         let procs = self.character.spells.procs();
-        let counts: Vec<(String, u64, u64)> = procs
+        // Procs of the same name (a seal's ranks, a poison on each weapon) add up.
+        let mut counts: Vec<(String, u64, u64)> = Vec::new();
+        for (_, proc) in procs
             .procs()
             .iter()
             .enumerate()
             .filter(|(i, proc)| procs.is_enabled(ProcId(*i as u32)) || proc.attempts() > 0)
-            .map(|(_, proc)| {
-                (
-                    proc.name().to_string(),
-                    u64::from(proc.attempts()),
-                    u64::from(proc.procs()),
-                )
-            })
-            .collect();
+        {
+            let (attempts, successes) = (u64::from(proc.attempts()), u64::from(proc.procs()));
+            match counts.iter_mut().find(|(name, _, _)| name == proc.name()) {
+                Some((_, a, p)) => {
+                    *a += attempts;
+                    *p += successes;
+                }
+                None => counts.push((proc.name().to_string(), attempts, successes)),
+            }
+        }
         let executors: Vec<RotationExecutorStatistics> = self
             .character
             .rotation
@@ -2480,6 +2692,11 @@ impl<S: SharedBuffs> ConditionContext<BuffId, SpellId> for CharacterContext<'_, 
             BuiltinVariable::MeleeAp => f64::from(self.character.melee_ap(&self.target_view())),
             BuiltinVariable::ComboPoints => f64::from(self.character.combo_points(now)),
             BuiltinVariable::TimeRemainingGcd => self.character.time_until_action_ready(now),
+            BuiltinVariable::ResourceMissing => {
+                let resource = self.character.resource_type();
+                let max = self.character.max_resource_level(resource);
+                f64::from(max.saturating_sub(self.character.resource_level(resource, now)))
+            }
         }
     }
 
@@ -2599,6 +2816,67 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         gained
     }
 
+    fn adjust_school_damage_while_aura(&mut self, spell: u32, percent: f64, apply: bool) {
+        let spells = self.character.spells();
+        let Some(id) = spells.spell_by_game_id(spell) else {
+            return;
+        };
+        let aura = spells.spell(id);
+        let bonus = SchoolDamageWhileAura {
+            aura: aura.name().to_string(),
+            school: MagicSchool::from_school_mask(aura.record().school_mask),
+            percent,
+        };
+        self.character.adjust_school_damage_while_aura(bonus, apply);
+    }
+
+    fn refresh_seal_judgements(&mut self, enabling_aura: u32) {
+        if !<Self as SpellHost>::aura_active(self, enabling_aura) {
+            return;
+        }
+        let spells = self.character.spells();
+        let judgements: Vec<BuffId> = spells
+            .spell_ids()
+            .filter_map(|id| spells.spell(id).setup().seal_judgement())
+            .filter_map(|judgement| spells.spell_by_game_id(judgement))
+            .filter_map(|id| spells.spell(id).marker_buff())
+            .filter(|&buff| self.buff_ref(buff).is_active())
+            .collect();
+        for buff in judgements {
+            <Self as SpellHost>::apply_buff(self, buff);
+        }
+    }
+
+    fn seal_judgement(&self) -> Option<u32> {
+        let seal = self.active_seal()?;
+        self.character.spells().spell(seal).setup().seal_judgement()
+    }
+
+    fn adjust_mainhand_damage_multiplier(&mut self, factor: f64, apply: bool) {
+        self.character.adjust_mainhand_damage_factor(factor, apply);
+    }
+
+    fn adjust_judged_seal_mana_return(
+        &mut self,
+        spell: u32,
+        chance_effect: u32,
+        percent: f64,
+        apply: bool,
+    ) {
+        self.character
+            .set_judged_seal_mana_return(apply.then_some(JudgedSealManaReturn {
+                spell,
+                chance_effect,
+                percent,
+            }));
+    }
+
+    fn adjust_mana_regen_while_casting(&mut self, percent: i32) {
+        if let Some(mana) = self.character.resource_mut().as_mana_mut() {
+            mana.adjust_within_5sr_percent(percent);
+        }
+    }
+
     fn adjust_power_regen_percent(&mut self, resource: ResourceType, percent: i32) {
         let now = self.now();
         self.character
@@ -2612,6 +2890,13 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
 
     fn melee_ap(&self) -> u32 {
         self.character.melee_ap(&self.target_view())
+    }
+
+    fn spell_damage(&self, school: MagicSchool) -> u32 {
+        let view = self.target_view();
+        self.character
+            .stats()
+            .get_spell_damage(&self.character.stat_context(&view), school)
     }
 
     fn max_health(&self) -> u32 {
@@ -2793,6 +3078,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.resource_type()
     }
 
+    fn base_mana(&self) -> u32 {
+        self.character.base_mana()
+    }
+
     fn engine(&self) -> &Engine {
         self.engine
     }
@@ -2929,6 +3218,8 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             AuraState::Defensive | AuraState::Defensive2 => {
                 self.character.in_defensive_state(self.now())
             }
+            // The vanilla `AURA_STATE_JUDGEMENT`: a seal is up (Judgement needs one).
+            AuraState::Marked => self.active_seal().is_some(),
             AuraState::Enraged => {
                 let spells = self.character.spells();
                 spells.spell_ids().any(|id| {
@@ -3068,6 +3359,63 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         Some(report)
     }
 
+    fn trigger_scaled(&mut self, spell: u32, scale: f64) -> Option<CastReport> {
+        let id = self.character.spells().spell_by_game_id(spell)?;
+        let report = self.with_spell(id, |s, ctx| {
+            s.set_damage_scale(Some(scale));
+            let report = s.perform_triggered(ctx);
+            s.set_damage_scale(None);
+            report
+        });
+        self.record_cast(id, &report, None);
+        Some(report)
+    }
+
+    fn end_other_seals(&mut self, keep: BuffId) {
+        // The seal cast ends its own Echo: the swing does not deal the seal twice (once from
+        // the seal, once from its Echo). TODO: the user's assumption (TASKS.md P.17); the
+        // tooltip only speaks of the replaced seal, and the game may keep the Echo.
+        // By its buff's name: the seal being cast is out of the registry.
+        let kept = self.buff_ref(keep).name().to_owned();
+        let own_echo = self
+            .seal_echo_of(&kept)
+            .and_then(|echo| self.character.spells().spell(echo).marker_buff())
+            .filter(|&buff| self.buff_ref(buff).is_active());
+        if let Some(buff) = own_echo {
+            <Self as SpellHost>::cancel_buff(self, buff);
+        }
+        let spells = self.character.spells();
+        let others: Vec<(SpellId, BuffId)> = spells
+            .spell_ids()
+            .filter(|&id| spells.spell(id).setup().is_seal())
+            .filter_map(|id| Some((id, spells.spell(id).marker_buff()?)))
+            .filter(|&(_, buff)| buff != keep && self.buff_ref(buff).is_active())
+            .collect();
+        for (seal, buff) in others {
+            <Self as SpellHost>::cancel_buff(self, buff);
+            self.echo_seal(seal);
+        }
+    }
+
+    /// Sanctified Judgement: at its chance, the judgement returns its percent of the judged
+    /// seal's mana cost (the seal's cost now, after its modifiers).
+    fn return_judged_seal_mana(&mut self) -> Option<(ResourceType, u32)> {
+        let JudgedSealManaReturn {
+            spell,
+            chance_effect,
+            percent,
+        } = self.character.judged_seal_mana_return()?;
+        let seal = self.active_seal()?;
+        let chance = self.aura_effect_value(spell, chance_effect).unwrap_or(0.0);
+        if chance < 100.0 && self.character.random_in_range(0.0, 100.0) >= chance {
+            return None;
+        }
+        let cost = self.character.spells().spell(seal).resource_cost(self);
+        let amount = (f64::from(cost) * percent / 100.0).round() as u32;
+        let gained = <Self as EffectHost>::gain_resource(self, ResourceType::Mana, amount);
+        (gained > 0).then_some((ResourceType::Mana, gained))
+    }
+
     fn reset_cooldowns(&mut self, matches: &dyn Fn(&crate::spell::SpellRecord) -> bool) {
         let spells = &self.character.spells;
         let cooldowns: Vec<CooldownId> = spells
@@ -3146,6 +3494,14 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character
             .stats()
             .get_total_physical_damage_mod(&self.character.stat_context(&view))
+    }
+
+    fn magic_school_damage_mod(&self, school: MagicSchool) -> f64 {
+        let view = self.target_view();
+        self.character
+            .stats()
+            .get_magic_school_damage_mod(&self.character.stat_context(&view), school)
+            * self.school_damage_while_aura_mod(school)
     }
 
     fn flat_physical_damage_bonus(&self) -> u32 {
@@ -3409,7 +3765,7 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
     for id in db
         .overrides()
         .get(spell)
-        .map(SpellOverride::referenced_spells)
+        .map(SpellOverride::payload_references)
         .unwrap_or_default()
     {
         if id != spell && !ids.contains(&id) {
@@ -3417,6 +3773,25 @@ fn payload_spells(db: &SpellDb, spell: u32) -> Vec<u32> {
         }
     }
     ids
+}
+
+/// The record an external buff is built from: a periodic mana gain is its rate in mana per 5 s
+/// (`MOD_POWER_REGEN`), since no caster ticks it (Greater Blessing of Wisdom: 40 every 5 s).
+fn external_record(record: &crate::spell::SpellRecord) -> crate::spell::SpellRecord {
+    use crate::spell::dbc::AuraType;
+    let mut record = record.clone();
+    for effect in &mut record.effects {
+        if effect.is_apply_aura()
+            && effect.aura == AuraType::PeriodicEnergize
+            && effect.aura_period_ms > 0
+            && ResourceType::from_power_type(effect.power_type()) == Some(ResourceType::Mana)
+        {
+            effect.aura = AuraType::ModPowerRegen;
+            effect.base_points *= 5000.0 / effect.aura_period_ms as f32;
+            effect.aura_period_ms = 0;
+        }
+    }
+    record
 }
 
 /// `sources` with no spell behind them (a swing's).

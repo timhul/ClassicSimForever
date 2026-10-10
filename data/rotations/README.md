@@ -1,6 +1,30 @@
 # `data/rotations/` — what a character casts and when
 
-One YAML file per rotation, in a subdirectory named after the class (`warrior/`, `rogue/`, …).
+One YAML file per rotation, in a subdirectory named after the class (`warrior/`, `rogue/`,
+`paladin/`).
+
+| class | file | name | prerequisite |
+|---|---|---|---|
+| Warrior | `dw_fury.yaml` | DW Fury | Bloodthirst |
+| Warrior | `arms.yaml` | Mortal Strike | Mortal Strike |
+| Warrior | `prot.yaml` | Protection | — |
+| Rogue | `combat.yaml` | Combat | — |
+| Rogue | `combat_dagger.yaml` | Combat Dagger | — |
+| Rogue | `hemorrhage.yaml` | Hemorrhage | — |
+| Rogue | `seal_fate_mutilate.yaml` | Seal Fate Mutilate | — |
+| Rogue | `seal_fate_ea.yaml` | Seal Fate Mutilate Expose Armor | — |
+| Paladin | `seal_twisting.yaml` | Seal Twisting (the Ret setups' default) | Twist of Light |
+| Paladin | `seal_of_command.yaml` | Seal of Command | Seal of Command |
+| Paladin | `seal_of_the_crusader.yaml` | Seal of the Crusader | Seal of Command |
+
+The Paladin's rotations, for Forever's seals: Judgement leaves the seal up, so the seal is
+judged on cooldown; Judgement of the Crusader (+161 holy damage taken) is refreshed by every
+melee strike and judged again only when it runs low; Seal Twisting casts Seal of Righteousness
+right before a swing while Seal of Command is up, so that the swing deals both (Twist of
+Light's Echo of Command), and puts the other global cooldowns where they end before the next
+twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range, Exorcism against
+Undead and Demons only, Consecration while the mana allows. The twist waits above 1000 mana, so that Seal of
+Command and its judgement always have mana (+35 DPS over twisting into an empty bar).
 
 ## Schema
 
@@ -16,6 +40,9 @@ precombat_actions:            # cast before the pull in the specified order
   - Berserker Stance
 precast: Aimed Shot           # optional: a cast (with timer) started its cast time before t = 0,
                               #   after the precombat actions, so that it completes at t = 0
+prerequisite: Bloodthirst     # optional, one or a list: the spells (or talents without a spell,
+                              #   Twist of Light) a character needs for the rotation; a setup
+                              #   lacking one is rejected by `run`, skipped by a sweep
 cast_if:                      # cast_if's are evaluated in order with no early return
   - name: Bloodrage
     condition: resource "Rage" less 70
@@ -112,4 +139,20 @@ Builtin variables:
 | `melee_ap`                 | melee attack power                                           |
 | `combo_points`             | combo points on the target                                   |
 | `time_remaining_gcd`       | seconds until the global cooldown ends                       |
+| `resource_missing`         | what the resource lacks to its maximum (potion: `geq 2250`)  |
 | `target_is_type`           | the target's creature type, compared with `eq "<type>"`      |
+
+A character with energy or mana also acts when a timer condition flips by itself: an energy user
+on the energy tick that sees it, a mana user right when it flips. A Paladin's seal twist before
+the swing (Twist of Light's Echo):
+
+```
+- name: Seal of Righteousness
+  condition: |-
+    buff_duration "Seal of Command" is true
+    and variable "time_remaining_swing" less 0.5
+- name: Seal of Command
+  condition: |-
+    buff_duration "Seal of Command" is false
+    and buff_duration "Echo of Command" is false
+```

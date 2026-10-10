@@ -176,12 +176,17 @@ pub struct Mana {
     base_mana: u32,
     intellect: u32,
     max_mod: MultiplicativeStack,
+    /// Flat maximum mana from auras (`MOD_MAX_POWER`: Flask of Distilled Wisdom).
+    max_bonus: i32,
     /// Fractional mana carried between ticks.
     remainder: f64,
     /// Engine time of the last mana spend; `-5.0` after a reset so regen starts unhindered.
     last_use: f64,
     /// Fraction of spirit regen that continues inside the five-second rule (talents).
     mp5_from_spirit_within_5sr_modifier: f64,
+    /// Σ `MOD_MANA_REGEN_INTERRUPT`: percent of spirit regen that continues inside the
+    /// five-second rule (Reverence).
+    within_5sr_percent: i32,
     ignore_5sr: bool,
     bonus_regen_modifier: f64,
 }
@@ -194,9 +199,11 @@ impl Default for Mana {
             base_mana: 0,
             intellect: 0,
             max_mod: MultiplicativeStack::default(),
+            max_bonus: 0,
             remainder: 0.0,
             last_use: -5.0,
             mp5_from_spirit_within_5sr_modifier: 0.0,
+            within_5sr_percent: 0,
             ignore_5sr: false,
             bonus_regen_modifier: 1.0,
         }
@@ -205,6 +212,15 @@ impl Default for Mana {
 
 impl Mana {
     pub const MANA_PER_INTELLECT: u32 = 15;
+    /// The first points of intellect give one mana each, the rest [`Mana::MANA_PER_INTELLECT`].
+    pub const INTELLECT_AT_ONE_MANA: u32 = 20;
+
+    /// The mana `intellect` adds to the maximum: 1 for each of the first 20 points, 15 for each
+    /// point beyond.
+    pub fn mana_from_intellect(intellect: u32) -> u32 {
+        let low = intellect.min(Self::INTELLECT_AT_ONE_MANA);
+        low + (intellect - low) * Self::MANA_PER_INTELLECT
+    }
 
     pub fn new() -> Self {
         Self::default()
@@ -218,6 +234,11 @@ impl Mana {
         self.max
     }
 
+    /// The class base mana, what `PowerCostPct` costs are a percent of.
+    pub fn base_mana(&self) -> u32 {
+        self.base_mana
+    }
+
     /// Sets the class base mana and refills (the C++ `set_base_mana` resets).
     pub fn set_base_mana(&mut self, base_mana: u32) {
         self.base_mana = base_mana;
@@ -227,10 +248,16 @@ impl Mana {
     /// Recomputes the maximum from the current intellect; the current mana is clamped.
     pub fn update_max(&mut self, intellect: u32) {
         self.intellect = intellect;
-        self.max = (self.max_mod.modifier()
-            * f64::from(self.base_mana + intellect * Self::MANA_PER_INTELLECT))
-        .round() as u32;
+        let flat = i64::from(self.base_mana + Self::mana_from_intellect(intellect))
+            + i64::from(self.max_bonus);
+        self.max = (self.max_mod.modifier() * flat.max(0) as f64).round() as u32;
         self.current = self.current.min(self.max);
+    }
+
+    /// Adds `amount` to the maximum (`MOD_MAX_POWER`); the mana is clamped when it drops.
+    pub fn adjust_max_bonus(&mut self, amount: i32) {
+        self.max_bonus += amount;
+        self.update_max(self.intellect);
     }
 
     pub fn gain(&mut self, amount: u32) -> u32 {
@@ -287,6 +314,13 @@ impl Mana {
 
     pub fn set_mp5_from_spirit_within_5sr_modifier(&mut self, modifier: f64) {
         self.mp5_from_spirit_within_5sr_modifier = modifier;
+    }
+
+    /// Adds `percent` (negative to remove) to the share of spirit regen that continues inside
+    /// the five-second rule (`MOD_MANA_REGEN_INTERRUPT`: Reverence 10/20/30 %).
+    pub fn adjust_within_5sr_percent(&mut self, percent: i32) {
+        self.within_5sr_percent += percent;
+        self.mp5_from_spirit_within_5sr_modifier = f64::from(self.within_5sr_percent) / 100.0;
     }
 
     pub fn set_ignore_5sr(&mut self, ignore: bool) {
@@ -752,6 +786,13 @@ impl Resource {
         }
     }
 
+    pub fn as_mana(&self) -> Option<&Mana> {
+        match self {
+            Resource::Mana(r) => Some(r),
+            _ => None,
+        }
+    }
+
     pub fn as_mana_mut(&mut self) -> Option<&mut Mana> {
         match self {
             Resource::Mana(r) => Some(r),
@@ -891,16 +932,19 @@ mod tests {
         let mut mana = Mana::new();
         mana.set_base_mana(1000);
         mana.update_max(100);
-        assert_eq!(mana.max(), 2500);
+        // 20 + 80 x 15.
+        assert_eq!(mana.max(), 2220);
         mana.reset();
-        assert_eq!(mana.current(), 2500);
+        assert_eq!(mana.current(), 2220);
+        assert_eq!(Mana::mana_from_intellect(12), 12);
+        assert_eq!(Mana::mana_from_intellect(21), 35);
 
         // Fresh after reset: outside the 5sr, spirit regen counts in full.
         assert!(!mana.within_5sr(0.0));
         assert_eq!(mana.regen_per_tick(25.0, 50.0, 0.0), 30);
 
         mana.lose(500, 10.0);
-        assert_eq!(mana.current(), 2000);
+        assert_eq!(mana.current(), 1720);
         assert!(mana.within_5sr(14.9));
         assert!(!mana.within_5sr(15.0));
         // Inside the 5sr only gear mp5 ticks (10 per 2 s).

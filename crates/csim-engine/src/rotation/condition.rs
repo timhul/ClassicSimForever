@@ -148,10 +148,13 @@ pub enum BuiltinVariable {
     ComboPoints,
     /// Seconds until the global cooldown ends.
     TimeRemainingGcd,
+    /// What the character's resource lacks to its maximum: a mana potion restoring up to 2250
+    /// is drunk when `geq 2250`, the same for any gear.
+    ResourceMissing,
 }
 
 impl BuiltinVariable {
-    pub const ALL: [BuiltinVariable; 9] = [
+    pub const ALL: [BuiltinVariable; 10] = [
         BuiltinVariable::TargetHealth,
         BuiltinVariable::TimeRemainingEncounter,
         BuiltinVariable::TimeRemainingExecute,
@@ -161,6 +164,7 @@ impl BuiltinVariable {
         BuiltinVariable::MeleeAp,
         BuiltinVariable::ComboPoints,
         BuiltinVariable::TimeRemainingGcd,
+        BuiltinVariable::ResourceMissing,
     ];
 
     /// The name as written in a rotation file. Port of
@@ -176,6 +180,7 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "melee_ap",
             BuiltinVariable::ComboPoints => "combo_points",
             BuiltinVariable::TimeRemainingGcd => "time_remaining_gcd",
+            BuiltinVariable::ResourceMissing => "resource_missing",
         }
     }
 
@@ -198,6 +203,7 @@ impl BuiltinVariable {
             BuiltinVariable::MeleeAp => "Melee Attack Power",
             BuiltinVariable::ComboPoints => "Combo Points",
             BuiltinVariable::TimeRemainingGcd => "Time Remaining GCD",
+            BuiltinVariable::ResourceMissing => "Resource Missing",
         }
     }
 
@@ -423,6 +429,16 @@ impl<B, S> Sentence<B, S> {
                         crossing(value, rhs, 1.0, None)
                     }
                     BuiltinVariable::MeleeAp | BuiltinVariable::ComboPoints => f64::INFINITY,
+                    // The watched resource regenerating: the level at which what it lacks to
+                    // the maximum crosses the threshold.
+                    BuiltinVariable::ResourceMissing => {
+                        let level = context.resource_level(watched.resource);
+                        let missing = |at: u32| f64::from(watched.max.saturating_sub(at));
+                        let holds = cmp.holds(missing(level), rhs);
+                        return (level + 1..=watched.max)
+                            .find(|&next| cmp.holds(missing(next), rhs) != holds)
+                            .map_or(NextChange::NEVER, NextChange::at_level);
+                    }
                 }
             }
             Measure::Resource(resource) if *resource == watched.resource => {
@@ -959,6 +975,27 @@ mod tests {
         );
         ctx.resources.insert(ResourceType::Energy, 100);
         assert_eq!(next(greater, &ctx), NextChange::NEVER);
+    }
+
+    /// What the watched resource lacks shrinks as it regenerates: `resource_missing geq 50`
+    /// stops holding at the level 51, `less 30` starts holding at 71.
+    #[test]
+    fn next_change_of_resource_missing_is_the_level_that_flips_it() {
+        let mut ctx = Mock::default();
+        ctx.resources.insert(ResourceType::Energy, 40);
+        let next = |text: &str| sentence(text).next_change(&ctx, WATCHED);
+        assert_eq!(
+            next("variable \"resource_missing\" geq 50"),
+            NextChange::at_level(51)
+        );
+        assert_eq!(
+            next("variable \"resource_missing\" less 30"),
+            NextChange::at_level(71)
+        );
+        assert_eq!(
+            next("variable \"resource_missing\" geq 0"),
+            NextChange::NEVER
+        );
     }
 
     #[test]

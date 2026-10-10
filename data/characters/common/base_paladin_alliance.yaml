@@ -1,0 +1,20 @@
+# Alliance Paladin armor and jewelry, no weapon: Lionheart Helm and five Field Marshal's
+# Vindication pieces (Forever's Paladin PvP set), the Warrior setups' jewelry and trinkets,
+# Libram of Fervor.
+class: PALADIN
+equipment:
+  RELIC: { item: 23203 }                                                 # Libram of Fervor
+  HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }        # Lionheart Helm
+  NECK: { item: 18404 }                                                  # Onyxia Tooth Pendant
+  SHOULDERS: { item: 272785, enchant: MightOfTheScourge }                # Premier Marshal's Chevalier Pauldrons
+  BACK: { item: 20073, enchant: EnchantCloakLesserAgility }              # Cloak of the Honor Guard
+  CHEST: { item: 272782, enchant: EnchantChestGreaterStats }             # Premier Field Marshal's Chevalier Chestplate
+  WRIST: { item: 19578, enchant: EnchantBracerSuperiorStrength }         # Berserker Bracers
+  GLOVES: { item: 272780, enchant: EnchantGlovesGreaterStrength }        # Premier Lieutenant Commander's Chevalier Gloves
+  BELT: { item: 20042 }                                                  # Highlander's Lamellar Girdle
+  LEGS: { item: 272784, enchant: LesserArcanumOfVoracityStrength }       # Premier Marshal's Chevalier Legplates
+  BOOTS: { item: 272781, enchant: EnchantBootsGreaterAgility }           # Premier Knight-Champion's Chevalier Boots
+  RING1: { item: 19325 }                                                 # Don Julio's Band
+  RING2: { item: 18821 }                                                 # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                              # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                              # Earthstrike

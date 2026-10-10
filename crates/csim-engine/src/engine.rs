@@ -59,6 +59,10 @@ pub enum EventKind {
         character: CharId,
         buff: BuffId,
     },
+    /// A mana user's regeneration tick, every 2 seconds from the pull.
+    ManaTick {
+        character: CharId,
+    },
     PlayerAction {
         character: CharId,
     },
@@ -86,6 +90,7 @@ impl EventKind {
             | EventKind::MainhandMeleeHit { character, .. }
             | EventKind::OffhandMeleeHit { character, .. }
             | EventKind::PeriodicRefreshBuff { character, .. }
+            | EventKind::ManaTick { character }
             | EventKind::PlayerAction { character }
             | EventKind::Precast { character }
             | EventKind::RegenReaction { character, .. } => Some(character),
@@ -105,6 +110,7 @@ impl EventKind {
             EventKind::MainhandMeleeHit { .. } => EventType::MainhandMeleeHit,
             EventKind::OffhandMeleeHit { .. } => EventType::OffhandMeleeHit,
             EventKind::PeriodicRefreshBuff { .. } => EventType::PeriodicRefreshBuff,
+            EventKind::ManaTick { .. } => EventType::ManaTick,
             EventKind::PlayerAction { .. } => EventType::PlayerAction,
             EventKind::Precast { .. } => EventType::Precast,
             EventKind::RegenReaction { .. } => EventType::RegenReaction,
@@ -124,13 +130,14 @@ pub enum EventType {
     MainhandMeleeHit,
     OffhandMeleeHit,
     PeriodicRefreshBuff,
+    ManaTick,
     PlayerAction,
     Precast,
     RegenReaction,
 }
 
 impl EventType {
-    pub const ALL: [EventType; 12] = [
+    pub const ALL: [EventType; 13] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
         EventType::DotTick,
@@ -140,6 +147,7 @@ impl EventType {
         EventType::MainhandMeleeHit,
         EventType::OffhandMeleeHit,
         EventType::PeriodicRefreshBuff,
+        EventType::ManaTick,
         EventType::PlayerAction,
         EventType::Precast,
         EventType::RegenReaction,
@@ -161,6 +169,7 @@ impl EventType {
             EventType::MainhandMeleeHit => "Mainhand melee hit",
             EventType::OffhandMeleeHit => "Offhand melee hit",
             EventType::PeriodicRefreshBuff => "Periodic buff refresh",
+            EventType::ManaTick => "Mana tick",
             EventType::PlayerAction => "Player action",
             EventType::Precast => "Precast",
             EventType::RegenReaction => "Regeneration reaction",

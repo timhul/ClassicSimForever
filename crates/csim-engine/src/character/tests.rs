@@ -165,12 +165,17 @@ impl Fixture {
 
     /// An orc of `class` whose items and enchants are `equipment`'s.
     pub fn orc_with(class: Arc<ClassSpec>, equipment: Arc<EquipmentDb>) -> Self {
+        Self::of_race(class, Race::Orc, equipment)
+    }
+
+    /// A character of `class` and `race` whose items and enchants are `equipment`'s.
+    pub fn of_race(class: Arc<ClassSpec>, race_kind: Race, equipment: Arc<EquipmentDb>) -> Self {
         let mut engine = Engine::new();
         engine.prepare_iteration(0.0);
         let character = Character::new(
             CharId(0),
             class,
-            &race(Race::Orc),
+            &race(race_kind),
             equipment,
             Phase::MoltenCore,
             SimParams::default(),
@@ -1240,6 +1245,14 @@ fn shipped_rogue_data_learns_and_runs() {
 }
 
 mod energy;
+mod paladin;
+mod paladin_abilities;
+mod paladin_damage;
+mod paladin_echo;
+mod paladin_items;
+mod paladin_mana;
+mod paladin_seals;
+mod paladin_talents;
 mod rogue;
 mod rogue_items;
 mod rogue_poisons;
@@ -1583,13 +1596,16 @@ debuffs:
         let db = SpellDb::load(&data.join("spells")).unwrap();
         let registry = ExternalBuffDb::load(&data.join("external_buffs.yaml")).unwrap();
         registry.validate(&db).unwrap();
-        assert_eq!(registry.buffs().len(), 21);
+        assert_eq!(registry.buffs().len(), 32);
         assert_eq!(registry.debuffs().len(), 4);
         for spec in registry.entries() {
             assert!(
                 !db.is_learnable(spec.spell)
-                    || db.class_of(spec.spell) == Some(Some(PlayerClass::Warrior)),
-                "{}: the aura is an externals.yaml record or a Warrior spell",
+                    || matches!(
+                        db.class_of(spec.spell),
+                        Some(Some(PlayerClass::Warrior | PlayerClass::Paladin))
+                    ),
+                "{}: the aura is an externals.yaml record, a Warrior or a Paladin spell",
                 spec.name
             );
         }

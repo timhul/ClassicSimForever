@@ -38,6 +38,26 @@ impl MagicSchool {
         MagicSchool::Holy,
     ];
 
+    /// The school's bit of a `SpellSchoolMask`.
+    pub fn school_mask(self) -> SpellSchoolMask {
+        match self {
+            MagicSchool::Physical => SpellSchoolMask::PHYSICAL,
+            MagicSchool::Arcane => SpellSchoolMask::ARCANE,
+            MagicSchool::Fire => SpellSchoolMask::FIRE,
+            MagicSchool::Frost => SpellSchoolMask::FROST,
+            MagicSchool::Nature => SpellSchoolMask::NATURE,
+            MagicSchool::Shadow => SpellSchoolMask::SHADOW,
+            MagicSchool::Holy => SpellSchoolMask::HOLY,
+        }
+    }
+
+    /// The magic schools among `mask` (the misc value of a school-masked aura).
+    pub fn magic_schools_of(mask: SpellSchoolMask) -> impl Iterator<Item = MagicSchool> {
+        MagicSchool::MAGIC
+            .into_iter()
+            .filter(move |school| mask.intersects(school.school_mask()))
+    }
+
     /// The school of a spell with `mask`: physical when it is among the schools (or none is
     /// set), else the first magic school of the mask.
     pub fn from_school_mask(mask: SpellSchoolMask) -> MagicSchool {

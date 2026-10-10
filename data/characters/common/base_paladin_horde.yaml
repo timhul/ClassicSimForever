@@ -1,0 +1,20 @@
+# Horde Paladin armor and jewelry, no weapon: Lionheart Helm and five Warlord's Vindication
+# pieces (Forever's Paladin PvP set), the Warrior setups' jewelry and trinkets, Libram of
+# Fervor.
+class: PALADIN
+equipment:
+  RELIC: { item: 23203 }                                                 # Libram of Fervor
+  HEAD: { item: 12640, enchant: LesserArcanumOfVoracityStrength }        # Lionheart Helm
+  NECK: { item: 18404 }                                                  # Onyxia Tooth Pendant
+  SHOULDERS: { item: 274241, enchant: MightOfTheScourge }                # Premier General's Scaled Pauldrons
+  BACK: { item: 20068, enchant: EnchantCloakLesserAgility }              # Deathguard's Cloak
+  CHEST: { item: 274238, enchant: EnchantChestGreaterStats }             # Premier Warlord's Scaled Chestplate
+  WRIST: { item: 19578, enchant: EnchantBracerSuperiorStrength }         # Berserker Bracers
+  GLOVES: { item: 274236, enchant: EnchantGlovesGreaterStrength }        # Premier Champion's Scaled Gloves
+  BELT: { item: 20177 }                                                  # Defiler's Lamellar Girdle
+  LEGS: { item: 274240, enchant: LesserArcanumOfVoracityStrength }       # Premier General's Scaled Legplates
+  BOOTS: { item: 274237, enchant: EnchantBootsGreaterAgility }           # Premier Centurion's Scaled Boots
+  RING1: { item: 19325 }                                                 # Don Julio's Band
+  RING2: { item: 18821 }                                                 # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                              # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                              # Earthstrike
