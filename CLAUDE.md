@@ -209,6 +209,12 @@ effects, set bonuses and suffixes are not scored):
 
 `cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot mainhand --type axe,sword,mace,dagger,fist`
 
+Armor penetration is a percent of the target's armor after its debuffs (Weaponmaster's and Hack and
+Slash's maces, Serrated Blades). No item has it, so its weight is only asked for and stays out of
+the weights file:
+
+`cargo run --release -p csim-cli -- run data/characters/warrior_arms_dw_orc.yaml --scale=arp,crit`
+
 `rank-items` only lists what the weights' class can use (armor type, weapon proficiencies per slot);
 `list-items --class rogue` filters the same way.
 
