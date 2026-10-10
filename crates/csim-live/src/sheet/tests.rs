@@ -38,6 +38,8 @@ fn a_naked_orc_warrior_has_the_base_stats() {
     assert_eq!(melee.attack_power, 406);
     assert_eq!(melee.mainhand_skill, 300);
     assert_eq!(melee.offhand_skill, None);
+    assert_eq!(melee.mainhand_armor_penetration, 0.0);
+    assert_eq!(melee.offhand_armor_penetration, None);
     assert_eq!(stats.ranged.skill, None);
     assert_eq!(stats.spell.len(), 6, "every magic school");
     assert!(pasted(NAKED).info.equipment.is_empty());
@@ -78,12 +80,31 @@ fn the_gear_worn_and_its_stats() {
 }
 
 #[test]
+fn weaponmaster_maces_ignore_armor_in_both_hands() {
+    let melee = load(LoadRequest {
+        setup: Some("warrior_arms_dw_orc".into()),
+        ..LoadRequest::default()
+    })
+    .info
+    .stats
+    .melee;
+    assert_eq!(
+        (
+            melee.mainhand_armor_penetration,
+            melee.offhand_armor_penetration
+        ),
+        (15.0, Some(15.0))
+    );
+}
+
+#[test]
 fn a_shield_has_no_weapon_skill() {
     // The Immovable Object.
     let yaml = format!("{NAKED}equipment:\n  OFFHAND: {{ item: 19321 }}\n");
     let info = pasted(&yaml).info;
     assert_eq!(info.equipment[0].slot, EquipmentSlot::Offhand);
     assert_eq!(info.stats.melee.offhand_skill, None);
+    assert_eq!(info.stats.melee.offhand_armor_penetration, None);
 }
 
 #[test]

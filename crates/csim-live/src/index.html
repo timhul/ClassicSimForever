@@ -2892,6 +2892,9 @@ function renderSheet() {
     ["Attack power", melee.attack_power],
     ["MH skill", melee.mainhand_skill],
     ["OH skill", melee.offhand_skill ?? "—"],
+    ["MH armor pen.", percent(melee.mainhand_armor_penetration)],
+    ["OH armor pen.", melee.offhand_armor_penetration == null
+      ? "—" : percent(melee.offhand_armor_penetration)],
   ] : [
     ["Attack power", ranged.attack_power],
     ["Critical strike", percent(ranged.crit)],
