@@ -1,25 +1,13 @@
 # Introduction
 
 This project contains ClassicSimForever, a simulator for World of Warcraft: Forever.
-It is a C++ to Rust port from ClassicSim, a simulator for World of Warcraft: Classic.
 
 # Main technical differences
 
-ClassicSimForever uses Rust instead of C++ Qt. No GUI for now.
-
-The data (spells, etc.) used to be authored by hand in the legacy C++ version. Now the data is
-derived from the actual client side database tables. Not everything is present in these tables and
-needs to be reimplemented.
+ClassicSimForever uses Rust instead of C++.
 
 There are also actual data differences due to the game versions (Forever vs Classic) being slightly
 different.
-
-The tables are the client build plus its server-side hotfixes (talent reworks, spell values and
-whole items come as hotfixes; Wowhead shows them). `python tools/fetch_tables.py` applies them;
-when Wowhead differs from the data on the same build, refresh them with
-`python tools/fetch_hotfixes.py --force` and re-export (`data/README.md`). A build that wago.tools
-has no hotfixes for yet takes the item hotfixes of the last build that has them
-(`fetch_tables.py --hotfix-build <build> --hotfix-tables 'Item*'`).
 
 # Development flow
 
@@ -37,119 +25,24 @@ Implement the given task in `TASKS.md`. Add tests if relevant.
 Run `cargo clippy --all-targets -- -D warnings`, , `cargo fmt --check` `cargo nextest run` to verify
 building works and source code passes linting.
 
-Commit each defined task once complete.
+Code comments must be short. Do not describe *what* changed, that is explained by the code.
+
+Commit each defined task once complete. Commit messages must be very short. Do *not* describe
+what changed, that is already shown by the code changes.
 
 **NEVER PUSH ANYTHING TO THE REMOTE REPOSITORY.**
 
-# Running the sim
+## Running the sim
+
+Single character, no raid.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --iterations 10000`
 
-The Forever race Skyborne is two races, one per faction: `HIGH_ORDER_SKYBORNE` (Alliance) and
-`WINDSHAPER_SKYBORNE` (Horde). Its DW Fury profile is the Horde one:
-
-`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_skyborne.yaml --iterations 10000`
-
-The combat log (`WoWCombatLog.txt` lines) of one iteration, the same one `-n 1 -t 1` simulates with
-that seed:
-
-`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --combat-log --seed 1`
-
-The same iteration, watched live in a browser (`csim-live` serves a page on
-http://127.0.0.1:7878 with play / pause, speed, step event / step to cast and restart; the engine
-is used as a library, as by the CLI; a Rotation pane lists each cast with the `cast_if` entry
-that returned true; a Breakdown pane below the stage shows the damage so far per spell, the buff uptimes, the procs (count, proc rate,
-PPM) and the resource gained per source, as `csim run` breaks them down). It takes the setup, `--seed`, `--length`,
-`--length-variance` and `--port`, one character only (no `--raid`):
+Fixed seed, single character.
 
 `cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --seed 1`
 
-The flags only load the first iteration. A setup bar on the page loads another: a bundled setup
-(`data/characters/`), played by its rotation or with bundled keybinds (`data/keybinds/`), with a
-seed, length, variance and named settings. Choosing a setup or how it is played loads it right
-away, with the bar's seed; keybinds that do not fit the new setup fall back to its rotation. The
-named settings get a control each, by their kind in `named_settings.rs` (a choice a dropdown,
-which loads right away; a number a number field; a setting that requires another's value shows
-only with it). A separate Target dropdown overrides the setup's target creature type (loads right
-away) and armor. The text fields and pasted YAML wait for Load. A setup or keybinds can also be pasted or uploaded as
-YAML; a pasted setup's `include:` lines name the bundled files. The address mirrors what is
-loaded (`?setup=warrior_fury_dw_orc&keybinds=dw_fury&seed=1&setting=...`), so a link reproduces
-the iteration. "Edit keybinds" opens an editor: click a spell's key, then press the new one
-(Esc cancels, Backspace or Delete unbinds, a key in use moves), and build macros. It starts from
-the loaded keybinds, the class's last applied ones (browser storage) or a bundled file. Apply
-loads them as pasted keybinds; a link carries pasted or edited keybinds as `keys=` (their YAML,
-base64url). "Equipment" opens the gear: a paper doll with the stat summary (melee, ranged,
-spell; the setup's stats before the iteration, without the precombat casts) and the items the
-character can wear in the selected slot (`api/items`), sortable by name, item level, quality,
-type, and DPS and speed in the weapon slots, with a name search and tooltips. Choosing an item,
-or taking one off (right click, ×), loads the setup again with the changed gear (equipping as
-the game does: a two-hander empties the off hand; a new item keeps the slot's enchants that
-fit it); Reset goes back to the setup's own. The setup bar's loads keep the changes until
-another setup is chosen, and a link carries them as `gear=mh-19019.oh-0` (slot code, item id,
-`0` empties the slot). "Talents" opens the talent calculator: the class's three trees as the
-game draws them (the tab art from Wowhead, prerequisite arrows, ranks lit when a point can go
-in), with each rank's text in a tooltip (`descriptions` of `data/talents/`, resolved at export).
-Click learns a rank, right click (or a long press) unlearns one, Shift does all of them, × clears
-a tree; the rules are the engine's (`api/talents/edit`). The edits are a draft: Apply loads the
-setup with them (an error, e.g. a rotation's missing prerequisite, shows and the draft stays),
-Reset goes back to the setup's own. Like gear, the changed talents stay over the setup bar's loads
-until another setup is chosen, and a link carries them as `talents=05-0505311515201` (Wowhead's
-classic string: a digit per talent in tier then column order, a part per tree). "Buffs & Debuffs"
-opens the external buffs and debuffs the character is offered (`data/external_buffs.yaml`, by
-class and faction), a column each: a row per entry with its icon and name, lit when the session
-has it. Clicking one loads the setup again with it added or removed (adding drops the entries of
-its `mutex`); Reset goes back to the setup's own. Like gear, the changed lists stay over the
-setup bar's loads until another setup is chosen, and a link carries them as
-`buffs=Juju Power,Grilled Squid` / `debuffs=` (names; empty for none). Without a setup
-argument the page picks one:
-
-`cargo run --release -p csim-live`
-
-With `--keybinds` the rotation does not run: the character is played from the keyboard. The file
-maps spell names to keys (`'Bloodthirst': 1`, `Execute: Shift+E`, `Recklessness: Ctrl+Alt+F1`;
-Ctrl, Shift and Alt as modifiers); a spell without a key cannot be cast, and a press while the
-spell is not castable yet waits 0.4 s for it (the game's spell queue window). A key can also
-cast a macro (`Name: {hotkey: T, cast: [Spell1, Spell2]}`), tried in order like the game's `/cast`
-lines: it stops after a spell that triggers the GCD. The player pulls: the iteration starts 10 min
-before the encounter, and the first offensive spell (one hitting the target: Charge, Bloodthirst;
-not Bloodrage, Battle Shout or a stance) starts it when that spell lands (Charge's 1 s run). The
-page then shows every time again with the pull at 0. Examples are in `data/keybinds/`:
-
-`cargo run --release -p csim-live -- data/characters/warrior_fury_dw_orc.yaml --keybinds data/keybinds/dw_fury.yaml`
-
-The page has two tabs over the same loaded setup (a load in one shows in the other; the address
-carries the tab as `view=sim`): Live, the iteration above, and Sim, the equivalent of `csim run`.
-The Sim tab picks the class and the race by their icons (every race the class can be,
-`available_races` of `data/classes/`) and a setup from a choice grouped as the race's own setups,
-the other races' setups played as that race (`api/load`'s `race`, kept as `race=NIGHT_ELF` in the
-address: the gear stays, nothing locks it to a faction), and a bare character per rotation of the
-class (no gear, talents or buffs; `class=…&race=…&rotation=…` instead of `setup=`; it loads
-although its rotation's prerequisites cannot hold, and says which are missing). A race without a
-setup of the class loads the bare character. Changing class or race keeps the kind of setup (DW
-Fury Orc → DW Fury Human), else the rotation. The seed, length, variance, Settings and Target are
-the Live bar's; Talents, Equipment and Buffs & Debuffs open the same dialogs. Run loads the setup,
-then simulates Iterations (10,000 without) split over Threads (the browser's cores, at most 8;
-1 natively) in steps with a progress bar (Stop ends it), and shows `csim run`'s results: the
-summary, the damage per spell, buffs, procs, resources, the rotation's lines, skipped lines,
-finishers and the engine's events (marked stale once another setup or seed is loaded). Seed S, N
-iterations and T threads give `csim run -n N -t T --seed S`: the run splits into the threads'
-shares (`api/sim/start` with `threads` and `share`), which the browser runs side by side in Web
-Workers and natively one after another, then merges (`api/sim/statistics`, `api/sim/merge`).
-
-Its spell and item icons come from Wowhead's CDN, by the `icon_name` of the exported spells and
-items (texture names from the community listfile, see `tools/fetch_listfile.py`). An icon
-without a name, or one that does not load (offline), falls back to `data/icons/`: a gitignored
-local cache of the game's textures, by their `icon` FileDataIDs. Fill it once, and again after
-a re-export, when needed:
-
-`python tools/fetch_icons.py`
-
-The same page also runs without a server, at https://timhul.github.io/ClassicSimForever/live/:
-the `csim-web` crate compiles the server side (and the data it needs) to WebAssembly, and the
-page calls it in place of HTTP. `.github/workflows/pages.yml` builds and deploys it on each push
-to `main`. The site has no `data/icons/` fallback. Build it locally into `site/` (gitignored;
-needs the `wasm32-unknown-unknown` target and the `wasm-bindgen-cli` version that Cargo.toml
-pins, `wasm-opt` optional):
+Building and viewing `csim-live` locally:
 
 `python tools/build_web.py`
 
@@ -158,85 +51,37 @@ pins, `wasm-opt` optional):
 then open http://localhost:8000/ (it redirects to `/live/`). That the wasm build still compiles
 (what the workflow checks on pull requests):
 
+Check that `wasm32` for `csim-live` works.
+
 `cargo check -p csim-web --target wasm32-unknown-unknown`
 
-Named settings switch to alternatives that are not the default behavior: `--setting` takes
-comma-separated `name:value` pairs and may be repeated.
-
-`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=rage_formula:marrow_sigmoid,sigmoid_floor:0,sigmoid_ceiling:46,sigmoid_midpoint:58,sigmoid_width:3.8`
-
-`initial_rage:N` starts every iteration with N rage (before the precombat actions; ignored by a
-character without rage):
+Named settings.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --setting=initial_rage:50`
 
-`target_start_health_percent:N` (1-100, default 100) starts the target at N % health; it falls
-linearly to 0 at the end, which places every execute range (Execute below 20 %, Quietus below
-35 %, ...). At 30 Execute is usable for the last two thirds and Quietus for the whole fight. It
-only sets the health (no Essence of the Red, unlike the Vaelastrasz ruleset, which imposes 30):
-
 `cargo run --release -p csim-cli -- run data/characters/rogue_combat_swords_human.yaml --setting=target_start_health_percent:30`
 
-A Rogue is run the same way, with a rogue setup (`rogue_combat_swords_human`, `rogue_combat_axes_orc`,
-`rogue_combat_daggers_night_elf`, `rogue_mutilate_undead`, `rogue_mutilate_ea_gnome`, `rogue_hemorrhage_troll`; their
-rotations are in `data/rotations/rogue/`):
+Rogue.
 
 `cargo run --release -p csim-cli -- run data/characters/rogue_combat_swords_human.yaml --iterations 10000`
 
-A Retribution Paladin too, with a paladin setup (`paladin_ret_2h_human`, `paladin_ret_2h_dwarf`,
-`paladin_ret_2h_undead`; their rotations are in `data/rotations/paladin/`: Seal Twisting, the
-setups' default, which needs Twist of Light, Seal of Command and Seal of the Crusader), and
-from the keyboard in csim-live with `data/keybinds/ret.yaml`:
+Paladin.
 
 `cargo run --release -p csim-cli -- run data/characters/paladin_ret_2h_human.yaml --iterations 10000`
 
-`cargo run --release -p csim-live -- data/characters/paladin_ret_2h_human.yaml --keybinds data/keybinds/ret.yaml`
-
-In a raid (`data/raids/`, members refer to `data/characters/`):
+Raid sim. Raid DPS can be lower than solo DPS depending on provided party buffs and debuffs.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --raid data/raids/horde_melee.yaml`
 
-`cargo run --release -p csim-cli -- run data/characters/rogue_combat_axes_orc.yaml --raid data/raids/horde_rogues.yaml`
+Sweeping multiple sets of iterations for easier comparisons between variation points (talents,
+equipments, etc.).
 
-`cargo run --release -p csim-cli -- run data/characters/paladin_ret_2h_human.yaml --raid data/raids/alliance_paladin.yaml`
+`cargo run --release -p csim-cli -- sweep data/sweeps/rogue_profiles.yaml`
 
-Stat weights per item stat point, then items ranked by them (static stats only; weapon damage,
-effects, set bonuses and suffixes are not scored):
+`cargo run --release -p csim-cli -- sweep data/sweeps/warrior_profiles.yaml`
 
-`cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --scale --weights-file weights.yaml`
+`cargo run --release -p csim-cli -- sweep data/sweeps/ret_profiles.yaml`
 
-`cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot gloves`
-
-`cargo run --release -p csim-cli -- rank-items --weights weights.yaml --slot mainhand --type axe,sword,mace,dagger,fist`
-
-Armor penetration is a percent of the target's armor after its debuffs (Weaponmaster's and Hack and
-Slash's maces, Serrated Blades). No item has it, so its weight is only asked for and stays out of
-the weights file:
-
-`cargo run --release -p csim-cli -- run data/characters/warrior_arms_dw_orc.yaml --scale=arp,crit`
-
-`rank-items` only lists what the weights' class can use (armor type, weapon proficiencies per slot);
-`list-items --class rogue` filters the same way.
-
-Sweeps (`data/sweeps/`, schema in `crates/csim-engine/src/sweep_loader.rs`): a base character setup
-plus variation points (`talent_points`: every way to spend exactly N more points over some talents;
-`options`: explicit overrides of race, rotation, equipment slots, ...). Every combination is simmed
-with the same seed and ranked by DPS; `--dry-run` only counts and lists the variants:
-
-`cargo run --release -p csim-cli -- sweep data/sweeps/dw_fury_last_3_points.yaml --dry-run`
-
-Instead of a base, a `characters` variation point lists whole character files, to sim profiles
-against each other:
-
-`cargo run --release -p csim-cli -- sweep data/sweeps/warrior_fury_dw_profiles.yaml`
-
-A rotation can name the spells it cannot do without (`prerequisite: Mortal Strike`, one or a
-list), or a talent without a spell to cast (`prerequisite: Twist of Light`): a setup whose
-character lacks one (no such spell, or its talent not taken) is invalid, so `run` rejects it and
-a sweep skips that variant (e.g. the arms rotation on a fury character).
-
-The Rogue's: `data/sweeps/combat_swords_last_3_points.yaml` and `data/sweeps/rogue_profiles.yaml`.
-The Paladin's: `data/sweeps/ret_last_points.yaml` and `data/sweeps/ret_profiles.yaml`.
 
 # Good cross-reference information sources
 
@@ -245,19 +90,6 @@ https://github.com/magey/forever-warrior
 https://ppach-warriorcompendium.share.connect.posit.cloud/
 
 Treat github comments by user "AidanZMoon" and "Magey" as ground truth.
-
-# Known issues
-
-- The hotfixes are scraped from the wago.tools/hotfixes web page (no API). If the page changes,
-`tools/fetch_hotfixes.py` stops with an error and leaves the tables as they were.
-
-- The browser viewer hotlinks its icons from Wowhead's CDN, which is not ours to guarantee: if it
-breaks, the site shows empty icon slots. Forever-only textures have no name in the listfile, so
-they show no icon on the site either.
-
-- Raid DPS can be lower than solo DPS. This is because external debuffs are not applied in a raid
-context since they depend instead on the available raid members, meaning some debuffs are not
-applied if characters applying those debuffs are.
 
 # Class colors
 
