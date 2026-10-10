@@ -231,8 +231,8 @@ items:
     max: 1
     speed: 1
   stats:
+    INTELLECT: 5
     ARMOR: 547
-    NATURE_RESISTANCE: 5
     SPELL_DAMAGE: 5
 - id: 6694
   name: Heart of Agamaggan
@@ -468,44 +468,6 @@ items:
   effects:
   - trigger: EQUIP
     spell: 1292880
-- id: 9522
-  name: Energized Stone Circle
-  phase: 1
-  slot: OH
-  type: SHIELD
-  quality: RARE
-  icon: 134956
-  icon_name: inv_shield_10
-  req_lvl: 0
-  item_lvl: 38
-  damage:
-    min: 1
-    max: 1
-    speed: 1
-  stats:
-    STAMINA: 6
-    ARMOR: 814
-    SPELL_DAMAGE: 5
-    HEALING_POWER: 15
-- id: 9608
-  name: Shoni's Disarming Tool
-  phase: 1
-  slot: OH
-  type: AXE
-  quality: RARE
-  icon: 134520
-  icon_name: inv_misc_wrench_01
-  req_lvl: 0
-  item_lvl: 32
-  damage:
-    min: 27
-    max: 51
-    speed: 1.9
-  stats:
-    SPIRIT: 6
-  effects:
-  - trigger: ON_HIT
-    spell: 11879
 - id: 10770
   name: Mordresh's Lifeless Skull
   phase: 1
@@ -772,23 +734,6 @@ items:
     ARCANE_RESISTANCE: 10
     FIRE_RESISTANCE: 10
     FROST_RESISTANCE: 10
-- id: 16887
-  name: Witch's Finger
-  phase: 1
-  slot: OH
-  type: CASTER_OFFHAND
-  quality: RARE
-  icon: 135474
-  icon_name: inv_wand_12
-  req_lvl: 0
-  item_lvl: 32
-  damage:
-    min: 1
-    max: 1
-    speed: 1
-  stats:
-    INTELLECT: 8
-    STAMINA: 4
 - id: 16998
   name: Sacred Protector
   phase: 1
@@ -1384,14 +1329,14 @@ items:
   type: CASTER_OFFHAND
   quality: RARE
   req_lvl: 1
-  item_lvl: 43
+  item_lvl: 42
   damage:
     min: 1
     max: 1
     speed: 1
   stats:
     INTELLECT: 4
-    SPIRIT: 8
+    SPIRIT: 7
     STAMINA: 2
 - id: 271932
   name: Insurgent's Manifesto
@@ -1669,8 +1614,44 @@ items:
     speed: 1
   stats:
     INTELLECT: 4
-    STAMINA: 7
-    SPELL_DAMAGE: 5
+    STAMINA: 4
+    SPELL_DAMAGE: 8
+- id: 273052
+  name: Ponderous Orb
+  phase: 1
+  slot: OH
+  type: CASTER_OFFHAND
+  quality: RARE
+  icon: 134336
+  icon_name: inv_misc_orb_04
+  req_lvl: 30
+  item_lvl: 35
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    INTELLECT: 2
+    SPIRIT: 8
+    SPELL_DAMAGE: 4
+    HEALING_POWER: 11
+- id: 273055
+  name: Bonepile Gaze
+  phase: 1
+  slot: OH
+  type: SHIELD
+  quality: RARE
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 1
+    max: 1
+    speed: 1
+  stats:
+    STAMINA: 5
+    STRENGTH: 5
+    ARMOR: 718
+    BLOCK_VALUE: 8
 - id: 273137
   name: Skum's Bucket
   phase: 1
@@ -2025,21 +2006,6 @@ items:
     SPELL_DAMAGE: 8
     HEALING_POWER: 23
     CRIT_RATING: 14
-- id: 279838
-  name: Arcane Infused Rod
-  phase: 1
-  slot: OH
-  type: CASTER_OFFHAND
-  quality: RARE
-  req_lvl: 1
-  item_lvl: 36
-  damage:
-    min: 1
-    max: 1
-    speed: 1
-  stats:
-    INTELLECT: 8
-    SPELL_DAMAGE_ARCANE: 9
 - id: 280696
   name: Elementalist's Guard
   phase: 1

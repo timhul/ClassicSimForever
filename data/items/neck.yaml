@@ -29,7 +29,8 @@ items:
   item_lvl: 34
   stats:
     STAMINA: 4
-    SPELL_DAMAGE_UNDEAD: 16
+    SPELL_DAMAGE: 5
+    SPELL_DAMAGE_UNDEAD: 12
 - id: 7731
   name: Ghostshard Talisman
   phase: 1
@@ -57,6 +58,20 @@ items:
   stats:
     SPIRIT: 9
     STAMINA: 9
+- id: 10769
+  name: Glowing Eye of Mordresh
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 134335
+  icon_name: inv_misc_orb_03
+  req_lvl: 36
+  item_lvl: 41
+  stats:
+    INTELLECT: 8
+    SPELL_DAMAGE: 7
+    HEALING_POWER: 20
 - id: 13002
   name: Lady Alizabeth's Pendant
   phase: 1
@@ -1716,6 +1731,22 @@ items:
   stats:
     INTELLECT: 5
     STAMINA: 8
+- id: 273049
+  name: Archmagister's Faceted Pendant
+  phase: 1
+  slot: NECK
+  type: AMULET
+  quality: RARE
+  icon: 466975
+  icon_name: inv_misc_necklacea8
+  req_lvl: 30
+  item_lvl: 35
+  stats:
+    INTELLECT: 6
+    ATTACK_POWER: 12
+  effects:
+  - trigger: USE
+    spell: 1292997
 - id: 273088
   name: Snake Eye Kaleidoscope
   phase: 1
@@ -1835,19 +1866,6 @@ items:
     AGILITY: 8
     STAMINA: 14
     STRENGTH: 9
-- id: 279837
-  name: Fallen Guard's Pendant
-  phase: 1
-  slot: NECK
-  type: AMULET
-  quality: RARE
-  icon: 133335
-  icon_name: inv_jewelry_necklace_44
-  req_lvl: 1
-  item_lvl: 36
-  stats:
-    STAMINA: 8
-    STRENGTH: 6
 - id: 281321
   name: Giantstone Medallion
   phase: 1

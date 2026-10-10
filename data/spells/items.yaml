@@ -691,6 +691,25 @@ spells:
     aura: DUMMY
     base_points: 1.0
     implicit_target: [UNIT_CASTER, NONE]
+- id: 12685
+  name: Fade
+  attributes: [327680, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
+  duration_ms: 10000
+  categories:
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    spell: 40
+  description: Reduces threat level on all enemies by a small amount for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_TOTAL_THREAT
+    base_points: -275.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 13198
   name: Increased Strength 15
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -8895,6 +8914,23 @@ spells:
     base_points: -5.0
     misc_value: [126, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 1292706
+  name: Mana Drain
+  attributes: [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  aura_options:
+    proc_chance: 100
+    proc_category_recovery_ms: 100
+    proc_type_mask: 139944
+  description: When struck in combat, drain $s1 mana from the attacker.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: DUMMY
+    base_points: 2.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 1292746
   name: Martyrdom
   attributes: [159383552, 168, 537411585, 0, 0, 393224, 4096, 0, 32, 2048, 4194304, 67108864, 0, 2, 16, 8192, 0]
@@ -8932,6 +8968,28 @@ spells:
     aura: PROC_TRIGGER_SPELL
     base_points: 100.0
     trigger_spell: 1292746
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1292765
+  name: Fade
+  attributes: [327744, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 135994
+  icon_name: spell_magic_lesserinvisibilty
+  categories:
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    spell: 40
+  aura_options:
+    proc_chance: 5
+    proc_type_mask: 139944
+  description: When damaged, has a chance to reduce threat level on all enemies by a small amount for $12685d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    base_points: 5.0
+    trigger_spell: 12685
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1292851
   name: Lightning Bolt
@@ -8988,6 +9046,29 @@ spells:
     effect: APPLY_AURA
     aura: PROC_TRIGGER_SPELL
     trigger_spell: 1292879
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1292997
+  name: Archmagister's Wisdom
+  attributes: [262144, 1024, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 64
+  icon: 135998
+  icon_name: spell_misc_conjuremanajewel
+  cast_time_ms: 2000
+  duration_ms: 300000
+  cooldown:
+    recovery_ms: 21600000
+  categories:
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    spell: 40
+  description: Increase experience gained from slaying Undead by $s1% for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: 447
+    base_points: 10.0
+    misc_value: [32, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1293003
   name: Petrolspill
@@ -9081,6 +9162,46 @@ spells:
   - index: 1
     effect: SCHOOL_DAMAGE
     base_points: 2.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1293342
+  name: Guardian's Durability
+  attributes: [327744, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134956
+  icon_name: inv_shield_10
+  categories:
+    defense_type: MAGIC
+    dispel_type: 1
+  levels:
+    spell: 40
+  aura_options:
+    proc_chance: 33
+    proc_category_recovery_ms: 60000
+    proc_type_mask: 664232
+  description: When damaged, has a chance to grant you $1293345s1 armor for $1293345d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    base_points: 5.0
+    trigger_spell: 1293345
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1293345
+  name: Guardian's Durability
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134956
+  icon_name: inv_shield_10
+  duration_ms: 12000
+  categories:
+    dispel_type: 1
+  description: Increases armor by $s1 for $d.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_RESISTANCE
+    base_points: 1080.0
+    misc_value: [1, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 1293421
   name: Shadow Bolt
@@ -9333,6 +9454,26 @@ spells:
     effect: SCHOOL_DAMAGE
     base_points: 36.0
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 1294025
+  name: Energize
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134134
+  icon_name: inv_misc_gem_stone_01
+  cooldown:
+    category_recovery_ms: 60000
+  categories:
+    category: 30
+    defense_type: MAGIC
+  levels:
+    spell: 28
+  description: Restores $s1 Mana.
+  effects:
+  - index: 0
+    effect: ENERGIZE
+    base_points: 320.0
+    variance: 0.125
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 1294055
   name: White Obsidian
   attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -11950,4 +12091,105 @@ spells:
     effect: APPLY_AURA
     aura: DUMMY
     base_points: 25.0
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1324311
+  name: Increased Arcane Resist 5
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  description: +$s1 Arcane Resistance.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_RESISTANCE
+    base_points: 5.0
+    misc_value: [64, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1324312
+  name: Increased Spirit 10
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  description: +$s1 Spirit.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_STAT
+    base_points: 10.0
+    misc_value: [4, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1324315
+  name: Violet Meditation
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136090
+  icon_name: spell_nature_sleep
+  duration_ms: 15000
+  description: Allows $s1% of your Mana regeneration to continue while casting.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_MANA_REGEN_INTERRUPT
+    base_points: 15.0
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: DUMMY
+    base_points: 30.0
+- id: 1324318
+  name: Violet Meditation
+  attributes: [64, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134965
+  icon_name: inv_shield_19
+  levels:
+    spell: 60
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 69632
+  description: Chance on damaging spell to allow $1324315s1% of your Mana regeneration to continue while casting for $1324315d. Mana regen amount is doubled in Strongholds and Cities.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    base_points: 1.0
+    trigger_spell: 1324315
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 1324322
+  name: Summon Arcane Elemental
+  attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134416
+  icon_name: inv_misc_rune_03
+  duration_ms: 20000
+  range_yd: 10.0
+  levels:
+    spell: 35
+    max: 60
+  description: Summon Arcane Elemenetal.
+  effects:
+  - index: 0
+    effect: SUMMON
+    misc_value: [277729, 6698]
+    radius_yd: [5.0, 0.0]
+    implicit_target: [DEST_CASTER_SUMMON, NONE]
+- id: 1324323
+  name: Summon Arcane Elemental
+  attributes: [64, 268435456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134965
+  icon_name: inv_shield_19
+  levels:
+    spell: 60
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 69632
+  description: Chance on damaging spell to summon an Arcane elemental to aid you in combat.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: PROC_TRIGGER_SPELL
+    base_points: 1.0
+    trigger_spell: 1324322
     implicit_target: [UNIT_CASTER, NONE]

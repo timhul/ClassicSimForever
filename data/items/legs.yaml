@@ -64,20 +64,6 @@ items:
     STAMINA: 12
     ARMOR: 45
     SPELL_DAMAGE_SHADOW: 10
-- id: 2906
-  name: Darkshire Mail Leggings
-  phase: 1
-  slot: LEGS
-  type: MAIL
-  quality: RARE
-  icon: 134583
-  icon_name: inv_pants_03
-  req_lvl: 0
-  item_lvl: 28
-  stats:
-    SPIRIT: 10
-    STRENGTH: 10
-    ARMOR: 185
 - id: 5199
   name: Smelting Pants
   phase: 1
@@ -109,21 +95,6 @@ items:
     STAMINA: 5
     STRENGTH: 11
     ARMOR: 173
-- id: 6480
-  name: Slick Deviate Leggings
-  phase: 1
-  slot: LEGS
-  type: LEATHER
-  quality: RARE
-  icon: 134582
-  icon_name: inv_pants_02
-  req_lvl: 0
-  item_lvl: 20
-  stats:
-    AGILITY: 4
-    SPIRIT: 5
-    STAMINA: 7
-    ARMOR: 75
 - id: 6690
   name: Ferine Leggings
   phase: 1
@@ -182,6 +153,24 @@ items:
     SPIRIT: 14
     ARMOR: 45
     SPELL_DAMAGE_SHADOW: 19
+- id: 7760
+  name: Warchief Kilt
+  phase: 1
+  slot: LEGS
+  type: LEATHER
+  quality: RARE
+  icon: 134586
+  icon_name: inv_pants_06
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
+  stats:
+    INTELLECT: 6
+    SPIRIT: 14
+    STRENGTH: 5
+    ARMOR: 105
+    SPELL_DAMAGE: 8
+    HEALING_POWER: 24
 - id: 9396
   name: Legguards of the Vault
   phase: 1
@@ -3317,23 +3306,9 @@ items:
   req_lvl: 0
   item_lvl: 29
   stats:
-    INTELLECT: 14
+    INTELLECT: 13
     ARMOR: 41
-    SPELL_DAMAGE: 5
-- id: 270074
-  name: Doomcaller's Pants
-  phase: 1
-  slot: LEGS
-  type: LEATHER
-  quality: RARE
-  icon: 134594
-  icon_name: inv_pants_14
-  req_lvl: 0
-  item_lvl: 42
-  stats:
-    SPIRIT: 12
-    STRENGTH: 18
-    ARMOR: 111
+    SPELL_DAMAGE: 7
 - id: 270260
   name: Direhammer Leggings
   phase: 1
@@ -4038,6 +4013,18 @@ items:
     STAMINA: 14
     STRENGTH: 6
     ARMOR: 92
+- id: 273048
+  name: Refractory Scaleguards
+  phase: 1
+  slot: LEGS
+  type: MAIL
+  quality: RARE
+  req_lvl: 28
+  item_lvl: 33
+  stats:
+    STRENGTH: 12
+    ARMOR: 199
+    ARCANE_RESISTANCE: 5
 - id: 273289
   name: Ogre Loincloth
   phase: 1
@@ -4524,6 +4511,7 @@ items:
   req_lvl: 60
   item_lvl: 61
   boe: true
+  class_restrictions: [SHAMAN]
   stats:
     ARMOR: 344
   set: 2110
@@ -4540,6 +4528,7 @@ items:
   req_lvl: 60
   item_lvl: 61
   boe: true
+  class_restrictions: [SHAMAN]
   stats:
     ARMOR: 344
   set: 2109
@@ -4573,6 +4562,7 @@ items:
   req_lvl: 60
   item_lvl: 61
   boe: true
+  class_restrictions: [WARRIOR]
   stats:
     ARMOR: 608
   set: 2102
@@ -4589,6 +4579,7 @@ items:
   req_lvl: 60
   item_lvl: 61
   boe: true
+  class_restrictions: [WARRIOR]
   stats:
     ARMOR: 608
   set: 2103
@@ -4891,3 +4882,18 @@ items:
     STRENGTH: 4
     ARMOR: 88
     SPELL_DAMAGE: 10
+- id: 286988
+  name: Violet Sorcerer's Leggings
+  phase: 1
+  slot: LEGS
+  type: CLOTH
+  quality: RARE
+  req_lvl: 29
+  item_lvl: 34
+  boe: true
+  stats:
+    INTELLECT: 13
+    SPIRIT: 5
+    ARMOR: 44
+    SPELL_DAMAGE: 12
+  set: 2134

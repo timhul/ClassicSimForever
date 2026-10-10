@@ -61,20 +61,6 @@ items:
     STAMINA: 3
     STRENGTH: 8
     ARMOR: 95
-- id: 4534
-  name: Steel-clasped Bracers
-  phase: 1
-  slot: WRIST
-  type: MAIL
-  quality: RARE
-  icon: 132605
-  icon_name: inv_bracer_06
-  req_lvl: 0
-  item_lvl: 28
-  stats:
-    SPIRIT: 6
-    STAMINA: 6
-    ARMOR: 92
 - id: 6902
   name: Bands of Serra'kis
   phase: 1
@@ -89,20 +75,6 @@ items:
     STAMINA: 3
     STRENGTH: 6
     ARMOR: 43
-- id: 7003
-  name: Beetle Clasps
-  phase: 1
-  slot: WRIST
-  type: MAIL
-  quality: RARE
-  icon: 132605
-  icon_name: inv_bracer_06
-  req_lvl: 0
-  item_lvl: 26
-  stats:
-    STAMINA: 8
-    ARMOR: 89
-    ATTACK_POWER: 6
 - id: 9388
   name: Revelosh's Armguards
   phase: 1
@@ -744,21 +716,6 @@ items:
       STAMINA: 6
       STRENGTH: 3
       DEFENSE: 2
-- id: 9535
-  name: Fire-welded Bracers
-  phase: 1
-  slot: WRIST
-  type: MAIL
-  quality: RARE
-  icon: 132601
-  icon_name: inv_bracer_02
-  req_lvl: 0
-  item_lvl: 32
-  stats:
-    AGILITY: 6
-    SPIRIT: 6
-    STAMINA: 2
-    ARMOR: 98
 - id: 10333
   name: Scarlet Wristguards
   phase: 1
@@ -774,21 +731,6 @@ items:
     STAMINA: 11
     ARMOR: 104
   set: 163
-- id: 10358
-  name: Duracin Bracers
-  phase: 1
-  slot: WRIST
-  type: MAIL
-  quality: RARE
-  icon: 132603
-  icon_name: inv_bracer_04
-  req_lvl: 0
-  item_lvl: 38
-  stats:
-    AGILITY: 7
-    SPIRIT: 5
-    STAMINA: 8
-    ARMOR: 107
 - id: 12999
   name: Drakewing Bands
   phase: 1
@@ -3048,19 +2990,6 @@ items:
     STRENGTH: 6
     ARMOR: 231
     SPELL_DAMAGE: 12
-- id: 251965
-  name: Undead Knight's Bracers
-  phase: 1
-  slot: WRIST
-  type: MAIL
-  quality: RARE
-  req_lvl: 0
-  item_lvl: 36
-  stats:
-    AGILITY: 4
-    STAMINA: 8
-    STRENGTH: 4
-    ARMOR: 104
 - id: 252539
   name: Prowler's Leather Bracers
   phase: 1
@@ -3286,20 +3215,6 @@ items:
     STAMINA: 12
     ARMOR: 69
     SPELL_DAMAGE: 8
-- id: 270021
-  name: Staghide Armguards
-  phase: 1
-  slot: WRIST
-  type: LEATHER
-  quality: RARE
-  icon: 132606
-  icon_name: inv_bracer_07
-  req_lvl: 0
-  item_lvl: 26
-  stats:
-    AGILITY: 5
-    STAMINA: 5
-    ARMOR: 42
 - id: 270032
   name: Cultist's Armguards
   phase: 1
@@ -3314,36 +3229,6 @@ items:
     STAMINA: 7
     ARMOR: 44
     ATTACK_POWER: 10
-- id: 270042
-  name: Technician's Bracers
-  phase: 1
-  slot: WRIST
-  type: LEATHER
-  quality: RARE
-  icon: 132601
-  icon_name: inv_bracer_02
-  req_lvl: 0
-  item_lvl: 32
-  stats:
-    INTELLECT: 6
-    STAMINA: 5
-    STRENGTH: 5
-    ARMOR: 47
-- id: 270055
-  name: Charged Leather Bracers
-  phase: 1
-  slot: WRIST
-  type: LEATHER
-  quality: RARE
-  icon: 132607
-  icon_name: inv_bracer_08
-  req_lvl: 0
-  item_lvl: 38
-  stats:
-    AGILITY: 6
-    SPIRIT: 6
-    STAMINA: 6
-    ARMOR: 51
 - id: 271096
   name: Aetherwisp Bracers
   phase: 1
@@ -3967,6 +3852,21 @@ items:
     INTELLECT: 7
     STAMINA: 15
     ARMOR: 74
+    SPELL_DAMAGE: 5
+- id: 273036
+  name: Graveweave Bindings
+  phase: 1
+  slot: WRIST
+  type: CLOTH
+  quality: RARE
+  icon: 132609
+  icon_name: inv_bracer_10
+  req_lvl: 26
+  item_lvl: 31
+  stats:
+    STRENGTH: 6
+    ARMOR: 21
+    MANA_PER_5: 2
     SPELL_DAMAGE: 5
 - id: 273293
   name: Bandsaw Wristbands

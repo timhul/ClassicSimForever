@@ -289,23 +289,6 @@ items:
   stats:
     AGILITY: 4
     STRENGTH: 4
-- id: 3400
-  name: Lucine Longsword
-  phase: 1
-  slot: MH
-  type: SWORD
-  quality: RARE
-  icon: 135321
-  icon_name: inv_sword_20
-  req_lvl: 0
-  item_lvl: 27
-  damage:
-    min: 30
-    max: 56
-    speed: 2.5
-  stats:
-    SPIRIT: 4
-    STAMINA: 4
 - id: 3414
   name: Crested Scepter
   phase: 1
@@ -396,23 +379,6 @@ items:
   stats:
     SPIRIT: 4
     STAMINA: 6
-- id: 6804
-  name: Windstorm Hammer
-  phase: 1
-  slot: MH
-  type: MACE
-  quality: RARE
-  icon: 133042
-  icon_name: inv_hammer_05
-  req_lvl: 0
-  item_lvl: 38
-  damage:
-    min: 38
-    max: 71
-    speed: 2.1
-  stats:
-    STAMINA: 6
-    STRENGTH: 5
 - id: 7714
   name: Hypnotic Blade
   phase: 1
@@ -550,8 +516,6 @@ items:
     min: 26
     max: 49
     speed: 2.2
-  stats:
-    ATTACK_POWER: 6
   effects:
   - trigger: ON_HIT
     spell: 16408
@@ -770,23 +734,6 @@ items:
   stats:
     SPIRIT: 3
     STRENGTH: 3
-- id: 17039
-  name: Skullbreaker
-  phase: 1
-  slot: MH
-  type: MACE
-  quality: RARE
-  icon: 133728
-  icon_name: inv_misc_bone_dwarfskull_01
-  req_lvl: 0
-  item_lvl: 38
-  damage:
-    min: 43
-    max: 81
-    speed: 2.4
-  stats:
-    INTELLECT: 7
-    STAMINA: 5
 - id: 18843
   name: Grand Marshal's Right Hand Blade
   phase: 1
@@ -1259,10 +1206,10 @@ items:
   type: MACE
   quality: RARE
   req_lvl: 0
-  item_lvl: 43
+  item_lvl: 42
   damage:
-    min: 42
-    max: 63
+    min: 41
+    max: 62
     speed: 1.8
   stats:
     INTELLECT: 6
@@ -1708,6 +1655,23 @@ items:
   effects:
   - trigger: EQUIP
     spell: 1291568
+- id: 273053
+  name: Tendonscraper Dagger
+  phase: 1
+  slot: MH
+  type: DAGGER
+  quality: RARE
+  icon: 133723
+  icon_name: inv_misc_bone_06
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 24
+    max: 45
+    speed: 1.6
+  stats:
+    STAMINA: 5
+    HEALTH_PER_5: 8
 - id: 273297
   name: Goblin Hammer
   phase: 1

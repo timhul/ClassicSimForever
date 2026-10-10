@@ -113,6 +113,21 @@ items:
     STAMINA: 15
     ARMOR: 294
     FROST_RESISTANCE: 10
+- id: 2034
+  name: Scholarly Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  icon: 132645
+  icon_name: inv_chest_cloth_04
+  req_lvl: 20
+  item_lvl: 25
+  boe: true
+  stats:
+    SPIRIT: 12
+    ARMOR: 43
+    SPELL_DAMAGE: 3
 - id: 2041
   name: Tunic of Westfall
   phase: 1
@@ -207,22 +222,6 @@ items:
     STAMINA: 11
     STRENGTH: 7
     ARMOR: 358
-- id: 4746
-  name: Doomsayer's Robe
-  phase: 1
-  slot: CHEST
-  type: CLOTH
-  quality: RARE
-  icon: 132660
-  icon_name: inv_chest_cloth_19
-  req_lvl: 0
-  item_lvl: 42
-  stats:
-    SPIRIT: 25
-    STAMINA: -15
-    ARMOR: 61
-    SPELL_DAMAGE: 8
-    HEALING_POWER: 22
 - id: 5202
   name: Corsair's Overshirt
   phase: 1
@@ -250,9 +249,8 @@ items:
   req_lvl: 19
   item_lvl: 24
   stats:
-    STAMINA: 9
+    STAMINA: 10
     ARMOR: 42
-    HEALTH_PER_5: 7
     SPELL_DAMAGE: 4
     HEALING_POWER: 13
 - id: 6324
@@ -299,9 +297,9 @@ items:
   req_lvl: 18
   item_lvl: 23
   stats:
-    SPIRIT: 7
-    STAMINA: 4
-    STRENGTH: 6
+    INTELLECT: 3
+    SPIRIT: 10
+    STRENGTH: 3
     ARMOR: 91
   set: 162
 - id: 6627
@@ -463,9 +461,8 @@ items:
   item_lvl: 34
   boe: true
   stats:
-    INTELLECT: 8
+    INTELLECT: 12
     SPIRIT: 8
-    STAMINA: 7
     ARMOR: 50
     SPELL_DAMAGE: 9
 - id: 7759
@@ -1729,21 +1726,6 @@ items:
     STRENGTH: 15
     ARMOR: 657
   set: 189
-- id: 17043
-  name: Zealot's Robe
-  phase: 1
-  slot: CHEST
-  type: CLOTH
-  quality: RARE
-  icon: 132647
-  icon_name: inv_chest_cloth_06
-  req_lvl: 0
-  item_lvl: 38
-  stats:
-    INTELLECT: 10
-    SPIRIT: 10
-    ARMOR: 55
-    SPELL_DAMAGE: 15
 - id: 17568
   name: Knight-Captain's Dreadweave Robe
   phase: 1
@@ -3690,36 +3672,6 @@ items:
     STAMINA: 6
     ARMOR: 45
     SPELL_DAMAGE_HOLY: 13
-- id: 270043
-  name: Dreamer's Chestguard
-  phase: 1
-  slot: CHEST
-  type: LEATHER
-  quality: RARE
-  icon: 132716
-  icon_name: inv_chest_leather_01
-  req_lvl: 0
-  item_lvl: 32
-  stats:
-    SPIRIT: 11
-    STAMINA: 5
-    STRENGTH: 10
-    ARMOR: 106
-- id: 270054
-  name: Cultist's Chestguard
-  phase: 1
-  slot: CHEST
-  type: LEATHER
-  quality: RARE
-  icon: 132723
-  icon_name: inv_chest_leather_08
-  req_lvl: 0
-  item_lvl: 38
-  stats:
-    SPIRIT: 9
-    STAMINA: 11
-    STRENGTH: 11
-    ARMOR: 117
 - id: 270118
   name: Cindercloth Gown
   phase: 1
@@ -4447,10 +4399,51 @@ items:
   req_lvl: 26
   item_lvl: 31
   stats:
-    AGILITY: 6
-    INTELLECT: 13
-    STAMINA: 6
+    AGILITY: 9
+    INTELLECT: 15
     ARMOR: 105
+- id: 273035
+  name: Mana-Warped Chain Shirt
+  phase: 1
+  slot: CHEST
+  type: MAIL
+  quality: RARE
+  req_lvl: 27
+  item_lvl: 32
+  stats:
+    STAMINA: 8
+    STRENGTH: 12
+    ARMOR: 225
+    MANA_PER_5: 3
+- id: 273038
+  name: Garb of Fallen Felbark
+  phase: 1
+  slot: CHEST
+  type: LEATHER
+  quality: RARE
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    AGILITY: 9
+    INTELLECT: 13
+    STAMINA: 7
+    ARMOR: 110
+- id: 273044
+  name: Violet Sorcerer's Robes
+  phase: 1
+  slot: CHEST
+  type: CLOTH
+  quality: RARE
+  req_lvl: 27
+  item_lvl: 32
+  stats:
+    INTELLECT: 15
+    ARMOR: 49
+    SPELL_DAMAGE: 9
+  effects:
+  - trigger: EQUIP
+    spell: 1292765
+  set: 2134
 - id: 273331
   name: Premier Field Marshal's Luminous Chestplate
   phase: 1

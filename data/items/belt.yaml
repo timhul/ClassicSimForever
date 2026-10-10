@@ -61,7 +61,6 @@ items:
   req_lvl: 21
   item_lvl: 26
   stats:
-    INTELLECT: 3
     STAMINA: 5
     ARMOR: 54
     SPELL_DAMAGE: 7
@@ -156,20 +155,6 @@ items:
     STAMINA: 5
     ARMOR: 58
     SPELL_DAMAGE: 12
-- id: 7000
-  name: Heartwood Girdle
-  phase: 1
-  slot: BELT
-  type: LEATHER
-  quality: RARE
-  icon: 132493
-  icon_name: inv_belt_04
-  req_lvl: 0
-  item_lvl: 27
-  stats:
-    STAMINA: 7
-    ARMOR: 55
-    SPELL_DAMAGE: 8
 - id: 9405
   name: Girdle of Golem Strength
   phase: 1
@@ -3104,20 +3089,6 @@ items:
     STRENGTH: 10
     ARMOR: 324
     SPELL_DAMAGE: 16
-- id: 251962
-  name: Violet Sash
-  phase: 1
-  slot: BELT
-  type: CLOTH
-  quality: RARE
-  icon: 132493
-  icon_name: inv_belt_04
-  req_lvl: 0
-  item_lvl: 36
-  stats:
-    INTELLECT: 12
-    SPIRIT: 7
-    ARMOR: 29
 - id: 252428
   name: Brawler's Leather Belt
   phase: 1
@@ -3732,20 +3703,6 @@ items:
     SPIRIT: 5
     ARMOR: 22
     SPELL_DAMAGE: 6
-- id: 271768
-  name: Songblade Stabilizer
-  phase: 1
-  slot: BELT
-  type: MAIL
-  quality: RARE
-  icon: 132524
-  icon_name: inv_belt_35
-  req_lvl: 0
-  item_lvl: 33
-  stats:
-    STAMINA: 10
-    ARMOR: 128
-    DODGE_RATING: 8
 - id: 272187
   name: Thornplated Cord
   phase: 1
@@ -4448,9 +4405,37 @@ items:
   req_lvl: 26
   item_lvl: 31
   stats:
-    STAMINA: 9
+    INTELLECT: 9
     STRENGTH: 9
     ARMOR: 124
+- id: 273039
+  name: Blightleaf Rope
+  phase: 1
+  slot: BELT
+  type: CLOTH
+  quality: RARE
+  req_lvl: 29
+  item_lvl: 34
+  stats:
+    INTELLECT: 10
+    ARMOR: 28
+    HEALTH_PER_5: 5
+    SPELL_DAMAGE: 7
+- id: 273041
+  name: Slitherwrap Girdle
+  phase: 1
+  slot: BELT
+  type: LEATHER
+  quality: RARE
+  req_lvl: 28
+  item_lvl: 33
+  stats:
+    AGILITY: 9
+    STAMINA: 6
+    ARMOR: 61
+  effects:
+  - trigger: EQUIP
+    spell: 1292706
 - id: 273089
   name: Slither Cord
   phase: 1
@@ -5204,19 +5189,6 @@ items:
     STAMINA: 21
     ARMOR: 56
     SPELL_DAMAGE_ARCANE: 20
-- id: 279836
-  name: Thorn Protecting Girdle
-  phase: 1
-  slot: BELT
-  type: MAIL
-  quality: RARE
-  req_lvl: 1
-  item_lvl: 36
-  stats:
-    STAMINA: 12
-    ARMOR: 134
-    ATTACK_POWER: 12
-    ATTACK_POWER_ELEMENTAL: 15
 - id: 285339
   name: Centaur War Chain
   phase: 1

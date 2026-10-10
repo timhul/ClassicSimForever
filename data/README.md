@@ -126,8 +126,8 @@ csim_engine::talent::TalentDb::load("data/talents")
    them; the spell and talent hotfixes usually reach the next client build itself. Until then
    the item hotfixes of the last build that has them do: `python tools/fetch_tables.py
    --hotfix-build 1.60.1.70235 --hotfix-tables 'Item*'` (`fetch_hotfixes.py --from-build …
-   --tables …`); the other tables stay raw. The current tables are build 70291 with 70235's
-   item hotfixes (every other 70235 hotfix row was already in the 70291 tables).
+   --tables …`); the other tables stay raw. Then, once wago.tools has the build's own
+   (70291's came after two days), `fetch_hotfixes.py --force` applies them instead.
    And `python tools/fetch_listfile.py`
    refreshes `data/tables/listfile-icons.csv`. That file holds the `interface/icons/` rows of
    the community listfile (https://github.com/wowdev/wow-listfile): the texture name of each

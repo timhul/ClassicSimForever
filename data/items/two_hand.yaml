@@ -20,6 +20,26 @@ items:
   stats:
     SPIRIT: 15
     STAMINA: 6
+- id: 812
+  name: Glowing Brightwood Staff
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: EPIC
+  icon: 135166
+  icon_name: inv_staff_29
+  req_lvl: 49
+  item_lvl: 54
+  boe: true
+  damage:
+    min: 127
+    max: 191
+    speed: 3.1
+  stats:
+    INTELLECT: 29
+    SPIRIT: 9
+    STAMINA: 15
+    NATURE_RESISTANCE: 15
 - id: 870
   name: Fiery War Axe
   phase: 1
@@ -168,26 +188,9 @@ items:
     max: 66
     speed: 2.3
   stats:
-    INTELLECT: 9
+    INTELLECT: 10
     STAMINA: 5
-    STRENGTH: 10
-- id: 1317
-  name: Hardened Root Staff
-  phase: 1
-  slot: 2H
-  type: STAFF
-  quality: RARE
-  icon: 135153
-  icon_name: inv_staff_16
-  req_lvl: 0
-  item_lvl: 27
-  damage:
-    min: 59
-    max: 89
-    speed: 3.3
-  stats:
-    SPIRIT: 13
-    STRENGTH: 2
+    STRENGTH: 9
 - id: 1318
   name: Night Reaver
   phase: 1
@@ -336,6 +339,24 @@ items:
   stats:
     STAMINA: 10
     STRENGTH: 11
+- id: 1982
+  name: Nightblade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_SWORD
+  quality: EPIC
+  icon: 135272
+  icon_name: inv_sword_02
+  req_lvl: 39
+  item_lvl: 44
+  boe: true
+  damage:
+    min: 97
+    max: 146
+    speed: 2.8
+  effects:
+  - trigger: ON_HIT
+    spell: 18211
 - id: 2042
   name: Staff of Westfall
   phase: 1
@@ -700,7 +721,7 @@ items:
     speed: 2.9
   stats:
     AGILITY: 7
-    SPIRIT: 7
+    INTELLECT: 7
     STAMINA: 7
 - id: 6631
   name: Living Root
@@ -769,9 +790,8 @@ items:
     max: 115
     speed: 3.3
   stats:
-    INTELLECT: 5
     SPIRIT: 16
-    STAMINA: 4
+    STAMINA: 6
 - id: 6905
   name: Reef Axe
   phase: 1
@@ -1024,8 +1044,7 @@ items:
     max: 121
     speed: 3.1
   stats:
-    INTELLECT: 15
-    STAMINA: 8
+    STAMINA: 17
     SPELL_DAMAGE_ARCANE: 51
     SPELL_PENETRATION: 3
 - id: 7959
@@ -1159,7 +1178,8 @@ items:
     max: 102
     speed: 2.7
   stats:
-    STAMINA: 7
+    INTELLECT: 4
+    STAMINA: 5
     STRENGTH: 17
 - id: 9486
   name: Supercharger Battle Axe
@@ -1214,23 +1234,6 @@ items:
     speed: 3
   stats:
     INTELLECT: 8
-- id: 9604
-  name: Mechanic's Pipehammer
-  phase: 1
-  slot: 2H
-  type: TWOHAND_MACE
-  quality: RARE
-  icon: 133479
-  icon_name: inv_mace_04
-  req_lvl: 0
-  item_lvl: 32
-  damage:
-    min: 59
-    max: 90
-    speed: 2.8
-  stats:
-    INTELLECT: 5
-    SPELL_DAMAGE: 19
 - id: 10573
   name: Boneslasher
   phase: 1
@@ -3170,26 +3173,8 @@ items:
     max: 84
     speed: 3.4
   stats:
-    STAMINA: 7
-    STRENGTH: 10
-- id: 270027
-  name: Ursine Hammer
-  phase: 1
-  slot: 2H
-  type: TWOHAND_MACE
-  quality: RARE
-  icon: 133053
-  icon_name: inv_hammer_16
-  req_lvl: 0
-  item_lvl: 27
-  damage:
-    min: 57
-    max: 86
-    speed: 3.2
-  stats:
-    AGILITY: 8
-    INTELLECT: 7
-    SPIRIT: 8
+    SPIRIT: 10
+    STRENGTH: 7
 - id: 270228
   name: Golemheart Stave
   phase: 1
@@ -3294,10 +3279,10 @@ items:
   type: POLEARM
   quality: RARE
   req_lvl: 1
-  item_lvl: 43
+  item_lvl: 42
   damage:
-    min: 91
-    max: 137
+    min: 89
+    max: 134
     speed: 3
   stats:
     AGILITY: 5
@@ -3310,15 +3295,15 @@ items:
   type: TWOHAND_AXE
   quality: RARE
   req_lvl: 1
-  item_lvl: 43
+  item_lvl: 42
   damage:
-    min: 82
-    max: 123
-    speed: 2.7
+    min: 95
+    max: 143
+    speed: 3.2
   stats:
-    AGILITY: 10
-    STAMINA: 4
-    STRENGTH: 12
+    AGILITY: 4
+    STAMINA: 12
+    STRENGTH: 10
 - id: 271803
   name: Greatstaff of the Necrokhans
   phase: 1
@@ -3326,10 +3311,10 @@ items:
   type: STAFF
   quality: RARE
   req_lvl: 0
-  item_lvl: 43
+  item_lvl: 42
   damage:
-    min: 91
-    max: 137
+    min: 89
+    max: 134
     speed: 3
   stats:
     INTELLECT: 12
@@ -3689,6 +3674,54 @@ items:
     STAMINA: 25
     STRENGTH: 15
     SPELL_DAMAGE: 24
+- id: 273037
+  name: Felbough Arm
+  phase: 1
+  slot: 2H
+  type: POLEARM
+  quality: RARE
+  req_lvl: 29
+  item_lvl: 34
+  damage:
+    min: 69
+    max: 104
+    speed: 3
+  stats:
+    AGILITY: 10
+    NATURE_RESISTANCE: 9
+    HIT_RATING: 10
+- id: 273040
+  name: Spine of the Devourer
+  phase: 1
+  slot: 2H
+  type: STAFF
+  quality: RARE
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 80
+    max: 120
+    speed: 3.6
+  stats:
+    STAMINA: 14
+    SPELL_PENETRATION: 3
+- id: 273046
+  name: Guardian's Dualblade
+  phase: 1
+  slot: 2H
+  type: TWOHAND_AXE
+  quality: RARE
+  icon: 135423
+  icon_name: inv_throwingaxe_05
+  req_lvl: 28
+  item_lvl: 33
+  damage:
+    min: 78
+    max: 117
+    speed: 3.5
+  effects:
+  - trigger: EQUIP
+    spell: 1293342
 - id: 273817
   name: Graverobber's Shovel
   phase: 1
@@ -3948,7 +3981,7 @@ items:
     max: 124
     speed: 3.3
   stats:
-    AGILITY: 9
+    INTELLECT: 9
     STAMINA: 13
     STRENGTH: 9
 - id: 279844
@@ -3964,9 +3997,9 @@ items:
     max: 117
     speed: 3.1
   stats:
-    SPIRIT: 9
+    INTELLECT: 14
     STAMINA: 6
-    STRENGTH: 14
+    STRENGTH: 9
 - id: 279895
   name: Ironforge Greathammer
   phase: 1

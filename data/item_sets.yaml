@@ -1807,3 +1807,15 @@ sets:
     spell: 1321560
   - pieces: 5
     spell: 1321587
+- id: 2134
+  name: Violet Sorcerer's Vestments
+  items: [273051, 286988, 286987, 286989, 273044]
+  bonuses:
+  - pieces: 2
+    spell: 1324311
+  - pieces: 3
+    spell: 1324312
+  - pieces: 4
+    spell: 1324318
+  - pieces: 5
+    spell: 1324323

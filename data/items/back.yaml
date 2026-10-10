@@ -17,6 +17,23 @@ items:
     AGILITY: 4
     STAMINA: 5
     ARMOR: 21
+- id: 3475
+  name: Cloak of Flames
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: EPIC
+  icon: 133760
+  icon_name: inv_misc_cape_08
+  req_lvl: 60
+  item_lvl: 65
+  boe: true
+  stats:
+    ARMOR: 50
+    FIRE_RESISTANCE: 15
+  effects:
+  - trigger: EQUIP
+    spell: 21142
 - id: 4327
   name: Icy Cloak
   phase: 1
@@ -33,20 +50,6 @@ items:
     ARMOR: 29
     FROST_RESISTANCE: 8
     SPELL_DAMAGE: 7
-- id: 4643
-  name: Grimsteel Cape
-  phase: 1
-  slot: BACK
-  type: CLOTH
-  quality: RARE
-  icon: 133754
-  icon_name: inv_misc_cape_02
-  req_lvl: 0
-  item_lvl: 35
-  stats:
-    AGILITY: 3
-    STAMINA: 9
-    ARMOR: 26
 - id: 5193
   name: Cape of the Brotherhood
   phase: 1
@@ -117,8 +120,8 @@ items:
   req_lvl: 22
   item_lvl: 27
   stats:
-    AGILITY: 6
-    STAMINA: 3
+    AGILITY: 4
+    STAMINA: 6
     ARMOR: 22
 - id: 6449
   name: Glowing Lizardscale Cloak
@@ -132,8 +135,8 @@ items:
   item_lvl: 23
   stats:
     AGILITY: 6
-    SPIRIT: 2
     ARMOR: 20
+    NATURE_RESISTANCE: 2
 - id: 6629
   name: Sporid Cape
   phase: 1
@@ -164,20 +167,6 @@ items:
     STAMINA: 5
     ARMOR: 19
     SPELL_DAMAGE: 3
-- id: 6751
-  name: Mourning Shawl
-  phase: 1
-  slot: BACK
-  type: CLOTH
-  quality: RARE
-  icon: 133763
-  icon_name: inv_misc_cape_11
-  req_lvl: 0
-  item_lvl: 32
-  stats:
-    SPIRIT: -5
-    STAMINA: 12
-    ARMOR: 24
 - id: 6832
   name: Cloak of Blight
   phase: 1
@@ -206,37 +195,41 @@ items:
     ARMOR: 23
     SPELL_DAMAGE: 3
     HEALING_POWER: 7
-- id: 7004
-  name: Prelacy Cape
+- id: 9397
+  name: Energy Cloak
   phase: 1
   slot: BACK
   type: CLOTH
   quality: RARE
   icon: 133770
   icon_name: inv_misc_cape_18
-  req_lvl: 0
-  item_lvl: 26
+  req_lvl: 34
+  item_lvl: 39
+  boe: true
   stats:
-    SPIRIT: 6
-    ARMOR: 22
-    SPELL_DAMAGE: 4
-    HEALING_POWER: 11
-- id: 9605
-  name: Repairman's Cape
+    SPIRIT: 10
+    ARMOR: 28
+  effects:
+  - trigger: USE
+    spell: 1294025
+    cooldown_ms: 600000
+    category_cooldown_ms: 180000
+- id: 10776
+  name: Silky Spider Cape
   phase: 1
   slot: BACK
   type: CLOTH
   quality: RARE
-  icon: 133758
-  icon_name: inv_misc_cape_06
-  req_lvl: 0
-  item_lvl: 32
+  icon: 133769
+  icon_name: inv_misc_cape_17
+  req_lvl: 37
+  item_lvl: 42
   stats:
-    INTELLECT: 4
-    SPIRIT: 7
-    ARMOR: 24
-    SPELL_DAMAGE: 3
-    HEALING_POWER: 9
+    STAMINA: 10
+    ARMOR: 30
+  effects:
+  - trigger: EQUIP
+    spell: 1293819
 - id: 12979
   name: Firebane Cloak
   phase: 1
@@ -1493,6 +1486,20 @@ items:
     STAMINA: 3
     ARMOR: 17
     FIRE_RESISTANCE: 3
+- id: 273045
+  name: Drape of Shifting Energy
+  phase: 1
+  slot: BACK
+  type: CLOTH
+  quality: RARE
+  icon: 133770
+  icon_name: inv_misc_cape_18
+  req_lvl: 27
+  item_lvl: 32
+  stats:
+    SPIRIT: 7
+    ARMOR: 24
+    ATTACK_POWER: 12
 - id: 273084
   name: Cloak of Hermitic Bliss
   phase: 1
@@ -1615,33 +1622,6 @@ items:
     SPELL_DAMAGE_ARCANE: 15
     SPELL_DAMAGE_FIRE: 15
     SPELL_DAMAGE_NATURE: 15
-- id: 279835
-  name: Vine Pruner's Cloak
-  phase: 1
-  slot: BACK
-  type: CLOTH
-  quality: RARE
-  icon: 133765
-  icon_name: inv_misc_cape_13
-  req_lvl: 1
-  item_lvl: 36
-  stats:
-    STAMINA: 8
-    ARMOR: 26
-    SPELL_DAMAGE: 6
-    SPELL_DAMAGE_ELEMENTAL: 6
-- id: 279848
-  name: Construct Cloak
-  phase: 1
-  slot: BACK
-  type: CLOTH
-  quality: RARE
-  req_lvl: 1
-  item_lvl: 36
-  stats:
-    SPIRIT: 7
-    STRENGTH: 7
-    ARMOR: 26
 - id: 281319
   name: Golem War Cloak
   phase: 1
