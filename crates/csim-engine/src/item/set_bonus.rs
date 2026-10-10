@@ -86,9 +86,10 @@ impl SetBonusDb {
 mod tests {
     use super::*;
     use crate::item::ItemSetFile;
+    use crate::testing::with_build;
 
     const SETS: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 sets:
 - id: 1
   name: The Gladiator
@@ -108,7 +109,7 @@ sets:
 
     #[test]
     fn indexes_sets_by_id_and_member() {
-        let file: ItemSetFile = serde_yaml::from_str(SETS).unwrap();
+        let file: ItemSetFile = serde_yaml::from_str(&with_build(SETS)).unwrap();
         let db = SetBonusDb::new(file.sets).unwrap();
 
         assert_eq!(db.sets().len(), 2);

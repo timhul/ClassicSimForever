@@ -1,5 +1,5 @@
 //! Parity with the shipped data: the worked examples of `data/SPELL_INSTRUCTIONS.md` §1.8 run
-//! through the runtime on `data/spells/*.yaml` (build 1.60.1.70009). Where the C++
+//! through the runtime on `data/spells/*.yaml` (of their build). Where the C++
 //! `TestSpellWarrior` numbers (Classic) differ from the Forever tables, the Forever value is
 //! asserted and the Classic one noted.
 

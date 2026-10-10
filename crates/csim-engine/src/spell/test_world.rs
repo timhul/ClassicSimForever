@@ -1,9 +1,10 @@
 //! A one-character test world: what the Phase 4 spell context will be, built on
-//! [`CharacterSpells`] and a small spell db whose records are copied from the exported
-//! `data/spells/warrior.yaml` (build 1.60.1.70009) with the matching overrides. Shared by the
-//! spell runtime, proc and registry tests.
+//! [`CharacterSpells`] and a small spell db: some of the shipped `data/spells/warrior.yaml`
+//! records with their overrides, loaded from the files. Shared by the spell runtime, proc and
+//! registry tests.
 
 use std::collections::VecDeque;
+use std::path::Path;
 
 use crate::buff::{Buff, BuffApplication, BuffContext, ChargeUse};
 use crate::character_spells::{AddedSpell, BuffSlot, CharacterSpells, SharedBuffs};
@@ -11,6 +12,7 @@ use crate::combat_roll::{
     IncludedOutcomes, MagicResistResult, PhysicalAttackResult, SpellResistKind, SpellRoll,
 };
 use crate::cooldown::CooldownControl;
+use crate::data_bundle::DataBundle;
 use crate::effect::EffectHost;
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{BuffId, CharId, CooldownId, InstanceId, SpellId};
@@ -18,7 +20,7 @@ use crate::magic_school::MagicSchool;
 use crate::proc::{ProcHost, ProcSource};
 use crate::raid::SharedBuffRegistry;
 use crate::resource::ResourceType;
-use crate::spell::dbc::AuraState;
+use crate::spell::dbc::{AuraState, AuraType};
 use crate::spell::modifiers::SpellModifiers;
 use crate::spell::overrides::{OverrideFile, Overrides};
 use crate::spell::periodic::TickReport;
@@ -28,776 +30,64 @@ use crate::stance::Stance;
 use crate::stats::CharacterStats;
 use crate::target::{CreatureType, Target};
 
-/// Records copied from the pruned export (descriptions and labels dropped).
-pub(crate) const SPELLS_YAML: &str = r#"
-build: 1.60.1.70009
-class: WARRIOR
-spells:
-- id: 78
-  name: Heroic Strike
-  rank_text: Rank 1
-  skill_line: 26
-  class_mask: 1
-  acquire_method: 2
-  attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  categories: {defense_type: MELEE}
-  levels: {base: 1, spell: 1}
-  class_options:
-    set: 4
-    mask: [64, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: WEAPON_DAMAGE_NOSCHOOL
-    base_points: 11.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 284
-  name: Heroic Strike
-  rank_text: Rank 2
-  skill_line: 26
-  class_mask: 1
-  supercedes: 78
-  attributes: [327700, 134217728, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  categories: {defense_type: MELEE}
-  levels: {base: 8, spell: 8}
-  class_options:
-    set: 4
-    mask: [64, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: WEAPON_DAMAGE_NOSCHOOL
-    base_points: 21.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 23881
-  name: Bloodthirst
-  rank_text: Rank 1
-  skill_line: 256
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 10000
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 300}
-  cooldown: {category_recovery_ms: 6000, start_recovery_ms: 1500}
-  categories: {category: 971, start_recovery_category: 133, defense_type: MELEE}
-  levels: {base: 40, spell: 40}
-  class_options:
-    set: 4
-    mask: [33554432, 1024, 0, 0]
-  effects:
-  - index: 0
-    effect: SCHOOL_DAMAGE
-    base_points: 30.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: DUMMY
-    base_points: 35.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 20662
-  name: Execute
-  rank_text: Rank 5
-  skill_line: 256
-  class_mask: 1
-  attributes: [327952, 134218240, 0, 197632, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  cooldown: {start_recovery_ms: 1500}
-  categories: {start_recovery_category: 133, defense_type: MELEE}
-  shapeshift_mask: 327680
-  levels: {base: 56, spell: 56}
-  class_options:
-    set: 4
-    mask: [536870912, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  aura_restrictions: {target_aura_state: WOUNDED_20_PERCENT}
-  effects:
-  - index: 0
-    effect: DUMMY
-    base_points: 600.0
-    chain_amplitude: 1.5
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: TRIGGER_SPELL
-    trigger_spell: 26651
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 26651
-  name: Execute
-  attributes: [384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 1000
-  shapeshift_mask: 1
-  class_options: {set: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 1.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 11551
-  name: Battle Shout
-  rank_text: Rank 6
-  skill_line: 256
-  class_mask: 1
-  attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 180000
-  power:
-  - {type: RAGE, cost: 100}
-  cooldown: {start_recovery_ms: 1500}
-  categories: {start_recovery_category: 133, defense_type: MAGIC}
-  levels: {base: 52, spell: 52, max: 61}
-  class_options:
-    set: 4
-    mask: [65536, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 111.0
-    real_points_per_level: 0.6
-    radius_yd: [20.0, 0.0]
-    implicit_target: [UNIT_CASTER_AREA_PARTY, NONE]
-- id: 25289
-  name: Battle Shout
-  rank_text: Rank 7
-  skill_line: 256
-  class_mask: 1
-  supercedes: 11551
-  attributes: [327696, 0, 0, 256, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 180000
-  power:
-  - {type: RAGE, cost: 100}
-  cooldown: {start_recovery_ms: 1500}
-  categories: {start_recovery_category: 133, defense_type: MAGIC}
-  levels: {base: 60, spell: 60, max: 61}
-  class_options:
-    set: 4
-    mask: [65536, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 139.0
-    radius_yd: [20.0, 0.0]
-    implicit_target: [UNIT_CASTER_AREA_PARTY, NONE]
-- id: 2457
-  name: Battle Stance
-  skill_line: 26
-  class_mask: 1
-  acquire_method: 2
-  attributes: [151322640, 2415919104, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 32768, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: -1
-  power:
-  - {type: RAGE}
-  cooldown: {category_recovery_ms: 1000}
-  categories: {category: 47, defense_type: MELEE}
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 101}
-  class_options:
-    set: 4
-    mask: [8388608, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_SHAPESHIFT
-    misc_value: [17, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 2458
-  name: Berserker Stance
-  skill_line: 256
-  class_mask: 1
-  attributes: [151322640, 268435456, 257, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: -1
-  power:
-  - {type: RAGE}
-  cooldown: {category_recovery_ms: 1000}
-  categories: {category: 47, defense_type: MELEE}
-  levels: {base: 30, spell: 30}
-  aura_options: {proc_chance: 101}
-  class_options:
-    set: 4
-    mask: [8388608, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_SHAPESHIFT
-    misc_value: [19, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 21156
-  name: Battle Stance Passive
-  skill_line: 26
-  class_mask: 1
-  attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: -1
-  levels: {spell: 1}
-  aura_options: {proc_chance: 101}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_THREAT
-    base_points: -20.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 7381
-  name: Berserker Stance Passive
-  skill_line: 256
-  class_mask: 1
-  attributes: [327888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  power:
-  - {type: RAGE}
-  levels: {base: 30, spell: 30}
-  class_options:
-    set: 4
-    mask: [0, 2048, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_CRIT_PCT
-    base_points: 3.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_DAMAGE_PERCENT_TAKEN
-    base_points: 10.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: MOD_THREAT
-    base_points: -20.0
-    misc_value: [127, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 3
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER_PCT
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 11585
-  name: Overpower
-  rank_text: Rank 4
-  skill_line: 26
-  class_mask: 1
-  attributes: [2424848, 134218240, 0, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8388608, 8192, 0]
-  school_mask: 1
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 50}
-  - {type: COMBO_POINTS, cost: 1}
-  cooldown: {category_recovery_ms: 5000, start_recovery_ms: 1500}
-  categories: {category: 65, start_recovery_category: 133, defense_type: MELEE}
-  shapeshift_mask: 65536
-  levels: {base: 60, spell: 60}
-  class_options:
-    set: 4
-    mask: [4, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: NORMALIZED_WEAPON_DMG
-    base_points: 35.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 25288
-  name: Revenge
-  rank_text: Rank 6
-  skill_line: 257
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 1024, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 50}
-  cooldown: {category_recovery_ms: 5000, start_recovery_ms: 1500}
-  categories: {category: 65, start_recovery_category: 133, defense_type: MELEE}
-  shapeshift_mask: 131072
-  levels: {base: 60, spell: 60}
-  class_options:
-    set: 4
-    mask: [1024, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  aura_restrictions: {caster_aura_state: DEFENSIVE}
-  effects:
-  - index: 0
-    effect: SCHOOL_DAMAGE
-    base_points: 153.0
-    variance: 0.2
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 2687
-  name: Bloodrage
-  skill_line: 257
-  class_mask: 1
-  attributes: [327696, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  power:
-  - {type: HEALTH, cost_pct: 20.0}
-  cooldown: {recovery_ms: 60000}
-  levels: {base: 10, spell: 10}
-  class_options:
-    set: 4
-    mask: [256, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: ENERGIZE
-    base_points: 100.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: TRIGGER_SPELL
-    trigger_spell: 29131
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 29131
-  name: Bloodrage
-  attributes: [327680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 10000
-  power:
-  - {type: HEALTH}
-  levels: {base: 10, spell: 10}
-  class_options:
-    set: 4
-    mask: [256, 0, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PERIODIC_ENERGIZE
-    base_points: 10.0
-    aura_period_ms: 1000
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 11574
-  name: Rend
-  rank_text: Rank 7
-  skill_line: 26
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 1024, 0, 0, 0, 0, 4608, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 21000
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 100}
-  cooldown: {start_recovery_ms: 1500}
-  categories: {start_recovery_category: 133, defense_type: MELEE, mechanic: BLEED}
-  shapeshift_mask: 196608
-  levels: {base: 60, spell: 60}
-  class_options:
-    set: 4
-    mask: [32, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PERIODIC_DAMAGE
-    base_points: 21.0
-    aura_period_ms: 3000
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 11597
-  name: Sunder Armor
-  rank_text: Rank 5
-  skill_line: 257
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 1024, 1048576, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 30000
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  cooldown: {start_recovery_ms: 1500}
-  categories: {start_recovery_category: 133, defense_type: MELEE}
-  levels: {base: 58, spell: 58}
-  aura_options: {proc_chance: 101, max_stacks: 5}
-  class_options:
-    set: 4
-    mask: [16384, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_RESISTANCE
-    base_points: -450.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-  - index: 1
-    effect: THREAT
-    base_points: 1013.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 1464
-  name: Slam
-  rank_text: Rank 2
-  skill_line: 256
-  class_mask: 1
-  attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  cast_time_ms: 1500
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  cooldown: {category_recovery_ms: 15000, start_recovery_ms: 1500}
-  categories: {category: 2412, start_recovery_category: 133, defense_type: MELEE}
-  levels: {base: 30, spell: 30}
-  class_options:
-    set: 4
-    mask: [2097152, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: WEAPON_DAMAGE_NOSCHOOL
-    base_points: 32.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 1310197
-  name: Slam
-  rank_text: Rank 2
-  attributes: [327696, 134218240, 0, 1024, 0, 0, 33554432, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  cast_time_ms: 1500
-  range_yd: 5.0
-  power:
-  - {type: RAGE, cost: 150}
-  cooldown: {category_recovery_ms: 15000, start_recovery_ms: 1500}
-  categories: {category: 2412, start_recovery_category: 133, defense_type: MELEE}
-  levels: {base: 30, spell: 30}
-  class_options:
-    set: 4
-    mask: [2097152, 0, 0, 0]
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: WEAPON_DAMAGE_NOSCHOOL
-    base_points: 32.0
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 12296
-  name: Anger Management
-  skill_line: 26
-  attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_POWER_REGEN
-    base_points: 15.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 3.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 3
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 30.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12319
-  name: Flurry
-  skill_line: 256
-  attributes: [262336, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 100, proc_type_mask: 87380}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12966
-  name: Flurry
-  skill_line: 256
-  acquire_method: 3
-  attributes: [262144, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 15000
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 100, proc_charges: 3, proc_type_mask: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_MELEE_HASTE_3
-    base_points: 30.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12834
-  name: Deep Wounds
-  skill_line: 26
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 100, proc_type_mask: 69972}
-  class_options: {set: 4}
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PROC_TRIGGER_SPELL
-    trigger_spell: 12162
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12162
-  name: Deep Wounds
-  attributes: [262544, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 50000.0
-  categories: {mechanic: BLEED}
-  levels: {base: 1, spell: 1}
-  effects:
-  - index: 0
-    effect: DUMMY
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 412609
-  name: Deep Wound
-  attributes: [16, 0, 4, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 12000
-  range_yd: 50000.0
-  categories: {mechanic: BLEED}
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 101}
-  class_options:
-    set: 4
-    mask: [0, 16, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PERIODIC_DUMMY
-    base_points: 1.0
-    aura_period_ms: 3000
-    bonus_coefficient: 1.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 12322
-  name: Unbridled Wrath
-  skill_line: 256
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  aura_options: {proc_chance: 60, proc_type_mask: 4}
-  equipped_items: {class: 2, subclass_mask: 173555}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: PROC_TRIGGER_SPELL
-    trigger_spell: 12964
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12964
-  name: Unbridled Wrath
-  skill_line: 256
-  attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  effects:
-  - index: 0
-    effect: ENERGIZE
-    base_points: 10.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12292
-  name: Sweeping Strikes
-  skill_line: 26
-  attributes: [262160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  duration_ms: 20000
-  power:
-  - {type: RAGE, cost: 300}
-  cooldown: {recovery_ms: 30000}
-  shapeshift_mask: 65536
-  levels: {base: 30, spell: 30}
-  aura_options: {proc_chance: 100, proc_charges: 5, proc_type_mask: 20}
-  class_options:
-    set: 4
-    mask: [0, 1048576, 0, 0]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: DUMMY
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12723
-  name: Sweeping Strikes
-  skill_line: 26
-  acquire_method: 3
-  attributes: [262160, 0, 541065344, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  range_yd: 100.0
-  levels: {base: 1, spell: 1}
-  effects:
-  - index: 0
-    effect: SCHOOL_DAMAGE
-    base_points: 1.0
-    chain_amplitude: 0.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
-- id: 12282
-  name: Improved Heroic Strike
-  skill_line: 26
-  attributes: [262608, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  class_options: {set: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_FLAT_MODIFIER
-    base_points: -10.0
-    misc_value: [14, 0]
-    spell_class_mask: [64, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12290
-  name: Improved Overpower
-  rank_text: Rank 1
-  skill_line: 26
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  class_options: {set: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_FLAT_MODIFIER
-    base_points: 25.0
-    misc_value: [7, 0]
-    spell_class_mask: [4, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 16493
-  name: Impale
-  skill_line: 26
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  class_options: {set: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_PCT_MODIFIER
-    base_points: 10.0
-    bonus_coefficient: 1.0
-    misc_value: [15, 0]
-    spell_class_mask: [3999288558, 33088, 1, 268436480]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12862
-  name: Improved Slam
-  skill_line: 256
-  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  class_options: {set: 4}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: ADD_FLAT_MODIFIER
-    base_points: -500.0
-    misc_value: [10, 0]
-    spell_class_mask: [2097152, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: ADD_FLAT_MODIFIER
-    base_points: -500.0
-    misc_value: [21, 0]
-    spell_class_mask: [2097152, 0, 0, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 2
-    effect: APPLY_AURA
-    aura: OVERRIDE_ACTIONBAR_SPELLS
-    base_points: 1310197.0
-    misc_value: [1464, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 12163
-  name: Two-Handed Weapon Specialization
-  skill_line: 26
-  attributes: [262352, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  levels: {base: 1, spell: 1}
-  equipped_items: {class: 2, subclass_mask: 136546}
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_DAMAGE_PERCENT_DONE
-    base_points: 1.0
-    misc_value: [1, 0]
-    implicit_target: [UNIT_CASTER, NONE]
-"#;
+/// The spells of the test db: the shipped Warrior records (`data/spells/warrior.yaml`) of these
+/// ids, with their overrides.
+pub(crate) const SPELL_IDS: [u32; 34] = [
+    78, 284, 23881, 20662, 26651, 11551, 25289, 2457, 2458, 21156, 7381, 11585, 25288, 2687, 29131,
+    11574, 11597, 1464, 1310197, 12296, 12319, 12966, 12834, 12162, 412609, 12322, 12964, 12292,
+    12723, 12282, 12290, 16493, 12862, 12163,
+];
 
-/// The overrides that go with [`SPELLS_YAML`] (copied from `data/spells/overrides/warrior.yaml`).
-pub(crate) const OVERRIDES_YAML: &str = r#"
-overrides:
-  - id: 12834
-    proc: { hit_mask: [CRITICAL] }
-  - id: 12319
-    proc: { hit_mask: [CRITICAL] }
-    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 12966, effect: 0 } }]
-  - id: 12162
-    effects: [{ index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }]
-  - id: 412609
-    effects: [{ index: 0, script: NO_OP }]
-  - id: 23881
-    effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
-  - id: 20662
-    effects: [{ index: 0, script: EXECUTE }]
-  - id: 26651
-    effects: [{ index: 0, script: NO_OP }]
-  - id: 12296
-    sim_flags: [START_OF_COMBAT]
-    effects:
-      - { index: 1, script: PERIODIC_RESOURCE_GAIN, params: { period_ms: 3000, resource: RAGE } }
-      - { index: 2, script: NO_OP }
-      - { index: 3, script: NO_OP }
-  - id: 78
-    threat: { flat: 145 }
-  - id: 284
-    threat: { flat: 145 }
-  - id: 25288
-    threat: { flat: 355 }
-  - id: 1464
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
-  - id: 1310197
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
-  - id: 12292
-    sim_flags: [IGNORED]
-  - id: 2457
-    stance_passive: 21156
-  - id: 2458
-    stance_passive: 7381
-  - id: 11585
-    on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
-  - id: 11597
-    debuff_priority: high
-"#;
+fn read(path: &Path) -> String {
+    std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+}
 
-/// The test spell db: the records above with their overrides.
+/// The shipped records of [`SPELL_IDS`], cut at their edge: a `supercedes` or an effect naming a
+/// spell outside them goes (Improved Slam keeps the one replacement of the test db, Slam 1464
+/// -> 1310197).
+fn shipped_spells() -> SpellFile {
+    let path = DataBundle::repository_dir().join("spells/warrior.yaml");
+    let mut file: SpellFile = serde_yaml::from_str(&read(&path)).expect("valid spell yaml");
+    let outside = |id: u32| id != 0 && !SPELL_IDS.contains(&id);
+    file.spells.retain(|record| SPELL_IDS.contains(&record.id));
+    for record in &mut file.spells {
+        if outside(record.supercedes) {
+            record.supercedes = 0;
+        }
+        record.effects.retain(|effect| {
+            let replaces_outside = effect.is_apply_aura()
+                && effect.aura == AuraType::OverrideActionbarSpells
+                && (outside(effect.misc_value[0] as u32) || outside(effect.base_points as u32));
+            !outside(effect.trigger_spell) && !replaces_outside
+        });
+    }
+    assert_eq!(
+        file.spells.len(),
+        SPELL_IDS.len(),
+        "every test spell is shipped"
+    );
+    file
+}
+
+/// The shipped overrides (`data/spells/overrides/warrior.yaml`) of [`SPELL_IDS`].
+fn shipped_overrides() -> OverrideFile {
+    let path = DataBundle::repository_dir().join("spells/overrides/warrior.yaml");
+    let mut file: OverrideFile = serde_yaml::from_str(&read(&path)).expect("valid override yaml");
+    file.overrides
+        .retain(|spell_override| SPELL_IDS.contains(&spell_override.id));
+    file
+}
+
+/// The test spell db: the shipped records of [`SPELL_IDS`] with their overrides.
 pub(crate) fn db() -> SpellDb {
     db_with(|_| {})
 }
 
 /// The test spell db with `edit` applied to the records first.
 pub(crate) fn db_with(edit: impl FnOnce(&mut SpellFile)) -> SpellDb {
-    let mut file: SpellFile = serde_yaml::from_str(SPELLS_YAML).expect("valid spell yaml");
+    let mut file = shipped_spells();
     edit(&mut file);
-    let overrides: OverrideFile =
-        serde_yaml::from_str(OVERRIDES_YAML).expect("valid override yaml");
+    let overrides = shipped_overrides();
     let mut db = SpellDb::new();
     db.add_file(file).expect("valid records");
     let mut all = Overrides::new();

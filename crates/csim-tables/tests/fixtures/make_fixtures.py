@@ -1,19 +1,37 @@
 """Extracts a tiny, self-contained fixture set from the real table dump for the csim-tables tests.
 
 Run from anywhere: `python crates/csim-tables/tests/fixtures/make_fixtures.py [build]`. Reads
-`data/tables/<Table>.<build>.csv` and writes the rows of a handful of Warrior spells and talents
-to `crates/csim-tables/tests/fixtures/tables/`. Re-run it after changing the spell / node sets
-below or after a new dump; the tests in `tests/tables.rs` assert on the values of these rows.
+`data/tables/<Table>.<build>.csv` (the build defaults to the one in `data/tables/`) and writes
+the rows of a handful of Warrior spells and talents to `crates/csim-tables/tests/fixtures/tables/`,
+removing the fixture files of other builds. Re-run it after changing the spell / node sets below
+or after a new dump: the tests take their build from the shipped data (`tests/tables.rs` checks
+the fixtures are of it) and assert on the values of these rows.
 """
 import csv
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 SRC = os.path.join(ROOT, "data", "tables")
 DST = os.path.join(HERE, "tables")
-V = sys.argv[1] if len(sys.argv) > 1 else "1.60.1.70009"
+# `<Table>.<build>.csv`, the same split as crates/csim-tables/src/dir.rs.
+FILE_NAME = re.compile(r"^([A-Za-z0-9_]+)\.(\d+(?:\.\d+)*)\.csv$")
+
+
+def builds(directory):
+    return {m.group(2) for name in os.listdir(directory) if (m := FILE_NAME.match(name))}
+
+
+def default_build():
+    found = builds(SRC)
+    if len(found) != 1:
+        sys.exit(f"{SRC} holds builds {sorted(found) or 'none'}; pass the build")
+    return found.pop()
+
+
+V = sys.argv[1] if len(sys.argv) > 1 else default_build()
 
 SPELLS = {12294, 12834, 12162, 412609, 12319, 12966, 78, 284, 2458, 7381, 11574, 2687, 29131,
           12282, 20572, 12292, 12286, 5308, 26651, 1680, 25288, 355, 694, 5246, 20511}
@@ -82,6 +100,7 @@ keep("SkillLine", in_set("ID", SKILL_LINES))
 keep("SkillLineAbility", lambda get: int(get("SkillLine")) in SKILL_LINES and int(get("Spell")) in SPELLS)
 keep("SkillRaceClassInfo", in_set("SkillID", SKILL_LINES))
 keep("SkillLineXTraitTree", in_set("SkillLineID", SKILL_LINES))
+keep("TalentTab", lambda get: True)
 
 # --- traits ------------------------------------------------------------------------------
 keep("TraitTree", in_set("ID", {1117}))
@@ -155,3 +174,10 @@ header, rows = load("ItemSetSpell")
 sidx2 = {c: i for i, c in enumerate(header)}
 item_spells |= {int(r[sidx2["SpellID"]]) for r in rows if int(r[sidx2["ItemSetID"]]) in sets}
 keep("SpellName", in_set("ID", SPELLS | item_spells))
+
+# --- other builds --------------------------------------------------------------------------
+for name in sorted(os.listdir(DST)):
+    m = FILE_NAME.match(name)
+    if m and m.group(2) != V:
+        os.remove(os.path.join(DST, name))
+        print(f"removed {name}")

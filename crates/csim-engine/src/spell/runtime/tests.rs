@@ -173,7 +173,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     let mut world = World::new();
     world.learn(BLOODTHIRST);
 
-    // 30 base + 35 % of 1000 attack power.
+    // 30 base + 45 % of 1000 attack power.
     world.rolls.push_back(PhysicalAttackResult::Hit);
     let report = world.perform(BLOODTHIRST);
     assert_eq!(report.result, SpellResult::Success);
@@ -182,8 +182,8 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     assert_eq!(world.rage, 70);
     let attack = report.attack.unwrap();
     assert_eq!(attack.result, PhysicalAttackResult::Hit);
-    assert_eq!(attack.damage, 380);
-    assert_eq!(attack.threat, 380.0);
+    assert_eq!(attack.damage, 480);
+    assert_eq!(attack.threat, 480.0);
     assert_eq!(attack.execution_time, 1.5);
     assert_eq!(report.proc_sources, vec![ProcSource::MainhandSpell]);
     assert!(report.buff.is_none());
@@ -199,7 +199,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     world.run(10.5);
     world.rolls.push_back(PhysicalAttackResult::Critical);
     let report = world.perform(BLOODTHIRST);
-    assert_eq!(report.attack.unwrap().damage, 760);
+    assert_eq!(report.attack.unwrap().damage, 960);
     assert_eq!(
         report.proc_sources,
         vec![ProcSource::MainhandSpell, ProcSource::MeleeCritical],
@@ -213,7 +213,7 @@ fn perform_runs_effects_pays_cost_and_reports_damage() {
     let reduction = Mechanics::reduction_from_armor(3731, 60);
     assert_eq!(
         report.attack.unwrap().damage,
-        (380.0 * (1.0 - reduction)).round() as u32
+        (480.0 * (1.0 - reduction)).round() as u32
     );
 }
 
@@ -486,7 +486,7 @@ fn modifiers_change_cost_crit_and_crit_damage() {
     world.next_gcd = 0.0;
     world.rolls.push_back(PhysicalAttackResult::Critical);
     let report = world.perform(BLOODTHIRST);
-    assert_eq!(report.attack.unwrap().damage, 798);
+    assert_eq!(report.attack.unwrap().damage, 1008, "480 x 2.1");
 
     // Disabling the talent removes its modifiers.
     let id = world.spell_id(IMPALE);
@@ -546,7 +546,8 @@ fn periodic_damage_ticks_for_the_duration() {
     assert_eq!(world.rage, 90);
     world.run(21.5);
     assert_eq!(world.ticks.len(), 7);
-    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 147);
+    // 21 + 2 % of the 1000 attack power per tick (the override's ATTACK_POWER_PER_TICK).
+    assert_eq!(world.ticks.iter().map(|t| t.damage).sum::<u32>(), 7 * 41);
     assert!((world.ticks[0].resource_cost - 10.0 / 7.0).abs() < 1e-9);
     assert!(!world.buff(marker).is_active());
 
@@ -618,12 +619,13 @@ fn magic_damage_over_time_rolls_its_hit_and_its_ticks_resists() {
     assert_eq!(world.periodic_resist_log, [(MagicSchool::Nature, true); 7]);
     let first = &world.ticks[0];
     assert_eq!(first.resist, MagicResistResult::Partial50);
-    assert_eq!(first.damage + first.resisted, 21);
-    assert_eq!(first.resisted, 11, "half of 21, rounded");
+    // 21 + 2 % of the 1000 attack power per tick.
+    assert_eq!(first.damage + first.resisted, 41);
+    assert_eq!(first.resisted, 21, "half of 41, rounded");
     assert_eq!(world.ticks[1].resist, MagicResistResult::Partial25);
-    assert_eq!(world.ticks[1].damage, 16);
+    assert_eq!(world.ticks[1].damage, 31);
     assert_eq!(world.ticks[2].resist, MagicResistResult::NoResist);
-    assert_eq!(world.ticks[2].damage, 21);
+    assert_eq!(world.ticks[2].damage, 41);
 }
 
 /// The ticks of a magic damage-over-time take its spell power coefficient times the spell
@@ -650,9 +652,10 @@ fn magic_damage_over_time_ticks_take_spell_power() {
     world.spell_damage = 500;
     world.run(21.5);
     assert_eq!(world.ticks.len(), 7);
-    // (21 + 0.1 × 100) × 1.1 = 34.1: the spell damage of the cast, not the later 500.
+    // (21 + 2 % of 1000 attack power + 0.1 × 100) × 1.1 = 56.1: the spell damage of the cast,
+    // not the later 500.
     assert!(
-        world.ticks.iter().all(|tick| tick.damage == 34),
+        world.ticks.iter().all(|tick| tick.damage == 56),
         "{:?}",
         world.ticks[0]
     );
@@ -760,7 +763,7 @@ fn cast_time_spells_complete_after_the_cast_time() {
     let slam = world.spell(SLAM);
     assert!(slam.has_cast_time());
     assert_eq!(slam.cast_time(&world), 1.5);
-    assert_eq!(slam.category_cooldown_seconds(&world), 15.0);
+    assert_eq!(slam.category_cooldown_seconds(&world), 18.0);
 
     let report = world.perform(SLAM);
     assert!(report.cast_started);
@@ -918,7 +921,7 @@ fn threat_effects_and_debuff_stacks() {
     let attack = report.attack.unwrap();
     assert_eq!(attack.result, PhysicalAttackResult::Hit);
     assert_eq!(attack.damage, 0);
-    assert_eq!(attack.threat, 1013.0);
+    assert_eq!(attack.threat, 206.0);
     assert_eq!(report.proc_sources, vec![ProcSource::MainhandSpell]);
     assert_eq!(world.target.armor(), base_armor - 450);
 

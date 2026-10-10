@@ -214,7 +214,7 @@ pub struct Catalog {
     /// The encounter length in seconds, and its variance in percent, without a choice.
     pub length: u32,
     pub length_variance: f64,
-    /// The game client build the data was exported from (`1.60.1.70291`).
+    /// The game client build the data was exported from (the spell files' `build:`).
     pub build: Option<String>,
 }
 

@@ -51,6 +51,12 @@ pub(crate) const RUN_EVENT: bool = true;
 /// Seed of every harness character, so a test that does roll is reproducible.
 const SEED: u64 = 42;
 
+/// An inline fixture file with its `$BUILD` replaced by the build of the repository's data
+/// ([`DataBundle::repository_build`]), so every test uses the one build.
+pub(crate) fn with_build(yaml: &str) -> String {
+    yaml.replace("$BUILD", DataBundle::repository_build())
+}
+
 /// Ids of the synthetic test items (`TestUtils::Weapons`).
 pub(crate) mod items {
     /// One-hand sword, 100 - 100 damage, 2.6 speed.

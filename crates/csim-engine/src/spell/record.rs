@@ -8,7 +8,7 @@
 //! default are omitted on export, so a record reads like a joined table row:
 //!
 //! ```yaml
-//! build: 1.60.1.70009
+//! build: 1.60.1.70291
 //! class: WARRIOR
 //! spells:
 //!   - id: 12294
@@ -80,7 +80,7 @@ fn is_one(value: &f32) -> bool {
 /// One `data/spells/*.yaml` file: the spells of one class (or the racials when `class` is absent).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellFile {
-    /// The client build the records were exported from (`1.60.1.70009`).
+    /// The client build the records were exported from (e.g. `1.60.1.70291`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     /// The class whose spellbook this is; `None` for class-independent spells (racials, the
@@ -1619,10 +1619,12 @@ impl SpellDb {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_bundle::DataBundle;
+    use crate::testing::with_build;
     use std::fs;
 
     const WARRIOR_YAML: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 class: WARRIOR
 spells:
   - id: 78
@@ -1719,7 +1721,7 @@ spells:
 "#;
 
     const RACIAL_YAML: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 spells:
   - id: 20572
     name: Blood Fury
@@ -1744,9 +1746,9 @@ overrides:
 
     fn db() -> SpellDb {
         let mut db = SpellDb::new();
-        db.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
+        db.add_file(serde_yaml::from_str(&with_build(WARRIOR_YAML)).unwrap())
             .unwrap();
-        db.add_file(serde_yaml::from_str(RACIAL_YAML).unwrap())
+        db.add_file(serde_yaml::from_str(&with_build(RACIAL_YAML)).unwrap())
             .unwrap();
         let mut overrides = Overrides::new();
         overrides
@@ -1778,7 +1780,7 @@ overrides:
 
         // A scripted effect without a script is reported, not rejected.
         let mut bare = SpellDb::new();
-        bare.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
+        bare.add_file(serde_yaml::from_str(&with_build(WARRIOR_YAML)).unwrap())
             .unwrap();
         bare.check_references().unwrap();
         let report = bare.unsupported();
@@ -1817,7 +1819,7 @@ overrides:
         use crate::spell::overrides::{EffectScript, ScriptKind, ScriptParams, SpellOverride};
 
         let mut db = SpellDb::new();
-        db.add_file(serde_yaml::from_str(WARRIOR_YAML).unwrap())
+        db.add_file(serde_yaml::from_str(&with_build(WARRIOR_YAML)).unwrap())
             .unwrap();
 
         let mut overrides = Overrides::new();
@@ -1882,7 +1884,7 @@ overrides:
             db.get(12834).unwrap().aura_options.proc_type_mask,
             ProcFlags::DEAL_ANY_DAMAGE
         );
-        assert_eq!(db.build(), Some("1.60.1.70009"));
+        assert_eq!(db.build(), Some(DataBundle::repository_build()));
         assert_eq!(db.len(), 10);
     }
 
@@ -2054,7 +2056,7 @@ overrides:
     #[test]
     fn duplicates_and_bad_effect_indices_are_rejected() {
         let mut db = SpellDb::new();
-        let mut file: SpellFile = serde_yaml::from_str(WARRIOR_YAML).unwrap();
+        let mut file: SpellFile = serde_yaml::from_str(&with_build(WARRIOR_YAML)).unwrap();
         db.add_file(file.clone()).unwrap();
         assert!(matches!(
             db.add_file(file.clone()),
@@ -2084,7 +2086,7 @@ overrides:
         ));
         let mut mismatch = SpellDb::new();
         mismatch
-            .add_file(serde_yaml::from_str(RACIAL_YAML).unwrap())
+            .add_file(serde_yaml::from_str(&with_build(RACIAL_YAML)).unwrap())
             .unwrap();
         let other: SpellFile = serde_yaml::from_str("build: 9.9.9.9\nspells: []").unwrap();
         assert!(matches!(
@@ -2148,7 +2150,7 @@ overrides:
     fn serialization_omits_defaults_and_round_trips() {
         let db = db();
         let file = SpellFile {
-            build: "1.60.1.70009".into(),
+            build: DataBundle::repository_build().into(),
             class: Some(PlayerClass::Warrior),
             learnable: true,
             spells: vec![
@@ -2186,14 +2188,14 @@ overrides:
         ));
         let overrides = dir.join("overrides");
         fs::create_dir_all(&overrides).unwrap();
-        fs::write(dir.join("warrior.yaml"), WARRIOR_YAML).unwrap();
-        fs::write(dir.join("racials.yml"), RACIAL_YAML).unwrap();
+        fs::write(dir.join("warrior.yaml"), with_build(WARRIOR_YAML)).unwrap();
+        fs::write(dir.join("racials.yml"), with_build(RACIAL_YAML)).unwrap();
         fs::write(dir.join("notes.txt"), "not yaml").unwrap();
         fs::write(overrides.join("warrior.yaml"), OVERRIDES_YAML).unwrap();
 
         let db = SpellDb::load(&dir).unwrap();
         assert_eq!(db.len(), 10);
-        assert_eq!(db.build(), Some("1.60.1.70009"));
+        assert_eq!(db.build(), Some(DataBundle::repository_build()));
         assert_eq!(db.overrides().len(), 3);
         assert!(db.unsupported().is_empty());
 
@@ -2224,7 +2226,7 @@ overrides:
 
     #[test]
     fn module_doc_example_parses() {
-        let file: SpellFile = serde_yaml::from_str(DOC_EXAMPLE).unwrap();
+        let file: SpellFile = serde_yaml::from_str(&with_build(DOC_EXAMPLE)).unwrap();
         assert_eq!(file.class, Some(PlayerClass::Warrior));
         let ms = &file.spells[0];
         assert_eq!(ms.id, 12294);
@@ -2236,7 +2238,7 @@ overrides:
     }
 
     const DOC_EXAMPLE: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 class: WARRIOR
 spells:
   - id: 12294
@@ -2263,7 +2265,7 @@ spells:
     fn shipped_spell_data_loads() {
         let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/spells");
         let db = SpellDb::load(&dir).unwrap();
-        assert_eq!(db.build(), Some("1.60.1.70291"));
+        assert_eq!(db.build(), Some(DataBundle::repository_build()));
         assert!(db.len() > 240, "{}", db.len());
         assert!(db.ids_of_class(Some(PlayerClass::Warrior)).len() > 200);
         assert!(db.ids_of_class(None).len() > 30, "racials");

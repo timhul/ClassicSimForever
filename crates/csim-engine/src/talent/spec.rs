@@ -380,11 +380,12 @@ impl TalentDb {
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;
+    use crate::testing::with_build;
     use std::fs;
 
     /// Four Arms talents (the `csim-tables` fixture nodes) plus Cruelty in Fury.
     pub(crate) const ARMS_YAML: &str = r#"
-build: 1.60.1.70009
+build: $BUILD
 class: WARRIOR
 tree: 1117
 points: 51
@@ -405,7 +406,7 @@ talents:
 "#;
 
     pub(crate) fn arms() -> TalentFile {
-        let file: TalentFile = serde_yaml::from_str(ARMS_YAML).unwrap();
+        let file: TalentFile = serde_yaml::from_str(&with_build(ARMS_YAML)).unwrap();
         file.validate().unwrap();
         file
     }
@@ -529,14 +530,14 @@ talents:
     fn the_db_loads_a_directory_and_rejects_duplicate_classes() {
         let dir = std::env::temp_dir().join(format!("csim-talents-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
-        fs::write(dir.join("warrior.yaml"), ARMS_YAML).unwrap();
+        fs::write(dir.join("warrior.yaml"), with_build(ARMS_YAML)).unwrap();
         fs::write(dir.join("notes.txt"), "ignored").unwrap();
         let db = TalentDb::load(&dir).unwrap();
         assert_eq!(db.len(), 1);
         assert!(!db.is_empty());
         assert_eq!(db.get(PlayerClass::Warrior).unwrap().tree, 1117);
         assert_eq!(db.classes().collect::<Vec<_>>(), [PlayerClass::Warrior]);
-        fs::write(dir.join("warrior2.yaml"), ARMS_YAML).unwrap();
+        fs::write(dir.join("warrior2.yaml"), with_build(ARMS_YAML)).unwrap();
         assert!(matches!(
             TalentDb::load(&dir),
             Err(TalentSpecError::DuplicateClass(PlayerClass::Warrior))

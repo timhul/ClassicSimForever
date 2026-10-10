@@ -173,8 +173,12 @@ csim_engine::talent::TalentDb::load("data/talents")
    `crates/csim-tables/tests/fixtures/classic_item_differences.txt` (regenerate with
    `csim-tables compare-items` after reviewing the change). The parity tests in
    `crates/csim-engine/src/spell/runtime/parity.rs` run the worked examples of §1.8.
-5. Regenerate the test fixtures if the spells they use changed:
-   `python crates/csim-tables/tests/fixtures/make_fixtures.py`.
+5. Regenerate the csim-tables test fixtures:
+   `python crates/csim-tables/tests/fixtures/make_fixtures.py` (from the build in
+   `data/tables/`). The tests take their build from the shipped data
+   (`DataBundle::repository_build`, the `build:` header of `data/spells/`), so the fixtures of
+   another build fail them; the engine's test spells (`spell/test_world.rs`) are read from the
+   shipped files.
 
 A different build changes the `build:` header; every file in `data/spells/` must carry the
 same build.
