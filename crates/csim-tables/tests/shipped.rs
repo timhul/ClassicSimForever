@@ -22,13 +22,6 @@ const EXPORTED_CLASSES: [PlayerClass; 4] = [
     PlayerClass::Shaman,
 ];
 
-/// The exported classes the engine loads, with a `data/classes/<class>.yaml`.
-const LOADED_CLASSES: [PlayerClass; 3] = [
-    PlayerClass::Warrior,
-    PlayerClass::Paladin,
-    PlayerClass::Rogue,
-];
-
 /// A shipped spell or item file as a fresh export of `tables` renders it: LF line ends, and
 /// without its `icon_name` lines when the table directory has no listfile (the export then
 /// writes none).
@@ -216,7 +209,7 @@ fn shipped_classes_match_the_tables() {
     let tables = Tables::load(&dir).unwrap();
     let enchants = EnchantDb::load(&root.join("data/enchants.yaml")).unwrap();
     let classes = ClassDb::load(&root.join("data/classes"), Some(&enchants)).unwrap();
-    for class in LOADED_CLASSES {
+    for class in EXPORTED_CLASSES {
         let spec = classes.get(class).unwrap();
         let class_row = tables
             .chr_classes()

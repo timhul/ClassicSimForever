@@ -127,6 +127,10 @@ pub struct ClassSpec {
     #[serde(default = "default_stance")]
     pub default_stance: Stance,
     pub highest_armor_type: ArmorType,
+    /// Passives every character of the class knows although the class mask of their skill line
+    /// entry leaves them off (the Shaman's former talents Forever made baseline).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub baseline_spells: Vec<u32>,
     /// Most combo points the character holds; a gain beyond it only restarts their window.
     #[serde(default = "default_max_combo_points")]
     pub max_combo_points: u32,

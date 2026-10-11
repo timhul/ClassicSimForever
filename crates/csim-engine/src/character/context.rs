@@ -281,7 +281,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     // ---------------------------------------------------------------- learning spells
 
-    /// Adds spell `id` from `db` and enables it when it is a trainable / racial spell. Stance
+    /// Adds spell `id` from `db` and enables it when it is a trainable / racial / baseline spell. Stance
     /// spells register their stance link. Spells a talent of the attached tree grants (the
     /// talent spell and its higher ranks, whatever their `class_mask` says) wait for the
     /// talent. Port of the spell construction in the C++ class constructors.
@@ -289,6 +289,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let party = self.character.party();
         let mut added = self.character.spells.add_spell(db, id, party, self.raid);
         let base = self.talent_spell_of(db, id, added.spell);
+        if self.character.class().baseline_spells.contains(&id) {
+            added.enable_now = true;
+        }
         let granted = self.character.talent_grants(base);
         if granted {
             added.enable_now = false;
