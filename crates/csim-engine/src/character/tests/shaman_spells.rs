@@ -140,6 +140,18 @@ fn spell_power_coefficients() {
     }
 }
 
+/// The totems' attacks and Fire Nova take the tables' coefficients (TASKS.md SH.0): 0.017
+/// Searing Totem, 0.033 Magma Totem, 0.143 Fire Nova rank 5.
+#[test]
+fn totem_and_fire_nova_coefficients() {
+    for (game_id, coefficient) in [(10436, 0.017), (10581, 0.033), (11307, 0.143)] {
+        close_to(
+            difference(game_id, spell_damage(1000)),
+            1000.0 * coefficient,
+        );
+    }
+}
+
 /// The level 60 damage ranges of the highest ranks, without spell power: Forever's numbers,
 /// about half of 1.12's (Lightning Bolt 196 + 1.2 per level above 56, a range 10.8 % wide).
 #[test]

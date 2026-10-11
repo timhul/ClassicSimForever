@@ -86,8 +86,7 @@
 #     enchant's 100); the damage spell is Flametongue Attack 10444 (fire), its amount 16344's
 #     2498 (+78/level from 56: 2810 at 60) x the weapon's speed / 100, which is the description's
 #     m/77 at 1.3 s and m/25 at 4.0 s: 98 a hit with a 3.5 s two-hander. [T]
-#   - It scales with spell power [G #80]: Flametongue Attack's coefficient 0.1. [T]  (SH.1 had
-#     missed it; the 0 decided for an unknown coefficient is moot.)
+#   - It scales with spell power [G #80]: Flametongue Attack's coefficient 0.1. [T] [U]
 #   - Elemental Weapons +5 / 10 / 15 %. [T]
 #
 # Rockbiter Weapon (8017 .. 16316; enchant 1664 "Rockbiter 7", 60 min)
@@ -118,7 +117,7 @@
 #     +3.4/level from 52, ±5.5 % fire) at the active fire totem; it needs one. Improved Fire Nova
 #     +10 / 20 % and -2 / -4 s. [T]
 #   - Coefficients: Searing Totem's attack 0.017, Magma Totem 0.033, Fire Nova rank 5 0.143 (rank
-#     1: 0.1). [T]
+#     1: 0.1). [T] [U]
 #   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
 #     ticks), Elemental Fury on the totem attacks' crits. [T]
 #   - Strength of Earth rank 5 (25361 -> 25362): +53 strength, 300 s, 275 mana. Grace of Air
