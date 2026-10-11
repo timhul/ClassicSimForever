@@ -595,6 +595,21 @@ impl Equipment {
                     second: name,
                 });
             }
+            let excluded = |a: EnchantName, b: TempEnchantGroup| {
+                self.db
+                    .enchants()
+                    .get(a)
+                    .is_some_and(|spec| spec.excludes.contains(&b))
+            };
+            if let Some(&(_, first)) = grouped
+                .iter()
+                .find(|&&(other, first)| excluded(name, other) || excluded(first, group))
+            {
+                return Err(EnchantError::SameGroup {
+                    first,
+                    second: name,
+                });
+            }
             grouped.push((group, name));
         }
         grouped.sort();
@@ -621,12 +636,18 @@ impl Equipment {
         slot: EquipmentSlot,
         enchant: EnchantName,
     ) -> Result<(), EnchantError> {
-        let group = self.check_enchant(slot, enchant, true)?.temp_group;
+        let spec = self.check_enchant(slot, enchant, true)?;
+        let (group, excludes) = (spec.temp_group, spec.excludes.clone());
         let mut enchants: Vec<EnchantName> = self
             .temp_enchants(slot)
             .iter()
             .copied()
-            .filter(|&other| self.temp_group(other) != group)
+            .filter(|&other| {
+                let other_group = self.temp_group(other);
+                other_group != group
+                    && !excludes.contains(&other_group)
+                    && !self.excludes(other).contains(&group)
+            })
             .collect();
         enchants.push(enchant);
         self.set_temp_enchants(slot, &enchants)
@@ -669,6 +690,15 @@ impl Equipment {
             });
         }
         Ok(spec)
+    }
+
+    fn excludes(&self, enchant: EnchantName) -> &[TempEnchantGroup] {
+        &self
+            .db
+            .enchants()
+            .get(enchant)
+            .expect("enchant validated when applied")
+            .excludes
     }
 
     fn temp_group(&self, enchant: EnchantName) -> TempEnchantGroup {

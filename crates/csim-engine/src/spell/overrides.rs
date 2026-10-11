@@ -232,6 +232,10 @@ pub enum ScriptKind {
     /// weapon's speed (unhasted): T / 87 at 1.5 s, T / 25 at 4.0 s, linear between and beyond
     /// (Seal of Righteousness).
     WeaponSpeedSwingDamage,
+    /// A proc aura's payload for each landed hit: casts `params.spell` with effect
+    /// `params.effect` set to `params.amount_spell`'s first effect value × the main-hand
+    /// weapon's speed (unhasted) / 100 (Flametongue Weapon: m / 77 at 1.3 s, m / 25 at 4.0 s).
+    WeaponSpeedDamage,
     /// Goes on an attack speed aura (`MOD_ATTACKSPEED`) that does not raise the white damage:
     /// main-hand weapon damage is multiplied by 100 / (100 + the haste) while it is up (Seal
     /// of the Crusader's "faster, but deals less damage with each attack").
@@ -293,6 +297,9 @@ pub struct ScriptParams {
     /// A spell whose duration the script uses.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_spell: Option<u32>,
+    /// A spell whose first effect's value is the script's amount (Flametongue Weapon's 16344).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount_spell: Option<u32>,
     /// A tick interval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub period_ms: Option<u32>,
@@ -396,6 +403,11 @@ impl EffectScript {
             ScriptKind::WeaponSpeedSwingDamage => {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")
+            }
+            ScriptKind::WeaponSpeedDamage => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.effect.is_some(), "effect")?;
+                need(p.amount_spell.is_some(), "amount_spell")
             }
             ScriptKind::JudgedSealManaReturn => need(p.effect.is_some(), "effect"),
             ScriptKind::EnableAura => {
@@ -628,9 +640,13 @@ pub struct SpellOverride {
     pub cast_time_ms: Option<u32>,
     /// Spells the export must carry with this one although no table field reaches them (the
     /// Echoes Twist of Light grants on a seal change): the walk follows them like any other
-    /// reference and the pruning keeps them.
+    /// reference and the pruning keeps them. They are the spell's payloads, enabled with it.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub walk: Vec<u32>,
+    /// As `walk`, but not payloads: spells the export carries for something else that applies
+    /// them (a totem's creature casts its aura while it stands, not the totem spell's caster).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub carries: Vec<u32>,
     /// Auras this spell's does not stack with: while one of them is up on the caster the spell
     /// cannot be cast (Blessing of Might under another paladin's Greater Blessing of Might, the
     /// game's "a more powerful spell is already active").
@@ -687,6 +703,7 @@ impl SpellOverride {
                 push(script.params.spell);
             }
             push(script.params.duration_spell);
+            push(script.params.amount_spell);
         }
         for event in &self.on_event {
             push(event.params.spell);
@@ -697,6 +714,11 @@ impl SpellOverride {
         }
         for &id in &self.walk {
             push(Some(id));
+        }
+        if conditions {
+            for &id in &self.carries {
+                push(Some(id));
+            }
         }
         push(self.proc.and_then(|p| p.target_aura));
         ids

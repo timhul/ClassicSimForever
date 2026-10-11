@@ -3496,28 +3496,6 @@ spells:
     base_points: 5.0
     misc_value: [7403, 81]
     implicit_target: [DEST_CASTER_FRONT_RIGHT, NONE]
-- id: 10444
-  name: Flametongue Attack
-  rank_text: Rank 3
-  attributes: [262144, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 4
-  icon: 135814
-  icon_name: spell_fire_flametounge
-  range_yd: 50000.0
-  categories:
-    defense_type: MAGIC
-  levels:
-    base: 1
-    spell: 1
-  class_options:
-    set: 11
-    mask: [2097152, 0, 0, 0]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: SCHOOL_DAMAGE
-    bonus_coefficient: 0.1
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 10447
   name: Flame Shock
   rank_text: Rank 4
@@ -6042,36 +6020,6 @@ spells:
     aura: MOD_BLOCK_VALUE_PCT
     base_points: 25.0
     implicit_target: [UNIT_CASTER, NONE]
-- id: 16313
-  name: Rockbiter Weapon (Passive)
-  rank_text: Rank 7
-  attributes: [192, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  icon: 136086
-  icon_name: spell_nature_rockbiter
-  levels:
-    base: 54
-    spell: 54
-    max: 62
-  aura_options:
-    proc_chance: 100
-    proc_type_mask: 20
-  class_options:
-    set: 11
-    mask: [4194304, 0, 0, 0]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 554.0
-    real_points_per_level: 16.5
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: APPLY_AURA
-    aura: MOD_THREAT
-    misc_value: [127, 0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 16314
   name: Rockbiter Weapon
   rank_text: Rank 5
@@ -6240,28 +6188,6 @@ spells:
     effect: ENCHANT_ITEM_IMBUE
     base_points: 1800.0
     misc_value: [1666, 0]
-- id: 16344
-  name: Flametongue Weapon Proc
-  rank_text: Rank 6
-  attributes: [262400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 4
-  icon: 135814
-  icon_name: spell_fire_flametounge
-  range_yd: 100.0
-  levels:
-    base: 56
-    spell: 56
-    max: 64
-  class_options:
-    set: 11
-    mask: [2097152, 0, 0, 0]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: DUMMY
-    base_points: 2498.0
-    real_points_per_level: 78.0
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 16355
   name: Frostbrand Weapon
   rank_text: Rank 4
@@ -6318,38 +6244,6 @@ spells:
     effect: ENCHANT_ITEM_IMBUE
     base_points: 1800.0
     misc_value: [1668, 0]
-- id: 16361
-  name: Windfury Weapon
-  rank_text: Rank 4
-  attributes: [1, 268435456, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  icon: 136018
-  icon_name: spell_nature_cyclone
-  duration_ms: 1500
-  range_yd: 100.0
-  levels:
-    base: 60
-    spell: 60
-    max: 68
-  aura_options:
-    proc_chance: 100
-    proc_charges: 3
-    proc_type_mask: 4
-  class_options:
-    set: 11
-    mask: [8388608, 0, 0, 0]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 333.0
-    real_points_per_level: 12.5
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: ADD_EXTRA_ATTACKS
-    base_points: 2.0
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 16362
   name: Windfury Weapon
   rank_text: Rank 4
@@ -9015,24 +8909,6 @@ spells:
   - index: 1
     effect: DUMMY
     implicit_target: [UNIT_TARGET_ALLY, NONE]
-- id: 436519
-  name: Flametongue Weapon
-  attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  icon: 134877
-  icon_name: inv_potion_97
-  levels:
-    spell: 1
-  aura_options:
-    proc_chance: 100
-    proc_type_mask: 20
-  class_options:
-    set: 11
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: DUMMY
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 437009
   name: Totemic Projection
   skill_line: 373
@@ -9064,41 +8940,6 @@ spells:
     effect: SUMMON
     misc_value: [15214, 5878]
     implicit_target: [DEST_DEST, NONE]
-- id: 439431
-  name: Windfury Weapon
-  rank_text: Rank 1
-  attributes: [192, 0, 16777216, 0, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  icon: 136018
-  icon_name: spell_nature_cyclone
-  cooldown:
-    start_recovery_ms: 1500
-  categories:
-    start_recovery_category: 133
-    defense_type: MAGIC
-  levels:
-    base: 30
-    spell: 30
-    max: 38
-  aura_options:
-    proc_chance: 20
-    proc_category_recovery_ms: 1500
-    proc_type_mask: 20
-  class_options:
-    set: 11
-    mask: [0, 0, 256, 0]
-  equipped_items:
-    class: 2
-    subclass_mask: 173555
-  labels: [24]
-  description: Imbue the Shaman's weapon with wind.  Each hit has a 20% chance of granting you $8233s2 extra $lattack:attacks; with $8233s1 extra melee attack power.  Lasts for 5 minutes.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: DUMMY
-    base_points: 46.0
-    real_points_per_level: 7.2
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 1222988
   name: Earthbound
   attributes: [64, 0, 256, 0, 0, 0, 0, 0, 4096, 4194304, 32768, 0, 0, 0, 0, 8192, 0]

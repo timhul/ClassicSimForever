@@ -252,7 +252,26 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// buff affects the whole party: the change is noted with the raid, which repeats it on the
     /// other members (`RaidControl::propagate_party_auras`).
     fn change_auras(&mut self, id: BuffId, apply: bool) {
-        let effects = self.buff_ref(id).effects.clone();
+        let mut effects = self.buff_ref(id).effects.clone();
+        let values = match self.buff_ref(id).aura_values.clone() {
+            Some(values) => values,
+            None => effects.iter().map(|e| e.effective_value(self)).collect(),
+        };
+        for (effect, &value) in effects.iter_mut().zip(&values) {
+            effect.pin(value);
+        }
+        {
+            let (buff, _) = self.buff_ctx(id);
+            if apply {
+                buff.aura_applications += 1;
+                buff.aura_values = Some(values);
+            } else {
+                buff.aura_applications = buff.aura_applications.saturating_sub(1);
+                if buff.aura_applications == 0 {
+                    buff.aura_values = None;
+                }
+            }
+        }
         self.change_aura_effects(&effects, apply);
         if let BuffSlot::Shared(handle) = self.character.spells.buff_slot(id) {
             let handle = *handle;
@@ -1054,6 +1073,20 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 });
             }
             let enchantment = spec.enchantment.and_then(|id| db.item_enchantment(id));
+            let equip_spells = enchantment.into_iter().flat_map(|e| e.equip_spells());
+            let first_equip =
+                spec.procs.len() + enchantment.map_or(0, |e| e.combat_spells().count());
+            for (offset, spell) in equip_spells.enumerate() {
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: Some(slot),
+                        grantor: EquipmentGrantor::Enchant(spec.name),
+                        index: first_equip + offset,
+                    },
+                    spell,
+                    kind: GrantKind::Passive(passive_proc_sources(Some(slot))),
+                });
+            }
             let combat_spells = enchantment.into_iter().flat_map(|e| e.combat_spells());
             for (offset, (spell, chance)) in combat_spells.enumerate() {
                 grants.push(Grant {
@@ -3639,6 +3672,17 @@ impl<S: SharedBuffs> ProcHost for CharacterContext<'_, S> {
             Hand::Offhand => EquipmentSlot::Offhand,
         };
         self.slot_item_matches(slot, requirement)
+    }
+
+    fn spell_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {
+        let spells = self.character.spells();
+        let id = spells.spell_by_game_id(spell)?;
+        spells
+            .spell(id)
+            .effects()
+            .iter()
+            .find(|e| e.index() == effect)
+            .map(|e| e.effective_value(self))
     }
 
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {

@@ -86,7 +86,8 @@
 #     enchant's 100); the damage spell is Flametongue Attack 10444 (fire), its amount 16344's
 #     2498 (+78/level from 56: 2810 at 60) x the weapon's speed / 100, which is the description's
 #     m/77 at 1.3 s and m/25 at 4.0 s: 98 a hit with a 3.5 s two-hander. [T]
-#   - It scales with spell power [G #80]; the coefficient is not in the tables: 0 for now. [U] [?]
+#   - It scales with spell power [G #80]: Flametongue Attack's coefficient 0.1. [T]  (SH.1 had
+#     missed it; the 0 decided for an unknown coefficient is moot.)
 #   - Elemental Weapons +5 / 10 / 15 %. [T]
 #
 # Rockbiter Weapon (8017 .. 16316; enchant 1664 "Rockbiter 7", 60 min)
@@ -116,7 +117,8 @@
 #   - Fire Nova rank 5 (408345): a spell, not a totem: 10 s cooldown, 520 mana, 11307 (419
 #     +3.4/level from 52, ±5.5 % fire) at the active fire totem; it needs one. Improved Fire Nova
 #     +10 / 20 % and -2 / -4 s. [T]
-#   - The totem attacks and Fire Nova carry no coefficient in the tables: 0 for now. [U] [?]
+#   - Coefficients: Searing Totem's attack 0.017, Magma Totem 0.033, Fire Nova rank 5 0.143 (rank
+#     1: 0.1). [T]
 #   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
 #     ticks), Elemental Fury on the totem attacks' crits. [T]
 #   - Strength of Earth rank 5 (25361 -> 25362): +53 strength, 300 s, 275 mana. Grace of Air
@@ -199,9 +201,7 @@
 #     staves, two-handed axes and maces (the baseline Two-Handed Axes and Maces). [C] [T]
 #
 # Open points ([?] above)
-#   1. The spell power coefficients of Flametongue Weapon, the totem attacks and Fire Nova
-#      (0 until known).
-#   2. Base health (the Rogue's until known).
+#   1. Base health (the Rogue's until known).
 
 # ----- Overrides ------------------------------------------------------------------------------
 # Scripts the Shaman work has not implemented yet are NO_OP with the task (TASKS.md SH.n) that
@@ -288,48 +288,39 @@ overrides:
     note: Lightning Shield's orb (the character is not attacked)
     effects: [{ index: 0, script: NO_OP }]
 
-  # ----- Weapon imbues (SH.6): the enchant's equip spell and payloads of the highest rank
-  - id: 16362
-    note: Windfury Weapon r4; enchant 1669's equip spell 439431 and its payload 16361
-    walk: [439431, 16361]
-  - id: 16342
-    note: Flametongue Weapon r6; enchant 1666's equip spell 436519, 16344's amount and the damage 10444
-    walk: [436519, 16344, 10444]
-  - id: 16316
-    note: Rockbiter Weapon r7; enchant 1664's equip spell 16313 (attack power)
-    walk: [16313]
+  # ----- Weapon imbues: the SpellItemEnchantment rows of data/enchants.yaml (data/spells/enchants.yaml)
   - id: 439431
-    note: Windfury Weapon's proc aura; E0 casts the imbue rank's payload (16361 at rank 4) (SH.6)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Windfury Weapon's proc aura (20 %, 1.5 s internal cooldown); E0 casts rank 4's payload
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 16361 } }]
   - id: 16344
-    note: Flametongue Weapon Proc r6; E0 the amount 436519 scales by weapon speed (SH.6)
+    note: Flametongue Weapon Proc r6; E0 the amount 436519 scales by weapon speed
     effects: [{ index: 0, script: NO_OP }]
   - id: 436519
-    note: Flametongue Weapon's proc aura; E0 deals 16344's amount x weapon speed / 100 as 10444 (SH.6)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Flametongue Weapon's proc aura; E0 deals rank 6's amount (16344) x weapon speed / 100 as 10444
+    effects: [{ index: 0, script: WEAPON_SPEED_DAMAGE, params: { spell: 10444, effect: 0, amount_spell: 16344 } }]
 
-  # ----- Totems (SH.7): the highest rank's creature spells
+  # ----- Totems (SH.7): the highest rank's creature spells, carried (the totem applies them)
   - id: 10438
     note: Searing Totem r6; the totem casts its attack 10436
-    walk: [10436]
+    carries: [10436]
   - id: 10587
     note: Magma Totem r4; the totem's passive 10584 pulses 10581
-    walk: [10584]
+    carries: [10584]
   - id: 25361
     note: Strength of Earth Totem r5; the totem's aura 25362
-    walk: [25362]
+    carries: [25362]
   - id: 25359
     note: Grace of Air Totem r3; the totem's aura 25360
-    walk: [25360]
+    carries: [25360]
   - id: 10497
     note: Mana Spring Totem r4; the totem's aura 10494
-    walk: [10494]
+    carries: [10494]
   - id: 10614
     note: Windfury Totem r3; the totem's party aura 10612 (its payload 10610 in base points)
-    walk: [10612, 10610]
+    carries: [10612, 10610]
   - id: 16387
     note: Flametongue Totem r4; the totem's party aura 15036 (its payload 16389 in base points)
-    walk: [15036, 16389]
+    carries: [15036, 16389]
   - id: 16389
     note: Flametongue Totem's proc; E0 deals its amount x weapon speed / 100 fire (SH.7)
     effects: [{ index: 0, script: NO_OP }]

@@ -60,6 +60,12 @@ pub trait ProcHost: SpellHost {
     /// The current value of effect `effect` of spell `spell`'s aura (a talent's rank value),
     /// `None` when the character does not have the spell.
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64>;
+
+    /// The value of effect `effect` of spell `spell` at the character's level, `None` when the
+    /// character does not have the spell.
+    fn spell_effect_value(&self, _spell: u32, _effect: u32) -> Option<f64> {
+        None
+    }
 }
 
 /// How often a proc fires.
@@ -500,6 +506,17 @@ impl Proc {
                     spell: params.spell?,
                     effect: params.effect?,
                     value: swing_damage_by_speed(effect.effective_value(host), speed),
+                });
+            }
+            // The amount of another spell by the main-hand weapon's speed (Flametongue Weapon).
+            Some(ScriptKind::WeaponSpeedDamage) => {
+                let params = &effect.script()?.params;
+                let speed = host.base_weapon_speed(Hand::Mainhand)?;
+                let amount = host.spell_effect_value(params.amount_spell?, 0)?;
+                return Some(Payload::TriggerWithValue {
+                    spell: params.spell?,
+                    effect: params.effect?,
+                    value: amount * speed / 100.0,
                 });
             }
             // The server-side script: the value is the payload's id, not a number the payload

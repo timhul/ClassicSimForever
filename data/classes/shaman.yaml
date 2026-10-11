@@ -14,7 +14,7 @@
 # (TASKS.md SH.0). No Dual Wield: one- or two-handed axes and maces, daggers, fist weapons and
 # staves in the main hand, shields and caster off-hands in the off hand, totems as relics. The
 # enchant lists per slot are ShamanEnchants.cpp plus the caster enchants and oils an Elemental
-# Shaman uses and Windfury Totem; the imbues come with TASKS.md SH.6.
+# Shaman uses and Windfury Totem, and the Shaman's weapon imbues.
 
 class: SHAMAN
 resource: mana
@@ -101,6 +101,9 @@ enchants:
     - EnchantBootsSpirit
 temp_enchants:
   MAINHAND:
+    - WindfuryWeapon
+    - FlametongueWeapon
+    - RockbiterWeapon
     - WindfuryTotem
     - SolidWeightstone
     - DenseWeightstone

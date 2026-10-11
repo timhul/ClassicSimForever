@@ -310,6 +310,10 @@ pub struct Effect {
     /// times `EffectPointsPerResource`, the attack power share of a finisher's or a bleed's
     /// ticks. Taken when the aura is applied, so a later change cannot unbalance its removal.
     cast_bonus: f64,
+    /// The value an applied aura uses instead of its current one: what its buff applied, so
+    /// that a modifier gained or lost since cannot unbalance its removal (Elemental Weapons on
+    /// Rockbiter's attack power).
+    pinned: Option<f64>,
     /// The value that replaces the base points while the main-hand weapon's subclass is in
     /// the mask (`WEAPON_TYPE_VALUE`: Ghostly Strike's 180 % with a dagger).
     weapon_type_value: Option<(u32, f64)>,
@@ -375,6 +379,7 @@ impl Effect {
             value: record.base_points as f64,
             base_value: record.base_points as f64,
             cast_bonus: 0.0,
+            pinned: None,
             weapon_type_value: None,
             health_threshold,
             record: record.clone(),
@@ -461,6 +466,11 @@ impl Effect {
     /// The current base points (before per-level scaling and modifiers).
     pub fn value(&self) -> f64 {
         self.value
+    }
+
+    /// Makes the aura apply and remove `value` (see `pinned`).
+    pub fn pin(&mut self, value: f64) {
+        self.pinned = Some(value);
     }
 
     /// The table base points.
@@ -1067,7 +1077,7 @@ impl Effect {
         if !self.record.is_apply_aura() {
             return;
         }
-        let value = self.effective_value(host);
+        let value = self.pinned.unwrap_or_else(|| self.effective_value(host));
         let rounded = value.round() as i32;
         let signed = if apply { rounded } else { -rounded };
         let hundredths = (value * 100.0).round() as i32;

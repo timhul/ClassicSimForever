@@ -148,6 +148,14 @@ pub struct ItemEnchantmentRecord {
 }
 
 impl ItemEnchantmentRecord {
+    /// The equip spells: the passives the enchanted item has (`EQUIP_SPELL`).
+    pub fn equip_spells(&self) -> impl Iterator<Item = u32> + '_ {
+        self.effects
+            .iter()
+            .filter(|e| e.effect == ItemEnchantmentType::EquipSpell)
+            .map(|e| e.arg)
+    }
+
     /// The combat spells: (spell, chance in percent) per `COMBAT_SPELL` effect.
     pub fn combat_spells(&self) -> impl Iterator<Item = (u32, f64)> + '_ {
         self.effects
@@ -2408,10 +2416,6 @@ spells:
             (408505, "Maelstrom Weapon"),
             (1238931, "Improved Stormstrike"),
             (16257, "Flurry"),
-            (439431, "Windfury Weapon"),
-            (16361, "Windfury Weapon"),
-            (16313, "Rockbiter Weapon (Passive)"),
-            (10444, "Flametongue Attack"),
             (10436, "Attack"),
             (10581, "Magma Totem"),
             (11307, "Fire Nova"),
@@ -2426,6 +2430,18 @@ spells:
                 "{id} reached through the overrides"
             );
             assert_eq!(db.class_of(id), Some(Some(PlayerClass::Shaman)), "{id}");
+        }
+        // The imbues' equip spells and payloads come with their enchantment rows, never
+        // learned: only the imbued weapon has them.
+        for (id, name) in [
+            (439431, "Windfury Weapon"),
+            (16361, "Windfury Weapon"),
+            (16313, "Rockbiter Weapon (Passive)"),
+            (10444, "Flametongue Attack"),
+        ] {
+            assert_eq!(db.get(id).unwrap().name, name, "{id}");
+            assert_eq!(db.class_of(id), Some(None), "{id}");
+            assert!(!db.is_learnable(id), "{id}");
         }
         assert_eq!(
             db.get(16262).unwrap().actionbar_overrides(),

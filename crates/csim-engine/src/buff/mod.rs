@@ -188,6 +188,10 @@ pub struct Buff {
     ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
     pub effects: Vec<Effect>,
+    /// The values the aura effects were applied with, while an application is outstanding;
+    /// their removal takes off the same.
+    pub(crate) aura_values: Option<Vec<f64>>,
+    pub(crate) aura_applications: u32,
 
     instance_id: Option<InstanceId>,
     enabled: bool,
@@ -238,6 +242,8 @@ impl Buff {
             consumed_whole: false,
             ends_auras: Vec::new(),
             effects: Vec::new(),
+            aura_values: None,
+            aura_applications: 0,
             instance_id: None,
             enabled: false,
             current_charges: 0,

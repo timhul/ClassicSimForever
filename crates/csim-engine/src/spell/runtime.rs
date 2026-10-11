@@ -505,7 +505,8 @@ impl SpellSetup {
                 Some(
                     ScriptKind::TriggerSpell
                     | ScriptKind::TriggerWithValue
-                    | ScriptKind::WeaponSpeedSwingDamage,
+                    | ScriptKind::WeaponSpeedSwingDamage
+                    | ScriptKind::WeaponSpeedDamage,
                 ) => true,
                 _ => effect.is_proc_trigger() && effect.trigger_spell != 0,
             }

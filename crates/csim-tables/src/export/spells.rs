@@ -212,11 +212,12 @@ pub fn export_enchants(
         .map(|&id| item_enchantment(tables, id))
         .collect::<Result<Vec<_>, _>>()?;
     let mut seeds = seeds.clone();
-    seeds.extend(
-        records
-            .iter()
-            .flat_map(|record| record.combat_spells().map(|(spell, _)| spell)),
-    );
+    seeds.extend(records.iter().flat_map(|record| {
+        record
+            .combat_spells()
+            .map(|(spell, _)| spell)
+            .chain(record.equip_spells())
+    }));
     let (mut file, report) = export_externals_with_report(tables, &seeds, exclude, overrides)?;
     file.item_enchantments = records;
     Ok((file, report))
