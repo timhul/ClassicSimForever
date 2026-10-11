@@ -223,3 +223,35 @@ fn a_caster_reports_its_spells_by_resist() {
         ]
     );
 }
+
+/// Queued spells follow each other without a gap: an instant's global cooldown, a cast's end
+/// and a cooldown's end each start the next spell at once.
+#[test]
+fn queued_spells_follow_each_other_at_once() {
+    let mut f = caster(
+        &[],
+        "  - name: Flame Shock
+    condition: buff_duration \"Flame Shock\" less 1
+  - name: Lightning Bolt
+",
+    );
+    pull(&mut f);
+    // Flame Shock at 0 (its GCD to 1.5), bolts from 1.5; Flame Shock again at 11.5 (0.5 s
+    // left), the next bolt as its GCD ends at 13.
+    let ends = cast_ends(&timed(&mut f, 16.0));
+    assert_eq!(ends, [4.0, 6.5, 9.0, 11.5, 15.5]);
+
+    let mut f = caster(
+        &[],
+        "  - name: Earth Shock
+",
+    );
+    pull(&mut f);
+    timed(&mut f, 18.01);
+    let shocks = f
+        .character
+        .statistics
+        .spell_statistics("Earth Shock", 7)
+        .unwrap();
+    assert_eq!(shocks.total_attempts(), 4, "at 0, 6, 12 and 18");
+}
