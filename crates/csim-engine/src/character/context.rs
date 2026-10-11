@@ -3141,9 +3141,13 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.spells_mut().start_cast(running_to_target)
     }
 
+    /// The next cast was queued during this one (the client's spell queue): the player acts as
+    /// the cast ends, without a reaction delay.
     fn complete_cast(&mut self, cast_id: u32) {
         self.character.spells_mut().complete_cast(cast_id);
-        self.add_player_reaction_event();
+        let character = self.character.id();
+        self.engine
+            .add_event_in(0.0, EventKind::PlayerAction { character });
     }
 
     fn casting_speed_mod(&self) -> f64 {

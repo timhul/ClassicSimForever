@@ -1260,6 +1260,7 @@ mod rogue_procs;
 mod rogue_stealth;
 mod rogue_talents;
 mod shaman;
+mod shaman_casting;
 
 // ---------------------------------------------------------------- external buffs
 

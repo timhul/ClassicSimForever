@@ -41,6 +41,25 @@ pub(super) fn shaman(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
     f
 }
 
+/// An Orc Shaman with `talents` forced in (the tiers below them need no points), ready for an
+/// iteration.
+pub(super) fn with_talents(talents: &[(u32, u32)]) -> Fixture {
+    let mut f = shaman(Race::Orc, &[]);
+    for &(node, rank) in talents {
+        for _ in 0..rank {
+            let change = f
+                .character
+                .talents_mut()
+                .and_then(|t| t.force_increment_rank(node))
+                .unwrap_or_else(|| panic!("a point in {node}"));
+            f.ctx().apply_talent_changes([change]);
+        }
+    }
+    f.ctx().prepare_set_of_combat_iterations();
+    f.ctx().reset();
+    f
+}
+
 fn mana(f: &Fixture) -> (u32, u32) {
     (
         f.character.resource_level(ResourceType::Mana, 0.0),
