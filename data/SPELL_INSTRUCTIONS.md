@@ -478,7 +478,7 @@ overrides:
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
-    sim_flags: [RESETS_SWING_TIMERS]
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
     stance_passive: 7381             # the hidden passive that carries a stance's numbers
     on_event: [{ source: MELEE_DODGE, script: ADD_COMBO_POINTS, params: { value: 1 } }]
     debuff_priority: high            # slot priority of the spell's debuff (low / mid / high)
@@ -553,7 +553,8 @@ a payload: the spell they name is not enabled with the scripted one.
 
 **Sim flags** (`SimFlag`): `IGNORED` (loaded, never cast, out of the rank groups; a passive's
 auras are never applied: the Season of Discovery runes a class learns, such as Exorcist),
-`RESETS_SWING_TIMERS`, `STOPS_ATTACK_DURING_CAST`, `CANCELS_NEXT_SWING_QUEUE` (Slam),
+`CANCELS_NEXT_SWING_QUEUE` (Slam), `KEEPS_SWING_TIMERS` (Improved Slam; every other cast with a
+cast time pauses the melee swings and restarts them from zero as it ends),
 `RUN_TO_TARGET` (Charge: the cast time is the run to the target, not a cast; spells that do not
 hit the enemy and have no cast time of their own can be cast during it),
 `START_OF_COMBAT` (passives whose ticking starts with combat), `CANNOT_CRIT`, `ENRAGE` (the buff

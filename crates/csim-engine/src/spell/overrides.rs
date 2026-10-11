@@ -24,8 +24,8 @@
 //!     effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
 //!   - id: 25286                          # Heroic Strike r9
 //!     threat: { flat: 145 }
-//!   - id: 11605                          # Slam
-//!     sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST]
+//!   - id: 1310200                        # Improved Slam: its cast keeps the swing timers
+//!     sim_flags: [KEEPS_SWING_TIMERS]
 //!   - id: 2458                           # Berserker Stance -> its passive
 //!     stance_passive: 7381
 //!   - id: 7384                           # Overpower: a combo point when the target dodges
@@ -561,10 +561,9 @@ impl Default for ThreatOverride {
 pub enum SimFlag {
     /// The sim does not model the spell (multi-target, PvP, movement); it loads but never casts.
     Ignored,
-    /// A successful cast restarts both swing timers (Slam).
-    ResetsSwingTimers,
-    /// Auto attacks pause while the spell is being cast (Slam).
-    StopsAttackDuringCast,
+    /// The melee swings pause during the cast but keep their timers (Improved Slam); other
+    /// casts restart them at their end.
+    KeepsSwingTimers,
     /// Casting it discards a queued on-next-swing spell (Slam vs Heroic Strike).
     CancelsNextSwingQueue,
     /// The cast time is the character running to the target (Charge), not a cast: only what
@@ -976,7 +975,7 @@ overrides:
   - id: 25286
     threat: { flat: 145 }
   - id: 11605
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 2458
     stance_passive: 7381
   - id: 7384
@@ -1034,7 +1033,7 @@ overrides:
         assert_eq!(o.threat(25286).flat, 145.0);
         assert_eq!(o.threat(25286).modifier, 1.0);
         assert_eq!(o.threat(1).flat, 0.0);
-        assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
+        assert!(o.has_sim_flag(11605, SimFlag::KeepsSwingTimers));
         assert!(o.has_sim_flag(11605, SimFlag::CancelsNextSwingQueue));
         assert!(!o.has_sim_flag(11605, SimFlag::Ignored));
         assert!(o.get(12292).unwrap().is_ignored());
@@ -1324,7 +1323,7 @@ overrides:
         );
         assert!(yaml.contains("script: DEEP_WOUNDS_BLEED"));
         assert!(yaml.contains("source: MELEE_DODGE"));
-        assert!(yaml.contains("- RESETS_SWING_TIMERS"));
+        assert!(yaml.contains("- KEEPS_SWING_TIMERS"));
         assert!(!yaml.contains("modifier"), "threat modifier 1 is omitted");
         assert!(!yaml.contains("params: {}"));
         let back: OverrideFile = serde_yaml::from_str(&yaml).unwrap();
@@ -1379,8 +1378,8 @@ overrides:
         assert_eq!(o.threat(25286).flat, 145.0);
         assert_eq!(o.threat(25288).flat, 355.0);
         assert_eq!(o.stance_passive(2458), Some(7381));
-        assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
-        assert!(!o.has_sim_flag(1310200, SimFlag::ResetsSwingTimers));
+        assert!(!o.has_sim_flag(11605, SimFlag::KeepsSwingTimers));
+        assert!(o.has_sim_flag(1310200, SimFlag::KeepsSwingTimers));
         assert_eq!(o.event_scripts(11585)[0].script, ScriptKind::AddComboPoints);
         let ruthlessness = o.get(14156).and_then(|r| r.proc).unwrap();
         assert!(ruthlessness.finisher);

@@ -19,7 +19,9 @@ cast_if:
     condition: buff_duration "Seal of Command" less 3
   - name: Judgement
     condition: buff_duration "Seal of Command" geq 3
+  # Its cast restarts the swing timer: right after a swing it costs the least.
   - name: Hammer of Wrath
+    condition: variable "time_since_swing" less 0.3
   - name: Holy Strike
   - name: Exorcism
   - name: Consecration

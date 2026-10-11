@@ -246,6 +246,51 @@ fn hammer_of_wrath() {
     assert_eq!(cast_time(&mut f, HAMMER_OF_WRATH), 0.0);
 }
 
+/// Hammer of Wrath's cast pauses the swings and restarts them from zero as it ends (the
+/// swing rule of every cast, TASKS.md SH.0 Q7): no swing lands during the 1 s cast and the next
+/// one comes a full weapon speed after it.
+#[test]
+fn hammer_of_wrath_restarts_the_swing() {
+    let mut f = pulled(&[]);
+    let sim = *f.character.sim();
+    f.character.set_sim(SimParams {
+        target_start_health: 0.2,
+        ..sim
+    });
+    f.ctx().start_attack();
+    let swings = |f: &mut Fixture, until: f64| {
+        f.engine
+            .add_event(Event::new(until, EventKind::EncounterEnd));
+        let mut times = Vec::new();
+        while let Some(event) = f.engine.next_event() {
+            if event.kind == EventKind::EncounterEnd {
+                break;
+            }
+            // A re-timed swing leaves a stale event behind.
+            let swing = matches!(
+                event.kind,
+                EventKind::MainhandMeleeHit { iteration, .. }
+                    if f.character.spells().mh_attack().attack_is_valid(iteration)
+            );
+            if f.ctx().handle_event(&event) && swing {
+                times.push(event.time);
+            }
+        }
+        times
+    };
+    let before = swings(&mut f, 8.0);
+    assert!(before.len() >= 2, "{before:?}");
+    let speed = before[1] - before[0];
+    let start = now(&f);
+    assert!(cast(&mut f, HAMMER_OF_WRATH).cast_started);
+    let after = swings(&mut f, start + 1.0 + 2.0 * speed);
+    let end = start + 1.0;
+    assert!(
+        (after[0] - (end + speed)).abs() < 1e-6,
+        "cast {start}..{end}, speed {speed}: {after:?}"
+    );
+}
+
 /// Blessing of Might on oneself: +133 attack power for an hour; not castable under another
 /// paladin's Greater Blessing of Might, which gives the same.
 #[test]

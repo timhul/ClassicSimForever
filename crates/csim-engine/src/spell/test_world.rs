@@ -563,6 +563,9 @@ impl SpellHost for World {
     fn reset_swing_timers(&mut self) {
         self.attack_log.push("reset");
     }
+    fn is_swinging(&self) -> bool {
+        self.spells.is_melee_attacking()
+    }
     fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
         if self.spells.queued_next_swing() != Some(spell) {
             self.cancel_next_swing();

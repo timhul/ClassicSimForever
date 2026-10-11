@@ -22,7 +22,9 @@ judged on cooldown; Judgement of the Crusader (+161 holy damage taken) is refres
 melee strike and judged again only when it runs low; Seal Twisting casts Seal of Righteousness
 right before a swing while Seal of Command is up, so that the swing deals both (Twist of
 Light's Echo of Command), and puts the other global cooldowns where they end before the next
-twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range, Exorcism against
+twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range right after a swing
+(its cast restarts the swing timer, as every cast does: +4 to +11 DPS over casting it whenever
+it is up), Exorcism against
 Undead and Demons only, Consecration while the mana allows. The twist waits above 1000 mana, so that Seal of
 Command and its judgement always have mana (+35 DPS over twisting into an empty bar).
 

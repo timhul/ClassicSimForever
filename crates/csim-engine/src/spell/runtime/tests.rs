@@ -765,6 +765,8 @@ fn cast_time_spells_complete_after_the_cast_time() {
     assert_eq!(slam.cast_time(&world), 1.5);
     assert_eq!(slam.category_cooldown_seconds(&world), 18.0);
 
+    // Swinging: the cast pauses the swings and restarts them from zero as it completes.
+    world.spells.start_attack();
     let report = world.perform(SLAM);
     assert!(report.cast_started);
     assert!(report.attack.is_none());
@@ -825,7 +827,7 @@ fn improved_slam_shortens_the_cast_and_replaces_the_rank() {
     let improved = world.spell(IMPROVED_SLAM_RANK_2);
     assert!((improved.cast_time(&world) - 1.0).abs() < 1e-9);
     assert!((improved.global_cooldown(&world) - 1.0).abs() < 1e-9);
-    assert!(!improved.has_sim_flag(SimFlag::ResetsSwingTimers));
+    assert!(improved.has_sim_flag(SimFlag::KeepsSwingTimers));
 
     let id = world.spell_id(IMPROVED_SLAM);
     world.with_spell(id, |spell, world| spell.disable(world));

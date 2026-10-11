@@ -3168,6 +3168,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.schedule_swings();
     }
 
+    fn is_swinging(&self) -> bool {
+        self.character.spells().is_melee_attacking()
+    }
+
     fn reset_swing_timers(&mut self) {
         self.with_auto_attack(Hand::Mainhand, |attack, ctx| {
             attack.reset_swing_timer_and_schedule(ctx)

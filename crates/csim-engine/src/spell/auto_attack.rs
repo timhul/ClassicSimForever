@@ -574,6 +574,9 @@ mod tests {
             self.attacking = true;
         }
         fn reset_swing_timers(&mut self) {}
+        fn is_swinging(&self) -> bool {
+            self.attacking
+        }
         fn queue_next_swing(&mut self, _: SpellId, _: Option<BuffId>) {}
         fn cancel_next_swing(&mut self) {}
         fn queued_next_swing(&self) -> Option<SpellId> {

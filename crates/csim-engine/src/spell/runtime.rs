@@ -84,11 +84,13 @@ pub trait SpellHost: EffectHost {
     fn casting_speed_mod(&self) -> f64;
     /// Flat cast time reduction in milliseconds.
     fn casting_speed_flat_reduction(&self) -> u32;
-    /// Pauses auto attacks (`STOPS_ATTACK_DURING_CAST`).
+    /// Pauses auto attacks (during a cast).
     fn stop_attack(&mut self);
     fn start_attack(&mut self);
-    /// Restarts both swing timers (`RESETS_SWING_TIMERS`).
+    /// Restarts both swing timers (at the end of a cast).
     fn reset_swing_timers(&mut self);
+    /// Whether the melee auto attack is on.
+    fn is_swinging(&self) -> bool;
     /// Queues `spell` to replace the next mainhand swing (on-next-swing spells). The off hand
     /// keeps the dual-wield miss penalty.
     /// `marker` is the spell's marker buff, applied by the spell and up while it stays queued:
@@ -578,6 +580,8 @@ pub struct Spell {
     periodic: Option<Periodic>,
     /// Id of the cast in progress. Port of `CastingTimeRequirer::cast_id`.
     cast_id: Option<u32>,
+    /// The cast in progress paused the melee swings, which resume when it ends.
+    resumes_attack: bool,
     /// The value handed over by the effect that triggered this spell (proc payloads).
     trigger_value: Option<f64>,
     /// While the spell is performed as the strike of a landed attack
@@ -739,6 +743,7 @@ impl Spell {
             id: None,
             periodic,
             cast_id: None,
+            resumes_attack: false,
             trigger_value: None,
             strike: None,
             damage_scale: None,
@@ -1521,11 +1526,14 @@ impl Spell {
     }
 
     /// Starts casting: `CastComplete` is scheduled after the cast time. Port of
-    /// `CastingTimeRequirer::start_cast` plus the `Slam::spell_effect` attack handling.
+    /// `CastingTimeRequirer::start_cast`. Any cast pauses the melee swings (Charge's run does
+    /// not).
     fn start_cast(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
-        let cast_id = host.start_cast(self.has_sim_flag(SimFlag::RunToTarget));
+        let running = self.has_sim_flag(SimFlag::RunToTarget);
+        let cast_id = host.start_cast(running);
         self.cast_id = Some(cast_id);
-        if self.has_sim_flag(SimFlag::StopsAttackDuringCast) {
+        self.resumes_attack = !running && host.is_swinging();
+        if self.resumes_attack {
             host.stop_attack();
         }
         if self.has_sim_flag(SimFlag::CancelsNextSwingQueue) {
@@ -1548,18 +1556,18 @@ impl Spell {
     }
 
     /// Handles a `CastComplete` event: runs the effects of the cast started with `cast_id`.
-    /// Returns `None` for a stale cast id. Port of `CastingTimeRequirer::complete_cast` plus
-    /// `Slam::complete_cast_effect`'s swing timer handling.
+    /// Returns `None` for a stale cast id. Port of `CastingTimeRequirer::complete_cast`. The
+    /// paused swings resume from zero, unless the spell keeps the swing timers (Improved Slam).
     pub fn complete_cast(&mut self, cast_id: u32, host: &mut impl SpellHost) -> Option<CastReport> {
         if self.cast_id != Some(cast_id) {
             return None;
         }
         self.cast_id = None;
         host.complete_cast(cast_id);
-        if self.has_sim_flag(SimFlag::ResetsSwingTimers) {
-            host.reset_swing_timers();
-        }
-        if self.has_sim_flag(SimFlag::StopsAttackDuringCast) {
+        if std::mem::take(&mut self.resumes_attack) {
+            if !self.has_sim_flag(SimFlag::KeepsSwingTimers) {
+                host.reset_swing_timers();
+            }
             host.start_attack();
         }
         let report = CastReport {
@@ -2199,6 +2207,7 @@ impl Spell {
         }
         self.last_result = SpellResult::Undetermined;
         self.cast_id = None;
+        self.resumes_attack = false;
         self.trigger_value = None;
         if let Some(periodic) = &mut self.periodic {
             periodic.reset_state();

@@ -207,27 +207,27 @@ overrides:
 
   # ----- Sim behaviour flags ---------------------------------------------------------------
   - id: 1240193
-    note: Slam r1 restarts the swing timers and pauses auto attacks while casting
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    note: Slam r1 cancels a queued Heroic Strike (its cast pauses and restarts the swings, as every cast)
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
   - id: 1464
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
   - id: 8820
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
   - id: 11604
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
   - id: 11605
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [CANCELS_NEXT_SWING_QUEUE]
   - id: 1310196
-    note: Improved Slam replacement r1 no longer interrupts the swing timer
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    note: Improved Slam replacement r1 no longer interrupts the swing timer (pauses the swings, keeps their timers)
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 1310197
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 1310198
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 1310199
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 1310200
-    sim_flags: [STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 12292
     note: Sweeping Strikes hits a second target, nothing to simulate against one
     sim_flags: [IGNORED]

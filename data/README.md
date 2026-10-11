@@ -225,7 +225,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
   whose rank value is the proc chance (Unbridled Wrath 12–60 %) rather than the payload's value.
 - **`threat`** — innate threat (`flat`) and a multiplier; the client has no threat table.
 - **`sim_flags`** — how the simulator treats the spell: `IGNORED` (loads, never cast),
-  `RESETS_SWING_TIMERS` / `STOPS_ATTACK_DURING_CAST` / `CANCELS_NEXT_SWING_QUEUE` (Slam),
+  `CANCELS_NEXT_SWING_QUEUE` (Slam), `KEEPS_SWING_TIMERS` (Improved Slam: every other cast
+  pauses the swings and restarts them from zero as it ends),
   `RUN_TO_TARGET` (Charge: its cast time is the run, during which only offensive and cast-time
   spells wait),
   `START_OF_COMBAT` (Anger Management), `CANNOT_CRIT`, `ENRAGE` (Enrage: the `ENRAGED` aura state).
