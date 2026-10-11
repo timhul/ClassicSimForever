@@ -1132,7 +1132,20 @@ impl SpellDb {
             db.load_file_from(files, &path)?;
         }
         db.check_references()?;
+        db.apply_renames();
         Ok(db)
+    }
+
+    /// Gives the spells an override renames (`rename`) their sim name.
+    fn apply_renames(&mut self) {
+        for spell_override in self.overrides.all() {
+            if let (Some(name), Some(record)) = (
+                &spell_override.rename,
+                self.spells.get_mut(&spell_override.id),
+            ) {
+                Arc::make_mut(record).name = name.clone();
+            }
+        }
     }
 
     /// Adds the records of one YAML file.
@@ -2416,7 +2429,8 @@ spells:
             (408505, "Maelstrom Weapon"),
             (1238931, "Improved Stormstrike"),
             (16257, "Flurry"),
-            (10436, "Attack"),
+            (10436, "Searing Totem Attack"),
+            (10444, "Flametongue Attack"),
             (10581, "Magma Totem"),
             (11307, "Fire Nova"),
             (25362, "Strength of Earth"),
@@ -2432,12 +2446,12 @@ spells:
             assert_eq!(db.class_of(id), Some(Some(PlayerClass::Shaman)), "{id}");
         }
         // The imbues' equip spells and payloads come with their enchantment rows, never
-        // learned: only the imbued weapon has them.
+        // learned: only the imbued weapon has them (Flametongue Attack is also Flametongue
+        // Totem's, a Shaman spell).
         for (id, name) in [
             (439431, "Windfury Weapon"),
             (16361, "Windfury Weapon"),
             (16313, "Rockbiter Weapon (Passive)"),
-            (10444, "Flametongue Attack"),
         ] {
             assert_eq!(db.get(id).unwrap().name, name, "{id}");
             assert_eq!(db.class_of(id), Some(None), "{id}");

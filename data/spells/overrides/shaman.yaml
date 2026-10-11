@@ -104,7 +104,13 @@
 #     Magma, Flametongue), 81 earth (Strength of Earth), 82 water (Mana Spring, Mana Tide), 83 air
 #     (Windfury, Grace of Air). A new totem of an element replaces the old one. [T] [V]
 #     SpellEffects.cpp EffectSummonTotem ("unsummon old totem")
-#   - Totem casts have a 1 s GCD. [T]  Totemic Focus -5 .. -25 % their mana. [T]
+#   - The totem spell's buff is the totem's lifetime (a moment more: what it does as its time
+#     runs out, Magma Totem's tenth pulse, happens). [T]
+#   - Totem casts have a 1 s GCD (the spell's StartRecoveryTime, as for every spell). [T]
+#     Totemic Focus -5 .. -25 % their mana. [T]
+#   - The shaman's own aura totem does not add to the same external buff (another shaman's
+#     Strength of Earth), nor its Windfury Totem to a Windfury enchant or Windfury Weapon on the
+#     main hand. [T]
 #   - The damage totems and Fire Nova use the shaman's spell damage, spell hit and spell crit. [U]
 #     The 1.12 server let totems benefit from spell damage since 1.10 (vmangos
 #     UnitAuraProcHandler.cpp, the Zandalarian Hero Charm note). [V]
@@ -115,7 +121,7 @@
 #     ten pulses. [T]
 #   - Fire Nova rank 5 (408345): a spell, not a totem: 10 s cooldown, 520 mana, 11307 (419
 #     +3.4/level from 52, ±5.5 % fire) at the active fire totem; it needs one. Improved Fire Nova
-#     +10 / 20 % and -2 / -4 s. [T]
+#     +10 / 20 % and -2 / -4 s, which the nova passes to its damage spell. [T]
 #   - Coefficients: Searing Totem's attack 0.017, Magma Totem 0.033, Fire Nova rank 5 0.143 (rank
 #     1: 0.1). [T] [U]
 #   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
@@ -240,20 +246,20 @@ overrides:
     note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 408341
-    note: Fire Nova r1; E0 the damage 8349 at the active fire totem (SH.7)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 8349 } }]
+    note: Fire Nova r1; E0 the damage 8349 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8349 } }]
   - id: 408342
-    note: Fire Nova r2; E0 the damage 8502 at the active fire totem (SH.7)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 8502 } }]
+    note: Fire Nova r2; E0 the damage 8502 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8502 } }]
   - id: 408343
-    note: Fire Nova r3; E0 the damage 8503 at the active fire totem (SH.7)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 8503 } }]
+    note: Fire Nova r3; E0 the damage 8503 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8503 } }]
   - id: 408344
-    note: Fire Nova r4; E0 the damage 11306 at the active fire totem (SH.7)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 11306 } }]
+    note: Fire Nova r4; E0 the damage 11306 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 11306 } }]
   - id: 408345
-    note: Fire Nova r5; E0 the damage 11307 at the active fire totem (SH.7)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 11307 } }]
+    note: Fire Nova r5; E0 the damage 11307 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 11307 } }]
   - id: 408438
     note: Lightning Overload (talent); E0 the rank value is the chance to cast the overload copy (SH.8)
     effects: [{ index: 0, script: NO_OP }]
@@ -298,36 +304,43 @@ overrides:
     note: Flametongue Weapon's proc aura; E0 deals rank 6's amount (16344) x weapon speed / 100 as 10444
     effects: [{ index: 0, script: WEAPON_SPEED_DAMAGE, params: { spell: 10444, effect: 0, amount_spell: 16344 } }]
 
-  # ----- Totems (SH.7): the highest rank's creature spells, carried (the totem applies them)
+  # ----- Totems: the SUMMON effect's script names what the totem does (the totem spell's buff is
+  # its lifetime; its element is the effect's SummonProperties)
   - id: 10438
-    note: Searing Totem r6; the totem casts its attack 10436
-    carries: [10436]
+    note: Searing Totem r6; attacks with 10436 every 2.2 s (its cast time; TotemAI recasts it)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10436, period_ms: 2200 } }]
+  - id: 10436
+    note: Searing Totem's attack r6 (the tables call it Attack)
+    rename: Searing Totem Attack
   - id: 10587
-    note: Magma Totem r4; the totem's passive 10584 pulses 10581
-    carries: [10584]
+    note: Magma Totem r4; its passive 10584 pulses 10581 every 2 s
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10584 } }]
   - id: 25361
-    note: Strength of Earth Totem r5; the totem's aura 25362
-    carries: [25362]
+    note: Strength of Earth Totem r5; the aura 25362
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 25362 } }]
   - id: 25359
-    note: Grace of Air Totem r3; the totem's aura 25360
-    carries: [25360]
+    note: Grace of Air Totem r3; the aura 25360
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 25360 } }]
   - id: 10497
-    note: Mana Spring Totem r4; the totem's aura 10494
-    carries: [10494]
+    note: Mana Spring Totem r4; the aura 10494
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10494 } }]
   - id: 10614
-    note: Windfury Totem r3; the totem's party aura 10612 (its payload 10610 in base points)
-    carries: [10612, 10610]
+    note: Windfury Totem r3; the party aura 10612 (its payload 10610 in base points)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10612 } }]
   - id: 16387
-    note: Flametongue Totem r4; the totem's party aura 15036 (its payload 16389 in base points)
-    carries: [15036, 16389]
+    note: Flametongue Totem r4; the party aura 15036 (its payload 16389 in base points)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 15036 } }]
+  - id: 15036
+    note: Flametongue Totem's aura; E0 deals 16389's amount x the main hand's speed / 100 as Flametongue Attack
+    effects: [{ index: 0, script: WEAPON_SPEED_DAMAGE, params: { spell: 10444, effect: 0, amount_spell: 16389 } }]
   - id: 16389
-    note: Flametongue Totem's proc; E0 deals its amount x weapon speed / 100 fire (SH.7)
+    note: Flametongue Totem's proc; E0 the amount 15036 scales by weapon speed
     effects: [{ index: 0, script: NO_OP }]
   - id: 29193
-    note: Improved Weapon Totems r2 (baseline, SH.3); E0 Windfury Totem attack power +30 %, E1 Flametongue Totem +12 % (SH.7)
+    note: Improved Weapon Totems r2 (baseline); E0 Windfury Totem attack power +30 %, E1 Flametongue Totem +12 %
     effects:
-      - { index: 0, script: NO_OP }
-      - { index: 1, script: NO_OP }
+      - { index: 0, script: POINTS_PERCENT_MODIFIER }
+      - { index: 1, script: POINTS_PERCENT_MODIFIER }
 
   # ----- Not simulated
 

@@ -487,9 +487,7 @@ overrides:
     cast_time_ms: 1000               # in place of SpellCastTimes.Base (Charge's run to the target)
     walk: [1311701, 1311703]         # spells the export carries although no table field reaches
                                      #   them, payloads of this one (Twist of Light's Echoes)
-    carries: [25362]                 # as walk, but not payloads: something else applies them
-                                     #   (a totem's aura, which the totem applies while it stands); payloads of the spell
-                                     #   at runtime, enabled with it
+    rename: Searing Totem Attack     # the name the sim reports (the tables' "Attack")
     exclusive_auras: [25782, 25916]  # not castable while one of these is up on the caster
                                      #   (Blessing of Might under a Greater Blessing of Might)
 ```
@@ -526,6 +524,9 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `AP_COEFFICIENT` | the attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`): `value` × attack power added to a direct damage effect's hit, or to every tick (per stack) of a periodic damage aura, taken at the cast | `value` | Instant Poison VI E0 (0.005), Deadly Poison V E0 (0.0045), Thunder Clap E0 (0.03) |
 | `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
+| `SUMMON_TOTEM` | on a totem spell's `SUMMON` effect: while the totem (of the slot the effect's `SummonProperties` name) stands, `spell`'s aura is the shaman's, or with `period_ms` the totem casts `spell` that often; the totem spell's buff is its lifetime | `spell`, `period_ms` | Strength of Earth Totem 25361 E0, Searing Totem 10438 E0 |
+| `TOTEM_NOVA` | casts `spell` with the nova's damage modifiers from the fire totem; without one the spell cannot be cast (`NoTotem`) | `spell` | Fire Nova 408345 E0 |
+| `POINTS_PERCENT_MODIFIER` | a `DUMMY` aura that is a percent modifier of the first effect's points of the spells in its class mask | — | Improved Weapon Totems 29193 |
 | `WEAPON_SPEED_DAMAGE` | a proc aura's payload per landed hit: casts `spell` with effect `effect` set to `amount_spell`'s first effect value × the main-hand weapon's unhasted speed / 100 | `spell`, `effect`, `amount_spell` | Flametongue Weapon 436519 E0 |
 | `DAMAGE_PERCENT_VS_CASTER_AURA` | the spell deals `base_points` % more while one of the caster's debuffs of the spells in `family_mask` is on the target | `family_mask` | Lava Burst E1 (Flame Shock) |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |

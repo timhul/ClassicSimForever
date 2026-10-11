@@ -546,7 +546,7 @@ mod tests {
         fn global_cooldown(&self) -> f64 {
             1.5
         }
-        fn start_global_cooldown(&mut self) {}
+        fn start_global_cooldown(&mut self, _: f64) {}
         fn on_stance_cooldown(&self) -> bool {
             false
         }

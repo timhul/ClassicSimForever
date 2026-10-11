@@ -261,6 +261,16 @@ pub enum ScriptKind {
     /// (Consecrated Ground: holy damage against the enemies in the Consecration, which a
     /// single target always is).
     SchoolDamagePercentWhileAura,
+    /// Goes on a totem spell's `SUMMON` effect: the totem (of the slot its `SummonProperties`
+    /// name) applies the aura of `params.spell` to the shaman while it stands, or, with
+    /// `params.period_ms`, casts `params.spell` at the target that often (Searing Totem).
+    SummonTotem,
+    /// A `DUMMY` aura that is a percent modifier of the first effect's points of the spells in
+    /// its class mask (Improved Weapon Totems: Windfury Totem's attack power +30 %).
+    PointsPercentModifier,
+    /// Casts `params.spell` at the caster's fire totem; without one the spell cannot be cast
+    /// (Fire Nova).
+    TotemNova,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -269,13 +279,15 @@ impl ScriptKind {
     /// Whether the script's `params.spell` is a condition (an aura the caster must have, a
     /// seal an Echo echoes) rather than a spell it casts: the named spell is no payload, and
     /// enabling the scripted spell does not enable it (Holy Strike would otherwise give every
-    /// paladin Sacred Arbiter).
+    /// paladin Sacred Arbiter). A totem's spell is not a payload either: the totem applies it
+    /// while it stands.
     pub fn names_condition(self) -> bool {
         matches!(
             self,
             ScriptKind::SealEcho
                 | ScriptKind::RefreshJudgements
                 | ScriptKind::SchoolDamagePercentWhileAura
+                | ScriptKind::SummonTotem
         )
     }
 }
@@ -404,6 +416,11 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")
             }
+            ScriptKind::SummonTotem => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.period_ms != Some(0), "period_ms (not 0)")
+            }
+            ScriptKind::TotemNova => need(p.spell.is_some(), "spell"),
             ScriptKind::WeaponSpeedDamage => {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")?;
@@ -457,6 +474,7 @@ impl EffectScript {
             | ScriptKind::JudgeSeal
             | ScriptKind::AttackSpeedDamagePenalty
             | ScriptKind::RefreshAura
+            | ScriptKind::PointsPercentModifier
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -643,10 +661,10 @@ pub struct SpellOverride {
     /// reference and the pruning keeps them. They are the spell's payloads, enabled with it.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub walk: Vec<u32>,
-    /// As `walk`, but not payloads: spells the export carries for something else that applies
-    /// them (a totem's creature casts its aura while it stands, not the totem spell's caster).
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub carries: Vec<u32>,
+    /// The name the sim reports the spell by, where the tables' is unhelpful (Searing Totem's
+    /// attack is called "Attack").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rename: Option<String>,
     /// Auras this spell's does not stack with: while one of them is up on the caster the spell
     /// cannot be cast (Blessing of Might under another paladin's Greater Blessing of Might, the
     /// game's "a more powerful spell is already active").
@@ -714,11 +732,6 @@ impl SpellOverride {
         }
         for &id in &self.walk {
             push(Some(id));
-        }
-        if conditions {
-            for &id in &self.carries {
-                push(Some(id));
-            }
         }
         push(self.proc.and_then(|p| p.target_aura));
         ids

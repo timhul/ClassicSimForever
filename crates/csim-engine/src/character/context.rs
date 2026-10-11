@@ -42,6 +42,7 @@ use crate::statistics::{
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
+use crate::totem::{ActiveTotem, TotemElement, TotemSummon};
 
 use super::{
     Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
@@ -273,6 +274,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             }
         }
         self.change_aura_effects(&effects, apply);
+        if let Some(summon) = self.totem_of_buff(id) {
+            if apply {
+                self.summon_totem(id, summon);
+            } else {
+                self.dismiss_totem(id, summon.element);
+            }
+        }
         if let BuffSlot::Shared(handle) = self.character.spells.buff_slot(id) {
             let handle = *handle;
             if let BuffKind::PartyBuff { party } = self.raid.shared_buff(handle).kind() {
@@ -284,6 +292,122 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 });
             }
         }
+    }
+
+    /// The totem whose lifetime buff `id` is, if any.
+    fn totem_of_buff(&self, id: BuffId) -> Option<TotemSummon> {
+        self.character.spells.totem_of_buff(id)
+    }
+
+    /// A totem stands: it replaces the one of its element, switches on its aura for the shaman
+    /// or starts its attacks.
+    fn summon_totem(&mut self, buff: BuffId, summon: TotemSummon) {
+        if let Some(old) = self.character.totems.get(summon.element).copied() {
+            if old.buff == buff {
+                return;
+            }
+            self.cancel_buff(old.buff);
+        }
+        let iteration = self.character.totems.next_iteration();
+        let applied = match summon.period {
+            Some(period) => {
+                let character = self.character.id();
+                self.engine.add_event_in(
+                    period,
+                    EventKind::TotemAttack {
+                        character,
+                        element: summon.element,
+                        iteration,
+                    },
+                );
+                None
+            }
+            None => self.switch_on_totem_aura(summon.spell),
+        };
+        self.character.totems.set(ActiveTotem {
+            buff,
+            summon,
+            applied,
+            iteration,
+        });
+    }
+
+    /// Switches on the passive or proc aura `spell` a totem gives the shaman, unless something
+    /// already gives the same: the selected external buff of that aura (another shaman's
+    /// Strength of Earth), or a main-hand temporary enchant with that proc (Windfury Totem) or
+    /// one ruling it out (Windfury Weapon).
+    fn switch_on_totem_aura(&mut self, spell: u32) -> Option<SpellHandle> {
+        let handle = self.character.spells.handle(spell)?;
+        let external = self
+            .character
+            .general_buffs
+            .entries()
+            .iter()
+            .any(|entry| entry.spec.spell == spell && self.buff_ref(entry.buff).is_active());
+        if external || self.mainhand_enchant_covers(spell) {
+            return None;
+        }
+        self.enable_handle(handle);
+        Some(handle)
+    }
+
+    /// Whether a main-hand temporary enchant gives proc `spell` (as an enchant of its own) or
+    /// rules out the group of an enchant that does.
+    fn mainhand_enchant_covers(&self, spell: u32) -> bool {
+        let equipment = self.character.equipment();
+        let enchants = equipment.db().enchants();
+        let groups: Vec<_> = EnchantName::ALL
+            .iter()
+            .filter_map(|&name| enchants.get(name))
+            .filter(|spec| spec.procs.iter().any(|p| p.spell == Some(spell)))
+            .map(|spec| spec.temp_group)
+            .collect();
+        equipment
+            .temp_enchants(EquipmentSlot::Mainhand)
+            .iter()
+            .filter_map(|&name| enchants.get(name))
+            .any(|spec| {
+                groups
+                    .iter()
+                    .any(|g| spec.temp_group == *g || spec.excludes.contains(g))
+            })
+    }
+
+    /// The totem of `element` whose buff `buff` ended goes: its aura with it.
+    fn dismiss_totem(&mut self, buff: BuffId, element: TotemElement) {
+        if self
+            .character
+            .totems
+            .get(element)
+            .is_none_or(|totem| totem.buff != buff)
+        {
+            return;
+        }
+        let totem = self.character.totems.take(element).expect("checked");
+        if let Some(handle) = totem.applied {
+            self.disable_handle(handle);
+        }
+    }
+
+    /// An attacking totem's cast, and its next one.
+    fn totem_attack(&mut self, element: TotemElement, iteration: u32) {
+        let Some(totem) = self.character.totems.get(element).copied() else {
+            return;
+        };
+        if totem.iteration != iteration {
+            return;
+        }
+        SpellHost::trigger_spell(self, totem.summon.spell, None);
+        let character = self.character.id();
+        let period = totem.summon.period.expect("an attacking totem");
+        self.engine.add_event_in(
+            period,
+            EventKind::TotemAttack {
+                character,
+                element,
+                iteration,
+            },
+        );
     }
 
     /// Applies (or removes) aura `effects` on this character, whichever buff they belong to.
@@ -1945,6 +2069,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             } if character == me => {
                 self.dot_tick(spell, application_id);
             }
+            EventKind::TotemAttack {
+                character,
+                element,
+                iteration,
+            } if character == me => {
+                self.totem_attack(element, iteration);
+            }
             EventKind::CastComplete {
                 character,
                 spell,
@@ -3083,6 +3214,10 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         })
     }
 
+    fn totem_active(&self, element: TotemElement) -> bool {
+        self.character.totems.get(element).is_some()
+    }
+
     fn target_has_caster_aura(&self, set: u32, family_mask: &[u32; 4]) -> bool {
         let spells = self.character.spells();
         spells.buff_ids().any(|id| {
@@ -3159,9 +3294,9 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.global_cooldown()
     }
 
-    fn start_global_cooldown(&mut self) {
+    fn start_global_cooldown(&mut self, gcd: f64) {
         let now = self.now();
-        self.character.start_global_cooldown(now);
+        self.character.start_global_cooldown_of(now, gcd);
     }
 
     fn on_stance_cooldown(&self) -> bool {

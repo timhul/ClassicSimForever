@@ -99,7 +99,7 @@ fn status_checks_in_c_plus_plus_order() {
     world.with_spell(id, |spell, world| spell.enable(world));
     assert_eq!(world.status(BLOODTHIRST), SpellStatus::Available);
 
-    world.start_global_cooldown();
+    world.start_global_cooldown(1.5);
     assert_eq!(world.status(BLOODTHIRST), SpellStatus::OnGcd);
     world.next_gcd = 0.0;
     world.casting = true;

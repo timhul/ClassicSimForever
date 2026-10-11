@@ -42,6 +42,7 @@ use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
 use crate::target::CreatureTypes;
+use crate::totem::{TOTEM_GRACE, TotemElement, TotemSummon};
 
 /// Tolerance when comparing the cooldown's ready time with the current time.
 const COOLDOWN_EPSILON: f64 = 0.0001;
@@ -69,7 +70,8 @@ pub trait SpellHost: EffectHost {
     fn on_global_cooldown(&self) -> bool;
     /// Length of the global cooldown in seconds.
     fn global_cooldown(&self) -> f64;
-    fn start_global_cooldown(&mut self);
+    /// Starts a global cooldown of `gcd` seconds (the spell's, see [`Spell::global_cooldown`]).
+    fn start_global_cooldown(&mut self, gcd: f64);
     fn on_stance_cooldown(&self) -> bool;
     fn start_stance_cooldown(&mut self);
     fn cast_in_progress(&self) -> bool;
@@ -550,9 +552,34 @@ impl SpellSetup {
             .unwrap_or(self.record.cast_time_ms)
     }
 
-    /// Whether the spell needs a buff: it has aura effects, or a bleed script with an aura.
+    /// Whether the spell needs a buff: it has aura effects, a bleed script with an aura, or it
+    /// summons a totem (the buff is the totem's lifetime).
     pub fn has_buff(&self) -> bool {
-        self.record.applies_aura() || self.bleed_aura.is_some()
+        self.record.applies_aura() || self.bleed_aura.is_some() || self.totem_summon().is_some()
+    }
+
+    /// The totem the spell summons: a `SUMMON` effect with a `SUMMON_TOTEM` script, its slot from
+    /// the effect's `SummonProperties`.
+    pub fn totem_summon(&self) -> Option<TotemSummon> {
+        self.record.effects.iter().find_map(|effect| {
+            let script = self.overrides.effect_script(effect.index)?;
+            if script.script != ScriptKind::SummonTotem {
+                return None;
+            }
+            Some(TotemSummon {
+                element: TotemElement::from_summon_properties(effect.misc_value[1])?,
+                spell: script.params.spell?,
+                period: script.params.period_ms.map(|ms| f64::from(ms) / 1000.0),
+            })
+        })
+    }
+
+    /// Whether the spell needs a fire totem (`TOTEM_NOVA`).
+    pub fn needs_fire_totem(&self) -> bool {
+        self.overrides
+            .effects
+            .iter()
+            .any(|script| script.script == ScriptKind::TotemNova)
     }
 
     /// The record the spell's buff is built from: the bleed aura for a bleed payload, otherwise
@@ -1354,6 +1381,9 @@ impl Spell {
         if self.stance().is_some_and(|stance| stance == host.stance()) {
             return SpellStatus::in_stance(host.stance());
         }
+        if self.setup.needs_fire_totem() && !host.totem_active(TotemElement::Fire) {
+            return SpellStatus::NoTotem;
+        }
         let restrictions = &record.aura_restrictions;
         match restrictions.target_aura_state {
             AuraState::None => {}
@@ -1445,7 +1475,7 @@ impl Spell {
         if self.triggers_gcd() {
             let gcd = self.global_cooldown(host);
             if add_gcd_event(host.engine_mut(), character, gcd) {
-                host.start_global_cooldown();
+                host.start_global_cooldown(gcd);
             }
         }
         if self.stance().is_some_and(Stance::has_swap_cooldown) {
@@ -1506,10 +1536,15 @@ impl Spell {
     /// The global cooldown this cast triggers, after `START_COOLDOWN` modifiers (Improved Slam).
     pub fn global_cooldown(&self, host: &impl SpellHost) -> f64 {
         let record = &self.setup.record;
+        // The spell's own `StartRecoveryTime` where it has one (a totem's 1 s), else the class's.
+        let base = match record.cooldown.start_recovery_ms {
+            0 => host.global_cooldown() * 1000.0,
+            ms => f64::from(ms),
+        };
         let ms = host.spell_modifiers().apply(
             record.class_options.as_ref(),
             SpellModOp::StartCooldown,
-            host.global_cooldown() * 1000.0,
+            base,
         );
         ms.max(0.0) / 1000.0
     }
@@ -2096,6 +2131,10 @@ impl Spell {
                         f64::from(ms),
                     );
                     ms.max(0.0) / 1000.0
+                })
+                .map(|seconds| match self.setup.totem_summon() {
+                    Some(_) => seconds + TOTEM_GRACE,
+                    None => seconds,
                 })
         };
         let ap = f64::from(host.melee_ap());

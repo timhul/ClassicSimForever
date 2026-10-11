@@ -163,6 +163,10 @@ pub trait EffectHost {
     fn target_has_caster_aura(&self, _set: u32, _family_mask: &[u32; 4]) -> bool {
         false
     }
+    /// Whether the caster's totem of `element` stands (`TOTEM_NOVA`).
+    fn totem_active(&self, _element: crate::totem::TotemElement) -> bool {
+        false
+    }
 }
 
 /// How an effect relates to the effects before it in the chain. Port of `Dependency`.
@@ -833,6 +837,19 @@ impl Effect {
                 }
                 EffectOutcome::plain(true)
             }
+            // The nova bursts from the fire totem; without one there is none. The modifiers of
+            // the nova (Improved Fire Nova) go with its damage spell.
+            Some(ScriptKind::TotemNova) => EffectOutcome {
+                trigger: self
+                    .script
+                    .and_then(|s| s.params.spell)
+                    .filter(|_| host.totem_active(crate::totem::TotemElement::Fire)),
+                trigger_damage_scale: Some(
+                    host.spell_modifiers()
+                        .multiplier(self.class_options.as_ref(), SpellModOp::HealingAndDamage),
+                ),
+                ..EffectOutcome::plain(true)
+            },
             Some(ScriptKind::DamagePercentVsPoisoned) => EffectOutcome {
                 triggered_damage_percent: if host.target_poisoned_by_caster() {
                     self.effective_value(host)
@@ -1483,6 +1500,21 @@ impl Effect {
                     self.record.spell_class_mask,
                     apply,
                 );
+            }
+            A::Dummy if self.script_kind() == Some(ScriptKind::PointsPercentModifier) => {
+                let modifier = SpellModifier {
+                    set: self.class_options.map_or(0, |c| c.set),
+                    class_mask: self.record.spell_class_mask,
+                    op: SpellModOp::PointsIndex0,
+                    pct: true,
+                    amount: value,
+                    source: self.spell,
+                };
+                if apply {
+                    host.spell_modifiers_mut().add(modifier);
+                } else {
+                    host.spell_modifiers_mut().remove(&modifier);
+                }
             }
             A::AddFlatModifier | A::AddPctModifier => {
                 let modifier = self.spell_modifier(value);

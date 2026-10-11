@@ -10,6 +10,7 @@
 //! (expensive operation) the staleness of an event is evaluated at event dispatch-time using the
 //! identifier (if the identifier does not match immediately discard event and continue).
 
+use crate::totem::TotemElement;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
@@ -76,6 +77,13 @@ pub enum EventKind {
         character: CharId,
         wake: u32,
     },
+    /// An attacking totem's next cast (Searing Totem); only the totem `iteration` of the
+    /// `element` slot that is standing acts on it.
+    TotemAttack {
+        character: CharId,
+        element: TotemElement,
+        iteration: u32,
+    },
 }
 
 impl EventKind {
@@ -93,7 +101,8 @@ impl EventKind {
             | EventKind::ManaTick { character }
             | EventKind::PlayerAction { character }
             | EventKind::Precast { character }
-            | EventKind::RegenReaction { character, .. } => Some(character),
+            | EventKind::RegenReaction { character, .. }
+            | EventKind::TotemAttack { character, .. } => Some(character),
             EventKind::EncounterEnd => None,
         }
     }
@@ -114,6 +123,7 @@ impl EventKind {
             EventKind::PlayerAction { .. } => EventType::PlayerAction,
             EventKind::Precast { .. } => EventType::Precast,
             EventKind::RegenReaction { .. } => EventType::RegenReaction,
+            EventKind::TotemAttack { .. } => EventType::TotemAttack,
         }
     }
 }
@@ -134,10 +144,11 @@ pub enum EventType {
     PlayerAction,
     Precast,
     RegenReaction,
+    TotemAttack,
 }
 
 impl EventType {
-    pub const ALL: [EventType; 13] = [
+    pub const ALL: [EventType; 14] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
         EventType::DotTick,
@@ -151,6 +162,7 @@ impl EventType {
         EventType::PlayerAction,
         EventType::Precast,
         EventType::RegenReaction,
+        EventType::TotemAttack,
     ];
 
     fn index(self) -> usize {
@@ -173,6 +185,7 @@ impl EventType {
             EventType::PlayerAction => "Player action",
             EventType::Precast => "Precast",
             EventType::RegenReaction => "Regeneration reaction",
+            EventType::TotemAttack => "Totem attack",
         }
     }
 }

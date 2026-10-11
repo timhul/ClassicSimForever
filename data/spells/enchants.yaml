@@ -4,28 +4,6 @@
 build: 1.60.1.70291
 learnable: false
 spells:
-- id: 10444
-  name: Flametongue Attack
-  rank_text: Rank 3
-  attributes: [262144, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 4
-  icon: 135814
-  icon_name: spell_fire_flametounge
-  range_yd: 50000.0
-  categories:
-    defense_type: MAGIC
-  levels:
-    base: 1
-    spell: 1
-  class_options:
-    set: 11
-    mask: [2097152, 0, 0, 0]
-  labels: [24]
-  effects:
-  - index: 0
-    effect: SCHOOL_DAMAGE
-    bonus_coefficient: 0.1
-    implicit_target: [UNIT_TARGET_ENEMY, NONE]
 - id: 11337
   name: Instant Poison VI
   rank_text: Rank 6

@@ -99,7 +99,8 @@ buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 
 The buff types read the character's own debuffs on the target too, by the debuff's name:
 `buff_duration "Rupture" less 2` or `buff_duration "Expose Armor" less 3` time a Rogue's
-refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's.
+refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's. A Shaman's totem is a buff named
+after its totem spell, up while the totem stands (`buff_duration "Searing Totem" less 1`).
 
 An on-next-swing spell (Heroic Strike, Cleave) is a buff of its own name while it is queued,
 from the cast until the main hand swing that takes it (or drops it, without the rage for it).

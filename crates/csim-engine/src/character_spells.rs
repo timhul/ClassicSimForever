@@ -17,6 +17,7 @@
 //! character keeps a [`BuffSlot::Shared`] handle to them so every buff a character refers to
 //! has a [`BuffId`] in its own list.
 
+use crate::totem::TotemSummon;
 use std::collections::BTreeMap;
 
 use crate::attack_mode::AttackMode;
@@ -127,6 +128,8 @@ pub struct CharacterSpells {
     spells: Vec<Option<Spell>>,
     /// Game id → handle for spells and procs.
     by_game_id: BTreeMap<u32, SpellHandle>,
+    /// The totem spells' lifetime buffs and what they summon.
+    totem_buffs: BTreeMap<BuffId, TotemSummon>,
     rank_groups: BTreeMap<String, SpellRankGroup>,
     /// Active `OVERRIDE_ACTIONBAR_SPELLS` substitutions: `(replaced, replacement)` game ids.
     actionbar_overrides: Vec<(u32, u32)>,
@@ -161,6 +164,7 @@ pub struct CharacterSpells {
 impl CharacterSpells {
     pub fn new(character: CharId, proc_seed: u64) -> Self {
         CharacterSpells {
+            totem_buffs: BTreeMap::new(),
             character,
             spells: Vec::new(),
             by_game_id: BTreeMap::new(),
@@ -570,7 +574,9 @@ impl CharacterSpells {
             });
         }
         let record = setup.buff_record();
-        let kind = BuffKind::from_record(record, party, overrides.debuff_shared(record.id))?;
+        // A totem's lifetime buff has no auras of its own: it is the shaman's.
+        let kind = BuffKind::from_record(record, party, overrides.debuff_shared(record.id))
+            .or_else(|| setup.totem_summon().map(|_| BuffKind::SelfBuff))?;
         let buff = Buff::from_record(record, kind, overrides);
         let slot = match kind {
             BuffKind::PartyBuff { party } => {
@@ -597,7 +603,16 @@ impl CharacterSpells {
             }
             _ => BuffSlot::Owned(Box::new(buff)),
         };
-        Some(self.add_buff_slot(slot))
+        let id = self.add_buff_slot(slot);
+        if let Some(summon) = setup.totem_summon() {
+            self.totem_buffs.insert(id, summon);
+        }
+        Some(id)
+    }
+
+    /// The totem whose lifetime buff `buff` is, if any.
+    pub fn totem_of_buff(&self, buff: BuffId) -> Option<TotemSummon> {
+        self.totem_buffs.get(&buff).copied()
     }
 
     /// Where game id `spell` lives, if the character has it.
