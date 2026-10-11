@@ -18,32 +18,32 @@
 #   [U]  the user's decision (TASKS.md SH.0)
 #   [?]  open: still to settle (listed at the end of this header)
 #
-# Forever's damage numbers
+# Forever's damage numbers (a range's ± is half the tables' variance, the width of the range)
 #   - The Shaman's base damage is about half the 1.12 value with the 1.12 coefficients: Lightning
 #     Bolt rank 10 196 (1.12: 428-477), Chain Lightning rank 4 123 (505-563), Earth Shock rank 7
 #     301 (517-545). The tables carry 1.12 numbers elsewhere (Exorcism rank 6 502), so this is
 #     Forever's tuning, not a unit difference. [T]
 #
 # Lightning Bolt (403 .. 15208), Chain Lightning (421 .. 10605)
-#   - Lightning Bolt rank 10: 196 (+1.2/level, ±10.8 %) nature, coefficient 0.714, 2.5 s cast,
+#   - Lightning Bolt rank 10: 196 (+1.2/level, ±5.4 %) nature, coefficient 0.714, 2.5 s cast,
 #     220 mana. [T]
-#   - Chain Lightning rank 4: 123 (+0.8/level, ±11.1 %) nature, coefficient 0.571, 2.0 s cast,
+#   - Chain Lightning rank 4: 123 (+0.8/level, ±5.6 %) nature, coefficient 0.571, 2.0 s cast,
 #     6 s cooldown, 485 mana. One target: the jumps never land. [T]
 #   - No travel time: the damage lands as the cast ends, as for every spell in the engine.
 #
 # Lava Burst (408490, 1238299, 1238300)
-#   - Rank 3: 220 (±25.3 %) fire, coefficient 0.714, 2.5 s cast, 10 s cooldown, 265 mana. [T]
+#   - Rank 3: 220 (±12.7 %) fire, coefficient 0.714, 2.5 s cast, 10 s cooldown, 265 mana. [T]
 #   - Effect 1 (DUMMY 20): +20 % damage while the caster's Flame Shock is on the target; the
 #     Flame Shock stays. [T]  Lava Burst never auto-crits (the SoD rune's Flame Shock crit is
 #     not in the description). [T]
 #
 # Shocks: Earth Shock (8042 .. 10414), Flame Shock (8050 .. 29228), Frost Shock (8056 .. 10473)
 #   - One shared 6 s category cooldown, 1.5 s GCD; Reverberation -0.2 s a rank. [T]
-#   - Earth Shock rank 7: 301 (±5.3 %) nature, coefficient 0.386, 450 mana; the interrupt and
+#   - Earth Shock rank 7: 301 (±2.6 %) nature, coefficient 0.386, 450 mana; the interrupt and
 #     school lockout do nothing against a boss. [T]
 #   - Flame Shock rank 6: 166 fire, coefficient 0.214, plus 44 a tick every 3 s for 12 s
 #     (coefficient 0.1 a tick), 410 mana. [T]
-#   - Frost Shock rank 4: 283 (+1.8/level from 58, ±5.6 %) frost, coefficient 0.386, 430 mana;
+#   - Frost Shock rank 4: 283 (+1.8/level from 58, ±2.8 %) frost, coefficient 0.386, 430 mana;
 #     the slow does nothing. [T]
 #
 # Lightning Overload (408438, talent: 3 / 7 / 10 %)
@@ -108,13 +108,13 @@
 #   - The damage totems and Fire Nova use the shaman's spell damage, spell hit and spell crit. [U]
 #     The 1.12 server let totems benefit from spell damage since 1.10 (vmangos
 #     UnitAuraProcHandler.cpp, the Zandalarian Hero Charm note). [V]
-#   - Searing Totem rank 6 (10438): 55 s, 170 mana; it casts its attack 10436 (47 fire, ±29.8 %,
+#   - Searing Totem rank 6 (10438): 55 s, 170 mana; it casts its attack 10436 (47 fire, ±14.9 %,
 #     2.2 s cast) again as soon as the last one ends: one attack every 2.2 s. [T] [V] TotemAI.cpp
 #     UpdateAI (an active totem recasts its spell when it is not casting)
 #   - Magma Totem rank 4 (10587): 20 s, 650 mana; 10584 pulses 10581 (73 fire, area) every 2 s:
 #     ten pulses. [T]
 #   - Fire Nova rank 5 (408345): a spell, not a totem: 10 s cooldown, 520 mana, 11307 (419
-#     +3.4/level from 52, ±11 % fire) at the active fire totem; it needs one. Improved Fire Nova
+#     +3.4/level from 52, ±5.5 % fire) at the active fire totem; it needs one. Improved Fire Nova
 #     +10 / 20 % and -2 / -4 s. [T]
 #   - The totem attacks and Fire Nova carry no coefficient in the tables: 0 for now. [U] [?]
 #   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
@@ -214,31 +214,31 @@
 overrides:
   # ----- Elemental
   - id: 408490
-    note: Lava Burst r1; E1 +20 % with the caster's Flame Shock on the target (SH.5)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Lava Burst r1; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 1238299
-    note: Lava Burst r2; E1 +20 % with the caster's Flame Shock on the target (SH.5)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Lava Burst r2; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 1238300
-    note: Lava Burst r3; E1 +20 % with the caster's Flame Shock on the target (SH.5)
-    effects: [{ index: 1, script: NO_OP }]
+    note: Lava Burst r3; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 8050
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 8052
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 8053
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 10447
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 10448
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 29228
-    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst (SH.5)
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
   - id: 408341
     note: Fire Nova r1; E0 the damage 8349 at the active fire totem (SH.7)
@@ -466,6 +466,12 @@ overrides:
     sim_flags: [IGNORED]
   - id: 1222988
     note: Earthbound (talent), an Earthbind Totem root
+    sim_flags: [IGNORED]
+  - id: 2645
+    note: Ghost Wolf (movement)
+    sim_flags: [IGNORED]
+  - id: 1238640
+    note: Ghost Wolf, Improved Ghost Wolf's replacement (movement)
     sim_flags: [IGNORED]
   - id: 556
     note: utility

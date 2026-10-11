@@ -21,9 +21,14 @@ use crate::effect::Effect;
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, InstanceId};
 use crate::proc::ProcSource;
+use crate::spell::dbc::{AuraType, ProcFlags};
 use crate::spell::overrides::{Overrides, ProcHitMask, SimFlag};
 use crate::spell::record::{ClassOptions, SpellRecord};
 use crate::target::{Priority, Target};
+
+/// The `TAKE_*` proc flags (`TAKE_MELEE_SWING` .. `TAKE_HARMFUL_PERIODIC`), each one bit above
+/// its `DEAL_*`.
+const TAKEN_FLAGS: u32 = 0x000A_AAA8;
 
 /// Which units a buff affects and how it is registered. Port of the `Buff` subclasses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -282,13 +287,29 @@ impl Buff {
             && !record.aura_options.proc_type_mask.is_empty()
             && record.effects.iter().any(|e| e.is_spell_modifier());
         if record.aura_options.proc_charges > 0 || buff.consumed_whole {
-            buff.charge_sources =
-                ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
+            // A debuff boosting its owner's spells (Stormstrike) is used up by what the target
+            // takes from them: the owner's damage is all the target takes here.
+            let from_caster = kind.is_debuff()
+                && record
+                    .effects
+                    .iter()
+                    .any(|e| e.is_apply_aura() && e.aura == AuraType::ModSpellDamageFromCaster);
+            let mask = record.aura_options.proc_type_mask;
+            let mask = if from_caster {
+                mask.union(ProcFlags::from_bits((mask.bits() & TAKEN_FLAGS) >> 1))
+            } else {
+                mask
+            };
+            buff.charge_sources = ProcSource::from_masks(mask, ProcHitMask::LANDED);
             let set = record.class_options.map_or(0, |c| c.set);
             buff.charge_spell_masks = record
                 .effects
                 .iter()
-                .filter(|e| e.is_spell_modifier() || e.is_ignore_shapeshift())
+                .filter(|e| {
+                    e.is_spell_modifier()
+                        || e.is_ignore_shapeshift()
+                        || (from_caster && e.aura == AuraType::ModSpellDamageFromCaster)
+                })
                 .map(|e| (set, e.spell_class_mask))
                 .collect();
         }

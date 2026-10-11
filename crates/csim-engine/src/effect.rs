@@ -158,6 +158,11 @@ pub trait EffectHost {
     fn target_poisoned_by_caster(&self) -> bool {
         false
     }
+    /// Whether one of the caster's debuffs of a spell in `family_mask` of spell family `set`
+    /// is on the target (`DAMAGE_PERCENT_VS_CASTER_AURA`).
+    fn target_has_caster_aura(&self, _set: u32, _family_mask: &[u32; 4]) -> bool {
+        false
+    }
 }
 
 /// How an effect relates to the effects before it in the chain. Port of `Dependency`.

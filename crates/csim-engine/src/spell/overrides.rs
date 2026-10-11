@@ -206,6 +206,9 @@ pub enum ScriptKind {
     /// The spells this one triggers deal `base_points` % more damage while one of the caster's
     /// poisons is on the target (Mutilate).
     DamagePercentVsPoisoned,
+    /// The spell deals `base_points` % more damage while one of the caster's debuffs of the
+    /// spells in `params.family_mask` is on the target (Lava Burst with Flame Shock).
+    DamagePercentVsCasterAura,
     /// An armor reduction on the target that shares one slot with the other exclusive ones:
     /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
     /// the armor aura effect itself (`MOD_RESISTANCE` / `MOD_ARMOR_NO_MODS`).
@@ -412,6 +415,10 @@ impl EffectScript {
             ),
             ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
             ScriptKind::ApCoefficient => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
+            ScriptKind::DamagePercentVsCasterAura => need(
+                p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                "family_mask (not 0)",
+            ),
             ScriptKind::DamagePercentBelowHealth => {
                 need(p.effect.is_some(), "effect")?;
                 need(

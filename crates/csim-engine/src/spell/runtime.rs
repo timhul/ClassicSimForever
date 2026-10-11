@@ -1028,8 +1028,8 @@ impl Spell {
 
     /// Multiplier on all damage from `HEALING_AND_DAMAGE` modifiers (Improved Revenge), the
     /// caster's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs (Hemorrhage), the modifiers below a
-    /// target health (Quietus) and a strike's own multiplier (Mutilate against a poisoned
-    /// target).
+    /// target health (Quietus), a strike's own multiplier (Mutilate against a poisoned
+    /// target) and the bonus against the caster's own debuff (Lava Burst with Flame Shock).
     pub fn damage_mod(&self, host: &impl SpellHost) -> f64 {
         let class = self.setup.record.class_options.as_ref();
         let modifiers = host.spell_modifiers();
@@ -1038,6 +1038,23 @@ impl Spell {
             * modifiers.below_health_multiplier(class, host.target_health())
             * self.strike.unwrap_or(1.0)
             * self.damage_scale.unwrap_or(1.0)
+            * self.caster_aura_multiplier(host)
+    }
+
+    /// `DAMAGE_PERCENT_VS_CASTER_AURA`: 1 + its value while the caster's debuff is up.
+    fn caster_aura_multiplier(&self, host: &impl SpellHost) -> f64 {
+        let set = self.setup.record.class_options.map_or(0, |c| c.set);
+        self.effects
+            .iter()
+            .filter(|e| e.script_kind() == Some(ScriptKind::DamagePercentVsCasterAura))
+            .filter_map(|e| {
+                e.script()
+                    .and_then(|s| s.params.family_mask)
+                    .map(|m| (e, m))
+            })
+            .filter(|(_, mask)| host.target_has_caster_aura(set, mask))
+            .map(|(e, _)| 1.0 + e.effective_value(host) / 100.0)
+            .product()
     }
 
     /// Multiplier on periodic damage from `PERIODIC_HEALING_AND_DAMAGE` modifiers (Improved

@@ -266,11 +266,12 @@ fn hammer_of_wrath_restarts_the_swing() {
             if event.kind == EventKind::EncounterEnd {
                 break;
             }
-            // A re-timed swing leaves a stale event behind.
+            // A re-timed swing leaves a stale event behind; none lands during a cast.
             let swing = matches!(
                 event.kind,
                 EventKind::MainhandMeleeHit { iteration, .. }
                     if f.character.spells().mh_attack().attack_is_valid(iteration)
+                        && f.character.spells().is_melee_attacking()
             );
             if f.ctx().handle_event(&event) && swing {
                 times.push(event.time);

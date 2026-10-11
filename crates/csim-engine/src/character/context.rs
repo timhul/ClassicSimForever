@@ -3050,6 +3050,23 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         })
     }
 
+    fn target_has_caster_aura(&self, set: u32, family_mask: &[u32; 4]) -> bool {
+        let spells = self.character.spells();
+        spells.buff_ids().any(|id| {
+            let buff = self.buff_ref(id);
+            buff.is_debuff()
+                && buff.is_active()
+                && spells.spell_by_game_id(buff.spell()).is_some_and(|spell| {
+                    spells
+                        .spell(spell)
+                        .record()
+                        .class_options
+                        .as_ref()
+                        .is_some_and(|class| class.matches(set, family_mask))
+                })
+        })
+    }
+
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
         self.character.adjust_offhand_copy(spell, apply);
     }

@@ -1261,6 +1261,7 @@ mod rogue_stealth;
 mod rogue_talents;
 mod shaman;
 mod shaman_casting;
+mod shaman_spells;
 
 // ---------------------------------------------------------------- external buffs
 
