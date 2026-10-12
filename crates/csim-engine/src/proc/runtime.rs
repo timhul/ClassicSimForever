@@ -33,7 +33,7 @@ use crate::proc::{ProcSource, ProcTrigger};
 use crate::rng::Random;
 use crate::spell::dbc::{AuraType, SpellModOp};
 use crate::spell::overrides::ScriptKind;
-use crate::spell::record::EquippedItems;
+use crate::spell::record::{ClassOptions, EquippedItems};
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellResult};
 
 /// The damage per swing a `WEAPON_SPEED_SWING_DAMAGE` aura of value `total` deals with a
@@ -60,6 +60,12 @@ pub trait ProcHost: SpellHost {
     /// The current value of effect `effect` of spell `spell`'s aura (a talent's rank value),
     /// `None` when the character does not have the spell.
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64>;
+
+    /// The chance factor of the character's `PROC_FROM_SPELL` auras that let a spell with
+    /// `class` options trigger proc `spell` (1 - their reduction), `None` when none does.
+    fn proc_from_spell_factor(&self, _spell: u32, _class: Option<&ClassOptions>) -> Option<f64> {
+        None
+    }
 
     /// The value of effect `effect` of spell `spell` at the character's level, `None` when the
     /// character does not have the spell.
@@ -338,6 +344,7 @@ impl Proc {
         if filter.builder && !trigger.awards_combo_points {
             return false;
         }
+
         let effect_mask = filter.family_mask_effect.and_then(|index| {
             let effect = self.spell.record().effect(index)?;
             Some(effect.spell_class_mask)
@@ -462,6 +469,30 @@ impl Proc {
         if !self.aura_is_up(host) {
             return false;
         }
+        // A spell event goes through the auras that let the spell trigger it.
+        let magic = matches!(
+            source,
+            ProcSource::MagicSpell
+                | ProcSource::SpellHit
+                | ProcSource::SpellCritical
+                | ProcSource::SpellFullResist
+        );
+        let by_script = self
+            .spell
+            .setup()
+            .overrides
+            .proc
+            .is_some_and(|p| p.spell_procs_by_script);
+        let spell_factor = if magic && by_script {
+            let factor =
+                host.proc_from_spell_factor(self.game_id(), trigger.class_options.as_ref());
+            if factor.is_none() {
+                return false;
+            }
+            factor
+        } else {
+            None
+        };
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
@@ -475,6 +506,9 @@ impl Proc {
             .is_some_and(|p| p.chance_per_combo_point)
         {
             range = range.saturating_mul(trigger.combo_points_spent);
+        }
+        if let Some(factor) = spell_factor {
+            range = (f64::from(range) * factor).round() as u32;
         }
         self.random.get_roll() < range && self.conditions_fulfilled(source, host)
     }

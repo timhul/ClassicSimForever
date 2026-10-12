@@ -105,11 +105,23 @@ overrides:
   - id: 28851
     note: Increased Flash of Light Healing (Libram of Light) is a paladin relic
     sim_flags: [IGNORED]
+  - id: 27855
+    note: Increased Lesser Healing Wave (Totem of Life) is a shaman healing relic
+    sim_flags: [IGNORED]
+  - id: 26127
+    note: Enigma Blizzard Bonus (Enigma Vestments 5) is a mage set bonus
+    sim_flags: [IGNORED]
+  - id: 28716
+    note: Rejuvenation (Dreamwalker Raiment 2) is a druid healing bonus
+    sim_flags: [IGNORED]
+  - id: 28744
+    note: Regrowth (Dreamwalker Raiment 6) is a druid healing bonus
+    sim_flags: [IGNORED]
+  - id: 28854
+    note: Improved Moonfire (Idol of the Moon) is a druid relic
+    sim_flags: [IGNORED]
   - id: 1291075
     note: Swiftmend Cooldown Reduction (Idol of Synthesis) is a druid relic
-    sim_flags: [IGNORED]
-  - id: 1291078
-    note: Lightning Bolt Can Activate Maelstrom Weapon (Totem of the Storm) is a shaman relic
     sim_flags: [IGNORED]
   - id: 1306433
     note: Holy Shield Block Value Increase (Steadfast Libram) is a paladin relic
@@ -174,6 +186,26 @@ overrides:
       the paladin's judgement spells instead (Righteousness, Wisdom, Light, Justice, the
       Crusader; Command; Fury)
     proc: { type_mask: [DEAL_MELEE_ABILITY], family_mask: [538444800, 512, 64, 0] }
+  # Shaman relics and set bonuses.
+  - id: 28857
+    note: Increased Lightning Damage (Totem of the Storm 23199); the class script is Lightning Bolt and Chain Lightning +33 spell damage
+    effects: [{ index: 0, script: SPELL_DAMAGE_BONUS }]
+  - id: 1291078
+    note: >-
+      Lightning Bolt Can Activate Maelstrom Weapon (Totem of the Storm 272432): Lightning Bolt
+      triggers Maelstrom Weapon at 50 % less chance (5 PPM)
+    effects: [{ index: 0, script: PROC_FROM_SPELL, params: { spell: 408498, family_mask: [1, 0, 0, 0] } }]
+  - id: 26119
+    note: >-
+      Stormcaller Spelldamage Bonus (Stormcaller's Garb 3): 20 % on Lightning Bolt, Chain
+      Lightning and the shocks (the description), not every harmful spell the table's type
+      mask names
+    proc: { family_mask: [2416967683, 0, 0, 0] }
+  - id: 450626
+    note: >-
+      The Furious Storm (The Elements 5), on white swings and spell casts; as Lightforge's
+      Crusader's Wrath: 1 PPM instead of the table's 100 %
+    proc: { ppm: 1 }
   # On-use auras.
   - id: 29602
     note: >-

@@ -535,7 +535,10 @@ impl EffectRecord {
             || (self.is_apply_aura()
                 && matches!(
                     self.aura,
-                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::AddTargetTrigger
+                    AuraType::Dummy
+                        | AuraType::PeriodicDummy
+                        | AuraType::AddTargetTrigger
+                        | AuraType::OverrideClassScripts
                 ))
     }
 

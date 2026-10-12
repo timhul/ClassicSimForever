@@ -285,6 +285,30 @@ Battlegear of Might = set 209: (3) 23562, (5) 21838, (8) 23561.
   (attack power against the creature types of the mask). An external buff's periodic mana gain
   is its rate as mana per 5 s, no caster ticking it (Greater Blessing of Wisdom: 40 every 5 s).
 
+### Shaman relics and set bonuses
+
+- **Totems** fit a Shaman's relic slot (`RELIC: [TOTEM]`). Totem of the Storm 23199: Lightning
+  Bolt and Chain Lightning +33 spell damage, a class script (`OVERRIDE_CLASS_SCRIPTS` 4554) the
+  overrides script as `SPELL_DAMAGE_BONUS`. Forever's Totem of the Storm 272432: Lightning Bolt
+  triggers Maelstrom Weapon at 50 % less chance (`PROC_FROM_SPELL`: 5 PPM); without it no spell
+  does (TASKS.md SH.9). Burning Totem 272433: Flame Shock +3 s (tables). Totem of Life, Totem of
+  Flowing Water, Tidal Totem and Totem of Urgency are healing relics.
+- **Sets.** The Elements (2: resistances, 3: +18 spell damage, 5: The Furious Storm at 1 PPM, as
+  Lightforge's Crusader's Wrath; 6: 8 mana per 5 s), Augur's Regalia (2: 4 mana per 5 s, 3:
+  Frost Shock +1 s), Stormcaller's Garb (3: 20 % on Lightning Bolt, Chain Lightning and the
+  shocks for Stormcaller's Wrath, +50 nature damage for 8 s: the overrides narrow the table's
+  "any harmful spell" to that mask), Gift of the Gathering Storm (3: Chain Lightning's jumps,
+  single target: nothing), Champion's Stormcaller (2: +40 attack power, 4: +2 % shock crit),
+  The Spiritcaller's Storm (Forever's tier 1: 2 +1 % hit, 4 +21 spell damage against
+  Elementals, 5 Lava Burst −1 s; its raid pieces are not exported yet).
+- **Auras** the Shaman's items brought in: `MOD_DAMAGE_DONE_CREATURE` (spell damage against the
+  creature types of the mask), `OVERRIDE_CLASS_SCRIPTS` (by script).
+- **Buffs.** The caster raid buffs, flasks, elixirs, food and mana consumables are offered to a
+  Shaman as to a Paladin; Elixir of Greater Firepower (+40 fire) to a Shaman. Forever's Curse of
+  the Elements (1311680) is every magic school: −75 resistances, +10 % damage taken (offered to
+  the casters). Improved Scorch's Fire Vulnerability is the Mage's own fire only in Forever: not
+  offered.
+
 ## 1.9 Random-suffix items ("of the Bear")
 
 Vanilla's `ItemRandomSuffix` is replaced by the retail item-bonus system. 1 707 Classic items have an

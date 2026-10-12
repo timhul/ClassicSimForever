@@ -3870,6 +3870,32 @@ impl<S: SharedBuffs> ProcHost for CharacterContext<'_, S> {
             .map(|e| e.effective_value(self))
     }
 
+    fn proc_from_spell_factor(
+        &self,
+        spell: u32,
+        class: Option<&crate::spell::ClassOptions>,
+    ) -> Option<f64> {
+        let class = class?;
+        self.character
+            .spells()
+            .buff_ids()
+            .map(|buff| self.buff_ref(buff))
+            .filter(|buff| buff.is_active())
+            .flat_map(|buff| buff.effects.iter())
+            .filter_map(|effect| {
+                let script = effect.script()?;
+                let set = effect.class_options().map_or(0, |c| c.set);
+                (script.script == ScriptKind::ProcFromSpell
+                    && script.params.spell == Some(spell)
+                    && script
+                        .params
+                        .family_mask
+                        .is_some_and(|mask| class.matches(set, &mask)))
+                .then(|| 1.0 - effect.value() / 100.0)
+            })
+            .reduce(f64::max)
+    }
+
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {
         let spells = self.character.spells();
         let buff = match spells.handle(spell)? {

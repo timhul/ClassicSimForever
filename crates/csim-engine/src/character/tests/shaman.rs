@@ -24,9 +24,18 @@ const RACES: [Race; 5] = [
 /// A Shaman of `race` with the shipped spells and tree, `talents` spent, a one-handed mace in
 /// the main hand (no racial weapon crit: the Orc's Axe Specialization), ready for an iteration.
 pub(super) fn shaman(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
+    shaman_on(equipment_db_with_enchants(), race_kind, talents)
+}
+
+/// [`shaman`] with the items and enchants of `equipment`.
+pub(super) fn shaman_on(
+    equipment: Arc<EquipmentDb>,
+    race_kind: Race,
+    talents: &[(u32, u32)],
+) -> Fixture {
     let classes = crate::character::ClassDb::load(&data().join("classes"), None).unwrap();
     let class = Arc::clone(classes.get(crate::faction::PlayerClass::Shaman).unwrap());
-    let mut f = Fixture::of_race(class, race_kind, equipment_db_with_enchants());
+    let mut f = Fixture::of_race(class, race_kind, equipment);
     f.db = SpellDb::load(&data().join("spells")).expect("shipped spell data loads");
     let trees = TalentDb::load(&data().join("talents")).unwrap();
     let tree = Arc::clone(trees.get(crate::faction::PlayerClass::Shaman).unwrap());
@@ -44,7 +53,12 @@ pub(super) fn shaman(race_kind: Race, talents: &[(u32, u32)]) -> Fixture {
 /// An Orc Shaman with `talents` forced in (the tiers below them need no points), ready for an
 /// iteration.
 pub(super) fn with_talents(talents: &[(u32, u32)]) -> Fixture {
-    let mut f = shaman(Race::Orc, &[]);
+    with_talents_on(equipment_db_with_enchants(), talents)
+}
+
+/// [`with_talents`] with the items and enchants of `equipment`.
+pub(super) fn with_talents_on(equipment: Arc<EquipmentDb>, talents: &[(u32, u32)]) -> Fixture {
+    let mut f = shaman_on(equipment, Race::Orc, &[]);
     for &(node, rank) in talents {
         for _ in 0..rank {
             let change = f

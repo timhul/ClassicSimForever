@@ -81,6 +81,8 @@ dbc_enum! {
         /// (Relentless Strikes on finishers). Scripted: the chance rule is in the overrides.
         AddTargetTrigger = 109 => "ADD_TARGET_TRIGGER",
         ModPowerRegenPercent = 110 => "MOD_POWER_REGEN_PERCENT",
+        /// A server-side class script by id (misc 0): what it does is the overrides' script.
+        OverrideClassScripts = 112 => "OVERRIDE_CLASS_SCRIPTS",
         ModRangedDamageTaken = 113 => "MOD_RANGED_DAMAGE_TAKEN",
         ModRangedDamageTakenPct = 114 => "MOD_RANGED_DAMAGE_TAKEN_PCT",
         ModOffhandDamagePct = 122 => "MOD_OFFHAND_DAMAGE_PCT",

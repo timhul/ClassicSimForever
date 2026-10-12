@@ -271,6 +271,15 @@ pub enum ScriptKind {
     /// Casts `params.spell` at the caster's fire totem; without one the spell cannot be cast
     /// (Fire Nova).
     TotemNova,
+    /// Goes on a `DUMMY` aura (an item's): the spells of `params.family_mask` trigger the proc
+    /// `params.spell`, whose override keeps spell events for such auras
+    /// (`spell_procs_by_script`), at `base_points` % less chance (Totem of the Storm: Lightning
+    /// Bolt triggers Maelstrom Weapon at half the chance).
+    ProcFromSpell,
+    /// Goes on an `OVERRIDE_CLASS_SCRIPTS` aura: the spells of the effect's class mask gain
+    /// `base_points` spell damage, scaled by their coefficients like the caster's own (Totem of
+    /// the Storm: Lightning Bolt and Chain Lightning +33).
+    SpellDamageBonus,
     /// Goes on a talent's `DUMMY` aura effect: its value is the chance in percent that a cast
     /// which landed casts its `overload` copy (Lightning Overload).
     LightningOverload,
@@ -291,6 +300,7 @@ impl ScriptKind {
                 | ScriptKind::RefreshJudgements
                 | ScriptKind::SchoolDamagePercentWhileAura
                 | ScriptKind::SummonTotem
+                | ScriptKind::ProcFromSpell
         )
     }
 }
@@ -451,6 +461,13 @@ impl EffectScript {
             ),
             ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
             ScriptKind::ApCoefficient => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
+            ScriptKind::ProcFromSpell => {
+                need(p.spell.is_some(), "spell")?;
+                need(
+                    p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                    "family_mask (not 0)",
+                )
+            }
             ScriptKind::DamagePercentVsCasterAura => need(
                 p.family_mask.is_some_and(|mask| mask != [0; 4]),
                 "family_mask (not 0)",
@@ -483,6 +500,7 @@ impl EffectScript {
             | ScriptKind::RefreshAura
             | ScriptKind::PointsPercentModifier
             | ScriptKind::LightningOverload
+            | ScriptKind::SpellDamageBonus
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -562,6 +580,11 @@ pub struct ProcOverride {
     /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
     #[serde(default, skip_serializing_if = "is_default")]
     pub builder: bool,
+    /// The proc's spell events (magic damage) trigger it only through a `PROC_FROM_SPELL` aura
+    /// that names it, for that aura's spells and at its reduced chance (Maelstrom Weapon:
+    /// melee hits, and Lightning Bolt with Totem of the Storm).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub spell_procs_by_script: bool,
     /// The internal cooldown in milliseconds where the server, not the table, has one
     /// (Maelstrom Weapon: one proc per hit, not one more from Flametongue Weapon's damage).
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -419,8 +419,9 @@ before writing `data/spells/*.yaml` (`crates/csim-tables/src/export/prune.rs`):
    simulated), `OVERRIDE_ACTIONBAR_SPELLS` (Improved Slam, runes), `ADD_TARGET_TRIGGER`
    (Relentless Strikes' energy on finishers; scripted, since its chance rule is server-side),
    `MOD_DAMAGE_TAKEN` (Judgement of the Crusader's holy damage taken, and the item procs'
-   damage taken debuffs) and `MOD_MANA_REGEN_INTERRUPT` (Reverence, item mana regeneration while
-   casting).
+   damage taken debuffs), `MOD_MANA_REGEN_INTERRUPT` (Reverence, item mana regeneration while
+   casting) and `OVERRIDE_CLASS_SCRIPTS` (a server script by id: scripted in the overrides like a
+   `DUMMY`, Totem of the Storm's `SPELL_DAMAGE_BONUS`; only six item spells carry it).
 2. **Spells** left with no effects are dropped (Taunt: `ATTACK_ME` + `MOD_TAUNT`), then every
    `TRIGGER_SPELL` / `PROC_TRIGGER_SPELL` / action-bar override that pointed at a dropped spell,
    which can empty further spells (Intimidating Shout: fear, run speed and the stun it
@@ -475,6 +476,9 @@ overrides:
                                      #   per resource: Revealed Flaw 5 %)
                                      # builder: true — only events of a spell that awards
                                      #   combo points (Seal Fate)
+                                     # spell_procs_by_script: true — spell events trigger it
+                                     #   only through a PROC_FROM_SPELL aura naming it
+                                     #   (Maelstrom Weapon: Totem of the Storm's Lightning Bolt)
                                      # cooldown_ms: 100 — an internal cooldown the server
                                      #   has, in place of ProcCategoryRecovery (Maelstrom
                                      #   Weapon: one proc per hit and its Flametongue damage)
@@ -533,6 +537,8 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `TOTEM_NOVA` | casts `spell` with the nova's damage modifiers from the fire totem; without one the spell cannot be cast (`NoTotem`) | `spell` | Fire Nova 408345 E0 |
 | `POINTS_PERCENT_MODIFIER` | a `DUMMY` aura that is a percent modifier of the first effect's points of the spells in its class mask | — | Improved Weapon Totems 29193 |
 | `WEAPON_SPEED_DAMAGE` | a proc aura's payload per landed hit: casts `spell` with effect `effect` set to `amount_spell`'s first effect value × the main-hand weapon's unhasted speed / 100 | `spell`, `effect`, `amount_spell` | Flametongue Weapon 436519 E0 |
+| `SPELL_DAMAGE_BONUS` | on an `OVERRIDE_CLASS_SCRIPTS` aura: the spells of the effect's class mask gain `base_points` spell damage, through their coefficients | — | Totem of the Storm 28857 (Lightning Bolt, Chain Lightning +33) |
+| `PROC_FROM_SPELL` | on a `DUMMY` aura: the spells of `family_mask` trigger the proc `spell` (whose override has `spell_procs_by_script`) at `base_points` % less chance; `spell` is a condition, not a payload | `spell`, `family_mask` | Totem of the Storm 1291078 → Maelstrom Weapon 408498 (Lightning Bolt, 50 %) |
 | `LIGHTNING_OVERLOAD` | on a talent's `DUMMY` aura: its value is the chance in percent that a cast which landed casts its `overload` copy, after the cast used its charges (no Stormstrike bonus), with the cast's `DAMAGE_PERCENT_VS_CASTER_AURA` bonus; the copy's events have no spell behind them (it neither overloads again nor counts for a `family_mask` proc) | — | Lightning Overload 408438 E0 |
 | `DAMAGE_PERCENT_VS_CASTER_AURA` | the spell deals `base_points` % more while one of the caster's debuffs of the spells in `family_mask` is on the target | `family_mask` | Lava Burst E1 (Flame Shock) |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |

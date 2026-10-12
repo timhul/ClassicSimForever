@@ -59,6 +59,9 @@ pub struct SpellModifiers {
     /// (`DAMAGE_PERCENT_BELOW_HEALTH`: Quietus below 35 %). The `op` is
     /// [`SpellModOp::HealingAndDamage`] and `amount` the percent; each one multiplies.
     below_health: Vec<(SpellModifier, f64)>,
+    /// Spell damage added to the spells in their class mask (`SPELL_DAMAGE_BONUS`: Totem of the
+    /// Storm on Lightning Bolt); `amount` the flat spell damage.
+    spell_damage: Vec<SpellModifier>,
     /// The spells that ignore their form requirement (`MOD_IGNORE_SHAPESHIFT`: Cutthroat lets
     /// Ambush skip Stealth), as the aura's family and class mask.
     ignore_shapeshift: Vec<(u32, [u32; 4])>,
@@ -97,6 +100,31 @@ impl SpellModifiers {
             .filter(|m| m.applies_to(class))
             .map(|m| 1.0 + m.amount / 100.0)
             .product()
+    }
+
+    /// Adds a `SPELL_DAMAGE_BONUS` modifier (see `spell_damage`).
+    pub fn add_spell_damage(&mut self, modifier: SpellModifier) {
+        self.spell_damage.push(modifier);
+    }
+
+    /// Removes one `SPELL_DAMAGE_BONUS` modifier equal to `modifier`.
+    pub fn remove_spell_damage(&mut self, modifier: &SpellModifier) -> bool {
+        match self.spell_damage.iter().position(|m| m == modifier) {
+            Some(index) => {
+                self.spell_damage.remove(index);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// The spell damage the `SPELL_DAMAGE_BONUS` modifiers add to a spell with `class` options.
+    pub fn spell_damage_bonus(&self, class: Option<&ClassOptions>) -> f64 {
+        self.spell_damage
+            .iter()
+            .filter(|m| m.applies_to(class))
+            .map(|m| m.amount)
+            .sum()
     }
 
     /// Adds a modifier that applies while the target's health is below `threshold`, a fraction.

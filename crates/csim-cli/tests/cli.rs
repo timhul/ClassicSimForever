@@ -602,6 +602,22 @@ fn list_items_filters_the_paladins_relics_and_weapons() {
     );
 }
 
+/// A Shaman's relics are its totems (not the librams and idols); no off-hand weapon.
+#[test]
+fn list_items_filters_the_shamans_relics() {
+    let list =
+        |class: &str, slot: &str| stdout(&csim(&["list-items", "--class", class, "--slot", slot]));
+    let relics = list("shaman", "relic");
+    assert!(relics.contains("Totem of the Storm"), "{relics}");
+    assert!(
+        !relics.contains("LIBRAM") && !relics.contains("IDOL"),
+        "{relics}"
+    );
+    let offhands = list("shaman", "offhand");
+    assert!(offhands.contains("SHIELD"), "{offhands}");
+    assert!(!offhands.contains("DAGGER"), "{offhands}");
+}
+
 const SWEEP: &str = "data/sweeps/dw_fury_last_3_points.yaml";
 
 #[test]

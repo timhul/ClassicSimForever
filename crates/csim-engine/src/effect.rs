@@ -454,6 +454,11 @@ impl Effect {
         self.script.as_ref()
     }
 
+    /// The class options of the spell the effect belongs to.
+    pub fn class_options(&self) -> Option<&ClassOptions> {
+        self.class_options.as_ref()
+    }
+
     pub fn script_kind(&self) -> Option<ScriptKind> {
         self.script.map(|s| s.script)
     }
@@ -977,12 +982,17 @@ impl Effect {
     }
 
     /// The spell power share of the effect's damage: its `EffectBonusCoefficient` times the
-    /// caster's spell damage of the spell's school. A physical spell has none.
+    /// caster's spell damage of the spell's school, and what `SPELL_DAMAGE_BONUS` adds for the
+    /// spell. A physical spell has none.
     pub fn spell_power_damage(&self, host: &impl EffectHost) -> f64 {
         if self.school == MagicSchool::Physical {
             return 0.0;
         }
-        f64::from(self.record.bonus_coefficient) * f64::from(host.spell_damage(self.school))
+        let bonus = host
+            .spell_modifiers()
+            .spell_damage_bonus(self.class_options.as_ref());
+        f64::from(self.record.bonus_coefficient)
+            * (f64::from(host.spell_damage(self.school)) + bonus)
     }
 
     /// The attack power coefficient of the effect's damage: the table's
@@ -1549,6 +1559,38 @@ impl Effect {
                 } else {
                     host.spell_modifiers_mut()
                         .remove_damage_from_caster(&modifier);
+                }
+            }
+            // Spell damage for the spells of the class mask (Totem of the Storm).
+            A::OverrideClassScripts
+                if !on_target && self.script_kind() == Some(ScriptKind::SpellDamageBonus) =>
+            {
+                let modifier = SpellModifier {
+                    set: self.class_options.map_or(0, |c| c.set),
+                    class_mask: self.record.spell_class_mask,
+                    op: SpellModOp::HealingAndDamage,
+                    pct: false,
+                    amount: value,
+                    source: self.spell,
+                };
+                if apply {
+                    host.spell_modifiers_mut().add_spell_damage(modifier);
+                } else {
+                    host.spell_modifiers_mut().remove_spell_damage(&modifier);
+                }
+            }
+            // Spell damage against the creature types of the mask (The Spiritcaller's Storm 4:
+            // Elementals).
+            A::ModDamageDoneCreature if !on_target => {
+                let types = CreatureTypes::from_game_mask(self.record.misc_value[0] as u32);
+                let amount = rounded.max(0) as u32;
+                let stats = host.stats_mut();
+                for creature in Vec::<CreatureType>::from(types) {
+                    if apply {
+                        stats.increase_spell_damage_vs_type(creature, amount);
+                    } else {
+                        stats.decrease_spell_damage_vs_type(creature, amount);
+                    }
                 }
             }
             A::OverrideActionbarSpells => {
