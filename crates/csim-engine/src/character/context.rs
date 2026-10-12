@@ -3376,6 +3376,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.spells_mut().start_cast(running_to_target)
     }
 
+    fn cast_started(&mut self, cast: crate::character_spells::ActiveCast) {
+        self.character.spells_mut().set_active_cast(cast);
+    }
+
     /// The next cast was queued during this one (the client's spell queue): the player acts as
     /// the cast ends, without a reaction delay.
     fn complete_cast(&mut self, cast_id: u32) {

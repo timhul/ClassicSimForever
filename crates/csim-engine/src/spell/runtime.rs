@@ -83,6 +83,8 @@ pub trait SpellHost: EffectHost {
     /// Ends the cast with `cast_id` (the character schedules its reaction). Port of
     /// `CharacterSpells::complete_cast`.
     fn complete_cast(&mut self, cast_id: u32);
+    /// The cast just started: what it is, for the viewers.
+    fn cast_started(&mut self, _cast: crate::character_spells::ActiveCast) {}
     fn casting_speed_mod(&self) -> f64;
     /// Flat cast time reduction in milliseconds.
     fn casting_speed_flat_reduction(&self) -> u32;
@@ -1602,6 +1604,12 @@ impl Spell {
             .id
             .unwrap_or_else(|| panic!("cast-time spell {} has no id", self.name()));
         let (character, cast_time) = (host.character_id(), self.cast_time(host));
+        let started = host.engine().current_time();
+        host.cast_started(crate::character_spells::ActiveCast {
+            spell: id,
+            started,
+            ends: started + cast_time,
+        });
         host.engine_mut().add_event_in(
             cast_time,
             EventKind::CastComplete {

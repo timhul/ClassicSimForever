@@ -19,6 +19,7 @@
 
 use std::sync::Arc;
 
+use csim_engine::attack_mode::AttackMode;
 use csim_engine::buff::Buff;
 use csim_engine::character::context::REGENERATION;
 use csim_engine::character_loader::{CharacterSetup, TargetSetup};
@@ -263,9 +264,12 @@ pub struct CharacterState {
     pub gcd_end: f64,
     /// The length of the global cooldown.
     pub gcd: f64,
-    pub mainhand: SwingState,
+    /// `None` for a caster that never swings (`attack_mode: magic`).
+    pub mainhand: Option<SwingState>,
     /// `None` without a weapon in the off hand.
     pub offhand: Option<SwingState>,
+    /// The cast with a cast time in progress.
+    pub casting: Option<CastState>,
     /// The visible buffs on the character.
     pub buffs: Vec<BuffState>,
     /// The visible debuffs on the target: the character's own (Deep Wound), the raid's shared
@@ -288,6 +292,15 @@ pub struct ResourceState {
 pub struct SwingState {
     pub last: f64,
     pub next: f64,
+}
+
+/// A cast in progress: it started at `start` and lands at `end`.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct CastState {
+    pub spell: String,
+    pub icon: Option<Icon>,
+    pub start: f64,
+    pub end: f64,
 }
 
 /// A proc's count so far, with its icon.
@@ -1171,8 +1184,18 @@ impl Session {
             // Never started: the start of the iteration (JSON has no infinity).
             gcd_end: character.next_gcd().max(self.stepper.start_at()),
             gcd: character.global_cooldown(),
-            mainhand: swing(Hand::Mainhand),
+            mainhand: (spells.attack_mode() != AttackMode::MagicAttack)
+                .then(|| swing(Hand::Mainhand)),
             offhand: character.is_dual_wielding().then(|| swing(Hand::Offhand)),
+            casting: spells.active_cast().map(|cast| {
+                let spell = spells.spell(cast.spell);
+                CastState {
+                    spell: spell.name().to_owned(),
+                    icon: Icon::of_spell(spell.record()),
+                    start: cast.started,
+                    end: cast.ends,
+                }
+            }),
             buffs,
             debuffs,
             rotation_spells,

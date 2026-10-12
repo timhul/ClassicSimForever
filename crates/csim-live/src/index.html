@@ -20,6 +20,7 @@
     --health: #3fae49;
     --focus: #d2802a;
     --swing: #5aa469;
+    --cast: #c9a227;
     --accent: #e0b04a;
   }
   * { box-sizing: border-box; }
@@ -341,6 +342,23 @@
     --bar-width: max(40px, calc((100cqw - 230px) * 0.2));
   }
   #swings { display: grid; gap: 4px; }
+  /* The cast bar: the spell and the time left on it. Its space stays between casts. */
+  #cast .bar {
+    position: relative;
+    width: calc(var(--bar-width) * 2 + 8px);
+  }
+  #cast.idle { visibility: hidden; }
+  #cast-fill { background: var(--cast); }
+  #cast-name {
+    position: absolute;
+    inset: 0;
+    text-align: center;
+    font-size: 11px;
+    line-height: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
   /* The two frames, the target's debuffs under its frame. */
   #frames {
     display: grid;
@@ -1307,8 +1325,11 @@
       <div id="buffs" class="tiles" title="Buffs"></div>
       <div id="input-error" class="gone"></div>
       <div id="hud">
+        <div id="cast" class="idle" title="Casting">
+          <div class="bar"><div id="cast-fill"></div><span id="cast-name"></span></div>
+        </div>
         <div id="swings">
-          <div class="swing">
+          <div class="swing" id="mh-row">
             <span>MH</span>
             <div class="bar"><div id="mh-fill" style="background: var(--swing)"></div></div>
             <span class="value" id="mh-value"></span>
@@ -4374,7 +4395,17 @@ function render() {
   }
 
   const gcdLeft = state.gcd_end - time;
-  swing("mh", state.mainhand, time);
+  $("mh-row").hidden = state.mainhand === null;
+  if (state.mainhand !== null) {
+    swing("mh", state.mainhand, time);
+  }
+  const cast = state.casting;
+  $("cast").classList.toggle("idle", cast === null);
+  if (cast !== null) {
+    const span = cast.end - cast.start;
+    fill("cast-fill", span > 0 ? (time - cast.start) / span : 1);
+    $("cast-name").textContent = `${cast.spell} ${seconds(Math.max(0, cast.end - time))}`;
+  }
   $("oh-row").hidden = state.offhand === null;
   if (state.offhand !== null) {
     swing("oh", state.offhand, time);

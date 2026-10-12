@@ -706,3 +706,101 @@ fn a_paladin_is_in_the_catalog_and_loads() {
     let error = load(&mut app, request).unwrap_err();
     assert!(error.contains("prerequisite \"Twist of Light\""), "{error}");
 }
+
+/// The Shaman in the catalog (its two setups, five races, three rotations with their talent
+/// prerequisites, the Enhancement and Elemental keybinds) and loaded: by its rotation, from the
+/// keyboard, as another of its races, and bare.
+#[test]
+fn a_shaman_is_in_the_catalog_and_loads() {
+    let catalog = empty_app().catalog();
+    for (name, rotation) in [
+        ("shaman_enh_2h_orc", "Enhancement"),
+        ("shaman_ele_orc", "Elemental"),
+    ] {
+        let setup = catalog.setups.iter().find(|setup| setup.name == name);
+        let setup = setup.unwrap_or_else(|| panic!("{name}"));
+        assert_eq!((setup.class, setup.race), ("Shaman", "Orc"));
+        assert_eq!(setup.rotation, rotation);
+        assert_eq!(setup.error, None);
+    }
+    for keybinds in ["enh", "ele"] {
+        assert!(
+            catalog.keybinds.contains(&keybinds.to_owned()),
+            "{keybinds}"
+        );
+    }
+    let shaman = catalog
+        .classes
+        .iter()
+        .find(|entry| entry.class == PlayerClass::Shaman)
+        .unwrap();
+    assert_eq!(shaman.name, "Shaman");
+    let races: Vec<Race> = shaman.races.iter().map(|entry| entry.race).collect();
+    assert_eq!(
+        races,
+        [
+            Race::Orc,
+            Race::Dwarf,
+            Race::Tauren,
+            Race::Troll,
+            Race::WindshaperSkyborne
+        ]
+    );
+    let rotation = |name: &str| {
+        shaman
+            .rotations
+            .iter()
+            .find(|rotation| rotation.name == name)
+            .unwrap_or_else(|| panic!("{name}"))
+    };
+    assert_eq!(rotation("Enhancement").prerequisites, ["Stormstrike"]);
+    assert_eq!(rotation("Elemental").prerequisites, ["Lava Burst"]);
+    assert_eq!(rotation("Elemental Shocks").prerequisites, ["Lava Burst"]);
+
+    let mut app = empty_app();
+    let loaded = load(&mut app, by_name("shaman_enh_2h_orc")).unwrap();
+    assert_eq!((loaded.info.class, loaded.info.race), ("Shaman", "Orc"));
+    assert!(loaded.info.missing_prerequisites.is_empty());
+
+    let keyboard = LoadRequest {
+        keybinds: Some("ele".to_owned()),
+        ..by_name("shaman_ele_orc")
+    };
+    let loaded = load(&mut app, keyboard).unwrap();
+    assert!(loaded.info.manual);
+    let bound: Vec<&str> = loaded
+        .info
+        .keybinds
+        .iter()
+        .map(|key| key.name.as_str())
+        .collect();
+    for spell in [
+        "Lightning Bolt",
+        "Lava Burst",
+        "Flame Shock",
+        "Searing Totem",
+    ] {
+        assert!(bound.contains(&spell), "{spell}: {bound:?}");
+    }
+
+    let tauren = LoadRequest {
+        race: Some(Race::Tauren),
+        ..by_name("shaman_ele_orc")
+    };
+    assert_eq!(load(&mut app, tauren).unwrap().info.race, "Tauren");
+    let human = LoadRequest {
+        race: Some(Race::Human),
+        ..by_name("shaman_ele_orc")
+    };
+    assert!(load(&mut app, human).is_err(), "no Human Shaman");
+
+    // Bare, without Lava Burst's talent: it loads and says so.
+    let loaded = load(
+        &mut app,
+        bare(PlayerClass::Shaman, Race::Troll, "Elemental"),
+    )
+    .unwrap();
+    let missing = &loaded.info.missing_prerequisites;
+    assert_eq!(missing.len(), 1, "{missing:?}");
+    assert_eq!(missing[0].spell, "Lava Burst");
+}

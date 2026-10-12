@@ -156,9 +156,19 @@ pub struct CharacterSpells {
     /// The queued on-next-swing spell and its marker buff.
     queued_next_swing: Option<(SpellId, Option<BuffId>)>,
     cast_in_progress: bool,
+    /// What is being cast, for the viewers.
+    active_cast: Option<ActiveCast>,
     /// The cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
     running_to_target: bool,
     cast_id: u32,
+}
+
+/// A cast with a cast time in progress: its spell, when it started and when it ends.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ActiveCast {
+    pub spell: SpellId,
+    pub started: f64,
+    pub ends: f64,
 }
 
 impl CharacterSpells {
@@ -187,6 +197,7 @@ impl CharacterSpells {
             oh_attack: AutoAttack::new(Hand::Offhand),
             queued_next_swing: None,
             cast_in_progress: false,
+            active_cast: None,
             running_to_target: false,
             cast_id: 0,
         }
@@ -1005,6 +1016,15 @@ impl CharacterSpells {
         self.cast_in_progress
     }
 
+    /// The cast in progress with a cast time, if any.
+    pub fn active_cast(&self) -> Option<ActiveCast> {
+        self.active_cast.filter(|_| self.cast_in_progress)
+    }
+
+    pub fn set_active_cast(&mut self, cast: ActiveCast) {
+        self.active_cast = Some(cast);
+    }
+
     /// Whether the cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
     pub fn running_to_target(&self) -> bool {
         self.cast_in_progress && self.running_to_target
@@ -1043,6 +1063,7 @@ impl CharacterSpells {
         );
         assert_eq!(self.cast_id, cast_id, "Mismatched cast id");
         self.cast_in_progress = false;
+        self.active_cast = None;
         self.running_to_target = false;
     }
 
@@ -1151,6 +1172,7 @@ impl CharacterSpells {
     /// engine and target). Port of the state part of `CharacterSpells::reset`.
     pub fn reset_state(&mut self) {
         self.cast_in_progress = false;
+        self.active_cast = None;
         self.running_to_target = false;
         self.cast_id = 0;
         self.attack_mode_active = false;

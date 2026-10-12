@@ -80,6 +80,8 @@ fn the_session_shows_the_iteration_the_cli_logs() {
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
         ("paladin_ret_2h_human.yaml", 5),
+        ("shaman_enh_2h_orc.yaml", 6),
+        ("shaman_ele_orc.yaml", 7),
     ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
@@ -165,6 +167,8 @@ fn the_procs_at_the_end_are_the_ones_csim_run_reports() {
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
         ("paladin_ret_2h_human.yaml", 5),
+        ("shaman_enh_2h_orc.yaml", 6),
+        ("shaman_ele_orc.yaml", 7),
     ] {
         let mut session = session_of(file, seed);
         assert!(session.advance(0.0).procs.is_empty(), "before the pull");
@@ -189,7 +193,8 @@ fn the_procs_at_the_end_are_the_ones_csim_run_reports() {
                 })
                 .collect()
         };
-        assert!(reported.len() > 1, "{file}: {reported:?}");
+        // Elemental: Elemental Focus alone.
+        assert!(!reported.is_empty(), "{file}: {reported:?}");
         let shown: Vec<ProcRow> = last.procs.iter().map(|count| count.row.clone()).collect();
         assert_eq!(rounded(&shown), rounded(&reported), "{file}");
         assert!(
@@ -206,6 +211,8 @@ fn the_resources_at_the_end_are_the_ones_csim_run_reports() {
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
         ("paladin_ret_2h_human.yaml", 5),
+        ("shaman_enh_2h_orc.yaml", 6),
+        ("shaman_ele_orc.yaml", 7),
     ] {
         let mut session = session_of(file, seed);
         let first = session.advance(0.0);
@@ -390,7 +397,8 @@ fn a_warrior_has_a_stance_and_a_rogue_combo_points() {
     assert_eq!(state.combo_points, None);
     assert!(state.stance.is_some());
     assert!(state.offhand.is_some());
-    assert!(state.mainhand.next >= 20.0 && state.mainhand.last <= 20.0);
+    let mainhand = state.mainhand.unwrap();
+    assert!(mainhand.next >= 20.0 && mainhand.last <= 20.0);
     let shout = state.buffs.iter().find(|buff| buff.name == "Battle Shout");
     let shout = shout.expect("Battle Shout is up");
     let expires_at = shout.expires_at.unwrap();
@@ -480,6 +488,116 @@ fn a_paladin_has_mana_and_its_seals_and_echoes_in_the_lanes() {
     ] {
         assert!(seen.contains(name), "{name}: {seen:?}");
     }
+}
+
+/// An Elemental Shaman never swings and shows its casts: the cast bar's spell, start and end
+/// while Lightning Bolt is cast, none after it lands; its totems are buffs with their timers.
+#[test]
+fn an_elemental_shaman_shows_its_casts_and_totems() {
+    let mut session = session_of("shaman_ele_orc.yaml", 1);
+    let mut casts = Vec::new();
+    let mut idle = false;
+    let mut totems = std::collections::BTreeSet::new();
+    let mut time = session.info().start_at;
+    while time < 20.0 {
+        let state = session.advance(time).state;
+        assert_eq!(state.mainhand, None, "no swing timer");
+        match state.casting {
+            Some(cast) => {
+                assert!(cast.start <= time && time <= cast.end, "{cast:?} at {time}");
+                assert!(cast.icon.is_some());
+                casts.push((cast.spell, cast.end - cast.start));
+            }
+            None => idle |= time > 0.0,
+        }
+        for buff in state.buffs {
+            if buff.name.ends_with("Totem") {
+                assert!(buff.expires_at.is_some_and(|at| at > time), "{buff:?}");
+                totems.insert(buff.name);
+            }
+        }
+        time += 0.1;
+    }
+    // Elemental Alacrity: 2.0 s.
+    assert!(
+        casts
+            .iter()
+            .any(|(spell, length)| spell == "Lightning Bolt" && (length - 2.0).abs() < 1e-9),
+        "{casts:?}"
+    );
+    assert!(casts.iter().any(|(spell, _)| spell == "Lava Burst"));
+    assert!(idle, "between casts (the GCD of an instant, mana)");
+    assert_eq!(
+        totems.into_iter().collect::<Vec<_>>(),
+        ["Mana Spring Totem", "Searing Totem"]
+    );
+}
+
+/// From the keyboard an Elemental Shaman's first cast pulls: Lightning Bolt pressed at 0.5 s
+/// is on the cast bar until it lands 2 s later.
+#[test]
+fn an_elemental_shaman_casts_from_the_keyboard() {
+    let mut session = manual_session_of(
+        "shaman_ele_orc.yaml",
+        1,
+        "Lightning Bolt: 1
+",
+    );
+    let start = session.info().start_at;
+    session.advance(start);
+    session.cast("Lightning Bolt", 0.5).unwrap();
+    let state = session.advance(1.0).state;
+    let cast = state.casting.expect("casting");
+    assert_eq!(cast.spell, "Lightning Bolt");
+    assert!((cast.end - cast.start - 2.0).abs() < 1e-9, "{cast:?}");
+    let frame = session.advance(cast.end + 0.1);
+    assert_eq!(frame.state.casting, None);
+    assert!(frame.total_damage > 0);
+}
+
+/// An Enhancement Shaman with Maelstrom Weapon 5/5: the stacks show on its buff as they build,
+/// up to 5, and the instant Lightning Bolt at 5 uses them.
+#[test]
+fn an_enhancement_shaman_shows_maelstrom_weapon_stacks() {
+    let mut setup = setup("shaman_enh_2h_orc.yaml");
+    let elemental = setup.talents.get_mut("Elemental Combat").unwrap();
+    elemental.remove("Elemental Devastation");
+    let enhancement = setup.talents.get_mut("Enhancement").unwrap();
+    enhancement.remove("Improved Ghost Wolf");
+    enhancement.insert("Maelstrom Weapon".to_owned(), 5);
+    let settings = settings(&setup);
+    let mut session = Session::new(Arc::clone(data()), setup, settings, 1, Vec::new()).unwrap();
+    let mut stacks = std::collections::BTreeSet::new();
+    let mut bolts = 0;
+    let mut time = session.info().start_at;
+    while time < 60.0 {
+        let frame = session.advance(time);
+        bolts += frame
+            .decisions
+            .iter()
+            .filter(|decision| decision.spell == "Lightning Bolt")
+            .count();
+        let state = frame.state;
+        assert!(state.casting.is_none(), "every cast is instant");
+        if let Some(buff) = state.buffs.iter().find(|b| b.name == "Maelstrom Weapon") {
+            stacks.insert(buff.stacks);
+        }
+        for name in [
+            "Windfury Weapon",
+            "Flametongue Totem",
+            "Strength of Earth Totem",
+        ] {
+            if name.ends_with("Totem") && time > 0.0 {
+                assert!(
+                    state.buffs.iter().any(|buff| buff.name == name),
+                    "{name} at {time}"
+                );
+            }
+        }
+        time += 0.1;
+    }
+    assert_eq!(stacks.into_iter().collect::<Vec<_>>(), [1, 2, 3, 4, 5]);
+    assert!(bolts > 0);
 }
 
 #[test]
@@ -728,6 +846,8 @@ fn procs_are_in_the_feed() {
         ("warrior_fury_dw_orc.yaml", 3),
         ("rogue_combat_swords_human.yaml", 4),
         ("paladin_ret_2h_human.yaml", 5),
+        ("shaman_enh_2h_orc.yaml", 6),
+        ("shaman_ele_orc.yaml", 7),
     ] {
         let mut session = session_of(file, seed);
         let frames = play(&mut session, 0.37);
@@ -740,7 +860,7 @@ fn procs_are_in_the_feed() {
 
         let procs = session.raid.character(PLAYER).spells().procs().procs();
         let fired: Vec<&Proc> = procs.iter().filter(|proc| proc.procs() > 0).collect();
-        assert!(fired.len() > 1, "{file}");
+        assert!(!fired.is_empty(), "{file}");
         // Procs of the same name (a poison on each weapon) add up.
         for proc in &fired {
             let count: u32 = fired
