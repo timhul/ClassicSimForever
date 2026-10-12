@@ -1,7 +1,7 @@
 # `data/rotations/` — what a character casts and when
 
 One YAML file per rotation, in a subdirectory named after the class (`warrior/`, `rogue/`,
-`paladin/`).
+`paladin/`, `shaman/`).
 
 | class | file | name | prerequisite |
 |---|---|---|---|
@@ -16,6 +16,9 @@ One YAML file per rotation, in a subdirectory named after the class (`warrior/`,
 | Paladin | `seal_twisting.yaml` | Seal Twisting (the Ret setups' default) | Twist of Light |
 | Paladin | `seal_of_command.yaml` | Seal of Command | Seal of Command |
 | Paladin | `seal_of_the_crusader.yaml` | Seal of the Crusader | Seal of Command |
+| Shaman | `enhancement.yaml` | Enhancement | Stormstrike |
+| Shaman | `elemental.yaml` | Elemental | Lava Burst |
+| Shaman | `elemental_shocks.yaml` | Elemental Shocks | Lava Burst |
 
 The Paladin's rotations, for Forever's seals: Judgement leaves the seal up, so the seal is
 judged on cooldown; Judgement of the Crusader (+161 holy damage taken) is refreshed by every
@@ -27,6 +30,19 @@ twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range right 
 it is up), Exorcism against
 Undead and Demons only, Consecration while the mana allows. The twist waits above 1000 mana, so that Seal of
 Command and its judgement always have mana (+35 DPS over twisting into an empty bar).
+
+The Shaman's rotations. Enhancement: Stormstrike and Earth Shock on cooldown (waiting for
+Stormstrike's debuff or weaving Flame Shock in costs DPS), Strength of Earth, Grace of Air,
+Mana Spring and Flametongue Totem put down before the pull and renewed when they run low, Rage
+of the Farseer and Earthstrike on cooldown, and Lightning Bolt at five Maelstrom Weapon stacks
+only with the talent at 5/5 (`talent "Maelstrom Weapon" eq 5`): below it the bolt keeps a cast
+time, which restarts the swing. Elemental (`attack_mode: magic`, no auto attack; `precast:
+Lightning Bolt`): mana decides its damage, so Lava Burst goes on cooldown without Flame Shock,
+Lightning Bolt is cast at rank 10 under Clearcasting or above 5000 mana and at rank 6 (`rank:
+6`, more damage per mana) below, with Searing Totem and Mana Spring kept up (416 DPS).
+Elemental Shocks is the shock rotation (Flame Shock kept up for Lava Burst's +20 %, Chain
+Lightning, Earth Shock): it runs out of mana (271 DPS). The same spell may appear twice with
+different ranks; a totem is a buff of its spell's name while it stands.
 
 ## Schema
 

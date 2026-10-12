@@ -284,12 +284,14 @@ One row per effect, ordered by `EffectIndex` (0..n; descriptions refer to them a
 **`Effect` values seen on player spells** (count): 6 APPLY_AURA (5595), 2 SCHOOL_DAMAGE (885),
 3 DUMMY (437, scripted), 10 HEAL (227), 30 ENERGIZE (122), 121 NORMALIZED_WEAPON_DMG (112:
 weapon damage + basepoints, Mortal Strike/Whirlwind), 31 WEAPON_PERCENT_DAMAGE (108: basepoints
-= %), 28 SUMMON, 35 APPLY_AREA_AURA_PARTY, 58 WEAPON_DAMAGE (weapon + basepoints, school of
+= %), 28 SUMMON (a totem: misc 0 the creature, misc 1 the `SummonProperties` row, which
+names its element: 63 fire, 81 earth, 82 water, 83 air), 35 APPLY_AREA_AURA_PARTY, 58 WEAPON_DAMAGE (weapon + basepoints, school of
 spell), 24 CREATE_ITEM, 64 TRIGGER_SPELL (on an enemy, from a melee spell: a strike cast only
 when the spell lands, which cannot miss again and is no ability of its own: Mutilate), 77 SCRIPT_EFFECT, 63 THREAT (flat threat, Sunder
 Armor), 68 INTERRUPT_CAST, 38 DISPEL, 96 CHARGE, 17 WEAPON_DAMAGE_NOSCHOOL (weapon +
 basepoints, Heroic Strike), 114 ATTACK_ME (Taunt; 91 is THREAT_ALL), 65 APPLY_AREA_AURA_RAID, 27 PERSISTENT_AREA_AURA,
-16 QUEST_COMPLETE, 54 ENCHANT_ITEM_TEMPORARY (runes), 36 LEARN_SPELL, 9 HEALTH_LEECH,
+16 QUEST_COMPLETE, 54 ENCHANT_ITEM_TEMPORARY (runes), 360 ENCHANT_ITEM_IMBUE (Forever's Shaman imbues: misc 0 the
+`SpellItemEnchantment` row, Windfury Weapon 16362 → 1669; name unverified), 36 LEARN_SPELL, 9 HEALTH_LEECH,
 8 POWER_DRAIN, 33 OPEN_LOCK, 98 KNOCK_BACK, 108 DISPEL_MECHANIC. Others follow the retail
 `SpellEffectName` enum.
 
@@ -317,7 +319,10 @@ up, and the percent comes off the armor the debuffs leave, at least 0, not round
 MOD_TOTAL_STAT_PERCENTAGE, 135 MOD_HEALING_DONE, 149 REDUCE_PUSHBACK, 271
 MOD_SPELL_DAMAGE_FROM_CASTER (Hemorrhage: the target takes `base_points` % more damage from the
 caster's spells in the effect's class mask, Rupture; a multiplier of the caster's own spells
-only). Others: retail
+only), 163 MOD_CRIT_DAMAGE_BONUS, 59 MOD_DAMAGE_DONE_CREATURE (flat spell damage against
+the creature types of misc's mask: Spiritcaller's Storm against Elementals), 598
+MOD_ATTACK_POWER_OF_STAT_PERCENT (Forever: attack power from a percent of the stat in misc,
+Mental Dexterity 100 % of intellect; name unverified). Others: retail
 `AuraType` enum (`SharedDefines.h`).
 
 **`SpellModOp` (misc value of auras 107/108)** — verified: 14 POWER_COST (Improved Heroic
@@ -387,6 +392,31 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
   rage less per rank.
 - **Berserker Stance 2458 → 7381**: aura 290 crit +3, aura 87 damage taken +10 (all schools),
   aura 10 threat −20, aura 166 AP % (0).
+
+**Shaman** (the numbers and their sources: the header of `overrides/shaman.yaml`):
+
+- **Strength of Earth Totem r5 25361**: E0 `SUMMON` misc [15464, 81] (creature, earth slot),
+  300 s. The tables stop at the creature: the `SUMMON_TOTEM` script names the aura the totem
+  gives (25362, +53 strength) and the engine applies it to the shaman while the totem stands;
+  the totem spell's buff is its lifetime, which rotations read (`buff_duration "Strength of
+  Earth Totem"`). A new totem of the slot replaces the old one. Searing Totem 10438 (fire, 55 s)
+  casts its attack 10436 every 2.2 s instead (`period_ms`), with the shaman's spell damage, hit
+  and crit; Fire Nova (`TOTEM_NOVA`) needs a fire totem.
+- **Windfury Weapon r4 16362**: E0 effect 360 `ENCHANT_ITEM_IMBUE` misc 1669, the
+  `SpellItemEnchantment` row `data/enchants.yaml` names as the `WindfuryWeapon` temporary
+  enchant (`temp_group: IMBUE`, no stone or oil with it; `WINDFURY` excludes Windfury Totem).
+  The row's equip spell 439431 is a passive of the weapon (`export-spells --enchants`): 20 %
+  on melee hits, 1.5 s proc cooldown (`proc.cooldown_ms`), its payload 16361 two extra attacks
+  with 333 attack power. Flametongue Weapon's 436519 deals the weapon's speed × 16344's value
+  per hit (`WEAPON_SPEED_DAMAGE`); Rockbiter Weapon's 16313 is flat attack power. Elemental
+  Weapons raises each through its class mask.
+- **Lightning Overload 408438**: E0 `DUMMY` 30 (the rank value: 10 % at 3/3) →
+  `LIGHTNING_OVERLOAD`; each Lightning Bolt, Chain Lightning and Lava Burst rank names its
+  half-damage copy in its override (`overload: 408477`, `PAYLOAD`).
+- **Maelstrom Weapon 408498 → 408505**: 10 PPM on melee hits (`proc.ppm`,
+  `spell_procs_by_script` so that only Totem of the Storm's `PROC_FROM_SPELL` lets Lightning
+  Bolt proc it), 5 stacks of −20 % Lightning Bolt cast time and cost: instant at five.
+- **Elemental Fury 16089**: E0 aura 108 op 15 (`CRIT_DAMAGE`) +100: a spell crit deals 200 %.
 
 ## 1.9 What is missing from the dump
 
