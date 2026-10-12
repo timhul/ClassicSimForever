@@ -2,6 +2,8 @@
 //! (`SummonProperties`) and whose `SUMMON_TOTEM` script names what the totem does: an aura it
 //! puts on the shaman while it stands, or an attack it casts again and again.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::character_spells::SpellHandle;
@@ -62,18 +64,25 @@ pub struct ActiveTotem {
     /// The totem spell's buff: the totem's lifetime.
     pub buff: BuffId,
     pub summon: TotemSummon,
-    /// The aura (a passive, or a proc aura) the totem switched on for the shaman; `None` for an
-    /// attacking totem, or when something else already gives the shaman the same.
-    pub applied: Option<SpellHandle>,
     /// Tells this totem's attack events from a replaced one's.
     pub iteration: u32,
 }
 
-/// The character's totems, one slot per element.
+/// A totem aura on a character: how many standing totems of its party give it, and the handle
+/// switched on for it (`None` when something else already gives the same).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TotemAura {
+    pub providers: u32,
+    pub applied: Option<SpellHandle>,
+}
+
+/// The character's totems, one slot per element, and the totem auras its party's totems give
+/// it (its own included).
 #[derive(Debug, Clone, Default)]
 pub struct Totems {
     slots: [Option<ActiveTotem>; 4],
     iteration: u32,
+    auras: BTreeMap<u32, TotemAura>,
 }
 
 impl Totems {
@@ -87,6 +96,24 @@ impl Totems {
 
     pub fn take(&mut self, element: TotemElement) -> Option<ActiveTotem> {
         self.slots[element.index()].take()
+    }
+
+    /// The aura spell `spell` the party's totems give the character, if any stands.
+    pub fn aura(&self, spell: u32) -> Option<&TotemAura> {
+        self.auras.get(&spell)
+    }
+
+    pub fn aura_mut(&mut self, spell: u32) -> &mut TotemAura {
+        self.auras.entry(spell).or_insert(TotemAura {
+            providers: 0,
+            applied: None,
+        })
+    }
+
+    /// The aura handle the totem of `element` switched on for the character.
+    pub fn applied(&self, element: TotemElement) -> Option<SpellHandle> {
+        let totem = self.get(element)?;
+        self.aura(totem.summon.spell)?.applied
     }
 
     /// A fresh iteration number for the next totem.

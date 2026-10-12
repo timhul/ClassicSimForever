@@ -76,6 +76,7 @@ Shaman, Enhancement and Elemental.
 `cargo run --release -p csim-cli -- run data/characters/shaman_ele_orc.yaml --iterations 10000`
 
 Raid sim. Raid DPS can be lower than solo DPS depending on provided party buffs and debuffs.
+Totems are party only: a party without a Shaman has no Strength of Earth or Windfury.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --raid data/raids/horde_melee.yaml`
 

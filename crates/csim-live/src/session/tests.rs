@@ -511,7 +511,8 @@ fn an_elemental_shaman_shows_its_casts_and_totems() {
             None => idle |= time > 0.0,
         }
         for buff in state.buffs {
-            if buff.name.ends_with("Totem") {
+            // The totems' lifetimes; Windfury Totem's party aura has no timer.
+            if buff.name.ends_with("Totem") && buff.duration.is_some() {
                 assert!(buff.expires_at.is_some_and(|at| at > time), "{buff:?}");
                 totems.insert(buff.name);
             }
@@ -529,7 +530,12 @@ fn an_elemental_shaman_shows_its_casts_and_totems() {
     assert!(idle, "between casts (the GCD of an instant, mana)");
     assert_eq!(
         totems.into_iter().collect::<Vec<_>>(),
-        ["Mana Spring Totem", "Searing Totem"]
+        [
+            "Mana Spring Totem",
+            "Searing Totem",
+            "Strength of Earth Totem",
+            "Windfury Totem"
+        ]
     );
 }
 

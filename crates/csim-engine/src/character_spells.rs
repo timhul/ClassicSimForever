@@ -56,6 +56,19 @@ pub trait SharedBuffs {
     /// itself, for the raid control to do the same on the party's other members afterwards
     /// (the C++ `RaidControl::apply_party_buff` / `remove_party_buff` loop).
     fn note_party_aura_change(&mut self, change: PartyAuraChange);
+    /// Records that a shaman's totem aura went up or down for its party, for the raid control
+    /// to switch it on or off for the party's other members.
+    fn note_party_totem_change(&mut self, _change: PartyTotemChange) {}
+}
+
+/// A totem of the shaman `by` in `party` started (or stopped) giving its aura spell `spell`;
+/// the shaman switched it for itself, the other members are still to follow.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PartyTotemChange {
+    pub spell: u32,
+    pub party: u8,
+    pub by: CharId,
+    pub apply: bool,
 }
 
 /// A shared party buff's aura effects were applied to (or removed from) the character `by`,
@@ -624,6 +637,11 @@ impl CharacterSpells {
     /// The totem whose lifetime buff `buff` is, if any.
     pub fn totem_of_buff(&self, buff: BuffId) -> Option<TotemSummon> {
         self.totem_buffs.get(&buff).copied()
+    }
+
+    /// What each of the character's totem spells summons.
+    pub fn totem_summons(&self) -> impl Iterator<Item = &TotemSummon> {
+        self.totem_buffs.values()
     }
 
     /// Where game id `spell` lives, if the character has it.

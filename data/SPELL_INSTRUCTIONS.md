@@ -397,7 +397,8 @@ duration, `$d` duration, `$t1` period, `$h` proc chance, `$n` proc charges, `$x1
 
 - **Strength of Earth Totem r5 25361**: E0 `SUMMON` misc [15464, 81] (creature, earth slot),
   300 s. The tables stop at the creature: the `SUMMON_TOTEM` script names the aura the totem
-  gives (25362, +53 strength) and the engine applies it to the shaman while the totem stands;
+  gives (25362, +53 strength) and the engine applies it to the shaman's party while the totem
+  stands (Windfury Totem: its proc aura 10612 on each member without Windfury Weapon);
   the totem spell's buff is its lifetime, which rotations read (`buff_duration "Strength of
   Earth Totem"`). A new totem of the slot replaces the old one. Searing Totem 10438 (fire, 55 s)
   casts its attack 10436 every 2.2 s instead (`period_ms`), with the shaman's spell damage, hit
@@ -563,7 +564,7 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `AP_COEFFICIENT` | the attack power coefficient the tables leave at 0 (`BonusCoefficientFromAP`): `value` × attack power added to a direct damage effect's hit, or to every tick (per stack) of a periodic damage aura, taken at the cast | `value` | Instant Poison VI E0 (0.005), Deadly Poison V E0 (0.0045), Thunder Clap E0 (0.03) |
 | `WEAPON_TYPE_VALUE` | this effect's value replaces effect `effect`'s while the main-hand weapon's subclass is in `weapon_subclass_mask` | `effect`, `weapon_subclass_mask` | Ghostly Strike E3 → E0, Hemorrhage E4 → E3 (32768 = dagger) |
 | `DAMAGE_PERCENT_VS_POISONED` | the spells this one triggers deal `base_points` % more while one of the caster's poisons (`DispelType` 4 debuff) is on the target | — | Mutilate E3 |
-| `SUMMON_TOTEM` | on a totem spell's `SUMMON` effect: while the totem (of the slot the effect's `SummonProperties` name) stands, `spell`'s aura is the shaman's, or with `period_ms` the totem casts `spell` that often; the totem spell's buff is its lifetime | `spell`, `period_ms` | Strength of Earth Totem 25361 E0, Searing Totem 10438 E0 |
+| `SUMMON_TOTEM` | on a totem spell's `SUMMON` effect: while the totem (of the slot the effect's `SummonProperties` name) stands, `spell`'s aura is its party's (the shaman's and, in a raid, every member of its party: totems are party only; two shamans' totems of one aura are one aura), or with `period_ms` the totem casts `spell` that often; the totem spell's buff is its lifetime | `spell`, `period_ms` | Strength of Earth Totem 25361 E0, Searing Totem 10438 E0 |
 | `TOTEM_NOVA` | casts `spell` with the nova's damage modifiers from the fire totem; without one the spell cannot be cast (`NoTotem`) | `spell` | Fire Nova 408345 E0 |
 | `POINTS_PERCENT_MODIFIER` | a `DUMMY` aura that is a percent modifier of the first effect's points of the spells in its class mask | — | Improved Weapon Totems 29193 |
 | `WEAPON_SPEED_DAMAGE` | a proc aura's payload per landed hit: casts `spell` with effect `effect` set to `amount_spell`'s first effect value × the main-hand weapon's unhasted speed / 100 | `spell`, `effect`, `amount_spell` | Flametongue Weapon 436519 E0 |

@@ -22,7 +22,9 @@
 #
 # World buffs (Rallying Cry, Songflower, Spirit of Zandalar, Warchief's Blessing, the
 # Dire Maul tribute buffs) are left out on purpose: Forever does not offer them the same way.
-# Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff.
+# Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff. Totems are
+# party only: `csim run --raid` drops the enchant and the totem buffs, and a Shaman's totems
+# reach the members of its party.
 # In Forever both factions get each other's buffs: Blessings, Strength of Earth and Windfury
 # carry no `faction`.
 # Schema: crates/csim-engine/src/buff/external.rs.

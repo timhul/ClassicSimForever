@@ -240,3 +240,145 @@ fn a_member_problem_names_the_member_and_its_field() {
 fn unknown_fields_are_parse_errors() {
     assert!(serde_yaml::from_str::<RaidSetup>("name: R\nparty: []\n").is_err());
 }
+
+const STRENGTH_OF_EARTH_TOTEM: u32 = 25361;
+const STRENGTH_OF_EARTH: u32 = 25362;
+const GRACE_OF_AIR_TOTEM: u32 = 25359;
+const WINDFURY_TOTEM: u32 = 10614;
+const WINDFURY_TOTEM_PROC: u32 = 10612;
+
+/// Whether the totem aura `spell` is switched on for character `id`.
+fn has_totem_aura(raid: &RaidControl, id: CharId, spell: u32) -> bool {
+    use crate::character_spells::SpellHandle;
+    let spells = raid.character(id).spells();
+    match raid
+        .character(id)
+        .totems
+        .aura(spell)
+        .and_then(|aura| aura.applied)
+    {
+        Some(SpellHandle::Spell(handle)) => spells.spell(handle).is_enabled(),
+        Some(SpellHandle::Proc(handle)) => spells.procs().enabled().contains(&handle),
+        None => false,
+    }
+}
+
+/// Casts totem `game_id` for character `id`, 1.5 s after the last cast (its GCD over).
+fn cast_totem(raid: &mut RaidControl, id: CharId, game_id: u32) {
+    let now = raid.engine().current_time();
+    raid.engine_mut().advance_time_to(now + 1.5);
+    raid.with_character(id, |ctx| {
+        let spell = ctx.character.spells().spell_by_game_id(game_id).unwrap();
+        ctx.cast(spell);
+    });
+}
+
+/// Totems are party only: a Shaman's Strength of Earth and Windfury Totem reach every member of
+/// its party and nobody else, go when another totem of the element replaces them and at the
+/// end of the iteration; two Shamans' totems are one aura; Windfury Weapon on the main hand
+/// leaves the Windfury Totem proc out. The raid drops the setups' static Windfury enchant.
+#[test]
+fn a_shamans_totems_reach_its_party_alone() {
+    let setup = raid(
+        "name: Totems
+parties:
+  - [shaman_enh_2h_orc, warrior_fury_dw_orc, shaman_ele_orc]
+  - [warrior_fury_dw_orc]
+",
+    );
+    let members = setup.resolve(&characters()).unwrap();
+    let mut raid = setup
+        .build_raid(None, &members, data(), &settings())
+        .unwrap();
+    let (enh, warrior, ele, other) = (CharId(0), CharId(1), CharId(2), CharId(3));
+    for id in [warrior, other] {
+        let enchants = raid
+            .character(id)
+            .equipment()
+            .temp_enchants(crate::item::EquipmentSlot::Mainhand)
+            .to_vec();
+        assert!(
+            !enchants.contains(&crate::enchant::EnchantName::WindfuryTotem),
+            "{enchants:?}"
+        );
+    }
+    raid.prepare_set_of_combat_iterations();
+    raid.reset();
+
+    cast_totem(&mut raid, ele, STRENGTH_OF_EARTH_TOTEM);
+    cast_totem(&mut raid, ele, WINDFURY_TOTEM);
+    for id in [enh, warrior, ele] {
+        assert!(has_totem_aura(&raid, id, STRENGTH_OF_EARTH), "{id:?}");
+    }
+    assert!(
+        !has_totem_aura(&raid, other, STRENGTH_OF_EARTH),
+        "another party"
+    );
+    assert!(has_totem_aura(&raid, warrior, WINDFURY_TOTEM_PROC));
+    assert!(has_totem_aura(&raid, ele, WINDFURY_TOTEM_PROC));
+    assert!(
+        !has_totem_aura(&raid, enh, WINDFURY_TOTEM_PROC),
+        "Windfury Weapon on the main hand"
+    );
+    assert!(!has_totem_aura(&raid, other, WINDFURY_TOTEM_PROC));
+
+    // A second Strength of Earth is the same aura, and the first one's end leaves it up.
+    cast_totem(&mut raid, enh, STRENGTH_OF_EARTH_TOTEM);
+    let aura = |raid: &RaidControl| {
+        *raid
+            .character(warrior)
+            .totems
+            .aura(STRENGTH_OF_EARTH)
+            .unwrap()
+    };
+    assert_eq!(aura(&raid).providers, 2);
+    raid.with_character(ele, |ctx| {
+        let buff = ctx
+            .character
+            .totems
+            .get(crate::totem::TotemElement::Earth)
+            .unwrap()
+            .buff;
+        crate::spell::SpellHost::cancel_buff(ctx, buff);
+    });
+    assert_eq!(aura(&raid).providers, 1);
+    assert!(has_totem_aura(&raid, warrior, STRENGTH_OF_EARTH));
+
+    // Grace of Air replaces Windfury Totem: the party loses the proc.
+    cast_totem(&mut raid, ele, GRACE_OF_AIR_TOTEM);
+    assert!(!has_totem_aura(&raid, warrior, WINDFURY_TOTEM_PROC));
+
+    raid.reset();
+    for id in [enh, warrior, ele, other] {
+        assert!(!has_totem_aura(&raid, id, STRENGTH_OF_EARTH), "{id:?}");
+        assert!(!has_totem_aura(&raid, id, 25360), "{id:?}");
+    }
+}
+
+/// The Horde Shaman raid: the Elemental Shaman's Windfury Totem gives the two-hander Fury
+/// warrior of party 2 its proc; the warrior of party 1, whose Enhancement Shaman puts down
+/// Grace of Air, has none (the raid dropped its static Windfury enchant).
+#[test]
+fn the_horde_shaman_raid_windfury_comes_from_the_party_totem() {
+    let player = character("shaman_enh_2h_orc.yaml");
+    let setup =
+        RaidSetup::load(&DataBundle::repository_dir().join("raids/horde_shaman.yaml")).unwrap();
+    let members = setup.resolve(&characters()).unwrap();
+    let settings = player.sim_settings(&settings());
+    let mut raid = setup
+        .build_raid(Some(&player), &members, data(), &settings)
+        .unwrap();
+    crate::sim_control::run_logged_iteration(&settings, 3, &mut raid);
+    let statistics = raid.take_statistics();
+    let windfury = |id: CharId| {
+        crate::statistics::report::proc_rows(&statistics[id.index()])
+            .iter()
+            .filter(|row| row.name == "Windfury Totem")
+            .map(|row| row.per_fight)
+            .sum::<f64>()
+    };
+    // Party 1: the player, DW Fury, Combat; party 2: Elemental, Enhancement, 2h Fury.
+    assert_eq!(raid.character_at(1, 2), Some(CharId(5)));
+    assert!(windfury(CharId(5)) > 0.0, "party 2's warrior");
+    assert_eq!(windfury(CharId(1)), 0.0, "party 1's warrior");
+}

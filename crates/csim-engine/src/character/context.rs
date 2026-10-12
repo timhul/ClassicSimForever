@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::buff::external::{ConsumableSpec, ExternalBuffDb};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{
-    AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, SharedBuffs,
-    SpellHandle,
+    AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, PartyTotemChange,
+    SharedBuffs, SpellHandle,
 };
 use crate::combat_log::{
     AuraChange, CombatLog, CombatLogEvent, Damage, LogSpell, LogUnit, MissType, UnitInfo,
@@ -42,7 +42,7 @@ use crate::statistics::{
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
-use crate::totem::{ActiveTotem, TotemElement, TotemSummon};
+use crate::totem::{ActiveTotem, TotemAura, TotemElement, TotemSummon};
 
 use super::{
     Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
@@ -309,7 +309,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             self.cancel_buff(old.buff);
         }
         let iteration = self.character.totems.next_iteration();
-        let applied = match summon.period {
+        match summon.period {
             Some(period) => {
                 let character = self.character.id();
                 self.engine.add_event_in(
@@ -320,19 +320,66 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                         iteration,
                     },
                 );
-                None
             }
-            None => self.switch_on_totem_aura(summon.spell),
-        };
+            None => self.share_totem_aura(summon.spell, true),
+        }
         self.character.totems.set(ActiveTotem {
             buff,
             summon,
-            applied,
             iteration,
         });
     }
 
-    /// Switches on the passive or proc aura `spell` a totem gives the shaman, unless something
+    /// The shaman's totem aura `spell` goes up or down: for the shaman, then (through the raid
+    /// control) for the other members of its party. Totems are party only.
+    fn share_totem_aura(&mut self, spell: u32, apply: bool) {
+        self.change_totem_aura(spell, apply);
+        self.raid.note_party_totem_change(PartyTotemChange {
+            spell,
+            party: self.character.party(),
+            by: self.character.id(),
+            apply,
+        });
+    }
+
+    /// One more (or one less) standing totem of the party gives the character aura `spell`:
+    /// the first switches it on, the last one gone switches it off. Two shamans' totems of the
+    /// same aura are one aura.
+    pub(crate) fn change_totem_aura(&mut self, spell: u32, apply: bool) {
+        let aura = *self.character.totems.aura_mut(spell);
+        if apply {
+            let applied = if aura.providers == 0 {
+                self.switch_on_totem_aura(spell)
+            } else {
+                aura.applied
+            };
+            *self.character.totems.aura_mut(spell) = TotemAura {
+                providers: aura.providers + 1,
+                applied,
+            };
+        } else if aura.providers > 0 {
+            let providers = aura.providers - 1;
+            let mut applied = aura.applied;
+            if providers == 0
+                && let Some(handle) = applied.take()
+            {
+                self.disable_handle(handle);
+            }
+            *self.character.totems.aura_mut(spell) = TotemAura { providers, applied };
+        }
+    }
+
+    /// Learns a party member's totem aura `spell` and its payloads (disabled until a totem
+    /// stands), unless the character has it.
+    pub fn learn_totem_aura(&mut self, db: &SpellDb, spell: u32) {
+        for id in std::iter::once(spell).chain(payload_spells(db, spell)) {
+            if db.get(id).is_some() && !self.character.spells.has_game_id(id) {
+                self.learn(db, id);
+            }
+        }
+    }
+
+    /// Switches on the passive or proc aura `spell` a totem gives the character, unless something
     /// already gives the same: the selected external buff of that aura (another shaman's
     /// Strength of Earth), or a main-hand temporary enchant with that proc (Windfury Totem) or
     /// one ruling it out (Windfury Weapon).
@@ -384,8 +431,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             return;
         }
         let totem = self.character.totems.take(element).expect("checked");
-        if let Some(handle) = totem.applied {
-            self.disable_handle(handle);
+        if totem.summon.period.is_none() {
+            self.share_totem_aura(totem.summon.spell, false);
         }
     }
 

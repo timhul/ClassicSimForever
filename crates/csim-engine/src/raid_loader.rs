@@ -20,7 +20,9 @@
 //! What the raid provides is up to the raid: every setup, the player's included, loses its
 //! `debuffs` and the `buffs` that `data/external_buffs.yaml` marks `raid` (Blessing of Kings,
 //! Trueshot Aura, ...). The consumables stay. The raid members' own spells (Battle Shout,
-//! Sunder Armor) are what buffs the raid and debuffs the target.
+//! Sunder Armor) are what buffs the raid and debuffs the target. Totems are party only: the
+//! setups lose their `WindfuryTotem` temporary enchant too, and a Shaman's totems reach the
+//! members of its party alone ([`RaidControl::share_party_totems`]).
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -29,6 +31,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::character_loader::{CharacterSetup, CharacterSetupError, SetupIssue};
 use crate::data_bundle::DataBundle;
+use crate::enchant::EnchantName;
 use crate::raid::{PARTIES, PARTY_SIZE, RaidControl};
 use crate::sim_settings::SimSettings;
 
@@ -262,6 +265,7 @@ impl RaidSetup {
         }
 
         if issues.is_empty() {
+            raid.share_party_totems(&data.spells);
             Ok(raid)
         } else {
             Err(self.invalid(issues))
@@ -279,7 +283,8 @@ impl RaidSetup {
     }
 }
 
-/// `setup` without what the raid provides: its debuffs and its buffs marked `raid`. Names that
+/// `setup` without what the raid provides: its debuffs, its buffs marked `raid` and its
+/// `WindfuryTotem` enchant (a party's Shaman puts the totem down, or nobody does). Names that
 /// are not external buffs stay, for the build to report. The phase and ruleset go too, the
 /// raid's settings already hold the lead's.
 fn in_raid(setup: &CharacterSetup, data: &DataBundle) -> CharacterSetup {
@@ -298,6 +303,17 @@ fn in_raid(setup: &CharacterSetup, data: &DataBundle) -> CharacterSetup {
             .cloned()
             .collect(),
         debuffs: Vec::new(),
+        equipment: setup
+            .equipment
+            .iter()
+            .map(|(&slot, equipped)| {
+                let mut equipped = equipped.clone();
+                equipped
+                    .temp_enchants
+                    .retain(|&name| name != EnchantName::WindfuryTotem);
+                (slot, equipped)
+            })
+            .collect(),
         ..setup.clone()
     }
 }

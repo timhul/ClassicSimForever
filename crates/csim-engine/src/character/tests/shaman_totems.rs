@@ -141,7 +141,7 @@ fn windfury_totem_on_the_shaman() {
             f.set_temp_enchants(EquipmentSlot::Mainhand, &[imbue]);
         }
         cast(&mut f, WINDFURY_TOTEM);
-        let applied = f.character.totems.get(TotemElement::Air).unwrap().applied;
+        let applied = f.character.totems.applied(TotemElement::Air);
         let base = f.ctx().melee_ap();
         f.ctx().trigger_spell(10610, None).unwrap();
         (applied.is_some(), f.ctx().melee_ap() - base)
@@ -157,8 +157,7 @@ fn windfury_totem_on_the_shaman() {
 fn flametongue_totem_burns_by_weapon_speed() {
     let mut f = pulled(&[]);
     cast(&mut f, FLAMETONGUE_TOTEM);
-    let Some(SpellHandle::Proc(id)) = f.character.totems.get(TotemElement::Fire).unwrap().applied
-    else {
+    let Some(SpellHandle::Proc(id)) = f.character.totems.applied(TotemElement::Fire) else {
         panic!("Flametongue Totem's proc aura");
     };
     f.rig_rolls(PhysicalAttackResult::Hit);
@@ -273,10 +272,7 @@ fn an_external_totem_buff_does_not_stack() {
     assert!(external > 0);
     cast(&mut f, STRENGTH_OF_EARTH);
     assert_eq!(strength(&f) - base, external);
-    assert_eq!(
-        f.character.totems.get(TotemElement::Earth).unwrap().applied,
-        None
-    );
+    assert_eq!(f.character.totems.applied(TotemElement::Earth), None);
 }
 
 /// Call of Flame 3/3 and Elemental Fury 5/5 reach Searing Totem's attack: +15 % damage, crits
