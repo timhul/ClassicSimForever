@@ -1,0 +1,8 @@
+include: common/base_target.yaml
+include: common/base_shaman_caster_buffs.yaml
+include: common/base_shaman_elemental.yaml
+include: common/base_shaman_caster_horde.yaml
+name: Ele Orc
+race: ORC
+level: 60
+phase: 3

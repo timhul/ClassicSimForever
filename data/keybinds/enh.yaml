@@ -1,0 +1,21 @@
+# Keys for playing an Enhancement Shaman from the keyboard in csim-live:
+#   cargo run --release -p csim-live -- data/characters/shaman_enh_2h_orc.yaml --keybinds data/keybinds/enh.yaml
+#
+# 'spell name': [Ctrl+][Shift+][Alt+]key (see dw_fury.yaml). Without the rotation nothing is cast
+# before the pull: put the totems down, then attack to pull. Windfury Weapon is on the weapon
+# from the setup.
+Stormstrike: 1
+Earth Shock: 2
+Flame Shock: 3
+Frost Shock: 4
+Lightning Bolt: 5
+Rage of the Farseer: F
+Earthstrike: Shift+E
+Strength of Earth Totem: Shift+1
+Grace of Air Totem: Shift+2
+Mana Spring Totem: Shift+3
+Flametongue Totem: Shift+4
+Searing Totem: Shift+5
+Windfury Totem: Shift+6
+Major Mana Potion: Shift+M
+Demonic Rune: Shift+R

@@ -852,6 +852,72 @@ fn a_paladin_runs_alone_in_a_raid_and_in_the_sweeps() {
     assert!(header.contains("8 variants"), "{header}");
 }
 
+/// The Shaman setups run alone (Enhancement's Stormstrike and totems, Elemental's Lava Burst
+/// and overloads) and in the Horde Shaman raid; the Shaman sweeps list their variants.
+#[test]
+fn a_shaman_runs_alone_in_a_raid_and_in_the_sweeps() {
+    let run = |file: &str| {
+        [
+            "run".to_string(),
+            format!("data/characters/{file}"),
+            "--iterations".to_string(),
+            "20".to_string(),
+            "--threads".to_string(),
+            "2".to_string(),
+            "--length".to_string(),
+            "120".to_string(),
+            "--seed".to_string(),
+            "3".to_string(),
+        ]
+    };
+    fn args(run: &[String]) -> Vec<&str> {
+        run.iter().map(String::as_str).collect()
+    }
+    let enhancement = run("shaman_enh_2h_orc.yaml");
+    let report = stdout(&csim(&args(&enhancement)));
+    for expected in [
+        "Enh 2h Orc: Orc Shaman, rotation \"Enhancement\"",
+        "Stormstrike",
+        "Earth Shock",
+        "Flametongue Totem",
+        "Windfury Weapon",
+    ] {
+        assert!(report.contains(expected), "{expected:?} missing:\n{report}");
+    }
+    let elemental = run("shaman_ele_orc.yaml");
+    let report = stdout(&csim(&args(&elemental)));
+    for expected in [
+        "Ele Orc: Orc Shaman, rotation \"Elemental\"",
+        "Lava Burst",
+        "Lightning Bolt Overload",
+        "Searing Totem Attack",
+    ] {
+        assert!(report.contains(expected), "{expected:?} missing:\n{report}");
+    }
+    assert!(!report.contains("Mainhand Attack"), "{report}");
+    let raid = stdout(&csim(
+        &[
+            &args(&enhancement)[..],
+            &["--raid", "data/raids/horde_shaman.yaml"],
+        ]
+        .concat(),
+    ));
+    assert!(raid.contains("Raid Horde shaman: 6 players"), "{raid}");
+    assert!(raid.contains("Ele Orc"), "{raid}");
+
+    for (sweep, variants, line) in [
+        ("enh_profiles", "3 variants", "Enh 2h Orc | rockbiter"),
+        ("ele_profiles", "2 variants", "Ele Orc | shocks"),
+        ("enh_last_points", "3 variants", "base"),
+        ("ele_last_points", "32 variants", "Call of Flame +2"),
+    ] {
+        let output = csim(&["sweep", &format!("data/sweeps/{sweep}.yaml"), "--dry-run"]);
+        let header = String::from_utf8(output.stderr).unwrap();
+        assert!(header.contains(variants), "{sweep}: {header}");
+        assert!(stdout_of(&output.stdout).contains(line), "{sweep}");
+    }
+}
+
 fn stdout_of(bytes: &[u8]) -> String {
     String::from_utf8_lossy(bytes).into_owned()
 }

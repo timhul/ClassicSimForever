@@ -1065,6 +1065,97 @@ fn the_paladin_setups_build_with_every_paladin_rotation() {
     );
 }
 
+/// The Shaman setups run their rotations: Enhancement swings with Windfury Weapon, Stormstrike
+/// and Earth Shock and keeps four totems up, its Maelstrom Weapon line skipped without the
+/// talent; Elemental never swings and casts Lava Burst and both Lightning Bolt ranks; the
+/// Elemental Shocks rotation builds on the same setup.
+#[test]
+fn the_shaman_setups_run_their_rotations() {
+    let run = |setup: &CharacterSetup| {
+        let settings = SimSettings {
+            combat_length: 120,
+            ..setup.sim_settings(&settings())
+        };
+        let mut raid = setup.build_raid(data(), &settings).unwrap();
+        let mut cruncher = NumberCruncher::new();
+        SimControl::new(settings, 1).run_quick_sim(&mut raid, &mut cruncher);
+        cruncher.merged(None).unwrap()
+    };
+    let casts = |stats: &crate::statistics::ClassStatistics, name: &str| -> u64 {
+        stats
+            .executors()
+            .iter()
+            .filter(|e| e.spell_name() == name)
+            .map(|e| e.successful_casts())
+            .sum()
+    };
+
+    let enhancement = shipped("shaman_enh_2h_orc.yaml");
+    let raid = enhancement.build_raid(data(), &settings()).unwrap();
+    let character = raid.character(CharId(0));
+    assert_eq!(
+        character.attack_mode(),
+        crate::attack_mode::AttackMode::MeleeAttack
+    );
+    assert_eq!(
+        character.equipment().temp_enchants(EquipmentSlot::Mainhand),
+        [EnchantName::WindfuryWeapon]
+    );
+    let stats = run(&enhancement);
+    assert!(stats.personal_dps() > 400.0, "{}", stats.personal_dps());
+    for name in ["Stormstrike", "Earth Shock"] {
+        assert!(casts(&stats, name) > 10 * stats.iterations(), "{name}");
+    }
+    for totem in [
+        "Strength of Earth Totem",
+        "Grace of Air Totem",
+        "Mana Spring Totem",
+        "Flametongue Totem",
+    ] {
+        let uptime = stats.buff_statistics(totem).unwrap().avg_uptime();
+        assert!(uptime > 0.95, "{totem}: {uptime}");
+    }
+    assert!(
+        stats
+            .skipped_executors()
+            .iter()
+            .any(|skipped| skipped.spell_name == "Lightning Bolt"
+                && skipped.reason.contains("Maelstrom Weapon")),
+        "{:?}",
+        stats.skipped_executors()
+    );
+
+    let elemental = shipped("shaman_ele_orc.yaml");
+    let raid = elemental.build_raid(data(), &settings()).unwrap();
+    assert_eq!(
+        raid.character(CharId(0)).attack_mode(),
+        crate::attack_mode::AttackMode::MagicAttack
+    );
+    let stats = run(&elemental);
+    assert!(stats.personal_dps() > 300.0, "{}", stats.personal_dps());
+    assert!(casts(&stats, "Lava Burst") > 5 * stats.iterations());
+    let bolts: Vec<u64> = stats
+        .executors()
+        .iter()
+        .filter(|e| e.spell_name() == "Lightning Bolt")
+        .map(|e| e.successful_casts())
+        .collect();
+    assert_eq!(bolts.len(), 2, "rank 10 and rank 6");
+    assert!(bolts.iter().all(|&n| n > 0), "{bolts:?}");
+    assert!(
+        stats
+            .spells()
+            .any(|(key, _)| key.name == "Lightning Bolt Overload")
+    );
+
+    let mut shocks = elemental.clone();
+    shocks.rotation = "Elemental Shocks".to_string();
+    let stats = run(&shocks);
+    for name in ["Flame Shock", "Chain Lightning"] {
+        assert!(casts(&stats, name) > 0, "{name}");
+    }
+}
+
 /// A mana user starts its first iteration as full as the next ones: its maximum counts its
 /// intellect (gear and buffs), not the base mana alone.
 #[test]

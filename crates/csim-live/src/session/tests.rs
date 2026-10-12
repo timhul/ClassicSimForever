@@ -927,6 +927,8 @@ fn the_shipped_keybinds_bind_their_characters_spells() {
         ("warrior_fury_dw_orc.yaml", "dw_fury.yaml"),
         ("rogue_combat_swords_human.yaml", "combat.yaml"),
         ("paladin_ret_2h_human.yaml", "ret.yaml"),
+        ("shaman_enh_2h_orc.yaml", "enh.yaml"),
+        ("shaman_ele_orc.yaml", "ele.yaml"),
     ] {
         let path = DataBundle::repository_dir().join("keybinds").join(keybinds);
         let text = std::fs::read_to_string(&path).unwrap();

@@ -1,0 +1,23 @@
+# Horde Elemental Shaman gear: the six Premier Warlord's Thunderfist pieces (Forever's Elemental
+# PvP set: +23 spell damage at six), its belt and bracers, Molten Core and Blackwing Lair
+# jewelry, High Warlord's Destroyer (the Horde caster two-hander), the classic Totem of the
+# Storm (+33 Lightning Bolt and Chain Lightning damage). The exported items hold no one-handed
+# caster weapon with spell damage.
+class: SHAMAN
+equipment:
+  RELIC: { item: 23199 }                                                 # Totem of the Storm
+  HEAD: { item: 273341, enchant: ArcanumOfFocus }                        # Premier Warlord's Mail Helm
+  NECK: { item: 18814 }                                                  # Choker of the Fire Lord
+  SHOULDERS: { item: 273343, enchant: PowerOfTheScourge }                # Premier General's Mail Spaulders
+  BACK: { item: 18510 }                                                  # Hide of the Wild
+  CHEST: { item: 273340, enchant: EnchantChestGreaterStats }             # Premier Warlord's Mail Armor
+  WRIST: { item: 273339, enchant: EnchantBracerGreaterIntellect }        # Premier Legionnaire's Mail Bracers
+  GLOVES: { item: 273337 }                                               # Premier Champion's Mail Gauntlets
+  BELT: { item: 273338 }                                                 # Premier Legionnaire's Mail Waistband
+  LEGS: { item: 273342, enchant: ArcanumOfFocus }                        # Premier General's Mail Leggings
+  BOOTS: { item: 273336 }                                                # Premier Centurion's Mail Boots
+  RING1: { item: 19403 }                                                 # Band of Forced Concentration
+  RING2: { item: 19147 }                                                 # Ring of Spell Power
+  TRINKET1: { item: 19379 }                                              # Neltharion's Tear
+  TRINKET2: { item: 18820 }                                              # Talisman of Ephemeral Power
+  MAINHAND: { item: 23465, enchant: EnchantWeaponSpellPower, temp_enchants: [BrilliantWizardOil] }  # High Warlord's Destroyer

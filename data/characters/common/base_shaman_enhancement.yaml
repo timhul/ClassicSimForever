@@ -1,0 +1,27 @@
+# Enhancement, 8/31/12 (TASKS.md SH.0 Q9): Stormstrike, Flurry, Elemental Weapons, Mental
+# Dexterity and Rage of the Farseer; Elemental Devastation in Elemental, Tidal Focus's hit,
+# Totemic Focus and Mindfulness in Restoration. A valid build, not a recommendation: the sweeps
+# try the other points.
+class: SHAMAN
+rotation: Enhancement
+talents:
+  Elemental Combat:
+    Concussion: 5
+    Elemental Devastation: 3
+  Enhancement:
+    Thundering Strikes: 5
+    Ancestral Knowledge: 5
+    Mental Dexterity: 3
+    Improved Ghost Wolf: 2
+    Elemental Weapons: 3
+    Shamanistic Focus: 1
+    Flurry: 5
+    Stormstrike: 1
+    Spirit Weapons: 1
+    Mental Quickness: 2
+    Improved Stormstrike: 2
+    Rage of the Farseer: 1
+  Restoration:
+    Totemic Focus: 5
+    Tidal Focus: 5
+    Mindfulness: 2

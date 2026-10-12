@@ -1,0 +1,18 @@
+# The caster buffs of a raid for an Elemental Shaman: Arcane Brilliance, Gift of the Wild,
+# Greater Blessings of Kings and Wisdom, spell damage and intellect consumables, Curse of the
+# Elements on the target; Mana Spring is the rotation's own totem. The mana consumables the
+# rotation drinks.
+buffs:
+  - Greater Blessing of Kings
+  - Greater Blessing of Wisdom
+  - Gift of the Wild
+  - Arcane Brilliance
+  - Flask of Supreme Power
+  - Greater Arcane Elixir
+  - Elixir of Greater Firepower
+  - Runn Tum Tuber Surprise
+debuffs:
+  - Curse of the Elements
+consumables:
+  - Major Mana Potion
+  - Demonic Rune

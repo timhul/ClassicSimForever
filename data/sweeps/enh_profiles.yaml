@@ -1,0 +1,10 @@
+name: Enh profiles
+iterations: 10000
+# Every Enhancement setup with each weapon imbue (the main hand is the Orc setup's axe).
+variations:
+  - characters:
+      - ../characters/shaman_enh_*.yaml
+  - options:
+      - { label: windfury }
+      - { label: rockbiter, equipment: { MAINHAND: { item: 18831, enchant: Crusader, temp_enchants: [RockbiterWeapon] } } }
+      - { label: flametongue, equipment: { MAINHAND: { item: 18831, enchant: Crusader, temp_enchants: [FlametongueWeapon] } } }
