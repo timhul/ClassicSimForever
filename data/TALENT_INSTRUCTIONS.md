@@ -422,7 +422,7 @@ proc chance.
 | Elemental | 1 | Elemental Warding (28996) | 3 | stat aura | MOD_DAMAGE_PERCENT_TAKEN -3/-7/-10 | not simulated (damage taken) |
 | Elemental | 1 | Reverberation (16040) | 5 | modifier | FLAT COOLDOWN -200..-1000 → shocks | tables |
 | Elemental | 1 | Call of Flame (16038) | 3 | modifier | PCT DAMAGE 5/10/15 → totem attacks, Fire Nova, Lava Burst; PCT DOT 5/10/15 → Flame Shock | tables (SH.7 for the totems) |
-| Elemental | 1 | Elemental Devastation (30160) | 3 | proc(dummy) | DUMMY 3/6/9 | SH.8: harmful non-periodic spell crits → 30165 (+3/6/9 % melee crit, 10 s) |
+| Elemental | 1 | Elemental Devastation (30160) | 3 | proc(dummy) | DUMMY 3/6/9 | SH.8: the crits of the shaman's damage spells (not the ticks, totems, weapon procs or overload copies) → 30165 (+3/6/9 % melee crit, 10 s) |
 | Elemental | 2 | Elemental Focus (16164) | 1 | proc | PROC 10 % → 16246 (Clearcasting: -100 % mana of the next damage spell) | tables; SH.8 |
 | Elemental | 2 | Elemental Alacrity (16578) | 3 | modifier | FLAT CAST_TIME -170/-330/-500 → Lightning Bolt, Chain Lightning, Lava Burst | tables |
 | Elemental | 3 | Improved Fire Nova (16086) | 2 | modifier | PCT DAMAGE 10/20, FLAT COOLDOWN -2000/-4000 → Fire Nova | tables (SH.7) |
@@ -444,12 +444,12 @@ proc chance.
 | Enhancement | 2 | Shamanistic Focus (1223030) | 1 | modifier | PCT POWER_COST -45 → shocks, Lightning Shield | tables |
 | Enhancement | 2 | Anticipation (16254) | 3 | stat aura | MOD_DODGE_PERCENT 2/4/6 | not simulated (dodge) |
 | Enhancement | 3 | Toughness (16252) | 5 | stat aura | MOD_TOTAL_STAT_PERCENTAGE 2..10 (stamina) | tables |
-| Enhancement | 3 | Flurry (16256) ← Mental Dexterity | 5 | proc(dummy) | DUMMY 5..25 → 16257 (melee haste, 3 charges) | SH.8 (the Warrior's Flurry) |
+| Enhancement | 3 | Flurry (16256) ← Mental Dexterity | 5 | proc(dummy) | DUMMY 5..25 → 16257 (melee haste, 3 charges) | SH.8 (the Warrior's Flurry; 500 ms between two charges used) |
 | Enhancement | 3 | Stormstrike (17364) | 1 | ability | NORMALIZED_WEAPON_DMG; MOD_SPELL_DAMAGE_FROM_CASTER 20 (one charge) | SH.5 |
 | Enhancement | 4 | Spirit Weapons (16268) | 1 | stat aura | MOD_THREAT -30; FLAT → Rockbiter; DUMMY 30 (parry) | not simulated (threat, parry) |
 | Enhancement | 4 | Mental Quickness (30812) | 2 | stat aura | MOD_SPELL_DAMAGE_OF_STAT_PERCENT 15/30 (intellect); healing | tables |
 | Enhancement | 4 | Improved Stormstrike (1223031) ← Stormstrike | 2 | proc(dummy) | DUMMY 50/100 (chance); DUMMY 50/100 (reset chance); DUMMY 20 | SH.8: → 1238931 (50 % regeneration while casting, 15 s); the reset not simulated |
-| Enhancement | 5 | Maelstrom Weapon (408498) | 5 | proc(dummy) | DUMMY -4..-20 (per stack); DUMMY 50; DUMMY 5 (stacks) | SH.8: 10 PPM → 408505 |
+| Enhancement | 5 | Maelstrom Weapon (408498) | 5 | proc(dummy) | DUMMY -4..-20 (per stack); DUMMY 50; DUMMY 5 (stacks) | SH.8: 10 PPM on the swings, strikes and the shaman's spells → 408505 (stacks; the rank value on its cast time and mana) |
 | Enhancement | 6 | Rage of the Farseer (425336) ← Mental Quickness | 1 | ability | MOD_MELEE_RANGED_HASTE_2 30, 25 s, 3 min | SH.8 |
 | Restoration | 0 | Improved Healing Wave (16182) | 5 | modifier | FLAT CAST_TIME → Healing Wave | not simulated (healing) |
 | Restoration | 0 | Totemic Focus (16173) | 5 | modifier | PCT POWER_COST -5..-25 → totems | tables |

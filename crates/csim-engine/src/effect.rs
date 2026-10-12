@@ -1271,6 +1271,14 @@ impl Effect {
                     }
                 }
             }
+            // Melee attack power as a percentage of an attribute (Mental Dexterity: intellect).
+            A::ModAttackPowerOfStatPercent if !on_target => {
+                let attribute = self.record.misc_value[0];
+                if (0..ATTRIBUTE_COUNT as i32).contains(&attribute) {
+                    host.stats_mut()
+                        .change_melee_ap_of_stat_percent(attribute as usize, signed);
+                }
+            }
             A::ModDamagePercentDone => {
                 if physical {
                     if apply {

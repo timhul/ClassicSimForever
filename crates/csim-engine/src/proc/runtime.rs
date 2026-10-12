@@ -83,8 +83,14 @@ enum Payload {
     /// `PROC_TRIGGER_SPELL` (or a `TRIGGER_SPELL` script): cast `spell`, with the aura's value
     /// as trigger value when the aura carries one.
     Trigger { spell: u32, value: Option<f64> },
-    /// `TRIGGER_WITH_VALUE`: set effect `effect` of `spell` to the aura's value, then cast it.
-    TriggerWithValue { spell: u32, effect: u32, value: f64 },
+    /// `TRIGGER_WITH_VALUE`: set effect `effect` (and `second`) of `spell` to the aura's value,
+    /// then cast it.
+    TriggerWithValue {
+        spell: u32,
+        effect: u32,
+        second: Option<u32>,
+        value: f64,
+    },
 }
 
 /// What a proc's spell is.
@@ -332,6 +338,9 @@ impl Proc {
         if filter.builder && !trigger.awards_combo_points {
             return false;
         }
+        if filter.not_from_payloads && trigger.payload {
+            return false;
+        }
         let effect_mask = filter.family_mask_effect.and_then(|index| {
             let effect = self.spell.record().effect(index)?;
             Some(effect.spell_class_mask)
@@ -495,6 +504,7 @@ impl Proc {
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
+                    second: params.second_effect,
                     value: effect.effective_value(host),
                 });
             }
@@ -505,6 +515,7 @@ impl Proc {
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
+                    second: None,
                     value: swing_damage_by_speed(effect.effective_value(host), speed),
                 });
             }
@@ -516,6 +527,7 @@ impl Proc {
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
+                    second: None,
                     value: amount * speed / 100.0,
                 });
             }
@@ -539,6 +551,7 @@ impl Proc {
             return Some(Payload::TriggerWithValue {
                 spell: record.trigger_spell,
                 effect: 0,
+                second: None,
                 value: effect.effective_value(host),
             });
         }
@@ -604,9 +617,13 @@ impl Proc {
                 Payload::TriggerWithValue {
                     spell,
                     effect,
+                    second,
                     value,
                 } => {
                     host.set_spell_effect_value(spell, effect, value);
+                    if let Some(second) = second {
+                        host.set_spell_effect_value(spell, second, value);
+                    }
                     if let Some(triggered) = host.trigger_spell(spell, None) {
                         report.triggered.push((spell, triggered));
                     }
@@ -803,7 +820,7 @@ impl EnabledProcs {
         let nested = report.all_proc_sources();
         let mut reports = vec![(id, report)];
         for nested_source in nested {
-            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::payload(), host));
         }
         reports
     }
@@ -819,7 +836,7 @@ impl EnabledProcs {
         let nested = report.all_proc_sources();
         reports.push((id, report));
         for nested_source in nested {
-            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::payload(), host));
         }
     }
 

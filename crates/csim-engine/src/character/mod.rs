@@ -191,6 +191,8 @@ pub struct Character {
     roll: CombatRoll,
     /// Rolls weapon damage between the weapon's min and max (the C++ `Weapon::random`).
     dmg_roll: Random,
+    /// Rolls the chance of a cast's overload copy (Lightning Overload), out of 10 000.
+    overload_roll: Random,
     resource: Resource,
     sim: SimParams,
 
@@ -335,6 +337,7 @@ impl Character {
             talents: None,
             roll: CombatRoll::new(target_level),
             dmg_roll: Random::new(0, 1),
+            overload_roll: Random::new(0, crate::proc::PROC_ROLL_RANGE),
             resource,
             sim,
             stance: class.default_stance,
@@ -1285,6 +1288,12 @@ impl Character {
         self.roll.set_new_seed(seeds.next());
         self.dmg_roll.set_gen_from_seed(seeds.next());
         self.spells.procs_mut().reseed(|| seeds.next());
+        self.overload_roll.set_gen_from_seed(seeds.next());
+    }
+
+    /// A roll out of 10 000 for a cast's overload copy.
+    pub(crate) fn roll_overload(&mut self) -> u32 {
+        self.overload_roll.get_roll()
     }
 
     // ---------------------------------------------------------------- weapon damage

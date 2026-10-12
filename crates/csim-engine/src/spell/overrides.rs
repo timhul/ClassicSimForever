@@ -271,6 +271,9 @@ pub enum ScriptKind {
     /// Casts `params.spell` at the caster's fire totem; without one the spell cannot be cast
     /// (Fire Nova).
     TotemNova,
+    /// Goes on a talent's `DUMMY` aura effect: its value is the chance in percent that a cast
+    /// which landed casts its `overload` copy (Lightning Overload).
+    LightningOverload,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -330,6 +333,10 @@ pub struct ScriptParams {
     /// The spells the script applies to, as a class mask of the spell's family.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub family_mask: Option<[u32; 4]>,
+    /// A second effect of `spell` that takes the value too (Maelstrom Weapon's cast time and
+    /// mana reductions).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub second_effect: Option<u32>,
 }
 
 impl ScriptParams {
@@ -475,6 +482,7 @@ impl EffectScript {
             | ScriptKind::AttackSpeedDamagePenalty
             | ScriptKind::RefreshAura
             | ScriptKind::PointsPercentModifier
+            | ScriptKind::LightningOverload
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -554,6 +562,10 @@ pub struct ProcOverride {
     /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
     #[serde(default, skip_serializing_if = "is_default")]
     pub builder: bool,
+    /// Not the events of other procs' payloads (Maelstrom Weapon: swings and the shaman's
+    /// spells, not Flametongue Weapon's damage).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub not_from_payloads: bool,
 }
 
 impl ProcOverride {
@@ -617,6 +629,9 @@ pub enum SimFlag {
     /// A dual-wielding character's ability also strikes with the off-hand weapon, as an
     /// `OFFHAND_COPY` aura makes it (Whirlwind in Forever: "from both melee weapons").
     OffhandStrike,
+    /// A spell of a skill line that is only another spell's payload, enabled with it like a
+    /// hidden payload (Elemental Devastation's crit buff, the Lightning Overload copies).
+    Payload,
 }
 
 /// Everything hand-written about one spell.
@@ -670,6 +685,10 @@ pub struct SpellOverride {
     /// game's "a more powerful spell is already active").
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub exclusive_auras: Vec<u32>,
+    /// The copy a `LIGHTNING_OVERLOAD` talent may cast after this spell lands (Lightning
+    /// Bolt's half-damage copy of the same rank); a payload, enabled with the spell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub overload: Option<u32>,
 }
 
 impl SpellOverride {
@@ -734,6 +753,7 @@ impl SpellOverride {
             push(Some(id));
         }
         push(self.proc.and_then(|p| p.target_aura));
+        push(self.overload);
         ids
     }
 

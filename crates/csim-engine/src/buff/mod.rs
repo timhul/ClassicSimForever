@@ -196,6 +196,12 @@ pub struct Buff {
     instance_id: Option<InstanceId>,
     enabled: bool,
     current_charges: u32,
+    /// Seconds between two charges used (`ProcCategoryRecovery` of a charged aura: the
+    /// Shaman's Flurry keeps its charges through Windfury's extra attacks).
+    charge_recovery: f64,
+    /// When the next charge may be used: the recovery after the last charge used or the
+    /// (re)application.
+    next_charge: f64,
     current_stacks: u32,
     iteration: u32,
     applied: f64,
@@ -247,6 +253,8 @@ impl Buff {
             instance_id: None,
             enabled: false,
             current_charges: 0,
+            charge_recovery: 0.0,
+            next_charge: f64::NEG_INFINITY,
             current_stacks: 0,
             iteration: 0,
             applied: 0.0,
@@ -292,6 +300,10 @@ impl Buff {
             && !record.is_passive()
             && !record.aura_options.proc_type_mask.is_empty()
             && record.effects.iter().any(|e| e.is_spell_modifier());
+        if record.aura_options.proc_charges > 0 {
+            buff.charge_recovery =
+                f64::from(record.aura_options.proc_category_recovery_ms) / 1000.0;
+        }
         if record.aura_options.proc_charges > 0 || buff.consumed_whole {
             // A debuff boosting its owner's spells (Stormstrike) is used up by what the target
             // takes from them: the owner's damage is all the target takes here.
@@ -641,6 +653,7 @@ impl Buff {
         };
 
         self.current_charges = self.base_charges;
+        self.next_charge = now + self.charge_recovery;
         self.refreshed = now;
         self.active = true;
         self.schedule_removal(ctx);
@@ -698,6 +711,13 @@ impl Buff {
             "Attempted to use charge of '{}' but it has no charges",
             self.name
         );
+        let now = ctx.now();
+        if now < self.next_charge {
+            return ChargeUse::ChargeUsed {
+                remaining: self.current_charges,
+            };
+        }
+        self.next_charge = now + self.charge_recovery;
         self.current_charges -= 1;
         if self.current_charges == 0 {
             self.force_remove(ctx);
@@ -734,6 +754,7 @@ impl Buff {
             return;
         }
         self.current_charges = 0;
+        self.next_charge = f64::NEG_INFINITY;
         self.current_stacks = 0;
         self.iteration = 0;
         self.applied = 0.0;
@@ -958,6 +979,36 @@ mod tests {
         assert!(!buff.is_active());
         assert_eq!(buff.charges(), 0);
         assert_eq!(buff.use_charge(&mut world.ctx()), ChargeUse::Inactive);
+    }
+
+    /// The Shaman's Flurry: 500 ms between two charges, from the application on.
+    #[test]
+    fn charges_wait_for_their_recovery() {
+        let mut flurry = SpellRecord::new(16257, "Flurry");
+        flurry.duration_ms = Some(15_000);
+        flurry.aura_options = AuraOptions {
+            proc_charges: 3,
+            proc_chance: 100,
+            proc_category_recovery_ms: 500,
+            proc_type_mask: crate::spell::dbc::ProcFlags::DEAL_MELEE_SWING,
+            ..AuraOptions::default()
+        };
+        let mut buff = Buff::from_record(&flurry, BuffKind::SelfBuff, &Overrides::new());
+        buff.enable();
+        let mut world = World::new(0.0);
+        buff.apply(&mut world.ctx());
+        let kept = ChargeUse::ChargeUsed { remaining: 3 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept, "just applied");
+        world.advance_to(0.5);
+        let used = ChargeUse::ChargeUsed { remaining: 2 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), used);
+        let kept = ChargeUse::ChargeUsed { remaining: 2 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept, "an extra attack");
+        world.advance_to(0.9);
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept);
+        world.advance_to(1.0);
+        let used = ChargeUse::ChargeUsed { remaining: 1 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), used);
     }
 
     #[test]

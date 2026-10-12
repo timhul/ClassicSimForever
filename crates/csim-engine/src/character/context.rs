@@ -759,6 +759,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 !record.is_in_spellbook()
                     || (record.acquire_method == 3 && record.class_mask == 0)
                     || spell.setup().enabled_by.is_some()
+                    || spell.has_sim_flag(SimFlag::Payload)
             });
             if !is_payload {
                 continue;
@@ -1447,6 +1448,49 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(offhand) = &report.offhand {
             self.run_sources(&untriggered(&offhand.proc_sources));
         }
+        self.lightning_overload(id, report);
+    }
+
+    /// A cast that landed casts its `overload` copy at the chance of the character's
+    /// `LIGHTNING_OVERLOAD` auras. The copy comes after the cast used its charges (no
+    /// Stormstrike bonus), keeps the cast's bonus against its caster aura (Lava Burst with
+    /// Flame Shock), and its events run as a payload's: no spell behind them, so it neither
+    /// overloads again nor counts for Elemental Focus.
+    fn lightning_overload(&mut self, id: SpellId, report: &CastReport) {
+        let Some(copy) = self.character.spells.spell(id).setup().overrides.overload else {
+            return;
+        };
+        let landed = report.attack.as_ref().is_some_and(|attack| {
+            matches!(
+                attack.result,
+                PhysicalAttackResult::Hit | PhysicalAttackResult::Critical
+            )
+        });
+        if !landed {
+            return;
+        }
+        let chance: f64 = self
+            .character
+            .spells()
+            .buff_ids()
+            .map(|buff| self.buff_ref(buff))
+            .filter(|buff| buff.is_active())
+            .flat_map(|buff| buff.effects.iter())
+            .filter(|effect| effect.script_kind() == Some(ScriptKind::LightningOverload))
+            .map(Effect::value)
+            .sum();
+        let range = (chance * f64::from(crate::proc::PROC_ROLL_RANGE) / 100.0).round() as u32;
+        if range == 0 || self.character.roll_overload() >= range {
+            return;
+        }
+        let scale = self
+            .character
+            .spells
+            .spell(id)
+            .caster_aura_multiplier(&*self);
+        if let Some(overload) = self.trigger_scaled(copy, scale) {
+            self.run_sources(&untriggered(&overload.all_proc_sources()));
+        }
     }
 
     /// The proc sources of a cast of `id` with the spell behind each: the cast's own, those of
@@ -1458,6 +1502,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             class_options: record.class_options,
             combo_points_spent: report.combo_points_spent,
             awards_combo_points: record.awards_combo_points(),
+            payload: false,
         };
         let mut sources = Vec::new();
         self.collect_sources(report, cast, &mut sources);
@@ -1504,16 +1549,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// it triggered (the `classic-warrior` wiki on Windfury Totem), so the swing that proc'd
     /// Windfury uses a charge of the aura it just applied; but a crit consumes a charge of the
     /// Flurry already up before refreshing it, and the crit that applies Flurry keeps all three
-    /// charges (Classic Era combat logs).
+    /// charges (Classic Era combat logs). A spell modifier aura's charge goes first: the cast
+    /// used it, so what the cast procs (a Clearcasting from Elemental Focus) stays up.
     fn run_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
-        self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources));
+        self.use_charges(sources, true);
+        self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources, false));
         let plain: Vec<ProcSource> = sources.iter().map(|&(source, _)| source).collect();
         self.run_event_scripts(&plain);
     }
 
-    /// Uses the charges of the buffs that react to `sources`. A charged spell modifier aura
-    /// reacts to the spells it modifies only, and loses at most one charge to one event.
-    fn use_charges(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
+    /// Uses the charges of the buffs that react to `sources`, of the spell modifier auras or of
+    /// the others (`modifiers`). A charged spell modifier aura reacts to the spells it modifies
+    /// only, and loses at most one charge to one event.
+    fn use_charges(&mut self, sources: &[(ProcSource, ProcTrigger)], modifiers: bool) {
         let mut charged = Vec::new();
         for (source, trigger) in sources {
             let class = trigger.class_options;
@@ -1527,6 +1575,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     .spells
                     .owned_buff(id)
                     .is_some_and(Buff::charges_require_spell_modifier);
+                if spell_modifier != modifiers {
+                    continue;
+                }
                 if spell_modifier {
                     if charged.contains(&id) {
                         continue;

@@ -475,6 +475,9 @@ overrides:
                                      #   per resource: Revealed Flaw 5 %)
                                      # builder: true — only events of a spell that awards
                                      #   combo points (Seal Fate)
+                                     # not_from_payloads: true — not the events of other
+                                     #   procs' payloads (Maelstrom Weapon: not Flametongue
+                                     #   Weapon's damage)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -490,6 +493,8 @@ overrides:
     rename: Searing Totem Attack     # the name the sim reports (the tables' "Attack")
     exclusive_auras: [25782, 25916]  # not castable while one of these is up on the caster
                                      #   (Blessing of Might under a Greater Blessing of Might)
+    overload: 408477                 # the copy a LIGHTNING_OVERLOAD talent may cast after this
+                                     #   spell lands (Lightning Bolt r10's), a payload of it
 ```
 
 A `NO_OP` script may carry `params.spell`: the walk follows it and the pruning keeps the spell,
@@ -503,7 +508,7 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `ATTACK_POWER_PERCENT_DAMAGE` | `base_points` % of attack power as damage | — | Bloodthirst E1, Victory Rush, Shockwave |
 | `EXECUTE` | `base_points` + `chain_amplitude` × 10 per rage above the cost; consumes all rage | — | Execute |
 | `DEEP_WOUNDS_BLEED` | the trigger value (talent rank) % of the average base main-hand weapon damage (no attack power, off-hand crits too) over the aura's duration | `duration_spell` | Deep Wounds payload 12162 |
-| `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` set to this aura's value | `spell`, `effect` | Flurry 12319 → 12966, Enrage |
+| `TRIGGER_WITH_VALUE` | casts `spell` with effect `effect` (and `second_effect`, when given) set to this aura's value | `spell`, `effect` (`second_effect` optional) | Flurry 12319 → 12966, Enrage, Maelstrom Weapon 408498 → 408505 E0 and E1 |
 | `TRIGGER_SPELL` | the proc casts `spell`, the server's payload: of a `DUMMY` proc aura, of a `PROC_TRIGGER_SPELL` without a trigger spell, or in place of the table's trigger; on a direct (non-aura) effect the cast casts `spell`; on a `PERIODIC_DUMMY` aura every tick casts `spell`, the one due as the aura expires included (Consecration 20924 E2 → 1280349, 8 ticks over 8 s) | `spell` | Windfury Totem's party aura → 10610, Touch of the Grave 1260189 → 1260198, Relentless Strikes 14179 → 1314102, Seal Fate 14186 → 14189, Cutthroat 462708 → 462707, Vanish's `SANCTUARY` → Stealth 1787 |
 | `PERIODIC_RESOURCE_GAIN` | `base_points` of `resource` every `period_ms` | `period_ms`, `resource` | Anger Management |
 | `STANCE_RAGE_RETAINED` | rage kept on stance change += `base_points` | — | Tactical Mastery |
@@ -528,6 +533,7 @@ without giving the effect any behaviour (the Paladin's seals name their judgemen
 | `TOTEM_NOVA` | casts `spell` with the nova's damage modifiers from the fire totem; without one the spell cannot be cast (`NoTotem`) | `spell` | Fire Nova 408345 E0 |
 | `POINTS_PERCENT_MODIFIER` | a `DUMMY` aura that is a percent modifier of the first effect's points of the spells in its class mask | — | Improved Weapon Totems 29193 |
 | `WEAPON_SPEED_DAMAGE` | a proc aura's payload per landed hit: casts `spell` with effect `effect` set to `amount_spell`'s first effect value × the main-hand weapon's unhasted speed / 100 | `spell`, `effect`, `amount_spell` | Flametongue Weapon 436519 E0 |
+| `LIGHTNING_OVERLOAD` | on a talent's `DUMMY` aura: its value is the chance in percent that a cast which landed casts its `overload` copy, after the cast used its charges (no Stormstrike bonus), with the cast's `DAMAGE_PERCENT_VS_CASTER_AURA` bonus; the copy's events have no spell behind them (it neither overloads again nor counts for a `family_mask` proc) | — | Lightning Overload 408438 E0 |
 | `DAMAGE_PERCENT_VS_CASTER_AURA` | the spell deals `base_points` % more while one of the caster's debuffs of the spells in `family_mask` is on the target | `family_mask` | Lava Burst E1 (Flame Shock) |
 | `DAMAGE_PERCENT_BELOW_HEALTH` | the spells of `family_mask` deal `base_points` % more (a separate multiplier) while the target's health, from the encounter's progress, is below effect `effect`'s table value in percent | `effect`, `family_mask` | Quietus E0 (E1: 35 %) |
 | `EXCLUSIVE_ARMOR_REDUCTION` | on a `MOD_RESISTANCE` / `MOD_ARMOR_NO_MODS` debuff effect: the armor reduction shares one slot with the other exclusive ones, only the strongest applies (forever-bugs #112) | — | Sunder Armor E0, Expose Armor E0 |
@@ -566,7 +572,9 @@ hit the enemy and have no cast time of their own can be cast during it),
 puts the character in the `ENRAGED` aura state that Raging Blow and Enraged Regeneration require;
 the client tables do not carry the enrage mechanic), `OFFHAND_STRIKE` (a dual-wielding
 character's ability also strikes with the off hand, as an `OFFHAND_COPY` aura makes it:
-Whirlwind, whose off-hand strike is server side since the 70205 hotfixes).
+Whirlwind, whose off-hand strike is server side since the 70205 hotfixes), `PAYLOAD` (a spell of
+a skill line that is only another spell's payload, enabled with it like a hidden payload:
+Elemental Devastation's buff 30165, the Lightning Overload copies).
 
 **Event sources** (`on_event.source`, `ProcSource`): `MAINHAND_SWING`, `OFFHAND_SWING`,
 `MAINHAND_SPELL`, `OFFHAND_SPELL`, `MELEE_HIT`, `MELEE_CRITICAL`, `MELEE_MISS`, `MELEE_DODGE`, `MELEE_PARRY`,
@@ -582,7 +590,13 @@ direct effect, a proc trigger with a trigger spell, a `TRIGGER_SPELL` / `TRIGGER
 script); `PROC_TRIGGER_SPELL_WITH_VALUE` casts its trigger spell with the aura's value as
 the payload's first effect value. A passive's buff is its owner's even when its effect names
 an enemy target (who the payload hits). A spell modifier aura with a `ProcTypeMask` but no
-charges is used up whole, every stack, by the first spell it modifies (Thousand Cuts).
+charges is used up whole, every stack, by the first spell it modifies (Thousand Cuts). A
+spell modifier aura's charge goes before the event's procs (a Clearcasting from the spell that
+used one stays up); the other charges after the landed hit's procs. A charged aura's
+`ProcCategoryRecovery` is the least time between two charges used, from its (re)application on
+(the Shaman's Flurry: 500 ms, so Windfury's extra attacks keep its charges). A spell whose cast
+time its modifiers take to 0 is instant (five Maelstrom Weapon stacks, Nature's Swiftness): it
+does not pause the swings.
 
 Not overridable on purpose: costs, cooldowns, damage, durations, class masks, ranks and proc
 sources — they come from the tables. Spells the overrides mention are never pruned (§1.10).

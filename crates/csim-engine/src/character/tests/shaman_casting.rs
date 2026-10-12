@@ -18,9 +18,11 @@ const CALL_OF_THUNDER: u32 = 104762;
 const ELEMENTAL_FURY: u32 = 104766;
 const MINDFULNESS: u32 = 104734;
 
-/// A Shaman with `talents` forced in on a magic rotation of `cast_if` lines.
+/// A Shaman with `talents` forced in on a magic rotation of `cast_if` lines, seeded the same
+/// every time.
 fn caster(talents: &[(u32, u32)], cast_if: &str) -> Fixture {
     let mut f = with_talents(talents);
+    f.character.set_seed(1);
     let spec = format!("class: SHAMAN\nname: Caster\nattack_mode: magic\ncast_if:\n{cast_if}");
     f.ctx()
         .set_rotation(Arc::new(serde_yaml::from_str(&spec).unwrap()));

@@ -180,6 +180,18 @@ pub struct ProcTrigger {
     pub combo_points_spent: u32,
     /// The cast awards combo points (a builder); the strikes it triggers share it.
     pub awards_combo_points: bool,
+    /// The event is of a proc's payload (Flametongue Weapon's damage), not of a swing or cast.
+    pub payload: bool,
+}
+
+impl ProcTrigger {
+    /// The trigger of the events a proc's payload raised.
+    pub fn payload() -> Self {
+        ProcTrigger {
+            payload: true,
+            ..ProcTrigger::default()
+        }
+    }
 }
 
 #[cfg(test)]

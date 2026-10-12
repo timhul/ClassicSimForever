@@ -2436,7 +2436,7 @@ spells:
             (25362, "Strength of Earth"),
             (10610, "Windfury Totem"),
             (16389, "Flametongue Totem Proc"),
-            (1238376, "Lava Burst"),
+            (1238376, "Lava Burst Overload"),
         ] {
             assert_eq!(
                 db.get(id).unwrap().name,

@@ -55,7 +55,10 @@
 #     and half the coefficient (Lightning Bolt rank 10 98 at 0.357, Lava Burst rank 3 110 at
 #     0.357), no cost, no cast time. [T]
 #   - The copy rolls its own hit and crit, lands right after the cast, does not overload again
-#     and does not count as a cast for Elemental Focus. [U]
+#     and does not count as a cast for Elemental Focus. [U]  Its crits do not give Elemental
+#     Devastation either (no spell behind its events). It is reported as "Lightning Bolt
+#     Overload", "Chain Lightning Overload", "Lava Burst Overload".
+#   - Only a cast that landed (hit or crit) overloads.
 #
 # Stormstrike (17364)
 #   - NORMALIZED_WEAPON_DMG (100 %, normalized speed), physical, the special melee table; 8 s
@@ -71,6 +74,9 @@
 #     rank value, three charges used by white swings, 15 s, 500 ms between charges. [T]
 #   - Not from Windfury extra attacks, and a crit on the last charge reapplies it without using
 #     the charge. [V] UnitAuraProcHandler.cpp IsTriggeredAtSpellProcEvent, HandleHasteAuraProc
+#     The 500 ms is the least time between two charges used, from the (re)application on: the
+#     extra attacks that follow a swing keep the charges. A crit of an extra attack still
+#     procs it, as the Warrior's Flurry does (the Warrior's machinery, TASKS.md SH.8). [?]
 #
 # Windfury Weapon (8232 .. 16362; enchant 1669 "Windfury 4", 60 min)
 #   - The enchant's equip spell 439431: 20 % chance (the enchant's 20 and the aura's
@@ -164,7 +170,9 @@
 #   - Maelstrom Weapon (408498 -> 408505): 10 procs per minute (chance = 10 x unhasted main-hand
 #     speed / 60) on white and special melee hits. [U]  The aura's mask 0x10014 also names
 #     spell damage (0x10000): the tables win over the description, spell damage procs it
-#     too, at the same 10 PPM. [U]
+#     too, at the same 10 PPM. [U]  The shaman's swings, strikes and spells: not the damage of
+#     other procs' payloads (Flametongue Weapon's), which would double its rate with an imbue
+#     that procs on every hit (TASKS.md SH.8).
 #   - 408505 stacks to 5 (the talent's E2) for 30 s; each stack takes the rank value (-4 .. -20
 #     %, the talent's E0) off the next Lightning Bolt's cast time and mana; the payload carries
 #     the rank-5 -20 %. That Lightning Bolt uses every stack. [T]  The talent's E1 (DUMMY 50)
@@ -207,6 +215,8 @@
 #
 # Open points ([?] above)
 #   1. Base health (the Rogue's until known).
+#   2. Flurry from the crits of Windfury's extra attacks: vmangos says no, the sim (as for the
+#      Warrior) lets them proc it.
 
 # ----- Overrides ------------------------------------------------------------------------------
 # Scripts the Shaman work has not implemented yet are NO_OP with the task (TASKS.md SH.n) that
@@ -219,12 +229,15 @@
 overrides:
   # ----- Elemental
   - id: 408490
+    overload: 408491
     note: Lava Burst r1; E1 +20 % while the caster's Flame Shock is on the target
     effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 1238299
+    overload: 1238373
     note: Lava Burst r2; E1 +20 % while the caster's Flame Shock is on the target
     effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 1238300
+    overload: 1238376
     note: Lava Burst r3; E1 +20 % while the caster's Flame Shock is on the target
     effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
   - id: 8050
@@ -245,6 +258,116 @@ overrides:
   - id: 29228
     note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
     effects: [{ index: 2, script: NO_OP }]
+  - id: 403
+    note: Lightning Bolt r1; Lightning Overload casts 408439
+    overload: 408439
+  - id: 529
+    note: Lightning Bolt r2; Lightning Overload casts 408440
+    overload: 408440
+  - id: 548
+    note: Lightning Bolt r3; Lightning Overload casts 408441
+    overload: 408441
+  - id: 915
+    note: Lightning Bolt r4; Lightning Overload casts 408442
+    overload: 408442
+  - id: 943
+    note: Lightning Bolt r5; Lightning Overload casts 408443
+    overload: 408443
+  - id: 6041
+    note: Lightning Bolt r6; Lightning Overload casts 408472
+    overload: 408472
+  - id: 10391
+    note: Lightning Bolt r7; Lightning Overload casts 408473
+    overload: 408473
+  - id: 10392
+    note: Lightning Bolt r8; Lightning Overload casts 408474
+    overload: 408474
+  - id: 15207
+    note: Lightning Bolt r9; Lightning Overload casts 408475
+    overload: 408475
+  - id: 15208
+    note: Lightning Bolt r10; Lightning Overload casts 408477
+    overload: 408477
+  - id: 421
+    note: Chain Lightning r1; Lightning Overload casts 408479
+    overload: 408479
+  - id: 930
+    note: Chain Lightning r2; Lightning Overload casts 408481
+    overload: 408481
+  - id: 2860
+    note: Chain Lightning r3; Lightning Overload casts 408482
+    overload: 408482
+  - id: 10605
+    note: Chain Lightning r4; Lightning Overload casts 408484
+    overload: 408484
+  - id: 408439
+    note: Lightning Bolt r1's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408440
+    note: Lightning Bolt r2's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408441
+    note: Lightning Bolt r3's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408442
+    note: Lightning Bolt r4's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408443
+    note: Lightning Bolt r5's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408472
+    note: Lightning Bolt r6's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408473
+    note: Lightning Bolt r7's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408474
+    note: Lightning Bolt r8's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408475
+    note: Lightning Bolt r9's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408477
+    note: Lightning Bolt r10's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408479
+    note: Chain Lightning r1's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408481
+    note: Chain Lightning r2's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408482
+    note: Chain Lightning r3's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408484
+    note: Chain Lightning r4's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408491
+    note: Lava Burst r1's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
+  - id: 1238373
+    note: Lava Burst r2's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
+  - id: 1238376
+    note: Lava Burst r3's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
   - id: 408341
     note: Fire Nova r1; E0 the damage 8349 at the fire totem, which it needs
     effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8349 } }]
@@ -261,26 +384,43 @@ overrides:
     note: Fire Nova r5; E0 the damage 11307 at the fire totem, which it needs
     effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 11307 } }]
   - id: 408438
-    note: Lightning Overload (talent); E0 the rank value is the chance to cast the overload copy (SH.8)
-    effects: [{ index: 0, script: NO_OP }]
+    note: Lightning Overload (talent); E0 the rank value is the chance a landed cast casts its overload copy
+    effects: [{ index: 0, script: LIGHTNING_OVERLOAD }]
   - id: 30160
-    note: Elemental Devastation (talent); E0 the rank value is 30165's melee crit (SH.8)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 30165 } }]
+    note: >-
+      Elemental Devastation (talent); E0 the rank value is 30165's melee crit, on the crits of the shaman's
+      damage spells (the Clearcasting mask and Fire Nova's damage), not the totems or the weapon procs
+    proc: { hit_mask: [CRITICAL], family_mask: [3624927235, 4096, 0, 0] }
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 30165, effect: 0 } }]
+  - id: 30165
+    note: Elemental Devastation's melee crit buff, in the skill line but only the talent's payload
+    sim_flags: [PAYLOAD]
+  - id: 16164
+    note: Elemental Focus (talent); on the shaman's fire, frost and nature damage spells (the Clearcasting mask and Fire Nova's damage)
+    proc: { family_mask: [3624927235, 4096, 0, 0] }
 
   # ----- Enhancement
   - id: 16256
-    note: Flurry (talent); E0 the rank value is 16257's haste (SH.8)
-    effects: [{ index: 0, script: NO_OP, params: { spell: 16257 } }]
+    note: Flurry (talent) procs on melee critical strikes; the DUMMY carries the rank value into 16257's haste
+    proc: { hit_mask: [CRITICAL] }
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 16257, effect: 0 } }]
   - id: 408498
-    note: Maelstrom Weapon (talent); E0 the reduction per stack of 408505, E1 unused, E2 the stacks (SH.8)
+    note: >-
+      Maelstrom Weapon (talent); 10 procs per minute on swings, strikes and the shaman's spells (not the
+      weapon procs); E0 the reduction per stack of 408505's cast time and mana, E1 unused, E2 the stacks
+      (408505's own max stacks)
+    proc: { ppm: 10, not_from_payloads: true }
     effects:
-      - { index: 0, script: NO_OP, params: { spell: 408505 } }
+      - { index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 408505, effect: 0, second_effect: 1 } }
       - { index: 1, script: NO_OP }
       - { index: 2, script: NO_OP }
   - id: 1223031
-    note: Improved Stormstrike (talent); E0 the chance of 1238931 (SH.8), E1 the dodge / parry reset, E2 unused
+    note: >-
+      Improved Stormstrike (talent); E0 the chance of 1238931 when Stormstrike lands, E1 the dodge / parry
+      reset (the character is not attacked), E2 unused
+    proc: { type_mask: [DEAL_MELEE_ABILITY], family_mask: [0, 16, 0, 0], chance_effect: 0 }
     effects:
-      - { index: 0, script: NO_OP, params: { spell: 1238931 } }
+      - { index: 0, script: TRIGGER_SPELL, params: { spell: 1238931 } }
       - { index: 1, script: NO_OP }
       - { index: 2, script: NO_OP }
   - id: 415140

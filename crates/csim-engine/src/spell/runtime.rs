@@ -906,7 +906,8 @@ impl Spell {
                     .filter_map(|script| script.params.spell),
             )
             // The spells the server applies for this one (Twist of Light's Echoes).
-            .chain(self.setup.overrides.walk.iter().copied());
+            .chain(self.setup.overrides.walk.iter().copied())
+            .chain(self.setup.overrides.overload);
         for id in scripted {
             if id != self.game_id() && !ids.contains(&id) {
                 ids.push(id);
@@ -1070,7 +1071,7 @@ impl Spell {
     }
 
     /// `DAMAGE_PERCENT_VS_CASTER_AURA`: 1 + its value while the caster's debuff is up.
-    fn caster_aura_multiplier(&self, host: &impl SpellHost) -> f64 {
+    pub fn caster_aura_multiplier(&self, host: &impl SpellHost) -> f64 {
         let set = self.setup.record.class_options.map_or(0, |c| c.set);
         self.effects
             .iter()
@@ -1492,7 +1493,8 @@ impl Spell {
             host.swap_stance(Stance::Caster);
         }
 
-        if self.has_cast_time() {
+        // A cast time the modifiers take to 0 is instant (five Maelstrom Weapon stacks).
+        if self.has_cast_time() && self.cast_time(host) > 0.0 {
             return self.start_cast(host, report);
         }
         if self.is_on_next_swing() {
@@ -2233,8 +2235,9 @@ impl Spell {
     }
 
     fn execution_time(&self, host: &impl SpellHost) -> f64 {
-        if self.has_cast_time() {
-            return self.cast_time(host);
+        let cast_time = self.cast_time(host);
+        if cast_time > 0.0 {
+            return cast_time;
         }
         if self.triggers_gcd() {
             host.global_cooldown()

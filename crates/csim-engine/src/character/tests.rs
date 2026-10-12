@@ -1263,6 +1263,7 @@ mod shaman;
 mod shaman_casting;
 mod shaman_imbues;
 mod shaman_spells;
+mod shaman_talents;
 mod shaman_totems;
 
 // ---------------------------------------------------------------- external buffs
