@@ -596,7 +596,11 @@ fn magic_damage_over_time_rolls_its_hit_and_its_ticks_resists() {
     let attack = report.attack.expect("the miss is reported");
     assert_eq!(attack.result, PhysicalAttackResult::Miss);
     assert_eq!(attack.spell.map(|s| s.roll), Some(SpellRoll::MISS));
-    assert!(report.proc_sources.is_empty(), "no melee miss");
+    assert_eq!(
+        report.proc_sources,
+        [ProcSource::SpellFullResist],
+        "resisted, no melee miss"
+    );
     assert!(!world.buff(marker).is_active());
     assert!(
         world.rolls.is_empty() && world.can_crits.is_empty(),

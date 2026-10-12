@@ -10,6 +10,7 @@ use super::paladin::stat;
 use super::shaman::{shaman, with_talents};
 use super::*;
 use crate::buff::Buff;
+use crate::enchant::EnchantName;
 use crate::magic_school::MagicSchool;
 use crate::spell::CastReport;
 
@@ -580,6 +581,41 @@ fn maelstrom_weapon_stacks_and_speeds_lightning_bolt() {
         buff(&f, MAELSTROM_WEAPON_BUFF).is_none_or(|b| b.stacks() < 5),
         "the bolt used the stacks"
     );
+}
+
+/// Maelstrom Weapon's 100 ms internal cooldown: a hit procs it once, its Flametongue Weapon
+/// damage never adds a second stack.
+#[test]
+fn maelstrom_weapon_procs_once_per_hit() {
+    let mut f = with_talents(&[(MAELSTROM_WEAPON, 5)]);
+    f.target.set_level(60);
+    f.target.set_base_armor(0);
+    f.set_temp_enchants(EquipmentSlot::Mainhand, &[EnchantName::FlametongueWeapon]);
+    f.ctx().prepare_set_of_combat_iterations();
+    f.ctx().reset();
+    f.character.set_seed(1);
+    pull(&mut f);
+    f.ctx().start_attack();
+    let (mut stacks, mut gains) = (0, 0);
+    while now(&f) < 300.0 {
+        wait(&mut f, 0.05);
+        let current = buff(&f, MAELSTROM_WEAPON_BUFF).map_or(0, Buff::stacks);
+        if current > stacks {
+            assert_eq!(current, stacks + 1, "at {}", now(&f));
+            gains += 1;
+        }
+        stacks = current;
+        // Five stacks: an instant Lightning Bolt uses them, even resisted (and may proc one
+        // again).
+        if stacks == 5 && f.status(LIGHTNING_BOLT) == SpellStatus::Available {
+            refill_mana(&mut f);
+            let id = f.spell_id(LIGHTNING_BOLT);
+            f.ctx().cast(id);
+            stacks = buff(&f, MAELSTROM_WEAPON_BUFF).map_or(0, Buff::stacks);
+            assert!(stacks <= 1, "used, the bolt landed or not: {stacks}");
+        }
+    }
+    assert!(gains > 20, "{gains}");
 }
 
 /// Rage of the Farseer: +30 % attack speed for 25 s, a 3 minute cooldown, off the global

@@ -780,13 +780,17 @@ impl Spell {
     }
 
     /// The own cooldown in milliseconds: `RecoveryTime`, or the proc internal cooldown of a
-    /// passive without one.
+    /// passive without one (the override's, else the table's).
     pub fn own_cooldown_ms(setup: &SpellSetup) -> u32 {
         let record = &setup.record;
         if record.cooldown.recovery_ms > 0 {
             record.cooldown.recovery_ms
         } else if setup.is_passive() || setup.buff_proc {
-            record.aura_options.proc_category_recovery_ms
+            setup
+                .overrides
+                .proc
+                .and_then(|p| p.cooldown_ms)
+                .unwrap_or(record.aura_options.proc_category_recovery_ms)
         } else {
             0
         }
@@ -1763,6 +1767,7 @@ impl Spell {
                 });
             } else if let Some(roll) = first_spell {
                 report.attack = Some(AttackOutcome::spell_failed(roll, self.execution_time(host)));
+                report.proc_sources.push(ProcSource::SpellFullResist);
             }
         } else {
             let lost = if consumes_all {

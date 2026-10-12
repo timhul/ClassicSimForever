@@ -449,7 +449,7 @@ proc chance.
 | Enhancement | 4 | Spirit Weapons (16268) | 1 | stat aura | MOD_THREAT -30; FLAT → Rockbiter; DUMMY 30 (parry) | not simulated (threat, parry) |
 | Enhancement | 4 | Mental Quickness (30812) | 2 | stat aura | MOD_SPELL_DAMAGE_OF_STAT_PERCENT 15/30 (intellect); healing | tables |
 | Enhancement | 4 | Improved Stormstrike (1223031) ← Stormstrike | 2 | proc(dummy) | DUMMY 50/100 (chance); DUMMY 50/100 (reset chance); DUMMY 20 | SH.8: → 1238931 (50 % regeneration while casting, 15 s); the reset not simulated |
-| Enhancement | 5 | Maelstrom Weapon (408498) | 5 | proc(dummy) | DUMMY -4..-20 (per stack); DUMMY 50; DUMMY 5 (stacks) | SH.8: 10 PPM on the swings, strikes and the shaman's spells → 408505 (stacks; the rank value on its cast time and mana) |
+| Enhancement | 5 | Maelstrom Weapon (408498) | 5 | proc(dummy) | DUMMY -4..-20 (per stack); DUMMY 50; DUMMY 5 (stacks) | SH.8: 10 PPM on swings, strikes and spell damage, 100 ms internal cooldown → 408505 (stacks; the rank value on its cast time and mana) |
 | Enhancement | 6 | Rage of the Farseer (425336) ← Mental Quickness | 1 | ability | MOD_MELEE_RANGED_HASTE_2 30, 25 s, 3 min | SH.8 |
 | Restoration | 0 | Improved Healing Wave (16182) | 5 | modifier | FLAT CAST_TIME → Healing Wave | not simulated (healing) |
 | Restoration | 0 | Totemic Focus (16173) | 5 | modifier | PCT POWER_COST -5..-25 → totems | tables |

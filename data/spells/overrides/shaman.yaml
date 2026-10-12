@@ -170,9 +170,8 @@
 #   - Maelstrom Weapon (408498 -> 408505): 10 procs per minute (chance = 10 x unhasted main-hand
 #     speed / 60) on white and special melee hits. [U]  The aura's mask 0x10014 also names
 #     spell damage (0x10000): the tables win over the description, spell damage procs it
-#     too, at the same 10 PPM. [U]  The shaman's swings, strikes and spells: not the damage of
-#     other procs' payloads (Flametongue Weapon's), which would double its rate with an imbue
-#     that procs on every hit (TASKS.md SH.8).
+#     too, at the same 10 PPM. [U]  A 100 ms internal cooldown: a hit procs it once, not once
+#     more through its Flametongue Weapon damage. [U]
 #   - 408505 stacks to 5 (the talent's E2) for 30 s; each stack takes the rank value (-4 .. -20
 #     %, the talent's E0) off the next Lightning Bolt's cast time and mana; the payload carries
 #     the rank-5 -20 %. That Lightning Bolt uses every stack. [T]  The talent's E1 (DUMMY 50)
@@ -406,10 +405,10 @@ overrides:
     effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 16257, effect: 0 } }]
   - id: 408498
     note: >-
-      Maelstrom Weapon (talent); 10 procs per minute on swings, strikes and the shaman's spells (not the
-      weapon procs); E0 the reduction per stack of 408505's cast time and mana, E1 unused, E2 the stacks
-      (408505's own max stacks)
-    proc: { ppm: 10, not_from_payloads: true }
+      Maelstrom Weapon (talent); 10 procs per minute on swings, strikes and spell damage, 100 ms internal
+      cooldown (one proc per hit, not one more from its Flametongue Weapon damage); E0 the reduction per
+      stack of 408505's cast time and mana, E1 unused, E2 the stacks (408505's own max stacks)
+    proc: { ppm: 10, cooldown_ms: 100 }
     effects:
       - { index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 408505, effect: 0, second_effect: 1 } }
       - { index: 1, script: NO_OP }

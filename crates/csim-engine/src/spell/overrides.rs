@@ -562,10 +562,10 @@ pub struct ProcOverride {
     /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
     #[serde(default, skip_serializing_if = "is_default")]
     pub builder: bool,
-    /// Not the events of other procs' payloads (Maelstrom Weapon: swings and the shaman's
-    /// spells, not Flametongue Weapon's damage).
-    #[serde(default, skip_serializing_if = "is_default")]
-    pub not_from_payloads: bool,
+    /// The internal cooldown in milliseconds where the server, not the table, has one
+    /// (Maelstrom Weapon: one proc per hit, not one more from Flametongue Weapon's damage).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cooldown_ms: Option<u32>,
 }
 
 impl ProcOverride {

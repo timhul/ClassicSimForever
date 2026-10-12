@@ -330,6 +330,14 @@ impl Buff {
                 })
                 .map(|e| (set, e.spell_class_mask))
                 .collect();
+            // The caster's own spell modifier is used by the cast, landed or resisted
+            // (Clearcasting, Maelstrom Weapon); a debuff only by the damage the target takes.
+            if !from_caster
+                && !buff.charge_spell_masks.is_empty()
+                && buff.charge_sources.contains(&ProcSource::MagicSpell)
+            {
+                buff.charge_sources.push(ProcSource::SpellFullResist);
+            }
         }
         buff.ends_auras = overrides.ends_auras(record.id).to_vec();
         let cannot_crit = overrides.has_sim_flag(record.id, SimFlag::CannotCrit);

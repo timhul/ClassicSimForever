@@ -338,9 +338,6 @@ impl Proc {
         if filter.builder && !trigger.awards_combo_points {
             return false;
         }
-        if filter.not_from_payloads && trigger.payload {
-            return false;
-        }
         let effect_mask = filter.family_mask_effect.and_then(|index| {
             let effect = self.spell.record().effect(index)?;
             Some(effect.spell_class_mask)
@@ -820,7 +817,7 @@ impl EnabledProcs {
         let nested = report.all_proc_sources();
         let mut reports = vec![(id, report)];
         for nested_source in nested {
-            reports.extend(self.run_proc_check(nested_source, ProcTrigger::payload(), host));
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
         }
         reports
     }
@@ -836,7 +833,7 @@ impl EnabledProcs {
         let nested = report.all_proc_sources();
         reports.push((id, report));
         for nested_source in nested {
-            reports.extend(self.run_proc_check(nested_source, ProcTrigger::payload(), host));
+            reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));
         }
     }
 

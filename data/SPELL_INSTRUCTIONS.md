@@ -475,9 +475,9 @@ overrides:
                                      #   per resource: Revealed Flaw 5 %)
                                      # builder: true — only events of a spell that awards
                                      #   combo points (Seal Fate)
-                                     # not_from_payloads: true — not the events of other
-                                     #   procs' payloads (Maelstrom Weapon: not Flametongue
-                                     #   Weapon's damage)
+                                     # cooldown_ms: 100 — an internal cooldown the server
+                                     #   has, in place of ProcCategoryRecovery (Maelstrom
+                                     #   Weapon: one proc per hit and its Flametongue damage)
     effects:                         # scripts for DUMMY effects / auras, by EffectIndex
       - { index: 0, script: DEEP_WOUNDS_BLEED, params: { duration_spell: 412609 } }
     threat: { flat: 145, modifier: 1.0 }
@@ -592,7 +592,8 @@ the payload's first effect value. A passive's buff is its owner's even when its 
 an enemy target (who the payload hits). A spell modifier aura with a `ProcTypeMask` but no
 charges is used up whole, every stack, by the first spell it modifies (Thousand Cuts). A
 spell modifier aura's charge goes before the event's procs (a Clearcasting from the spell that
-used one stays up); the other charges after the landed hit's procs. A charged aura's
+used one stays up), and a resisted spell uses the caster's own one too (`SPELL_FULL_RESIST`);
+the other charges go after the landed hit's procs. A charged aura's
 `ProcCategoryRecovery` is the least time between two charges used, from its (re)application on
 (the Shaman's Flurry: 500 ms, so Windfury's extra attacks keep its charges). A spell whose cast
 time its modifiers take to 0 is instant (five Maelstrom Weapon stacks, Nature's Swiftness): it

@@ -1502,7 +1502,6 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             class_options: record.class_options,
             combo_points_spent: report.combo_points_spent,
             awards_combo_points: record.awards_combo_points(),
-            payload: false,
         };
         let mut sources = Vec::new();
         self.collect_sources(report, cast, &mut sources);
