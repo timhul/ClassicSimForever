@@ -123,7 +123,12 @@ An on-next-swing spell (Heroic Strike, Cleave) is a buff of its own name while i
 from the cast until the main hand swing that takes it (or drops it, without the rage for it).
 Casting it again while queued changes nothing but the executor's cast count, so a rotation can
 skip it with `buff_duration "Heroic Strike" is false`. Queueing Cleave un-queues Heroic Strike
-and the other way round.
+and the other way round. An extra attack (Sword Specialization, Hack and Slash, Windfury) takes
+a queued Heroic Strike or Cleave too.
+
+Extra attacks do not touch the swing timer (Forever): `time_since_swing` and
+`time_remaining_swing` follow the regular main hand swings only, so a rotation need not hold
+its abilities back to keep a swing in progress.
 
 `talent` is decided once, when the rotation is linked to the character, since talents do not
 change during a fight: a sentence that holds drops out of its group, one that fails drops its
