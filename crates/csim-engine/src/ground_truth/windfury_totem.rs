@@ -241,10 +241,17 @@ fn oh_hit_damage(f: &Fixture, ap: u32) -> u32 {
     ((50.0 + 1.8 * f64::from(ap) / 14.0) * 0.5 * armor).round() as u32
 }
 
-/// Number of main-hand swings performed so far, from the swing scheduling counter (every
-/// performed swing and extra attack schedules the next one).
-fn mh_swings_scheduled(f: &Fixture) -> u32 {
+/// The iteration of the pending main-hand swing event (extra attacks do not reschedule it).
+fn mh_iteration(f: &Fixture) -> u32 {
     f.character.spells().mh_attack().iteration()
+}
+
+/// Number of white main-hand swings performed so far, extra attacks included.
+fn mh_swings(f: &Fixture) -> u64 {
+    f.character
+        .statistics()
+        .spell_statistics(f.character.spells().mh_attack().name(), 1)
+        .map_or(0, |stats| stats.total_attempts())
 }
 
 /// A seed for the proc's `Random` whose first rolls fire (`true`) or not (`false`) at 20 %.
@@ -399,15 +406,20 @@ fn main_hand_swings_proc_windfury_but_off_hand_swings_do_not() {
     let mut f = fixture();
     let proc = learn_windfury(&mut f, WINDFURY_PASSIVE_ALWAYS);
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
+    let iteration = mh_iteration(&f);
 
-    let outcome = f.ctx().mh_swing(before);
+    let outcome = f.ctx().mh_swing(iteration);
     assert!(matches!(outcome, SwingOutcome::Swing(_)), "{outcome:?}");
     assert_eq!(proc_count(&f, proc), 1, "a main-hand swing procs Windfury");
     assert_eq!(
-        mh_swings_scheduled(&f),
-        before + 2,
-        "the extra attack was performed right away (and rescheduled the swing)"
+        mh_swings(&f),
+        2,
+        "the extra attack was performed right away"
+    );
+    assert_eq!(
+        mh_iteration(&f),
+        iteration + 1,
+        "only the swing rescheduled the next one"
     );
 
     // Past the internal cooldown, so only the hand decides.
@@ -432,7 +444,7 @@ fn heroic_strike_procs_windfury() {
     let hs = f.spell_id(HEROIC_STRIKE);
     assert!(f.ctx().cast(hs).queued);
     f.ctx().start_attack();
-    let iteration = mh_swings_scheduled(&f);
+    let iteration = mh_iteration(&f);
     let outcome = f.ctx().mh_swing(iteration);
     assert!(
         matches!(outcome, SwingOutcome::NextSwingSpell(_)),
@@ -440,10 +452,11 @@ fn heroic_strike_procs_windfury() {
     );
     assert_eq!(proc_count(&f, proc), 1, "Heroic Strike procs Windfury");
     assert_eq!(
-        mh_swings_scheduled(&f),
-        iteration + 2,
+        mh_swings(&f),
+        1,
         "the extra attack was performed right away"
     );
+    assert_eq!(mh_iteration(&f), iteration + 1);
 }
 
 /// "Single-target instant attacks"
@@ -454,16 +467,17 @@ fn bloodthirst_procs_windfury() {
     f.learn(BLOODTHIRST);
     f.set_rage(100);
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
+    let iteration = mh_iteration(&f);
     let bt = f.spell_id(BLOODTHIRST);
     let report = f.ctx().cast(bt);
     assert_eq!(report.result, SpellResult::Success);
     assert_eq!(proc_count(&f, proc), 1, "Bloodthirst procs Windfury");
     assert_eq!(
-        mh_swings_scheduled(&f),
-        before + 1,
+        mh_swings(&f),
+        1,
         "the extra attack was performed right away"
     );
+    assert_eq!(mh_iteration(&f), iteration, "the swing timer is untouched");
     assert!(
         f.ctx().aura_active(WINDFURY_ATTACK),
         "one charge is left after the extra attack"
@@ -507,16 +521,11 @@ fn whirlwind_grants_a_single_extra_attack() {
     f.advance_to(2.0);
     f.set_rage(100);
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
     let ww = f.spell_id(WHIRLWIND);
     let report = f.ctx().cast(ww);
     assert_eq!(report.result, SpellResult::Success);
     assert_eq!(proc_count(&f, proc), 1, "Whirlwind procs Windfury once");
-    assert_eq!(
-        mh_swings_scheduled(&f),
-        before + 1,
-        "exactly one extra attack"
-    );
+    assert_eq!(mh_swings(&f), 1, "exactly one extra attack");
     assert_eq!(f.character.pending_extra_attacks(), 0);
 }
 
@@ -530,7 +539,6 @@ fn shield_slam_does_not_proc_windfury() {
     f.learn(SHIELD_SLAM);
     f.set_rage(100);
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
     let shield_slam = f.spell_id(SHIELD_SLAM);
     let report = f.ctx().cast(shield_slam);
     assert_eq!(report.result, SpellResult::Success);
@@ -539,7 +547,7 @@ fn shield_slam_does_not_proc_windfury() {
         0,
         "Shield Slam is an off-hand attack and does not proc Windfury"
     );
-    assert_eq!(mh_swings_scheduled(&f), before, "no extra attack");
+    assert_eq!(mh_swings(&f), 0, "no extra attack");
 }
 
 /// "Other extra attacks (e.g. Ironfoe, Sword Specialization, etc.) but it can't proc itself or
@@ -554,9 +562,9 @@ fn extra_attacks_from_other_procs_can_proc_windfury_once_per_chain() {
     // would proc again off its own extra attack if it were asked.
     set_proc_seed(&mut f, windfury, seed_for_rolls(&[false, true, true]));
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
+    let iteration = mh_iteration(&f);
 
-    let outcome = f.ctx().mh_swing(before);
+    let outcome = f.ctx().mh_swing(iteration);
     assert!(matches!(outcome, SwingOutcome::Swing(_)), "{outcome:?}");
     assert_eq!(
         proc_count(&f, sword_spec),
@@ -569,10 +577,11 @@ fn extra_attacks_from_other_procs_can_proc_windfury_once_per_chain() {
         "Windfury procs off the Sword Specialization extra attack, and not again off its own"
     );
     assert_eq!(
-        mh_swings_scheduled(&f),
-        before + 3,
+        mh_swings(&f),
+        3,
         "the swing, the Sword Specialization extra attack and the Windfury extra attack"
     );
+    assert_eq!(mh_iteration(&f), iteration + 1);
     assert_eq!(f.character.pending_extra_attacks(), 0);
 }
 
@@ -583,13 +592,12 @@ fn windfury_cannot_proc_itself() {
     let mut f = fixture();
     let proc = learn_windfury(&mut f, WINDFURY_PASSIVE_ALWAYS);
     f.ctx().start_attack();
-    let before = mh_swings_scheduled(&f);
     let fired = f.ctx().run_proc_checks(&[ProcSource::MainhandSwing]);
     assert_eq!(fired.len(), 1);
     let reports = f.ctx().perform_extra_attacks();
     assert_eq!(reports.len(), 1, "one extra attack, no chain");
     assert_eq!(proc_count(&f, proc), 1);
-    assert_eq!(mh_swings_scheduled(&f), before + 1);
+    assert_eq!(mh_swings(&f), 1);
     assert_eq!(f.character.pending_extra_attacks(), 0);
 }
 
@@ -633,7 +641,7 @@ fn a_swing_proc_uses_both_charges_and_only_the_extra_attack_gets_the_attack_powe
     let ap = melee_ap(&f);
     f.set_rage(0);
     f.ctx().start_attack();
-    let iteration = mh_swings_scheduled(&f);
+    let iteration = mh_iteration(&f);
 
     let outcome = f.ctx().mh_swing(iteration);
     let SwingOutcome::Swing(report) = outcome else {
@@ -759,10 +767,19 @@ fn a_queued_heroic_strike_replaces_the_extra_attack_without_using_a_charge() {
     assert!(f.ctx().cast(hs).queued);
     assert_eq!(f.character.spells().queued_next_swing(), Some(hs));
 
+    let iteration = mh_iteration(&f);
+    let next_swing = f.character.spells().mh_attack().next_expected_use(0.0);
+
     // As if Bloodthirst landed and proc'd Windfury.
     let fired = f.ctx().run_proc_checks(&[ProcSource::MainhandSpell]);
     assert_eq!(fired.len(), 1);
     f.ctx().perform_extra_attacks();
+    assert_eq!(mh_iteration(&f), iteration, "the swing is not rescheduled");
+    assert_eq!(
+        f.character.spells().mh_attack().next_expected_use(0.0),
+        next_swing,
+        "nor is the swing timer"
+    );
 
     assert_eq!(
         f.character.spells().queued_next_swing(),

@@ -210,12 +210,10 @@ impl AutoAttack {
         self.calculate_damage(host)
     }
 
-    /// An extra swing (Sword Specialization, Windfury): swings now and re-times the next one.
-    /// Port of `extra_attack`.
+    /// An extra swing (Sword Specialization, Windfury): swings now, leaving the swing timer and
+    /// the pending swing alone (Forever).
     pub fn extra_attack(&mut self, host: &mut impl AutoAttackHost) -> SwingReport {
-        let report = self.perform(host);
-        self.schedule_next(host);
-        report
+        self.calculate_damage(host)
     }
 
     /// Port of `MainhandAttackWarrior::calculate_damage` / `OffhandAttackWarrior::calculate_damage`
@@ -960,13 +958,10 @@ mod tests {
             )]
         );
 
-        world.rolls.push_back(PhysicalAttackResult::Hit);
-        mh.extra_attack(&mut world);
+        mh.schedule_next(&mut world);
         assert_eq!(mh.iteration(), 2);
         assert!(!mh.attack_is_valid(1));
-        let events = world.swing_events();
-        assert_eq!(events.len(), 2);
-        assert_eq!(events[1].0, 2.6);
+        assert_eq!(world.swing_events().len(), 2);
 
         let mut oh = AutoAttack::new(Hand::Offhand);
         oh.schedule_next(&mut world);
@@ -974,6 +969,34 @@ mod tests {
             world.swing_events()[0].1,
             EventKind::MainhandMeleeHit { .. } | EventKind::OffhandMeleeHit { .. }
         ));
+    }
+
+    #[test]
+    fn extra_attacks_keep_the_swing_timer_and_give_rage() {
+        let mut world = World::new();
+        let mut mh = AutoAttack::new(Hand::Mainhand);
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        mh.perform(&mut world);
+        mh.schedule_next(&mut world);
+        let rage = world.rage.current_tenths();
+
+        world.advance_to(1.0);
+        world.rolls.push_back(PhysicalAttackResult::Hit);
+        let report = mh.extra_attack(&mut world);
+        assert!(report.rage_gained.is_some_and(|gained| gained > 0.0));
+        assert!(world.rage.current_tenths() > rage);
+        assert_eq!(mh.next_expected_use(1.0), 2.6);
+        assert_eq!(mh.iteration(), 1);
+        assert_eq!(
+            world.swing_events(),
+            vec![(
+                2.6,
+                EventKind::MainhandMeleeHit {
+                    character: CharId(1),
+                    iteration: 1
+                }
+            )]
+        );
     }
 
     #[test]
