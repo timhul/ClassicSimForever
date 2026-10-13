@@ -1,7 +1,7 @@
 # `data/rotations/` — what a character casts and when
 
 One YAML file per rotation, in a subdirectory named after the class (`warrior/`, `rogue/`,
-`paladin/`).
+`paladin/`, `shaman/`).
 
 | class | file | name | prerequisite |
 |---|---|---|---|
@@ -16,15 +16,34 @@ One YAML file per rotation, in a subdirectory named after the class (`warrior/`,
 | Paladin | `seal_twisting.yaml` | Seal Twisting (the Ret setups' default) | Twist of Light |
 | Paladin | `seal_of_command.yaml` | Seal of Command | Seal of Command |
 | Paladin | `seal_of_the_crusader.yaml` | Seal of the Crusader | Seal of Command |
+| Shaman | `enhancement.yaml` | Enhancement | Stormstrike |
+| Shaman | `elemental.yaml` | Elemental | Lava Burst |
+| Shaman | `elemental_shocks.yaml` | Elemental Shocks | Lava Burst |
 
 The Paladin's rotations, for Forever's seals: Judgement leaves the seal up, so the seal is
 judged on cooldown; Judgement of the Crusader (+161 holy damage taken) is refreshed by every
 melee strike and judged again only when it runs low; Seal Twisting casts Seal of Righteousness
 right before a swing while Seal of Command is up, so that the swing deals both (Twist of
 Light's Echo of Command), and puts the other global cooldowns where they end before the next
-twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range, Exorcism against
+twist. Holy Strike goes on cooldown, Hammer of Wrath in the execute range right after a swing
+(its cast restarts the swing timer, as every cast does: +4 to +11 DPS over casting it whenever
+it is up), Exorcism against
 Undead and Demons only, Consecration while the mana allows. The twist waits above 1000 mana, so that Seal of
 Command and its judgement always have mana (+35 DPS over twisting into an empty bar).
+
+The Shaman's rotations. Enhancement: Stormstrike and Earth Shock on cooldown (waiting for
+Stormstrike's debuff or weaving Flame Shock in costs DPS), Strength of Earth, Grace of Air,
+Mana Spring and Flametongue Totem put down before the pull and renewed when they run low, Rage
+of the Farseer and Earthstrike on cooldown, and Lightning Bolt at five Maelstrom Weapon stacks
+only with the talent at 5/5 (`talent "Maelstrom Weapon" eq 5`): below it the bolt keeps a cast
+time, which restarts the swing. Elemental (`attack_mode: magic`, no auto attack; `precast:
+Lightning Bolt`): mana decides its damage, so Lava Burst goes on cooldown without Flame Shock,
+Lightning Bolt is cast at rank 10 under Clearcasting or above 5000 mana and at rank 6 (`rank:
+6`, more damage per mana) below, with Searing Totem and Mana Spring kept up (414 DPS), and
+Strength of Earth and Windfury Totem for the party (its own earth and air slots are unused).
+Elemental Shocks is the shock rotation (Flame Shock kept up for Lava Burst's +20 %, Chain
+Lightning, Earth Shock): it runs out of mana (271 DPS). The same spell may appear twice with
+different ranks; a totem is a buff of its spell's name while it stands.
 
 ## Schema
 
@@ -97,7 +116,8 @@ buff is up (`buff_duration`) or has any stacks (`buff_stacks`).
 
 The buff types read the character's own debuffs on the target too, by the debuff's name:
 `buff_duration "Rupture" less 2` or `buff_duration "Expose Armor" less 3` time a Rogue's
-refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's.
+refresh, `buff_stacks "Sunder Armor" less 5` a Warrior's. A Shaman's totem is a buff named
+after its totem spell, up while the totem stands (`buff_duration "Searing Totem" less 1`).
 
 An on-next-swing spell (Heroic Strike, Cleave) is a buff of its own name while it is queued,
 from the cast until the main hand swing that takes it (or drops it, without the rage for it).

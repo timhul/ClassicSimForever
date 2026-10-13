@@ -1,0 +1,115 @@
+# The Shaman class. Schema: crates/csim-engine/src/character/class.rs (`ClassSpec`).
+#
+# The numbers and their sources are the header of data/spells/overrides/shaman.yaml. `stat_rules`
+# and the base mana come from the client tables (build 1.60.1.70291): ChrClasses
+# (AttackPowerPerStrength 2, AttackPowerPerAgility 0, RangedAttackPowerPerAgility 0) and
+# PlayerExpectedStat at level 60 (CritPerAgility 0.000508 = 19.69 agility per 1 % crit,
+# SpellCritPerIntellect 0.000169 = 59.17 intellect per 1 % spell crit, BaseMana 1520).
+# `available_races` are the CharBaseInfo rows of class 7: Orc, Tauren, Troll and, new in
+# Forever, Dwarf and Windshaper Skyborne.
+#
+# The base attributes and attack power are ClassicSim's (Class/Shaman/Shaman.cpp); base melee
+# crit 1.7 %, base spell crit 3.54 % and spirit regeneration 17 + spirit / 5 are vmangos'
+# (StatSystem.cpp, Unit.cpp). The base health is the Rogue's 1523 until the Shaman's is known
+# (TASKS.md SH.0). No Dual Wield: one- or two-handed axes and maces, daggers, fist weapons and
+# staves in the main hand, shields and caster off-hands in the off hand, totems as relics. The
+# enchant lists per slot are ShamanEnchants.cpp plus the caster enchants and oils an Elemental
+# Shaman uses and Windfury Totem, and the Shaman's weapon imbues.
+
+class: SHAMAN
+resource: mana
+base_stats:
+  strength: 65
+  agility: 35
+  stamina: 75
+  intellect: 70
+  spirit: 80
+  melee_ap: 160
+  melee_crit: 170          # hundredths of a percent
+  spell_crit: 354          # hundredths of a percent
+  mana: 1520
+  health: 1523             # before stamina; the Rogue's (TODO: the Shaman's)
+stat_rules:
+  agility_per_percent_crit: 19.685
+  intellect_per_percent_spell_crit: 59.1716
+  melee_ap_per_strength: 2
+  melee_ap_per_agility: 0
+  ranged_ap_per_agility: 0
+# Spirit regeneration outside the five-second rule: 17 + spirit / 5 mana per 5 seconds
+# (vmangos Unit::GetRegenMPPerSpirit), ticking every 2 seconds.
+mana_regen: { mp5_base: 17.0, mp5_per_spirit: 0.2 }
+global_cooldown: 1.5
+highest_armor_type: MAIL
+# Former talents Forever made baseline: Enhancing Totems rank 2 and Improved Weapon Totems
+# rank 2 (forever-bugs #280). Two-Handed Axes and Maces is the weapon list below.
+baseline_spells: [16295, 29193]
+weapon_proficiencies:
+  MAINHAND: [AXE, DAGGER, FIST, MACE, STAFF, TWOHAND_AXE, TWOHAND_MACE]
+  OFFHAND: [CASTER_OFFHAND, SHIELD]
+  RELIC: [TOTEM]
+available_races: [ORC, DWARF, TAUREN, TROLL, WINDSHAPER_SKYBORNE]
+enchants:
+  MAINHAND:
+    - Crusader
+    - FieryWeapon
+    - EnchantWeaponStrength
+    - SuperiorStriking
+    - EnchantWeaponSpellPower
+    - EnchantWeaponAgility
+    - Enchant2HWeaponAgility
+    - Enchant2HWeaponSuperiorImpact
+    - IronCounterweight
+  HEAD:
+    - ArcanumOfFocus
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityStrength
+    - LesserArcanumOfVoracityAgility
+    - LesserArcanumOfVoracityIntellect
+  LEGS:
+    - ArcanumOfFocus
+    - ArcanumOfRapidity
+    - LesserArcanumOfVoracityStrength
+    - LesserArcanumOfVoracityAgility
+    - LesserArcanumOfVoracityIntellect
+  SHOULDERS:
+    - ZandalarSignetOfMight
+    - ZandalarSignetOfMojo
+    - MightOfTheScourge
+    - PowerOfTheScourge
+  BACK:
+    - EnchantCloakLesserAgility
+  WRIST:
+    - EnchantBracerManaRegeneration
+    - EnchantBracerGreaterStrength
+    - EnchantBracerSuperiorStrength
+    - EnchantBracerMinorAgility
+    - EnchantBracerGreaterIntellect
+  GLOVES:
+    - EnchantGlovesSuperiorAgility
+    - EnchantGlovesGreaterAgility
+    - EnchantGlovesMinorHaste
+    - EnchantGlovesGreaterStrength
+    - EnchantGlovesFirePower
+  CHEST:
+    - EnchantChestMajorMana
+    - EnchantChestStats
+    - EnchantChestGreaterStats
+  BOOTS:
+    - EnchantBootsMinorSpeed
+    - EnchantBootsAgility
+    - EnchantBootsGreaterAgility
+    - EnchantBootsSpirit
+temp_enchants:
+  MAINHAND:
+    - WindfuryWeapon
+    - FlametongueWeapon
+    - RockbiterWeapon
+    - WindfuryTotem
+    - SolidWeightstone
+    - DenseWeightstone
+    - DenseSharpeningStone
+    - ElementalSharpeningStone
+    - ConsecratedSharpeningStone
+    - BrilliantWizardOil
+    - BrilliantManaOil
+    - ShadowOil

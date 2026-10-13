@@ -17,6 +17,7 @@
 //! character keeps a [`BuffSlot::Shared`] handle to them so every buff a character refers to
 //! has a [`BuffId`] in its own list.
 
+use crate::totem::TotemSummon;
 use std::collections::BTreeMap;
 
 use crate::attack_mode::AttackMode;
@@ -55,6 +56,19 @@ pub trait SharedBuffs {
     /// itself, for the raid control to do the same on the party's other members afterwards
     /// (the C++ `RaidControl::apply_party_buff` / `remove_party_buff` loop).
     fn note_party_aura_change(&mut self, change: PartyAuraChange);
+    /// Records that a shaman's totem aura went up or down for its party, for the raid control
+    /// to switch it on or off for the party's other members.
+    fn note_party_totem_change(&mut self, _change: PartyTotemChange) {}
+}
+
+/// A totem of the shaman `by` in `party` started (or stopped) giving its aura spell `spell`;
+/// the shaman switched it for itself, the other members are still to follow.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PartyTotemChange {
+    pub spell: u32,
+    pub party: u8,
+    pub by: CharId,
+    pub apply: bool,
 }
 
 /// A shared party buff's aura effects were applied to (or removed from) the character `by`,
@@ -127,6 +141,8 @@ pub struct CharacterSpells {
     spells: Vec<Option<Spell>>,
     /// Game id → handle for spells and procs.
     by_game_id: BTreeMap<u32, SpellHandle>,
+    /// The totem spells' lifetime buffs and what they summon.
+    totem_buffs: BTreeMap<BuffId, TotemSummon>,
     rank_groups: BTreeMap<String, SpellRankGroup>,
     /// Active `OVERRIDE_ACTIONBAR_SPELLS` substitutions: `(replaced, replacement)` game ids.
     actionbar_overrides: Vec<(u32, u32)>,
@@ -153,14 +169,25 @@ pub struct CharacterSpells {
     /// The queued on-next-swing spell and its marker buff.
     queued_next_swing: Option<(SpellId, Option<BuffId>)>,
     cast_in_progress: bool,
+    /// What is being cast, for the viewers.
+    active_cast: Option<ActiveCast>,
     /// The cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
     running_to_target: bool,
     cast_id: u32,
 }
 
+/// A cast with a cast time in progress: its spell, when it started and when it ends.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ActiveCast {
+    pub spell: SpellId,
+    pub started: f64,
+    pub ends: f64,
+}
+
 impl CharacterSpells {
     pub fn new(character: CharId, proc_seed: u64) -> Self {
         CharacterSpells {
+            totem_buffs: BTreeMap::new(),
             character,
             spells: Vec::new(),
             by_game_id: BTreeMap::new(),
@@ -183,6 +210,7 @@ impl CharacterSpells {
             oh_attack: AutoAttack::new(Hand::Offhand),
             queued_next_swing: None,
             cast_in_progress: false,
+            active_cast: None,
             running_to_target: false,
             cast_id: 0,
         }
@@ -570,7 +598,9 @@ impl CharacterSpells {
             });
         }
         let record = setup.buff_record();
-        let kind = BuffKind::from_record(record, party, overrides.debuff_shared(record.id))?;
+        // A totem's lifetime buff has no auras of its own: it is the shaman's.
+        let kind = BuffKind::from_record(record, party, overrides.debuff_shared(record.id))
+            .or_else(|| setup.totem_summon().map(|_| BuffKind::SelfBuff))?;
         let buff = Buff::from_record(record, kind, overrides);
         let slot = match kind {
             BuffKind::PartyBuff { party } => {
@@ -597,7 +627,21 @@ impl CharacterSpells {
             }
             _ => BuffSlot::Owned(Box::new(buff)),
         };
-        Some(self.add_buff_slot(slot))
+        let id = self.add_buff_slot(slot);
+        if let Some(summon) = setup.totem_summon() {
+            self.totem_buffs.insert(id, summon);
+        }
+        Some(id)
+    }
+
+    /// The totem whose lifetime buff `buff` is, if any.
+    pub fn totem_of_buff(&self, buff: BuffId) -> Option<TotemSummon> {
+        self.totem_buffs.get(&buff).copied()
+    }
+
+    /// What each of the character's totem spells summons.
+    pub fn totem_summons(&self) -> impl Iterator<Item = &TotemSummon> {
+        self.totem_buffs.values()
     }
 
     /// Where game id `spell` lives, if the character has it.
@@ -990,6 +1034,15 @@ impl CharacterSpells {
         self.cast_in_progress
     }
 
+    /// The cast in progress with a cast time, if any.
+    pub fn active_cast(&self) -> Option<ActiveCast> {
+        self.active_cast.filter(|_| self.cast_in_progress)
+    }
+
+    pub fn set_active_cast(&mut self, cast: ActiveCast) {
+        self.active_cast = Some(cast);
+    }
+
     /// Whether the cast in progress is a run to the target ([`SimFlag::RunToTarget`]).
     pub fn running_to_target(&self) -> bool {
         self.cast_in_progress && self.running_to_target
@@ -1028,6 +1081,7 @@ impl CharacterSpells {
         );
         assert_eq!(self.cast_id, cast_id, "Mismatched cast id");
         self.cast_in_progress = false;
+        self.active_cast = None;
         self.running_to_target = false;
     }
 
@@ -1136,6 +1190,7 @@ impl CharacterSpells {
     /// engine and target). Port of the state part of `CharacterSpells::reset`.
     pub fn reset_state(&mut self) {
         self.cast_in_progress = false;
+        self.active_cast = None;
         self.running_to_target = false;
         self.cast_id = 0;
         self.attack_mode_active = false;

@@ -158,6 +158,15 @@ pub trait EffectHost {
     fn target_poisoned_by_caster(&self) -> bool {
         false
     }
+    /// Whether one of the caster's debuffs of a spell in `family_mask` of spell family `set`
+    /// is on the target (`DAMAGE_PERCENT_VS_CASTER_AURA`).
+    fn target_has_caster_aura(&self, _set: u32, _family_mask: &[u32; 4]) -> bool {
+        false
+    }
+    /// Whether the caster's totem of `element` stands (`TOTEM_NOVA`).
+    fn totem_active(&self, _element: crate::totem::TotemElement) -> bool {
+        false
+    }
 }
 
 /// How an effect relates to the effects before it in the chain. Port of `Dependency`.
@@ -305,6 +314,10 @@ pub struct Effect {
     /// times `EffectPointsPerResource`, the attack power share of a finisher's or a bleed's
     /// ticks. Taken when the aura is applied, so a later change cannot unbalance its removal.
     cast_bonus: f64,
+    /// The value an applied aura uses instead of its current one: what its buff applied, so
+    /// that a modifier gained or lost since cannot unbalance its removal (Elemental Weapons on
+    /// Rockbiter's attack power).
+    pinned: Option<f64>,
     /// The value that replaces the base points while the main-hand weapon's subclass is in
     /// the mask (`WEAPON_TYPE_VALUE`: Ghostly Strike's 180 % with a dagger).
     weapon_type_value: Option<(u32, f64)>,
@@ -370,6 +383,7 @@ impl Effect {
             value: record.base_points as f64,
             base_value: record.base_points as f64,
             cast_bonus: 0.0,
+            pinned: None,
             weapon_type_value: None,
             health_threshold,
             record: record.clone(),
@@ -440,6 +454,11 @@ impl Effect {
         self.script.as_ref()
     }
 
+    /// The class options of the spell the effect belongs to.
+    pub fn class_options(&self) -> Option<&ClassOptions> {
+        self.class_options.as_ref()
+    }
+
     pub fn script_kind(&self) -> Option<ScriptKind> {
         self.script.map(|s| s.script)
     }
@@ -456,6 +475,11 @@ impl Effect {
     /// The current base points (before per-level scaling and modifiers).
     pub fn value(&self) -> f64 {
         self.value
+    }
+
+    /// Makes the aura apply and remove `value` (see `pinned`).
+    pub fn pin(&mut self, value: f64) {
+        self.pinned = Some(value);
     }
 
     /// The table base points.
@@ -818,6 +842,19 @@ impl Effect {
                 }
                 EffectOutcome::plain(true)
             }
+            // The nova bursts from the fire totem; without one there is none. The modifiers of
+            // the nova (Improved Fire Nova) go with its damage spell.
+            Some(ScriptKind::TotemNova) => EffectOutcome {
+                trigger: self
+                    .script
+                    .and_then(|s| s.params.spell)
+                    .filter(|_| host.totem_active(crate::totem::TotemElement::Fire)),
+                trigger_damage_scale: Some(
+                    host.spell_modifiers()
+                        .multiplier(self.class_options.as_ref(), SpellModOp::HealingAndDamage),
+                ),
+                ..EffectOutcome::plain(true)
+            },
             Some(ScriptKind::DamagePercentVsPoisoned) => EffectOutcome {
                 triggered_damage_percent: if host.target_poisoned_by_caster() {
                     self.effective_value(host)
@@ -945,12 +982,17 @@ impl Effect {
     }
 
     /// The spell power share of the effect's damage: its `EffectBonusCoefficient` times the
-    /// caster's spell damage of the spell's school. A physical spell has none.
+    /// caster's spell damage of the spell's school, and what `SPELL_DAMAGE_BONUS` adds for the
+    /// spell. A physical spell has none.
     pub fn spell_power_damage(&self, host: &impl EffectHost) -> f64 {
         if self.school == MagicSchool::Physical {
             return 0.0;
         }
-        f64::from(self.record.bonus_coefficient) * f64::from(host.spell_damage(self.school))
+        let bonus = host
+            .spell_modifiers()
+            .spell_damage_bonus(self.class_options.as_ref());
+        f64::from(self.record.bonus_coefficient)
+            * (f64::from(host.spell_damage(self.school)) + bonus)
     }
 
     /// The attack power coefficient of the effect's damage: the table's
@@ -1062,7 +1104,7 @@ impl Effect {
         if !self.record.is_apply_aura() {
             return;
         }
-        let value = self.effective_value(host);
+        let value = self.pinned.unwrap_or_else(|| self.effective_value(host));
         let rounded = value.round() as i32;
         let signed = if apply { rounded } else { -rounded };
         let hundredths = (value * 100.0).round() as i32;
@@ -1237,6 +1279,14 @@ impl Effect {
                             signed,
                         );
                     }
+                }
+            }
+            // Melee attack power as a percentage of an attribute (Mental Dexterity: intellect).
+            A::ModAttackPowerOfStatPercent if !on_target => {
+                let attribute = self.record.misc_value[0];
+                if (0..ATTRIBUTE_COUNT as i32).contains(&attribute) {
+                    host.stats_mut()
+                        .change_melee_ap_of_stat_percent(attribute as usize, signed);
                 }
             }
             A::ModDamagePercentDone => {
@@ -1469,6 +1519,21 @@ impl Effect {
                     apply,
                 );
             }
+            A::Dummy if self.script_kind() == Some(ScriptKind::PointsPercentModifier) => {
+                let modifier = SpellModifier {
+                    set: self.class_options.map_or(0, |c| c.set),
+                    class_mask: self.record.spell_class_mask,
+                    op: SpellModOp::PointsIndex0,
+                    pct: true,
+                    amount: value,
+                    source: self.spell,
+                };
+                if apply {
+                    host.spell_modifiers_mut().add(modifier);
+                } else {
+                    host.spell_modifiers_mut().remove(&modifier);
+                }
+            }
             A::AddFlatModifier | A::AddPctModifier => {
                 let modifier = self.spell_modifier(value);
                 if apply {
@@ -1494,6 +1559,38 @@ impl Effect {
                 } else {
                     host.spell_modifiers_mut()
                         .remove_damage_from_caster(&modifier);
+                }
+            }
+            // Spell damage for the spells of the class mask (Totem of the Storm).
+            A::OverrideClassScripts
+                if !on_target && self.script_kind() == Some(ScriptKind::SpellDamageBonus) =>
+            {
+                let modifier = SpellModifier {
+                    set: self.class_options.map_or(0, |c| c.set),
+                    class_mask: self.record.spell_class_mask,
+                    op: SpellModOp::HealingAndDamage,
+                    pct: false,
+                    amount: value,
+                    source: self.spell,
+                };
+                if apply {
+                    host.spell_modifiers_mut().add_spell_damage(modifier);
+                } else {
+                    host.spell_modifiers_mut().remove_spell_damage(&modifier);
+                }
+            }
+            // Spell damage against the creature types of the mask (The Spiritcaller's Storm 4:
+            // Elementals).
+            A::ModDamageDoneCreature if !on_target => {
+                let types = CreatureTypes::from_game_mask(self.record.misc_value[0] as u32);
+                let amount = rounded.max(0) as u32;
+                let stats = host.stats_mut();
+                for creature in Vec::<CreatureType>::from(types) {
+                    if apply {
+                        stats.increase_spell_damage_vs_type(creature, amount);
+                    } else {
+                        stats.decrease_spell_damage_vs_type(creature, amount);
+                    }
                 }
             }
             A::OverrideActionbarSpells => {

@@ -59,6 +59,7 @@ pub enum EnchantName {
     EnchantWeaponStrength,
     FalconsCall,
     FieryWeapon,
+    FlametongueWeapon,
     InstantPoison,
     IronCounterweight,
     LesserArcanumOfVoracityAgility,
@@ -71,18 +72,20 @@ pub enum EnchantName {
     PowerOfTheScourge,
     PresenceOfSight,
     HoodooHex,
+    RockbiterWeapon,
     ShadowOil,
     SniperScope,
     SolidWeightstone,
     SuperiorStriking,
     WindfuryTotem,
+    WindfuryWeapon,
     ZandalarSignetOfMight,
     ZandalarSignetOfMojo,
 }
 
 impl EnchantName {
     /// Every enchant, in declaration order.
-    pub const ALL: [EnchantName; 58] = [
+    pub const ALL: [EnchantName; 61] = [
         EnchantName::ArcanumOfFocus,
         EnchantName::ArcanumOfRapidity,
         EnchantName::Biznicks247x128Accurascope,
@@ -122,6 +125,7 @@ impl EnchantName {
         EnchantName::EnchantWeaponStrength,
         EnchantName::FalconsCall,
         EnchantName::FieryWeapon,
+        EnchantName::FlametongueWeapon,
         EnchantName::InstantPoison,
         EnchantName::IronCounterweight,
         EnchantName::LesserArcanumOfVoracityAgility,
@@ -134,11 +138,13 @@ impl EnchantName {
         EnchantName::PowerOfTheScourge,
         EnchantName::PresenceOfSight,
         EnchantName::HoodooHex,
+        EnchantName::RockbiterWeapon,
         EnchantName::ShadowOil,
         EnchantName::SniperScope,
         EnchantName::SolidWeightstone,
         EnchantName::SuperiorStriking,
         EnchantName::WindfuryTotem,
+        EnchantName::WindfuryWeapon,
         EnchantName::ZandalarSignetOfMight,
         EnchantName::ZandalarSignetOfMojo,
     ];
@@ -156,6 +162,8 @@ pub enum TempEnchantGroup {
     Coating,
     Windfury,
     Poison,
+    /// A Shaman's weapon imbue (Windfury, Flametongue, Rockbiter Weapon).
+    Imbue,
 }
 
 impl TempEnchantGroup {
@@ -180,6 +188,10 @@ pub struct EnchantSpec {
     /// For temporary enchants: a weapon holds at most one of each group.
     #[serde(default, skip_serializing_if = "TempEnchantGroup::is_coating")]
     pub temp_group: TempEnchantGroup,
+    /// For temporary enchants: the other groups it cannot be on a weapon with (an imbue takes
+    /// the weapon's temporary enchant like a stone; Windfury Weapon replaces Windfury Totem).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub excludes: Vec<TempEnchantGroup>,
     /// Equipment slots the enchant can be applied to.
     pub slots: Vec<EquipmentSlot>,
     /// For weapon slots: the weapon slot types the enchant fits. Empty means any.
@@ -203,8 +215,9 @@ pub struct EnchantSpec {
     pub mana: u32,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub procs: Vec<EnchantProcSpec>,
-    /// The `SpellItemEnchantment` row the enchant is (a rogue poison): its combat spells are
-    /// procs with the row's chance and payload, exported into `data/spells/enchants.yaml`
+    /// The `SpellItemEnchantment` row the enchant is (a rogue poison, a shaman imbue): its
+    /// combat spells are procs with the row's chance and payload, its equip spells passives of
+    /// the weapon, exported into `data/spells/enchants.yaml`
     /// ([`crate::spell::record::ItemEnchantmentRecord`]).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enchantment: Option<u32>,
@@ -731,12 +744,21 @@ mod tests {
         }
         assert_eq!(db.len(), EnchantName::ALL.len());
         assert_eq!(db.get(EnchantName::Crusader).unwrap().procs.len(), 1);
-        // The poisons are their SpellItemEnchantment rows.
+        // The poisons and the shaman imbues are their SpellItemEnchantment rows.
         assert_eq!(
             db.get(EnchantName::InstantPoison).unwrap().enchantment,
             Some(625)
         );
-        assert_eq!(db.enchantment_ids(), BTreeSet::from([625, 2630]));
+        assert_eq!(
+            db.enchantment_ids(),
+            BTreeSet::from([625, 1664, 1666, 1669, 2630])
+        );
+        let windfury = db.get(EnchantName::WindfuryWeapon).unwrap();
+        assert_eq!(windfury.temp_group, TempEnchantGroup::Imbue);
+        assert_eq!(
+            windfury.excludes,
+            [TempEnchantGroup::Coating, TempEnchantGroup::Windfury]
+        );
         assert_eq!(
             db.get(EnchantName::EnchantChestGreaterStats)
                 .unwrap()

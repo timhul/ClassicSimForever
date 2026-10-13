@@ -33,7 +33,7 @@ use crate::proc::{ProcSource, ProcTrigger};
 use crate::rng::Random;
 use crate::spell::dbc::{AuraType, SpellModOp};
 use crate::spell::overrides::ScriptKind;
-use crate::spell::record::EquippedItems;
+use crate::spell::record::{ClassOptions, EquippedItems};
 use crate::spell::{CastReport, Hand, Spell, SpellHost, SpellResult};
 
 /// The damage per swing a `WEAPON_SPEED_SWING_DAMAGE` aura of value `total` deals with a
@@ -60,6 +60,18 @@ pub trait ProcHost: SpellHost {
     /// The current value of effect `effect` of spell `spell`'s aura (a talent's rank value),
     /// `None` when the character does not have the spell.
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64>;
+
+    /// The chance factor of the character's `PROC_FROM_SPELL` auras that let a spell with
+    /// `class` options trigger proc `spell` (1 - their reduction), `None` when none does.
+    fn proc_from_spell_factor(&self, _spell: u32, _class: Option<&ClassOptions>) -> Option<f64> {
+        None
+    }
+
+    /// The value of effect `effect` of spell `spell` at the character's level, `None` when the
+    /// character does not have the spell.
+    fn spell_effect_value(&self, _spell: u32, _effect: u32) -> Option<f64> {
+        None
+    }
 }
 
 /// How often a proc fires.
@@ -77,8 +89,14 @@ enum Payload {
     /// `PROC_TRIGGER_SPELL` (or a `TRIGGER_SPELL` script): cast `spell`, with the aura's value
     /// as trigger value when the aura carries one.
     Trigger { spell: u32, value: Option<f64> },
-    /// `TRIGGER_WITH_VALUE`: set effect `effect` of `spell` to the aura's value, then cast it.
-    TriggerWithValue { spell: u32, effect: u32, value: f64 },
+    /// `TRIGGER_WITH_VALUE`: set effect `effect` (and `second`) of `spell` to the aura's value,
+    /// then cast it.
+    TriggerWithValue {
+        spell: u32,
+        effect: u32,
+        second: Option<u32>,
+        value: f64,
+    },
 }
 
 /// What a proc's spell is.
@@ -326,6 +344,7 @@ impl Proc {
         if filter.builder && !trigger.awards_combo_points {
             return false;
         }
+
         let effect_mask = filter.family_mask_effect.and_then(|index| {
             let effect = self.spell.record().effect(index)?;
             Some(effect.spell_class_mask)
@@ -450,6 +469,30 @@ impl Proc {
         if !self.aura_is_up(host) {
             return false;
         }
+        // A spell event goes through the auras that let the spell trigger it.
+        let magic = matches!(
+            source,
+            ProcSource::MagicSpell
+                | ProcSource::SpellHit
+                | ProcSource::SpellCritical
+                | ProcSource::SpellFullResist
+        );
+        let by_script = self
+            .spell
+            .setup()
+            .overrides
+            .proc
+            .is_some_and(|p| p.spell_procs_by_script);
+        let spell_factor = if magic && by_script {
+            let factor =
+                host.proc_from_spell_factor(self.game_id(), trigger.class_options.as_ref());
+            if factor.is_none() {
+                return false;
+            }
+            factor
+        } else {
+            None
+        };
         self.attempts += 1;
         if !self.is_ready(host) {
             return false;
@@ -463,6 +506,9 @@ impl Proc {
             .is_some_and(|p| p.chance_per_combo_point)
         {
             range = range.saturating_mul(trigger.combo_points_spent);
+        }
+        if let Some(factor) = spell_factor {
+            range = (f64::from(range) * factor).round() as u32;
         }
         self.random.get_roll() < range && self.conditions_fulfilled(source, host)
     }
@@ -489,6 +535,7 @@ impl Proc {
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
+                    second: params.second_effect,
                     value: effect.effective_value(host),
                 });
             }
@@ -499,7 +546,20 @@ impl Proc {
                 return Some(Payload::TriggerWithValue {
                     spell: params.spell?,
                     effect: params.effect?,
+                    second: None,
                     value: swing_damage_by_speed(effect.effective_value(host), speed),
+                });
+            }
+            // The amount of another spell by the main-hand weapon's speed (Flametongue Weapon).
+            Some(ScriptKind::WeaponSpeedDamage) => {
+                let params = &effect.script()?.params;
+                let speed = host.base_weapon_speed(Hand::Mainhand)?;
+                let amount = host.spell_effect_value(params.amount_spell?, 0)?;
+                return Some(Payload::TriggerWithValue {
+                    spell: params.spell?,
+                    effect: params.effect?,
+                    second: None,
+                    value: amount * speed / 100.0,
                 });
             }
             // The server-side script: the value is the payload's id, not a number the payload
@@ -522,6 +582,7 @@ impl Proc {
             return Some(Payload::TriggerWithValue {
                 spell: record.trigger_spell,
                 effect: 0,
+                second: None,
                 value: effect.effective_value(host),
             });
         }
@@ -587,9 +648,13 @@ impl Proc {
                 Payload::TriggerWithValue {
                     spell,
                     effect,
+                    second,
                     value,
                 } => {
                     host.set_spell_effect_value(spell, effect, value);
+                    if let Some(second) = second {
+                        host.set_spell_effect_value(spell, second, value);
+                    }
                     if let Some(triggered) = host.trigger_spell(spell, None) {
                         report.triggered.push((spell, triggered));
                     }

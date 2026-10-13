@@ -226,7 +226,8 @@ fn auto_attacks_cancelled_during_slam_cast() {
     test.then_next_event_is(EventType::PlayerAction, "2.500", false);
     test.then_next_event_is(EventType::CastComplete, "2.500", RUN_EVENT);
     assert!(test.character().spells().is_melee_attacking());
-    test.then_next_event_is(EventType::PlayerAction, "2.600", false);
+    // The next action was queued during the cast: no reaction delay.
+    test.then_next_event_is(EventType::PlayerAction, "2.500", false);
     test.then_next_event_is(EventType::OffhandMeleeHit, "3.000", RUN_EVENT);
     test.then_next_event_is(EventType::MainhandMeleeHit, "4.500", false);
     test.then_next_event_is(EventType::OffhandMeleeHit, "5.500", false);

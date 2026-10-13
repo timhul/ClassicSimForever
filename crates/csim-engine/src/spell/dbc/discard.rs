@@ -14,7 +14,8 @@
 //! (the simulator tracks threat: stance passives, Defiance) and `OVERRIDE_ACTIONBAR_SPELLS`
 //! (Improved Slam's and the runes' rank replacement), `ADD_TARGET_TRIGGER` (Relentless
 //! Strikes' energy on finishers), `MOD_DAMAGE_TAKEN` (Judgement of the Crusader's holy damage
-//! taken) and `MOD_MANA_REGEN_INTERRUPT` (Reverence's mana regeneration while casting).
+//! taken), `MOD_MANA_REGEN_INTERRUPT` (Reverence's mana regeneration while casting) and
+//! `OVERRIDE_CLASS_SCRIPTS` (Totem of the Storm's Lightning Bolt damage, by script).
 
 use super::{AuraType, SpellEffectName};
 
@@ -76,7 +77,6 @@ pub const DISCARDED_AURA_IDS: &[u32] = &[
     105, // FEATHER_FALL
     106, // HOVER
     111, // INTERCEPT_MELEE_RANGED_ATTACKS
-    112, // OVERRIDE_CLASS_SCRIPTS
     115, // MOD_HEALING
     116, // MOD_REGEN_DURING_COMBAT
     117, // MOD_MECHANIC_RESISTANCE

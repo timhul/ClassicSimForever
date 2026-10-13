@@ -1,0 +1,649 @@
+# Hand-written Shaman spell overrides: what the client tables (data/spells/shaman.yaml, exported
+# from build 1.60.1.70291 with its hotfixes) do not contain. See
+# crates/csim-engine/src/spell/overrides.rs for the schema and data/SPELL_INSTRUCTIONS.md §1.7-1.11
+# for the table side. Enhancement and Elemental DPS are simulated (TASKS.md SH.0); Restoration's
+# healing and the Season of Discovery runes are IGNORED / NO_OP once the class is exported (SH.2).
+#
+# Spell ids are the SpellName.ID values; run `csim-tables spell <id>` to inspect one.
+#
+# ----- Server-side numbers (TASKS.md SH.1) ------------------------------------------------------
+# The entries below this header come in SH.2-SH.13; these notes are the numbers they implement
+# and where each comes from. Sources:
+#   [T]  the tables (`csim-tables spell <id>`, SpellItemEnchantment, talent curves)
+#   [V]  vmangos (github.com/vmangos/core, branch development): StatSystem.cpp, Unit.cpp,
+#        UnitAuraProcHandler.cpp, TotemAI.cpp - the 1.12 server behaviour where Forever's tables
+#        are silent
+#   [C]  ClassicSim (github.com/timhul/ClassicSim, Class/Shaman/Shaman.cpp)
+#   [G]  github.com/ClassicWoWCommunity/forever-bugs, AidanZMoon's answers (ground truth)
+#   [U]  the user's decision (TASKS.md SH.0)
+#   [?]  open: still to settle (listed at the end of this header)
+#
+# Forever's damage numbers (a range's ± is half the tables' variance, the width of the range)
+#   - The Shaman's base damage is about half the 1.12 value with the 1.12 coefficients: Lightning
+#     Bolt rank 10 196 (1.12: 428-477), Chain Lightning rank 4 123 (505-563), Earth Shock rank 7
+#     301 (517-545). The tables carry 1.12 numbers elsewhere (Exorcism rank 6 502), so this is
+#     Forever's tuning, not a unit difference. [T]
+#
+# Lightning Bolt (403 .. 15208), Chain Lightning (421 .. 10605)
+#   - Lightning Bolt rank 10: 196 (+1.2/level, ±5.4 %) nature, coefficient 0.714, 2.5 s cast,
+#     220 mana. [T]
+#   - Chain Lightning rank 4: 123 (+0.8/level, ±5.6 %) nature, coefficient 0.571, 2.0 s cast,
+#     6 s cooldown, 485 mana. One target: the jumps never land. [T]
+#   - No travel time: the damage lands as the cast ends, as for every spell in the engine.
+#
+# Lava Burst (408490, 1238299, 1238300)
+#   - Rank 3: 220 (±12.7 %) fire, coefficient 0.714, 2.5 s cast, 10 s cooldown, 265 mana. [T]
+#   - Effect 1 (DUMMY 20): +20 % damage while the caster's Flame Shock is on the target; the
+#     Flame Shock stays. [T]  Lava Burst never auto-crits (the SoD rune's Flame Shock crit is
+#     not in the description). [T]
+#
+# Shocks: Earth Shock (8042 .. 10414), Flame Shock (8050 .. 29228), Frost Shock (8056 .. 10473)
+#   - One shared 6 s category cooldown, 1.5 s GCD; Reverberation -0.2 s a rank. [T]
+#   - Earth Shock rank 7: 301 (±2.6 %) nature, coefficient 0.386, 450 mana; the interrupt and
+#     school lockout do nothing against a boss. [T]
+#   - Flame Shock rank 6: 166 fire, coefficient 0.214, plus 44 a tick every 3 s for 12 s
+#     (coefficient 0.1 a tick), 410 mana. [T]
+#   - Frost Shock rank 4: 283 (+1.8/level from 58, ±2.8 %) frost, coefficient 0.386, 430 mana;
+#     the slow does nothing. [T]
+#
+# Lightning Overload (408438, talent: 3 / 7 / 10 %)
+#   - The rank value replaces the table's DUMMY 30; it procs on the damage of Lightning Bolt,
+#     Chain Lightning and Lava Burst (proc mask 0x10000). [T]  Lava Burst overloads too: its
+#     overload copies are in the tables. [U]
+#   - The overload casts the copy of the cast's rank: Lightning Bolt 408439 .. 408477, Chain
+#     Lightning 408479 .. 408484, Lava Burst 408491 / 1238373 / 1238376 - half the base points
+#     and half the coefficient (Lightning Bolt rank 10 98 at 0.357, Lava Burst rank 3 110 at
+#     0.357), no cost, no cast time. [T]
+#   - The copy rolls its own hit and crit, lands right after the cast, does not overload again
+#     and does not count as a cast for Elemental Focus. [U]  Its crits do not give Elemental
+#     Devastation either (no spell behind its events). It is reported as "Lightning Bolt
+#     Overload", "Chain Lightning Overload", "Lava Burst Overload".
+#   - Only a cast that landed (hit or crit) overloads.
+#
+# Stormstrike (17364)
+#   - NORMALIZED_WEAPON_DMG (100 %, normalized speed), physical, the special melee table; 8 s
+#     cooldown, 125 mana. [T]
+#   - The target aura (271, MOD_DAMAGE_PERCENT_TAKEN_FROM_CASTER) +20 % to the caster's next
+#     Lightning Bolt, Chain Lightning or Earth Shock (class mask 0x100003) for 12 s, one charge.
+#     One charge where 1.12 had two, and no longer all nature damage. [T]
+#   - The charge goes to the cast; its Lightning Overload copy (same class mask) lands after the
+#     charge is used and gets no bonus. [U]
+#
+# Flurry (16256 -> 16257, talent: 5 / 10 / 15 / 20 / 25 %)
+#   - Procs on melee crits (white and special, mask 0x14); 16257: melee haste (aura 319) of the
+#     rank value, three charges used by white swings, 15 s, 500 ms between charges. [T]
+#   - Not from Windfury extra attacks, and a crit on the last charge reapplies it without using
+#     the charge. [V] UnitAuraProcHandler.cpp IsTriggeredAtSpellProcEvent, HandleHasteAuraProc
+#     The 500 ms is the least time between two charges used, from the (re)application on: the
+#     extra attacks that follow a swing keep the charges. A crit of an extra attack still
+#     procs it, as the Warrior's Flurry does (the Warrior's machinery, TASKS.md SH.8). [?]
+#
+# Windfury Weapon (8232 .. 16362; enchant 1669 "Windfury 4", 60 min)
+#   - The enchant's equip spell 439431: 20 % chance (the enchant's 20 and the aura's
+#     ProcChance) on white and special melee hits (0x14), 1.5 s internal cooldown. [T] [U]
+#   - It casts the rank's payload, 16361 at rank 4 (439431 only names a DUMMY 46): 333 attack
+#     power (Elemental Weapons +13 / 27 / 40 %: 466) for 1.5 s with three charges used by
+#     swings, and two extra attacks. [T]
+#   - The extra attacks cannot proc it. [U]  On the main hand it replaces the shaman's own benefit
+#     from a Windfury Totem (the description), so the two share the WINDFURY temp group. [T]
+#
+# Flametongue Weapon (8024 .. 16342; enchant 1666 "Flametongue 6", 60 min)
+#   - The enchant's equip spell 436519 procs on every white and special melee hit (0x14, the
+#     enchant's 100); the damage spell is Flametongue Attack 10444 (fire), its amount 16344's
+#     2498 (+78/level from 56: 2810 at 60) x the weapon's speed / 100, which is the description's
+#     m/77 at 1.3 s and m/25 at 4.0 s: 98 a hit with a 3.5 s two-hander. [T]
+#   - It scales with spell power [G #80]: Flametongue Attack's coefficient 0.1. [T] [U]
+#   - Elemental Weapons +5 / 10 / 15 %. [T]
+#
+# Rockbiter Weapon (8017 .. 16316; enchant 1664 "Rockbiter 7", 60 min)
+#   - The enchant's equip spell 16313: +554 (+16.5/level from 54: 653 at 60) melee attack power
+#     while the weapon is equipped, and extra threat (not simulated). [T]  The 1.12 server added
+#     weapon damage per second instead (vmangos Player.cpp ITEM_ENCHANTMENT_TYPE_TOTEM); Forever
+#     made it attack power. Elemental Weapons +7 / 13 / 20 %. [T]
+#
+# Frostbrand Weapon (8033 .. 16356; enchant 1668 "Frostbrand 5")
+#   - Chance on hit of 16353: 158 (+5.6/level from 58) frost and a slow. The enchant row has no
+#     chance (EffectPointsMin 0) and the tables no PPM: not offered until a rate is known. [U]
+#
+# Totems
+#   - One totem per element, the summon's SummonProperties naming the slot: 63 fire (Searing,
+#     Magma, Flametongue), 81 earth (Strength of Earth), 82 water (Mana Spring, Mana Tide), 83 air
+#     (Windfury, Grace of Air). A new totem of an element replaces the old one. [T] [V]
+#     SpellEffects.cpp EffectSummonTotem ("unsummon old totem")
+#   - The totem spell's buff is the totem's lifetime (a moment more: what it does as its time
+#     runs out, Magma Totem's tenth pulse, happens). [T]
+#   - Totem casts have a 1 s GCD (the spell's StartRecoveryTime, as for every spell). [T]
+#     Totemic Focus -5 .. -25 % their mana. [T]
+#   - The shaman's own aura totem does not add to the same external buff (another shaman's
+#     Strength of Earth), nor its Windfury Totem to a Windfury enchant or Windfury Weapon on the
+#     main hand. [T]
+#   - The damage totems and Fire Nova use the shaman's spell damage, spell hit and spell crit. [U]
+#     The 1.12 server let totems benefit from spell damage since 1.10 (vmangos
+#     UnitAuraProcHandler.cpp, the Zandalarian Hero Charm note). [V]
+#   - Searing Totem rank 6 (10438): 55 s, 170 mana; it casts its attack 10436 (47 fire, ±14.9 %,
+#     2.2 s cast) again as soon as the last one ends: one attack every 2.2 s. [T] [V] TotemAI.cpp
+#     UpdateAI (an active totem recasts its spell when it is not casting)
+#   - Magma Totem rank 4 (10587): 20 s, 650 mana; 10584 pulses 10581 (73 fire, area) every 2 s:
+#     ten pulses. [T]
+#   - Fire Nova rank 5 (408345): a spell, not a totem: 10 s cooldown, 520 mana, 11307 (419
+#     +3.4/level from 52, ±5.5 % fire) at the active fire totem; it needs one. Improved Fire Nova
+#     +10 / 20 % and -2 / -4 s, which the nova passes to its damage spell. [T]
+#   - Coefficients: Searing Totem's attack 0.017, Magma Totem 0.033, Fire Nova rank 5 0.143 (rank
+#     1: 0.1). [T] [U]
+#   - Call of Flame +5 / 10 / 15 % (the totem attacks, Fire Nova, Lava Burst; and Flame Shock's
+#     ticks), Elemental Fury on the totem attacks' crits. [T]
+#   - Strength of Earth rank 5 (25361 -> 25362): +53 strength, 300 s, 275 mana. Grace of Air
+#     rank 3 (25359 -> 25360): +89 agility, 300 s, 310 mana. [T]
+#   - Mana Spring rank 4 (10497 -> 10494): 10 mana every 2 s, 300 s, 100 mana. [T]
+#   - Windfury Totem rank 3 (10614): 300 s, 250 mana; the party aura 10612 (20 %, 100 ms internal
+#     cooldown, melee hits 0x14) casts 10610: +246 attack power for 1 s with two charges and one
+#     extra attack. [T]  In a party the totem pulses once a second, each pulse refreshing the
+#     enchant. [U]  The enchant rows (563 "Windfury Totem 2", 1783 "Windfury Totem 1") last
+#     10 s, not the ~5 s of the decision. [T]
+#   - Flametongue Totem rank 4 (16387): 275 mana; the party aura 15036 procs on main-hand hits
+#     (0x4) into 16389: 1363 x the weapon's speed / 100 fire (as Flametongue Weapon). [T] It uses
+#     the weapon's speed [G #220].
+#   - Mana Tide rank 3 (17359, Restoration talent): 290 mana every 3 s for 12 s, 5 min cooldown;
+#     not in the builds. [T]
+#
+# Baseline passives
+#   - Forever's class deep dive moved Enhancing Totems, Two-Handed Axes and Maces and Improved
+#     Weapon Totems to baseline; Weapon Mastery and Shield Specialization were listed by mistake
+#     [G #280, #276]. The tables cannot say which the character knows (all are acquire 0 in
+#     the Enhancement skill line, none in the tree): Enhancing Totems rank 2 (16295: Strength of
+#     Earth and Grace of Air +15 %) and Improved Weapon Totems rank 2 (29193: Windfury Totem
+#     attack power +30 %, Flametongue Totem +12 %) known by every Shaman, Weapon Mastery (29088)
+#     and Shield Specialization (16301) not: Forever rolled former talents into the baseline.
+#     [U]
+#
+# Elemental talents the tables leave to the server
+#   - Elemental Focus (16164): 10 % on casting a fire, frost or nature damage spell (mask
+#     0x15550); Clearcasting 16246: -100 % mana of the next damage spell, one charge, 15 s. [T]
+#     A Clearcasting from the spell that used the last one stays up. [G #235]
+#   - Elemental Devastation (30160 -> 30165): +3 / 6 / 9 % melee crit (aura 52) for 10 s on a
+#     harmful non-periodic spell crit; Flame Shock's ticks, the totems and the weapon procs
+#     (Flametongue) do not trigger it. [G #257]
+#   - Elemental Fury (16089): +20 .. 100 % of the crit bonus (CRIT_DAMAGE_BONUS), spells and the
+#     totem attacks: a spell crit deals 200 % at rank 5 (1.5 x the bonus doubled). [T]
+#
+# Enhancement talents the tables leave to the server
+#   - Maelstrom Weapon (408498 -> 408505): 10 procs per minute (chance = 10 x unhasted main-hand
+#     speed / 60) on white and special melee hits. [U]  The aura's mask 0x10014 also names
+#     spell damage (0x10000), but Totem of the Storm 272432 ("Lightning Bolt can now also
+#     trigger Maelstrom Weapon, but with a 50 % reduced chance") says spells do not: only
+#     Lightning Bolt, with the totem, at 5 PPM. [T] [U]  A 100 ms internal cooldown: a hit
+#     procs it once, not once more through its Flametongue Weapon damage. [U]
+#   - 408505 stacks to 5 (the talent's E2) for 30 s; each stack takes the rank value (-4 .. -20
+#     %, the talent's E0) off the next Lightning Bolt's cast time and mana; the payload carries
+#     the rank-5 -20 %. That Lightning Bolt uses every stack. [T]  The talent's E1 (DUMMY 50)
+#     has no use. [T]  Five stacks at rank 5 make it instant, so it does not touch the swing
+#     (the swing rule below is for cast times > 0). [U]
+#   - Improved Stormstrike (1223031): Stormstrike gives 1238931 (50 % of spirit regeneration
+#     continues while casting, 15 s) at 50 / 100 %; the dodge / parry reset does nothing (the
+#     boss does not attack the character). [T]  Regeneration-while-casting sources add up,
+#     capped at 100 % (Mindfulness 50 % + Improved Stormstrike 50 %). [V] StatSystem.cpp
+#     UpdateManaRegen
+#   - Mental Dexterity (415140): aura 598, attack power = 33 / 67 / 100 % of intellect. Its E1
+#     (DUMMY 20 +5/level, in no tooltip) is ignored. [T] [U]
+#   - Rage of the Farseer (425336): +30 % melee and ranged attack speed (aura 342) for 25 s,
+#     3 min cooldown, off the GCD; aura 61 is the model size. [T]
+#
+# Casting and the swing timer
+#   - A cast with a cast time > 0 pauses the melee swing timers and resets them at its end,
+#     completed or cancelled: the next swing starts from zero. Every class (the Paladin's Hammer
+#     of Wrath too). [U]
+#
+# Gear hit and crit: one stat each for melee, ranged and spells. [U]
+#
+# Class numbers (data/classes/shaman.yaml, SH.3)
+#   - Base mana 1520, 19.69 agility per 1 % crit, 59.17 intellect per 1 % spell crit
+#     (PlayerExpectedStat 60/7); 2 attack power per strength, none per agility (ChrClasses);
+#     relic slot (totems). [T]
+#   - Base attributes Str 65 / Agi 35 / Sta 75 / Int 70 / Spi 80, melee attack power 160, GCD
+#     1.5 s, mail. [C]
+#   - Base melee crit 1.7 % (and 1.7 % dodge). [V] StatSystem.cpp UpdateCritPercentage
+#   - Base spell crit 3.54 %. [V] Unit.cpp GetSpellCritFromIntellect (its intellect rate at 60 is
+#     59.5, the tables' 59.17 is used)
+#   - Spirit regeneration 17 + spirit / 5 mana per 5 s outside the five-second rule. [V] Unit.cpp
+#     GetRegenMPPerSpirit (ClassicSim used 15 + spirit / 5)
+#   - Base health: not in the tables or vmangos' source (player_classlevelstats is database
+#     data): the Rogue's 1523 for now; it does not change the damage. [U] [?]
+#   - Races: Orc, Tauren, Troll, Dwarf (new in Forever) and Windshaper Skyborne (CharBaseInfo).
+#     No Dual Wield in any Shaman skill line: two-handers or a one-hander with a shield or
+#     off-hand. [T]  Weapon proficiencies: one-handed axes, maces, daggers, fist weapons,
+#     staves, two-handed axes and maces (the baseline Two-Handed Axes and Maces). [C] [T]
+#
+# Open points ([?] above)
+#   1. Base health (the Rogue's until known).
+#   2. Flurry from the crits of Windfury's extra attacks: vmangos says no, the sim (as for the
+#      Warrior) lets them proc it.
+
+# ----- Overrides ------------------------------------------------------------------------------
+# Scripts the Shaman work has not implemented yet are NO_OP with the task (TASKS.md SH.n) that
+# replaces them in the note; their params.spell names the payload the export must carry (the
+# tables only name it in a DUMMY's base points or a description). `walk` reaches what only a
+# totem's creature or an imbue's SpellItemEnchantment row names. Healing, utility, the 1.12
+# talents left in the skill lines and the Season of Discovery runes are IGNORED or NO_OP, so
+# `csim-tables check` lists nothing of the Shaman.
+
+overrides:
+  # ----- Elemental
+  - id: 408490
+    overload: 408491
+    note: Lava Burst r1; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
+  - id: 1238299
+    overload: 1238373
+    note: Lava Burst r2; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
+  - id: 1238300
+    overload: 1238376
+    note: Lava Burst r3; E1 +20 % while the caster's Flame Shock is on the target
+    effects: [{ index: 1, script: DAMAGE_PERCENT_VS_CASTER_AURA, params: { family_mask: [268435456, 0, 0, 0] } }]
+  - id: 8050
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 8052
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 8053
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 10447
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 10448
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 29228
+    note: Flame Shock; E2 marks the caster's Flame Shock for Lava Burst, which finds it by its class mask
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 403
+    note: Lightning Bolt r1; Lightning Overload casts 408439
+    overload: 408439
+  - id: 529
+    note: Lightning Bolt r2; Lightning Overload casts 408440
+    overload: 408440
+  - id: 548
+    note: Lightning Bolt r3; Lightning Overload casts 408441
+    overload: 408441
+  - id: 915
+    note: Lightning Bolt r4; Lightning Overload casts 408442
+    overload: 408442
+  - id: 943
+    note: Lightning Bolt r5; Lightning Overload casts 408443
+    overload: 408443
+  - id: 6041
+    note: Lightning Bolt r6; Lightning Overload casts 408472
+    overload: 408472
+  - id: 10391
+    note: Lightning Bolt r7; Lightning Overload casts 408473
+    overload: 408473
+  - id: 10392
+    note: Lightning Bolt r8; Lightning Overload casts 408474
+    overload: 408474
+  - id: 15207
+    note: Lightning Bolt r9; Lightning Overload casts 408475
+    overload: 408475
+  - id: 15208
+    note: Lightning Bolt r10; Lightning Overload casts 408477
+    overload: 408477
+  - id: 421
+    note: Chain Lightning r1; Lightning Overload casts 408479
+    overload: 408479
+  - id: 930
+    note: Chain Lightning r2; Lightning Overload casts 408481
+    overload: 408481
+  - id: 2860
+    note: Chain Lightning r3; Lightning Overload casts 408482
+    overload: 408482
+  - id: 10605
+    note: Chain Lightning r4; Lightning Overload casts 408484
+    overload: 408484
+  - id: 408439
+    note: Lightning Bolt r1's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408440
+    note: Lightning Bolt r2's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408441
+    note: Lightning Bolt r3's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408442
+    note: Lightning Bolt r4's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408443
+    note: Lightning Bolt r5's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408472
+    note: Lightning Bolt r6's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408473
+    note: Lightning Bolt r7's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408474
+    note: Lightning Bolt r8's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408475
+    note: Lightning Bolt r9's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408477
+    note: Lightning Bolt r10's overload copy
+    rename: Lightning Bolt Overload
+    sim_flags: [PAYLOAD]
+  - id: 408479
+    note: Chain Lightning r1's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408481
+    note: Chain Lightning r2's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408482
+    note: Chain Lightning r3's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408484
+    note: Chain Lightning r4's overload copy
+    rename: Chain Lightning Overload
+    sim_flags: [PAYLOAD]
+  - id: 408491
+    note: Lava Burst r1's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
+  - id: 1238373
+    note: Lava Burst r2's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
+  - id: 1238376
+    note: Lava Burst r3's overload copy
+    rename: Lava Burst Overload
+    sim_flags: [PAYLOAD]
+  - id: 408341
+    note: Fire Nova r1; E0 the damage 8349 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8349 } }]
+  - id: 408342
+    note: Fire Nova r2; E0 the damage 8502 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8502 } }]
+  - id: 408343
+    note: Fire Nova r3; E0 the damage 8503 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 8503 } }]
+  - id: 408344
+    note: Fire Nova r4; E0 the damage 11306 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 11306 } }]
+  - id: 408345
+    note: Fire Nova r5; E0 the damage 11307 at the fire totem, which it needs
+    effects: [{ index: 0, script: TOTEM_NOVA, params: { spell: 11307 } }]
+  - id: 408438
+    note: Lightning Overload (talent); E0 the rank value is the chance a landed cast casts its overload copy
+    effects: [{ index: 0, script: LIGHTNING_OVERLOAD }]
+  - id: 30160
+    note: >-
+      Elemental Devastation (talent); E0 the rank value is 30165's melee crit, on the crits of the shaman's
+      damage spells (the Clearcasting mask and Fire Nova's damage), not the totems or the weapon procs
+    proc: { hit_mask: [CRITICAL], family_mask: [3624927235, 4096, 0, 0] }
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 30165, effect: 0 } }]
+  - id: 30165
+    note: Elemental Devastation's melee crit buff, in the skill line but only the talent's payload
+    sim_flags: [PAYLOAD]
+  - id: 16164
+    note: Elemental Focus (talent); on the shaman's fire, frost and nature damage spells (the Clearcasting mask and Fire Nova's damage)
+    proc: { family_mask: [3624927235, 4096, 0, 0] }
+
+  # ----- Enhancement
+  - id: 16256
+    note: Flurry (talent) procs on melee critical strikes; the DUMMY carries the rank value into 16257's haste
+    proc: { hit_mask: [CRITICAL] }
+    effects: [{ index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 16257, effect: 0 } }]
+  - id: 408498
+    note: >-
+      Maelstrom Weapon (talent); 10 procs per minute on melee hits (spells only through Totem of the
+      Storm's PROC_FROM_SPELL), 100 ms internal cooldown (one proc per hit, not one more from its
+      Flametongue Weapon damage); E0 the reduction per stack of 408505's cast time and mana, E1
+      unused, E2 the stacks (408505's own max stacks)
+    proc: { ppm: 10, cooldown_ms: 100, spell_procs_by_script: true }
+    effects:
+      - { index: 0, script: TRIGGER_WITH_VALUE, params: { spell: 408505, effect: 0, second_effect: 1 } }
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 1223031
+    note: >-
+      Improved Stormstrike (talent); E0 the chance of 1238931 when Stormstrike lands, E1 the dodge / parry
+      reset (the character is not attacked), E2 unused
+    proc: { type_mask: [DEAL_MELEE_ABILITY], family_mask: [0, 16, 0, 0], chance_effect: 0 }
+    effects:
+      - { index: 0, script: TRIGGER_SPELL, params: { spell: 1238931 } }
+      - { index: 1, script: NO_OP }
+      - { index: 2, script: NO_OP }
+  - id: 415140
+    note: Mental Dexterity (talent); E1 is in no tooltip and ignored (SH.0 Q4)
+    effects: [{ index: 1, script: NO_OP }]
+  - id: 16268
+    note: Spirit Weapons (talent); E2 the parry chance (the character is not attacked)
+    effects: [{ index: 2, script: NO_OP }]
+  - id: 26545
+    note: Lightning Shield's orb (the character is not attacked)
+    effects: [{ index: 0, script: NO_OP }]
+
+  # ----- Weapon imbues: the SpellItemEnchantment rows of data/enchants.yaml (data/spells/enchants.yaml)
+  - id: 439431
+    note: Windfury Weapon's proc aura (20 %, 1.5 s internal cooldown); E0 casts rank 4's payload
+    effects: [{ index: 0, script: TRIGGER_SPELL, params: { spell: 16361 } }]
+  - id: 16344
+    note: Flametongue Weapon Proc r6; E0 the amount 436519 scales by weapon speed
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 436519
+    note: Flametongue Weapon's proc aura; E0 deals rank 6's amount (16344) x weapon speed / 100 as 10444
+    effects: [{ index: 0, script: WEAPON_SPEED_DAMAGE, params: { spell: 10444, effect: 0, amount_spell: 16344 } }]
+
+  # ----- Totems: the SUMMON effect's script names what the totem does (the totem spell's buff is
+  # its lifetime; its element is the effect's SummonProperties)
+  - id: 10438
+    note: Searing Totem r6; attacks with 10436 every 2.2 s (its cast time; TotemAI recasts it)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10436, period_ms: 2200 } }]
+  - id: 10436
+    note: Searing Totem's attack r6 (the tables call it Attack)
+    rename: Searing Totem Attack
+  - id: 10587
+    note: Magma Totem r4; its passive 10584 pulses 10581 every 2 s
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10584 } }]
+  - id: 25361
+    note: Strength of Earth Totem r5; the aura 25362
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 25362 } }]
+  - id: 25359
+    note: Grace of Air Totem r3; the aura 25360
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 25360 } }]
+  - id: 10497
+    note: Mana Spring Totem r4; the aura 10494
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10494 } }]
+  - id: 10614
+    note: Windfury Totem r3; the party aura 10612 (its payload 10610 in base points)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 10612 } }]
+  - id: 16387
+    note: Flametongue Totem r4; the party aura 15036 (its payload 16389 in base points)
+    effects: [{ index: 0, script: SUMMON_TOTEM, params: { spell: 15036 } }]
+  - id: 15036
+    note: Flametongue Totem's aura; E0 deals 16389's amount x the main hand's speed / 100 as Flametongue Attack
+    effects: [{ index: 0, script: WEAPON_SPEED_DAMAGE, params: { spell: 10444, effect: 0, amount_spell: 16389 } }]
+  - id: 16389
+    note: Flametongue Totem's proc; E0 the amount 15036 scales by weapon speed
+    effects: [{ index: 0, script: NO_OP }]
+  - id: 29193
+    note: Improved Weapon Totems r2 (baseline); E0 Windfury Totem attack power +30 %, E1 Flametongue Totem +12 %
+    effects:
+      - { index: 0, script: POINTS_PERCENT_MODIFIER }
+      - { index: 1, script: POINTS_PERCENT_MODIFIER }
+
+  # ----- Not simulated
+
+  - id: 29192
+    note: Improved Weapon Totems r1 (rank 2 is baseline)
+    sim_flags: [IGNORED]
+  - id: 16259
+    note: Enhancing Totems r1 (rank 2 is baseline)
+    sim_flags: [IGNORED]
+  - id: 29082
+    note: Weapon Mastery r1 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29084
+    note: Weapon Mastery r2 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29086
+    note: Weapon Mastery r3 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29087
+    note: Weapon Mastery r4 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 29088
+    note: Weapon Mastery r5 (not baseline, forever-bugs #280)
+    sim_flags: [IGNORED]
+  - id: 16253
+    note: Shield Specialization r1 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16298
+    note: Shield Specialization r2 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16299
+    note: Shield Specialization r3 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16300
+    note: Shield Specialization r4 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16301
+    note: Shield Specialization r5 (not baseline, forever-bugs #276)
+    sim_flags: [IGNORED]
+  - id: 16180
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16196
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16198
+    note: Nature's Guidance (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16579
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16580
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16581
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16582
+    note: Lightning Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 16189
+    note: Totemic Mastery (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 29189
+    note: Healing Grace (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 29191
+    note: Healing Grace (1.12 talent, not in the tree)
+    sim_flags: [IGNORED]
+  - id: 408507
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 425339
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408696
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 425874
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 437009
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409324
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409333
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 409337
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408514
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408519
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 415236
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 415242
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 1231681
+    note: Season of Discovery rune
+    sim_flags: [IGNORED]
+  - id: 408510
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 408511
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 408521
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1239242
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1239243
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 16176
+    note: healing
+    sim_flags: [IGNORED]
+  - id: 1222988
+    note: Earthbound (talent), an Earthbind Totem root
+    sim_flags: [IGNORED]
+  - id: 2645
+    note: Ghost Wolf (movement)
+    sim_flags: [IGNORED]
+  - id: 1238640
+    note: Ghost Wolf, Improved Ghost Wolf's replacement (movement)
+    sim_flags: [IGNORED]
+  - id: 556
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 6196
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 6495
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20608
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 21169
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 2008
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20609
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20610
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20776
+    note: utility
+    sim_flags: [IGNORED]
+  - id: 20777
+    note: utility
+    sim_flags: [IGNORED]

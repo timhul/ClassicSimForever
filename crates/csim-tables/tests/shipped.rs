@@ -15,10 +15,11 @@ use csim_tables::export;
 use csim_tables::{TableDir, Tables};
 
 /// The classes whose spell and talent files are exported (`csim-tables export-all`).
-const EXPORTED_CLASSES: [PlayerClass; 3] = [
+const EXPORTED_CLASSES: [PlayerClass; 4] = [
     PlayerClass::Warrior,
     PlayerClass::Paladin,
     PlayerClass::Rogue,
+    PlayerClass::Shaman,
 ];
 
 /// A shipped spell or item file as a fresh export of `tables` renders it: LF line ends, and

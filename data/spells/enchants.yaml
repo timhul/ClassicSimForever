@@ -4,63 +4,6 @@
 build: 1.60.1.70291
 learnable: false
 spells:
-- id: 10610
-  name: Windfury Totem
-  rank_text: Rank 3
-  attributes: [0, 268435456, 0, 0, 0, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
-  school_mask: 1
-  icon: 136114
-  icon_name: spell_nature_windfury
-  duration_ms: 1000
-  range_yd: 100.0
-  categories:
-    defense_type: MELEE
-  levels:
-    base: 52
-    spell: 52
-    max: 60
-  aura_options:
-    proc_chance: 100
-    proc_charges: 2
-    proc_type_mask: 4
-  class_options:
-    set: 11
-    mask: [0, 2, 0, 0]
-  labels: [24]
-  description: Attack Power increased by $s1. Granted $s2 Extra Attack.
-  effects:
-  - index: 0
-    effect: APPLY_AURA
-    aura: MOD_ATTACK_POWER
-    base_points: 246.0
-    implicit_target: [UNIT_CASTER, NONE]
-  - index: 1
-    effect: ADD_EXTRA_ATTACKS
-    base_points: 1.0
-    implicit_target: [UNIT_CASTER, NONE]
-- id: 10612
-  name: Windfury Totem
-  rank_text: Rank 3
-  attributes: [320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 0, 0, 8192, 0]
-  school_mask: 8
-  icon: 136114
-  icon_name: spell_nature_windfury
-  categories:
-    defense_type: MAGIC
-  levels:
-    spell: 52
-    max: 60
-  aura_options:
-    proc_chance: 20
-    proc_category_recovery_ms: 100
-    proc_type_mask: 20
-  effects:
-  - index: 0
-    effect: APPLY_AREA_AURA_PARTY
-    aura: PROC_TRIGGER_SPELL
-    base_points: 10610.0
-    radius_yd: [30.0, 30.0]
-    implicit_target: [UNIT_CASTER, NONE]
 - id: 11337
   name: Instant Poison VI
   rank_text: Rank 6
@@ -86,6 +29,90 @@ spells:
     base_points: 88.0
     variance: 0.2769231
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 16313
+  name: Rockbiter Weapon (Passive)
+  rank_text: Rank 7
+  attributes: [192, 0, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 8
+  icon: 136086
+  icon_name: spell_nature_rockbiter
+  levels:
+    base: 54
+    spell: 54
+    max: 62
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 20
+  class_options:
+    set: 11
+    mask: [4194304, 0, 0, 0]
+  labels: [24]
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_ATTACK_POWER
+    base_points: 554.0
+    real_points_per_level: 16.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: APPLY_AURA
+    aura: MOD_THREAT
+    misc_value: [127, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 16344
+  name: Flametongue Weapon Proc
+  rank_text: Rank 6
+  attributes: [262400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 4
+  icon: 135814
+  icon_name: spell_fire_flametounge
+  range_yd: 100.0
+  levels:
+    base: 56
+    spell: 56
+    max: 64
+  class_options:
+    set: 11
+    mask: [2097152, 0, 0, 0]
+  labels: [24]
+  effects:
+  - index: 0
+    effect: DUMMY
+    base_points: 2498.0
+    real_points_per_level: 78.0
+    implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 16361
+  name: Windfury Weapon
+  rank_text: Rank 4
+  attributes: [1, 268435456, 16777216, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 8
+  icon: 136018
+  icon_name: spell_nature_cyclone
+  duration_ms: 1500
+  range_yd: 100.0
+  levels:
+    base: 60
+    spell: 60
+    max: 68
+  aura_options:
+    proc_chance: 100
+    proc_charges: 3
+    proc_type_mask: 4
+  class_options:
+    set: 11
+    mask: [8388608, 0, 0, 0]
+  labels: [24]
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: MOD_ATTACK_POWER
+    base_points: 333.0
+    real_points_per_level: 12.5
+    implicit_target: [UNIT_CASTER, NONE]
+  - index: 1
+    effect: ADD_EXTRA_ATTACKS
+    base_points: 2.0
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 25349
   name: Deadly Poison V
   rank_text: Rank 5
@@ -116,6 +143,59 @@ spells:
     base_points: 23.0
     aura_period_ms: 3000
     implicit_target: [UNIT_TARGET_ENEMY, NONE]
+- id: 436519
+  name: Flametongue Weapon
+  attributes: [336, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 134877
+  icon_name: inv_potion_97
+  levels:
+    spell: 1
+  aura_options:
+    proc_chance: 100
+    proc_type_mask: 20
+  class_options:
+    set: 11
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: DUMMY
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 439431
+  name: Windfury Weapon
+  rank_text: Rank 1
+  attributes: [192, 0, 16777216, 0, 0, 0, 67108864, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 8
+  icon: 136018
+  icon_name: spell_nature_cyclone
+  cooldown:
+    start_recovery_ms: 1500
+  categories:
+    start_recovery_category: 133
+    defense_type: MAGIC
+  levels:
+    base: 30
+    spell: 30
+    max: 38
+  aura_options:
+    proc_chance: 20
+    proc_category_recovery_ms: 1500
+    proc_type_mask: 20
+  class_options:
+    set: 11
+    mask: [0, 0, 256, 0]
+  equipped_items:
+    class: 2
+    subclass_mask: 173555
+  labels: [24]
+  description: Imbue the Shaman's weapon with wind.  Each hit has a 20% chance of granting you $8233s2 extra $lattack:attacks; with $8233s1 extra melee attack power.  Lasts for 5 minutes.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: DUMMY
+    base_points: 46.0
+    real_points_per_level: 7.2
+    implicit_target: [UNIT_CASTER, NONE]
 item_enchantments:
 - id: 625
   name: Instant Poison VI
@@ -124,6 +204,23 @@ item_enchantments:
   - effect: COMBAT_SPELL
     points: 20
     arg: 11337
+- id: 1664
+  name: Rockbiter 7
+  effects:
+  - effect: EQUIP_SPELL
+    arg: 16313
+- id: 1666
+  name: Flametongue 6
+  effects:
+  - effect: EQUIP_SPELL
+    points: 100
+    arg: 436519
+- id: 1669
+  name: Windfury 4
+  effects:
+  - effect: EQUIP_SPELL
+    points: 20
+    arg: 439431
 - id: 2630
   name: Deadly Poison V
   charges: 180

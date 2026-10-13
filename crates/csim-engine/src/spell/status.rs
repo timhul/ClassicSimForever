@@ -33,6 +33,8 @@ pub enum SpellStatus {
     NotInExecuteRange,
     /// The sim does not model the spell (`IGNORED` override, unsupported effects).
     NotSupported,
+    /// The spell needs a totem that is not up (Fire Nova without a fire totem).
+    NoTotem,
     OnCooldown,
     OnGcd,
     OnStanceCooldown,
@@ -45,7 +47,7 @@ pub enum SpellStatus {
 
 impl SpellStatus {
     /// Every status, in declaration order.
-    pub const ALL: [SpellStatus; 26] = [
+    pub const ALL: [SpellStatus; 27] = [
         SpellStatus::Available,
         SpellStatus::BuffInactive,
         SpellStatus::CastInProgress,
@@ -66,6 +68,7 @@ impl SpellStatus {
         SpellStatus::NotEnabled,
         SpellStatus::NotInExecuteRange,
         SpellStatus::NotSupported,
+        SpellStatus::NoTotem,
         SpellStatus::OnCooldown,
         SpellStatus::OnGcd,
         SpellStatus::OnStanceCooldown,
@@ -145,6 +148,7 @@ impl SpellStatus {
             SpellStatus::NotEnabled => "FAIL: Not enabled",
             SpellStatus::NotInExecuteRange => "FAIL: Not in execute range",
             SpellStatus::NotSupported => "FAIL: Not modelled by the simulator",
+            SpellStatus::NoTotem => "FAIL: No totem of the element",
             SpellStatus::OnCooldown => "FAIL: On spell cooldown",
             SpellStatus::OnGcd => "FAIL: On global cooldown",
             SpellStatus::OnStanceCooldown => "FAIL: On stance cooldown",

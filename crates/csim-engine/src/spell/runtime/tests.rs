@@ -99,7 +99,7 @@ fn status_checks_in_c_plus_plus_order() {
     world.with_spell(id, |spell, world| spell.enable(world));
     assert_eq!(world.status(BLOODTHIRST), SpellStatus::Available);
 
-    world.start_global_cooldown();
+    world.start_global_cooldown(1.5);
     assert_eq!(world.status(BLOODTHIRST), SpellStatus::OnGcd);
     world.next_gcd = 0.0;
     world.casting = true;
@@ -596,7 +596,11 @@ fn magic_damage_over_time_rolls_its_hit_and_its_ticks_resists() {
     let attack = report.attack.expect("the miss is reported");
     assert_eq!(attack.result, PhysicalAttackResult::Miss);
     assert_eq!(attack.spell.map(|s| s.roll), Some(SpellRoll::MISS));
-    assert!(report.proc_sources.is_empty(), "no melee miss");
+    assert_eq!(
+        report.proc_sources,
+        [ProcSource::SpellFullResist],
+        "resisted, no melee miss"
+    );
     assert!(!world.buff(marker).is_active());
     assert!(
         world.rolls.is_empty() && world.can_crits.is_empty(),
@@ -765,6 +769,8 @@ fn cast_time_spells_complete_after_the_cast_time() {
     assert_eq!(slam.cast_time(&world), 1.5);
     assert_eq!(slam.category_cooldown_seconds(&world), 18.0);
 
+    // Swinging: the cast pauses the swings and restarts them from zero as it completes.
+    world.spells.start_attack();
     let report = world.perform(SLAM);
     assert!(report.cast_started);
     assert!(report.attack.is_none());
@@ -825,7 +831,7 @@ fn improved_slam_shortens_the_cast_and_replaces_the_rank() {
     let improved = world.spell(IMPROVED_SLAM_RANK_2);
     assert!((improved.cast_time(&world) - 1.0).abs() < 1e-9);
     assert!((improved.global_cooldown(&world) - 1.0).abs() < 1e-9);
-    assert!(!improved.has_sim_flag(SimFlag::ResetsSwingTimers));
+    assert!(improved.has_sim_flag(SimFlag::KeepsSwingTimers));
 
     let id = world.spell_id(IMPROVED_SLAM);
     world.with_spell(id, |spell, world| spell.disable(world));

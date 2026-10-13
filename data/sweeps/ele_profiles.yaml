@@ -1,0 +1,9 @@
+name: Ele profiles
+iterations: 10000
+# Every Elemental setup with each Elemental rotation.
+variations:
+  - characters:
+      - ../characters/shaman_ele_*.yaml
+  - options:
+      - { label: mana, rotation: Elemental }
+      - { label: shocks, rotation: Elemental Shocks }

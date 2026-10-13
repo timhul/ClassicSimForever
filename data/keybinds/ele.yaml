@@ -1,0 +1,18 @@
+# Keys for playing an Elemental Shaman from the keyboard in csim-live:
+#   cargo run --release -p csim-live -- data/characters/shaman_ele_orc.yaml --keybinds data/keybinds/ele.yaml
+#
+# 'spell name': [Ctrl+][Shift+][Alt+]key (see dw_fury.yaml). An Elemental Shaman does not attack:
+# the first cast pulls. Lightning Bolt casts its highest rank.
+Lightning Bolt: 1
+Lava Burst: 2
+Chain Lightning: 3
+Flame Shock: 4
+Earth Shock: 5
+Frost Shock: 6
+Fire Nova: F
+Ephemeral Power: Shift+E
+Searing Totem: Shift+1
+Magma Totem: Shift+2
+Mana Spring Totem: Shift+3
+Major Mana Potion: Shift+M
+Demonic Rune: Shift+R

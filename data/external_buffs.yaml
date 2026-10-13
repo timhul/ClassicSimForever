@@ -22,7 +22,9 @@
 #
 # World buffs (Rallying Cry, Songflower, Spirit of Zandalar, Warchief's Blessing, the
 # Dire Maul tribute buffs) are left out on purpose: Forever does not offer them the same way.
-# Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff.
+# Windfury Totem is a temporary weapon enchant (data/enchants.yaml), not a buff. Totems are
+# party only: `csim run --raid` drops the enchant and the totem buffs, and a Shaman's totems
+# reach the members of its party.
 # In Forever both factions get each other's buffs: Blessings, Strength of Earth and Windfury
 # carry no `faction`.
 # Schema: crates/csim-engine/src/buff/external.rs.
@@ -48,15 +50,15 @@ buffs:
     spell: 25289
     classes: [DRUID, HUNTER, PALADIN, ROGUE, SHAMAN]
     raid: true
-  # The caster raid buffs a Paladin uses (intellect for mana and Champion of the Light, mana
-  # regeneration).
+  # The caster raid buffs a Paladin or Shaman uses (intellect for mana, Champion of the Light and
+  # Mental Dexterity / Quickness, mana regeneration).
   - name: Arcane Brilliance
     spell: 23028
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     raid: true
   - name: Greater Blessing of Wisdom
     spell: 25918
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     raid: true
   # Flasks
   - name: Flask of the Titans
@@ -64,11 +66,11 @@ buffs:
     mutex: flask
   - name: Flask of Supreme Power
     spell: 17628
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: flask
   - name: Flask of Distilled Wisdom
     spell: 17627
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: flask
   # Elixirs
   - name: Elixir of the Mongoose
@@ -86,26 +88,30 @@ buffs:
   - name: Juju Power
     spell: 16323
     mutex: strength_elixir
-  # Spell damage and intellect elixirs (Paladin: holy damage through the coefficients, mana).
+  # Spell damage and intellect elixirs (holy, nature and fire damage through the coefficients,
+  # mana).
   - name: Greater Arcane Elixir
     spell: 17539
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: spell_power_elixir
   - name: Arcane Elixir
     spell: 11390
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: spell_power_elixir
   - name: Elixir of Greater Intellect
     spell: 11396
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: intellect_elixir
   - name: Elixir of the Sages
     spell: 17535
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: intellect_elixir
+  - name: Elixir of Greater Firepower
+    spell: 26276
+    classes: [SHAMAN]
   - name: Mageblood Potion
     spell: 24363
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
   # Farmables
   - name: Juju Might
     spell: 16329
@@ -135,11 +141,11 @@ buffs:
     mutex: food
   - name: Runn Tum Tuber Surprise
     spell: 22730
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: food
   - name: Nightfin Soup
     spell: 18194
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
     mutex: food
 
 debuffs:
@@ -154,6 +160,11 @@ debuffs:
     mutex: armor_debuff
   - name: Annihilator
     spell: 16928
+  # Forever's Curse of the Elements: every magic school, -75 resistances and +10 % damage taken.
+  # Improved Scorch's Fire Vulnerability is left out: in Forever it is the Mage's fire only.
+  - name: Curse of the Elements
+    spell: 1311680
+    classes: [PALADIN, SHAMAN]
 
 consumables:
   - name: Thistle Tea
@@ -163,13 +174,13 @@ consumables:
   # share the 2 minute category 1153 with Thistle Tea.
   - name: Major Mana Potion
     item: 13444
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
   - name: Demonic Rune
     item: 12662
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
   - name: Dark Rune
     item: 20520
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]
   - name: Night Dragon's Breath
     item: 11952
-    classes: [PALADIN]
+    classes: [PALADIN, SHAMAN]

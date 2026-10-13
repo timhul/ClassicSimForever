@@ -1,0 +1,10 @@
+include: common/base_target.yaml
+include: common/base_shaman_buffs.yaml
+include: common/base_shaman_enhancement.yaml
+include: common/base_shaman_horde.yaml
+name: Enh 2h Orc
+race: ORC
+level: 60
+phase: 3
+equipment:
+  MAINHAND: { item: 18831, enchant: Crusader, temp_enchants: [WindfuryWeapon] }  # High Warlord's Battle Axe

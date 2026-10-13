@@ -525,8 +525,8 @@ impl SpellHost for World {
     fn global_cooldown(&self) -> f64 {
         1.5
     }
-    fn start_global_cooldown(&mut self) {
-        self.next_gcd = self.engine.current_time() + 1.5;
+    fn start_global_cooldown(&mut self, gcd: f64) {
+        self.next_gcd = self.engine.current_time() + gcd;
     }
     fn on_stance_cooldown(&self) -> bool {
         self.engine.current_time() < self.next_stance_cd
@@ -562,6 +562,9 @@ impl SpellHost for World {
     }
     fn reset_swing_timers(&mut self) {
         self.attack_log.push("reset");
+    }
+    fn is_swinging(&self) -> bool {
+        self.spells.is_melee_attacking()
     }
     fn queue_next_swing(&mut self, spell: SpellId, marker: Option<BuffId>) {
         if self.spells.queued_next_swing() != Some(spell) {

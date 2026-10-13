@@ -1,0 +1,38 @@
+class: SHAMAN
+name: Enhancement
+attack_mode: melee
+prerequisite: Stormstrike
+description: >-
+  Stormstrike and Earth Shock on cooldown (Earth Shock waiting for Stormstrike's debuff or
+  Flame Shock in between loses DPS), Lightning Bolt at five Maelstrom Weapon stacks (instant at
+  5/5 Maelstrom Weapon),
+  Rage of the Farseer and the trinkets on cooldown; Strength of Earth, Grace of Air, Mana Spring
+  and Flametongue Totem kept up (Flametongue beats Searing Totem with Windfury Weapon); mana
+  potions and runes when they fit.
+precombat_actions:
+  - Strength of Earth Totem
+  - Grace of Air Totem
+  - Mana Spring Totem
+  - Flametongue Totem
+cast_if:
+  - name: Major Mana Potion
+    condition: variable "resource_missing" geq 2250
+  - name: Demonic Rune
+    condition: variable "resource_missing" geq 1500
+  - name: Rage of the Farseer
+  - name: Earthstrike
+  # Instant only with Maelstrom Weapon 5/5: a cast time restarts the swing.
+  - name: Lightning Bolt
+    condition: |
+      talent "Maelstrom Weapon" eq 5
+      and buff_stacks "Maelstrom Weapon" geq 5
+  - name: Stormstrike
+  - name: Earth Shock
+  - name: Strength of Earth Totem
+    condition: buff_duration "Strength of Earth Totem" less 3
+  - name: Grace of Air Totem
+    condition: buff_duration "Grace of Air Totem" less 3
+  - name: Mana Spring Totem
+    condition: buff_duration "Mana Spring Totem" less 3
+  - name: Flametongue Totem
+    condition: buff_duration "Flametongue Totem" less 3

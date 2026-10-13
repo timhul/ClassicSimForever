@@ -1,0 +1,45 @@
+class: SHAMAN
+name: Elemental Shocks
+attack_mode: magic
+prerequisite: Lava Burst
+description: >-
+  Flame Shock kept on the target, Lava Burst on cooldown while Flame Shock lasts through its
+  cast (+20 %), Chain Lightning on cooldown, Earth Shock in the shock cooldown between two Flame
+  Shocks above 2500 mana, Lightning Bolt rank 10 as the filler; Searing Totem and Mana Spring
+  kept up, Strength of Earth and Windfury Totem for the party; mana potions and runes when
+  they fit. Runs out of mana: the Elemental rotation does more damage.
+precombat_actions:
+  - Mana Spring Totem
+  - Strength of Earth Totem
+  - Windfury Totem
+precast: Lightning Bolt
+cast_if:
+  - name: Major Mana Potion
+    condition: variable "resource_missing" geq 2250
+  - name: Demonic Rune
+    condition: variable "resource_missing" geq 1500
+  - name: Ephemeral Power  # Talisman of Ephemeral Power
+  - name: Flame Shock
+    condition: buff_duration "Flame Shock" is false
+  - name: Lava Burst
+    condition: buff_duration "Flame Shock" greater 2.5
+  - name: Chain Lightning
+  - name: Searing Totem
+    condition: buff_duration "Searing Totem" is false
+  - name: Mana Spring Totem
+    condition: buff_duration "Mana Spring Totem" less 3
+  # For the party: the earth and air slots an Elemental Shaman has no use for, renewed while
+  # the fight has time left.
+  - name: Strength of Earth Totem
+    condition: |
+      buff_duration "Strength of Earth Totem" less 3
+      and variable "time_remaining_encounter" greater 20
+  - name: Windfury Totem
+    condition: |
+      buff_duration "Windfury Totem" less 3
+      and variable "time_remaining_encounter" greater 20
+  - name: Earth Shock
+    condition: |
+      buff_duration "Flame Shock" greater 6
+      and resource "Mana" greater 2500
+  - name: Lightning Bolt

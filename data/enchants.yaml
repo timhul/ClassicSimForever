@@ -238,6 +238,44 @@
   class: ROGUE
   enchantment: 2630
 
+# Shaman imbues: the SpellItemEnchantment row's equip spell is a passive of the weapon (exported
+# into data/spells/enchants.yaml). The highest ranks; Frostbrand Weapon is not offered (its row
+# has no chance and the tables no PPM, data/spells/overrides/shaman.yaml). An imbue takes the
+# weapon's temporary enchant (no stone or oil with it); Windfury Weapon on the main hand replaces
+# the shaman's own Windfury Totem.
+- name: WindfuryWeapon
+  display_name: Windfury Weapon 4
+  unique_name: Windfury Weapon
+  effect: Windfury 4
+  temporary: true
+  temp_group: IMBUE
+  excludes: [COATING, WINDFURY]
+  slots: [MAINHAND]
+  class: SHAMAN
+  enchantment: 1669
+
+- name: FlametongueWeapon
+  display_name: Flametongue Weapon 6
+  unique_name: Flametongue Weapon
+  effect: Flametongue 6
+  temporary: true
+  temp_group: IMBUE
+  excludes: [COATING]
+  slots: [MAINHAND]
+  class: SHAMAN
+  enchantment: 1666
+
+- name: RockbiterWeapon
+  display_name: Rockbiter Weapon 7
+  unique_name: Rockbiter Weapon
+  effect: Rockbiter 7
+  temporary: true
+  temp_group: IMBUE
+  excludes: [COATING]
+  slots: [MAINHAND]
+  class: SHAMAN
+  enchantment: 1664
+
 # ---------------------------------------------------------------- head / legs
 
 - name: ArcanumOfFocus

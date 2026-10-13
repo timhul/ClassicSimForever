@@ -15,6 +15,7 @@ data/
 │   ├── warrior.yaml      generated: the Warrior spellbook, talents, runes and their payloads
 │   ├── paladin.yaml      generated: the Paladin spellbook, talents, runes and their payloads
 │   ├── rogue.yaml        generated: the Rogue spellbook, talents, runes and their payloads
+│   ├── shaman.yaml       generated: the Shaman spellbook, talents, runes and their payloads
 │   ├── racials.yaml      generated: the racial abilities of every race
 │   ├── externals.yaml    generated: the aura spells of the external buffs (`learnable: false`)
 │   ├── enchants.yaml     generated: the spells the enchant procs name
@@ -23,6 +24,7 @@ data/
 │       ├── warrior.yaml  hand-written: what the tables do not say (scripts, threat, sim flags)
 │       ├── paladin.yaml  also the Paladin's server-side numbers and their sources (header)
 │       ├── rogue.yaml
+│       ├── shaman.yaml   also the Shaman's server-side numbers and their sources (header)
 │       ├── racials.yaml
 │       ├── externals.yaml
 │       ├── enchants.yaml
@@ -31,7 +33,8 @@ data/
 ├── talents/
 │   ├── warrior.yaml      generated: the Warrior talent tree (tabs, tiers, prerequisites, rank values)
 │   ├── paladin.yaml      generated: the Paladin talent tree
-│   └── rogue.yaml        generated: the Rogue talent tree
+│   ├── rogue.yaml        generated: the Rogue talent tree
+│   └── shaman.yaml       generated: the Shaman talent tree
 ├── external_buffs.yaml   hand-written: the raid buffs, consumables and target debuffs other
 │                         players provide — name, aura spell id, faction, classes, mutex, stacks
 ├── items/
@@ -45,12 +48,13 @@ data/
 │                         executors with conditions), see rotations/README.md; the three
 │                         Warrior and five Rogue rotations are ports of the ClassicSim XML
 │                         files, the three Paladin rotations are new (ClassicSim had no
-│                         Twist of Light, and its Judgement consumed the seal)
+│                         Twist of Light, and its Judgement consumed the seal), as are the
+│                         three Shaman rotations (Enhancement, Elemental, Elemental Shocks)
 ├── characters/           hand-written: character setups for `csim run` (class, race, talents,
 │                         gear, buffs, rotation, target); common/ holds the shared parts
 │                         (buffs, talent builds, gear per faction) they include
 ├── keybinds/             hand-written: keys for playing a setup from the keyboard in csim-live
-│                         (dw_fury, combat, ret)
+│                         (dw_fury, combat, ret, enh, ele)
 ├── sweeps/               hand-written: `csim sweep` files (last talent points, profiles)
 ├── raids/                hand-written: raid setups for `csim run --raid`, up to 8 parties of 5
 │                         (counting the player) listing setups of characters/ by file name
@@ -68,12 +72,14 @@ data/tables/<Table>.<build>.csv
 csim-tables export-spells --class warrior   →  data/spells/warrior.yaml
 csim-tables export-spells --class paladin   →  data/spells/paladin.yaml
 csim-tables export-spells --class rogue     →  data/spells/rogue.yaml
+csim-tables export-spells --class shaman    →  data/spells/shaman.yaml
 csim-tables export-spells --racials         →  data/spells/racials.yaml
 csim-tables export-spells --externals       →  data/spells/externals.yaml  (ids from external_buffs.yaml + the rulesets)
-csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the poisons' SpellItemEnchantment rows)
+csim-tables export-spells --enchants        →  data/spells/enchants.yaml   (ids the enchant procs name, the SpellItemEnchantment rows of the poisons and imbues with their combat and equip spells)
 csim-tables export-talents --class warrior  →  data/talents/warrior.yaml
 csim-tables export-talents --class paladin  →  data/talents/paladin.yaml
 csim-tables export-talents --class rogue    →  data/talents/rogue.yaml
+csim-tables export-talents --class shaman   →  data/talents/shaman.yaml
 csim-tables export-items                    →  data/items/<slot>.yaml, data/item_sets.yaml
 csim-tables export-spells --items           →  data/spells/items.yaml      (item and set bonus spells)
 csim-tables export-all                      →  all of the above, then check
@@ -91,7 +97,8 @@ csim_engine::talent::TalentDb::load("data/talents")
    `Spell*` rows in snake_case (§1.7), effects included. The external buffs are walked the
    same way from the aura spell ids `data/external_buffs.yaml` names (Greater Blessing of
    Kings 25898, Faerie Fire 9907, …); ids another spell file already carries (the Warrior's
-   Sunder Armor and Battle Shout) are not repeated, since the engine loads every file.
+   Sunder Armor and Battle Shout, the Shaman's Strength of Earth and Windfury Totem) are not
+   repeated, since the engine loads every file.
 2. The walk is **pruned** (§1.10): effects the simulator has no use for are dropped, spells left
    with nothing to do are left out.
 3. The generated files are committed so the engine and its tests never need the dump.
@@ -145,12 +152,14 @@ csim_engine::talent::TalentDb::load("data/talents")
    cargo run -p csim-tables -- export-spells --class warrior
    cargo run -p csim-tables -- export-spells --class paladin
    cargo run -p csim-tables -- export-spells --class rogue
+   cargo run -p csim-tables -- export-spells --class shaman
    cargo run -p csim-tables -- export-spells --racials
    cargo run -p csim-tables -- export-spells --externals
    cargo run -p csim-tables -- export-spells --enchants
    cargo run -p csim-tables -- export-talents --class warrior
    cargo run -p csim-tables -- export-talents --class paladin
    cargo run -p csim-tables -- export-talents --class rogue
+   cargo run -p csim-tables -- export-talents --class shaman
    cargo run -p csim-tables -- export-items
    cargo run -p csim-tables -- export-spells --items
    cargo run -p csim-tables -- check
@@ -217,7 +226,8 @@ reference: `SPELL_INSTRUCTIONS.md` §1.11). One entry per spell id, `note` says 
   whose rank value is the proc chance (Unbridled Wrath 12–60 %) rather than the payload's value.
 - **`threat`** — innate threat (`flat`) and a multiplier; the client has no threat table.
 - **`sim_flags`** — how the simulator treats the spell: `IGNORED` (loads, never cast),
-  `RESETS_SWING_TIMERS` / `STOPS_ATTACK_DURING_CAST` / `CANCELS_NEXT_SWING_QUEUE` (Slam),
+  `CANCELS_NEXT_SWING_QUEUE` (Slam), `KEEPS_SWING_TIMERS` (Improved Slam: every other cast
+  pauses the swings and restarts them from zero as it ends),
   `RUN_TO_TARGET` (Charge: its cast time is the run, during which only offensive and cast-time
   spells wait),
   `START_OF_COMBAT` (Anger Management), `CANNOT_CRIT`, `ENRAGE` (Enrage: the `ENRAGED` aura state).

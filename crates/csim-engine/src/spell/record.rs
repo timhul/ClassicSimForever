@@ -148,6 +148,14 @@ pub struct ItemEnchantmentRecord {
 }
 
 impl ItemEnchantmentRecord {
+    /// The equip spells: the passives the enchanted item has (`EQUIP_SPELL`).
+    pub fn equip_spells(&self) -> impl Iterator<Item = u32> + '_ {
+        self.effects
+            .iter()
+            .filter(|e| e.effect == ItemEnchantmentType::EquipSpell)
+            .map(|e| e.arg)
+    }
+
     /// The combat spells: (spell, chance in percent) per `COMBAT_SPELL` effect.
     pub fn combat_spells(&self) -> impl Iterator<Item = (u32, f64)> + '_ {
         self.effects
@@ -527,7 +535,10 @@ impl EffectRecord {
             || (self.is_apply_aura()
                 && matches!(
                     self.aura,
-                    AuraType::Dummy | AuraType::PeriodicDummy | AuraType::AddTargetTrigger
+                    AuraType::Dummy
+                        | AuraType::PeriodicDummy
+                        | AuraType::AddTargetTrigger
+                        | AuraType::OverrideClassScripts
                 ))
     }
 
@@ -1124,7 +1135,20 @@ impl SpellDb {
             db.load_file_from(files, &path)?;
         }
         db.check_references()?;
+        db.apply_renames();
         Ok(db)
+    }
+
+    /// Gives the spells an override renames (`rename`) their sim name.
+    fn apply_renames(&mut self) {
+        for spell_override in self.overrides.all() {
+            if let (Some(name), Some(record)) = (
+                &spell_override.rename,
+                self.spells.get_mut(&spell_override.id),
+            ) {
+                Arc::make_mut(record).name = name.clone();
+            }
+        }
     }
 
     /// Adds the records of one YAML file.
@@ -2387,6 +2411,63 @@ spells:
             db.overrides().has_sim_flag(407778, SimFlag::Ignored),
             "Divine Storm"
         );
+
+        // The Shaman: the imbue effect and Mental Dexterity's aura named, the payloads only a
+        // DUMMY, a totem's creature or an enchant row names reached through the overrides,
+        // the 1.12 talents left in the skill lines and the runes ignored.
+        assert!(db.ids_of_class(Some(PlayerClass::Shaman)).len() > 300);
+        let windfury = db.get(16362).unwrap();
+        assert_eq!(
+            windfury.effects[0].effect,
+            SpellEffectName::EnchantItemImbue
+        );
+        assert_eq!(windfury.effects[0].misc_value[0], 1669);
+        let dexterity = db.get(415140).unwrap();
+        assert_eq!(
+            dexterity.effects[0].aura,
+            AuraType::ModAttackPowerOfStatPercent
+        );
+        assert_eq!(dexterity.effects[0].misc_value[0], 3, "intellect");
+        for (id, name) in [
+            (408505, "Maelstrom Weapon"),
+            (1238931, "Improved Stormstrike"),
+            (16257, "Flurry"),
+            (10436, "Searing Totem Attack"),
+            (10444, "Flametongue Attack"),
+            (10581, "Magma Totem"),
+            (11307, "Fire Nova"),
+            (25362, "Strength of Earth"),
+            (10610, "Windfury Totem"),
+            (16389, "Flametongue Totem Proc"),
+            (1238376, "Lava Burst Overload"),
+        ] {
+            assert_eq!(
+                db.get(id).unwrap().name,
+                name,
+                "{id} reached through the overrides"
+            );
+            assert_eq!(db.class_of(id), Some(Some(PlayerClass::Shaman)), "{id}");
+        }
+        // The imbues' equip spells and payloads come with their enchantment rows, never
+        // learned: only the imbued weapon has them (Flametongue Attack is also Flametongue
+        // Totem's, a Shaman spell).
+        for (id, name) in [
+            (439431, "Windfury Weapon"),
+            (16361, "Windfury Weapon"),
+            (16313, "Rockbiter Weapon (Passive)"),
+        ] {
+            assert_eq!(db.get(id).unwrap().name, name, "{id}");
+            assert_eq!(db.class_of(id), Some(None), "{id}");
+            assert!(!db.is_learnable(id), "{id}");
+        }
+        assert_eq!(
+            db.get(16262).unwrap().actionbar_overrides(),
+            [(2645, 1238640)],
+            "Improved Ghost Wolf's other swap names a spell the tables lack"
+        );
+        for id in [29088, 16301, 16198, 408507, 425339] {
+            assert!(db.overrides().has_sim_flag(id, SimFlag::Ignored), "{id}");
+        }
 
         // The effects the sim cannot interpret yet; extend the overrides rather than this list.
         let mut pending: Vec<u32> = db.unsupported().iter().map(|u| u.spell).collect();

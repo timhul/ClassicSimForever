@@ -546,7 +546,7 @@ mod tests {
         fn global_cooldown(&self) -> f64 {
             1.5
         }
-        fn start_global_cooldown(&mut self) {}
+        fn start_global_cooldown(&mut self, _: f64) {}
         fn on_stance_cooldown(&self) -> bool {
             false
         }
@@ -574,6 +574,9 @@ mod tests {
             self.attacking = true;
         }
         fn reset_swing_timers(&mut self) {}
+        fn is_swinging(&self) -> bool {
+            self.attacking
+        }
         fn queue_next_swing(&mut self, _: SpellId, _: Option<BuffId>) {}
         fn cancel_next_swing(&mut self) {}
         fn queued_next_swing(&self) -> Option<SpellId> {

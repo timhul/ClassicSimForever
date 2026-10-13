@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::buff::external::{ConsumableSpec, ExternalBuffDb};
 use crate::buff::{Buff, BuffApplication, BuffContext, BuffKind, ChargeUse};
 use crate::character_spells::{
-    AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, SharedBuffs,
-    SpellHandle,
+    AddedSpell, BuffSlot, EquipmentGrantor, EquipmentSpellKey, PartyAuraChange, PartyTotemChange,
+    SharedBuffs, SpellHandle,
 };
 use crate::combat_log::{
     AuraChange, CombatLog, CombatLogEvent, Damage, LogSpell, LogUnit, MissType, UnitInfo,
@@ -42,6 +42,7 @@ use crate::statistics::{
 use crate::stats::{CharacterStats, TargetStatView};
 use crate::talent::{CharacterTalents, RankChange};
 use crate::target::{CreatureType, Target};
+use crate::totem::{ActiveTotem, TotemAura, TotemElement, TotemSummon};
 
 use super::{
     Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
@@ -252,8 +253,34 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// buff affects the whole party: the change is noted with the raid, which repeats it on the
     /// other members (`RaidControl::propagate_party_auras`).
     fn change_auras(&mut self, id: BuffId, apply: bool) {
-        let effects = self.buff_ref(id).effects.clone();
+        let mut effects = self.buff_ref(id).effects.clone();
+        let values = match self.buff_ref(id).aura_values.clone() {
+            Some(values) => values,
+            None => effects.iter().map(|e| e.effective_value(self)).collect(),
+        };
+        for (effect, &value) in effects.iter_mut().zip(&values) {
+            effect.pin(value);
+        }
+        {
+            let (buff, _) = self.buff_ctx(id);
+            if apply {
+                buff.aura_applications += 1;
+                buff.aura_values = Some(values);
+            } else {
+                buff.aura_applications = buff.aura_applications.saturating_sub(1);
+                if buff.aura_applications == 0 {
+                    buff.aura_values = None;
+                }
+            }
+        }
         self.change_aura_effects(&effects, apply);
+        if let Some(summon) = self.totem_of_buff(id) {
+            if apply {
+                self.summon_totem(id, summon);
+            } else {
+                self.dismiss_totem(id, summon.element);
+            }
+        }
         if let BuffSlot::Shared(handle) = self.character.spells.buff_slot(id) {
             let handle = *handle;
             if let BuffKind::PartyBuff { party } = self.raid.shared_buff(handle).kind() {
@@ -265,6 +292,169 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 });
             }
         }
+    }
+
+    /// The totem whose lifetime buff `id` is, if any.
+    fn totem_of_buff(&self, id: BuffId) -> Option<TotemSummon> {
+        self.character.spells.totem_of_buff(id)
+    }
+
+    /// A totem stands: it replaces the one of its element, switches on its aura for the shaman
+    /// or starts its attacks.
+    fn summon_totem(&mut self, buff: BuffId, summon: TotemSummon) {
+        if let Some(old) = self.character.totems.get(summon.element).copied() {
+            if old.buff == buff {
+                return;
+            }
+            self.cancel_buff(old.buff);
+        }
+        let iteration = self.character.totems.next_iteration();
+        match summon.period {
+            Some(period) => {
+                let character = self.character.id();
+                self.engine.add_event_in(
+                    period,
+                    EventKind::TotemAttack {
+                        character,
+                        element: summon.element,
+                        iteration,
+                    },
+                );
+            }
+            None => self.share_totem_aura(summon.spell, true),
+        }
+        self.character.totems.set(ActiveTotem {
+            buff,
+            summon,
+            iteration,
+        });
+    }
+
+    /// The shaman's totem aura `spell` goes up or down: for the shaman, then (through the raid
+    /// control) for the other members of its party. Totems are party only.
+    fn share_totem_aura(&mut self, spell: u32, apply: bool) {
+        self.change_totem_aura(spell, apply);
+        self.raid.note_party_totem_change(PartyTotemChange {
+            spell,
+            party: self.character.party(),
+            by: self.character.id(),
+            apply,
+        });
+    }
+
+    /// One more (or one less) standing totem of the party gives the character aura `spell`:
+    /// the first switches it on, the last one gone switches it off. Two shamans' totems of the
+    /// same aura are one aura.
+    pub(crate) fn change_totem_aura(&mut self, spell: u32, apply: bool) {
+        let aura = *self.character.totems.aura_mut(spell);
+        if apply {
+            let applied = if aura.providers == 0 {
+                self.switch_on_totem_aura(spell)
+            } else {
+                aura.applied
+            };
+            *self.character.totems.aura_mut(spell) = TotemAura {
+                providers: aura.providers + 1,
+                applied,
+            };
+        } else if aura.providers > 0 {
+            let providers = aura.providers - 1;
+            let mut applied = aura.applied;
+            if providers == 0
+                && let Some(handle) = applied.take()
+            {
+                self.disable_handle(handle);
+            }
+            *self.character.totems.aura_mut(spell) = TotemAura { providers, applied };
+        }
+    }
+
+    /// Learns a party member's totem aura `spell` and its payloads (disabled until a totem
+    /// stands), unless the character has it.
+    pub fn learn_totem_aura(&mut self, db: &SpellDb, spell: u32) {
+        for id in std::iter::once(spell).chain(payload_spells(db, spell)) {
+            if db.get(id).is_some() && !self.character.spells.has_game_id(id) {
+                self.learn(db, id);
+            }
+        }
+    }
+
+    /// Switches on the passive or proc aura `spell` a totem gives the character, unless something
+    /// already gives the same: the selected external buff of that aura (another shaman's
+    /// Strength of Earth), or a main-hand temporary enchant with that proc (Windfury Totem) or
+    /// one ruling it out (Windfury Weapon).
+    fn switch_on_totem_aura(&mut self, spell: u32) -> Option<SpellHandle> {
+        let handle = self.character.spells.handle(spell)?;
+        let external = self
+            .character
+            .general_buffs
+            .entries()
+            .iter()
+            .any(|entry| entry.spec.spell == spell && self.buff_ref(entry.buff).is_active());
+        if external || self.mainhand_enchant_covers(spell) {
+            return None;
+        }
+        self.enable_handle(handle);
+        Some(handle)
+    }
+
+    /// Whether a main-hand temporary enchant gives proc `spell` (as an enchant of its own) or
+    /// rules out the group of an enchant that does.
+    fn mainhand_enchant_covers(&self, spell: u32) -> bool {
+        let equipment = self.character.equipment();
+        let enchants = equipment.db().enchants();
+        let groups: Vec<_> = EnchantName::ALL
+            .iter()
+            .filter_map(|&name| enchants.get(name))
+            .filter(|spec| spec.procs.iter().any(|p| p.spell == Some(spell)))
+            .map(|spec| spec.temp_group)
+            .collect();
+        equipment
+            .temp_enchants(EquipmentSlot::Mainhand)
+            .iter()
+            .filter_map(|&name| enchants.get(name))
+            .any(|spec| {
+                groups
+                    .iter()
+                    .any(|g| spec.temp_group == *g || spec.excludes.contains(g))
+            })
+    }
+
+    /// The totem of `element` whose buff `buff` ended goes: its aura with it.
+    fn dismiss_totem(&mut self, buff: BuffId, element: TotemElement) {
+        if self
+            .character
+            .totems
+            .get(element)
+            .is_none_or(|totem| totem.buff != buff)
+        {
+            return;
+        }
+        let totem = self.character.totems.take(element).expect("checked");
+        if totem.summon.period.is_none() {
+            self.share_totem_aura(totem.summon.spell, false);
+        }
+    }
+
+    /// An attacking totem's cast, and its next one.
+    fn totem_attack(&mut self, element: TotemElement, iteration: u32) {
+        let Some(totem) = self.character.totems.get(element).copied() else {
+            return;
+        };
+        if totem.iteration != iteration {
+            return;
+        }
+        SpellHost::trigger_spell(self, totem.summon.spell, None);
+        let character = self.character.id();
+        let period = totem.summon.period.expect("an attacking totem");
+        self.engine.add_event_in(
+            period,
+            EventKind::TotemAttack {
+                character,
+                element,
+                iteration,
+            },
+        );
     }
 
     /// Applies (or removes) aura `effects` on this character, whichever buff they belong to.
@@ -281,7 +471,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
 
     // ---------------------------------------------------------------- learning spells
 
-    /// Adds spell `id` from `db` and enables it when it is a trainable / racial spell. Stance
+    /// Adds spell `id` from `db` and enables it when it is a trainable / racial / baseline spell. Stance
     /// spells register their stance link. Spells a talent of the attached tree grants (the
     /// talent spell and its higher ranks, whatever their `class_mask` says) wait for the
     /// talent. Port of the spell construction in the C++ class constructors.
@@ -289,6 +479,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         let party = self.character.party();
         let mut added = self.character.spells.add_spell(db, id, party, self.raid);
         let base = self.talent_spell_of(db, id, added.spell);
+        if self.character.class().baseline_spells.contains(&id) {
+            added.enable_now = true;
+        }
         let granted = self.character.talent_grants(base);
         if granted {
             added.enable_now = false;
@@ -613,6 +806,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 !record.is_in_spellbook()
                     || (record.acquire_method == 3 && record.class_mask == 0)
                     || spell.setup().enabled_by.is_some()
+                    || spell.has_sim_flag(SimFlag::Payload)
             });
             if !is_payload {
                 continue;
@@ -1051,6 +1245,20 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 });
             }
             let enchantment = spec.enchantment.and_then(|id| db.item_enchantment(id));
+            let equip_spells = enchantment.into_iter().flat_map(|e| e.equip_spells());
+            let first_equip =
+                spec.procs.len() + enchantment.map_or(0, |e| e.combat_spells().count());
+            for (offset, spell) in equip_spells.enumerate() {
+                grants.push(Grant {
+                    key: EquipmentSpellKey {
+                        slot: Some(slot),
+                        grantor: EquipmentGrantor::Enchant(spec.name),
+                        index: first_equip + offset,
+                    },
+                    spell,
+                    kind: GrantKind::Passive(passive_proc_sources(Some(slot))),
+                });
+            }
             let combat_spells = enchantment.into_iter().flat_map(|e| e.combat_spells());
             for (offset, (spell, chance)) in combat_spells.enumerate() {
                 grants.push(Grant {
@@ -1287,6 +1495,49 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if let Some(offhand) = &report.offhand {
             self.run_sources(&untriggered(&offhand.proc_sources));
         }
+        self.lightning_overload(id, report);
+    }
+
+    /// A cast that landed casts its `overload` copy at the chance of the character's
+    /// `LIGHTNING_OVERLOAD` auras. The copy comes after the cast used its charges (no
+    /// Stormstrike bonus), keeps the cast's bonus against its caster aura (Lava Burst with
+    /// Flame Shock), and its events run as a payload's: no spell behind them, so it neither
+    /// overloads again nor counts for Elemental Focus.
+    fn lightning_overload(&mut self, id: SpellId, report: &CastReport) {
+        let Some(copy) = self.character.spells.spell(id).setup().overrides.overload else {
+            return;
+        };
+        let landed = report.attack.as_ref().is_some_and(|attack| {
+            matches!(
+                attack.result,
+                PhysicalAttackResult::Hit | PhysicalAttackResult::Critical
+            )
+        });
+        if !landed {
+            return;
+        }
+        let chance: f64 = self
+            .character
+            .spells()
+            .buff_ids()
+            .map(|buff| self.buff_ref(buff))
+            .filter(|buff| buff.is_active())
+            .flat_map(|buff| buff.effects.iter())
+            .filter(|effect| effect.script_kind() == Some(ScriptKind::LightningOverload))
+            .map(Effect::value)
+            .sum();
+        let range = (chance * f64::from(crate::proc::PROC_ROLL_RANGE) / 100.0).round() as u32;
+        if range == 0 || self.character.roll_overload() >= range {
+            return;
+        }
+        let scale = self
+            .character
+            .spells
+            .spell(id)
+            .caster_aura_multiplier(&*self);
+        if let Some(overload) = self.trigger_scaled(copy, scale) {
+            self.run_sources(&untriggered(&overload.all_proc_sources()));
+        }
     }
 
     /// The proc sources of a cast of `id` with the spell behind each: the cast's own, those of
@@ -1344,16 +1595,19 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// it triggered (the `classic-warrior` wiki on Windfury Totem), so the swing that proc'd
     /// Windfury uses a charge of the aura it just applied; but a crit consumes a charge of the
     /// Flurry already up before refreshing it, and the crit that applies Flurry keeps all three
-    /// charges (Classic Era combat logs).
+    /// charges (Classic Era combat logs). A spell modifier aura's charge goes first: the cast
+    /// used it, so what the cast procs (a Clearcasting from Elemental Focus) stays up.
     fn run_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
-        self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources));
+        self.use_charges(sources, true);
+        self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources, false));
         let plain: Vec<ProcSource> = sources.iter().map(|&(source, _)| source).collect();
         self.run_event_scripts(&plain);
     }
 
-    /// Uses the charges of the buffs that react to `sources`. A charged spell modifier aura
-    /// reacts to the spells it modifies only, and loses at most one charge to one event.
-    fn use_charges(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
+    /// Uses the charges of the buffs that react to `sources`, of the spell modifier auras or of
+    /// the others (`modifiers`). A charged spell modifier aura reacts to the spells it modifies
+    /// only, and loses at most one charge to one event.
+    fn use_charges(&mut self, sources: &[(ProcSource, ProcTrigger)], modifiers: bool) {
         let mut charged = Vec::new();
         for (source, trigger) in sources {
             let class = trigger.class_options;
@@ -1367,6 +1621,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                     .spells
                     .owned_buff(id)
                     .is_some_and(Buff::charges_require_spell_modifier);
+                if spell_modifier != modifiers {
+                    continue;
+                }
                 if spell_modifier {
                     if charged.contains(&id) {
                         continue;
@@ -1908,6 +2165,13 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 application_id,
             } if character == me => {
                 self.dot_tick(spell, application_id);
+            }
+            EventKind::TotemAttack {
+                character,
+                element,
+                iteration,
+            } if character == me => {
+                self.totem_attack(element, iteration);
             }
             EventKind::CastComplete {
                 character,
@@ -3047,6 +3311,27 @@ impl<S: SharedBuffs> EffectHost for CharacterContext<'_, S> {
         })
     }
 
+    fn totem_active(&self, element: TotemElement) -> bool {
+        self.character.totems.get(element).is_some()
+    }
+
+    fn target_has_caster_aura(&self, set: u32, family_mask: &[u32; 4]) -> bool {
+        let spells = self.character.spells();
+        spells.buff_ids().any(|id| {
+            let buff = self.buff_ref(id);
+            buff.is_debuff()
+                && buff.is_active()
+                && spells.spell_by_game_id(buff.spell()).is_some_and(|spell| {
+                    spells
+                        .spell(spell)
+                        .record()
+                        .class_options
+                        .as_ref()
+                        .is_some_and(|class| class.matches(set, family_mask))
+                })
+        })
+    }
+
     fn adjust_offhand_copy(&mut self, spell: u32, apply: bool) {
         self.character.adjust_offhand_copy(spell, apply);
     }
@@ -3106,9 +3391,9 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.global_cooldown()
     }
 
-    fn start_global_cooldown(&mut self) {
+    fn start_global_cooldown(&mut self, gcd: f64) {
         let now = self.now();
-        self.character.start_global_cooldown(now);
+        self.character.start_global_cooldown_of(now, gcd);
     }
 
     fn on_stance_cooldown(&self) -> bool {
@@ -3138,9 +3423,17 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.spells_mut().start_cast(running_to_target)
     }
 
+    fn cast_started(&mut self, cast: crate::character_spells::ActiveCast) {
+        self.character.spells_mut().set_active_cast(cast);
+    }
+
+    /// The next cast was queued during this one (the client's spell queue): the player acts as
+    /// the cast ends, without a reaction delay.
     fn complete_cast(&mut self, cast_id: u32) {
         self.character.spells_mut().complete_cast(cast_id);
-        self.add_player_reaction_event();
+        let character = self.character.id();
+        self.engine
+            .add_event_in(0.0, EventKind::PlayerAction { character });
     }
 
     fn casting_speed_mod(&self) -> f64 {
@@ -3159,6 +3452,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     fn start_attack(&mut self) {
         self.character.spells_mut().start_attack();
         self.schedule_swings();
+    }
+
+    fn is_swinging(&self) -> bool {
+        self.character.spells().is_melee_attacking()
     }
 
     fn reset_swing_timers(&mut self) {
@@ -3611,6 +3908,43 @@ impl<S: SharedBuffs> ProcHost for CharacterContext<'_, S> {
             Hand::Offhand => EquipmentSlot::Offhand,
         };
         self.slot_item_matches(slot, requirement)
+    }
+
+    fn spell_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {
+        let spells = self.character.spells();
+        let id = spells.spell_by_game_id(spell)?;
+        spells
+            .spell(id)
+            .effects()
+            .iter()
+            .find(|e| e.index() == effect)
+            .map(|e| e.effective_value(self))
+    }
+
+    fn proc_from_spell_factor(
+        &self,
+        spell: u32,
+        class: Option<&crate::spell::ClassOptions>,
+    ) -> Option<f64> {
+        let class = class?;
+        self.character
+            .spells()
+            .buff_ids()
+            .map(|buff| self.buff_ref(buff))
+            .filter(|buff| buff.is_active())
+            .flat_map(|buff| buff.effects.iter())
+            .filter_map(|effect| {
+                let script = effect.script()?;
+                let set = effect.class_options().map_or(0, |c| c.set);
+                (script.script == ScriptKind::ProcFromSpell
+                    && script.params.spell == Some(spell)
+                    && script
+                        .params
+                        .family_mask
+                        .is_some_and(|mask| class.matches(set, &mask)))
+                .then(|| 1.0 - effect.value() / 100.0)
+            })
+            .reduce(f64::max)
     }
 
     fn aura_effect_value(&self, spell: u32, effect: u32) -> Option<f64> {

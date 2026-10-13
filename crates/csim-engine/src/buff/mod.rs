@@ -21,9 +21,14 @@ use crate::effect::Effect;
 use crate::engine::{Engine, EventKind};
 use crate::ids::{BuffId, CharId, InstanceId};
 use crate::proc::ProcSource;
+use crate::spell::dbc::{AuraType, ProcFlags};
 use crate::spell::overrides::{Overrides, ProcHitMask, SimFlag};
 use crate::spell::record::{ClassOptions, SpellRecord};
 use crate::target::{Priority, Target};
+
+/// The `TAKE_*` proc flags (`TAKE_MELEE_SWING` .. `TAKE_HARMFUL_PERIODIC`), each one bit above
+/// its `DEAL_*`.
+const TAKEN_FLAGS: u32 = 0x000A_AAA8;
 
 /// Which units a buff affects and how it is registered. Port of the `Buff` subclasses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -183,10 +188,20 @@ pub struct Buff {
     ends_auras: Vec<u32>,
     /// The aura effects, owned so talent rank values can be substituted.
     pub effects: Vec<Effect>,
+    /// The values the aura effects were applied with, while an application is outstanding;
+    /// their removal takes off the same.
+    pub(crate) aura_values: Option<Vec<f64>>,
+    pub(crate) aura_applications: u32,
 
     instance_id: Option<InstanceId>,
     enabled: bool,
     current_charges: u32,
+    /// Seconds between two charges used (`ProcCategoryRecovery` of a charged aura: the
+    /// Shaman's Flurry keeps its charges through Windfury's extra attacks).
+    charge_recovery: f64,
+    /// When the next charge may be used: the recovery after the last charge used or the
+    /// (re)application.
+    next_charge: f64,
     current_stacks: u32,
     iteration: u32,
     applied: f64,
@@ -233,9 +248,13 @@ impl Buff {
             consumed_whole: false,
             ends_auras: Vec::new(),
             effects: Vec::new(),
+            aura_values: None,
+            aura_applications: 0,
             instance_id: None,
             enabled: false,
             current_charges: 0,
+            charge_recovery: 0.0,
+            next_charge: f64::NEG_INFINITY,
             current_stacks: 0,
             iteration: 0,
             applied: 0.0,
@@ -281,16 +300,44 @@ impl Buff {
             && !record.is_passive()
             && !record.aura_options.proc_type_mask.is_empty()
             && record.effects.iter().any(|e| e.is_spell_modifier());
+        if record.aura_options.proc_charges > 0 {
+            buff.charge_recovery =
+                f64::from(record.aura_options.proc_category_recovery_ms) / 1000.0;
+        }
         if record.aura_options.proc_charges > 0 || buff.consumed_whole {
-            buff.charge_sources =
-                ProcSource::from_masks(record.aura_options.proc_type_mask, ProcHitMask::LANDED);
+            // A debuff boosting its owner's spells (Stormstrike) is used up by what the target
+            // takes from them: the owner's damage is all the target takes here.
+            let from_caster = kind.is_debuff()
+                && record
+                    .effects
+                    .iter()
+                    .any(|e| e.is_apply_aura() && e.aura == AuraType::ModSpellDamageFromCaster);
+            let mask = record.aura_options.proc_type_mask;
+            let mask = if from_caster {
+                mask.union(ProcFlags::from_bits((mask.bits() & TAKEN_FLAGS) >> 1))
+            } else {
+                mask
+            };
+            buff.charge_sources = ProcSource::from_masks(mask, ProcHitMask::LANDED);
             let set = record.class_options.map_or(0, |c| c.set);
             buff.charge_spell_masks = record
                 .effects
                 .iter()
-                .filter(|e| e.is_spell_modifier() || e.is_ignore_shapeshift())
+                .filter(|e| {
+                    e.is_spell_modifier()
+                        || e.is_ignore_shapeshift()
+                        || (from_caster && e.aura == AuraType::ModSpellDamageFromCaster)
+                })
                 .map(|e| (set, e.spell_class_mask))
                 .collect();
+            // The caster's own spell modifier is used by the cast, landed or resisted
+            // (Clearcasting, Maelstrom Weapon); a debuff only by the damage the target takes.
+            if !from_caster
+                && !buff.charge_spell_masks.is_empty()
+                && buff.charge_sources.contains(&ProcSource::MagicSpell)
+            {
+                buff.charge_sources.push(ProcSource::SpellFullResist);
+            }
         }
         buff.ends_auras = overrides.ends_auras(record.id).to_vec();
         let cannot_crit = overrides.has_sim_flag(record.id, SimFlag::CannotCrit);
@@ -614,6 +661,7 @@ impl Buff {
         };
 
         self.current_charges = self.base_charges;
+        self.next_charge = now + self.charge_recovery;
         self.refreshed = now;
         self.active = true;
         self.schedule_removal(ctx);
@@ -671,6 +719,13 @@ impl Buff {
             "Attempted to use charge of '{}' but it has no charges",
             self.name
         );
+        let now = ctx.now();
+        if now < self.next_charge {
+            return ChargeUse::ChargeUsed {
+                remaining: self.current_charges,
+            };
+        }
+        self.next_charge = now + self.charge_recovery;
         self.current_charges -= 1;
         if self.current_charges == 0 {
             self.force_remove(ctx);
@@ -707,6 +762,7 @@ impl Buff {
             return;
         }
         self.current_charges = 0;
+        self.next_charge = f64::NEG_INFINITY;
         self.current_stacks = 0;
         self.iteration = 0;
         self.applied = 0.0;
@@ -931,6 +987,36 @@ mod tests {
         assert!(!buff.is_active());
         assert_eq!(buff.charges(), 0);
         assert_eq!(buff.use_charge(&mut world.ctx()), ChargeUse::Inactive);
+    }
+
+    /// The Shaman's Flurry: 500 ms between two charges, from the application on.
+    #[test]
+    fn charges_wait_for_their_recovery() {
+        let mut flurry = SpellRecord::new(16257, "Flurry");
+        flurry.duration_ms = Some(15_000);
+        flurry.aura_options = AuraOptions {
+            proc_charges: 3,
+            proc_chance: 100,
+            proc_category_recovery_ms: 500,
+            proc_type_mask: crate::spell::dbc::ProcFlags::DEAL_MELEE_SWING,
+            ..AuraOptions::default()
+        };
+        let mut buff = Buff::from_record(&flurry, BuffKind::SelfBuff, &Overrides::new());
+        buff.enable();
+        let mut world = World::new(0.0);
+        buff.apply(&mut world.ctx());
+        let kept = ChargeUse::ChargeUsed { remaining: 3 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept, "just applied");
+        world.advance_to(0.5);
+        let used = ChargeUse::ChargeUsed { remaining: 2 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), used);
+        let kept = ChargeUse::ChargeUsed { remaining: 2 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept, "an extra attack");
+        world.advance_to(0.9);
+        assert_eq!(buff.use_charge(&mut world.ctx()), kept);
+        world.advance_to(1.0);
+        let used = ChargeUse::ChargeUsed { remaining: 1 };
+        assert_eq!(buff.use_charge(&mut world.ctx()), used);
     }
 
     #[test]

@@ -24,8 +24,8 @@
 //!     effects: [{ index: 1, script: ATTACK_POWER_PERCENT_DAMAGE }]
 //!   - id: 25286                          # Heroic Strike r9
 //!     threat: { flat: 145 }
-//!   - id: 11605                          # Slam
-//!     sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST]
+//!   - id: 1310200                        # Improved Slam: its cast keeps the swing timers
+//!     sim_flags: [KEEPS_SWING_TIMERS]
 //!   - id: 2458                           # Berserker Stance -> its passive
 //!     stance_passive: 7381
 //!   - id: 7384                           # Overpower: a combo point when the target dodges
@@ -206,6 +206,9 @@ pub enum ScriptKind {
     /// The spells this one triggers deal `base_points` % more damage while one of the caster's
     /// poisons is on the target (Mutilate).
     DamagePercentVsPoisoned,
+    /// The spell deals `base_points` % more damage while one of the caster's debuffs of the
+    /// spells in `params.family_mask` is on the target (Lava Burst with Flame Shock).
+    DamagePercentVsCasterAura,
     /// An armor reduction on the target that shares one slot with the other exclusive ones:
     /// only the strongest applies (Sunder Armor and Expose Armor, forever-bugs #112). Goes on
     /// the armor aura effect itself (`MOD_RESISTANCE` / `MOD_ARMOR_NO_MODS`).
@@ -229,6 +232,10 @@ pub enum ScriptKind {
     /// weapon's speed (unhasted): T / 87 at 1.5 s, T / 25 at 4.0 s, linear between and beyond
     /// (Seal of Righteousness).
     WeaponSpeedSwingDamage,
+    /// A proc aura's payload for each landed hit: casts `params.spell` with effect
+    /// `params.effect` set to `params.amount_spell`'s first effect value × the main-hand
+    /// weapon's speed (unhasted) / 100 (Flametongue Weapon: m / 77 at 1.3 s, m / 25 at 4.0 s).
+    WeaponSpeedDamage,
     /// Goes on an attack speed aura (`MOD_ATTACKSPEED`) that does not raise the white damage:
     /// main-hand weapon damage is multiplied by 100 / (100 + the haste) while it is up (Seal
     /// of the Crusader's "faster, but deals less damage with each attack").
@@ -254,6 +261,28 @@ pub enum ScriptKind {
     /// (Consecrated Ground: holy damage against the enemies in the Consecration, which a
     /// single target always is).
     SchoolDamagePercentWhileAura,
+    /// Goes on a totem spell's `SUMMON` effect: the totem (of the slot its `SummonProperties`
+    /// name) applies the aura of `params.spell` to the shaman while it stands, or, with
+    /// `params.period_ms`, casts `params.spell` at the target that often (Searing Totem).
+    SummonTotem,
+    /// A `DUMMY` aura that is a percent modifier of the first effect's points of the spells in
+    /// its class mask (Improved Weapon Totems: Windfury Totem's attack power +30 %).
+    PointsPercentModifier,
+    /// Casts `params.spell` at the caster's fire totem; without one the spell cannot be cast
+    /// (Fire Nova).
+    TotemNova,
+    /// Goes on a `DUMMY` aura (an item's): the spells of `params.family_mask` trigger the proc
+    /// `params.spell`, whose override keeps spell events for such auras
+    /// (`spell_procs_by_script`), at `base_points` % less chance (Totem of the Storm: Lightning
+    /// Bolt triggers Maelstrom Weapon at half the chance).
+    ProcFromSpell,
+    /// Goes on an `OVERRIDE_CLASS_SCRIPTS` aura: the spells of the effect's class mask gain
+    /// `base_points` spell damage, scaled by their coefficients like the caster's own (Totem of
+    /// the Storm: Lightning Bolt and Chain Lightning +33).
+    SpellDamageBonus,
+    /// Goes on a talent's `DUMMY` aura effect: its value is the chance in percent that a cast
+    /// which landed casts its `overload` copy (Lightning Overload).
+    LightningOverload,
     /// Explicitly does nothing (documented no-op, keeps the effect out of the unsupported list).
     NoOp,
 }
@@ -262,13 +291,16 @@ impl ScriptKind {
     /// Whether the script's `params.spell` is a condition (an aura the caster must have, a
     /// seal an Echo echoes) rather than a spell it casts: the named spell is no payload, and
     /// enabling the scripted spell does not enable it (Holy Strike would otherwise give every
-    /// paladin Sacred Arbiter).
+    /// paladin Sacred Arbiter). A totem's spell is not a payload either: the totem applies it
+    /// while it stands.
     pub fn names_condition(self) -> bool {
         matches!(
             self,
             ScriptKind::SealEcho
                 | ScriptKind::RefreshJudgements
                 | ScriptKind::SchoolDamagePercentWhileAura
+                | ScriptKind::SummonTotem
+                | ScriptKind::ProcFromSpell
         )
     }
 }
@@ -290,6 +322,9 @@ pub struct ScriptParams {
     /// A spell whose duration the script uses.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_spell: Option<u32>,
+    /// A spell whose first effect's value is the script's amount (Flametongue Weapon's 16344).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount_spell: Option<u32>,
     /// A tick interval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub period_ms: Option<u32>,
@@ -308,6 +343,10 @@ pub struct ScriptParams {
     /// The spells the script applies to, as a class mask of the spell's family.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub family_mask: Option<[u32; 4]>,
+    /// A second effect of `spell` that takes the value too (Maelstrom Weapon's cast time and
+    /// mana reductions).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub second_effect: Option<u32>,
 }
 
 impl ScriptParams {
@@ -394,6 +433,16 @@ impl EffectScript {
                 need(p.spell.is_some(), "spell")?;
                 need(p.effect.is_some(), "effect")
             }
+            ScriptKind::SummonTotem => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.period_ms != Some(0), "period_ms (not 0)")
+            }
+            ScriptKind::TotemNova => need(p.spell.is_some(), "spell"),
+            ScriptKind::WeaponSpeedDamage => {
+                need(p.spell.is_some(), "spell")?;
+                need(p.effect.is_some(), "effect")?;
+                need(p.amount_spell.is_some(), "amount_spell")
+            }
             ScriptKind::JudgedSealManaReturn => need(p.effect.is_some(), "effect"),
             ScriptKind::EnableAura => {
                 need(p.spell.is_some(), "spell")?;
@@ -412,6 +461,17 @@ impl EffectScript {
             ),
             ScriptKind::AttackPowerPerTick => need(p.value.is_some(), "value"),
             ScriptKind::ApCoefficient => need(p.value.is_some_and(|v| v > 0.0), "value (> 0)"),
+            ScriptKind::ProcFromSpell => {
+                need(p.spell.is_some(), "spell")?;
+                need(
+                    p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                    "family_mask (not 0)",
+                )
+            }
+            ScriptKind::DamagePercentVsCasterAura => need(
+                p.family_mask.is_some_and(|mask| mask != [0; 4]),
+                "family_mask (not 0)",
+            ),
             ScriptKind::DamagePercentBelowHealth => {
                 need(p.effect.is_some(), "effect")?;
                 need(
@@ -438,6 +498,9 @@ impl EffectScript {
             | ScriptKind::JudgeSeal
             | ScriptKind::AttackSpeedDamagePenalty
             | ScriptKind::RefreshAura
+            | ScriptKind::PointsPercentModifier
+            | ScriptKind::LightningOverload
+            | ScriptKind::SpellDamageBonus
             | ScriptKind::NoOp => Ok(()),
         }
     }
@@ -517,6 +580,15 @@ pub struct ProcOverride {
     /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
     #[serde(default, skip_serializing_if = "is_default")]
     pub builder: bool,
+    /// The proc's spell events (magic damage) trigger it only through a `PROC_FROM_SPELL` aura
+    /// that names it, for that aura's spells and at its reduced chance (Maelstrom Weapon:
+    /// melee hits, and Lightning Bolt with Totem of the Storm).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub spell_procs_by_script: bool,
+    /// The internal cooldown in milliseconds where the server, not the table, has one
+    /// (Maelstrom Weapon: one proc per hit, not one more from Flametongue Weapon's damage).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cooldown_ms: Option<u32>,
 }
 
 impl ProcOverride {
@@ -561,10 +633,9 @@ impl Default for ThreatOverride {
 pub enum SimFlag {
     /// The sim does not model the spell (multi-target, PvP, movement); it loads but never casts.
     Ignored,
-    /// A successful cast restarts both swing timers (Slam).
-    ResetsSwingTimers,
-    /// Auto attacks pause while the spell is being cast (Slam).
-    StopsAttackDuringCast,
+    /// The melee swings pause during the cast but keep their timers (Improved Slam); other
+    /// casts restart them at their end.
+    KeepsSwingTimers,
     /// Casting it discards a queued on-next-swing spell (Slam vs Heroic Strike).
     CancelsNextSwingQueue,
     /// The cast time is the character running to the target (Charge), not a cast: only what
@@ -581,6 +652,9 @@ pub enum SimFlag {
     /// A dual-wielding character's ability also strikes with the off-hand weapon, as an
     /// `OFFHAND_COPY` aura makes it (Whirlwind in Forever: "from both melee weapons").
     OffhandStrike,
+    /// A spell of a skill line that is only another spell's payload, enabled with it like a
+    /// hidden payload (Elemental Devastation's crit buff, the Lightning Overload copies).
+    Payload,
 }
 
 /// Everything hand-written about one spell.
@@ -622,14 +696,22 @@ pub struct SpellOverride {
     pub cast_time_ms: Option<u32>,
     /// Spells the export must carry with this one although no table field reaches them (the
     /// Echoes Twist of Light grants on a seal change): the walk follows them like any other
-    /// reference and the pruning keeps them.
+    /// reference and the pruning keeps them. They are the spell's payloads, enabled with it.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub walk: Vec<u32>,
+    /// The name the sim reports the spell by, where the tables' is unhelpful (Searing Totem's
+    /// attack is called "Attack").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rename: Option<String>,
     /// Auras this spell's does not stack with: while one of them is up on the caster the spell
     /// cannot be cast (Blessing of Might under another paladin's Greater Blessing of Might, the
     /// game's "a more powerful spell is already active").
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub exclusive_auras: Vec<u32>,
+    /// The copy a `LIGHTNING_OVERLOAD` talent may cast after this spell lands (Lightning
+    /// Bolt's half-damage copy of the same rank); a payload, enabled with the spell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub overload: Option<u32>,
 }
 
 impl SpellOverride {
@@ -681,6 +763,7 @@ impl SpellOverride {
                 push(script.params.spell);
             }
             push(script.params.duration_spell);
+            push(script.params.amount_spell);
         }
         for event in &self.on_event {
             push(event.params.spell);
@@ -693,6 +776,7 @@ impl SpellOverride {
             push(Some(id));
         }
         push(self.proc.and_then(|p| p.target_aura));
+        push(self.overload);
         ids
     }
 
@@ -976,7 +1060,7 @@ overrides:
   - id: 25286
     threat: { flat: 145 }
   - id: 11605
-    sim_flags: [RESETS_SWING_TIMERS, STOPS_ATTACK_DURING_CAST, CANCELS_NEXT_SWING_QUEUE]
+    sim_flags: [KEEPS_SWING_TIMERS, CANCELS_NEXT_SWING_QUEUE]
   - id: 2458
     stance_passive: 7381
   - id: 7384
@@ -1034,7 +1118,7 @@ overrides:
         assert_eq!(o.threat(25286).flat, 145.0);
         assert_eq!(o.threat(25286).modifier, 1.0);
         assert_eq!(o.threat(1).flat, 0.0);
-        assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
+        assert!(o.has_sim_flag(11605, SimFlag::KeepsSwingTimers));
         assert!(o.has_sim_flag(11605, SimFlag::CancelsNextSwingQueue));
         assert!(!o.has_sim_flag(11605, SimFlag::Ignored));
         assert!(o.get(12292).unwrap().is_ignored());
@@ -1324,7 +1408,7 @@ overrides:
         );
         assert!(yaml.contains("script: DEEP_WOUNDS_BLEED"));
         assert!(yaml.contains("source: MELEE_DODGE"));
-        assert!(yaml.contains("- RESETS_SWING_TIMERS"));
+        assert!(yaml.contains("- KEEPS_SWING_TIMERS"));
         assert!(!yaml.contains("modifier"), "threat modifier 1 is omitted");
         assert!(!yaml.contains("params: {}"));
         let back: OverrideFile = serde_yaml::from_str(&yaml).unwrap();
@@ -1379,8 +1463,8 @@ overrides:
         assert_eq!(o.threat(25286).flat, 145.0);
         assert_eq!(o.threat(25288).flat, 355.0);
         assert_eq!(o.stance_passive(2458), Some(7381));
-        assert!(o.has_sim_flag(11605, SimFlag::ResetsSwingTimers));
-        assert!(!o.has_sim_flag(1310200, SimFlag::ResetsSwingTimers));
+        assert!(!o.has_sim_flag(11605, SimFlag::KeepsSwingTimers));
+        assert!(o.has_sim_flag(1310200, SimFlag::KeepsSwingTimers));
         assert_eq!(o.event_scripts(11585)[0].script, ScriptKind::AddComboPoints);
         let ruthlessness = o.get(14156).and_then(|r| r.proc).unwrap();
         assert!(ruthlessness.finisher);

@@ -43,6 +43,7 @@ pub mod sweep_loader;
 pub mod talent;
 pub mod target;
 pub mod time;
+pub mod totem;
 
 #[cfg(test)]
 mod ground_truth;

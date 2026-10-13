@@ -393,7 +393,82 @@ times, not 5.
 | Retribution | 5 | Instrument of Law (1311085) | 2 | modifier | FLAT CAST_TIME -500/-1000 → Hammer of Wrath; MOD_THREAT 10/20 | tables (cast time); threat not simulated |
 | Retribution | 6 | Twist of Light (1310735) | 1 | modifier, dummy | PCT POWER_COST -20 → the seals; the Echo on replacing Command, Righteousness, Fury or Justice | tables (cost); P.7 (the Echoes 1311701..1311705) |
 
-## 1.10 The exported file
+## 1.10 Shaman talent reference (from a trial export, build 1.60.1.70291)
+
+As §1.7, from a trial `export-talents --class shaman` / `export-spells --class shaman` (the
+files land in `data/` with `TASKS.md` SH.2). Forever reworked the tree: Lightning Overload, Lava
+Burst, Maelstrom Weapon, Mental Dexterity and Water Shield come from the Season of Discovery
+runes, Rage of the Farseer, Earthbound, Shamanistic Focus, Improved Stormstrike, Mindfulness and
+Riptide are new; Elemental Mastery, Lightning Mastery, Weapon Mastery, Two-Handed Axes and
+Maces, Enhancing Totems, Improved Weapon Totems, Shield Specialization, Parry, Unleashed Rage,
+Nature's Guidance, Totemic Mastery and Healing Grace are not in the tree (some are baseline:
+the header of `data/spells/overrides/shaman.yaml`). Six talents have a prerequisite (`←`). The
+tree has 50 talents (Elemental 16, Enhancement 18, Restoration 16).
+
+Enhancement and Elemental DPS are simulated (`TASKS.md` SH.0); the last column says what the
+sim does with the talent, *SH.n* naming the task that implements it; *not simulated* talents
+load and do nothing. Rank values are the curves (`rank_values`); the server-side numbers behind
+the `DUMMY`s and their sources are the header of `data/spells/overrides/shaman.yaml`. What the
+tables settle: Tidal Focus gives melee **and** spell hit (auras 54 and 55), Stormstrike's bonus
+is one charge on the next Lightning Bolt, Chain Lightning or Earth Shock (not two charges of
+nature damage), Lightning Overload is 10 % at rank 3 (the spell's `DUMMY` 30 is the curve's
+placeholder), and Maelstrom Weapon's ranks change the reduction per stack (4 .. 20 %), not the
+proc chance.
+
+| Tab | Tier | Talent (spell) | Ranks | Kind | Effects (rank values) | Sim |
+|---|---|---|---|---|---|---|
+| Elemental | 0 | Convection (16039) | 5 | modifier | PCT POWER_COST -2..-10 → shocks, Lightning Bolt, Chain Lightning, Lava Burst | tables |
+| Elemental | 0 | Concussion (16035) | 5 | modifier | PCT DAMAGE 1..5 → Lightning Bolt, Chain Lightning, Earth Shock | tables |
+| Elemental | 1 | Elemental Warding (28996) | 3 | stat aura | MOD_DAMAGE_PERCENT_TAKEN -3/-7/-10 | not simulated (damage taken) |
+| Elemental | 1 | Reverberation (16040) | 5 | modifier | FLAT COOLDOWN -200..-1000 → shocks | tables |
+| Elemental | 1 | Call of Flame (16038) | 3 | modifier | PCT DAMAGE 5/10/15 → totem attacks, Fire Nova, Lava Burst; PCT DOT 5/10/15 → Flame Shock | tables (SH.7 for the totems) |
+| Elemental | 1 | Elemental Devastation (30160) | 3 | proc(dummy) | DUMMY 3/6/9 | SH.8: the crits of the shaman's damage spells (not the ticks, totems, weapon procs or overload copies) → 30165 (+3/6/9 % melee crit, 10 s) |
+| Elemental | 2 | Elemental Focus (16164) | 1 | proc | PROC 10 % → 16246 (Clearcasting: -100 % mana of the next damage spell) | tables; SH.8 |
+| Elemental | 2 | Elemental Alacrity (16578) | 3 | modifier | FLAT CAST_TIME -170/-330/-500 → Lightning Bolt, Chain Lightning, Lava Burst | tables |
+| Elemental | 3 | Improved Fire Nova (16086) | 2 | modifier | PCT DAMAGE 10/20, FLAT COOLDOWN -2000/-4000 → Fire Nova | tables (SH.7) |
+| Elemental | 3 | Eye of the Storm (29062) | 3 | modifier | PCT RESIST_PUSHBACK 23/47/70 | not simulated (pushback) |
+| Elemental | 3 | Call of Thunder (16120) ← Elemental Alacrity | 1 | modifier | FLAT CRIT_CHANCE 3 → Lightning Bolt, Chain Lightning | tables |
+| Elemental | 4 | Elemental Reach (28999) | 2 | modifier | FLAT RANGE 3/6, 8/15 | not simulated (range) |
+| Elemental | 4 | Lightning Overload (408438) | 3 | proc(dummy) | DUMMY 3/7/10 | SH.8: the overload copy of Lightning Bolt, Chain Lightning, Lava Burst |
+| Elemental | 4 | Earthbound (1222988) | 1 | dummy | DUMMY 100 | not simulated (Earthbind Totem) |
+| Elemental | 5 | Elemental Fury (16089) ← Call of Thunder | 5 | modifier | PCT CRIT_DAMAGE_BONUS 20..100 → fire, frost, nature spells, totem attacks | SH.4 (spell crits 150 % → 200 %) |
+| Elemental | 6 | Lava Burst (408490) ← Lightning Overload | 1 | ability | SCHOOL_DAMAGE 164; DUMMY 20 (+20 % with Flame Shock) | SH.5 |
+| Enhancement | 0 | Earth's Grasp (16043) | 2 | modifier | PCT → Stoneclaw, Earthbind Totem | not simulated |
+| Enhancement | 0 | Thundering Strikes (16255) | 5 | stat aura | MOD_CRIT_PCT 1..5 (melee, ranged and spell; needs a weapon) | tables |
+| Enhancement | 0 | Ancestral Knowledge (17485) | 5 | stat aura | MOD_TOTAL_STAT_PERCENTAGE 2..10 (intellect) | tables |
+| Enhancement | 1 | Guardian Totems (16258) | 2 | modifier | PCT → Stoneskin, Windwall; FLAT COOLDOWN → Grounding Totem | not simulated |
+| Enhancement | 1 | Mental Dexterity (415140) | 3 | stat aura | aura 598 33/67/100 (attack power from intellect); DUMMY 20 | SH.2 names aura 598, SH.8; the DUMMY is `NO_OP` |
+| Enhancement | 1 | Improved Ghost Wolf (16262) | 2 | modifier | FLAT CAST_TIME → Ghost Wolf; OVERRIDE_ACTIONBAR_SPELLS | not simulated |
+| Enhancement | 1 | Improved Lightning Shield (16261) | 3 | modifier | PCT DAMAGE 5/10/15 → Lightning Shield | not simulated (the character is not attacked) |
+| Enhancement | 2 | Elemental Weapons (16266) | 3 | modifier | PCT EFFECT1 7/13/20 → Rockbiter; PCT DAMAGE 5/10/15 → Flametongue, Frostbrand; PCT EFFECT1 13/27/40 → Windfury Weapon | tables (SH.6) |
+| Enhancement | 2 | Shamanistic Focus (1223030) | 1 | modifier | PCT POWER_COST -45 → shocks, Lightning Shield | tables |
+| Enhancement | 2 | Anticipation (16254) | 3 | stat aura | MOD_DODGE_PERCENT 2/4/6 | not simulated (dodge) |
+| Enhancement | 3 | Toughness (16252) | 5 | stat aura | MOD_TOTAL_STAT_PERCENTAGE 2..10 (stamina) | tables |
+| Enhancement | 3 | Flurry (16256) ← Mental Dexterity | 5 | proc(dummy) | DUMMY 5..25 → 16257 (melee haste, 3 charges) | SH.8 (the Warrior's Flurry; 500 ms between two charges used) |
+| Enhancement | 3 | Stormstrike (17364) | 1 | ability | NORMALIZED_WEAPON_DMG; MOD_SPELL_DAMAGE_FROM_CASTER 20 (one charge) | SH.5 |
+| Enhancement | 4 | Spirit Weapons (16268) | 1 | stat aura | MOD_THREAT -30; FLAT → Rockbiter; DUMMY 30 (parry) | not simulated (threat, parry) |
+| Enhancement | 4 | Mental Quickness (30812) | 2 | stat aura | MOD_SPELL_DAMAGE_OF_STAT_PERCENT 15/30 (intellect); healing | tables |
+| Enhancement | 4 | Improved Stormstrike (1223031) ← Stormstrike | 2 | proc(dummy) | DUMMY 50/100 (chance); DUMMY 50/100 (reset chance); DUMMY 20 | SH.8: → 1238931 (50 % regeneration while casting, 15 s); the reset not simulated |
+| Enhancement | 5 | Maelstrom Weapon (408498) | 5 | proc(dummy) | DUMMY -4..-20 (per stack); DUMMY 50; DUMMY 5 (stacks) | SH.8: 10 PPM on melee hits (Lightning Bolt at 5 PPM with Totem of the Storm 272432, SH.9), 100 ms internal cooldown → 408505 (stacks; the rank value on its cast time and mana) |
+| Enhancement | 6 | Rage of the Farseer (425336) ← Mental Quickness | 1 | ability | MOD_MELEE_RANGED_HASTE_2 30, 25 s, 3 min | SH.8 |
+| Restoration | 0 | Improved Healing Wave (16182) | 5 | modifier | FLAT CAST_TIME → Healing Wave | not simulated (healing) |
+| Restoration | 0 | Totemic Focus (16173) | 5 | modifier | PCT POWER_COST -5..-25 → totems | tables |
+| Restoration | 1 | Mindfulness (1223033) | 3 | stat aura | MOD_MANA_REGEN_INTERRUPT 17/33/50 | SH.4 |
+| Restoration | 1 | Natural Grace (29187) | 3 | stat aura | MOD_THREAT -5/-10/-15 | not simulated (threat) |
+| Restoration | 1 | Tidal Focus (16179) | 5 | modifier, stat aura | PCT POWER_COST → heals; MOD_HIT_CHANCE 1..5; MOD_SPELL_HIT_CHANCE 1..5 | tables (the hit) |
+| Restoration | 1 | Improved Reincarnation (16184) | 2 | modifier, stat aura | FLAT COOLDOWN → Reincarnation; MOD_INCREASE_HEALTH_PERCENT 2/4 | not simulated |
+| Restoration | 2 | Ancestral Healing (16176) | 3 | proc(dummy) | DUMMY 8/17/25 | not simulated (healing) |
+| Restoration | 2 | Healing Focus (16181) | 3 | modifier | PCT → heals | not simulated (healing) |
+| Restoration | 2 | Water Shield (408510) | 1 | ability | PROC_TRIGGER_SPELL; DUMMY | not simulated (the character is not attacked) |
+| Restoration | 3 | Tidal Mastery (16194) | 5 | modifier | FLAT CRIT_CHANCE → heals | not simulated (healing) |
+| Restoration | 3 | Restorative Totems (16187) | 5 | modifier | PCT → Mana Spring, Healing Stream Totem | not in the builds (Mana Spring +5..25 % if taken: tables) |
+| Restoration | 3 | Mana Tide Totem (16190) | 1 | ability | SUMMON | not in the builds |
+| Restoration | 4 | Healing Way (29206) | 3 | modifier | PCT → Healing Wave | not simulated (healing) |
+| Restoration | 4 | Nature's Swiftness (16188) | 1 | ability | PCT CAST_TIME -100 → the next nature spell, 3 min | tables |
+| Restoration | 5 | Purification (16178) | 5 | modifier | PCT → heals | not simulated (healing) |
+| Restoration | 6 | Riptide (408521) ← Healing Way | 1 | ability | HEAL | not simulated (healing) |
+
+## 1.11 The exported file
 
 `csim-tables export-talents --class warrior` writes the walk above to `data/talents/warrior.yaml`
 (schema: `crates/csim-engine/src/talent/spec.rs`): the build, class, `TraitTree.ID`, the points
@@ -432,12 +507,12 @@ aura goes up, a modifier lands in the spell modifier table, a proc arms with the
 payload's trigger value, an ability (and its trainable higher ranks) becomes castable. Effects
 without a curve keep their table value.
 
-## 1.11 Missing tables
+## 1.12 Missing tables
 
 None for talents. The retail names of a few aura ids used by Forever talents are unverified:
 232 (mechanic duration modifier, Iron Will), 418 (max power, Boundless Rage), 466 (Toughness
 second effect), 30 (`MOD_SKILL`, Anticipation), 560 (Premeditation's second effect, a
-`NO_OP`). Their meaning is clear from the descriptions.
+`NO_OP`), 598 (attack power from a stat percent, Mental Dexterity). Their meaning is clear from the descriptions.
 
 What the Rogue's talent procs react to is server data the tables lack (retail `spell_proc` and
 the class scripts): the finishers (Ruthlessness, Relentless Strikes, Improved Expose Armor), the

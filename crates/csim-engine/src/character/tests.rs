@@ -1259,6 +1259,13 @@ mod rogue_poisons;
 mod rogue_procs;
 mod rogue_stealth;
 mod rogue_talents;
+mod shaman;
+mod shaman_casting;
+mod shaman_imbues;
+mod shaman_items;
+mod shaman_spells;
+mod shaman_talents;
+mod shaman_totems;
 
 // ---------------------------------------------------------------- external buffs
 
@@ -1596,16 +1603,18 @@ debuffs:
         let db = SpellDb::load(&data.join("spells")).unwrap();
         let registry = ExternalBuffDb::load(&data.join("external_buffs.yaml")).unwrap();
         registry.validate(&db).unwrap();
-        assert_eq!(registry.buffs().len(), 32);
-        assert_eq!(registry.debuffs().len(), 4);
+        assert_eq!(registry.buffs().len(), 33);
+        assert_eq!(registry.debuffs().len(), 5);
         for spec in registry.entries() {
             assert!(
                 !db.is_learnable(spec.spell)
                     || matches!(
                         db.class_of(spec.spell),
-                        Some(Some(PlayerClass::Warrior | PlayerClass::Paladin))
+                        Some(Some(
+                            PlayerClass::Warrior | PlayerClass::Paladin | PlayerClass::Shaman
+                        ))
                     ),
-                "{}: the aura is an externals.yaml record, a Warrior or a Paladin spell",
+                "{}: the aura is an externals.yaml record or a Warrior, Paladin or Shaman spell",
                 spec.name
             );
         }

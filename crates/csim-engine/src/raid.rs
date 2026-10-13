@@ -17,16 +17,22 @@
 //! `RaidControl::apply_party_buff` loop. The registry remembers who holds the auras, so a
 //! removal only reaches the members that received the application. Each character keeps its
 //! own [`ClassStatistics`]; [`RaidControl::take_statistics`] collects them.
+//!
+//! **Totems** are party only: a shaman's standing totem switches its aura spell on for the
+//! shaman and notes it ([`PartyTotemChange`]); the raid control switches it on for the party's
+//! other members, who learned the aura when the raid was built
+//! ([`RaidControl::share_party_totems`]).
 
 use std::collections::BTreeMap;
 
 use crate::buff::Buff;
 use crate::character::Character;
 use crate::character::context::CharacterContext;
-use crate::character_spells::{PartyAuraChange, SharedBuffs};
+use crate::character_spells::{PartyAuraChange, PartyTotemChange, SharedBuffs};
 use crate::engine::{Engine, Event, EventKind};
 use crate::ids::{CharId, InstanceId, SharedBuffId};
 use crate::rng::Xoroshiro128Plus;
+use crate::spell::record::SpellDb;
 use crate::statistics::ClassStatistics;
 use crate::target::Target;
 
@@ -60,6 +66,7 @@ pub struct SharedBuffRegistry {
     raid: BTreeMap<String, SharedBuffId>,
     next_instance_id: u32,
     pending: Vec<PartyAuraChange>,
+    pending_totems: Vec<PartyTotemChange>,
     /// Per shared buff, the characters holding its aura effects and how many times they were
     /// applied to them (once per stack). Only party buffs have holders.
     holders: Vec<Vec<(CharId, u32)>>,
@@ -178,6 +185,10 @@ impl SharedBuffs for SharedBuffRegistry {
 
     fn note_party_aura_change(&mut self, change: PartyAuraChange) {
         self.pending.push(change);
+    }
+
+    fn note_party_totem_change(&mut self, change: PartyTotemChange) {
+        self.pending_totems.push(change);
     }
 }
 
@@ -361,8 +372,16 @@ impl RaidControl {
     pub fn propagate_party_auras(&mut self) {
         loop {
             let changes = self.shared.take_party_aura_changes();
-            if changes.is_empty() {
+            let totems = std::mem::take(&mut self.shared.pending_totems);
+            if changes.is_empty() && totems.is_empty() {
                 return;
+            }
+            for change in totems {
+                let members: Vec<CharId> = self.party_members(change.party).collect();
+                for id in members.into_iter().filter(|&id| id != change.by) {
+                    self.context(id)
+                        .change_totem_aura(change.spell, change.apply);
+                }
             }
             for change in changes {
                 let effects = self.shared.shared_buff(change.buff).effects.clone();
@@ -385,6 +404,34 @@ impl RaidControl {
                         self.context(id).change_aura_effects(&effects, change.apply);
                     }
                 }
+            }
+        }
+    }
+
+    /// Teaches every member of a party with a shaman the aura spells of the shaman's totems
+    /// (Strength of Earth, Windfury Totem's proc), disabled until a totem stands.
+    pub fn share_party_totems(&mut self, db: &SpellDb) {
+        for party in 0..PARTIES {
+            let members: Vec<CharId> = self.party_members(party).collect();
+            let mut auras: Vec<u32> = members
+                .iter()
+                .flat_map(|&id| {
+                    self.characters[id.index()]
+                        .spells()
+                        .totem_summons()
+                        .filter(|summon| summon.period.is_none())
+                        .map(|summon| summon.spell)
+                        .collect::<Vec<_>>()
+                })
+                .collect();
+            auras.sort_unstable();
+            auras.dedup();
+            for id in members {
+                self.with_character(id, |ctx| {
+                    for &spell in &auras {
+                        ctx.learn_totem_aura(db, spell);
+                    }
+                });
             }
         }
     }

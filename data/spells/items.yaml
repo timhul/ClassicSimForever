@@ -5222,6 +5222,27 @@ spells:
     misc_value: [20, 0]
     spell_class_mask: [2, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 26127
+  name: Enigma Blizzard Bonus
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 3
+  description: Your Blizzard spell has a 30% chance to be uninterruptible.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    base_points: 100.0
+    bonus_coefficient: 1.0
+    misc_value: [4235, 0]
+    spell_class_mask: [128, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 26128
   name: Enigma Resist Bonus
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2147483648, 0, 0, 8192, 0]
@@ -6150,6 +6171,25 @@ spells:
     misc_value: [14, 0]
     spell_class_mask: [4096, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 27855
+  name: Increased Lesser Healing Wave
+  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136052
+  icon_name: spell_nature_magicimmunity
+  class_options:
+    set: 11
+  labels: [24]
+  description: Increases healing done by Lesser Healing Wave by up to $s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    base_points: 80.0
+    bonus_coefficient: 1.0
+    misc_value: [3736, 0]
+    spell_class_mask: [128, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28142
   name: Power of the Guardian
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -6319,6 +6359,25 @@ spells:
     bonus_coefficient: 1.0
     spell_class_mask: [4096, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
+- id: 28716
+  name: Rejuvenation
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 7
+  description: Your Rejuvenation ticks have a chance to restore 60 mana, 8 energy, or 2 rage to your target.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    misc_value: [4533, 0]
+    spell_class_mask: [16, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28719
   name: Healing Touch
   attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
@@ -6358,6 +6417,25 @@ spells:
     bonus_coefficient: 1.0
     misc_value: [14, 0]
     spell_class_mask: [240, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 28744
+  name: Regrowth
+  attributes: [192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136235
+  icon_name: temp
+  duration_ms: -1
+  aura_options:
+    proc_chance: 101
+  class_options:
+    set: 7
+  description: Your initial cast and Regrowth ticks will increase the maximum health of your target by up to 50, stacking up to 7 times.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    misc_value: [4537, 0]
+    spell_class_mask: [64, 0, 0, 0]
     implicit_target: [UNIT_CASTER, NONE]
 - id: 28746
   name: Plagueheart
@@ -7364,6 +7442,44 @@ spells:
     base_points: 33.0
     misc_value: [8, 0]
     spell_class_mask: [536870912, 0, 0, 0]
+- id: 28854
+  name: Improved Moonfire
+  attributes: [448, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136096
+  icon_name: spell_nature_starfall
+  class_options:
+    set: 7
+  labels: [21]
+  description: Increases the damage of your Moonfire spell by up to $s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    base_points: 33.0
+    bonus_coefficient: 1.0
+    misc_value: [4555, 0]
+    spell_class_mask: [2, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
+- id: 28857
+  name: Increased Lightning Damage
+  attributes: [464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]
+  school_mask: 1
+  icon: 136052
+  icon_name: spell_nature_magicimmunity
+  class_options:
+    set: 11
+  labels: [24]
+  description: Increases damage done by Chain Lightning and Lightning Bolt by up to $s1.
+  effects:
+  - index: 0
+    effect: APPLY_AURA
+    aura: OVERRIDE_CLASS_SCRIPTS
+    base_points: 33.0
+    bonus_coefficient: 1.0
+    misc_value: [4554, 0]
+    spell_class_mask: [3, 0, 0, 0]
+    implicit_target: [UNIT_CASTER, NONE]
 - id: 28862
   name: The Eye of Diminution
   attributes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8192, 0]

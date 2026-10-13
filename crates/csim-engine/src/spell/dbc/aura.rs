@@ -81,6 +81,8 @@ dbc_enum! {
         /// (Relentless Strikes on finishers). Scripted: the chance rule is in the overrides.
         AddTargetTrigger = 109 => "ADD_TARGET_TRIGGER",
         ModPowerRegenPercent = 110 => "MOD_POWER_REGEN_PERCENT",
+        /// A server-side class script by id (misc 0): what it does is the overrides' script.
+        OverrideClassScripts = 112 => "OVERRIDE_CLASS_SCRIPTS",
         ModRangedDamageTaken = 113 => "MOD_RANGED_DAMAGE_TAKEN",
         ModRangedDamageTakenPct = 114 => "MOD_RANGED_DAMAGE_TAKEN_PCT",
         ModOffhandDamagePct = 122 => "MOD_OFFHAND_DAMAGE_PCT",
@@ -185,6 +187,9 @@ dbc_enum! {
         ModSpellCooldownByHaste = 347 => "MOD_SPELL_COOLDOWN_BY_HASTE",
         /// Max power, misc = power type (Boundless Rage); retail name unverified.
         ModMaxPower = 418 => "MOD_MAX_POWER",
+        /// Attack power from a percent of a stat, misc = stat (Mental Dexterity: intellect);
+        /// retail name unverified.
+        ModAttackPowerOfStatPercent = 598 => "MOD_ATTACK_POWER_OF_STAT_PERCENT",
         /// Armor, misc 1 = armor, as `MOD_RESISTANCE` (Sunder Armor −450, Devotion Aura; the
         /// armor auras since 70291). Named after its "(DNT) Mod Armor No Mods" spell: retail
         /// names stop before 674.

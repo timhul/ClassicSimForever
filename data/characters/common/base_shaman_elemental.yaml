@@ -1,0 +1,27 @@
+# Elemental, 32/6/13 (TASKS.md SH.0 Q9): Lightning Overload, Elemental Fury, Lava Burst and
+# Elemental Alacrity; Thundering Strikes' spell crit in Enhancement, Tidal Focus's hit,
+# Totemic Focus and Mindfulness in Restoration. A valid build, not a recommendation: the sweeps
+# try the other points.
+class: SHAMAN
+rotation: Elemental
+talents:
+  Elemental Combat:
+    Convection: 5
+    Concussion: 5
+    Call of Flame: 1
+    Elemental Focus: 1
+    Elemental Alacrity: 3
+    Improved Fire Nova: 2
+    Eye of the Storm: 3
+    Call of Thunder: 1
+    Elemental Reach: 2
+    Lightning Overload: 3
+    Elemental Fury: 5
+    Lava Burst: 1
+  Enhancement:
+    Ancestral Knowledge: 1
+    Thundering Strikes: 5
+  Restoration:
+    Totemic Focus: 5
+    Tidal Focus: 5
+    Mindfulness: 3

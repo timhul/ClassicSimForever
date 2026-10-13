@@ -173,6 +173,9 @@ pub struct CharacterStats {
     /// Spell damage of each school as a percentage of each attribute (strength, agility,
     /// stamina, intellect, spirit): `MOD_SPELL_DAMAGE_OF_STAT_PERCENT` (Champion of the Light).
     spell_damage_of_stat_percent: [[i32; ATTRIBUTE_COUNT]; MagicSchool::ALL.len()],
+    /// Melee attack power as a percentage of each attribute: `MOD_ATTACK_POWER_OF_STAT_PERCENT`
+    /// (Mental Dexterity: intellect).
+    melee_ap_of_stat_percent: [i32; ATTRIBUTE_COUNT],
 
     casting_time_suppression_buffs: Vec<BuffId>,
     crit_bonuses_per_weapon_type: [u32; WeaponType::COUNT],
@@ -663,7 +666,8 @@ impl CharacterStats {
         let creature = ctx.target.creature_type;
         let stat_melee_ap = ctx.equipment.get_base_melee_ap() + self.base_stats.get_base_melee_ap();
         let attributes_ap = self.get_strength(ctx) * ctx.class.melee_ap_per_strength
-            + self.get_agility(ctx) * ctx.class.melee_ap_per_agility;
+            + self.get_agility(ctx) * ctx.class.melee_ap_per_agility
+            + self.melee_ap_from_attributes(ctx);
         let target_ap = ctx.equipment.get_melee_ap_against_type(creature)
             + self.base_stats.get_melee_ap_against_type(creature);
         let feral_ap = if ctx.druid_feral_form {
@@ -1216,6 +1220,33 @@ impl CharacterStats {
             .map(|(&percent, value)| i64::from(percent) * i64::from(value))
             .sum();
         (damage / 100).max(0) as u32
+    }
+
+    /// The melee attack power from `MOD_ATTACK_POWER_OF_STAT_PERCENT`, rounded down.
+    fn melee_ap_from_attributes(&self, ctx: &StatContext) -> u32 {
+        let percents = &self.melee_ap_of_stat_percent;
+        if percents.iter().all(|&percent| percent == 0) {
+            return 0;
+        }
+        let attributes = [
+            self.get_strength(ctx),
+            self.get_agility(ctx),
+            self.get_stamina(ctx),
+            self.get_intellect(ctx),
+            self.get_spirit(ctx),
+        ];
+        let ap: i64 = percents
+            .iter()
+            .zip(attributes)
+            .map(|(&percent, value)| i64::from(percent) * i64::from(value))
+            .sum();
+        (ap / 100).max(0) as u32
+    }
+
+    /// Adds `percent` of `attribute` (an index in the `UnitMods` order) to the melee attack
+    /// power; a negative `percent` removes it.
+    pub fn change_melee_ap_of_stat_percent(&mut self, attribute: usize, percent: i32) {
+        self.melee_ap_of_stat_percent[attribute] += percent;
     }
 
     /// Adds `percent` of `attribute` (an index in the `UnitMods` order, see

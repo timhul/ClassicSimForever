@@ -42,6 +42,7 @@ use crate::spell::record::{EffectRecord, EquippedItems, SpellDb, SpellRecord};
 use crate::spell::{Hand, SpellResult, SpellStatus};
 use crate::stance::Stance;
 use crate::target::CreatureTypes;
+use crate::totem::{TOTEM_GRACE, TotemElement, TotemSummon};
 
 /// Tolerance when comparing the cooldown's ready time with the current time.
 const COOLDOWN_EPSILON: f64 = 0.0001;
@@ -69,7 +70,8 @@ pub trait SpellHost: EffectHost {
     fn on_global_cooldown(&self) -> bool;
     /// Length of the global cooldown in seconds.
     fn global_cooldown(&self) -> f64;
-    fn start_global_cooldown(&mut self);
+    /// Starts a global cooldown of `gcd` seconds (the spell's, see [`Spell::global_cooldown`]).
+    fn start_global_cooldown(&mut self, gcd: f64);
     fn on_stance_cooldown(&self) -> bool;
     fn start_stance_cooldown(&mut self);
     fn cast_in_progress(&self) -> bool;
@@ -81,14 +83,18 @@ pub trait SpellHost: EffectHost {
     /// Ends the cast with `cast_id` (the character schedules its reaction). Port of
     /// `CharacterSpells::complete_cast`.
     fn complete_cast(&mut self, cast_id: u32);
+    /// The cast just started: what it is, for the viewers.
+    fn cast_started(&mut self, _cast: crate::character_spells::ActiveCast) {}
     fn casting_speed_mod(&self) -> f64;
     /// Flat cast time reduction in milliseconds.
     fn casting_speed_flat_reduction(&self) -> u32;
-    /// Pauses auto attacks (`STOPS_ATTACK_DURING_CAST`).
+    /// Pauses auto attacks (during a cast).
     fn stop_attack(&mut self);
     fn start_attack(&mut self);
-    /// Restarts both swing timers (`RESETS_SWING_TIMERS`).
+    /// Restarts both swing timers (at the end of a cast).
     fn reset_swing_timers(&mut self);
+    /// Whether the melee auto attack is on.
+    fn is_swinging(&self) -> bool;
     /// Queues `spell` to replace the next mainhand swing (on-next-swing spells). The off hand
     /// keeps the dual-wield miss penalty.
     /// `marker` is the spell's marker buff, applied by the spell and up while it stays queued:
@@ -503,7 +509,8 @@ impl SpellSetup {
                 Some(
                     ScriptKind::TriggerSpell
                     | ScriptKind::TriggerWithValue
-                    | ScriptKind::WeaponSpeedSwingDamage,
+                    | ScriptKind::WeaponSpeedSwingDamage
+                    | ScriptKind::WeaponSpeedDamage,
                 ) => true,
                 _ => effect.is_proc_trigger() && effect.trigger_spell != 0,
             }
@@ -547,9 +554,34 @@ impl SpellSetup {
             .unwrap_or(self.record.cast_time_ms)
     }
 
-    /// Whether the spell needs a buff: it has aura effects, or a bleed script with an aura.
+    /// Whether the spell needs a buff: it has aura effects, a bleed script with an aura, or it
+    /// summons a totem (the buff is the totem's lifetime).
     pub fn has_buff(&self) -> bool {
-        self.record.applies_aura() || self.bleed_aura.is_some()
+        self.record.applies_aura() || self.bleed_aura.is_some() || self.totem_summon().is_some()
+    }
+
+    /// The totem the spell summons: a `SUMMON` effect with a `SUMMON_TOTEM` script, its slot from
+    /// the effect's `SummonProperties`.
+    pub fn totem_summon(&self) -> Option<TotemSummon> {
+        self.record.effects.iter().find_map(|effect| {
+            let script = self.overrides.effect_script(effect.index)?;
+            if script.script != ScriptKind::SummonTotem {
+                return None;
+            }
+            Some(TotemSummon {
+                element: TotemElement::from_summon_properties(effect.misc_value[1])?,
+                spell: script.params.spell?,
+                period: script.params.period_ms.map(|ms| f64::from(ms) / 1000.0),
+            })
+        })
+    }
+
+    /// Whether the spell needs a fire totem (`TOTEM_NOVA`).
+    pub fn needs_fire_totem(&self) -> bool {
+        self.overrides
+            .effects
+            .iter()
+            .any(|script| script.script == ScriptKind::TotemNova)
     }
 
     /// The record the spell's buff is built from: the bleed aura for a bleed payload, otherwise
@@ -578,6 +610,8 @@ pub struct Spell {
     periodic: Option<Periodic>,
     /// Id of the cast in progress. Port of `CastingTimeRequirer::cast_id`.
     cast_id: Option<u32>,
+    /// The cast in progress paused the melee swings, which resume when it ends.
+    resumes_attack: bool,
     /// The value handed over by the effect that triggered this spell (proc payloads).
     trigger_value: Option<f64>,
     /// While the spell is performed as the strike of a landed attack
@@ -739,6 +773,7 @@ impl Spell {
             id: None,
             periodic,
             cast_id: None,
+            resumes_attack: false,
             trigger_value: None,
             strike: None,
             damage_scale: None,
@@ -747,13 +782,17 @@ impl Spell {
     }
 
     /// The own cooldown in milliseconds: `RecoveryTime`, or the proc internal cooldown of a
-    /// passive without one.
+    /// passive without one (the override's, else the table's).
     pub fn own_cooldown_ms(setup: &SpellSetup) -> u32 {
         let record = &setup.record;
         if record.cooldown.recovery_ms > 0 {
             record.cooldown.recovery_ms
         } else if setup.is_passive() || setup.buff_proc {
-            record.aura_options.proc_category_recovery_ms
+            setup
+                .overrides
+                .proc
+                .and_then(|p| p.cooldown_ms)
+                .unwrap_or(record.aura_options.proc_category_recovery_ms)
         } else {
             0
         }
@@ -873,7 +912,8 @@ impl Spell {
                     .filter_map(|script| script.params.spell),
             )
             // The spells the server applies for this one (Twist of Light's Echoes).
-            .chain(self.setup.overrides.walk.iter().copied());
+            .chain(self.setup.overrides.walk.iter().copied())
+            .chain(self.setup.overrides.overload);
         for id in scripted {
             if id != self.game_id() && !ids.contains(&id) {
                 ids.push(id);
@@ -1023,8 +1063,8 @@ impl Spell {
 
     /// Multiplier on all damage from `HEALING_AND_DAMAGE` modifiers (Improved Revenge), the
     /// caster's `MOD_SPELL_DAMAGE_FROM_CASTER` debuffs (Hemorrhage), the modifiers below a
-    /// target health (Quietus) and a strike's own multiplier (Mutilate against a poisoned
-    /// target).
+    /// target health (Quietus), a strike's own multiplier (Mutilate against a poisoned
+    /// target) and the bonus against the caster's own debuff (Lava Burst with Flame Shock).
     pub fn damage_mod(&self, host: &impl SpellHost) -> f64 {
         let class = self.setup.record.class_options.as_ref();
         let modifiers = host.spell_modifiers();
@@ -1033,6 +1073,23 @@ impl Spell {
             * modifiers.below_health_multiplier(class, host.target_health())
             * self.strike.unwrap_or(1.0)
             * self.damage_scale.unwrap_or(1.0)
+            * self.caster_aura_multiplier(host)
+    }
+
+    /// `DAMAGE_PERCENT_VS_CASTER_AURA`: 1 + its value while the caster's debuff is up.
+    pub fn caster_aura_multiplier(&self, host: &impl SpellHost) -> f64 {
+        let set = self.setup.record.class_options.map_or(0, |c| c.set);
+        self.effects
+            .iter()
+            .filter(|e| e.script_kind() == Some(ScriptKind::DamagePercentVsCasterAura))
+            .filter_map(|e| {
+                e.script()
+                    .and_then(|s| s.params.family_mask)
+                    .map(|m| (e, m))
+            })
+            .filter(|(_, mask)| host.target_has_caster_aura(set, mask))
+            .map(|(e, _)| 1.0 + e.effective_value(host) / 100.0)
+            .product()
     }
 
     /// Multiplier on periodic damage from `PERIODIC_HEALING_AND_DAMAGE` modifiers (Improved
@@ -1331,6 +1388,9 @@ impl Spell {
         if self.stance().is_some_and(|stance| stance == host.stance()) {
             return SpellStatus::in_stance(host.stance());
         }
+        if self.setup.needs_fire_totem() && !host.totem_active(TotemElement::Fire) {
+            return SpellStatus::NoTotem;
+        }
         let restrictions = &record.aura_restrictions;
         match restrictions.target_aura_state {
             AuraState::None => {}
@@ -1422,7 +1482,7 @@ impl Spell {
         if self.triggers_gcd() {
             let gcd = self.global_cooldown(host);
             if add_gcd_event(host.engine_mut(), character, gcd) {
-                host.start_global_cooldown();
+                host.start_global_cooldown(gcd);
             }
         }
         if self.stance().is_some_and(Stance::has_swap_cooldown) {
@@ -1439,7 +1499,8 @@ impl Spell {
             host.swap_stance(Stance::Caster);
         }
 
-        if self.has_cast_time() {
+        // A cast time the modifiers take to 0 is instant (five Maelstrom Weapon stacks).
+        if self.has_cast_time() && self.cast_time(host) > 0.0 {
             return self.start_cast(host, report);
         }
         if self.is_on_next_swing() {
@@ -1483,10 +1544,15 @@ impl Spell {
     /// The global cooldown this cast triggers, after `START_COOLDOWN` modifiers (Improved Slam).
     pub fn global_cooldown(&self, host: &impl SpellHost) -> f64 {
         let record = &self.setup.record;
+        // The spell's own `StartRecoveryTime` where it has one (a totem's 1 s), else the class's.
+        let base = match record.cooldown.start_recovery_ms {
+            0 => host.global_cooldown() * 1000.0,
+            ms => f64::from(ms),
+        };
         let ms = host.spell_modifiers().apply(
             record.class_options.as_ref(),
             SpellModOp::StartCooldown,
-            host.global_cooldown() * 1000.0,
+            base,
         );
         ms.max(0.0) / 1000.0
     }
@@ -1521,11 +1587,14 @@ impl Spell {
     }
 
     /// Starts casting: `CastComplete` is scheduled after the cast time. Port of
-    /// `CastingTimeRequirer::start_cast` plus the `Slam::spell_effect` attack handling.
+    /// `CastingTimeRequirer::start_cast`. Any cast pauses the melee swings (Charge's run does
+    /// not).
     fn start_cast(&mut self, host: &mut impl SpellHost, mut report: CastReport) -> CastReport {
-        let cast_id = host.start_cast(self.has_sim_flag(SimFlag::RunToTarget));
+        let running = self.has_sim_flag(SimFlag::RunToTarget);
+        let cast_id = host.start_cast(running);
         self.cast_id = Some(cast_id);
-        if self.has_sim_flag(SimFlag::StopsAttackDuringCast) {
+        self.resumes_attack = !running && host.is_swinging();
+        if self.resumes_attack {
             host.stop_attack();
         }
         if self.has_sim_flag(SimFlag::CancelsNextSwingQueue) {
@@ -1535,6 +1604,12 @@ impl Spell {
             .id
             .unwrap_or_else(|| panic!("cast-time spell {} has no id", self.name()));
         let (character, cast_time) = (host.character_id(), self.cast_time(host));
+        let started = host.engine().current_time();
+        host.cast_started(crate::character_spells::ActiveCast {
+            spell: id,
+            started,
+            ends: started + cast_time,
+        });
         host.engine_mut().add_event_in(
             cast_time,
             EventKind::CastComplete {
@@ -1548,18 +1623,18 @@ impl Spell {
     }
 
     /// Handles a `CastComplete` event: runs the effects of the cast started with `cast_id`.
-    /// Returns `None` for a stale cast id. Port of `CastingTimeRequirer::complete_cast` plus
-    /// `Slam::complete_cast_effect`'s swing timer handling.
+    /// Returns `None` for a stale cast id. Port of `CastingTimeRequirer::complete_cast`. The
+    /// paused swings resume from zero, unless the spell keeps the swing timers (Improved Slam).
     pub fn complete_cast(&mut self, cast_id: u32, host: &mut impl SpellHost) -> Option<CastReport> {
         if self.cast_id != Some(cast_id) {
             return None;
         }
         self.cast_id = None;
         host.complete_cast(cast_id);
-        if self.has_sim_flag(SimFlag::ResetsSwingTimers) {
-            host.reset_swing_timers();
-        }
-        if self.has_sim_flag(SimFlag::StopsAttackDuringCast) {
+        if std::mem::take(&mut self.resumes_attack) {
+            if !self.has_sim_flag(SimFlag::KeepsSwingTimers) {
+                host.reset_swing_timers();
+            }
             host.start_attack();
         }
         let report = CastReport {
@@ -1700,6 +1775,7 @@ impl Spell {
                 });
             } else if let Some(roll) = first_spell {
                 report.attack = Some(AttackOutcome::spell_failed(roll, self.execution_time(host)));
+                report.proc_sources.push(ProcSource::SpellFullResist);
             }
         } else {
             let lost = if consumes_all {
@@ -2071,6 +2147,10 @@ impl Spell {
                     );
                     ms.max(0.0) / 1000.0
                 })
+                .map(|seconds| match self.setup.totem_summon() {
+                    Some(_) => seconds + TOTEM_GRACE,
+                    None => seconds,
+                })
         };
         let ap = f64::from(host.melee_ap());
         let bonuses: Vec<f64> = host
@@ -2168,8 +2248,9 @@ impl Spell {
     }
 
     fn execution_time(&self, host: &impl SpellHost) -> f64 {
-        if self.has_cast_time() {
-            return self.cast_time(host);
+        let cast_time = self.cast_time(host);
+        if cast_time > 0.0 {
+            return cast_time;
         }
         if self.triggers_gcd() {
             host.global_cooldown()
@@ -2199,6 +2280,7 @@ impl Spell {
         }
         self.last_result = SpellResult::Undetermined;
         self.cast_id = None;
+        self.resumes_attack = false;
         self.trigger_value = None;
         if let Some(periodic) = &mut self.periodic {
             periodic.reset_state();

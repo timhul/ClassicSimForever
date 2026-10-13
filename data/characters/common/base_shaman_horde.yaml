@@ -1,0 +1,21 @@
+# Horde Enhancement Shaman armor and jewelry, no weapon: the six Premier Warlord's Earthshaker
+# pieces (Forever's Enhancement PvP set: +40 attack power at six), its belt and bracers, the
+# Warrior setups' jewelry and trinkets, Forever's Totem of the Storm (Lightning Bolt procs
+# Maelstrom Weapon; no Enhancement totem helps a build without it).
+class: SHAMAN
+equipment:
+  RELIC: { item: 272432 }                                                # Totem of the Storm
+  HEAD: { item: 272543, enchant: LesserArcanumOfVoracityStrength }       # Premier Warlord's Linked Helm
+  NECK: { item: 18404 }                                                  # Onyxia Tooth Pendant
+  SHOULDERS: { item: 272545, enchant: MightOfTheScourge }                # Premier General's Linked Spaulders
+  BACK: { item: 20068, enchant: EnchantCloakLesserAgility }              # Deathguard's Cloak
+  CHEST: { item: 272542, enchant: EnchantChestGreaterStats }             # Premier Warlord's Linked Armor
+  WRIST: { item: 272541, enchant: EnchantBracerSuperiorStrength }        # Premier Legionnaire's Linked Bracers
+  GLOVES: { item: 272539, enchant: EnchantGlovesGreaterStrength }        # Premier Champion's Linked Gauntlets
+  BELT: { item: 272540 }                                                 # Premier Legionnaire's Linked Waistband
+  LEGS: { item: 272544, enchant: LesserArcanumOfVoracityStrength }       # Premier General's Linked Leggings
+  BOOTS: { item: 272538, enchant: EnchantBootsGreaterAgility }           # Premier Centurion's Linked Boots
+  RING1: { item: 19325 }                                                 # Don Julio's Band
+  RING2: { item: 18821 }                                                 # Quick Strike Ring
+  TRINKET1: { item: 19406 }                                              # Drake Fang Talisman
+  TRINKET2: { item: 21180 }                                              # Earthstrike

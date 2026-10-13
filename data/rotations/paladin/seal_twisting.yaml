@@ -39,9 +39,10 @@ cast_if:
       or buff_duration "Seal of Command" is false
       and buff_duration "Echo of Command" is false
       and buff_duration "Judgement of the Crusader" geq 5
-  # A global cooldown started now ends before the next twist window (0.5 s before the swing).
+  # Its cast restarts the swing timer: right after a swing it costs the least.
   - name: Hammer of Wrath
-    condition: variable "time_remaining_swing" greater 1.7
+    condition: variable "time_since_swing" less 0.3
+  # A global cooldown started now ends before the next twist window (0.5 s before the swing).
   - name: Judgement
     condition: |
       buff_duration "Seal of Command" is true

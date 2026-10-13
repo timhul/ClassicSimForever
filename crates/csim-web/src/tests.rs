@@ -33,6 +33,16 @@ fn the_embedded_files_are_the_data_the_viewer_reads() {
         "spells/paladin.yaml",
         "spells/overrides/paladin.yaml",
         "talents/paladin.yaml",
+        "characters/shaman_ele_orc.yaml",
+        "characters/common/base_shaman_elemental.yaml",
+        "classes/shaman.yaml",
+        "keybinds/ele.yaml",
+        "keybinds/enh.yaml",
+        "rotations/shaman/elemental.yaml",
+        "rotations/shaman/enhancement.yaml",
+        "spells/shaman.yaml",
+        "spells/overrides/shaman.yaml",
+        "talents/shaman.yaml",
     ] {
         assert!(paths.contains(&expected), "{expected} is embedded");
     }
@@ -221,6 +231,68 @@ fn the_web_app_plays_and_sims_a_paladin_as_the_native_server() {
     let results = web.handle("POST", "/api/sim/results", request);
     let resources = &json(&results)["resources"];
     assert!(resources.to_string().contains("Mana"), "{resources}");
+    assert_eq!(
+        results.body,
+        native_handle("POST", "/api/sim/results", request),
+        "the same results"
+    );
+}
+
+/// An Elemental Shaman as the native server shows it: from the keyboard (Lightning Bolt on the
+/// cast bar, no swing timer), and an Enhancement Shaman simmed.
+#[test]
+fn the_web_app_plays_and_sims_a_shaman_as_the_native_server() {
+    let mut web = LiveApp::new(0, 1).unwrap();
+    let data = Arc::new(DataBundle::load(&DataBundle::repository_dir()).unwrap());
+    let mut native = App::new(Box::new(FsFiles), DataBundle::repository_dir(), data);
+    let mut native_handle = |method: &str, path: &str, body: &str| {
+        let reply = server::route(&mut native, &|_| None, method, path, body, || 99);
+        String::from_utf8(reply.body).unwrap()
+    };
+
+    let load = r#"{"setup": "shaman_ele_orc", "keybinds": "ele", "seed": "1", "length": 60}"#;
+    let info = json(&web.handle("POST", "/api/load", load));
+    assert_eq!(
+        (&info["class"], &info["race"]),
+        (&"Shaman".into(), &"Orc".into())
+    );
+    assert_eq!(
+        info,
+        serde_json::from_str::<Value>(&native_handle("POST", "/api/load", load)).unwrap()
+    );
+
+    let start = info["start_at"].as_f64().unwrap();
+    let advance = format!(r#"{{"to": {}}}"#, start + 1.0);
+    web.handle("POST", "/api/advance", &advance);
+    native_handle("POST", "/api/advance", &advance);
+    let cast = format!(r#"{{"spell": "Lightning Bolt", "at": {}}}"#, start + 1.0);
+    assert_eq!(
+        web.handle("POST", "/api/cast", &cast).body,
+        native_handle("POST", "/api/cast", &cast),
+        "the same press"
+    );
+    let advance = format!(r#"{{"to": {}}}"#, start + 2.0);
+    let frame = web.handle("POST", "/api/advance", &advance);
+    let state = &json(&frame)["state"];
+    assert_eq!(state["mainhand"], Value::Null);
+    assert_eq!(state["casting"]["spell"], "Lightning Bolt");
+    assert_eq!(
+        frame.body,
+        native_handle("POST", "/api/advance", &advance),
+        "the same frame"
+    );
+
+    let start = r#"{"load": {"setup": "shaman_enh_2h_orc", "seed": "2"}, "iterations": 10}"#;
+    json(&web.handle("POST", "/api/sim/start", start));
+    native_handle("POST", "/api/sim/start", start);
+    let step = r#"{"iterations": 10}"#;
+    assert_eq!(
+        web.handle("POST", "/api/sim/step", step).body,
+        native_handle("POST", "/api/sim/step", step)
+    );
+    let request = r#"{"elapsed_seconds": 1.0}"#;
+    let results = web.handle("POST", "/api/sim/results", request);
+    assert!(json(&results).to_string().contains("Stormstrike"));
     assert_eq!(
         results.body,
         native_handle("POST", "/api/sim/results", request),

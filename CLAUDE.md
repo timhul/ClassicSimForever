@@ -69,9 +69,18 @@ Paladin.
 
 `cargo run --release -p csim-cli -- run data/characters/paladin_ret_2h_human.yaml --iterations 10000`
 
+Shaman, Enhancement and Elemental.
+
+`cargo run --release -p csim-cli -- run data/characters/shaman_enh_2h_orc.yaml --iterations 10000`
+
+`cargo run --release -p csim-cli -- run data/characters/shaman_ele_orc.yaml --iterations 10000`
+
 Raid sim. Raid DPS can be lower than solo DPS depending on provided party buffs and debuffs.
+Totems are party only: a party without a Shaman has no Strength of Earth or Windfury.
 
 `cargo run --release -p csim-cli -- run data/characters/warrior_fury_dw_orc.yaml --raid data/raids/horde_melee.yaml`
+
+`cargo run --release -p csim-cli -- run data/characters/shaman_enh_2h_orc.yaml --raid data/raids/horde_shaman.yaml`
 
 Sweeping multiple sets of iterations for easier comparisons between variation points (talents,
 equipments, etc.).
@@ -81,6 +90,10 @@ equipments, etc.).
 `cargo run --release -p csim-cli -- sweep data/sweeps/warrior_profiles.yaml`
 
 `cargo run --release -p csim-cli -- sweep data/sweeps/ret_profiles.yaml`
+
+`cargo run --release -p csim-cli -- sweep data/sweeps/enh_profiles.yaml`
+
+`cargo run --release -p csim-cli -- sweep data/sweeps/ele_profiles.yaml`
 
 
 # Good cross-reference information sources

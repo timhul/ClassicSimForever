@@ -46,6 +46,7 @@ use crate::stance::Stance;
 use crate::statistics::ClassStatistics;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
 use crate::talent::CharacterTalents;
+use crate::totem::Totems;
 
 pub use class::{ClassBaseStats, ClassDb, ClassSpec, ClassSpecError, StatOffsets, StatRules};
 
@@ -180,6 +181,8 @@ pub struct Character {
     spells: CharacterSpells,
     /// The external buffs the character is offered (`CharacterContext::add_external_buffs`).
     general_buffs: GeneralBuffs,
+    /// The standing totems (Shaman).
+    pub(crate) totems: Totems,
     /// The items the character uses in combat (`CharacterContext::set_consumables`).
     consumables: Vec<ConsumableSpec>,
     modifiers: SpellModifiers,
@@ -188,6 +191,8 @@ pub struct Character {
     roll: CombatRoll,
     /// Rolls weapon damage between the weapon's min and max (the C++ `Weapon::random`).
     dmg_roll: Random,
+    /// Rolls the chance of a cast's overload copy (Lightning Overload), out of 10 000.
+    overload_roll: Random,
     resource: Resource,
     sim: SimParams,
 
@@ -326,11 +331,13 @@ impl Character {
             equipment: Equipment::new(equipment_db, phase, faction, class.class),
             spells: CharacterSpells::new(id, seed),
             general_buffs: GeneralBuffs::new(),
+            totems: Totems::default(),
             consumables: Vec::new(),
             modifiers: SpellModifiers::new(),
             talents: None,
             roll: CombatRoll::new(target_level),
             dmg_roll: Random::new(0, 1),
+            overload_roll: Random::new(0, crate::proc::PROC_ROLL_RANGE),
             resource,
             sim,
             stance: class.default_stance,
@@ -787,8 +794,16 @@ impl Character {
     /// # Panics
     /// Panics if an action is not ready (the C++ `check`).
     pub fn start_global_cooldown(&mut self, now: f64) {
+        self.start_global_cooldown_of(now, self.global_cooldown());
+    }
+
+    /// [`Self::start_global_cooldown`] of `gcd` seconds (a spell's own: a totem's 1 s).
+    ///
+    /// # Panics
+    /// Panics if an action is not ready.
+    pub fn start_global_cooldown_of(&mut self, now: f64, gcd: f64) {
         assert!(self.action_ready(now), "Action not ready");
-        self.next_gcd = now + self.global_cooldown();
+        self.next_gcd = now + gcd;
     }
 
     pub fn time_until_action_ready(&self, now: f64) -> f64 {
@@ -1273,6 +1288,12 @@ impl Character {
         self.roll.set_new_seed(seeds.next());
         self.dmg_roll.set_gen_from_seed(seeds.next());
         self.spells.procs_mut().reseed(|| seeds.next());
+        self.overload_roll.set_gen_from_seed(seeds.next());
+    }
+
+    /// A roll out of 10 000 for a cast's overload copy.
+    pub(crate) fn roll_overload(&mut self) -> u32 {
+        self.overload_roll.get_roll()
     }
 
     // ---------------------------------------------------------------- weapon damage
