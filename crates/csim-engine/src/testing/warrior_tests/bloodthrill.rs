@@ -20,7 +20,20 @@ fn test(rank: u32) -> WarriorTest {
     test
 }
 
+/// Waits out the GCD and the cooldown of `spell`.
+fn when_ready_for(test: &mut WarriorTest, spell: &str) {
+    let now = test.now();
+    let wait = test
+        .character()
+        .time_until_action_ready(now)
+        .max(test.cooldown_remaining(spell));
+    if wait > 0.0 {
+        test.given_engine_priority_pushed_forward(wait);
+    }
+}
+
 fn given_rend_on_the_target(test: &mut WarriorTest) {
+    when_ready_for(test, "Rend");
     test.given_a_guaranteed_melee_ability_hit();
     test.cast("Rend");
     test.given_warrior_has_rage(100);
@@ -100,6 +113,32 @@ fn proc_allows_overpower() {
     test.then_overpower_is_active();
     test.given_engine_priority_pushed_forward(0.02);
     test.then_status_is("Overpower", SpellStatus::InsufficientComboPoints);
+}
+
+#[test]
+fn abilities_proc_at_the_rank_value() {
+    const CASTS: u32 = 400;
+    for spell in ["Mortal Strike", "Overpower", "Hamstring"] {
+        let mut test = test(5);
+        let proc = test.proc(TALENT);
+        let mut procs = 0;
+        let mut rend_at = f64::NEG_INFINITY;
+        for _ in 0..CASTS {
+            // Rend lasts 21 s; the wait for the spell stays under 7.5 s.
+            if test.now() - rend_at > 12.0 {
+                given_rend_on_the_target(&mut test);
+                rend_at = test.now();
+            }
+            when_ready_for(&mut test, spell);
+            let before = test.character().spells().procs().get(proc).procs();
+            test.cast(spell);
+            procs += test.character().spells().procs().get(proc).procs() - before;
+        }
+        assert!(
+            (50..115).contains(&procs),
+            "{procs} procs in {CASTS} casts of {spell}"
+        );
+    }
 }
 
 #[test]
