@@ -580,6 +580,10 @@ pub struct ProcOverride {
     /// critical strikes of Sinister Strike, Backstab, Mutilate's strikes, ...).
     #[serde(default, skip_serializing_if = "is_default")]
     pub builder: bool,
+    /// Of the melee abilities only those that replace a swing trigger it (Bloodthrill: white
+    /// swings, Heroic Strike and Cleave).
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub swings_only: bool,
     /// The proc's spell events (magic damage) trigger it only through a `PROC_FROM_SPELL` aura
     /// that names it, for that aura's spells and at its reduced chance (Maelstrom Weapon:
     /// melee hits, and Lightning Bolt with Totem of the Storm).

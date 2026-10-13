@@ -180,6 +180,8 @@ pub struct ProcTrigger {
     pub combo_points_spent: u32,
     /// The cast awards combo points (a builder); the strikes it triggers share it.
     pub awards_combo_points: bool,
+    /// The cast replaced a main-hand swing (Heroic Strike, Cleave).
+    pub on_next_swing: bool,
 }
 
 #[cfg(test)]

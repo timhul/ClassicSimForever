@@ -1,6 +1,7 @@
 //! Bloodthrill (Forever Arms talent 1289682): main-hand attacks against a target afflicted by
-//! your Rend have a 4-20 % chance (the rank value, `chance_effect: 0`) to allow Overpower. The
-//! payload 1282733 gives the combo point Overpower costs, the same window a dodge opens.
+//! your Rend have a 4-20 % chance (the rank value, `chance_effect: 0`) to allow Overpower. In
+//! game only white swings, Heroic Strike and Cleave proc it (`swings_only`). The payload
+//! 1282733 gives the combo point Overpower costs, the same window a dodge opens.
 
 use crate::engine::EventType;
 use crate::proc::ProcSource;
@@ -20,7 +21,20 @@ fn test(rank: u32) -> WarriorTest {
     test
 }
 
+/// Waits out the GCD and the cooldown of `spell`.
+fn when_ready_for(test: &mut WarriorTest, spell: &str) {
+    let now = test.now();
+    let wait = test
+        .character()
+        .time_until_action_ready(now)
+        .max(test.cooldown_remaining(spell));
+    if wait > 0.0 {
+        test.given_engine_priority_pushed_forward(wait);
+    }
+}
+
 fn given_rend_on_the_target(test: &mut WarriorTest) {
+    when_ready_for(test, "Rend");
     test.given_a_guaranteed_melee_ability_hit();
     test.cast("Rend");
     test.given_warrior_has_rage(100);
@@ -83,8 +97,6 @@ fn a_dodged_rend_does_not_enable_it() {
 fn proc_allows_overpower() {
     let mut test = test(5);
     given_rend_on_the_target(&mut test);
-    // The Rend cast may have proc'd it already: its debuff is up when its proc check runs.
-    test.with_ctx(|ctx| ctx.character.spend_combo_points());
     let gcd = test.character().global_cooldown();
     test.given_engine_priority_pushed_forward(gcd);
     assert_eq!(test.character().combo_points(test.now()), 0);
@@ -100,6 +112,47 @@ fn proc_allows_overpower() {
     test.then_overpower_is_active();
     test.given_engine_priority_pushed_forward(0.02);
     test.then_status_is("Overpower", SpellStatus::InsufficientComboPoints);
+}
+
+/// In game only white swings and the abilities that replace one proc it.
+#[test]
+fn other_abilities_do_not_proc_it() {
+    const CASTS: u32 = 100;
+    for spell in ["Rend", "Mortal Strike", "Overpower", "Hamstring"] {
+        let mut test = test(5);
+        let proc = test.proc(TALENT);
+        let mut rend_at = f64::NEG_INFINITY;
+        for _ in 0..CASTS {
+            // Rend lasts 21 s; the wait for the spell stays under 7.5 s.
+            if test.now() - rend_at > 12.0 {
+                given_rend_on_the_target(&mut test);
+                rend_at = test.now();
+            }
+            when_ready_for(&mut test, spell);
+            test.cast(spell);
+        }
+        let procs = test.character().spells().procs().get(proc).procs();
+        assert_eq!(procs, 0, "{CASTS} casts of {spell}");
+    }
+}
+
+#[test]
+fn heroic_strike_and_cleave_proc_at_the_rank_value() {
+    const SWINGS: u32 = 2000;
+    for spell in ["Heroic Strike", "Cleave"] {
+        let mut test = test(5);
+        given_rend_on_the_target(&mut test);
+        let proc = test.proc(TALENT);
+        for _ in 0..SWINGS {
+            test.given_warrior_has_rage(100);
+            test.when_next_swing_spell_lands(spell);
+        }
+        let procs = test.character().spells().procs().get(proc).procs();
+        assert!(
+            (340..460).contains(&procs),
+            "{procs} procs in {SWINGS} swings of {spell}"
+        );
+    }
 }
 
 #[test]

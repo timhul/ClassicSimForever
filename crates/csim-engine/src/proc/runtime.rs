@@ -335,13 +335,25 @@ impl Proc {
     /// Whether the spell behind the event is one the proc reacts to: the override's family
     /// mask selects it (in the proc's own class family when the proc has one), it is a
     /// builder when the override asks for one, and a finisher spent at least the combo points
-    /// the override's effect names. The server keeps these in `spell_proc` and its scripts;
-    /// the client tables do not have them.
-    pub fn matches_trigger(&self, trigger: &ProcTrigger, host: &impl ProcHost) -> bool {
+    /// the override's effect names, and an ability replaced a swing when the override takes
+    /// swings only. The server keeps these in `spell_proc` and its scripts; the client tables
+    /// do not have them.
+    pub fn matches_trigger(
+        &self,
+        source: ProcSource,
+        trigger: &ProcTrigger,
+        host: &impl ProcHost,
+    ) -> bool {
         let Some(filter) = self.spell.setup().overrides.proc else {
             return true;
         };
         if filter.builder && !trigger.awards_combo_points {
+            return false;
+        }
+        if filter.swings_only
+            && matches!(source, ProcSource::MainhandSpell | ProcSource::OffhandSpell)
+            && !trigger.on_next_swing
+        {
             return false;
         }
 
@@ -825,7 +837,7 @@ impl EnabledProcs {
             let proc = &self.procs[id.index()];
             if !proc.procs_from_source(source)
                 || self.procced.contains(&id)
-                || !proc.matches_trigger(&trigger, host)
+                || !proc.matches_trigger(source, &trigger, host)
             {
                 continue;
             }
