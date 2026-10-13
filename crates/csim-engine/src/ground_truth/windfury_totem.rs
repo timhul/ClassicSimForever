@@ -632,6 +632,35 @@ fn extra_attacks_from_other_procs_can_proc_windfury_once_per_chain() {
     assert_eq!(f.character.pending_extra_attacks(), 0);
 }
 
+/// Windfury's extra attack is a white swing, so it can proc Sword Specialization in turn.
+#[test]
+fn windfury_extra_attack_procs_sword_specialization() {
+    let mut f = fixture();
+    let windfury = learn_windfury(&mut f, WINDFURY_PASSIVE_ALWAYS);
+    f.learn(SWORD_SPEC_ATTACK);
+    let sword_spec = learn_proc(&mut f, SWORD_SPEC_ALWAYS);
+    f.ctx().start_attack();
+
+    // A landed instant attack: Windfury procs, the swing-only Sword Specialization does not.
+    f.ctx().run_proc_checks(&[ProcSource::MainhandSpell]);
+    assert_eq!(proc_count(&f, windfury), 1);
+    assert_eq!(proc_count(&f, sword_spec), 0);
+
+    let reports = f.ctx().perform_extra_attacks();
+    assert_eq!(
+        proc_count(&f, sword_spec),
+        1,
+        "Windfury's extra attack procs Sword Specialization"
+    );
+    assert_eq!(proc_count(&f, windfury), 1, "and not Windfury again");
+    assert_eq!(
+        reports.len(),
+        2,
+        "the Windfury and the Sword Specialization extra attacks"
+    );
+    assert_eq!(f.character.pending_extra_attacks(), 0);
+}
+
 /// Windfury never procs off its own extra attack (with the proc at 100 % a chain would
 /// otherwise never end).
 #[test]
