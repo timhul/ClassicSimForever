@@ -1,6 +1,7 @@
 //! Port of `Test/Warrior/Spells/TestRend`.
 
 use crate::engine::EventType;
+use crate::proc::ProcSource;
 use crate::rotation::condition::ConditionContext;
 use crate::rotation::executor::RotationHost;
 use crate::spell::SpellStatus;
@@ -232,4 +233,19 @@ fn rotations_read_the_debuff_of_the_rank_cast() {
         ctx.buff_time_left(&rend)
     });
     assert_eq!(time_left, 21.0);
+}
+
+/// The application deals no damage, yet a landed Rend procs extra attacks like any main-hand
+/// ability (Forever, in game); an avoided one does not.
+#[test]
+fn landed_application_is_a_mainhand_ability_for_procs() {
+    let mut landed = test();
+    landed.given_a_guaranteed_melee_ability_hit();
+    let report = landed.cast(SPELL);
+    assert!(report.proc_sources.contains(&ProcSource::MainhandSpell));
+
+    let mut dodged = test();
+    dodged.given_a_guaranteed_melee_ability_dodge();
+    let report = dodged.cast(SPELL);
+    assert!(!report.proc_sources.contains(&ProcSource::MainhandSpell));
 }

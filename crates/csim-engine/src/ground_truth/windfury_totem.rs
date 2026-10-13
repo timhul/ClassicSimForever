@@ -53,6 +53,8 @@ const WINDFURY_DURATION: f64 = 1.0;
 const WINDFURY_ICD: f64 = 0.1;
 
 const HEROIC_STRIKE: u32 = 78;
+const CLEAVE: u32 = 845;
+const REND: u32 = 772;
 const BLOODTHIRST: u32 = 23881;
 const SLAM: u32 = 1464;
 const WHIRLWIND: u32 = 1680;
@@ -457,6 +459,51 @@ fn heroic_strike_procs_windfury() {
         "the extra attack was performed right away"
     );
     assert_eq!(mh_iteration(&f), iteration + 1);
+}
+
+#[test]
+fn cleave_procs_windfury() {
+    let mut f = fixture();
+    let proc = learn_windfury(&mut f, WINDFURY_PASSIVE_ALWAYS);
+    f.learn(CLEAVE);
+    f.set_rage(100);
+    let cleave = f.spell_id(CLEAVE);
+    assert!(f.ctx().cast(cleave).queued);
+    f.ctx().start_attack();
+    let iteration = mh_iteration(&f);
+    let outcome = f.ctx().mh_swing(iteration);
+    assert!(
+        matches!(outcome, SwingOutcome::NextSwingSpell(_)),
+        "{outcome:?}"
+    );
+    assert_eq!(proc_count(&f, proc), 1, "Cleave procs Windfury");
+    assert_eq!(
+        mh_swings(&f),
+        1,
+        "the extra attack was performed right away"
+    );
+}
+
+/// Rend's application deals no damage but procs extra attacks (Forever, in game).
+#[test]
+fn rend_procs_windfury() {
+    let mut f = fixture();
+    let proc = learn_windfury(&mut f, WINDFURY_PASSIVE_ALWAYS);
+    f.learn(REND);
+    f.set_rage(50);
+    f.ctx().start_attack();
+    let iteration = mh_iteration(&f);
+    let rend = f.spell_id(REND);
+    let report = f.ctx().cast(rend);
+    assert_eq!(report.result, SpellResult::Success);
+    assert_eq!(proc_count(&f, proc), 1, "Rend procs Windfury");
+    assert_eq!(
+        mh_swings(&f),
+        1,
+        "the extra attack was performed right away"
+    );
+    assert_eq!(mh_iteration(&f), iteration, "the swing timer is untouched");
+    assert!(f.rage() > 40, "the extra attack gave rage after Rend's 10");
 }
 
 /// "Single-target instant attacks"
