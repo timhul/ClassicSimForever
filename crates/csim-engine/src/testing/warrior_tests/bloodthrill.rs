@@ -1,6 +1,7 @@
 //! Bloodthrill (Forever Arms talent 1289682): main-hand attacks against a target afflicted by
-//! your Rend have a 4-20 % chance (the rank value, `chance_effect: 0`) to allow Overpower. The
-//! payload 1282733 gives the combo point Overpower costs, the same window a dodge opens.
+//! your Rend have a 4-20 % chance (the rank value, `chance_effect: 0`) to allow Overpower. In
+//! game only white swings, Heroic Strike and Cleave proc it (`swings_only`). The payload
+//! 1282733 gives the combo point Overpower costs, the same window a dodge opens.
 
 use crate::engine::EventType;
 use crate::proc::ProcSource;
@@ -96,8 +97,6 @@ fn a_dodged_rend_does_not_enable_it() {
 fn proc_allows_overpower() {
     let mut test = test(5);
     given_rend_on_the_target(&mut test);
-    // The Rend cast may have proc'd it already: its debuff is up when its proc check runs.
-    test.with_ctx(|ctx| ctx.character.spend_combo_points());
     let gcd = test.character().global_cooldown();
     test.given_engine_priority_pushed_forward(gcd);
     assert_eq!(test.character().combo_points(test.now()), 0);
@@ -115,13 +114,13 @@ fn proc_allows_overpower() {
     test.then_status_is("Overpower", SpellStatus::InsufficientComboPoints);
 }
 
+/// In game only white swings and the abilities that replace one proc it.
 #[test]
-fn abilities_proc_at_the_rank_value() {
-    const CASTS: u32 = 400;
-    for spell in ["Mortal Strike", "Overpower", "Hamstring"] {
+fn other_abilities_do_not_proc_it() {
+    const CASTS: u32 = 100;
+    for spell in ["Rend", "Mortal Strike", "Overpower", "Hamstring"] {
         let mut test = test(5);
         let proc = test.proc(TALENT);
-        let mut procs = 0;
         let mut rend_at = f64::NEG_INFINITY;
         for _ in 0..CASTS {
             // Rend lasts 21 s; the wait for the spell stays under 7.5 s.
@@ -130,13 +129,28 @@ fn abilities_proc_at_the_rank_value() {
                 rend_at = test.now();
             }
             when_ready_for(&mut test, spell);
-            let before = test.character().spells().procs().get(proc).procs();
             test.cast(spell);
-            procs += test.character().spells().procs().get(proc).procs() - before;
         }
+        let procs = test.character().spells().procs().get(proc).procs();
+        assert_eq!(procs, 0, "{CASTS} casts of {spell}");
+    }
+}
+
+#[test]
+fn heroic_strike_and_cleave_proc_at_the_rank_value() {
+    const SWINGS: u32 = 2000;
+    for spell in ["Heroic Strike", "Cleave"] {
+        let mut test = test(5);
+        given_rend_on_the_target(&mut test);
+        let proc = test.proc(TALENT);
+        for _ in 0..SWINGS {
+            test.given_warrior_has_rage(100);
+            test.when_next_swing_spell_lands(spell);
+        }
+        let procs = test.character().spells().procs().get(proc).procs();
         assert!(
-            (50..115).contains(&procs),
-            "{procs} procs in {CASTS} casts of {spell}"
+            (340..460).contains(&procs),
+            "{procs} procs in {SWINGS} swings of {spell}"
         );
     }
 }

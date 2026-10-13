@@ -507,6 +507,9 @@ overrides:
                                      #   per resource: Revealed Flaw 5 %)
                                      # builder: true — only events of a spell that awards
                                      #   combo points (Seal Fate)
+                                     # swings_only: true — of the melee abilities only those
+                                     #   that replace a swing (Bloodthrill: Heroic Strike,
+                                     #   Cleave)
                                      # spell_procs_by_script: true — spell events trigger it
                                      #   only through a PROC_FROM_SPELL aura naming it
                                      #   (Maelstrom Weapon: Totem of the Storm's Lightning Bolt)
