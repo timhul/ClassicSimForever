@@ -16,6 +16,7 @@
 #   [I]  Icy Veins, "Paladin Class Guide - WoW Forever" (pre-beta, 2026-09-12); older than the
 #        tables, which win where the two differ
 #   [U]  the user's decision
+# A range's ± is half the tables' variance, the width of the range.
 #
 # Seal of Command (20375..20920, payload 20424)
 #   - 7 procs per minute on landed white swings (aura proc mask 0x4), chance = 7 x unhasted
@@ -27,7 +28,7 @@
 #     and not through armor: SpellEffects.cpp EffectWeaponDmg, "Seal of Command" branch. [V]
 #     It rolls the special melee table like any melee-class spell (miss, dodge, parry, crit at
 #     200 %). [V]
-#   - Judgement of Command (20968 -> 20966): 356 (+6.1/level, ±9.6 %) holy, coefficient 0.429,
+#   - Judgement of Command (20968 -> 20966): 356 (+6.1/level, ±4.8 %) holy, coefficient 0.429,
 #     half of it unless the target is stunned or incapacitated (the description's $/2). [T]
 #
 # Seal of Righteousness (20154, 21084, 20287..20293; per-swing damage 25713 at rank 8)
@@ -39,7 +40,7 @@
 #   - Spell power coefficient 0.1: the damage spell 25713's effect 0 (the seal auras carry none
 #     past rank 1). [T]  vmangos applies the seal aura's coefficient instead; Forever moved it to
 #     the damage spell.
-#   - Judgement of Righteousness 20286: 170 (+4.1/level, ±9.4 %) holy, coefficient 0.5. Its
+#   - Judgement of Righteousness 20286: 170 (+4.1/level, ±4.7 %) holy, coefficient 0.5. Its
 #     effect 2 (DUMMY 1786 +47/level, coefficient 0.2) only carries the seal's number for the
 #     tooltip. [T]
 #
@@ -105,16 +106,16 @@
 #     with another paladin's Greater Blessing of Might (the same 133): not castable under one. [T]
 #
 # Holy Strike (678 .. 10333)
-#   - Rank 8: NORMALIZED_WEAPON_DMG 93 (+3.2/level, ±25 %, coefficient 0.429) and
+#   - Rank 8: NORMALIZED_WEAPON_DMG 93 (+3.2/level, ±12.5 %, coefficient 0.429) and
 #     WEAPON_PERCENT_DAMAGE 50, holy, melee defense type, 10 s cooldown, 20 mana. [T]
 #   - As the tooltip reads ("$m2% weapon damage plus an additional $s1 as Holy damage"):
-#     50 % x normalized weapon damage + the whole 93 (± 25 %, + 0.429 x spell power), holy,
+#     50 % x normalized weapon damage + the whole 93 (±12.5 %, + 0.429 x spell power), holy,
 #     without armor, with the spell bonuses. [T] [U]  The 1.12 server code would multiply the
 #     flat part by the 50 % too ([V] SpellEffects.cpp EffectWeaponDmg); not used.
 #   - Effect 2 (SCRIPT_EFFECT) is Sacred Arbiter's refresh of the Judgement debuffs. [T]
 #
 # Hammer of Wrath (24239, 24274, 24275)
-#   - Rank 3: 288 (+2.4/level, ±10 %) holy, coefficient 0.429, 1 s cast (Instrument of Law:
+#   - Rank 3: 288 (+2.4/level, ±5 %) holy, coefficient 0.429, 1 s cast (Instrument of Law:
 #     -0.5 s per rank), 6 s cooldown, target at or below 20 % health (aura state 2). [T]
 #   - DefenseType ranged: the ranged attack table, which misses and crits (for double) but is
 #     never dodged, parried or blocked. [T] TrinityCore MeleeSpellHitResult (RANGED_ATTACK)

@@ -1761,8 +1761,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     }
 
     /// Performs the main-hand extra attacks granted so far (Windfury, Sword Specialization),
-    /// including the ones those attacks grant in turn. An extra attack finishes the swing timer,
-    /// so a queued on-next-swing spell that is available goes off in its place.
+    /// including the ones those attacks grant in turn. A queued on-next-swing spell that is
+    /// available goes off in an extra attack's place. Neither touches the swing timer (Forever).
     /// Returns the reports of the white swings performed.
     pub fn perform_extra_attacks(&mut self) -> Vec<SwingReport> {
         let mut reports = Vec::new();
@@ -1771,8 +1771,7 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 continue;
             }
             if let Some(queued) = self.available_next_swing() {
-                self.perform_next_swing(queued);
-                self.with_auto_attack(Hand::Mainhand, |attack, ctx| attack.schedule_next(ctx));
+                self.perform_on_swing(queued);
                 continue;
             }
             let report =
@@ -1805,6 +1804,11 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             .spells
             .mh_attack_mut()
             .complete_swing(now, speed);
+        self.perform_on_swing(queued)
+    }
+
+    /// Performs the queued on-next-swing spell `queued` and runs what followed from it.
+    fn perform_on_swing(&mut self, queued: SpellId) -> CastReport {
         let mark = self.log_mark();
         let report = self.with_spell(queued, |spell, ctx| spell.perform_on_swing(ctx));
         self.after_cast(queued, &report, mark);
