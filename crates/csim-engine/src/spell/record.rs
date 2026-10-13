@@ -8,7 +8,7 @@
 //! default are omitted on export, so a record reads like a joined table row:
 //!
 //! ```yaml
-//! build: 1.60.1.70291
+//! build: 1.60.1.70338
 //! class: WARRIOR
 //! spells:
 //!   - id: 12294
@@ -80,7 +80,7 @@ fn is_one(value: &f32) -> bool {
 /// One `data/spells/*.yaml` file: the spells of one class (or the racials when `class` is absent).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpellFile {
-    /// The client build the records were exported from (e.g. `1.60.1.70291`).
+    /// The client build the records were exported from (e.g. `1.60.1.70338`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     /// The class whose spellbook this is; `None` for class-independent spells (racials, the
