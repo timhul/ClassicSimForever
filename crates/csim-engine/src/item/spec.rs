@@ -21,7 +21,7 @@ use super::types::{ItemSlot, ItemStat, ItemType, Quality};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ItemFile {
-    /// The client build the items were exported from (e.g. `1.60.1.70291`).
+    /// The client build the items were exported from (e.g. `1.60.1.70338`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub build: String,
     #[serde(default)]
