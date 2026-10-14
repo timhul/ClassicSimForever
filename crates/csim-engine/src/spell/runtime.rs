@@ -554,6 +554,13 @@ impl SpellSetup {
             .unwrap_or(self.record.cast_time_ms)
     }
 
+    /// The missile speed in yd/s: the override's, else the table's; 0 = lands instantly.
+    pub fn speed_yd_per_s(&self) -> f32 {
+        self.overrides
+            .speed_yd_per_s
+            .unwrap_or(self.record.speed_yd_per_s)
+    }
+
     /// Whether the spell needs a buff: it has aura effects, a bleed script with an aura, or it
     /// summons a totem (the buff is the totem's lifetime).
     pub fn has_buff(&self) -> bool {

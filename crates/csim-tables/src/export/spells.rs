@@ -528,6 +528,7 @@ pub fn record(tables: &Tables, id: u32, ability: Option<&SkillLineAbilityRow>) -
         record.range_yd = tables
             .spell_range(misc.range_index)
             .map_or(0.0, |r| r.range_max[0]);
+        record.speed_yd_per_s = misc.speed;
     } else {
         record.school_mask = SpellSchoolMask::empty();
     }

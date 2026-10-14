@@ -698,6 +698,9 @@ pub struct SpellOverride {
     /// takes time in the sim (Charge's run to the target).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cast_time_ms: Option<u32>,
+    /// A missile speed in place of `SpellMisc.Speed`, in yd/s; 0 = lands instantly.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub speed_yd_per_s: Option<f32>,
     /// Spells the export must carry with this one although no table field reaches them (the
     /// Echoes Twist of Light grants on a seal change): the walk follows them like any other
     /// reference and the pruning keeps them. They are the spell's payloads, enabled with it.

@@ -686,6 +686,9 @@ pub struct SpellRecord {
     /// `SpellRange.RangeMax_0`.
     #[serde(default, skip_serializing_if = "is_default")]
     pub range_yd: f32,
+    /// `SpellMisc.Speed`: the missile speed in yd/s; 0 = lands instantly.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub speed_yd_per_s: f32,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub power: Vec<PowerCost>,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -745,6 +748,7 @@ impl SpellRecord {
             duration_per_resource_ms: 0,
             max_duration_ms: 0,
             range_yd: 0.0,
+            speed_yd_per_s: 0.0,
             power: Vec::new(),
             cooldown: Cooldown::default(),
             categories: Categories::default(),
@@ -2318,6 +2322,8 @@ spells:
             9
         );
         assert!(db.get(412609).is_some(), "reached through the overrides");
+        assert_eq!(db.get(403).unwrap().speed_yd_per_s, 20.0, "Lightning Bolt");
+        assert_eq!(db.get(8050).unwrap().speed_yd_per_s, 0.0, "Flame Shock");
         // What starts combat: Charge and Bloodthirst hit the enemy, the others do not.
         for (id, offensive) in [
             (11578, true),

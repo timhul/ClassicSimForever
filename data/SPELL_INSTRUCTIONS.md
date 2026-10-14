@@ -58,7 +58,7 @@ SpellEffect.EffectTriggerSpell, EffectAura 42/23 ──> another SpellID        
 | `Trait*` (13 tables) | | Talent trees (1.4). |
 | `SpellName` | 31 767 | `Name_lang`. Existence test for "spell is real". |
 | `Spell` | 31 767 | `NameSubtext_lang` ("Rank 7"), `Description_lang`, `AuraDescription_lang`. Tooltip text with `$` tokens. |
-| `SpellMisc` | 31 637 | `Attributes_0..16` (SpellAttr0..16 bit flags), `SchoolMask`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `Speed` (missile). |
+| `SpellMisc` | 31 637 | `Attributes_0..16` (SpellAttr0..16 bit flags), `SchoolMask`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `Speed` (missile yd/s, 0 = lands instantly; `LaunchDelay` and `MinDuration` are 0 for every player spell and unused). |
 | `SpellEffect` | 42 449 | **What the spell does** — one row per effect (1.7). |
 | `SpellPower` | 3 428 | Resource cost: `PowerType`, `ManaCost`, `PowerCostPct`, `ManaPerSecond`, `OptionalCost`. |
 | `SpellCooldowns` | 4 438 | `RecoveryTime` (spell cd), `CategoryRecoveryTime` (shared cd), `StartRecoveryTime` (GCD, 1500). All ms. |
@@ -526,6 +526,7 @@ overrides:
     debuff_shared: true              # one raid-wide instance (default: true when it stacks)
     ends_auras: [29604]              # these spells' buffs end with this one (Jom Gabbar's stacks)
     cast_time_ms: 1000               # in place of SpellCastTimes.Base (Charge's run to the target)
+    speed_yd_per_s: 0                # in place of SpellMisc.Speed (missile yd/s, 0 = instant)
     walk: [1311701, 1311703]         # spells the export carries although no table field reaches
                                      #   them, payloads of this one (Twist of Light's Echoes)
     rename: Searing Totem Attack     # the name the sim reports (the tables' "Attack")
