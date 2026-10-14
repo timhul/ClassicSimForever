@@ -761,6 +761,20 @@ fn start_of_combat_passives_tick_forever() {
 }
 
 #[test]
+fn missiles_travel_the_distance_at_their_speed() {
+    let mut world = World::with_db(db_with(|file| {
+        let rend = file.spells.iter_mut().find(|s| s.id == REND).unwrap();
+        rend.speed_yd_per_s = 20.0;
+    }));
+    world.learn(REND);
+    world.learn(SLAM);
+    assert_eq!(world.spell(REND).travel_time(&world), 0.0, "no distance");
+    world.target_distance_yd = 30.0;
+    assert_eq!(world.spell(REND).travel_time(&world), 1.5);
+    assert_eq!(world.spell(SLAM).travel_time(&world), 0.0, "no speed");
+}
+
+#[test]
 fn cast_time_spells_complete_after_the_cast_time() {
     let mut world = World::new();
     world.learn(SLAM);

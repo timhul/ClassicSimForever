@@ -52,7 +52,9 @@ different ranks; a totem is a buff of its spell's name while it stands.
 ```yaml
 class: WARRIOR
 name: DW Fury                 # display name, must be unique within the class
-attack_mode: melee            # melee | ranged | magic
+attack_mode: melee            # melee | ranged | magic; also the distance to the target that
+                              #   missiles travel: 5 yd melee, 30 yd ranged and magic
+                              #   (`--setting=target_distance_yd:N` sets it for everyone)
 description: >-               # descriptive only
   A rotation for dual-wield fury.
 precombat_actions:            # cast before the pull in the specified order

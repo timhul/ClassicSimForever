@@ -3388,6 +3388,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.sim().target_start_health
     }
 
+    fn target_distance_yd(&self) -> f64 {
+        self.character.target_distance_yd()
+    }
+
     fn on_global_cooldown(&self) -> bool {
         self.character.on_global_cooldown(self.now())
     }

@@ -68,6 +68,9 @@ pub struct SimParams {
     /// Rage at the start of every iteration, before the precombat actions (capped at the
     /// maximum); ignored by characters without rage.
     pub initial_rage: u32,
+    /// Yards to the target for every character; `None` = each rotation's playstyle
+    /// ([`AttackMode::target_distance_yd`]).
+    pub target_distance_yd: Option<f64>,
 }
 
 /// The target health below which Execute is usable (`WOUNDED_20_PERCENT`).
@@ -104,6 +107,7 @@ impl Default for SimParams {
             ruleset: Ruleset::Standard,
             rage_formula: RageFormula::Forever,
             initial_rage: 0,
+            target_distance_yd: None,
         }
     }
 }
@@ -1498,6 +1502,13 @@ impl Character {
 
     pub fn attack_mode(&self) -> AttackMode {
         self.spells.attack_mode()
+    }
+
+    /// Yards to the target: the `target_distance_yd` setting, else the rotation's playstyle.
+    pub fn target_distance_yd(&self) -> f64 {
+        self.sim
+            .target_distance_yd
+            .unwrap_or_else(|| self.attack_mode().target_distance_yd())
     }
 
     // ---------------------------------------------------------------- lifecycle

@@ -121,6 +121,10 @@ pub trait SpellHost: EffectHost {
     fn target_start_health(&self) -> f64 {
         1.0
     }
+    /// Yards to the target, which missiles travel.
+    fn target_distance_yd(&self) -> f64 {
+        0.0
+    }
     /// The target's health as a fraction, from the encounter's progress: the start health
     /// falls linearly until the boss dies at the end, which places the execute ranges.
     fn target_health(&self) -> f64 {
@@ -951,6 +955,17 @@ impl Spell {
 
     pub fn effects_mut(&mut self) -> &mut Vec<Effect> {
         &mut self.effects
+    }
+
+    /// Seconds the missile flies to the target; 0 for a spell that lands at once.
+    pub fn travel_time(&self, host: &impl SpellHost) -> f64 {
+        let speed = f64::from(self.setup.speed_yd_per_s());
+        let distance = host.target_distance_yd();
+        if speed > 0.0 && distance > 0.0 {
+            distance / speed
+        } else {
+            0.0
+        }
     }
 
     /// Whether the spell has a cast time (as opposed to being instant).

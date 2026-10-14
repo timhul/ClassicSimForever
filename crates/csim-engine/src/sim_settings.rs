@@ -247,6 +247,8 @@ pub enum SimSettingsError {
     TargetStartHealth(u32),
     #[error("the length variance must be at least 0 and below 100 %, got {0}")]
     LengthVariance(f64),
+    #[error("the target distance must be at least 0 yards, got {0}")]
+    TargetDistance(f64),
 }
 
 /// The settings of a run. Port of `SimSettings`.
@@ -280,6 +282,9 @@ pub struct SimSettings {
     /// Rage at the start of every iteration, for characters with rage (a named setting,
     /// `initial_rage`).
     pub initial_rage: u32,
+    /// Yards to the target for every character (a named setting, `target_distance_yd`);
+    /// `None` = each rotation's playstyle.
+    pub target_distance_yd: Option<f64>,
 }
 
 impl Default for SimSettings {
@@ -299,6 +304,7 @@ impl Default for SimSettings {
             options: BTreeSet::new(),
             rage_formula: RageFormula::Forever,
             initial_rage: 0,
+            target_distance_yd: None,
         }
     }
 }
@@ -347,6 +353,7 @@ impl SimSettings {
             ruleset: self.ruleset,
             rage_formula: self.rage_formula,
             initial_rage: self.initial_rage,
+            target_distance_yd: self.target_distance_yd,
         }
     }
 
@@ -372,6 +379,11 @@ impl SimSettings {
             return Err(SimSettingsError::TargetStartHealth(
                 self.target_start_health_percent,
             ));
+        }
+        if let Some(yards) = self.target_distance_yd
+            && !(yards.is_finite() && yards >= 0.0)
+        {
+            return Err(SimSettingsError::TargetDistance(yards));
         }
         Ok(())
     }
@@ -505,6 +517,13 @@ mod tests {
                     ..valid.clone()
                 },
                 SimSettingsError::TargetStartHealth(0),
+            ),
+            (
+                SimSettings {
+                    target_distance_yd: Some(-1.0),
+                    ..valid.clone()
+                },
+                SimSettingsError::TargetDistance(-1.0),
             ),
             (
                 SimSettings {

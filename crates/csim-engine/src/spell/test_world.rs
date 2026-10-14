@@ -118,6 +118,7 @@ pub(crate) struct World {
     pub extra_crits: Vec<u32>,
     pub can_crits: Vec<bool>,
     pub combat_length: f64,
+    pub target_distance_yd: f64,
     pub armor: i32,
     pub block_value: u32,
     pub aura_log: Vec<String>,
@@ -187,6 +188,7 @@ impl World {
             extra_crits: Vec::new(),
             can_crits: Vec::new(),
             combat_length: 300.0,
+            target_distance_yd: 0.0,
             armor: 0,
             block_value: 0,
             aura_log: Vec::new(),
@@ -518,6 +520,9 @@ impl SpellHost for World {
     }
     fn combat_length(&self) -> f64 {
         self.combat_length
+    }
+    fn target_distance_yd(&self) -> f64 {
+        self.target_distance_yd
     }
     fn on_global_cooldown(&self) -> bool {
         self.engine.current_time() < self.next_gcd
