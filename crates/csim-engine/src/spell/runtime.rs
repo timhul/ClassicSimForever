@@ -345,10 +345,16 @@ impl CastReport {
     /// The proc sources of this cast and of every spell it triggered, in order.
     pub fn all_proc_sources(&self) -> Vec<ProcSource> {
         let mut sources = self.proc_sources.clone();
-        for (_, triggered) in &self.triggered {
-            sources.extend(triggered.all_proc_sources());
-        }
+        sources.extend(self.triggered_proc_sources());
         sources
+    }
+
+    /// The proc sources of the spells this cast triggered, not its own.
+    pub fn triggered_proc_sources(&self) -> Vec<ProcSource> {
+        self.triggered
+            .iter()
+            .flat_map(|(_, triggered)| triggered.all_proc_sources())
+            .collect()
     }
 
     /// The total damage of this cast (off-hand strike included) and of every spell it
@@ -966,6 +972,17 @@ impl Spell {
         } else {
             0.0
         }
+    }
+
+    /// The travel time of a cast that `report` says was launched at the target: rolled, its
+    /// outcome not dealt until the missile lands. `None` when it lands at once (no speed, no
+    /// attack, or a cast that only started or queued).
+    pub fn landing_delay(&self, host: &impl SpellHost, report: &CastReport) -> Option<f64> {
+        if report.cast_started || report.queued || report.attack.is_none() {
+            return None;
+        }
+        let travel = self.travel_time(host);
+        (travel > 0.0).then_some(travel)
     }
 
     /// Whether the spell has a cast time (as opposed to being instant).

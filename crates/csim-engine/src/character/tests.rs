@@ -178,7 +178,11 @@ impl Fixture {
             &race(race_kind),
             equipment,
             Phase::MoltenCore,
-            SimParams::default(),
+            // Spells land at once; the travel tests set a distance.
+            SimParams {
+                target_distance_yd: Some(0.0),
+                ..SimParams::default()
+            },
             63,
             0,
             0,
@@ -538,6 +542,7 @@ fn the_target_distance_follows_the_rotations_playstyle() {
     use crate::attack_mode::AttackMode;
 
     let mut f = Fixture::orc_warrior();
+    f.character.set_sim(SimParams::default());
     assert_eq!(f.character.target_distance_yd(), 5.0, "melee by default");
     f.character.spells.set_attack_mode(AttackMode::MagicAttack);
     assert_eq!(f.character.target_distance_yd(), 30.0);
@@ -1281,6 +1286,7 @@ mod shaman_items;
 mod shaman_spells;
 mod shaman_talents;
 mod shaman_totems;
+mod travel;
 
 // ---------------------------------------------------------------- external buffs
 

@@ -501,7 +501,8 @@ impl Rotation {
 
     /// Seconds before the pull the iteration has to start at so the precombat actions fit:
     /// one global cooldown, or the precast's cast time when longer (a shorter precast, Charge,
-    /// must not leave a precombat global cooldown running into the pull). Port of
+    /// must not leave a precombat global cooldown running into the pull). A missile lands after
+    /// the pull: players time the cast, not the flight. Port of
     /// `Rotation::get_time_required_to_run_precombat`.
     pub fn time_required_to_run_precombat(&self, host: &impl RotationHost) -> f64 {
         let precast = self
