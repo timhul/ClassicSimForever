@@ -170,6 +170,15 @@
     font-weight: 600;
   }
   #sub { color: var(--muted); }
+  #wip {
+    margin-top: 4px;
+    padding: 2px 8px;
+    border: 1px solid #c9a227;
+    border-radius: 4px;
+    background: rgba(201, 162, 39, 0.12);
+    color: #e6c229;
+    font-size: 12px;
+  }
   #totals { font-variant-numeric: tabular-nums; }
   #build { color: var(--muted); font-size: 12px; margin-left: 8px; font-weight: 400; }
   #dps { font-size: 22px; font-weight: 700; color: var(--accent); }
@@ -1118,6 +1127,7 @@
   <div>
     <h1><span id="name">csim-live</span><span id="build"></span></h1>
     <div id="sub"></div>
+    <div id="wip" role="note" hidden>Work in progress: this class still needs research.</div>
   </div>
   <div id="totals" class="live-only"><span id="dps">0.0</span> DPS &middot; <span id="total">0</span> damage</div>
   <div id="sim-totals" class="sim-only" hidden
@@ -1679,6 +1689,7 @@ function renderHeader() {
     return;
   }
   $("name").textContent = info.name;
+  $("wip").hidden = info.class === "Warrior";
   const settings = info.settings ? ` · ${info.settings}` : "";
   const missing = info.missing_prerequisites.length
     ? ` · lacks ${info.missing_prerequisites.map((missing) => missing.spell).join(", ")}`
