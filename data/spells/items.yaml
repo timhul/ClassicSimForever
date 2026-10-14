@@ -756,6 +756,7 @@ spells:
   cast_time_ms: 2000
   duration_ms: 6000
   range_yd: 35.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: MAGIC
   levels:
@@ -782,6 +783,7 @@ spells:
   icon_name: spell_frost_frostbolt02
   duration_ms: 5000
   range_yd: 100.0
+  speed_yd_per_s: 28.0
   categories:
     defense_type: MAGIC
     dispel_type: 1
@@ -806,6 +808,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -824,6 +827,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -999,6 +1003,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 100.0
+  speed_yd_per_s: 30.0
   power:
   - type: MANA
     cost: 20
@@ -1212,6 +1217,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 40
@@ -1418,6 +1424,7 @@ spells:
   icon_name: ability_warrior_savageblow
   duration_ms: 20000
   range_yd: 30.0
+  speed_yd_per_s: 19.0
   categories:
     defense_type: MELEE
   levels:
@@ -1511,6 +1518,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -1530,6 +1538,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 40
@@ -1712,6 +1721,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   cooldown:
     start_recovery_ms: 1500
   categories:
@@ -1935,6 +1945,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 15.0
   categories:
     defense_type: MAGIC
   levels:
@@ -1991,6 +2002,7 @@ spells:
   icon_name: spell_fire_firebolt02
   cast_time_ms: 3000
   range_yd: 30.0
+  speed_yd_per_s: 19.0
   power:
   - type: MANA
     cost: 18
@@ -2014,6 +2026,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 40
@@ -2156,6 +2169,7 @@ spells:
   icon: 135846
   icon_name: spell_frost_frostbolt02
   range_yd: 30.0
+  speed_yd_per_s: 40.0
   categories:
     defense_type: MAGIC
   levels:
@@ -2198,6 +2212,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 40
@@ -2221,6 +2236,7 @@ spells:
   icon_name: spell_shadow_shadowbolt
   cast_time_ms: 2200
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 40
@@ -2242,6 +2258,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -2727,6 +2744,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   cooldown:
     start_recovery_ms: 1500
   categories:
@@ -2914,6 +2932,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 10.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   aura_options:
@@ -7712,6 +7731,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
+  speed_yd_per_s: 35.0
   categories:
     defense_type: RANGED
   levels:
@@ -7750,6 +7770,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
+  speed_yd_per_s: 35.0
   categories:
     defense_type: RANGED
   levels:
@@ -7768,6 +7789,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
+  speed_yd_per_s: 35.0
   categories:
     defense_type: RANGED
   levels:
@@ -7786,6 +7808,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: RANGED
   levels:
@@ -7804,6 +7827,7 @@ spells:
   icon: 135990
   icon_name: spell_lightning_lightningbolt01
   range_yd: 50000.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: RANGED
   levels:
@@ -8783,6 +8807,7 @@ spells:
   icon: 135810
   icon_name: spell_fire_firebolt02
   range_yd: 100.0
+  speed_yd_per_s: 19.0
   power:
   - type: MANA
     cost: 18
@@ -8801,6 +8826,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8820,6 +8846,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8934,6 +8961,7 @@ spells:
   icon_name: spell_nature_corrosivebreath
   duration_ms: 12000
   range_yd: 100.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: MAGIC
     dispel_type: 4
@@ -8994,6 +9022,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 100.0
+  speed_yd_per_s: 40.0
   categories:
     defense_type: MAGIC
   description: Blasts a target for $s1 Nature damage.
@@ -9230,6 +9259,7 @@ spells:
   icon: 135646
   icon_name: inv_weapon_shortblade_10
   range_yd: 100.0
+  speed_yd_per_s: 5.0
   categories:
     defense_type: RANGED
   levels:
@@ -9326,6 +9356,7 @@ spells:
   icon: 136197
   icon_name: spell_shadow_shadowbolt
   range_yd: 100.0
+  speed_yd_per_s: 20.0
   cooldown:
     start_recovery_ms: 1500
   categories:
@@ -9461,6 +9492,7 @@ spells:
   icon: 135846
   icon_name: spell_frost_frostbolt02
   range_yd: 30.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: MAGIC
   levels:
@@ -9560,6 +9592,7 @@ spells:
   icon_name: inv_gauntlets_04
   duration_ms: 5000
   range_yd: 100.0
+  speed_yd_per_s: 40.0
   categories:
     defense_type: RANGED
   levels:
@@ -9775,6 +9808,7 @@ spells:
   icon: 133863
   icon_name: inv_misc_enggizmos_05
   range_yd: 100.0
+  speed_yd_per_s: 10.0
   description: Page Everlook Emergency Services for a Parachute-Priest that will assist in healing allies for $1295661d.
   effects:
   - index: 0
@@ -9789,6 +9823,7 @@ spells:
   icon: 133861
   icon_name: inv_misc_enggizmos_03
   range_yd: 100.0
+  speed_yd_per_s: 10.0
   categories:
     defense_type: MAGIC
   description: $@spelldesc1295271
@@ -9851,6 +9886,7 @@ spells:
   icon_name: spell_fire_firebolt02
   duration_ms: 6000
   range_yd: 100.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: MAGIC
   levels:
@@ -9935,6 +9971,7 @@ spells:
   icon: 135810
   icon_name: spell_fire_firebolt02
   range_yd: 100.0
+  speed_yd_per_s: 19.0
   categories:
     defense_type: MAGIC
   levels:
@@ -11458,6 +11495,7 @@ spells:
   icon_name: inv_ember
   duration_ms: 9000
   range_yd: 100.0
+  speed_yd_per_s: 35.0
   categories:
     defense_type: RANGED
   levels:
@@ -12168,6 +12206,7 @@ spells:
   icon: 135810
   icon_name: spell_fire_firebolt02
   range_yd: 100.0
+  speed_yd_per_s: 19.0
   categories:
     defense_type: MAGIC
   description: Blasts a target for $s1 Fire damage.

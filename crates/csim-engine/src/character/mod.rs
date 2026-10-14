@@ -29,10 +29,11 @@ use crate::character_spells::CharacterSpells;
 use crate::combat_roll::{CombatRoll, MagicRollContext, RollContext};
 use crate::equipment::Equipment;
 use crate::faction::{Faction, PlayerClass};
-use crate::ids::{CharId, SpellId};
+use crate::ids::{CharId, ProcId, SpellId};
 use crate::item::{EquipmentDb, EquipmentSlot, WeaponSlot, WeaponType};
 use crate::magic_school::MagicSchool;
 use crate::phase::Phase;
+use crate::proc::{ProcSource, ProcTrigger};
 use crate::race::{Race, RaceSpec};
 use crate::rage_formula::RageFormula;
 use crate::resource::{Mana, Rage, Resource, ResourceType};
@@ -41,7 +42,7 @@ use crate::rotation::Rotation;
 use crate::rulesets::Ruleset;
 use crate::spell::auto_attack::{CRIT_RAGE_FACTOR, swing_rage};
 use crate::spell::modifiers::SpellModifiers;
-use crate::spell::{AutoAttack, Hand, SpellStatus};
+use crate::spell::{AutoAttack, CastReport, Hand, SpellStatus};
 use crate::stance::Stance;
 use crate::statistics::ClassStatistics;
 use crate::stats::{CharacterStats, ClassStatRules, RaceStats, StatContext, TargetStatView};
@@ -68,6 +69,27 @@ pub struct SimParams {
     /// Rage at the start of every iteration, before the precombat actions (capped at the
     /// maximum); ignored by characters without rage.
     pub initial_rage: u32,
+    /// Yards to the target for every character; `None` = each rotation's playstyle
+    /// ([`AttackMode::target_distance_yd`]).
+    pub target_distance_yd: Option<f64>,
+}
+
+/// What launched a missile: a spell of the character's or a proc's own spell.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Launcher {
+    Spell(SpellId),
+    Proc(ProcId),
+}
+
+/// A missile in flight: the outcome rolled at launch, recorded and run when it lands.
+#[derive(Debug, Clone)]
+pub(crate) struct InFlight {
+    pub impact: u32,
+    pub caster: Launcher,
+    /// The landing part of the cast's report (see `CharacterContext::launch`).
+    pub report: CastReport,
+    /// The proc sources of the landed outcome.
+    pub sources: Vec<(ProcSource, ProcTrigger)>,
 }
 
 /// The target health below which Execute is usable (`WOUNDED_20_PERCENT`).
@@ -104,6 +126,7 @@ impl Default for SimParams {
             ruleset: Ruleset::Standard,
             rage_formula: RageFormula::Forever,
             initial_rage: 0,
+            target_distance_yd: None,
         }
     }
 }
@@ -224,6 +247,10 @@ pub struct Character {
     /// The seal each Echo applies when its charge is used, as `(echo, seal)` (Twist of Light:
     /// the seal the Echo's last application replaced).
     echoed_seals: Vec<(SpellId, SpellId)>,
+    /// Missiles launched and not landed yet, each until its `SpellImpact`.
+    in_flight: Vec<InFlight>,
+    /// The id of the next missile launched.
+    next_impact: u32,
     /// The damage bonuses of a school while an aura is up (`SCHOOL_DAMAGE_PERCENT_WHILE_AURA`),
     /// once per active aura.
     school_damage_while_aura: Vec<SchoolDamageWhileAura>,
@@ -356,6 +383,8 @@ impl Character {
             mainhand_damage_factors: Vec::new(),
             judged_seal_mana_return: None,
             echoed_seals: Vec::new(),
+            in_flight: Vec::new(),
+            next_impact: 0,
             school_damage_while_aura: Vec::new(),
             offhand_rage_percent: 0,
             offhand_copies: Vec::new(),
@@ -947,6 +976,30 @@ impl Character {
         &self.echoed_seals
     }
 
+    /// Keeps a launched missile until it lands; returns the id its `SpellImpact` carries.
+    pub(crate) fn launch(
+        &mut self,
+        caster: Launcher,
+        report: CastReport,
+        sources: Vec<(ProcSource, ProcTrigger)>,
+    ) -> u32 {
+        let impact = self.next_impact;
+        self.next_impact = self.next_impact.wrapping_add(1);
+        self.in_flight.push(InFlight {
+            impact,
+            caster,
+            report,
+            sources,
+        });
+        impact
+    }
+
+    /// The missile `impact`, which lands now; `None` for one of an earlier iteration.
+    pub(crate) fn take_in_flight(&mut self, impact: u32) -> Option<InFlight> {
+        let index = self.in_flight.iter().position(|m| m.impact == impact)?;
+        Some(self.in_flight.swap_remove(index))
+    }
+
     /// Echo `echo` now applies `seal`, the seal it replaced last.
     pub fn set_echoed_seal(&mut self, echo: SpellId, seal: SpellId) {
         match self.echoed_seals.iter_mut().find(|(id, _)| *id == echo) {
@@ -1500,6 +1553,13 @@ impl Character {
         self.spells.attack_mode()
     }
 
+    /// Yards to the target: the `target_distance_yd` setting, else the rotation's playstyle.
+    pub fn target_distance_yd(&self) -> f64 {
+        self.sim
+            .target_distance_yd
+            .unwrap_or_else(|| self.attack_mode().target_distance_yd())
+    }
+
     // ---------------------------------------------------------------- lifecycle
 
     /// The state part of `Character::reset`; the context resets spells, buffs and procs and
@@ -1516,6 +1576,7 @@ impl Character {
         self.combo_points_until = -1.0;
         self.pending_extra_attacks = 0;
         self.echoed_seals.clear();
+        self.in_flight.clear();
         self.queued_input = None;
         self.input_failure = None;
         self.clear_regen_wake();

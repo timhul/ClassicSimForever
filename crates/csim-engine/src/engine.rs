@@ -71,6 +71,11 @@ pub enum EventKind {
     Precast {
         character: CharId,
     },
+    /// A missile in flight reaches the target (see `Spell::landing_delay`).
+    SpellImpact {
+        character: CharId,
+        impact: u32,
+    },
     /// The player notices regenerated energy (a `PlayerAction` scheduled from the energy grid,
     /// see `RegenReactions`); only the character's current one `wake` is acted on.
     RegenReaction {
@@ -102,6 +107,7 @@ impl EventKind {
             | EventKind::PlayerAction { character }
             | EventKind::Precast { character }
             | EventKind::RegenReaction { character, .. }
+            | EventKind::SpellImpact { character, .. }
             | EventKind::TotemAttack { character, .. } => Some(character),
             EventKind::EncounterEnd => None,
         }
@@ -123,6 +129,7 @@ impl EventKind {
             EventKind::PlayerAction { .. } => EventType::PlayerAction,
             EventKind::Precast { .. } => EventType::Precast,
             EventKind::RegenReaction { .. } => EventType::RegenReaction,
+            EventKind::SpellImpact { .. } => EventType::SpellImpact,
             EventKind::TotemAttack { .. } => EventType::TotemAttack,
         }
     }
@@ -144,11 +151,12 @@ pub enum EventType {
     PlayerAction,
     Precast,
     RegenReaction,
+    SpellImpact,
     TotemAttack,
 }
 
 impl EventType {
-    pub const ALL: [EventType; 14] = [
+    pub const ALL: [EventType; 15] = [
         EventType::BuffRemoval,
         EventType::CastComplete,
         EventType::DotTick,
@@ -162,6 +170,7 @@ impl EventType {
         EventType::PlayerAction,
         EventType::Precast,
         EventType::RegenReaction,
+        EventType::SpellImpact,
         EventType::TotemAttack,
     ];
 
@@ -185,6 +194,7 @@ impl EventType {
             EventType::PlayerAction => "Player action",
             EventType::Precast => "Precast",
             EventType::RegenReaction => "Regeneration reaction",
+            EventType::SpellImpact => "Spell impact",
             EventType::TotemAttack => "Totem attack",
         }
     }

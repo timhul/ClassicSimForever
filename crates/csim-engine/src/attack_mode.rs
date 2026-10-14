@@ -16,6 +16,21 @@ pub enum AttackMode {
     MagicAttack,
 }
 
+/// Yards between a melee rotation's character and the target.
+pub const MELEE_DISTANCE_YD: f64 = 5.0;
+/// Yards between a ranged or caster rotation's character and the target.
+pub const RANGED_DISTANCE_YD: f64 = 30.0;
+
+impl AttackMode {
+    /// The distance to the target the playstyle keeps, which missiles travel.
+    pub fn target_distance_yd(self) -> f64 {
+        match self {
+            AttackMode::MeleeAttack => MELEE_DISTANCE_YD,
+            AttackMode::RangedAttack | AttackMode::MagicAttack => RANGED_DISTANCE_YD,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -34,5 +49,12 @@ mod tests {
             serde_yaml::from_str::<AttackMode>("magic_attack").unwrap(),
             AttackMode::MagicAttack
         );
+    }
+
+    #[test]
+    fn ranged_playstyles_keep_their_distance() {
+        assert_eq!(AttackMode::MeleeAttack.target_distance_yd(), 5.0);
+        assert_eq!(AttackMode::RangedAttack.target_distance_yd(), 30.0);
+        assert_eq!(AttackMode::MagicAttack.target_distance_yd(), 30.0);
     }
 }

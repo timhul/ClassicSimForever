@@ -121,6 +121,10 @@ pub trait SpellHost: EffectHost {
     fn target_start_health(&self) -> f64 {
         1.0
     }
+    /// Yards to the target, which missiles travel.
+    fn target_distance_yd(&self) -> f64 {
+        0.0
+    }
     /// The target's health as a fraction, from the encounter's progress: the start health
     /// falls linearly until the boss dies at the end, which places the execute ranges.
     fn target_health(&self) -> f64 {
@@ -341,10 +345,16 @@ impl CastReport {
     /// The proc sources of this cast and of every spell it triggered, in order.
     pub fn all_proc_sources(&self) -> Vec<ProcSource> {
         let mut sources = self.proc_sources.clone();
-        for (_, triggered) in &self.triggered {
-            sources.extend(triggered.all_proc_sources());
-        }
+        sources.extend(self.triggered_proc_sources());
         sources
+    }
+
+    /// The proc sources of the spells this cast triggered, not its own.
+    pub fn triggered_proc_sources(&self) -> Vec<ProcSource> {
+        self.triggered
+            .iter()
+            .flat_map(|(_, triggered)| triggered.all_proc_sources())
+            .collect()
     }
 
     /// The total damage of this cast (off-hand strike included) and of every spell it
@@ -552,6 +562,13 @@ impl SpellSetup {
         self.overrides
             .cast_time_ms
             .unwrap_or(self.record.cast_time_ms)
+    }
+
+    /// The missile speed in yd/s: the override's, else the table's; 0 = lands instantly.
+    pub fn speed_yd_per_s(&self) -> f32 {
+        self.overrides
+            .speed_yd_per_s
+            .unwrap_or(self.record.speed_yd_per_s)
     }
 
     /// Whether the spell needs a buff: it has aura effects, a bleed script with an aura, or it
@@ -944,6 +961,28 @@ impl Spell {
 
     pub fn effects_mut(&mut self) -> &mut Vec<Effect> {
         &mut self.effects
+    }
+
+    /// Seconds the missile flies to the target; 0 for a spell that lands at once.
+    pub fn travel_time(&self, host: &impl SpellHost) -> f64 {
+        let speed = f64::from(self.setup.speed_yd_per_s());
+        let distance = host.target_distance_yd();
+        if speed > 0.0 && distance > 0.0 {
+            distance / speed
+        } else {
+            0.0
+        }
+    }
+
+    /// The travel time of a cast that `report` says was launched at the target: rolled, its
+    /// outcome not dealt until the missile lands. `None` when it lands at once (no speed, no
+    /// attack, or a cast that only started or queued).
+    pub fn landing_delay(&self, host: &impl SpellHost, report: &CastReport) -> Option<f64> {
+        if report.cast_started || report.queued || report.attack.is_none() {
+            return None;
+        }
+        let travel = self.travel_time(host);
+        (travel > 0.0).then_some(travel)
     }
 
     /// Whether the spell has a cast time (as opposed to being instant).

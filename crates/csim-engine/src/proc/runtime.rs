@@ -876,7 +876,16 @@ impl EnabledProcs {
         reports: &mut Vec<(ProcId, CastReport)>,
     ) {
         let report = self.procs[id.index()].perform(host);
-        let nested = report.all_proc_sources();
+        // A missile's own sources run when it lands.
+        let nested = if self.procs[id.index()]
+            .spell
+            .landing_delay(host, &report)
+            .is_some()
+        {
+            report.triggered_proc_sources()
+        } else {
+            report.all_proc_sources()
+        };
         reports.push((id, report));
         for nested_source in nested {
             reports.extend(self.run_proc_check(nested_source, ProcTrigger::default(), host));

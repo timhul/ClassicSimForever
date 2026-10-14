@@ -31,8 +31,9 @@ pub enum SettingKind {
         options: &'static [&'static str],
         default: &'static str,
     },
-    /// A number; `whole` when it has no fraction and is not negative.
-    Number { default: f64, whole: bool },
+    /// A number; `whole` when it has no fraction and is not negative. A `None` default is
+    /// decided per character (the distance, by the rotation's playstyle).
+    Number { default: Option<f64>, whole: bool },
 }
 
 /// Another setting's value, which a setting depends on.
@@ -48,7 +49,7 @@ const SIGMOID: Option<SettingRequirement> = Some(SettingRequirement {
 });
 
 /// Every setting [`SimSettings::apply_settings`] knows.
-pub const NAMED_SETTINGS: [NamedSetting; 7] = [
+pub const NAMED_SETTINGS: [NamedSetting; 8] = [
     NamedSetting {
         name: "rage_formula",
         help: "white swing rage: forever (default) or marrow_sigmoid",
@@ -62,7 +63,7 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "sigmoid_floor",
         help: "marrow_sigmoid: extra rage per minute with a bad weapon (default 0)",
         kind: SettingKind::Number {
-            default: 0.0,
+            default: Some(0.0),
             whole: false,
         },
         requires: SIGMOID,
@@ -71,7 +72,7 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "sigmoid_ceiling",
         help: "marrow_sigmoid: extra rage per minute where the curve levels off (default 46)",
         kind: SettingKind::Number {
-            default: 46.0,
+            default: Some(46.0),
             whole: false,
         },
         requires: SIGMOID,
@@ -80,7 +81,7 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "sigmoid_midpoint",
         help: "marrow_sigmoid: main-hand weapon DPS where the curve climbs fastest (default 58)",
         kind: SettingKind::Number {
-            default: 58.0,
+            default: Some(58.0),
             whole: false,
         },
         requires: SIGMOID,
@@ -89,7 +90,7 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "sigmoid_width",
         help: "marrow_sigmoid: how spread out the climb is, in weapon DPS (default 3.8)",
         kind: SettingKind::Number {
-            default: 3.8,
+            default: Some(3.8),
             whole: false,
         },
         requires: SIGMOID,
@@ -98,7 +99,7 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "initial_rage",
         help: "rage at the start of every iteration, capped at the maximum (default 0)",
         kind: SettingKind::Number {
-            default: 0.0,
+            default: Some(0.0),
             whole: true,
         },
         requires: None,
@@ -107,8 +108,18 @@ pub const NAMED_SETTINGS: [NamedSetting; 7] = [
         name: "target_start_health_percent",
         help: "target health in percent when the fight starts, 1-100; it falls to 0 at the end,                which places the execute ranges (default 100)",
         kind: SettingKind::Number {
-            default: 100.0,
+            default: Some(100.0),
             whole: true,
+        },
+        requires: None,
+    },
+    NamedSetting {
+        name: "target_distance_yd",
+        help: "yards to the target that missiles travel, for every character (default by the \
+               rotation: 5 melee, 30 ranged and magic)",
+        kind: SettingKind::Number {
+            default: None,
+            whole: false,
         },
         requires: None,
     },
@@ -270,9 +281,25 @@ impl SimSettings {
                 })?,
         };
 
+        let target_distance_yd = match values.get("target_distance_yd") {
+            None => self.target_distance_yd,
+            Some(value) => Some(
+                value
+                    .parse::<f64>()
+                    .ok()
+                    .filter(|yards| yards.is_finite() && *yards >= 0.0)
+                    .ok_or_else(|| SettingError::InvalidValue {
+                        name: "target_distance_yd".to_string(),
+                        value: value.to_string(),
+                        expected: "a distance of 0 yards or more",
+                    })?,
+            ),
+        };
+
         self.rage_formula = formula;
         self.initial_rage = initial_rage;
         self.target_start_health_percent = target_start_health_percent;
+        self.target_distance_yd = target_distance_yd;
         Ok(())
     }
 
@@ -304,6 +331,9 @@ impl SimSettings {
                 "target_start_health_percent",
                 self.target_start_health_percent.to_string(),
             ));
+        }
+        if let Some(yards) = self.target_distance_yd {
+            settings.push(("target_distance_yd", yards.to_string()));
         }
         settings
     }
@@ -337,11 +367,15 @@ mod tests {
                     assert!(options.contains(&default), "{}", setting.name);
                     (None, default.to_string())
                 }
-                SettingKind::Number { default, .. } => (Some(default), default.to_string()),
+                SettingKind::Number { default, .. } => (
+                    default,
+                    default.map_or("by the".to_string(), |d| d.to_string()),
+                ),
             };
             assert!(
                 setting.help.contains(&format!("{text} (default)"))
-                    || setting.help.contains(&format!("(default {text})")),
+                    || setting.help.contains(&format!("(default {text})"))
+                    || setting.help.contains(&format!("(default {text} ")),
                 "{}: {}",
                 setting.name,
                 setting.help
@@ -355,6 +389,7 @@ mod tests {
                 "target_start_health_percent" => {
                     Some(f64::from(defaults.target_start_health_percent))
                 }
+                "target_distance_yd" => defaults.target_distance_yd,
                 _ => None,
             };
             assert_eq!(default, expected, "{}", setting.name);
@@ -540,6 +575,33 @@ mod tests {
                 .named_settings()
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn target_distance_overrides_the_rotations() {
+        let settings = applied("target_distance_yd:12.5").unwrap();
+        assert_eq!(settings.sim_params().target_distance_yd, Some(12.5));
+        assert_eq!(
+            settings.named_settings_text().unwrap(),
+            "target_distance_yd:12.5"
+        );
+        // 0 is a distance, unlike leaving it to the rotation.
+        assert_eq!(
+            applied("target_distance_yd:0")
+                .unwrap()
+                .named_settings_text(),
+            Some("target_distance_yd:0".to_string())
+        );
+        for bad in [
+            "target_distance_yd:-1",
+            "target_distance_yd:inf",
+            "target_distance_yd:far",
+        ] {
+            assert!(
+                matches!(applied(bad), Err(SettingError::InvalidValue { .. })),
+                "{bad}"
+            );
+        }
     }
 
     #[test]

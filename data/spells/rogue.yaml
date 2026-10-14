@@ -4832,6 +4832,7 @@ spells:
   icon_name: inv_musket_02
   duration_ms: 6000
   range_yd: 20.0
+  speed_yd_per_s: 40.0
   power:
   - type: ENERGY
     cost: 25
@@ -5035,6 +5036,7 @@ spells:
   icon: 132330
   icon_name: ability_upgrademoonglaive
   range_yd: 25.0
+  speed_yd_per_s: 35.0
   power:
   - type: ENERGY
     cost: 30
@@ -5074,6 +5076,7 @@ spells:
   duration_per_resource_ms: 1000
   max_duration_ms: 5000
   range_yd: 20.0
+  speed_yd_per_s: 100.0
   power:
   - type: ENERGY
     cost: 35
@@ -5352,6 +5355,7 @@ spells:
   icon: 135694
   icon_name: inv_weapon_shortblade_59
   range_yd: 100.0
+  speed_yd_per_s: 30.0
   categories:
     defense_type: MELEE
   levels:

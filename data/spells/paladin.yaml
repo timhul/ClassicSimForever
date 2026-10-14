@@ -792,6 +792,7 @@ spells:
   icon: 135902
   icon_name: spell_holy_excorcism
   cast_time_ms: 2000
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 645
@@ -1428,6 +1429,7 @@ spells:
   icon: 135902
   icon_name: spell_holy_excorcism
   cast_time_ms: 2000
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 805
@@ -7377,6 +7379,7 @@ spells:
   icon_name: ability_thunderclap
   cast_time_ms: 1000
   range_yd: 30.0
+  speed_yd_per_s: 35.0
   power:
   - type: MANA
     cost: 425
@@ -7417,6 +7420,7 @@ spells:
   icon_name: ability_thunderclap
   cast_time_ms: 1000
   range_yd: 30.0
+  speed_yd_per_s: 35.0
   power:
   - type: MANA
     cost: 360
@@ -7457,6 +7461,7 @@ spells:
   icon_name: ability_thunderclap
   cast_time_ms: 1000
   range_yd: 30.0
+  speed_yd_per_s: 35.0
   power:
   - type: MANA
     cost: 295
@@ -8426,6 +8431,7 @@ spells:
   icon: 236253
   icon_name: ability_paladin_hammeroftherighteous
   range_yd: 5.0
+  speed_yd_per_s: 35.0
   power:
   - type: MANA
     cost_pct: 6.0

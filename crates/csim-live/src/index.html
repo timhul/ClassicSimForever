@@ -1822,7 +1822,8 @@ function fillSettings() {
       if (setting.kind.whole) {
         control.min = "0";
       }
-      control.placeholder = setting.kind.default;
+      // A null default is decided per character.
+      control.placeholder = setting.kind.default ?? "auto";
     }
     control.setAttribute("aria-label", setting.name);
     settingControls.set(setting.name, { setting, control, label });

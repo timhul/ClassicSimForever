@@ -540,7 +540,7 @@ fn an_elemental_shaman_shows_its_casts_and_totems() {
 }
 
 /// From the keyboard an Elemental Shaman's first cast pulls: Lightning Bolt pressed at 0.5 s
-/// is on the cast bar until it lands 2 s later.
+/// is on the cast bar for 2 s, then flies 1.5 s (30 yd at 20 yd/s).
 #[test]
 fn an_elemental_shaman_casts_from_the_keyboard() {
     let mut session = manual_session_of(
@@ -558,6 +558,8 @@ fn an_elemental_shaman_casts_from_the_keyboard() {
     assert!((cast.end - cast.start - 2.0).abs() < 1e-9, "{cast:?}");
     let frame = session.advance(cast.end + 0.1);
     assert_eq!(frame.state.casting, None);
+    assert_eq!(frame.total_damage, 0, "in flight");
+    let frame = session.advance(cast.end + 1.6);
     assert!(frame.total_damage > 0);
 }
 

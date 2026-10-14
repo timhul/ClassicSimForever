@@ -205,6 +205,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 1500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 15
@@ -281,6 +282,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2000
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 30
@@ -354,6 +356,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 45
@@ -492,6 +495,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 60
@@ -605,6 +609,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 85
@@ -1024,6 +1029,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 110
@@ -2856,6 +2862,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 135
@@ -2892,6 +2899,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 160
@@ -3386,6 +3394,7 @@ spells:
   icon_name: spell_fire_searingtotem
   cast_time_ms: 2200
   range_yd: 20.0
+  speed_yd_per_s: 19.0
   categories:
     defense_type: MAGIC
   levels:
@@ -4897,6 +4906,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 190
@@ -4933,6 +4943,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 220
@@ -7849,6 +7860,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -7879,6 +7891,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -7909,6 +7922,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -7939,6 +7953,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -7969,6 +7984,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -7999,6 +8015,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8029,6 +8046,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8060,6 +8078,7 @@ spells:
   icon_name: spell_nature_lightning
   cast_time_ms: 3000
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8090,6 +8109,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8120,6 +8140,7 @@ spells:
   icon: 136048
   icon_name: spell_nature_lightning
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -8278,6 +8299,7 @@ spells:
   icon_name: spell_shaman_lavaburst
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 165
@@ -8319,6 +8341,7 @@ spells:
   icon: 237582
   icon_name: spell_shaman_lavaburst
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -9083,6 +9106,7 @@ spells:
   icon_name: spell_shaman_lavaburst
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 230
@@ -9126,6 +9150,7 @@ spells:
   icon_name: spell_shaman_lavaburst
   cast_time_ms: 2500
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   power:
   - type: MANA
     cost: 265
@@ -9169,6 +9194,7 @@ spells:
   icon: 237582
   icon_name: spell_shaman_lavaburst
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:
@@ -9197,6 +9223,7 @@ spells:
   icon: 237582
   icon_name: spell_shaman_lavaburst
   range_yd: 30.0
+  speed_yd_per_s: 20.0
   categories:
     defense_type: MAGIC
   levels:

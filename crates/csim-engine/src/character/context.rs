@@ -45,7 +45,8 @@ use crate::target::{CreatureType, Target};
 use crate::totem::{ActiveTotem, TotemAura, TotemElement, TotemSummon};
 
 use super::{
-    Character, JudgedSealManaReturn, RegenReactions, SchoolDamageWhileAura, SimParams, StanceLink,
+    Character, JudgedSealManaReturn, Launcher, RegenReactions, SchoolDamageWhileAura, SimParams,
+    StanceLink,
 };
 
 /// The resource statistics source of regeneration ticks.
@@ -444,7 +445,8 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         if totem.iteration != iteration {
             return;
         }
-        SpellHost::trigger_spell(self, totem.summon.spell, None);
+        // The totem's attack procs nothing of the character's.
+        self.trigger(totem.summon.spell, None, false);
         let character = self.character.id();
         let period = totem.summon.period.expect("an attacking totem");
         self.engine.add_event_in(
@@ -1484,22 +1486,120 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
         report
     }
 
+    /// Casts the character's spell with game id `spell` as another's effect (see
+    /// [`SpellHost::trigger_spell`]); `lands_sources` as in [`Self::record_triggered`].
+    fn trigger(
+        &mut self,
+        spell: u32,
+        trigger_value: Option<f64>,
+        lands_sources: bool,
+    ) -> Option<CastReport> {
+        let id = self.character.spells().spell_by_game_id(spell)?;
+        let report = self.with_spell(id, |s, ctx| {
+            s.set_trigger_value(trigger_value);
+            s.perform_triggered(ctx)
+        });
+        Some(self.record_triggered(id, report, lands_sources))
+    }
+
+    /// Records a triggered cast of `id` and returns the report whose proc sources the caller
+    /// runs. A missile's own sources are not among them: it lands later, running them then
+    /// when `lands_sources` (without a spell behind them, as the caller would).
+    fn record_triggered(
+        &mut self,
+        id: SpellId,
+        report: CastReport,
+        lands_sources: bool,
+    ) -> CastReport {
+        let Some(delay) = self
+            .character
+            .spells
+            .spell(id)
+            .landing_delay(&*self, &report)
+        else {
+            self.record_cast(id, &report, None);
+            return report;
+        };
+        let launch = launched(&report);
+        self.record_cast(id, &launch, None);
+        let sources = if lands_sources {
+            untriggered(&report.proc_sources)
+        } else {
+            Vec::new()
+        };
+        self.launch(Launcher::Spell(id), &report, sources, delay);
+        CastReport {
+            proc_sources: Vec::new(),
+            ..report
+        }
+    }
+
     /// Records the statistics of a completed cast of `id` and runs its proc sources. The
     /// off-hand strike is part of the same cast: it does not use a second charge of a spell
     /// modifier aura (Eureka!). `mark` is where the combat log stood before the spell was
-    /// performed.
+    /// performed. A missile's cast uses its spell modifier charges now and lands later (see
+    /// [`Self::launch`]); its Lightning Overload copy flies with it.
     fn after_cast(&mut self, id: SpellId, report: &CastReport, mark: Option<usize>) {
-        self.record_cast(id, report, mark);
         let sources = self.cast_sources(id, report);
-        self.run_sources(&sources);
-        if let Some(offhand) = &report.offhand {
-            self.run_sources(&untriggered(&offhand.proc_sources));
+        let delay = self
+            .character
+            .spells
+            .spell(id)
+            .landing_delay(&*self, report);
+        if let Some(delay) = delay {
+            self.record_cast(id, &launched(report), mark);
+            self.use_charges(&sources, true);
+            self.launch(Launcher::Spell(id), report, sources, delay);
+        } else {
+            self.record_cast(id, report, mark);
+            self.run_sources(&sources);
+            if let Some(offhand) = &report.offhand {
+                self.run_sources(&untriggered(&offhand.proc_sources));
+            }
         }
         self.lightning_overload(id, report);
     }
 
-    /// A cast that landed casts its `overload` copy at the chance of the character's
-    /// `LIGHTNING_OVERLOAD` auras. The copy comes after the cast used its charges (no
+    /// Keeps what `report` deals for the missile's landing, `delay` seconds from now: its
+    /// attack, recorded and logged then, and the proc `sources` it runs then. The rest (cost,
+    /// resource gains, spent combo points) belongs to the launch.
+    fn launch(
+        &mut self,
+        caster: Launcher,
+        report: &CastReport,
+        sources: Vec<(ProcSource, ProcTrigger)>,
+        delay: f64,
+    ) {
+        let landing = CastReport {
+            resource_gained: Vec::new(),
+            combo_points_spent: 0,
+            ..report.clone()
+        };
+        let impact = self.character.launch(caster, landing, sources);
+        let character = self.character.id();
+        self.engine
+            .add_event_in(delay, EventKind::SpellImpact { character, impact });
+    }
+
+    /// The missile `impact` lands: its outcome is recorded and logged, its proc sources run.
+    fn land(&mut self, impact: u32) {
+        let Some(missile) = self.character.take_in_flight(impact) else {
+            return;
+        };
+        match missile.caster {
+            Launcher::Spell(id) => self.record_cast(id, &missile.report, None),
+            Launcher::Proc(id) => self.record_proc(id, &missile.report),
+        }
+        self.land_sources(&missile.sources);
+        if let Some(offhand) = &missile.report.offhand {
+            self.run_sources(&untriggered(&offhand.proc_sources));
+        }
+        self.perform_extra_attacks();
+    }
+
+    /// A cast that landed (or rolled to land, for a missile: the copy flies with it) casts its
+    /// `overload` copy at the chance of the character's `LIGHTNING_OVERLOAD` auras. The copy
+    /// comes after the cast used its charges (no
     /// Stormstrike bonus), keeps the cast's bonus against its caster aura (Lava Burst with
     /// Flame Shock), and its events run as a payload's: no spell behind them, so it neither
     /// overloads again nor counts for Elemental Focus.
@@ -1600,6 +1700,12 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
     /// used it, so what the cast procs (a Clearcasting from Elemental Focus) stays up.
     fn run_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
         self.use_charges(sources, true);
+        self.land_sources(sources);
+    }
+
+    /// [`Self::run_sources`] without the spell modifier charges, which a missile used at its
+    /// launch.
+    fn land_sources(&mut self, sources: &[(ProcSource, ProcTrigger)]) {
         self.run_proc_checks_around(sources, |ctx| ctx.use_charges(sources, false));
         let plain: Vec<ProcSource> = sources.iter().map(|&(source, _)| source).collect();
         self.run_event_scripts(&plain);
@@ -1730,12 +1836,21 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             fired.extend(self.with_procs(|procs, ctx| procs.run_proc_check(source, trigger, ctx)));
         }
         for (id, report) in &fired {
-            let (name, rank, spell) = {
-                let spell = self.character.spells.procs().get(*id).spell();
-                (spell.name().to_string(), spell.rank(), log_spell(spell))
-            };
-            self.record_report(&name, rank, report);
-            self.log_report(spell, report, None, false);
+            let delay = self
+                .character
+                .spells
+                .procs()
+                .get(*id)
+                .spell()
+                .landing_delay(&*self, report);
+            match delay {
+                Some(delay) => {
+                    self.record_proc(*id, &launched(report));
+                    let sources = untriggered(&report.proc_sources);
+                    self.launch(Launcher::Proc(*id), report, sources, delay);
+                }
+                None => self.record_proc(*id, report),
+            }
         }
         let granted_extra_attacks = self.character.pending_extra_attacks() > before;
         let procs = self.character.spells.procs_mut();
@@ -1745,6 +1860,16 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
             procs.end_check();
         }
         fired
+    }
+
+    /// Records and logs a cast of proc `id`'s own spell.
+    fn record_proc(&mut self, id: ProcId, report: &CastReport) {
+        let (name, rank, spell) = {
+            let spell = self.character.spells.procs().get(id).spell();
+            (spell.name().to_string(), spell.rank(), log_spell(spell))
+        };
+        self.record_report(&name, rank, report);
+        self.log_report(spell, report, None, false);
     }
 
     /// Fires proc `id` now, whatever its chance, and records and logs it; the extra attacks it
@@ -2177,6 +2302,9 @@ impl<'a, S: SharedBuffs> CharacterContext<'a, S> {
                 iteration,
             } if character == me => {
                 self.totem_attack(element, iteration);
+            }
+            EventKind::SpellImpact { character, impact } if character == me => {
+                self.land(impact);
             }
             EventKind::CastComplete {
                 character,
@@ -3388,6 +3516,10 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
         self.character.sim().target_start_health
     }
 
+    fn target_distance_yd(&self) -> f64 {
+        self.character.target_distance_yd()
+    }
+
     fn on_global_cooldown(&self) -> bool {
         self.character.on_global_cooldown(self.now())
     }
@@ -3640,13 +3772,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
     }
 
     fn trigger_spell(&mut self, spell: u32, trigger_value: Option<f64>) -> Option<CastReport> {
-        let id = self.character.spells().spell_by_game_id(spell)?;
-        let report = self.with_spell(id, |s, ctx| {
-            s.set_trigger_value(trigger_value);
-            s.perform_triggered(ctx)
-        });
-        self.record_cast(id, &report, None);
-        Some(report)
+        self.trigger(spell, trigger_value, true)
     }
 
     fn trigger_strike(&mut self, spell: u32, damage_mod: f64) -> Option<CastReport> {
@@ -3657,8 +3783,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             s.set_strike(None);
             report
         });
-        self.record_cast(id, &report, None);
-        Some(report)
+        Some(self.record_triggered(id, report, true))
     }
 
     fn trigger_scaled(&mut self, spell: u32, scale: f64) -> Option<CastReport> {
@@ -3669,8 +3794,7 @@ impl<S: SharedBuffs> SpellHost for CharacterContext<'_, S> {
             s.set_damage_scale(None);
             report
         });
-        self.record_cast(id, &report, None);
-        Some(report)
+        Some(self.record_triggered(id, report, true))
     }
 
     fn end_other_seals(&mut self, keep: BuffId) {
@@ -4131,6 +4255,15 @@ fn external_record(record: &crate::spell::SpellRecord) -> crate::spell::SpellRec
         }
     }
     record
+}
+
+/// The launch of a missile's cast: what `report` did before its attack lands.
+fn launched(report: &CastReport) -> CastReport {
+    CastReport {
+        attack: None,
+        offhand: None,
+        ..report.clone()
+    }
 }
 
 /// `sources` with no spell behind them (a swing's).
