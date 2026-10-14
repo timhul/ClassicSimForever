@@ -9,7 +9,7 @@
 //! overrides:                            # optional; changes the base (see below)
 //!   talents: { Arms: { Deep Wounds: 3 }, Fury: { Cruelty: 5 } }
 //! iterations: 10000                     # optional; iterations per variant
-//! length: 300                           # optional; encounter length in seconds
+//! length: 180                           # optional; encounter length in seconds
 //! variations:
 //!   - talent_points:                    # every way to spend exactly `points` more points
 //!       points: 3                       # over these talents, up to their maximum ranks

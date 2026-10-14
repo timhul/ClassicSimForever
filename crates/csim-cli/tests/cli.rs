@@ -626,7 +626,7 @@ fn sweep_dry_run_counts_and_lists_the_variants() {
     let variants = stdout(&output);
     let header = String::from_utf8(output.stderr).unwrap();
     assert!(
-        header.contains("10 variants × 10000 iterations = 100000 iterations (300 s ± 10%, seed 1)"),
+        header.contains("10 variants × 10000 iterations = 100000 iterations (180 s ± 10%, seed 1)"),
         "{header}"
     );
     assert!(

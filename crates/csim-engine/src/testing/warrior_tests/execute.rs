@@ -14,9 +14,9 @@ fn test() -> WarriorTest {
     test
 }
 
-/// 20 s left of the 300 s fight.
+/// 20 s left of the 180 s fight.
 fn given_target_in_execute_range(test: &mut WarriorTest) {
-    test.given_engine_priority_at(280.0);
+    test.given_engine_priority_at(160.0);
 }
 
 fn given_target_not_in_execute_range(test: &mut WarriorTest) {
@@ -256,8 +256,8 @@ fn the_target_start_health_places_the_execute_range() {
         ..sim
     });
     for (time, status) in [
-        (99.0, SpellStatus::NotInExecuteRange),
-        (101.0, SpellStatus::Available),
+        (59.0, SpellStatus::NotInExecuteRange),
+        (61.0, SpellStatus::Available),
     ] {
         test.given_engine_priority_at(time);
         test.given_warrior_has_rage(100);

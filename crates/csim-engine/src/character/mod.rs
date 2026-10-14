@@ -121,7 +121,7 @@ impl SimParams {
 impl Default for SimParams {
     fn default() -> Self {
         Self {
-            combat_length: 300.0,
+            combat_length: 180.0,
             target_start_health: 1.0,
             ruleset: Ruleset::Standard,
             rage_formula: RageFormula::Forever,

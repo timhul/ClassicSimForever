@@ -338,12 +338,12 @@ fn threshold_reactions_match_the_per_tick_reference() {
     let rotation = r#"attack_mode: melee
 cast_if:
   - name: Adrenaline Rush
-    condition: variable "time_remaining_encounter" less 250
+    condition: variable "time_remaining_encounter" less 130
   - name: Slice and Dice
     condition: |
       buff_duration "Slice and Dice" less 2
       and variable "combo_points" greater 1
-      and variable "time_remaining_encounter" greater 240
+      and variable "time_remaining_encounter" greater 120
   - name: Eviscerate
     condition: |
       variable "combo_points" geq 3

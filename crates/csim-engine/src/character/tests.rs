@@ -2949,7 +2949,7 @@ mod statistics {
         assert!((shout.min_uptime() - 61.5).abs() < 1e-9, "{shout:?}");
         assert_eq!(shout.encounters(), 1);
         assert!(
-            (shout.avg_uptime() - 61.5 / 300.0).abs() < 1e-9,
+            (shout.avg_uptime() - 61.5 / 180.0).abs() < 1e-9,
             "{shout:?}"
         );
         // Blood Fury expired on its own.
@@ -2970,8 +2970,8 @@ mod statistics {
             stats.spells().map(|(_, s)| s.total_damage()).sum::<u64>()
         );
         assert_eq!(stats.iterations(), 1);
-        assert_eq!(stats.time_in_combat(), 300.0);
-        assert!((stats.personal_dps() - stats.total_damage() as f64 / 300.0).abs() < 1e-9);
+        assert_eq!(stats.time_in_combat(), 180.0);
+        assert!((stats.personal_dps() - stats.total_damage() as f64 / 180.0).abs() < 1e-9);
         assert_eq!(stats.dps_per_iteration(), &[stats.personal_dps()]);
         assert_eq!(stats.personal_result().player_name, "You");
         // The engine's counters came along.
@@ -2986,7 +2986,7 @@ mod statistics {
         // Taking left fresh statistics behind.
         assert_eq!(f.character.statistics().spells().count(), 0);
         assert_eq!(f.character.statistics().iterations(), 0);
-        assert_eq!(f.character.statistics().combat_length(), 300.0);
+        assert_eq!(f.character.statistics().combat_length(), 180.0);
     }
 
     /// Deep Wounds procs on every crit and its bleed ticks under the bleed's name; Anger

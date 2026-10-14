@@ -288,13 +288,13 @@ pub struct SimSettings {
 }
 
 impl Default for SimSettings {
-    /// The C++ defaults: Naxxramas, 300 s, 1 000 quick / 10 000 full iterations, every
-    /// available thread, the target at full health, the standard ruleset and no scaling. Unlike the
-    /// C++, the encounter length varies by 10 %.
+    /// The C++ defaults: Naxxramas, 1 000 quick / 10 000 full iterations, every available
+    /// thread, the target at full health, the standard ruleset and no scaling. Unlike the C++,
+    /// the encounter lasts 180 s (not 300 s) and varies by 10 %.
     fn default() -> Self {
         Self {
             phase: Phase::Naxxramas,
-            combat_length: 300,
+            combat_length: 180,
             length_variance: 10.0,
             iterations_quick_sim: 1000,
             iterations_full_sim: 10_000,
@@ -397,7 +397,7 @@ mod tests {
     fn defaults_match_the_cpp() {
         let settings = SimSettings::default();
         assert_eq!(settings.phase, Phase::Naxxramas);
-        assert_eq!(settings.combat_length, 300);
+        assert_eq!(settings.combat_length, 180);
         assert_eq!(settings.length_variance, 10.0);
         assert_eq!(settings.iterations_quick_sim, 1000);
         assert_eq!(settings.iterations_full_sim, 10_000);
