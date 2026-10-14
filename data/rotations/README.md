@@ -37,9 +37,11 @@ Mana Spring and Flametongue Totem put down before the pull and renewed when they
 of the Farseer and Earthstrike on cooldown, and Lightning Bolt at five Maelstrom Weapon stacks
 only with the talent at 5/5 (`talent "Maelstrom Weapon" eq 5`): below it the bolt keeps a cast
 time, which restarts the swing. Elemental (`attack_mode: magic`, no auto attack; `precast:
-Lightning Bolt`): mana decides its damage, so Lava Burst goes on cooldown without Flame Shock,
-Lightning Bolt is cast at rank 10 under Clearcasting or above 5000 mana and at rank 6 (`rank:
-6`, more damage per mana) below, with Searing Totem and Mana Spring kept up (414 DPS), and
+Lightning Bolt`): mana decides its damage, so Lava Burst goes on cooldown only while Flame
+Shock lasts through its cast, Flame Shock is refreshed right before it above 3000 mana (below,
+both give way to Lightning Bolt), Lightning Bolt is cast at rank 10 under Clearcasting or above
+5000 mana and at rank 6 (`rank: 6`, more damage per mana) below, with Searing Totem and Mana
+Spring kept up (415 DPS), and
 Strength of Earth and Windfury Totem for the party (its own earth and air slots are unused).
 Elemental Shocks is the shock rotation (Flame Shock kept up for Lava Burst's +20 %, Chain
 Lightning, Earth Shock): it runs out of mana (271 DPS). The same spell may appear twice with

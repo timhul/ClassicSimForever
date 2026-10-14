@@ -2,12 +2,7 @@ class: SHAMAN
 name: Elemental
 attack_mode: magic
 prerequisite: Lava Burst
-description: >-
-  Mana decides an Elemental Shaman's damage: Lava Burst on cooldown, Lightning Bolt rank 10
-  under Clearcasting or above 5000 mana and rank 6 (more damage per mana) below; Searing Totem
-  and Mana Spring kept up, Strength of Earth and Windfury Totem for the party; mana potions and
-  runes when they fit. Flame Shock for Lava Burst's +20 %, Chain Lightning and Earth Shock cost
-  more mana than they return (the Elemental Shocks rotation).
+description: Elemental rotation
 precombat_actions:
   - Mana Spring Totem
   - Strength of Earth Totem
@@ -20,12 +15,15 @@ cast_if:
     condition: variable "resource_missing" geq 1500
   - name: Ephemeral Power  # Talisman of Ephemeral Power
   - name: Lava Burst
+    condition: buff_duration "Flame Shock" greater 1.5
+  - name: Flame Shock
+    condition: |
+      buff_duration "Flame Shock" is false
+      and resource "Mana" greater 3000
   - name: Searing Totem
     condition: buff_duration "Searing Totem" is false
   - name: Mana Spring Totem
     condition: buff_duration "Mana Spring Totem" less 3
-  # For the party: the earth and air slots an Elemental Shaman has no use for, renewed while
-  # the fight has time left.
   - name: Strength of Earth Totem
     condition: |
       buff_duration "Strength of Earth Totem" less 3
